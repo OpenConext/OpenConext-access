@@ -47,19 +47,6 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providersByIdIn() throws JsonProcessingException {
-        List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "3", "4"));
-        String body = objectMapper.writeValueAsString(providers);
-        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
-        List<Map<String, Object>> remoteProviders = manage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "3", "4"));
-        providers.forEach(provider -> provider.values().removeIf(Objects::isNull));
-        remoteProviders.forEach(provider -> provider.values().removeIf(Objects::isNull));
-        assertEquals(providers, remoteProviders);
-    }
-
-    @Test
     void providerByIdExceptionHandling() {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")

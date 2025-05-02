@@ -1,7 +1,5 @@
 package access.model;
 
-import access.manage.ManageIdentifier;
-import access.provision.Provisioning;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -12,18 +10,22 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static access.security.InstitutionAdmin.*;
+import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
+import static access.security.InstitutionAdmin.ORGANIZATION_GUID;
 
 @Entity(name = "users")
 @NoArgsConstructor
 @Getter
 @Setter
 @SuppressWarnings("unchecked")
-public class User implements Serializable, Provisionable {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,15 +83,6 @@ public class User implements Serializable, Provisionable {
     @Column(name = "last_activity")
     private Instant lastActivity;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<UserRole> userRoles = new HashSet<>();
-
-    @Transient
-    private List<Map<String, Object>> applications = Collections.emptyList();
-
-    @Transient
-    private Map<String, Object> institution = Collections.emptyMap();
-
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }
@@ -107,8 +100,6 @@ public class User implements Serializable, Provisionable {
         this.uid = ((List<String>) attributes.getOrDefault("uids", List.of())).stream().findAny().orElse(null);
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
-        this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
-        this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
 
@@ -118,23 +109,6 @@ public class User implements Serializable, Provisionable {
         }
 
         this.nameInvariant(attributes);
-    }
-
-    public User(UserRoleProvisioning userRoleProvisioning) {
-        userRoleProvisioning.validate();
-        this.sub = userRoleProvisioning.resolveSub();
-        this.email = userRoleProvisioning.email;
-        this.eduPersonPrincipalName = StringUtils.hasText(userRoleProvisioning.eduPersonPrincipalName) ? userRoleProvisioning.eduPersonPrincipalName : this.email;
-        this.schacHomeOrganization = StringUtils.hasText(userRoleProvisioning.schacHomeOrganization) ? userRoleProvisioning.schacHomeOrganization : this.schacHomeOrganization;
-        this.name = userRoleProvisioning.name;
-        this.givenName = userRoleProvisioning.givenName;
-        this.familyName = userRoleProvisioning.familyName;
-        this.createdAt = Instant.now();
-        this.lastActivity = this.createdAt;
-        this.nameInvariant(Map.of(
-                "name", StringUtils.hasText(this.name) ? this.name : "",
-                "preferred_username", ""
-        ));
     }
 
     private void nameInvariant(Map<String, Object> attributes) {
@@ -178,31 +152,6 @@ public class User implements Serializable, Provisionable {
         this.email = email;
         this.createdAt = Instant.now();
         this.lastActivity = Instant.now();
-    }
-
-    @JsonIgnore
-    public UserRole addUserRole(UserRole userRole) {
-        this.userRoles.add(userRole);
-        userRole.setUser(this);
-        return userRole;
-    }
-
-    @JsonIgnore
-    public void removeUserRole(UserRole role) {
-        //This is required by Hibernate - children can't be de-referenced
-        Set<UserRole> newRoles = userRoles.stream().filter(ur -> !ur.getId().equals(role.getId())).collect(Collectors.toSet());
-        userRoles.clear();
-        userRoles.addAll(newRoles);
-    }
-
-    @JsonIgnore
-    public Set<ManageIdentifier> manageIdentifierSet() {
-        return userRoles.stream()
-                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
-                .map(userRole -> userRole.getRole().getApplicationUsages())
-                .flatMap(Collection::stream)
-                .map(applicationUsage -> new ManageIdentifier(applicationUsage.getApplication().getManageId(), applicationUsage.getApplication().getManageType()))
-                .collect(Collectors.toSet());
     }
 
     @JsonIgnore
@@ -271,29 +220,6 @@ public class User implements Serializable, Provisionable {
     public void updateRemoteAttributes(Map<String, Object> attributes) {
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
-        this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
-        this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
     }
 
-    @JsonIgnore
-    public Optional<UserRole> latestUserRole() {
-        return this.userRoles.stream().max(Comparator.comparing(UserRole::getCreatedAt));
-    }
-
-    @JsonIgnore
-    public Optional<UserRole> userRoleForRole(Role role) {
-        return this.userRoles.stream().filter(userRole -> userRole.getRole().getId().equals(role.getId())).findFirst();
-    }
-
-    @JsonIgnore
-    public List<UserRole> userRolesForProvisioning(Provisioning provisioning) {
-        List<ManageIdentifier> remoteApplications = provisioning.getRemoteApplications();
-        return userRoles.stream()
-                .filter(userRole -> userRole.getRole().getApplicationUsages()
-                        .stream().anyMatch(applicationUsage -> remoteApplications.contains(
-                                new ManageIdentifier(applicationUsage.getApplication().getManageId(),
-                                        applicationUsage.getApplication().getManageType())
-                        )))
-                .toList();
-    }
 }

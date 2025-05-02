@@ -60,12 +60,12 @@ function fetchDelete(path) {
 
 //Base
 export function configuration() {
-    return fetchJson("/config");
+    return fetchJson("/api/v1/users/config");
 }
 
 //Users
 export function me() {
-    return fetchJson("/myconext/api/sp/me");
+    return fetchJson("/api/v1/users/me");
 }
 
 export function logout() {

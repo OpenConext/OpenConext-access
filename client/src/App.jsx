@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Loader} from "@surfnet/sds";
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
-import {me} from "./api/index.js";
+import {me, configuration} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
@@ -21,15 +21,16 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        config()
+        configuration()
             .then(res => {
-                useAppStore.setState(() => ({user: res}));
-                setLoading(false);
-                if (res.serviceDeskMember) {
-                    setIsAuthenticated(true);
-                    navigate("/home");
+                setIsAuthenticated(res.authenticated);
+                if (res.authenticated) {
+                    me().then(res => {
+                        useAppStore.setState(() => ({user: res}));
+                        navigate("/home");
+                    })
                 } else {
-                    navigate("/404");
+                    navigate("/login");
                 }
             }).catch(() => {
                 setLoading(false);

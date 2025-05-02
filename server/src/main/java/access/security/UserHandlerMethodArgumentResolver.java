@@ -42,12 +42,18 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         Principal userPrincipal = webRequest.getUserPrincipal();
         Map<String, Object> attributes;
 
+        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        String requestURI = request.getRequestURI();
+
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
             //The user has logged in and obtained an access_token. Invite is acting as an API resource server
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             //The user has logged in with OpenIDConnect. Invite is acting as a backend server
             attributes = authenticationToken.getPrincipal().getAttributes();
+        } else if (requestURI.equals("/api/v1/users/config")) {
+            //This call is always allowed
+            return null;
         } else {
             throw new UserRestrictionException();
         }
@@ -75,8 +81,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     }
                     return user;
                 });
-        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
-        String requestURI = request.getRequestURI();
         if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
             return new User(attributes);
         }

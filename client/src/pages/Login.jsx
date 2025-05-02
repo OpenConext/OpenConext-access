@@ -1,39 +1,94 @@
 import React from "react";
-import {Button, ButtonSize, ButtonType} from "@surfnet/sds";
 import './Login.scss';
 import I18n from "../locale/I18n";
-import DOMPurify from "dompurify";
-import Frontdesk from "../icons/frontdesk.svg";
-import {LandingInfo} from "../components/LandingInfo";
+import logo from "../icons/landing/logo.svg";
+import {Background} from "../components/Background.jsx";
 
 export const Login = () => {
 
-    const doLogin = () => {
-        const path = window.location.origin;
-        window.location.href = `${path}/Shibboleth.sso/Login?target=/`;
-    }
-
     return (
-        <div className="top-container">
-            <div className="mod-login-container">
-                <div className="mod-login">
-                    <div className="header-left">
-                        <h1 className={"header-title"}
-                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.title"))}}/>
-                        <Button onClick={() => doLogin()}
-                                txt={I18n.t("landing.header.login")}
-                                type={ButtonType.Primary}
-                                size={ButtonSize.Full}/>
-                        <p className={"sup"}
-                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.sup"))}}/>
+        <div className="about-container">
+            <div className="about">
+                <div className="top">
+                    <div className="top-right">
+                        <h1 className="title small">
+                            {I18n.t("about.eduID")}
+                        </h1>
+                        <h3>{I18n.t("about.title")}</h3>
                     </div>
-                    <div className="header-right">
-                        <Frontdesk/>
-                    </div>
+                    <img src={logo} className="cheering" alt="cheering"/>
                 </div>
             </div>
-            <LandingInfo/>
+            <Background>
+                <div className="card">
+                    <h5>
+                        {I18n.t("about.why")}
+                    </h5>
+                    <p className="info">
+                        {I18n.t("about.whyInfo1")}
+                    </p>
+                    <p className="info">
+                        {I18n.t("about.whyInfo2")}
+                    </p>
+                </div>
+                <div className="card bottom">
+                    <h5>
+                        {I18n.t("about.register")}
+                    </h5>
+                    <p className="info"
+                       dangerouslySetInnerHTML={{__html: I18n.t("about.registerInfo")}}/>
+                </div>
+                <div className="card bottom">
+                    <h5>
+                        {I18n.t("about.logins")}
+                    </h5>
+                    <p className="info"
+                       dangerouslySetInnerHTML={{__html: I18n.t("about.loginsInfo")}}/>
+                    <ul>
+                        <li>
+                            <span className="header">{I18n.t("about.institution")}</span><br/>
+                            <span className="indented">{I18n.t("about.institutionInfo")}</span>
+                        </li>
+                        <li>
+                            <span className="header">{I18n.t("about.bank")}</span><br/>
+                            <span className="indented">{I18n.t("about.bankInfo")}</span>
+                        </li>
+                        <li>
+                            <span className="header">{I18n.t("about.european")}</span><br/>
+                            <span className="indented">{I18n.t("about.europeanInfo")}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div className="card bottom">
+                    <h5>
+                        {I18n.t("about.identity")}
+                    </h5>
+                    <p className="info"
+                       dangerouslySetInnerHTML={{__html: I18n.t("about.identityInfo1")}}/>
+                    <p className="info"
+                       dangerouslySetInnerHTML={{__html: I18n.t("about.identityInfo2")}}/>
+                    <ul>
+                        <li>
+                            <span className="header">{I18n.t("about.magicLink")}</span>
+                        </li>
+                        <li>
+                            <span className="header">{I18n.t("about.password")}</span>
+                        </li>
+                        <li>
+                            <span className="header">{I18n.t("about.passKey")}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div className="card bottom">
+                    <h5>
+                        {I18n.t("about.manage")}
+                    </h5>
+                    <p className="info"
+                       dangerouslySetInnerHTML={{__html: I18n.t("about.manageInfo", {url: config.spBaseUrl})}}/>
+                </div>
+            </Background>
         </div>
+
     );
 
 }

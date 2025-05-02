@@ -48,29 +48,9 @@ public final class LocalManage implements Manage {
         LOG.debug("providers for : " + List.of(entityTypes));
 
         //Ensure it is immutable
-        return transformProvider(Stream.of(entityTypes).map(entityType -> this.allProviders.get(entityType).stream().toList())
+        return Stream.of(entityTypes).map(entityType -> this.allProviders.get(entityType).stream().toList())
                 .flatMap(List::stream)
-                .toList());
-    }
-
-    @Override
-    public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug("providersByIdIn for : " + entityType);
-
-        List<Map<String, Object>> providers = this.allProviders.get(entityType);
-        return transformProvider(providers.stream()
-                .filter(provider -> identifiers.contains(provider.get("_id")))
-                .collect(Collectors.toList()));
-    }
-
-    @Override
-    public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
-        LOG.debug("providerByEntityID for : " + entityType);
-
-        return this.allProviders.get(entityType).stream()
-                .filter(provider -> entityID.equals(((Map<String, Object>) provider.get("data")).get("entityid")))
-                .map(this::transformProvider)
-                .findFirst();
+                .toList();
     }
 
     @Override
@@ -84,43 +64,4 @@ public final class LocalManage implements Manage {
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
     }
 
-    @Override
-    public List<Map<String, Object>> provisioning(Collection<String> ids) {
-        LOG.debug("provisioning for : " + ids);
-
-        if (CollectionUtils.isEmpty(ids)) {
-            return Collections.emptyList();
-        }
-        return providers(EntityType.PROVISIONING).stream()
-                .filter(map -> {
-                    List<Map<String, String>> applications = (List<Map<String, String>>) map.get("applications");
-                    return applications.stream().anyMatch(m -> ids.contains(m.get("id")));
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
-        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
-
-        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
-        List<Map<String, Object>> allProviders = this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
-        if (allowedAll) {
-            return allProviders;
-        }
-        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
-        List<String> entityIdentifiers = allowedEntities.stream().map(m -> m.get("name")).toList();
-        return allProviders.stream().filter(provider -> entityIdentifiers.contains((String) provider.get("entityid"))).toList();
-    }
-
-    @Override
-    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
-        LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
-
-        List<Map<String, Object>> providers = providers(EntityType.SAML20_IDP);
-        return providers
-                .stream()
-                .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
-                .findAny();
-    }
 }
