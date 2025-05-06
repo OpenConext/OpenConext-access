@@ -1,0 +1,13 @@
+@use "../index";
+
+div.applications-container {
+
+    @include index.page;
+    background-color: white;
+
+    .applications {
+        @include index.page-content;
+        flex-direction: row;
+        margin-top: 35px;
+    }
+}

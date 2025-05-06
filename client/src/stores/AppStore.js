@@ -2,7 +2,6 @@ import {create} from 'zustand'
 
 export const useAppStore = create(set => ({
     user: {},
-    controlCode: {},
     flash: {msg: "", className: "hide", type: "info"},
     setFlash: (message, type) => {
         set({flash: {msg: message, type: type || "info"}});
@@ -11,6 +10,7 @@ export const useAppStore = create(set => ({
         }
     },
     clearFlash: () => set({flash: {}}),
+    config: {},
     //[{path: "/roles/4", value: role.name}]
     breadcrumbPath: []
 }));

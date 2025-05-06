@@ -1,35 +1,36 @@
-@use "../styles/vars.scss" as *;
+@use "../index";
 
 .header-container {
-
-    background-color: var(--sds--palette--main-color--400);
-    color: var(--sds--color--white);
-    margin: 0 auto;
-    padding: 5px 0 10px 0;
+    background-color: white;
+    padding: 4px 0 26px 0;
+    border-bottom: 1px solid #B2B6BE;
 
     .header-inner {
-        position: relative;
-        transition: margin 150ms ease-in-out;
         display: flex;
         align-items: center;
-        width: 100%;
-        margin: 0 auto;
-        max-width: $medium;
+        margin: 15px 35px 0 0;
+        max-width: 1440px;
 
-        @media (max-width: $medium) {
-            padding: 0 15px;
+        .logo {
+            margin: 0 65px 0 35px;
         }
 
-        a.logo {
-            margin-top: 10px;
-            text-decoration: none;
+        .nav {
+            @media (max-width: index.$mobile-width) {
+                display: none;
+            }
         }
+        .desktop-navigation {
+            @media (max-width: index.$mobile-width) {
+                display: none;
+            }
+        }
+        .mobile-navigation {
+            margin: 0 25px 0 auto;
 
+            @media (min-width: calc(index.$mobile-width + 1px)) {
+                display: none;
+            }
+        }
     }
-
 }
-
-
-
-
-

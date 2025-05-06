@@ -1,0 +1,13 @@
+@use "../index";
+
+div.connect-container {
+
+    @include index.page;
+    background-color: white;
+
+    .connect {
+        @include index.page-content;
+        flex-direction: row;
+        margin-top: 35px;
+    }
+}

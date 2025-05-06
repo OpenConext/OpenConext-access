@@ -1,65 +1,84 @@
-import {useAppStore} from "../stores/AppStore";
+import React from "react";
+import './Home.scss';
 import I18n from "../locale/I18n";
-import React, {useEffect, useState} from "react";
-
-import Tabs from "../components/Tabs";
-import "./Home.scss";
-import {UnitHeader} from "../components/UnitHeader";
-import {useNavigate, useParams} from "react-router-dom";
-import {Page} from "../components/Page";
-import {Loader} from "@surfnet/sds";
-import VerifyWizard from "../tabs/VerifyWizard.jsx";
+import Logo from "../icons/landing/logo.svg";
+import {Background} from "../components/Background.jsx";
+import {Link, useNavigate} from "react-router-dom";
+import {Button, ButtonType} from "@surfnet/sds";
 
 export const Home = () => {
 
-    const {tab = "verify"} = useParams();
-    const [currentTab, setCurrentTab] = useState(tab);
-    const [tabs, setTabs] = useState([]);
-    const [loading, setLoading] = useState(true);
-
     const navigate = useNavigate();
 
-    const user = useAppStore((state) => state.user);
+    const contactUs = () => {
+        const link = document.createElement("a");
+        link.href = I18n.t("landing.institutions.contactMail");
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
-    useEffect(() => {
-        if (user) {
-            useAppStore.setState({
-                breadcrumbPath: [
-                    {path: "/home", value: I18n.t("tabs.home")},
-                    {value: I18n.t(`tabs.${currentTab}`)}
-                ]
-            });
-        }
-        const newTabs = [
-            <Page key="verify"
-                  name="verify"
-                  label={I18n.t("tabs.verify")}>
-                <VerifyWizard/>
-            </Page>
-        ];
-        setTabs(newTabs);
-        setLoading(false);
-    }, [currentTab, user]);// eslint-disable-line react-hooks/exhaustive-deps
-
-    const tabChanged = (name) => {
-        setCurrentTab(name);
-        navigate(`/home/${name}`);
-    }
-
-    if (loading) {
-        return <Loader/>
-    }
     return (
-        <div className="home">
-            <div className="mod-home-container">
-                <UnitHeader obj={({name: I18n.t("landing.header.title")})}>
-                    <p>{I18n.t("landing.header.subTitle")}</p>
-                </UnitHeader>
-                <Tabs activeTab={currentTab}
-                      tabChanged={tabChanged}>
-                    {tabs}
-                </Tabs>
+        <div className="about-container">
+            <div className="about">
+                <div className="top">
+                    <h1 className="title large">
+                        {I18n.t("landing.header.title")}
+                    </h1>
+                    <p
+                        dangerouslySetInnerHTML={{__html: I18n.t("landing.header.subTitle")}}/>
+                </div>
+                <Logo/>
             </div>
+            <Background>
+                <div className="cards">
+                    <div className="card">
+                        <h3>
+                            {I18n.t("landing.applicationProviders.title")}
+                        </h3>
+                        {I18n.translations[I18n.locale].landing.applicationProviders.info
+                            .map((info, index) =>
+                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                            )}
+                        <Button onClick={() => navigate("/connect")}
+                                txt={I18n.t("landing.applicationProviders.connect")}/>
+                    </div>
+                    <div className="card">
+                        <h3>
+                            {I18n.t("landing.institutions.title")}
+                        </h3>
+                        {I18n.translations[I18n.locale].landing.institutions.info
+                            .map((info, index) =>
+                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                            )}
+                        <Button onClick={() => contactUs()}
+                                type={ButtonType.Secondary}
+                                txt={I18n.t("landing.institutions.contact")}/>
+                    </div>
+                    <div className="card">
+                        <h3>
+                            {I18n.t("landing.joining.title")}
+                        </h3>
+                        {I18n.translations[I18n.locale].landing.joining.info
+                            .map((info, index) =>
+                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                            )}
+                        <p className="links">
+                            <span>{I18n.t("landing.joining.links.prefix")}</span>
+                            <Link to="/institutions">
+                                {I18n.t("landing.joining.links.institutions", {nbr: 210})}
+                            </Link>
+                            <span>{I18n.t("landing.joining.links.or")}</span>
+                            <Link to="/applications">
+                                {I18n.t("landing.joining.links.applications", {nbr: 3211})}
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </Background>
         </div>
+
     );
+
 }

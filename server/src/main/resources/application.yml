@@ -77,6 +77,9 @@ oidcng:
   resource-server-secret: secret
   base-url: http://localhost:8888
 
+config:
+  client-url: "http://localhost:3002"
+
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"

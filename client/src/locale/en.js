@@ -10,7 +10,7 @@ const en = {
         header: {
             title: "SURF Access",
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
-            login: "Log in",
+            login: "Come on in",
             sup: "EduID ServiceDesk is by invitation only.",
         },
         tabs: {
@@ -18,7 +18,7 @@ const en = {
             connect: "How to connect",
             institutions: "All institutions",
             applications: "All applications",
-            login: "Come on in"
+
         },
         applicationProviders: {
             title: "For application providers",
@@ -36,19 +36,20 @@ const en = {
                 "SURF Access offers 'Single Sign On'-access to a large and increasing number of them.",
                 "It simplifies your work with a single integration instead of separate connections for each service."
             ],
-            contact: "Contact us"
+            contact: "Contact us",
+            contactMail: "mailto:info@surfconext.nl"
         },
         joining: {
             title: "Joining many to many",
             info: [
-                "SURF Access securily connects 1M+ users to over 3000 (web)applicatons. SURF Access is a service from <a target='_blank' href='https://surfnet.nl'>SURF</a>.",
+                "SURF Access securily connects 1M+ users to over 3000 (web)applications. SURF Access is a service from <a target='_blank' href='https://surfnet.nl'>SURF</a>.",
                 "Interested which institutions and applications are connected?"
             ],
             links: {
-                prefix: "Browse",
+                prefix: "Browse ",
                 institutions: "all {{nbr}} institutions",
-                or: "or",
-                applications: "all {{nbr}} applications",
+                or: " or ",
+                applications: "all {{nbr}} applications.",
             }
         }
     },

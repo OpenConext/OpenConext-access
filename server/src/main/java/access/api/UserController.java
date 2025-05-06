@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +63,13 @@ public class UserController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("login")
+    public View login() {
+        LOG.debug("/login");
+        return new RedirectView(config.getClientUrl(), false);
+    }
+
 
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {

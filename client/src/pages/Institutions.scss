@@ -1,0 +1,13 @@
+@use "../index";
+
+div.institutions-container {
+
+    @include index.page;
+    background-color: white;
+
+    .institutions {
+        @include index.page-content;
+        flex-direction: row;
+        margin-top: 35px;
+    }
+}

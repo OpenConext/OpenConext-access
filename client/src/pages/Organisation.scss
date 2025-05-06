@@ -1,0 +1,13 @@
+@use "../index";
+
+div.organisation-container {
+
+    @include index.page;
+    background-color: white;
+
+    .organisation {
+        @include index.page-content;
+        flex-direction: row;
+        margin-top: 35px;
+    }
+}

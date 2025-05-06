@@ -84,10 +84,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
             return new User(attributes);
         }
-        return optionalUser.map(user -> {
-            user.updateRemoteAttributes(attributes);
-            return user;
-        }).orElseThrow(UserRestrictionException::new);
+        return optionalUser.orElseThrow(UserRestrictionException::new);
 
     }
 

@@ -9,9 +9,13 @@ import {Header} from "./components/Header.jsx";
 import {BreadCrumb} from "./components/BreadCrumb.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import RefreshRoute from "./pages/RefreshRoute.jsx";
-import {Login} from "./pages/Login.jsx";
 import {Home} from "./pages/Home.jsx";
 import {Footer} from "./components/Footer.jsx";
+import {useLocation} from "react-router";
+import Organisation from "./pages/Organisation.jsx";
+import Institutions from "./pages/Institutions.jsx";
+import Connect from "./pages/Connect.jsx";
+import Applications from "./pages/Applications.jsx";
 
 const App = () => {
 
@@ -20,21 +24,37 @@ const App = () => {
 
     const navigate = useNavigate();
 
+    const currentLocation = useLocation();
+
+    const sharedRoutes = () => {
+        return (
+            <>
+                <Route path="/home" element={<Home/>}/>
+                <Route path="/institutions" element={<Institutions/>}/>
+                <Route path="/connect" element={<Connect/>}/>
+                <Route path="/applications" element={<Applications/>}/>
+                <Route path="/*" element={<NotFound/>}/>
+            </>
+        );
+    }
+
     useEffect(() => {
         configuration()
-            .then(res => {
-                setIsAuthenticated(res.authenticated);
-                if (res.authenticated) {
-                    me().then(res => {
-                        useAppStore.setState(() => ({user: res}));
-                        navigate("/home");
+            .then(config => {
+                useAppStore.setState(() => ({config: config}));
+                setLoading(false);
+                setIsAuthenticated(config.authenticated);
+                if (config.authenticated) {
+                    me().then(user => {
+                        useAppStore.setState(() => ({user: user}));
+                        navigate("/organisation");
                     })
                 } else {
-                    navigate("/login");
+                    navigate("/home");
                 }
             }).catch(() => {
                 setLoading(false);
-                navigate("/login");
+                navigate("/home");
         });
 
     }, []);
@@ -47,22 +67,22 @@ const App = () => {
         <div className="access">
             <div className="container">
                 <Flash/>
-                <Header/>
+                {!isAuthenticated && <Header currentLocation={currentLocation}/>}
                 {isAuthenticated && <BreadCrumb/>}
                 {isAuthenticated &&
                     <Routes>
-                        <Route path="/" element={<Navigate replace to="home"/>}/>
-                        <Route path="/home/:tab?" element={<Home/>}/>
+                        <Route path="/" element={<Navigate replace to="organisation"/>}/>
+                        <Route path="/organisation/:tab?" element={<Organisation/>}/>
                         <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
-                        <Route path="/login" element={<Login/>}/>
+                        {sharedRoutes()}
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
                 {!isAuthenticated &&
                     <Routes>
-                        <Route path="/" element={<Navigate replace to="login"/>}/>
-                        <Route path="/login" element={<Login/>}/>
-                        <Route path="/*" element={<NotFound/>}/>
-                    </Routes>}
+                        <Route path="/" element={<Navigate replace to="home"/>}/>
+                        {sharedRoutes()}
+                    </Routes>
+                }
             </div>
             {<Footer/>}
         </div>

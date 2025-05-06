@@ -63,17 +63,6 @@ public class User implements Serializable {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
-    @Column(name = "organization_guid")
-    private String organizationGUID;
-
-    @Column(name = "institution_admin")
-    @NotNull
-    private boolean institutionAdmin;
-
-    @Column(name = "institution_admin_by_invite")
-    @NotNull
-    private boolean institutionAdminByInvite;
-
     @Column
     private String email;
 
@@ -98,8 +87,6 @@ public class User implements Serializable {
         this.subjectId = (String) attributes.get("subject_id");
         this.eduId = (String) attributes.get("eduid");
         this.uid = ((List<String>) attributes.getOrDefault("uids", List.of())).stream().findAny().orElse(null);
-        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
-        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
 
@@ -212,14 +199,7 @@ public class User implements Serializable {
         changed = changed || !Objects.equals(this.name, currentName) || !Objects.equals(this.givenName, currentGivenName)
                 || !Objects.equals(this.familyName, currentFamilyName);
 
-        this.updateRemoteAttributes(attributes);
         return changed;
-    }
-
-    @JsonIgnore
-    public void updateRemoteAttributes(Map<String, Object> attributes) {
-        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
-        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
     }
 
 }
