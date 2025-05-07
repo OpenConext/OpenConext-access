@@ -85,12 +85,10 @@ jobs:
       - name: Upload the produced artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: invitebuilds
+          name: accessbuilds
           path: |
-            client/build/
-            provisioning-mock/target/*.jar
+            client/dist/
             server/target/*.jar
-            welcome/build/
           retention-days: 1
 
       - name: Build Changelog
@@ -123,16 +121,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ghcr.io/openconext/openconext-invite/inviteclient
+          - image: ghcr.io/openconext/openconext-access/accessclient
             app: client
             architecture: "linux/amd64,linux/arm64"
-          - image: ghcr.io/openconext/openconext-invite/invitewelcome
-            app: welcome
-            architecture: "linux/amd64,linux/arm64"
-          - image: ghcr.io/openconext/openconext-invite/inviteprovisioningmock
-            app: provisioning-mock
-            architecture: "linux/amd64,linux/arm64v8"
-          - image: ghcr.io/openconext/openconext-invite/inviteserver
+          - image: ghcr.io/openconext/openconext-access/accessserver
             app: server
             architecture: "linux/amd64,linux/arm64v8"
     steps:
@@ -141,7 +133,7 @@ jobs:
       - name: Download the previous produced artefacts
         uses: actions/download-artifact@v4
         with:
-          name: invitebuilds
+          name: accessbuilds
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
