@@ -333,9 +333,6 @@ public abstract class AbstractTest {
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
         User institutionAdmin =
                 new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@example.com");
-        institutionAdmin.setInstitutionAdmin(true);
-        institutionAdmin.setInstitutionAdminByInvite(true);
-        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
