@@ -43,3 +43,22 @@ See <https://github.com/axllent/mailpit>
 ### [Local endpoints](#local-endpoints)
 
 Login with Mujina IdP and user `admin` to become superuser in the local environment.
+
+### [Upgrade](#upgrade)
+
+To update the pom.xml with the latest versions, run 
+```
+cd server
+mvn versions:use-latest-releases
+```
+To see the latest versions report for the client run
+```
+nvm use
+cd client
+yarn outdated
+```
+
+
+### [Designs](#design)
+
+https://www.figma.com/design/81StIVqfOKfwhWVjx7Ew81/SURF-Access?node-id=1916-18441&t=gmckiSapuONmLn5u-4

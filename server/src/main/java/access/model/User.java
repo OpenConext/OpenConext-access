@@ -10,15 +10,10 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
-import static access.security.InstitutionAdmin.ORGANIZATION_GUID;
 
 @Entity(name = "users")
 @NoArgsConstructor
@@ -71,6 +66,9 @@ public class User implements Serializable {
 
     @Column(name = "last_activity")
     private Instant lastActivity;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 
     public User(Map<String, Object> attributes) {
         this(false, attributes);

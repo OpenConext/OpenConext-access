@@ -119,7 +119,7 @@ public class SecurityConfig {
                                 "/api/v1/users/logout",
                                 "/api/v1/validations/**",
                                 "/ui/**",
-                                "internal/**")
+                                "/internal/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

@@ -1,12 +1,12 @@
 package access;
 
-import access.config.HashGenerator;
-import access.manage.EntityType;
 import access.manage.LocalManage;
 import access.manage.Manage;
-import access.model.User;
+import access.model.*;
+import access.repository.ApplicationRepository;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEObjectType;
@@ -19,6 +19,8 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
+
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.config.ObjectMapperConfig;
@@ -59,8 +61,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -81,8 +81,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
-                "spring.jpa.properties.hibernate.format_sql=false",
-                "spring.jpa.show-sql=false"
+                "spring.jpa.properties.hibernate.format_sql=true",
+                "spring.jpa.show-sql=true"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
@@ -93,15 +93,6 @@ public abstract class AbstractTest {
 
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
-    public static final String INSTITUTION_ADMIN_SUB = "urn:collab:person:example.com:institution_admin";
-    public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
-    public static final String INVITER_WIKI_SUB = "urn:collab:person:example.com:inviter_wiki_sub";
-    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
-    public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
-    public static final String INSTITUTION_ADMIN_INVITATION_HASH = "institution_admin_invitation_hash";
-    public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
-    public static final String API_TOKEN_HASH = HashGenerator.generateToken();
-    public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -111,6 +102,15 @@ public abstract class AbstractTest {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected OrganizationRepository organizationRepository;
+
+    @Autowired
+    protected ApplicationRepository applicationRepository;
+
+    @Autowired
+    protected OrganizationMembershipRepository organizationMembershipRepository;
 
     @Autowired
     protected Manage manage;
@@ -328,23 +328,25 @@ public abstract class AbstractTest {
 
     private void doSeed() {
         this.userRepository.deleteAllInBatch();
+        this.applicationRepository.deleteAllInBatch();
+        this.organizationRepository.deleteAllInBatch();
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
-        User institutionAdmin =
-                new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@example.com");
-
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
-        User inviter =
-                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@example.com");
-        User wikiInviter =
-                new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@example.com");
-        User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@example.com");
-        guest.setEduId(UUID.randomUUID().toString());
-        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest);
+        doSave(this.userRepository, superUser, manager);
 
+        Organization sharelogics = new Organization("Sharelogics","sharelogics.org");
+        doSave(this.organizationRepository, sharelogics);
+
+        Application buddyCheck = new Application("Buddycheck", sharelogics, Map.of(
+                "name", "BuddyCheck-tst",
+                "protocol", Protocol.OIDC,
+                "grant_types", List.of(GrantType.AUTHORIZATION_CODE, GrantType.REFRESH_TOKEN),
+                "information_profile", "anonymous"
+        ));
+        doSave(this.applicationRepository, buddyCheck);
     }
 
     @SafeVarargs
