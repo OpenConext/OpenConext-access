@@ -61,7 +61,7 @@ public class UserController {
         result
                 .withAuthenticated(user != null && user.getId() != null)
                 .withName(user != null ? user.getName() : null);
-        if (user != null && user.getId() == null) {
+        if (user != null) {
             verifyMissingAttributes(user, result, guest);
         }
         return ResponseEntity.ok(result);

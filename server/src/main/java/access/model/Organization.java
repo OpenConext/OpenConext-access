@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import java.time.Instant;
 
@@ -27,6 +28,9 @@ public class Organization {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
+    private Long userCount;
 
     public Organization(String name, String schacHomeOrganization) {
         this.name = name;

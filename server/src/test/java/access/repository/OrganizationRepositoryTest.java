@@ -14,5 +14,7 @@ class OrganizationRepositoryTest extends AbstractTest {
     void findByNameContainingIgnoreCase() {
         List<Organization> organizations = super.organizationRepository.findByNameContainingIgnoreCase("LOGIC");
         assertEquals(1, organizations.size());
+        Organization organization = organizations.getFirst();
+        assertEquals(1, organization.getUserCount());
     }
 }
