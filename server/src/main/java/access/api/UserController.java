@@ -11,12 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
@@ -72,9 +75,14 @@ public class UserController {
 
 
     @GetMapping("me")
+    @Transactional
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
-
+        //In this case only we do want the organization for each membership.
+        // We don't want to do this EAGER for every membership, so we need to re-fetch within this transaction
+        user = userRepository.findById(user.getId()).get();
+        user.getOrganizationMemberships()
+                .forEach(organizationMembership -> Hibernate.unproxy(organizationMembership.getOrganization()));
         return ResponseEntity.ok(user);
     }
 

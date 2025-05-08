@@ -31,6 +31,13 @@ public class OrganizationMembership {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    public OrganizationMembership(User user, Organization organization, Authority authority) {
+        this.user = user;
+        this.organization = organization;
+        this.authority = authority;
+        this.createdAt = Instant.now();
+    }
+
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull

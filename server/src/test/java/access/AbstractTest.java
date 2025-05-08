@@ -180,7 +180,8 @@ public abstract class AbstractTest {
         }, userInfoEnhancer);
     }
 
-    protected AccessCookieFilter openIDConnectFlow(String path, String sub,
+    protected AccessCookieFilter openIDConnectFlow(String path,
+                                                   String sub,
                                                    Consumer<String> authorizationConsumer,
                                                    UnaryOperator<Map<String, Object>> userInfoEnhancer) throws Exception {
         CookieFilter cookieFilter = new CookieFilter();
@@ -337,16 +338,19 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         doSave(this.userRepository, superUser, manager);
 
-        Organization sharelogics = new Organization("Sharelogics","sharelogics.org");
-        doSave(this.organizationRepository, sharelogics);
+        Organization shareLogics = new Organization("ShareLogics","sharelogics.org");
+        doSave(this.organizationRepository, shareLogics);
 
-        Application buddyCheck = new Application("Buddycheck", sharelogics, Map.of(
+        Application buddyCheck = new Application("Buddycheck", shareLogics, Map.of(
                 "name", "BuddyCheck-tst",
                 "protocol", Protocol.OIDC,
                 "grant_types", List.of(GrantType.AUTHORIZATION_CODE, GrantType.REFRESH_TOKEN),
                 "information_profile", "anonymous"
         ));
         doSave(this.applicationRepository, buddyCheck);
+
+        OrganizationMembership managerOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.MANAGER);
+        doSave(this.organizationMembershipRepository, managerOfShareLogics);
     }
 
     @SafeVarargs

@@ -13,4 +13,5 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     List<Organization> findByNameContainingIgnoreCase(String name);
 
+    Optional<Organization> findBySchacHomeOrganizationIgnoreCase(String schacHomeOrganization);
 }

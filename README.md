@@ -29,10 +29,19 @@ GRANT ALL privileges ON `access`.* TO 'access'@'localhost';
 
 ### [Building and running](#building-and-running)
 
-This project uses Spring Boot and Maven. To run locally, type:
+The access server uses Spring Boot and Maven. To run locally, type:
 
 ```bash
+cd server
 mvn spring-boot:run
+```
+
+The access client uses ReactJS. To run locally, type:
+
+```bash
+cd client
+nvm use
+yarn dev
 ```
 
 ### [Mail](#mail)
