@@ -75,7 +75,6 @@ public class UserController {
 
 
     @GetMapping("me")
-    @Transactional
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
         //In this case only we do want the organization for each membership.

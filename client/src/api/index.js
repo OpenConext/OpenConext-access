@@ -76,8 +76,14 @@ export function logout() {
     return fetchJson("/myconext/api/sp/logout").then(() => fetch("/Shibboleth.sso/Logout", fetchOptions));
 }
 
+//Organization
+export function searchOrganization(query) {
+    return fetchJson(`/api/v1/organization/search?query=${query}`);
+}
+
+
 //Manage
-export function getApplications() {
-    return fetchJson("/access/api/manage/applications");
+export function getApplications(organisation) {
+    return fetchJson(`/api/v1/applications/applications/${organisation.id}`);
 }
 
