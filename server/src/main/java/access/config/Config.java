@@ -14,6 +14,7 @@ import java.util.List;
 public class Config {
 
     private String clientUrl;
+    private String baseUrl;
     private String name;
     private boolean authenticated;
     private List<String> missingAttributes;

@@ -8,8 +8,8 @@ import ArrowRight from "../icons/arrow-right.svg";
 
 export const BreadCrumb = () => {
 
-    const paths = useAppStore((state) => state.breadcrumbPath);
-    const clearFlash = useAppStore((state) => state.clearFlash);
+    const paths = useAppStore(state => state.breadcrumbPath);
+    const clearFlash = useAppStore(state => state.clearFlash);
 
     if (isEmpty(paths)) {
         return null;

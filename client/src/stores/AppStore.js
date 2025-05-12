@@ -10,7 +10,13 @@ export const useAppStore = create(set => ({
         }
     },
     clearFlash: () => set({flash: {}}),
-    config: {},
+    config: {
+        baseUrl: "http://localhost:3000"
+    },
     //[{path: "/roles/4", value: role.name}]
-    breadcrumbPath: []
+    breadcrumbPath: [],
+    //[ "home", "applications", "teams"]
+    menuItems: [],
+    //ShareWorks
+    organization: ""
 }));

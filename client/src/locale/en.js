@@ -53,6 +53,18 @@ const en = {
             }
         }
     },
+    navigation: {
+        home: "Home",
+        applications: "Applications",
+        teams: "Teams"
+    },
+    breadCrumb: {
+        access: "SURF Access",
+        applications: "Application maintenance"
+    },
+    organizations: {
+        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+    },
     footer: {
         terms: "Terms of Use",
         termsLink: "https://support.surfconext.nl/terms-en",

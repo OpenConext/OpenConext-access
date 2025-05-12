@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Loader} from "@surfnet/sds";
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
-import {me, configuration} from "./api/index.js";
+import {configuration, me} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
@@ -16,6 +16,8 @@ import Organisation from "./pages/Organisation.jsx";
 import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
+import {SharedMenu} from "./components/SharedMenu.jsx";
+import I18n from "./locale/I18n.js";
 
 const App = () => {
 
@@ -41,20 +43,25 @@ const App = () => {
     useEffect(() => {
         configuration()
             .then(config => {
-                useAppStore.setState(() => ({config: config}));
+                useAppStore.setState(() => ({
+                    config: config
+                }));
                 setLoading(false);
                 setIsAuthenticated(config.authenticated);
                 if (config.authenticated) {
                     me().then(user => {
-                        useAppStore.setState(() => ({user: user}));
-                        navigate("/organisation");
+                        useAppStore.setState(() => ({
+                            user: user,
+                            menuItems: ["home", "applications", "teams"]
+                        }));
+                        navigate("/organisations");
                     })
                 } else {
                     navigate("/home");
                 }
             }).catch(() => {
-                setLoading(false);
-                navigate("/home");
+            setLoading(false);
+            navigate("/home");
         });
 
     }, []);
@@ -65,26 +72,33 @@ const App = () => {
 
     return (
         <div className="access">
-            <div className="container">
+            {isAuthenticated && <>
                 <Flash/>
-                {!isAuthenticated && <Header currentLocation={currentLocation}/>}
-                {isAuthenticated && <BreadCrumb/>}
-                {isAuthenticated &&
-                    <Routes>
-                        <Route path="/" element={<Navigate replace to="organisation"/>}/>
-                        <Route path="/organisation/:tab?" element={<Organisation/>}/>
-                        <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
-                        {sharedRoutes()}
-                        <Route path="*" element={<NotFound/>}/>
-                    </Routes>}
-                {!isAuthenticated &&
+                <div className="container">
+                    <SharedMenu/>
+                    <div className="pages">
+                        <BreadCrumb/>
+                        <Routes>
+                            <Route path="/" element={<Navigate replace to="organisation"/>}/>
+                            <Route path="/organisations/:tab?" element={<Organisation/>}/>
+                            <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
+                            {/*{sharedRoutes()}*/}
+                            <Route path="*" element={<NotFound/>}/>
+                        </Routes>
+                    </div>
+                </div>
+            </>}
+
+            {!isAuthenticated &&
+                <>
+                    <Header currentLocation={currentLocation}/>
                     <Routes>
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         {sharedRoutes()}
                     </Routes>
-                }
-            </div>
-            {<Footer/>}
+                    <Footer/>
+                </>
+            }
         </div>
     );
 }
