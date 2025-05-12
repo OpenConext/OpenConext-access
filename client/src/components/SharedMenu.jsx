@@ -1,14 +1,15 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useNavigate} from "react-router";
-import {NavigationMenu} from "@surfnet/sds";
+import {NavigationMenu, Loader} from "@surfnet/sds";
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {Footer} from "./Footer.jsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {isEmpty} from "../utils/Utils.js";
 
 const allMenuItems = [
     {
@@ -36,10 +37,22 @@ const allMenuItems = [
 
 export const SharedMenu = () => {
 
-    const {menuItems, config, organization} = useAppStore(state => state);
-    const [filteredMenuItems, setFilteredMenuItems] = useState(false);
+    const {menuItems, config, organization= "TODO"} = useAppStore(state => state);
+    const [filteredMenuItems, setFilteredMenuItems] = useState([]);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const items = allMenuItems
+            .filter(menuItem => menuItems.includes(menuItem.name))
+            .map(menuItem => ({
+                Logo: menuItem.Logo,
+                label: I18n.t(`navigation.${menuItem.name}`),
+                href: menuItem.relative ? menuItem.path : `https://${menuItem.path}.${config.baseUrl}/${menuItem.postPath}`
+            }));
+        setFilteredMenuItems(items);
+    }, [menuItems]);
+
 
     const doNavigate = href => {
         if (href.startsWith("http")) {
@@ -49,20 +62,16 @@ export const SharedMenu = () => {
         }
     }
 
-    let filteredMenuItems = allMenuItems
-        .filter(menuItem => menuItems.includes(menuItem.name))
-        .map(menuItem => ({
-            Logo: menuItem.Logo,
-            label: I18n.t(`navigation.${menuItem.name}`),
-            href: menuItem.relative ? menuItem.path : `https://${menuItem.path}.${config.baseUrl}/${menuItem.postPath}`
-        }));
-    debugger;
+    if (isEmpty(filteredMenuItems)) {
+        return <Loader/>
+    }
+
     return (
         <NavigationMenu
             items={filteredMenuItems}
             logoLabel={"Access"}
             navigate={doNavigate}
-            title={organization}
+            title={organization || "TODO Org"}
             settingToolTip={I18n.t("organizations.tooltip")}
             children={<Footer/>}
         />
