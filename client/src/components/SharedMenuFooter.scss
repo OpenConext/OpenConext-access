@@ -1,0 +1,34 @@
+footer.shared-menu {
+    margin-top: auto;
+
+    background: var(--sds--color--black--navigation);
+
+    .sds--footer--inner {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 25px;
+
+        .sds--language-switcher {
+            color: white;
+            --lnk--base-color: white;
+        }
+
+        nav.menu {
+            ul {
+                display: inline-flex;
+                gap: 10px;
+
+                .sds--language-sds--divider {
+                    color: white;
+
+                }
+            }
+
+            a:link, nav.menu a:visited:hover {
+                color: white!important;
+            }
+        }
+    }
+}
+

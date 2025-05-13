@@ -21,6 +21,7 @@ public class Config {
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
+        this.baseUrl = base.baseUrl;
     }
 
     public Config withAuthenticated(boolean authenticated) {

@@ -1,2 +1,9 @@
 @use "../index";
 
+.sds--navigation-menu-children {
+    margin-top: auto;
+
+    &.collapsed {
+        display: none;
+    }
+}

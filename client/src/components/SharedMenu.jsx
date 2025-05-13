@@ -10,6 +10,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {Footer} from "./Footer.jsx";
 import {useEffect, useState} from "react";
 import {isEmpty} from "../utils/Utils.js";
+import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 
 const allMenuItems = [
     {
@@ -73,7 +74,7 @@ export const SharedMenu = () => {
             navigate={doNavigate}
             title={organization || "TODO Org"}
             settingToolTip={I18n.t("organizations.tooltip")}
-            children={<Footer/>}
+            children={<SharedMenuFooter/>}
         />
     );
 }
