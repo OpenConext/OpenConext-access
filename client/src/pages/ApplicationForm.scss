@@ -1,0 +1,9 @@
+@use "../index";
+
+div.application-form-container {
+
+    .application-form {
+        @include index.form-content;
+        width: 50%;
+    }
+}

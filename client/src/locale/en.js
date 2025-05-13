@@ -65,6 +65,17 @@ const en = {
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
     },
+    application: {
+        new: "New Application",
+        name: "Name",
+        nameInfo: "Gebruik een naam die herkenbaar zal zijn voor instellingen",
+        type: "Type",
+        app: "Een Applicatie (tools, clouddiensten, utitilities etc...)",
+        content: "Content dienst (streaming media, educatieve content, e-books)",
+        contentInfoPre: "Content diensten ontvangen de ",
+        contentInfoLink: "minimale set",
+        contentInfoPost: " aan attributen."
+    },
     footer: {
         terms: "Terms of Use",
         termsLink: "https://support.surfconext.nl/terms-en",

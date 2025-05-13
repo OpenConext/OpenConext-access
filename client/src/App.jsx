@@ -18,6 +18,7 @@ import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
 import {SharedMenu} from "./components/SharedMenu.jsx";
 import I18n from "./locale/I18n.js";
+import {ApplicationForm} from "./pages/ApplicationForm.jsx";
 
 const App = () => {
 
@@ -54,7 +55,6 @@ const App = () => {
                             user: user,
                             menuItems: ["home", "applications", "teams"]
                         }));
-                        navigate("/organisations");
                     })
                 } else {
                     navigate("/home");
@@ -81,7 +81,9 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
                             <Route path="/organisations/:tab?" element={<Organisation/>}/>
+                            <Route path="/application/:id" element={<ApplicationForm/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
+
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>

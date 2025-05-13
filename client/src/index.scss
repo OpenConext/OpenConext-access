@@ -20,6 +20,23 @@ $mobile-width: 820px;
     gap: 25px;
 }
 
+@mixin form-content {
+    display: flex;
+    flex-direction: column;
+    background-color: #f7f9fa;
+    padding: 50px;
+}
+
+@mixin input-field {
+    label {
+        display: inline-block;
+        min-width: 210px;
+        color: black;
+        position: relative;
+        margin: 12px 0 var(--sds--space--1);
+    }
+}
+
 body:after {
     position: fixed;
     width: 109px;

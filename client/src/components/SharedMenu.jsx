@@ -23,14 +23,14 @@ const allMenuItems = [
         name: "applications",
         path: "dashboard",
         relative: false,
-        postPath: "/login",
+        postPath: "login",
         Logo: ScreenIcon
     },
     {
         name: "teams",
         path: "invite",
         relative: false,
-        postPath: "/home",
+        postPath: "home",
         Logo: LaptopIcon
     }
 

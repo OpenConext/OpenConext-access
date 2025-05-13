@@ -67,6 +67,13 @@ public class User implements Serializable {
     @Column(name = "last_activity")
     private Instant lastActivity;
 
+    @Column(name = "organization_guid")
+    private String organizationGUID;
+
+    @Column(name = "institution_admin")
+    @NotNull
+    private boolean institutionAdmin;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 

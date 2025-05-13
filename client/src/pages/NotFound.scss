@@ -2,10 +2,9 @@
 
 div.not-found {
     display: flex;
-    height: 50vh;
-
+    flex-grow: 1;
     svg {
-        margin: 25px auto 25px auto;
+        margin: 25px auto;
         width: 460px;
         height: auto;
 

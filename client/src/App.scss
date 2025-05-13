@@ -8,10 +8,13 @@
 
     .container {
         display: flex;
+        min-width: 100vw;
     }
+
     .pages {
         display: flex;
         flex-direction: column;
+        width: 100%;
     }
 }
 
