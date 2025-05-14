@@ -1,0 +1,21 @@
+@use "../index";
+@use "../styles/mixins" as *;
+
+div.application-connection-container {
+    padding: 25px 50px;
+
+    .sds--alert {
+        margin: 30px 0;
+    }
+
+    .application-connection {
+        @include form;
+        width: 75%;
+
+        .sub-part {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+}

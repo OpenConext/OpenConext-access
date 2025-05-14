@@ -19,6 +19,7 @@ import Applications from "./pages/Applications.jsx";
 import {SharedMenu} from "./components/SharedMenu.jsx";
 import I18n from "./locale/I18n.js";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
+import {ApplicationConnection} from "./pages/ApplicationConnection.jsx";
 
 const App = () => {
 
@@ -82,6 +83,7 @@ const App = () => {
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
                             <Route path="/organisations/:tab?" element={<Organisation/>}/>
                             <Route path="/application/:id" element={<ApplicationForm/>}/>
+                            <Route path="/connection/:id" element={<ApplicationConnection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
 
                             {/*{sharedRoutes()}*/}

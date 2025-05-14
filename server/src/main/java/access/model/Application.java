@@ -38,6 +38,11 @@ public class Application {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private ApplicationType type = ApplicationType.SURF;
+
     public Application(String name, Organization organization, Map<String, ?> metaData) {
         this.name = name;
         this.organization = organization;

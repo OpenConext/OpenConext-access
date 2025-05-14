@@ -4,6 +4,32 @@ div.application-form-container {
 
     .application-form {
         @include index.form-content;
+        gap: 25px;
         width: 50%;
+
+        span.link {
+            text-decoration: underline;
+        }
+
+        p.primary-label-radio-option {
+            font-weight: 600;
+        }
+
+        .sds--tooltip-container {
+            .react-tooltip {
+                text-align: left;
+
+                ul {
+                    list-style: initial;
+                    margin-top: 10px;
+
+                    li {
+                        margin-left: 15px;
+                    }
+                }
+            }
+
+        }
+
     }
 }

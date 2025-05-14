@@ -56,10 +56,11 @@ CREATE TABLE `organization_memberships`
 
 CREATE TABLE `applications`
 (
-    `id`              bigint NOT NULL AUTO_INCREMENT,
+    `id`              bigint       NOT NULL AUTO_INCREMENT,
     `name`            varchar(255) DEFAULT NULL,
+    `type`            varchar(255) NOT NULL,
     `meta_data`       json         DEFAULT NULL,
-    `organization_id` bigint NOT NULL,
+    `organization_id` bigint       NOT NULL,
     `created_at`      datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `applications_unique_name_organization` (`name`, `organization_id`),

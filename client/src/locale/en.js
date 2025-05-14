@@ -67,6 +67,7 @@ const en = {
     },
     application: {
         new: "New Application",
+        edit: "Edit {{name}}",
         name: "Name",
         nameInfo: "Gebruik een naam die herkenbaar zal zijn voor instellingen",
         type: "Type",
@@ -74,7 +75,63 @@ const en = {
         content: "Content dienst (streaming media, educatieve content, e-books)",
         contentInfoPre: "Content diensten ontvangen de ",
         contentInfoLink: "minimale set",
-        contentInfoPost: " aan attributen."
+        contentInfoPost: " aan attributen.",
+        contentInfoTip: "Attributenset voor content providers:<ul><li>Persistent or Transient NameID</li><li>schacHomeOrganization</li>" +
+            "<li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
+        targetGroup: "Target group",
+        targetSURF: "Verschillende gebruikers die beheerd worden in een (onderzoeks)groep",
+        targetSURFInfo: "De gebruikers worden individueel uitgenodigd bij de groep.",
+        targetSRAM: "Studenten, medewerkers en externen uit één instellings IdP",
+        targetSRAMInfo: "Zij krijgen toegang omdat ze een kenmerk of rol hebben.",
+        terms: "Fair Use terms",
+        checks: {
+            personal: "Mijn applicatie slaat persoonsgegevens veilig op",
+            duration: "Ik bewaar de persoonsgegevens niet langer dan nodig",
+            privacy: "Ik verstrek de persoonsgegevens niet aan derden",
+            safe: "Ik houd mijn applicatie veilig en beschikbaar",
+            support: "Ik ben bereikbaar bij vragen en problemen"
+        },
+        checksInfo: {
+            personal: "De persoonsgegevens worden op een beveiligde manier opgeslagen.",
+            duration: "De persoonsgegevens worden echt niet langer dan nodig opgeslagen",
+            privacy: "De persoonsgegevens worden niet aan derden verstrekt",
+            safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
+            support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
+        }
+    },
+    connection: {
+        overview: "Overview",
+        testing: "Testing",
+        prod: "Production",
+        application: "App information",
+        contract: "Contract",
+        welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
+        testSection: "Test",
+        teamSection: "Team",
+        test: {
+            name: "Test",
+            connections: "Koppelingen met onze testomgeving",
+            info: "Test of federatief inloggen werkt via onze testomgeving."
+        },
+        team: {
+            name: "Teams",
+            info: "Geef teamleden of externen toegang tot deze applicatie space.",
+            members: "Teamleden voor beheer van deze applicatie"
+        },
+        production: {
+            name: "Production",
+            connections: "Koppelingen met onze productieomgeving",
+            catalogue: "App informatie voor de SURF App catalogus",
+            access: "Toegang en zichtbaarheid",
+            contract: "Contract",
+            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
+        }
+    },
+    forms: {
+        cancel: "Cancel",
+        submit: "Submit",
+        edit: "Edit",
+        delete: "Delete"
     },
     footer: {
         terms: "Terms of Use",

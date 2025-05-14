@@ -1,0 +1,30 @@
+@use "../index";
+
+.application-connection-header-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 25px;
+    .application-connection-header {
+        display: flex;
+        width: 100%;
+        border-bottom: 1px solid var(--sds--color--gray--300);
+
+        a {
+            color: var(--sds--color--gray--400);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 18px;
+            line-height: 36px;
+            padding: 5px 25px;
+
+            &.active {
+                font-weight: 600;
+                color: black;
+                border-bottom: 3px solid var(--sds--color--gray--500);
+            }
+
+        }
+    }
+}
+
