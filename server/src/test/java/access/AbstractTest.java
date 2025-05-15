@@ -338,7 +338,7 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         doSave(this.userRepository, superUser, manager);
 
-        Organization shareLogics = new Organization("ShareLogics","sharelogics.org");
+        Organization shareLogics = new Organization("ShareLogics","sharelogics.org", "ShareLogicsRole");
         doSave(this.organizationRepository, shareLogics);
 
         Application buddyCheck = new Application("Buddycheck", shareLogics, Map.of(

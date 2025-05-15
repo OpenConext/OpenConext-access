@@ -26,15 +26,19 @@ public class Organization {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
+    @Column(name = "invite_role_name")
+    private String inviteRoleName;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long userCount;
 
-    public Organization(String name, String schacHomeOrganization) {
+    public Organization(String name, String schacHomeOrganization, String inviteRoleName) {
         this.name = name;
         this.schacHomeOrganization = schacHomeOrganization;
+        this.inviteRoleName = inviteRoleName;
         this.createdAt = Instant.now();
     }
 }
