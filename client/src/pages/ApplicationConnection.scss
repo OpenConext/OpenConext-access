@@ -23,4 +23,8 @@ div.application-connection-container {
             gap: 20px;
         }
     }
+
+    p.pending {
+        color: var(--sds--color--gray--400);
+    }
 }

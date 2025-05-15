@@ -75,6 +75,19 @@ export const ApplicationConnection = () => {
                                     action={() => setTab("testing")}
                                     disabled={true}
                                     status="pending"/>
+                        <StatusLink info={I18n.t("connection.production.catalogue")}
+                                    action={() => setTab("testing")}
+                                    disabled={true}
+                                    status="pending"/>
+                        <StatusLink info={I18n.t("connection.production.access")}
+                                    action={() => setTab("testing")}
+                                    disabled={true}
+                                    status="pending"/>
+                        <StatusLink info={I18n.t("connection.production.contract")}
+                                    action={() => setTab("testing")}
+                                    disabled={true}
+                                    status="pending"/>
+                        <p className="pending">{I18n.t("connection.production.disclaimer")}</p>
                     </section>
 
                 </div>
