@@ -1,16 +1,19 @@
 import "./StatusLink.scss"
 import CaretRight from "../icons/caret_right.svg";
 import PendingIcon from "../icons/pending.svg";
+import TeamIcon from "../icons/teams.svg";
+import CompletedIcon from "../icons/completed.svg";
 
-export const StatusLink = ({status, info, action}) => {
+export const StatusLink = ({status, info, action, disabled}) => {
 
-    const icon = status === "pending" ? <PendingIcon/> : <PendingIcon/>;
+    const icon = status === "pending" ? <PendingIcon/> : status === "team" ? <TeamIcon/> : <CompletedIcon/>;
 
     return (
-        <div className="status-link" onClick={action}>
-            <span className="icon">{icon}</span>
+        <div className={`status-link ${disabled && "disabled"}`}
+             onClick={action}>
+            {icon}
             <span className="info">{info}</span>
-            <span className="nav"><CaretRight/></span>
+            <CaretRight/>
         </div>
     );
 }

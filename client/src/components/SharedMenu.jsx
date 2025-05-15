@@ -1,13 +1,12 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useNavigate} from "react-router";
-import {NavigationMenu, Loader} from "@surfnet/sds";
+import {Loader, NavigationMenu} from "@surfnet/sds";
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
-import {Footer} from "./Footer.jsx";
 import {useEffect, useState} from "react";
 import {isEmpty} from "../utils/Utils.js";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
@@ -38,7 +37,7 @@ const allMenuItems = [
 
 export const SharedMenu = () => {
 
-    const {menuItems, config, organization= "TODO"} = useAppStore(state => state);
+    const {menuItems, config, organization = "TODO"} = useAppStore(state => state);
     const [filteredMenuItems, setFilteredMenuItems] = useState([]);
 
     const navigate = useNavigate();

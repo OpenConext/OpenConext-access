@@ -73,7 +73,7 @@ export function logout() {
         credentials: "same-origin",
         redirect: "manual"
     };
-    return fetchJson("/myconext/api/sp/logout").then(() => fetch("/Shibboleth.sso/Logout", fetchOptions));
+    return fetchJson("/api/v1/users/logout");
 }
 
 //Organization

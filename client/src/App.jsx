@@ -20,6 +20,7 @@ import {SharedMenu} from "./components/SharedMenu.jsx";
 import I18n from "./locale/I18n.js";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
 import {ApplicationConnection} from "./pages/ApplicationConnection.jsx";
+import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
 
 const App = () => {
 
@@ -78,7 +79,7 @@ const App = () => {
                 <div className="container">
                     <SharedMenu/>
                     <div className="pages">
-                        <BreadCrumb/>
+                        <AuthorizedHeader/>
                         <Routes>
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
                             <Route path="/organisations/:tab?" element={<Organisation/>}/>

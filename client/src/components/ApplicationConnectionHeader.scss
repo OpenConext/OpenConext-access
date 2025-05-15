@@ -2,16 +2,51 @@
 
 .application-connection-header-container {
     display: flex;
-    width: 100%;
+    width: 75%;
     flex-direction: column;
     gap: 25px;
+
+    .top-header {
+        display: flex;
+
+        span.menu {
+            margin-left: auto;
+            position: relative;
+            cursor: pointer;
+
+            &.drop-down svg.menu-icon {
+                transform: rotate(90deg);
+            }
+        }
+
+        .sds--user-info--dropdown {
+            z-index: 7;
+
+            ul {
+                li {
+                    display: flex;
+
+                    &:hover {
+                        background-color: var(--sds--color--gray--500);
+                    }
+                }
+            }
+
+            svg {
+                fill: white;
+                margin: 0 6px 0 16px;
+            }
+        }
+    }
+
+
     .application-connection-header {
         display: flex;
         width: 100%;
         border-bottom: 1px solid var(--sds--color--gray--300);
 
         a {
-            color: var(--sds--color--gray--400);
+            color: var(--sds--color--gray--500);
             text-decoration: none;
             font-weight: 400;
             font-size: 18px;

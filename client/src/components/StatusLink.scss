@@ -3,21 +3,27 @@
 .status-link {
     display: flex;
     align-items: center;
+    align-content: center;
     width: 100%;
     border-radius: 4px;
     padding: 10px 20px 10px 10px;
     background-color: white;
     border: 1px solid var(--sds--color--gray--200);
+    cursor: pointer;
+
+    &.disabled {
+        color: var(--sds--color--gray--300);
+    }
 
     svg {
         fill: white;
     }
 
-    span.icon svg {
-        margin-left: 20px;
+    svg.pending, svg.completed {
+        margin-right: 20px;
     }
 
-    span.nav svg {
+    svg.caret_right {
         margin-left: auto;
     }
 }

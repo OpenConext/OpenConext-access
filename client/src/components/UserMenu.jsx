@@ -8,7 +8,10 @@ import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 
 
-export const UserMenu = ({user}) => {
+export const UserMenu = () => {
+
+    const user = useAppStore(state => state.user);
+
     const navigate = useNavigate();
 
     const [dropDownActive, setDropDownActive] = useState(false);
@@ -16,8 +19,8 @@ export const UserMenu = ({user}) => {
     const logoutUser = e => {
         stopEvent(e);
         logout().then(() => {
-            useAppStore.setState(() => ({breadcrumbPath: [], user: {}, controlCode: {}}));
-            navigate("/login");
+            useAppStore.setState(() => ({breadcrumbPath: [], user: {}}));
+            navigate("/home");
             setTimeout(() =>
                 useAppStore.setState(() => ({user: null, breadcrumbPath: []})), 125);
         });
@@ -27,7 +30,7 @@ export const UserMenu = ({user}) => {
         return (<>
                 <ul>
                     <li>
-                        <a href="/logout" onClick={logoutUser}>{I18n.t(`header.links.logout`)}</a>
+                        <a href="/logout" onClick={logoutUser}>{I18n.t(`landing.header.logout`)}</a>
                     </li>
                 </ul>
             </>
@@ -40,7 +43,7 @@ export const UserMenu = ({user}) => {
              onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
             <UserInfo isOpen={dropDownActive}
                       children={renderMenu()}
-                      organisationName={I18n.t("serviceDesk.member")}
+                      organisationName={user.schacHomeOrganization}
                       userName={user.name}
                       toggle={() => setDropDownActive(!dropDownActive)}
             />

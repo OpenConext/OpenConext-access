@@ -5,7 +5,6 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
 import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
-import PendingIcon from "../icons/pending.svg";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {StatusLink} from "../components/StatusLink.jsx";
 
@@ -62,13 +61,20 @@ export const ApplicationConnection = () => {
                         <h2>{I18n.t("connection.test.name")}</h2>
                         <StatusLink info={I18n.t("connection.test.connections")}
                                     action={() => setTab("testing")}
-                                    Icon={<PendingIcon/>}/>
+                                    status="pending"/>
                     </section>
                     <section className="sub-part">
                         <h2>{I18n.t("connection.team.name")}</h2>
+                        <StatusLink info={I18n.t("connection.team.members")}
+                                    action={() => setTab("testing")}
+                                    status="team"/>
                     </section>
                     <section className="sub-part">
                         <h2>{I18n.t("connection.production.name")}</h2>
+                        <StatusLink info={I18n.t("connection.production.connections")}
+                                    action={() => setTab("testing")}
+                                    disabled={true}
+                                    status="pending"/>
                     </section>
 
                 </div>

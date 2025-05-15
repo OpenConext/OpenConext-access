@@ -12,6 +12,7 @@ const en = {
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Come on in",
             sup: "EduID ServiceDesk is by invitation only.",
+            logout: "Logout"
         },
         tabs: {
             home: "Home",

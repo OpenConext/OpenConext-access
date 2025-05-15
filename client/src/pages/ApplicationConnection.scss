@@ -6,6 +6,11 @@ div.application-connection-container {
 
     .sds--alert {
         margin: 30px 0;
+        width: 75%;
+        .sds--alert--inner {
+            max-width: none;
+            width: 100%;
+        }
     }
 
     .application-connection {
