@@ -6,7 +6,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {StatusLink} from "../components/StatusLink.jsx";
 
 
-export const Overview = ({user, application}) => {
+export const Overview = ({user, application, setTab}) => {
 
     const [alertClosed, setAlertClosed] = useState(false);
 

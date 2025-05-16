@@ -6,7 +6,7 @@ import {useNavigate} from "react-router";
 import {Button} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
 
-const tabNames = ["home", "connect", "institutions", "applications"]
+const tabNames = ["home", "connect", "institutions", "applications"];
 
 export const Navigation = ({mobile, path}) => {
 

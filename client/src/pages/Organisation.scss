@@ -1,13 +1,59 @@
-@use "../index";
+@use "../styles/mixins" as *;
 
-div.organisation-container {
-
-    @include index.page;
+div.organisation-outer-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     background-color: white;
+    height: 100%;
 
-    .organisation {
-        @include index.page-content;
-        flex-direction: row;
-        margin-top: 35px;
+    div.organisation-container {
+
+        padding: 25px 50px;
+
+        .organisation {
+            @include form;
+            width: 75%;
+
+            .left {
+                padding: 25px;
+                display: flex;
+                flex-direction: column;
+                gap: 35px;
+                align-content: center;
+                align-items: center;
+                background-color: #eeeef0;
+                border-radius: 8px;
+
+                svg {
+                    width: 210px;
+                    height: auto;
+                }
+            }
+
+            .right {
+                background-color: #dbf2e5;
+                padding: 25px;
+                border-radius: 8px;
+
+                p.terms {
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+
+                ul {
+                    list-style: initial;
+                    margin: 20px 0 30px 0;
+
+                    li {
+                        margin: 0 0 20px 25px;
+
+                        &:last-child {
+                            margin-bottom: 0;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

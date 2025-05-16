@@ -1,10 +1,16 @@
 @use "../index";
+@use "../styles/vars" as *;
 
 .application-connection-header-container {
+    padding: 25px 50px 0 50px;
     display: flex;
     width: 75%;
     flex-direction: column;
     gap: 25px;
+
+    @media (max-width: $full-mode) {
+        width: 100%;
+    }
 
     .top-header {
         display: flex;

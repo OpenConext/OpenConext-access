@@ -1,5 +1,13 @@
 @use "../index";
 
+.sds--navigation-menu {
+    min-width: 280px;
+
+    &.collapsed {
+        min-width: 48px;
+    }
+}
+
 .sds--navigation-menu-children {
     margin-top: auto;
 

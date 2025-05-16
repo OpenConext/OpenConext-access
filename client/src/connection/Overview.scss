@@ -1,6 +1,19 @@
 @use "../styles/mixins" as *;
 
 .application-connection-form {
+    background-color: white;
+    padding: 25px 50px;
+
+    .sds--alert {
+        margin-bottom: 30px;
+        width: 75%;
+
+        .sds--alert--inner {
+            max-width: none;
+            width: 100%;
+        }
+    }
+
     .application-connection {
         @include form;
         width: 75%;

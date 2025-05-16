@@ -2,14 +2,18 @@
     display: flex;
     width: 100%;
     background-color: white;
+    align-items: center;
 
     .user-menu {
         margin: 0 60px 0 auto;
+
         .sds--user-info--textual p.name, .sds--user-info--textual p.role {
             color: black;
         }
+
         button.sds--user-info--button {
             background-color: var(--sds--color--black--navigation);
+
             svg {
                 color: white;
             }

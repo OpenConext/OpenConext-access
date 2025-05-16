@@ -100,6 +100,17 @@ const en = {
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         }
     },
+    organisation: {
+        alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
+        applications: "Applicatiebeheer",
+        addApplication: "Voeg je eerste Applicatie toe",
+        catalog: {
+            terms: "Voorwaarden voor apps in de SURF catalogus",
+            fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
+            agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
+            disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
+        }
+    },
     connection: {
         overview: "Overview",
         testing: "Testing",
@@ -126,7 +137,32 @@ const en = {
             access: "Toegang en zichtbaarheid",
             contract: "Contract",
             disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
-        }
+        },
+        newConnection: "Nieuwe koppeling met de testomgeving",
+        copyConnection: "Kopieer info van andere koppeling",
+        technical: "Technische gegevens",
+        informationProfile: "Informatieprofiel",
+        testIdP: "Test-IdP's",
+        help: "Hulp nodig?",
+        callSurf: "Plan een call met SURF",
+        mailToSurf: "mailto:surf@info.nl",
+        connectionName: "Naam koppeling",
+        connectionPlaceholder: "e.g. {{application}}-{{environment}}",
+        protocol: "Protocol",
+        oidc10rp: "OpenID Connect",
+        saml20sp: "SAML 2.0",
+        grantTypes: "OAuth Grant types",
+        authorization_code: "Authorization Code",
+        refresh_token: "Refresh tokens",
+        device_code: "Device Code",
+        pkce: "PKCE",
+        optional: "Optional",
+        required: "Required (public client)",
+        redirectUrls: "Redirect URLs",
+        addRedirectUrl: "+ Redirect URL",
+        sslGrade: "SSL Grade (min. B)",
+        sslGradeTooltip: "Performs an SSL/TLS security scan to ensure the certificate meets or exceeds grade B.",
+        next: "Opslaan en volgende"
     },
     forms: {
         cancel: "Cancel",

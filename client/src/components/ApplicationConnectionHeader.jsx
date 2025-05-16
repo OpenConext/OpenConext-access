@@ -44,6 +44,7 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab}
             </div>
         )
     }
+
     return (
         <div className="application-connection-header-container">
             <div className="top-header"

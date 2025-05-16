@@ -1,6 +1,5 @@
 @use "../styles/vars" as *;
 
-
 @mixin input-field {
     label {
         display: inline-block;
@@ -22,16 +21,26 @@
 
 }
 
-@mixin form {
+@mixin card($gap: 25px) {
+    border: 1px solid #D8D8D8;
+    border-radius: 10px;
+    padding: 24px 16px;
+    background-color: white;
+    gap: $gap;
+    display: flex;
+    flex-direction: column;
+}
+
+@mixin form($first: 1fr, $second: 1fr) {
     grid-column-gap: 50px;
     -webkit-column-gap: 50px;
     column-gap: 50px;
     row-gap: 20px;
     display: grid;
-    grid-template-columns: [first] 1fr [second] 1fr;
+    grid-template-columns: [first] $first [second] $second;
 
     .one-row {
-        grid-column-start: first;
+        grid-column: 1/-1;
     }
 
 }

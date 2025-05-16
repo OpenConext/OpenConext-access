@@ -5,6 +5,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
+import {Testing} from "../connection/Testing.jsx";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -34,14 +35,15 @@ export const ApplicationConnection = () => {
     const renderCurrentTab = () => {
         switch (tab) {
             case "overview": {
-                return <Overview application={application} user={user}/>
+                return <Overview application={application}
+                                 user={user}
+                                 setTab={setTab}/>
             }
             case  "testing": {
-                return <span>testing</span>
+                return <Testing application={application}/>
             }
             case  "prod": {
                 return <span>prod</span>
-
             }
             case "application": {
                 return <span>application</span>

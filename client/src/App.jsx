@@ -82,7 +82,7 @@ const App = () => {
                         <AuthorizedHeader/>
                         <Routes>
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
-                            <Route path="/organisations/:tab?" element={<Organisation/>}/>
+                            <Route path="/organisation/:tab?" element={<Organisation/>}/>
                             <Route path="/application/:id" element={<ApplicationForm/>}/>
                             <Route path="/connection/:id" element={<ApplicationConnection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
