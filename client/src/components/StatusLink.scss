@@ -13,13 +13,14 @@
 
     &.disabled {
         color: var(--sds--color--gray--400);
+        cursor: initial;
     }
 
     svg {
         fill: white;
     }
 
-    svg.pending, svg.completed {
+    svg.pending, svg.completed, svg.team {
         margin-right: 20px;
     }
 

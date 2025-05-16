@@ -3,10 +3,8 @@ import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
-import {Alert, AlertType} from "@surfnet/sds";
-import {isEmpty} from "../utils/Utils.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
-import {StatusLink} from "../components/StatusLink.jsx";
+import {Overview} from "../connection/Overview.jsx";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -18,7 +16,6 @@ export const ApplicationConnection = () => {
     const navigate = useNavigate();
     const [application, setApplication] = useState({});
     const [tab, setTab] = useState("overview");
-    const [alertClosed, setAlertClosed] = useState(false);
 
     useEffect(() => {
         //todo fetch application
@@ -34,17 +31,26 @@ export const ApplicationConnection = () => {
         });
     }, [id]);
 
-    const alertInfo = () => {
-        if (alertClosed) {
-            return null;
-        }
-        if (isEmpty(application.connections)) {
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Info}
-                       asChild={true}
-                       message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
-            )
+    const renderCurrentTab = () => {
+        switch (tab) {
+            case "overview": {
+                return <Overview application={application} user={user}/>
+            }
+            case  "testing": {
+                return <span>testing</span>
+            }
+            case  "prod": {
+                return <span>prod</span>
+
+            }
+            case "application": {
+                return <span>application</span>
+            }
+            case "contract": {
+                return <span>contract</span>
+            }
+            default:
+                throw new Error(`Unknown tab; ${tab}`)
         }
     }
 
@@ -54,44 +60,7 @@ export const ApplicationConnection = () => {
                                          application={application}
                                          tab={tab}
                                          setTab={setTab}/>
-            <div className="application-connection-form">
-                {alertInfo()}
-                <div className="application-connection">
-                    <section className="sub-part">
-                        <h2>{I18n.t("connection.test.name")}</h2>
-                        <StatusLink info={I18n.t("connection.test.connections")}
-                                    action={() => setTab("testing")}
-                                    status="pending"/>
-                    </section>
-                    <section className="sub-part">
-                        <h2>{I18n.t("connection.team.name")}</h2>
-                        <StatusLink info={I18n.t("connection.team.members")}
-                                    action={() => setTab("testing")}
-                                    status="team"/>
-                    </section>
-                    <section className="sub-part">
-                        <h2>{I18n.t("connection.production.name")}</h2>
-                        <StatusLink info={I18n.t("connection.production.connections")}
-                                    action={() => setTab("testing")}
-                                    disabled={true}
-                                    status="pending"/>
-                        <StatusLink info={I18n.t("connection.production.catalogue")}
-                                    action={() => setTab("testing")}
-                                    disabled={true}
-                                    status="pending"/>
-                        <StatusLink info={I18n.t("connection.production.access")}
-                                    action={() => setTab("testing")}
-                                    disabled={true}
-                                    status="pending"/>
-                        <StatusLink info={I18n.t("connection.production.contract")}
-                                    action={() => setTab("testing")}
-                                    disabled={true}
-                                    status="pending"/>
-                        <p className="pending">{I18n.t("connection.production.disclaimer")}</p>
-                    </section>
-
-                </div>
-            </div>
+            {renderCurrentTab()}
         </div>
     )
 }

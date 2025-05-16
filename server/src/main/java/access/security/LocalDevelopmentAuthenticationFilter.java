@@ -36,7 +36,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-                "sub", "urn:collab:person:example.com:super",
+                "sub", "urn:collab:person:example.com:admin",
                 "uids", List.of("super"));
         OidcIdToken idtoken = new OidcIdToken(
                 UUID.randomUUID().toString(),

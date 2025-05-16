@@ -1,0 +1,19 @@
+@use "../styles/mixins" as *;
+
+.application-connection-form {
+    .application-connection {
+        @include form;
+        width: 75%;
+
+        .sub-part {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        p.pending {
+            color: var(--sds--color--gray--400);
+        }
+    }
+
+}
