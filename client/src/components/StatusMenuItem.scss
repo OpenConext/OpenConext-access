@@ -1,0 +1,19 @@
+.status-menu-item {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+    padding: 8px 8px;
+    background-color: white;
+    cursor: pointer;
+
+    &.active {
+        background-color: #f2f5f7;
+    }
+
+    svg {
+        margin-left:auto;
+        fill: white;
+    }
+
+}
