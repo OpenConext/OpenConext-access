@@ -1,7 +1,7 @@
 import "./ApplicationConnection.scss";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
@@ -14,13 +14,16 @@ export const ApplicationConnection = () => {
     const {user} = useAppStore(state => state);
 
     const {id} = useParams();
-    const navigate = useNavigate();
     const [application, setApplication] = useState({});
     const [tab, setTab] = useState("overview");
 
     useEffect(() => {
         //todo fetch application
-        const newApplication = {id: 6, name: "BuddyCheck", connections: []};
+        const newApplication = {
+            id: 6,
+            name: "BuddyCheck",
+            connections: [{name: "BuddyCheck-TEST"}, {name: "BuddyCheck-PROD"}]
+        };
         setApplication(newApplication)
         useAppStore.setState({
             breadcrumbPath: [

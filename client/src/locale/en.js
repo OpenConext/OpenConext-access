@@ -156,13 +156,31 @@ const en = {
         refresh_token: "Refresh tokens",
         device_code: "Device Code",
         pkce: "PKCE",
+        pkceTooltip: "PKCE (Proof Key for Code Exchange) enhances the security of the authorization code flow by preventing authorization code interception. It’s especially important for public clients like mobile or single-page apps",
         optional: "Optional",
         required: "Required (public client)",
         redirectUrls: "Redirect URLs",
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
-        sslGradeTooltip: "Performs an SSL/TLS security scan to ensure the certificate meets or exceeds grade B.",
-        next: "Opslaan en volgende"
+        sslGradeTooltip: "Ensure the SSL/TLS certificate meets or exceeds grade B",
+        configuration: "Congifuratiegegevens",
+        import: "Metadata importeren",
+        entityID: "Entity ID",
+        entityIDPlaceHolder: "https://entityID.com",
+        acsLocations: "ACS location(s)",
+        addACSLocation: "+ Add ASC location",
+        informationProfileInfo: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
+        next: "Opslaan en volgende",
+        metadata: {
+            how: "Hoe wil je de metadata importeren?",
+            url: "De URL van een metadata-bestand opgeven",
+            file: "Een metadata-bestand uploaden",
+            paste: "De metadata in een tekstveld plakken",
+            urlMetaData: "URL metadata bestand",
+            import: "Metadata importeren",
+            chooseFile: "Choos file"
+        }
+
     },
     forms: {
         cancel: "Cancel",

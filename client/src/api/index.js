@@ -87,3 +87,8 @@ export function getApplications(organisation) {
     return fetchJson(`/api/v1/applications/applications/${organisation.id}`);
 }
 
+export function parseMedaData(url) {
+    return postPutJson("/api/v1/manage/parse",{url: url}, "POST");
+}
+
+
