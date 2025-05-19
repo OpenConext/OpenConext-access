@@ -53,8 +53,13 @@ public class DefaultErrorController implements ErrorController {
         HttpStatus statusCode;
 
         if (error == null) {
-            statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
-                    HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
+            if (result.containsKey("message") && ((String) result.get("message")).equalsIgnoreCase("forbidden")) {
+                statusCode = FORBIDDEN;
+            } else {
+                statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
+                        HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
+            }
+
         } else {
             if (!(error instanceof NotFoundException)) {
                 boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof access.exception.RemoteException);

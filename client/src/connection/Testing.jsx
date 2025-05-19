@@ -11,6 +11,7 @@ import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
 import {parseMedaData} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
+import Select from 'react-select';
 
 const sections = {
     technical: "technical",
@@ -316,8 +317,36 @@ export const Testing = ({application}) => {
     }
 
     const informationProfileSection = () => {
-        return (
+        const options = [
+            {
+                value: 'option1',
+                label: (
+                    <div>
+                        <b>Bold Text</b>
+                        <br />
+                        Subtitle or Description
+                    </div>
+                ),
+            },
+            {
+                value: 'option2',
+                label: (
+                    <div>
+                        <b>Another Bold</b>
+                        <br />
+                        More details
+                    </div>
+                ),
+            },
+        ];
+        return (<>
             <span>informationProfileSection</span>
+                <Select
+                    options={options}
+                    // If you want to also customize how the selected value is shown:
+                    formatOptionLabel={({ label }) => label}
+                />
+            </>
         );
     }
 
