@@ -24,7 +24,7 @@ docs/invite.archimate.bak
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
+dist/
 /nbdist/
 /.nb-gradle/
 build/
