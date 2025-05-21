@@ -178,7 +178,8 @@ const en = {
             paste: "De metadata in een tekstveld plakken",
             urlMetaData: "URL metadata bestand",
             import: "Metadata importeren",
-            chooseFile: "Choos file"
+            chooseFile: "Choose file",
+            doPaste: "Plak hier de metadata"
         }
 
     },

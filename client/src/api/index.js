@@ -63,6 +63,10 @@ export function configuration() {
     return fetchJson("/api/v1/users/config");
 }
 
+export function csrf() {
+    return fetchJson("/api/v1/csrf", {}, {}, false);
+}
+
 //Users
 export function me() {
     return fetchJson("/api/v1/users/me");
@@ -87,8 +91,11 @@ export function getApplications(organisation) {
     return fetchJson(`/api/v1/applications/applications/${organisation.id}`);
 }
 
-export function parseMedaData(url) {
-    return postPutJson("/api/v1/manage/parse",{url: url}, "POST");
+export function parseMedaData(xml) {
+    return postPutJson("/api/v1/manage/parse",{xml: xml}, "POST");
 }
 
+export function parseMedaDataUrl(url) {
+    return postPutJson("/api/v1/manage/parse",{url: url}, "POST");
+}
 

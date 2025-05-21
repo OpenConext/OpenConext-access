@@ -122,7 +122,7 @@ $width-percentage: 75%;
                 flex-direction: column;
                 gap: 15px;
 
-                .redirect-url, .acs-location  {
+                .redirect-url, .acs-location {
                     width: 100%;
                     display: flex;
 
@@ -142,8 +142,9 @@ $width-percentage: 75%;
             }
         }
 
-        .import-metadata{
+        .import-metadata {
             display: flex;
+
             button {
                 margin-left: auto;
             }
@@ -153,41 +154,67 @@ $width-percentage: 75%;
         .show-import {
             background-color: var(--sds--color--gray--100);
             padding: 20px;
+
             .show-import-header {
                 display: flex;
+
                 p {
                     font-weight: 600;
                 }
+
                 svg {
                     margin-left: auto;
                     cursor: pointer;
                 }
             }
+
             span.top {
                 margin-top: 20px;
             }
+
             .meta-data-url {
                 display: flex;
+
                 .input-field {
                     width: 100%;
                 }
+
                 button {
-                    width: 300px;
-                    margin-left: 20px;
+                    width: 340px;
+                    margin: auto 0 0 20px;
+                    height: 48px;
                 }
             }
+
             .meta-data-file {
                 margin-top: 25px;
-                button {
+                display: flex;
+
+                .file-name-section {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                    color: var(--sds--color--gray--400);
+
+                    button.sds--btn--delete {
+                        height: 22px;
+
+                    }
+                }
+
+                button:not(.sds--btn--delete) {
                     width: 240px;
+                    margin-left: auto;
                 }
             }
         }
 
     }
+
     .actions {
         display: flex;
         margin: 25px 0;
+
         button {
             margin-left: auto;
         }

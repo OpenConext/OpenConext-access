@@ -2,11 +2,10 @@ import React, {useEffect, useState} from 'react'
 import {Loader} from "@surfnet/sds";
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
-import {configuration, me} from "./api/index.js";
+import {configuration, csrf, me} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
-import {BreadCrumb} from "./components/BreadCrumb.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import RefreshRoute from "./pages/RefreshRoute.jsx";
 import {Home} from "./pages/Home.jsx";
@@ -17,7 +16,6 @@ import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
 import {SharedMenu} from "./components/SharedMenu.jsx";
-import I18n from "./locale/I18n.js";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
 import {ApplicationConnection} from "./pages/ApplicationConnection.jsx";
 import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
@@ -44,28 +42,30 @@ const App = () => {
     }
 
     useEffect(() => {
-        configuration()
-            .then(config => {
-                useAppStore.setState(() => ({
-                    config: config
-                }));
+        csrf().then(token => {
+            useAppStore.setState(() => ({csrfToken: token.token}));
+            configuration()
+                .then(config => {
+                    useAppStore.setState(() => ({
+                        config: config
+                    }));
+                    setLoading(false);
+                    setIsAuthenticated(config.authenticated);
+                    if (config.authenticated) {
+                        me().then(user => {
+                            useAppStore.setState(() => ({
+                                user: user,
+                                menuItems: ["home", "applications", "teams"]
+                            }));
+                        })
+                    } else {
+                        navigate("/home");
+                    }
+                }).catch(() => {
                 setLoading(false);
-                setIsAuthenticated(config.authenticated);
-                if (config.authenticated) {
-                    me().then(user => {
-                        useAppStore.setState(() => ({
-                            user: user,
-                            menuItems: ["home", "applications", "teams"]
-                        }));
-                    })
-                } else {
-                    navigate("/home");
-                }
-            }).catch(() => {
-            setLoading(false);
-            navigate("/home");
-        });
-
+                navigate("/home");
+            });
+        })
     }, []);
 
     if (loading) {

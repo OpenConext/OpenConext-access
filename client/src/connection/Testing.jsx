@@ -9,7 +9,7 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {parseMedaData} from "../api/index.js";
+import {parseMedaDataUrl} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import Select from 'react-select';
 
@@ -53,6 +53,7 @@ export const Testing = ({application}) => {
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
     const [showImport, setShowImport] = useState(false);
     const [metaDataChoice, setMetaDataChoice] = useState("url");
+    const [xmlMetaData, setXmlMetaData] = useState("");
     const [urlMetaData, setUrlMetaData] = useState("");
     const [fileName, setFileName] = useState(null);
 
@@ -142,11 +143,18 @@ export const Testing = ({application}) => {
         setConnection({...connection, acsLocations: newACSLocations});
     }
 
-    const doParseMedaData = () => {
-        parseMedaData(urlMetaData).then(res => {
+    const doParseMedaDataUrl = () => {
+        parseMedaDataUrl(urlMetaData).then(res => {
             //TODO, display all results?
         })
     }
+
+    const doParseMedaData = () => {
+        parseMedaDataUrl(xmlMetaData).then(res => {
+            //TODO, display all results?
+        })
+    }
+
     const onFileRemoval = index => e => {
         stopEvent(e);
         setFileName(null);
@@ -161,7 +169,7 @@ export const Testing = ({application}) => {
             reader.onload = () => {
                 const xml = reader.result.toString();
                 setFileName(file.name);
-                doParseMedaData();
+                doParseMedaData(xml);
             };
             reader.readAsText(file);
         }
@@ -246,39 +254,64 @@ export const Testing = ({application}) => {
                                                     onClick={() => setShowImport(true)}
                             />}
                         </div>
-                        {showImport && <div className="show-import">
-                            <div className="show-import-header">
-                                <p>{I18n.t("connection.metadata.how")}</p>
-                                <CloseIcon onClick={() => setShowImport(false)}/>
+                        {showImport &&
+                            <div className="show-import">
+                                <div className="show-import-header">
+                                    <p>{I18n.t("connection.metadata.how")}</p>
+                                    <CloseIcon onClick={() => setShowImport(false)}/>
 
-                            </div>
-                            <RadioOptions name={"how"}
-                                          value={metaDataChoice}
-                                          onChange={e => setMetaDataChoice(e.target.id.replace("how_", ""))}
-                                          isMultiple={true}
-                                          labels={Object.values(metaData)}
-                                          labelResolver={label => I18n.t(`connection.metadata.${label}`)}
-                                          orientation={RadioOptionsOrientation.column}/>
-                            {metaDataChoice === metaData.url && <>
-                               <span className="label top">{I18n.t("connection.metadata.urlMetaData")}</span>
-                                <div className="meta-data-url">
-                                    <InputField value={urlMetaData}
-                                                onChange={e => setUrlMetaData(e.target.value)}/>
-                                    <Button txt={I18n.t("connection.metadata.import")}
-                                            onClick={() => doParseMedaData(metaData.url)}
-                                            type={validUrlRegExp.test(urlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
-                                            disabled={!validUrlRegExp.test(urlMetaData)}/>
                                 </div>
-                            </>}
-                            {metaDataChoice === metaData.file &&
-                                <div className="meta-data-file">
-                                <UploadButton name={"meta-date-file"}
-                                              acceptFileFormat={".xml"}
-                                              txt={I18n.t("connection.metadata.chooseFile")}
-                                              onFileUpload={onFileUpload}/>
-                                </div>}
+                                <RadioOptions name={"how"}
+                                              value={metaDataChoice}
+                                              onChange={e => setMetaDataChoice(e.target.id.replace("how_", ""))}
+                                              isMultiple={true}
+                                              labels={Object.values(metaData)}
+                                              labelResolver={label => I18n.t(`connection.metadata.${label}`)}
+                                              orientation={RadioOptionsOrientation.column}/>
+                                {metaDataChoice === metaData.url && <>
+                                    <span className="label top">{I18n.t("connection.metadata.urlMetaData")}</span>
+                                    <div className="meta-data-url">
+                                        <InputField value={urlMetaData}
+                                                    onChange={e => setUrlMetaData(e.target.value)}/>
+                                        <Button txt={I18n.t("connection.metadata.import")}
+                                                onClick={() => doParseMedaDataUrl()}
+                                                type={validUrlRegExp.test(urlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
+                                                disabled={!validUrlRegExp.test(urlMetaData)}/>
+                                    </div>
+                                </>}
+                                {metaDataChoice === metaData.file &&
+                                    <div className="meta-data-file">
+                                        {fileName && <>
+                                            <div className="file-name-section">
+                                                <span>{fileName}</span>
+                                                <Button type={ButtonType.Delete}
+                                                        onClick={() => setFileName(null)}/>
+                                            </div>
+                                            <Button txt={I18n.t("connection.metadata.import")}
+                                                    onClick={() => doParseMedaData()}
+                                                    type={ButtonType.Primary}
+                                                    disabled={false}/>
+                                        </>}
 
-                        </div>}
+                                        {!fileName && <UploadButton name={"meta-date-file"}
+                                                                    acceptFileFormat={".xml"}
+                                                                    txt={I18n.t("connection.metadata.chooseFile")}
+                                                                    onFileUpload={onFileUpload}/>}
+                                    </div>}
+                                {metaDataChoice === metaData.paste && <>
+                                    <span className="label top">{I18n.t("connection.metadata.doPaste")}</span>
+                                    <div className="meta-data-url">
+                                        <InputField value={xmlMetaData}
+                                                    multiline={true}
+                                                    onChange={e => setXmlMetaData(e.target.value)}/>
+                                        <Button txt={I18n.t("connection.metadata.import")}
+                                                onClick={() => doParseMedaData()}
+                                                type={!isEmpty(xmlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
+                                                disabled={isEmpty(xmlMetaData)}/>
+                                    </div>
+                                </>}
+
+                            </div>}
                         <InputField value={connection.entityID || ""}
                                     onChange={e => setConnection({...connection, entityID: e.target.value})}
                                     name={I18n.t("connection.entityID")}
@@ -305,9 +338,11 @@ export const Testing = ({application}) => {
                             />
                         </div>
 
-                    </>}
+                    </>
+                }
             </>
-        );
+        )
+            ;
     }
 
     const testIdPSection = () => {
@@ -323,7 +358,7 @@ export const Testing = ({application}) => {
                 label: (
                     <div>
                         <b>Bold Text</b>
-                        <br />
+                        <br/>
                         Subtitle or Description
                     </div>
                 ),
@@ -333,18 +368,18 @@ export const Testing = ({application}) => {
                 label: (
                     <div>
                         <b>Another Bold</b>
-                        <br />
+                        <br/>
                         More details
                     </div>
                 ),
             },
         ];
         return (<>
-            <span>informationProfileSection</span>
+                <span>informationProfileSection</span>
                 <Select
                     options={options}
                     // If you want to also customize how the selected value is shown:
-                    formatOptionLabel={({ label }) => label}
+                    formatOptionLabel={({label}) => label}
                 />
             </>
         );
@@ -355,11 +390,11 @@ export const Testing = ({application}) => {
             case sections.technical: {
                 return technicalSection();
             }
-            case sections.testIdP: {
-                return testIdPSection();
-            }
             case sections.informationProfile: {
                 return informationProfileSection();
+            }
+            case sections.testIdP: {
+                return testIdPSection();
             }
             default: {
                 throw new Error(`Unknown section ${section}`)

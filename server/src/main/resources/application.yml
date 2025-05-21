@@ -1,17 +1,6 @@
 ---
 logging:
-  level:
-    root: WARN
-    com.zaxxer.hikari: ERROR
-    org.mariadb.jdbc.message.server: ERROR
-    org.springframework.security: INFO
-    access: DEBUG
-  #    sql: DEBUG
-  #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  #    org.hibernate.orm.jdbc.bind: TRACE
-  threshold:
-    #    console: TRACE
-    console: WARN
+  config: classpath:/logback-spring.xml
 
 server:
   port: 8886

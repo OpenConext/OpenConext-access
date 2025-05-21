@@ -9,7 +9,4 @@ test("Store outside functional component", () => {
 
     const updatedCsrfToken = useAppStore.getState().csrfToken;
     expect(updatedCsrfToken).toEqual("test");
-//https://mayashavin.com/articles/test-react-hooks-with-vitest
-//     const {csrfToken} = useAppStore(state => state);
-//     expect(csrfToken).toEqual("test");
 });

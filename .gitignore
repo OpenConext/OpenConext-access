@@ -38,7 +38,7 @@ build/
 dep.tree
 dependency.tree
 NOTES.txt
-TODO.md
+TODO*.md
 spieldata
 .run/
 
