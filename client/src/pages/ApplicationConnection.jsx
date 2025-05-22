@@ -9,6 +9,11 @@ import {Testing} from "../connection/Testing.jsx";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
+const protocolOptions = ["oidc10rp", "saml20sp"].map(protocol => ({
+    value: protocol,
+    label: I18n.t(`connection.${protocol}`)
+}));
+
 export const ApplicationConnection = () => {
 
     const {user} = useAppStore(state => state);
@@ -16,6 +21,15 @@ export const ApplicationConnection = () => {
     const {id} = useParams();
     const [application, setApplication] = useState({});
     const [tab, setTab] = useState("overview");
+    const [connection, setConnection] = useState({
+        environment: "test",
+        protocol: protocolOptions[0],
+        grantTypes: ["authorization_code"],
+        pkce: true,
+        redirectUrls: [""],
+        acsLocations: [""],
+        metaData: {}
+    });
 
     useEffect(() => {
         //todo fetch application
@@ -43,7 +57,10 @@ export const ApplicationConnection = () => {
                                  setTab={setTab}/>
             }
             case  "testing": {
-                return <Testing application={application}/>
+                return <Testing application={application}
+                                connection={connection}
+                                setConnection={setConnection}
+                                protocolOptions={protocolOptions}/>
             }
             case  "prod": {
                 return <span>prod</span>

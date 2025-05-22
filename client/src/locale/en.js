@@ -179,7 +179,35 @@ const en = {
             urlMetaData: "URL metadata bestand",
             import: "Metadata importeren",
             chooseFile: "Choose file",
-            doPaste: "Plak hier de metadata"
+            doPaste: "Plak hier de metadata",
+            parsed: "The metadata has successfully been imported",
+            errorParsed: "Error in parsing the metadata"
+        },
+        informational: {
+            disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
+            profiles: {
+                anonymous: {
+                    name:"Anoniem",
+                    title: "Het meest privacyvriendelijk",
+                    info:"Deze bundel is speciaal bedoeld voor als je zeer privacy bewust wilt werken. Je ontvangt een transient NameID, dit betekent dat de gebruiker elke keer als hij bij de dienst inlogt een nieuw etcetera."
+                },
+                pseudonymized: {
+                    name:"Pseudonymized",
+                    title: "Privacy vriendelijk inclusief betrouwbaarheid",
+                    info:"Deze bundel is speciaal bedoeld voor toelichting. Je ontvangt een persistent NameID, dit betekent dat de toelichting gebruiker elke keer als hij bij de dienst inlogt etcetera."
+                },
+                personalized: {
+                    name: "Gepersonaliseerd",
+                    title: "Persoonlijke gegevens ter identificatie",
+                    info: ""
+                },
+                uidOnly: {
+                    name: "UID only",
+                    title: "Voor instellingen die intern alle persoonsinformatie aanvullen",
+                    info: ""
+                }
+            },
+            attributes      : "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
         }
 
     },

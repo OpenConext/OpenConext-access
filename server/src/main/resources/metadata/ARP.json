@@ -1,0 +1,70 @@
+{
+  "profiles": [
+    {
+      "name": "anonymous",
+      "attributes": [],
+      "optionalAttributes": [],
+      "requiresMotivation": false
+    },
+    {
+      "name": "pseudonymized",
+      "attributes": [],
+      "optionalAttributes": [],
+      "requiresMotivation": false
+    },
+    {
+      "name": "personalized",
+      "attributes": [],
+      "optionalAttributes": [],
+      "requiresMotivation": true
+    },
+    {
+      "name": "uidOnly",
+      "attributes": [],
+      "optionalAttributes": [],
+      "requiresMotivation": false
+    }
+
+  ],
+  "attributes": [
+    {
+      "name": "schacHomeOrganization",
+      "info": "The organization name of the identity provider",
+      "example": "uvh.nl"
+    },
+    {
+      "name": "eduPersonScopedAffiliation",
+      "info": "Some",
+      "example": "student@uvh.nl"
+    },
+    {
+      "name": "eduPersonAffiliation",
+      "info": "Some",
+      "example": "student"
+    },
+    {
+      "name": "TransientNameID",
+      "info": "Some",
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "eduPersonAssurance",
+      "info": "Some",
+      "example": "https://refeds.org/assurance/IAP/low"
+    },
+    {
+      "name": "eduPersonEntitlement",
+      "info": "URI (URN or URL) that indicates rights to specific resources.",
+      "example": "https://uva.teacher.nl"
+    },
+    {
+      "name": "OrganizationalUnitName",
+      "info": "Departments, teams, or faculties with which the user is associated within the issuing institution.",
+      "example": "https://uva.teacher.nl"
+    },
+
+
+
+
+  ]
+}

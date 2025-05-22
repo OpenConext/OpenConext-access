@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "organizations")
 @NoArgsConstructor
@@ -31,6 +33,9 @@ public class Organization {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Application> applications = new HashSet<>();
 
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long userCount;

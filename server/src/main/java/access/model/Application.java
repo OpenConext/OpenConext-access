@@ -1,17 +1,15 @@
 package access.model;
 
-import io.hypersistence.utils.hibernate.type.json.JsonType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "applications")
 @NoArgsConstructor
@@ -29,11 +27,11 @@ public class Application {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
-    @Type(JsonType.class)
-    @Column(name="meta_data", columnDefinition = "jsonb")
-    private Map<String, ?> metaData = new HashMap<>();
+    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Connection> connections = new HashSet<>();
 
     @Column(name = "created_at")
     private Instant createdAt;
@@ -43,10 +41,9 @@ public class Application {
     @NotNull
     private ApplicationType type = ApplicationType.SURF;
 
-    public Application(String name, Organization organization, Map<String, ?> metaData) {
+    public Application(String name, Organization organization) {
         this.name = name;
         this.organization = organization;
-        this.metaData = metaData;
         this.createdAt = Instant.now();
     }
 }

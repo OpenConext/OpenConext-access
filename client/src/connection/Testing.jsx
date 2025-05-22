@@ -9,9 +9,10 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {parseMedaDataUrl} from "../api/index.js";
+import {parseMedaData, parseMedaDataUrl} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import Select from 'react-select';
+import {useAppStore} from "../stores/AppStore.js";
 
 const sections = {
     technical: "technical",
@@ -25,36 +26,24 @@ const metaData = {
     paste: "paste"
 }
 
-const protocolOptions = ["oidc10rp", "saml20sp"].map(protocol => ({
-    value: protocol,
-    label: I18n.t(`connection.${protocol}`)
-}));
-
 const grantTypes = {
     authorization_code: "authorization_code",
     refresh_token: "refresh_token",
     device_code: "urn:ietf:params:oauth:grant-type:device_code"
 }
 
-export const Testing = ({application}) => {
+export const Testing = ({application, protocolOptions, connection, setConnection}) => {
+    const {setFlash} = useAppStore(state => state);
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
     const [section, setSection] = useState(sections.technical);
-    const [connection, setConnection] = useState({
-        environment: "test",
-        protocol: protocolOptions[0],
-        grantTypes: ["authorization_code"],
-        pkce: true,
-        redirectUrls: [""],
-        acsLocations: [""],
-        metaData: {}
-    });
     const [visitedSections, setVisitedSections] = useState(new Set());
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
+    const [invalidACSLocations, setInvalidACSLocations] = useState({"0": false});
     const [showImport, setShowImport] = useState(false);
-    const [metaDataChoice, setMetaDataChoice] = useState("url");
-    const [xmlMetaData, setXmlMetaData] = useState("");
-    const [urlMetaData, setUrlMetaData] = useState("");
+    const [metaDataChoice, setMetaDataChoice] = useState(metaData.url);
+    const [xmlMetaData, setXmlMetaData] = useState(null);
+    const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
 
     const redirectUrlRefs = useRef([]);
@@ -64,7 +53,9 @@ export const Testing = ({application}) => {
         const visited = visitedSections.has(sectionName);
         switch (sectionName) {
             case sections.technical: {
-                return !visited || isEmpty(connection.name) || Object.values(invalidRedirects).some(invalid => invalid);
+                return !visited || isEmpty(connection.name) ||
+                    Object.values(invalidRedirects).some(invalid => invalid) ||
+                    Object.values(invalidACSLocations).some(invalid => invalid);
             }
             case sections.testIdP: {
                 return !visited;
@@ -76,8 +67,8 @@ export const Testing = ({application}) => {
     }
 
     const changeSection = sectionName => {
+        setVisitedSections(new Set([...visitedSections, section]));
         setSection(sectionName);
-        setVisitedSections(new Set([...visitedSections, sectionName]));
     }
 
     const callSurf = () => {
@@ -87,6 +78,14 @@ export const Testing = ({application}) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    const resetMetaData = () => {
+        setFileName(null);
+        setShowImport(false);
+        setXmlMetaData(null)
+        setUrlMetaData(null);
+        setMetaDataChoice(metaData.url);
     }
 
     const grantTypeChanged = (grantType, selected) => {
@@ -143,23 +142,19 @@ export const Testing = ({application}) => {
         setConnection({...connection, acsLocations: newACSLocations});
     }
 
-    const doParseMedaDataUrl = () => {
-        parseMedaDataUrl(urlMetaData).then(res => {
-            //TODO, display all results?
-        })
-    }
-
     const doParseMedaData = () => {
-        parseMedaDataUrl(xmlMetaData).then(res => {
-            //TODO, display all results?
+        const promise = metaDataChoice === metaData.url ? parseMedaDataUrl(urlMetaData) : parseMedaData(xmlMetaData);
+        promise.then(res => {
+            setShowImport(false);
+            const newConnection = {...connection, ...res[0]}
+            setConnection(newConnection);
+            setXmlMetaData(null);
+            setUrlMetaData(null);
+            setFlash(I18n.t("connection.metadata.parsed"));
+        }).catch(() => {
+            setFlash(I18n.t("connection.metadata.errorParsed"), "error");
         })
     }
-
-    const onFileRemoval = index => e => {
-        stopEvent(e);
-        setFileName(null);
-        setConnection({...connection, metaData: {}});
-    };
 
     const onFileUpload = e => {
         const files = e.target.files;
@@ -168,8 +163,8 @@ export const Testing = ({application}) => {
             const reader = new FileReader();
             reader.onload = () => {
                 const xml = reader.result.toString();
+                setXmlMetaData(xml);
                 setFileName(file.name);
-                doParseMedaData(xml);
             };
             reader.readAsText(file);
         }
@@ -274,30 +269,28 @@ export const Testing = ({application}) => {
                                         <InputField value={urlMetaData}
                                                     onChange={e => setUrlMetaData(e.target.value)}/>
                                         <Button txt={I18n.t("connection.metadata.import")}
-                                                onClick={() => doParseMedaDataUrl()}
+                                                onClick={() => doParseMedaData()}
                                                 type={validUrlRegExp.test(urlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
                                                 disabled={!validUrlRegExp.test(urlMetaData)}/>
                                     </div>
                                 </>}
-                                {metaDataChoice === metaData.file &&
-                                    <div className="meta-data-file">
-                                        {fileName && <>
-                                            <div className="file-name-section">
-                                                <span>{fileName}</span>
-                                                <Button type={ButtonType.Delete}
-                                                        onClick={() => setFileName(null)}/>
-                                            </div>
-                                            <Button txt={I18n.t("connection.metadata.import")}
-                                                    onClick={() => doParseMedaData()}
-                                                    type={ButtonType.Primary}
-                                                    disabled={false}/>
-                                        </>}
-
-                                        {!fileName && <UploadButton name={"meta-date-file"}
-                                                                    acceptFileFormat={".xml"}
-                                                                    txt={I18n.t("connection.metadata.chooseFile")}
-                                                                    onFileUpload={onFileUpload}/>}
-                                    </div>}
+                                {metaDataChoice === metaData.file && <div className="meta-data-file">
+                                    {fileName && <>
+                                        <div className="file-name-section">
+                                            <span>{fileName}</span>
+                                            <Button type={ButtonType.Delete}
+                                                    onClick={() => setFileName(null)}/>
+                                        </div>
+                                        <Button txt={I18n.t("connection.metadata.import")}
+                                                onClick={() => doParseMedaData()}
+                                                type={ButtonType.Primary}
+                                                disabled={false}/>
+                                    </>}
+                                    {!fileName && <UploadButton name={"meta-date-file"}
+                                                                acceptFileFormat={".xml"}
+                                                                txt={I18n.t("connection.metadata.chooseFile")}
+                                                                onFileUpload={onFileUpload}/>}
+                                </div>}
                                 {metaDataChoice === metaData.paste && <>
                                     <span className="label top">{I18n.t("connection.metadata.doPaste")}</span>
                                     <div className="meta-data-url">
