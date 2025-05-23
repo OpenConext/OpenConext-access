@@ -19,6 +19,9 @@ import {SharedMenu} from "./components/SharedMenu.jsx";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
 import {ApplicationConnection} from "./pages/ApplicationConnection.jsx";
 import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
+import {isEmpty} from "./utils/Utils.js";
+import Landing from "./pages/Landing.jsx";
+import JoinRequest from "./pages/JoinRequest.jsx";
 
 const App = () => {
 
@@ -54,17 +57,27 @@ const App = () => {
                     if (config.authenticated) {
                         me().then(user => {
                             useAppStore.setState(() => ({
-                                user: user,
-                                menuItems: ["home", "applications", "teams"]
+                                user: user
                             }));
+                            if (isEmpty(user.organizationMemberships)) {
+                                useAppStore.setState(() => ({
+                                    menuItems: ["home"]
+                                }));
+                                // navigate("/landing");
+                            } else {
+                                useAppStore.setState(() => ({
+                                    menuItems: ["home", "applications", "teams"]
+                                }));
+                            }
                         })
                     } else {
                         navigate("/home");
                     }
-                }).catch(() => {
-                setLoading(false);
-                navigate("/home");
-            });
+                })
+                .catch(() => {
+                    setLoading(false);
+                    navigate("/home");
+                });
         })
     }, []);
 
@@ -82,8 +95,10 @@ const App = () => {
                         <AuthorizedHeader/>
                         <Routes>
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
+                            <Route path="/landing" element={<Landing/>}/>
                             <Route path="/organisation/:tab?" element={<Organisation/>}/>
                             <Route path="/application/:id" element={<ApplicationForm/>}/>
+                            <Route path="/join/:id" element={<JoinRequest/>}/>
                             <Route path="/connection/:id" element={<ApplicationConnection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
 

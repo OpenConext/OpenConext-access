@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "organization_memberships")
 @NoArgsConstructor
@@ -31,6 +33,17 @@ public class OrganizationMembership {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private Authority authority = Authority.GUEST;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "collaboration_memberships_application_memberships",
+            joinColumns = @JoinColumn(name = "collaboration_membership_id"),
+            inverseJoinColumns = @JoinColumn(name = "application_membership_id"))
+    private Set<ApplicationMembership> applicationMemberships = new HashSet<>();
+
     public OrganizationMembership(User user, Organization organization, Authority authority) {
         this.user = user;
         this.organization = organization;
@@ -38,9 +51,5 @@ public class OrganizationMembership {
         this.createdAt = Instant.now();
     }
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    @NotNull
-    private Authority authority = Authority.GUEST;
 
 }

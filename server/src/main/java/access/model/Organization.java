@@ -28,22 +28,21 @@ public class Organization {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
-    @Column(name = "invite_role_name")
-    private String inviteRoleName;
-
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Application> applications = new HashSet<>();
 
-    @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
-    private Long userCount;
+    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 
-    public Organization(String name, String schacHomeOrganization, String inviteRoleName) {
+    @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
+    private Long memberCount;
+
+    public Organization(String name, String schacHomeOrganization) {
         this.name = name;
         this.schacHomeOrganization = schacHomeOrganization;
-        this.inviteRoleName = inviteRoleName;
         this.createdAt = Instant.now();
     }
 }

@@ -93,7 +93,6 @@ email:
   from: "no-reply@surf.nl"
   contactEmail: "access@surf.nl"
   environment: "local"
-  enabled: false
 
 # The manage section determines if an external Manage is used to integrate with, or that a predefined, static list
 # of applications is loaded to populate the application dropdown in the JS forms.

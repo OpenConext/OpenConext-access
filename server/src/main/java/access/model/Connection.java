@@ -42,12 +42,18 @@ public class Connection {
     @NotNull
     private Environment environment;
 
+    @Column(name = "manage_identifier")
+    @NotNull
+    private String manageIdentifier;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public Connection(Application application, Map<String, ?> metaData) {
+    public Connection(Application application, Map<String, ?> metaData, Protocol protocol, Environment environment) {
         this.application = application;
         this.metaData = metaData;
+        this.protocol = protocol;
+        this.environment = environment;
         this.createdAt = Instant.now();
     }
 }

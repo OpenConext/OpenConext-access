@@ -61,7 +61,20 @@ const en = {
     },
     breadCrumb: {
         access: "SURF Access",
+        landing: "Search for your organization",
         applications: "Application maintenance"
+    },
+    welcome: {
+        greeting: "Welcome {{name}}",
+        info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
+        searchPlaceholder: "Search for organizations...",
+        organizationMembers: "{{nbr}} users. Request access.",
+        zeroState: "No organizations found"
+
+    },
+    joinRequest: {
+        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>Sharemania BV</strong>. Je kunt toegang vragen aan de beheerder.",
+        requestAccess: "Request access"
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
@@ -215,7 +228,8 @@ const en = {
         cancel: "Cancel",
         submit: "Submit",
         edit: "Edit",
-        delete: "Delete"
+        delete: "Delete",
+        back: "Back"
     },
     footer: {
         terms: "Terms of Use",

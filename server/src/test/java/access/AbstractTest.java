@@ -19,8 +19,6 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
-
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.config.ObjectMapperConfig;
@@ -81,8 +79,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
-                "spring.jpa.properties.hibernate.format_sql=true",
-                "spring.jpa.show-sql=true"
+//                "spring.jpa.properties.hibernate.format_sql=true",
+//                "spring.jpa.show-sql=true",
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
@@ -338,19 +336,21 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         doSave(this.userRepository, superUser, manager);
 
-        Organization shareLogics = new Organization("ShareLogics","sharelogics.org", "ShareLogicsRole");
-        doSave(this.organizationRepository, shareLogics);
+        Organization shareLogics = new Organization("ShareLogics", "sharelogics.org");
+        Organization logistics = new Organization("Logistics", "logistics.org");
+        Organization farWind = new Organization("FarWind", "farwind.org");
 
-        Application buddyCheck = new Application("Buddycheck", shareLogics, Map.of(
-                "name", "BuddyCheck-tst",
-                "protocol", Protocol.OIDC,
-                "grant_types", List.of(GrantType.AUTHORIZATION_CODE, GrantType.REFRESH_TOKEN),
-                "information_profile", "anonymous"
-        ));
-        doSave(this.applicationRepository, buddyCheck);
+        doSave(this.organizationRepository, shareLogics, logistics, farWind);
 
         OrganizationMembership managerOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.MANAGER);
         doSave(this.organizationMembershipRepository, managerOfShareLogics);
+
+        Application buddyCheck = new Application("BuddyCheck", shareLogics, Set.of(), ApplicationType.SURF);
+        ApplicationMembership applicationMembership = new ApplicationMembership(Authority.MANAGER);
+        applicationMembership.addOrganizationMembership(managerOfShareLogics);
+        buddyCheck.addApplicationMembership(applicationMembership);
+        doSave(this.applicationRepository, buddyCheck);
+
     }
 
     @SafeVarargs

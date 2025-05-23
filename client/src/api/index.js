@@ -82,9 +82,21 @@ export function logout() {
 
 //Organization
 export function searchOrganization(query) {
-    return fetchJson(`/api/v1/organization/search?query=${query}`);
+    return fetchJson(`/api/v1/organizations/search?query=${query}`);
 }
 
+export function organizationById(id) {
+    return fetchJson(`/api/v1/organizations/find/${id}`);
+}
+
+//JoinRequest
+export function newJoinRequest(joinRequest) {
+    return postPutJson("/api/v1/join/", joinRequest, "POST");
+}
+
+export function joinRequestByOrganization(organization) {
+    return fetchJson(`/api/v1/join/all/${organization.id}`);
+}
 
 //Manage
 export function getApplications(organisation) {
@@ -92,10 +104,10 @@ export function getApplications(organisation) {
 }
 
 export function parseMedaData(xml) {
-    return postPutJson("/api/v1/manage/parse",{xml: xml}, "POST");
+    return postPutJson("/api/v1/manage/parse", {xml: xml}, "POST");
 }
 
 export function parseMedaDataUrl(url) {
-    return postPutJson("/api/v1/manage/parse",{url: url}, "POST");
+    return postPutJson("/api/v1/manage/parse", {url: url}, "POST");
 }
 

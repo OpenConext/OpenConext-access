@@ -29,7 +29,6 @@ CREATE TABLE `organizations`
     `id`                      bigint       NOT NULL AUTO_INCREMENT,
     `name`                    varchar(255) NOT NULL,
     `schac_home_organization` varchar(255) NOT NULL,
-    `invite_role_name`        varchar(255) NOT NULL,
     `created_at`              datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `organizations_unique_name` (`name`),
@@ -54,6 +53,23 @@ CREATE TABLE `organization_memberships`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE `organization_invitations`
+(
+    `id`                 bigint       NOT NULL AUTO_INCREMENT,
+    `hash`               varchar(255) NOT NULL,
+    `organization_id`    bigint       NOT NULL,
+    `invitee_id`         bigint       NOT NULL,
+    `intended_authority` varchar(255) NOT NULL,
+    `email`              varchar(255) NOT NULL,
+    `message`            varchar(255) DEFAULT NULL,
+    `created_at`         datetime     DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_organization_invitations_invitee` FOREIGN KEY (`invitee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_organization_invitations_organization` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE `applications`
 (
     `id`              bigint       NOT NULL AUTO_INCREMENT,
@@ -65,6 +81,61 @@ CREATE TABLE `applications`
     PRIMARY KEY (`id`),
     UNIQUE INDEX `applications_unique_name_organization` (`name`, `organization_id`),
     FULLTEXT KEY `full_text_index` (`name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `application_memberships`
+(
+    `id`             bigint       NOT NULL AUTO_INCREMENT,
+    `application_id` bigint       NOT NULL,
+    `authority`      varchar(255) NOT NULL,
+    `created_at`     datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_application_memberships_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `collaboration_memberships_application_memberships`
+(
+    `id`                         bigint NOT NULL AUTO_INCREMENT,
+    `organization_membership_id` bigint NOT NULL,
+    `application_membership_id`  bigint NOT NULL,
+    `created_at`                 datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_cm_am_organization_membership` FOREIGN KEY (`organization_membership_id`) REFERENCES `organization_memberships` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_cm_am_application_membership` FOREIGN KEY (`application_membership_id`) REFERENCES `application_memberships` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `connections`
+(
+    `id`                bigint       NOT NULL AUTO_INCREMENT,
+    `application_id`    bigint       NOT NULL,
+    `meta_data`         json     DEFAULT NULL,
+    `protocol`          varchar(255) NOT NULL,
+    `environment`       varchar(255) NOT NULL,
+    `manage_identifier` varchar(255) NOT NULL,
+    `created_at`        datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_connections_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `join_requests`
+(
+    `id`              bigint       NOT NULL AUTO_INCREMENT,
+    `organization_id` bigint       NOT NULL,
+    `user_id`         bigint       NOT NULL,
+    `message`         text     DEFAULT NULL,
+    `language`        varchar(255) NOT NULL,
+    `created_at`      datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_join_requests_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_join_requests_organization` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
