@@ -77,40 +77,6 @@ public class MailBox {
                 invitation.getEmail());
     }
 
-    @SneakyThrows
-    public String inviteMailURL(Invitation invitation) {
-        Authority intendedAuthority = invitation.getIntendedAuthority();
-        String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : clientUrl;
-
-        return String.format("%s/invitation/accept?hash=%s", url, invitation.getHash());
-    }
-
-    @SneakyThrows
-    public String sendUserRoleExpirationNotificationMail(UserRole userRole,
-                                                         GroupedProviders groupedProvider,
-                                                         int nbrOfDays) {
-        String lang = preferredLanguage().toLowerCase();
-        String title = String.format(subjects.get(lang).get("roleExpirationNotification"),
-                userRole.getAuthority().translate(lang),
-                userRole.getRole().getName());
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("title", title);
-        variables.put("userRole", userRole);
-        if (groupedProvider != null) {
-            variables.put("groupedProvider", groupedProvider);
-        }
-        variables.put("nbrOfDays", nbrOfDays);
-        variables.put("contactEmail", contactEmail);
-        variables.put("authority", userRole.getAuthority().translate(lang));
-        if (!environment.equalsIgnoreCase("prod")) {
-            variables.put("environment", environment);
-        }
-        return sendMail(String.format("role_expiration_%s", lang),
-                title,
-                variables,
-                userRole.getUser().getEmail());
-    }
-
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
     }
@@ -122,50 +88,16 @@ public class MailBox {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setSubject(subject);
-        setText(plainText, htmlText, helper);
+        helper.setText(plainText, htmlText);
         helper.setTo(to);
         helper.setFrom(emailFrom);
-//        //Add logo, if there
-//        if (variables.containsKey("groupedProviders")) {
-//            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
-//            groupedProviders.stream()
-//                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
-//                    .forEach(groupedProvider -> {
-//                        try {
-//                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
-//                        } catch (Exception e) {
-//                            //Can't be helped
-//                        }
-//                    });
-//        }
-        doSendMail(message);
-        return htmlText;
-    }
-
-    protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException, IOException {
-        helper.setText(plainText, htmlText);
-    }
-
-    protected void doSendMail(MimeMessage message) {
         new Thread(() -> mailSender.send(message)).start();
+        return htmlText;
     }
 
     private String mailTemplate(String templateName, Map<String, Object> context) {
         return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();
     }
 
-    private String splitListSemantically(List<String> values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return "";
-        }
-        if (values.size() == 1) {
-            return values.get(0);
-        }
-        String separator = preferredLanguage().toLowerCase().equals("en") ? " and " : " en ";
-        return values.subList(0, values.size() - 1).stream()
-                .collect(Collectors.joining(", ")) + separator +
-                values.get(values.size() - 1);
-
-    }
 
 }

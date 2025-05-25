@@ -26,7 +26,6 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
-import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,11 +78,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
-//                "spring.jpa.properties.hibernate.format_sql=true",
-//                "spring.jpa.show-sql=true",
+                "spring.jpa.properties.hibernate.format_sql=true",
+                "spring.jpa.show-sql=true",
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
+
+    //Organizations
+    public static final String SHARE_LOGICS = "ShareLogics";
+    //Applications
+    public static final String NITRO_MAP = "NitroMap";
+    public static final String FAR_WIND = "FarWind";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -91,6 +96,7 @@ public abstract class AbstractTest {
 
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
+    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -114,6 +120,8 @@ public abstract class AbstractTest {
     protected Manage manage;
 
     protected LocalManage localManage;
+
+    protected final Map<String, Long> seedIdentifiers = new HashMap<>();
 
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
@@ -320,11 +328,6 @@ public abstract class AbstractTest {
         return builder.build();
     }
 
-    @SneakyThrows
-    private String writeValueAsString(List<Map<String, Object>> providers) {
-        return objectMapper.writeValueAsString(providers);
-    }
-
     private void doSeed() {
         this.userRepository.deleteAllInBatch();
         this.applicationRepository.deleteAllInBatch();
@@ -334,28 +337,40 @@ public abstract class AbstractTest {
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
-        doSave(this.userRepository, superUser, manager);
+        User guest =
+                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Peter", "Doe", "peter.doe@example.com");
+        doSave(this.userRepository, superUser, manager, guest);
 
-        Organization shareLogics = new Organization("ShareLogics", "sharelogics.org");
+        Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org");
         Organization logistics = new Organization("Logistics", "logistics.org");
-        Organization farWind = new Organization("FarWind", "farwind.org");
+        Organization farWind = new Organization(FAR_WIND, "farwind.org");
 
         doSave(this.organizationRepository, shareLogics, logistics, farWind);
 
         OrganizationMembership managerOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.MANAGER);
-        doSave(this.organizationMembershipRepository, managerOfShareLogics);
+        OrganizationMembership guestOfFarWind = new OrganizationMembership(guest, farWind, Authority.GUEST);
+        doSave(this.organizationMembershipRepository, managerOfShareLogics, guestOfFarWind);
 
         Application buddyCheck = new Application("BuddyCheck", shareLogics, Set.of(), ApplicationType.SURF);
-        ApplicationMembership applicationMembership = new ApplicationMembership(Authority.MANAGER);
-        applicationMembership.addOrganizationMembership(managerOfShareLogics);
+        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, Authority.MANAGER);
         buddyCheck.addApplicationMembership(applicationMembership);
-        doSave(this.applicationRepository, buddyCheck);
 
+        Application nitroMap = new Application(NITRO_MAP, farWind, Set.of(), ApplicationType.SURF);
+        doSave(this.applicationRepository, buddyCheck, nitroMap);
+
+        managerOfShareLogics.addApplicationMembership(applicationMembership);
+        doSave(this.organizationMembershipRepository, managerOfShareLogics);
     }
 
     @SafeVarargs
     private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
-        repository.saveAll(Arrays.asList(entities));
+        List<M> persistedEntities = repository.saveAll(Arrays.asList(entities));
+        persistedEntities.stream()
+                .filter(entity -> entity instanceof NameHolder)
+                .forEach(entity -> {
+                    NameHolder nameHolder = (NameHolder) entity;
+                    this.seedIdentifiers.put(nameHolder.getName(), nameHolder.getId());
+                });
     }
 
 

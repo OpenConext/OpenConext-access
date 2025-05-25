@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Organization {
+public class Organization implements NameHolder{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

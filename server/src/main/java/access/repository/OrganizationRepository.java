@@ -2,6 +2,7 @@ package access.repository;
 
 import access.model.Application;
 import access.model.Organization;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,8 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     List<Organization> findByNameContainingIgnoreCase(String name);
 
     Optional<Organization> findBySchacHomeOrganizationIgnoreCase(String schacHomeOrganization);
+
+    @EntityGraph(attributePaths = "organizationMemberships.user")
+    Organization findDetailsById(Long id);
+
 }

@@ -5,9 +5,11 @@ import access.AccessCookieFilter;
 import access.UserInfoEnhancer;
 import access.model.Organization;
 import access.model.User;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -59,4 +61,5 @@ class UserControllerTest extends AbstractTest {
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals("ShareLogics", organization.getName());
     }
+
 }

@@ -25,8 +25,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     private final UserRepository userRepository;
     private final OidcUserService delegate;
 
-    public CustomOidcUserService(UserRepository userRepository
-    ) {
+    public CustomOidcUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
         delegate = new OidcUserService();
     }

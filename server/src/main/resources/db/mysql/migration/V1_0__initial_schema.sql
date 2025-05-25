@@ -97,7 +97,7 @@ CREATE TABLE `application_memberships`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE `collaboration_memberships_application_memberships`
+CREATE TABLE `organization_memberships_application_memberships`
 (
     `id`                         bigint NOT NULL AUTO_INCREMENT,
     `organization_membership_id` bigint NOT NULL,

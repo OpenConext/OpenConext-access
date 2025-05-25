@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ApplicationMembership {
+public class ApplicationMembership implements NameHolder{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,23 +35,16 @@ public class ApplicationMembership {
     @NotNull
     private Authority authority = Authority.GUEST;
 
-    public ApplicationMembership(Authority authority) {
+    public ApplicationMembership(Application application, Authority authority) {
+        this.application = application;
         this.authority = authority;
     }
 
+    @Override
+    @Transient
     @JsonIgnore
-    public OrganizationMembership addOrganizationMembership(OrganizationMembership organizationMembership) {
-        this.organizationMemberships.add(organizationMembership);
-        return organizationMembership;
-    }
-
-    @JsonIgnore
-    public void removeApplicationMembership(OrganizationMembership organizationMembership) {
-        //This is required by Hibernate - children can't be dereferenced
-        Set<OrganizationMembership> newOrganizationMemberships = this.organizationMemberships
-                .stream().filter(om -> !om.getId().equals(organizationMembership.getId())).collect(Collectors.toSet());
-        this.organizationMemberships.clear();
-        this.organizationMemberships.addAll(newOrganizationMemberships);
+    public String getName() {
+        return getClass().getName().concat(application.getName()).concat(authority.name());
     }
 
 }

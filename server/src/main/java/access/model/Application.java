@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Application {
+public class Application implements NameHolder{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
