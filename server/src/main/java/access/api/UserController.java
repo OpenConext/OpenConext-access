@@ -81,7 +81,7 @@ public class UserController {
         // We don't want to do this EAGER for every membership, so we need to re-fetch within this transaction
         user = userRepository.findById(user.getId()).get();
         user.getOrganizationMemberships()
-                .forEach(organizationMembership -> Hibernate.unproxy(organizationMembership.getOrganization()));
+                .forEach(organizationMembership -> organizationMembership.getOrganization().getName());
         return ResponseEntity.ok(user);
     }
 
