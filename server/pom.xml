@@ -113,7 +113,7 @@
         <dependency>
             <groupId>org.openconext</groupId>
             <artifactId>java-crypto</artifactId>
-            <version>3.0.1</version>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -129,19 +129,19 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.5.2</version>
+            <version>5.5.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path</artifactId>
-            <version>5.5.2</version>
+            <version>5.5.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path</artifactId>
-            <version>5.5.2</version>
+            <version>5.5.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -203,7 +203,7 @@
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>9.0.1</version>
+                <version>9.0.2</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

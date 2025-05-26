@@ -1,6 +1,6 @@
 @use "../styles/vars" as *;
 
-.join-request-container {
+.home-container {
     padding: 60px 50px 0 50px;
     width: 50%;
     display: flex;
@@ -11,12 +11,13 @@
         width: 100%;
     }
 
-    .actions {
+    .nudge-landing {
         display: flex;
+        gap: 3px;
     }
-
-    .error {
-        color: var(--sds--color--red--500);
+    svg {
+        width: 225px;
+        height: auto;
+        margin-top: 40px;
     }
-
 }

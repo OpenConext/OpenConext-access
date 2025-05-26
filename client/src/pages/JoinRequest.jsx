@@ -4,13 +4,17 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router-dom";
 import {newJoinRequest, organizationById} from "../api/index.js";
-import {Loader, Button, ButtonType} from "@surfnet/sds";
+import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 
-const JoinRequest = () => {
+const JoinRequest = ({refreshUser}) => {
+
+    const {setFlash} = useAppStore(state => state);
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
+    const [joinRequestCreated, setJoinRequestCreated] = useState(false);
+    const [duplicateJoinRequest, setDuplicateJoinRequest] = useState(false);
 
     const {id} = useParams();
     const navigate = useNavigate();
@@ -33,24 +37,41 @@ const JoinRequest = () => {
     }
 
     const createJoinRequest = () => {
-        newJoinRequest({}).then(res => {
-            //Big flash, and nice picture?
-        })
+        newJoinRequest({
+            organizationId: id,
+            language: I18n.locale,
+        }).then(() => {
+            setJoinRequestCreated(true);
+            setFlash(I18n.t("joinRequest.flash", {name: organization.name}));
+            refreshUser();
+        }).catch(() => {
+            setDuplicateJoinRequest(true);
+        });
     };
 
     return (
         <div className="join-request-container">
             <h2>{organization.name}</h2>
             <p dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(I18n.t("joinRequest.info",{name: organization.name}))
+                __html: DOMPurify.sanitize(I18n.t("joinRequest.info", {name: organization.name}))
             }}/>
             <section className="actions">
                 <Button type={ButtonType.Secondary}
                         txt={I18n.t("forms.back")}
                         onClick={() => navigate("/landing")}/>
                 <Button txt={I18n.t("joinRequest.requestAccess")}
+                        disabled={joinRequestCreated || duplicateJoinRequest}
                         onClick={() => createJoinRequest()}/>
             </section>
+            {joinRequestCreated && <Modal confirm={() => navigate("/home")}
+                                          title={I18n.t("joinRequest.modal.title")}
+                                          question={I18n.t("joinRequest.modal.success", {name: organization.name})}
+                                          confirmationButtonLabel={I18n.t("joinRequest.modal.proceed")}/>}
+            {duplicateJoinRequest && <section className="error">
+                <p className={"error"} dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("joinRequest.duplicate", {name: organization.name}))
+                }}/>
+            </section>}
         </div>
 
     )

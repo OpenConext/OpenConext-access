@@ -62,4 +62,47 @@ class UserControllerTest extends AbstractTest {
         assertEquals("ShareLogics", organization.getName());
     }
 
+    @Test
+    void meManagerWithTestLogin() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
+        assertEquals("ShareLogics", organization.getName());
+    }
+
+    @Test
+    void meNewUserWithExistingOrganizationTestLogin() {
+        Map<String, Object> attributes = Map.of(
+                "eduperson_principal_name", "debby@sharelogics.org",
+                "email", "debby@sharelogics.org",
+                "family_name", "Davids",
+                "given_name", "Debby",
+                "name", "Debby Davids",
+                "schac_home_organization", "sharelogics.org",
+                "sub", "urn:collab:person:providence:new");
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
+        assertEquals(SHARE_LOGICS, organization.getName());
+        assertEquals(attributes.get("schac_home_organization"), organization.getSchacHomeOrganization());
+    }
+
 }

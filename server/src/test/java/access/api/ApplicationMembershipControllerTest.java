@@ -27,7 +27,7 @@ class ApplicationMembershipControllerTest extends AbstractTest {
         Organization organization = organizationRepository.findById(seedIdentifiers.get(FAR_WIND)).get();
         Application application = applicationRepository.findById(seedIdentifiers.get(NITRO_MAP)).get();
 
-        String orgMembershipName = OrganizationMembership.class.getName().concat(organization.getName()).concat(Authority.GUEST.name());
+        String orgMembershipName = OrganizationMembership.class.getName().concat(organization.getName()).concat(Authority.MEMBER.name());
         OrganizationMembership organizationMembership = organizationMembershipRepository.findById(seedIdentifiers.get(orgMembershipName)).get();
 
         ApplicationMembershipForm form = new ApplicationMembershipForm(

@@ -1,17 +1,17 @@
 @use "../styles/mixins" as *;
 
-div.organisation-outer-container {
+div.organization-outer-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     background-color: white;
     height: 100%;
 
-    div.organisation-container {
+    div.organization-container {
 
         padding: 25px 50px;
 
-        .organisation {
+        .organization {
             @include form;
             width: 75%;
 

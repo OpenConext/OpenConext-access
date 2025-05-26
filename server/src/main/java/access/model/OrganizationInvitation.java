@@ -34,7 +34,7 @@ public class OrganizationInvitation {
     @Enumerated(EnumType.STRING)
     @Column(name = "intended_authority")
     @NotNull
-    private Authority intendedAuthority = Authority.GUEST;
+    private Authority intendedAuthority = Authority.MEMBER;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
