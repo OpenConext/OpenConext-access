@@ -38,7 +38,7 @@ public class OrganizationMembership implements NameHolder{
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Authority authority = Authority.GUEST;
+    private Authority authority = Authority.MEMBER;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "organization_memberships_application_memberships",

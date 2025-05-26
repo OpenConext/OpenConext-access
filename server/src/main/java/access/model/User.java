@@ -77,6 +77,9 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<JoinRequest> joinRequests = new HashSet<>();
+
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }

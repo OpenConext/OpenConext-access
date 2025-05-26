@@ -33,7 +33,7 @@ public class ApplicationMembership implements NameHolder{
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Authority authority = Authority.GUEST;
+    private Authority authority = Authority.MEMBER;
 
     public ApplicationMembership(Application application, Authority authority) {
         this.application = application;

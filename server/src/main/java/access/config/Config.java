@@ -15,6 +15,7 @@ public class Config {
 
     private String clientUrl;
     private String baseUrl;
+    private String eduIdSchacHomeOrganization;
     private String name;
     private boolean authenticated;
     private List<String> missingAttributes;
@@ -22,6 +23,7 @@ public class Config {
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
         this.baseUrl = base.baseUrl;
+        this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;
     }
 
     public Config withAuthenticated(boolean authenticated) {

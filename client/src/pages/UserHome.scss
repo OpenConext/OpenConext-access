@@ -1,0 +1,68 @@
+@use "../styles/vars" as *;
+
+.home-container {
+    padding: 60px 50px 0 50px;
+    width: 50%;
+
+    @media (max-width: $full-mode) {
+        width: 100%;
+    }
+
+    .search {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .inner-search {
+        position: relative;
+
+        svg {
+            position: absolute;
+            right: 10px;
+            top: 12px;
+            width: 20px;
+            height: auto;
+            color: var(--sds--color--gray--400);
+        }
+    }
+
+    .organizations-container {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+
+        .organization {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 14px 18px 14px 14px;
+            border-radius: $br;
+            border: 1px solid var(--sds--color--gray--300);
+            cursor: pointer;
+
+            p {
+                font-weight: 600;
+            }
+
+            svg {
+                margin-left: auto;
+                color: var(--sds--color--gray--500);
+                width: 12px;
+                height: auto;
+
+                &:hover {
+                    color: black;
+                }
+            }
+
+            &:hover {
+                background-color: var(--sds--color--white--dimmed--70);
+
+                svg {
+                    color: black;
+                }
+            }
+        }
+    }
+}

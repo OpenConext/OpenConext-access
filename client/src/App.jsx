@@ -22,6 +22,7 @@ import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
 import {isEmpty} from "./utils/Utils.js";
 import Landing from "./pages/Landing.jsx";
 import JoinRequest from "./pages/JoinRequest.jsx";
+import UserHome from "./pages/UserHome.jsx";
 
 const App = () => {
 
@@ -42,6 +43,13 @@ const App = () => {
                 <Route path="/*" element={<NotFound/>}/>
             </>
         );
+    }
+
+    const refreshUser = () => {
+        me().then(user =>
+            useAppStore.setState(() => ({
+                user: user
+            })))
     }
 
     useEffect(() => {
@@ -96,12 +104,12 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Navigate replace to="organisation"/>}/>
                             <Route path="/landing" element={<Landing/>}/>
+                            <Route path="/home" element={<UserHome/>}/>
                             <Route path="/organisation/:tab?" element={<Organisation/>}/>
                             <Route path="/application/:id" element={<ApplicationForm/>}/>
-                            <Route path="/join/:id" element={<JoinRequest/>}/>
+                            <Route path="/join/:id" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:id" element={<ApplicationConnection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
-
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>

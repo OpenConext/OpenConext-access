@@ -22,12 +22,12 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            this.populateSecurityContext();
+            LocalDevelopmentAuthenticationFilter.populateSecurityContext("urn:collab:person:example.com:admin");
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private void populateSecurityContext() {
+    public static void populateSecurityContext(String sub) {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
         Map<String, Object> claims = Map.of(
                 "eduperson_principal_name", "urn:collab:person:example.com:super",
@@ -37,7 +37,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-                "sub", "urn:collab:person:example.com:admin",
+                "sub", sub,
                 "uids", List.of("super"));
         OidcIdToken idtoken = new OidcIdToken(
                 UUID.randomUUID().toString(),

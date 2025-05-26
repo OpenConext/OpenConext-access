@@ -1,23 +1,24 @@
 package access.api;
 
+import access.exception.DuplicateJoinRequestException;
 import access.exception.NotFoundException;
-import access.model.*;
+import access.model.JoinRequest;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.JoinRequestRepository;
-import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
+import access.request.JoinRequestForm;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -33,9 +34,12 @@ public class JoinRequestController {
     private static final Log LOG = LogFactory.getLog(JoinRequestController.class);
 
     private final JoinRequestRepository joinRequestRepository;
+    private final OrganizationRepository organizationRepository;
 
-    public JoinRequestController(JoinRequestRepository joinRequestRepository) {
+    public JoinRequestController(JoinRequestRepository joinRequestRepository,
+                                 OrganizationRepository organizationRepository) {
         this.joinRequestRepository = joinRequestRepository;
+        this.organizationRepository = organizationRepository;
     }
 
 
@@ -54,10 +58,21 @@ public class JoinRequestController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Organization> create(User user, @RequestBody JoinRequest joinRequest) {
+    public ResponseEntity<JoinRequest> create(User user, @RequestBody JoinRequestForm joinRequestForm) {
         LOG.debug("/create");
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Organization organization = this.organizationRepository.findById((Long) joinRequestForm.getOrganizationId())
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        List<JoinRequest> joinRequests = joinRequestRepository.findByOrganization(organization);
+        boolean force = joinRequestForm.isForce();
+        if (!force && joinRequests.stream().anyMatch(jr -> jr.getUser().getId().equals(user.getId()))) {
+            throw new DuplicateJoinRequestException(
+                    String.format("Duplicate join request for user %s and organization %s",
+                            user.getEmail(), organization.getName()));
+        }
+        JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getLanguage());
+        joinRequestRepository.save(joinRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(joinRequest);
     }
 
 }

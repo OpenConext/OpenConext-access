@@ -66,7 +66,7 @@ public class ApplicationMembershipController {
         if (!application.getOrganization().getId().equals(organizationMembership.getOrganization().getId())) {
             throw new NotFoundException("Organization not found");
         }
-        ApplicationMembership applicationMembership = new ApplicationMembership(application, Authority.GUEST);
+        ApplicationMembership applicationMembership = new ApplicationMembership(application, Authority.MEMBER);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
         //Now fill the join table
         organizationMembership.addApplicationMembership(applicationMembership);

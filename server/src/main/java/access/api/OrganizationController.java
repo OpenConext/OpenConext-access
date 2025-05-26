@@ -1,5 +1,6 @@
 package access.api;
 
+import access.config.Config;
 import access.exception.NotFoundException;
 import access.model.Authority;
 import access.model.Organization;
@@ -10,7 +11,9 @@ import access.repository.OrganizationRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @RestController
 @RequestMapping(value = {"/api/v1/organizations"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
+@EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 public class OrganizationController {
@@ -34,12 +38,15 @@ public class OrganizationController {
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final Config config;
 
     @Autowired
     public OrganizationController(OrganizationRepository organizationRepository,
-                                  OrganizationMembershipRepository organizationMembershipRepository) {
+                                  OrganizationMembershipRepository organizationMembershipRepository,
+                                  Config config) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.config = config;
     }
 
     @GetMapping("/find/{id}")
@@ -58,12 +65,32 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationRepository.findByNameContainingIgnoreCase(query));
     }
 
-    @PostMapping("/")
+    @PostMapping({"","/"})
     public ResponseEntity<Organization> create(User user, @RequestBody @Validated Organization organization) {
-        organization = organizationRepository.save(organization);
-        OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, Authority.OWNER);
+        String name = organization.getName();
+        Organization newOrganization = createOrganization(user, name);
+        Organization savedOrganization = organizationRepository.save(newOrganization);
+        // User becomes admin
+        OrganizationMembership organizationMembership = new OrganizationMembership(user, savedOrganization, Authority.ADMIN);
         organizationMembershipRepository.save(organizationMembership);
-        return ResponseEntity.status(HttpStatus.CREATED).body(organization);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+    }
+
+    private Organization createOrganization(User user, String name) {
+        String schacHomeOrganization = user.getSchacHomeOrganization().toLowerCase();
+        String orgSchacHomeOrganization;
+        if (config.getEduIdSchacHomeOrganization().equals(schacHomeOrganization)) {
+            String normalizedName = name
+                    .replaceAll("[^a-zA-Z_ ]", "")
+                    .trim()
+                    .replaceAll(" ","_")
+                    .toLowerCase();
+            orgSchacHomeOrganization = String.format("%s.%s", normalizedName, config.getEduIdSchacHomeOrganization());
+        } else {
+            orgSchacHomeOrganization = schacHomeOrganization;
+        }
+        return new Organization (name, orgSchacHomeOrganization);
     }
 
 }

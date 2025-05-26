@@ -89,6 +89,10 @@ export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
+export function newOrganization(organization) {
+    return postPutJson("/api/v1/organizations", organization, "POST");
+}
+
 //JoinRequest
 export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");

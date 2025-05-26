@@ -25,6 +25,7 @@ import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -328,6 +329,38 @@ public abstract class AbstractTest {
         return builder.build();
     }
 
+    protected AccessCookieFilter mockLoginFlow(String sub) {
+        CookieFilter cookieFilter = new CookieFilter();
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .filter(cookieFilter)
+                .body(Map.of("sub", sub))
+                .put("/api/v1/test/login")
+                .then()
+                .statusCode(201);
+
+        //Refreshing the CSRF token after authentication success and logout success is required
+        Map<String, String> map = given()
+                .when()
+                .filter(cookieFilter)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/csrf")
+                .then()
+                .extract()
+                .as(new TypeRef<>() {
+                });
+
+        CsrfToken csrfToken = new DefaultCsrfToken(map.get("headerName"), map.get("parameterName"), map.get("token"));
+        return new AccessCookieFilter(cookieFilter, null, csrfToken);
+    }
+
+    protected Header csrfHeader(AccessCookieFilter accessCookieFilter) {
+        return new Header(accessCookieFilter.csrfToken().getHeaderName() , accessCookieFilter.csrfToken().getToken());
+    }
+
     private void doSeed() {
         this.userRepository.deleteAllInBatch();
         this.applicationRepository.deleteAllInBatch();
@@ -338,7 +371,7 @@ public abstract class AbstractTest {
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Peter", "Doe", "peter.doe@example.com");
+                new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com");
         doSave(this.userRepository, superUser, manager, guest);
 
         Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org");
@@ -347,19 +380,19 @@ public abstract class AbstractTest {
 
         doSave(this.organizationRepository, shareLogics, logistics, farWind);
 
-        OrganizationMembership managerOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.MANAGER);
-        OrganizationMembership guestOfFarWind = new OrganizationMembership(guest, farWind, Authority.GUEST);
-        doSave(this.organizationMembershipRepository, managerOfShareLogics, guestOfFarWind);
+        OrganizationMembership adminOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.ADMIN);
+        OrganizationMembership memberOfFarWind = new OrganizationMembership(guest, farWind, Authority.MEMBER);
+        doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind);
 
         Application buddyCheck = new Application("BuddyCheck", shareLogics, Set.of(), ApplicationType.SURF);
-        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, Authority.MANAGER);
+        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, Authority.MEMBER);
         buddyCheck.addApplicationMembership(applicationMembership);
 
         Application nitroMap = new Application(NITRO_MAP, farWind, Set.of(), ApplicationType.SURF);
         doSave(this.applicationRepository, buddyCheck, nitroMap);
 
-        managerOfShareLogics.addApplicationMembership(applicationMembership);
-        doSave(this.organizationMembershipRepository, managerOfShareLogics);
+        adminOfShareLogics.addApplicationMembership(applicationMembership);
+        doSave(this.organizationMembershipRepository, adminOfShareLogics);
     }
 
     @SafeVarargs

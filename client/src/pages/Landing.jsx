@@ -8,7 +8,8 @@ import { useDebouncedCallback } from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg"
+import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+
 const Landing = () => {
 
     const {user} = useAppStore(state => state);
@@ -50,6 +51,10 @@ const Landing = () => {
         }
     }
 
+    const createOrganization = () => {
+
+    }
+
     return (
         <div className="landing-container">
             <div className="search">
@@ -64,8 +69,16 @@ const Landing = () => {
                     <SearchIcon/>
                 </div>
                 <div className="organizations-container">
-                    {(isEmpty(organizations) && !isEmpty(search) && !loading) &&
+                    {(isEmpty(organizations) && !isEmpty(search) && !loading) && <>
                         <p>{I18n.t("welcome.zeroState")}</p>}
+                        <section className="organization"
+                                 onClick={() => createOrganization()}>
+                            <div>
+                                <p>{org.name}</p>
+                                <span>{I18n.t("welcome.organizationMembers", {nbr:org.memberCount})}</span>
+                            </div>
+                            <ArrowRight/>
+                        </section></>
                     {!isEmpty(organizations) &&
                         organizations.map((org, index) =>
                             <section key={index} className="organization"

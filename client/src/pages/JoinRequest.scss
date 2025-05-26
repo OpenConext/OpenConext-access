@@ -13,7 +13,10 @@
 
     .actions {
         display: flex;
+    }
 
+    .error {
+        color: var(--sds--color--red--500);
     }
 
 }

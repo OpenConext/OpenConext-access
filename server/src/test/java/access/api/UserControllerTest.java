@@ -62,4 +62,20 @@ class UserControllerTest extends AbstractTest {
         assertEquals("ShareLogics", organization.getName());
     }
 
+    @Test
+    void meManagerWithTestLogin() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
+        assertEquals("ShareLogics", organization.getName());
+    }
 }
