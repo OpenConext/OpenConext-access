@@ -41,7 +41,7 @@ public class LoginController {
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            LocalDevelopmentAuthenticationFilter.populateSecurityContext(body.get("sub"));
+            LocalDevelopmentAuthenticationFilter.populateSecurityContext(body);
         }
         //New in Spring security 6.x,
         // See https://docs.spring.io/spring-security/reference/5.8/migration/servlet/session-management.html#_require_explicit_saving_of_securitycontextrepository

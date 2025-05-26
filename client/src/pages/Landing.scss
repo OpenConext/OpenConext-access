@@ -63,6 +63,15 @@
                     color: black;
                 }
             }
+
+            &.register {
+                background-color: #dcf1e5;
+                border: none;
+
+                &:hover {
+                    background-color: var(--sds--color--green--200);
+                }
+            }
         }
     }
 }

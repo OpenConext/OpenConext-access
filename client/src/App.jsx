@@ -11,7 +11,7 @@ import RefreshRoute from "./pages/RefreshRoute.jsx";
 import {Home} from "./pages/Home.jsx";
 import {Footer} from "./components/Footer.jsx";
 import {useLocation} from "react-router";
-import Organisation from "./pages/Organisation.jsx";
+import Organization from "./pages/organization.jsx";
 import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
@@ -60,10 +60,10 @@ const App = () => {
                     useAppStore.setState(() => ({
                         config: config
                     }));
-                    setLoading(false);
                     setIsAuthenticated(config.authenticated);
                     if (config.authenticated) {
                         me().then(user => {
+                            setLoading(false);
                             useAppStore.setState(() => ({
                                 user: user
                             }));
@@ -71,7 +71,7 @@ const App = () => {
                                 useAppStore.setState(() => ({
                                     menuItems: ["home"]
                                 }));
-                                // navigate("/landing");
+                                navigate("/landing");
                             } else {
                                 useAppStore.setState(() => ({
                                     menuItems: ["home", "applications", "teams"]
@@ -79,6 +79,7 @@ const App = () => {
                             }
                         })
                     } else {
+                        setLoading(false);
                         navigate("/home");
                     }
                 })
@@ -102,10 +103,10 @@ const App = () => {
                     <div className="pages">
                         <AuthorizedHeader/>
                         <Routes>
-                            <Route path="/" element={<Navigate replace to="organisation"/>}/>
-                            <Route path="/landing" element={<Landing/>}/>
+                            <Route path="/" element={<Navigate replace to="home"/>}/>
+                            <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
-                            <Route path="/organisation/:tab?" element={<Organisation/>}/>
+                            <Route path="/organization/:id" element={<Organization/>}/>
                             <Route path="/application/:id" element={<ApplicationForm/>}/>
                             <Route path="/join/:id" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:id" element={<ApplicationConnection/>}/>

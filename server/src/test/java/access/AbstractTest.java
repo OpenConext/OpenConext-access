@@ -330,13 +330,17 @@ public abstract class AbstractTest {
     }
 
     protected AccessCookieFilter mockLoginFlow(String sub) {
+        return mockLoginFlow(Map.of("sub", sub));
+    }
+
+    protected AccessCookieFilter mockLoginFlow(Map<String, Object> attributes) {
         CookieFilter cookieFilter = new CookieFilter();
         given()
                 .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .filter(cookieFilter)
-                .body(Map.of("sub", sub))
+                .body(attributes)
                 .put("/api/v1/test/login")
                 .then()
                 .statusCode(201);

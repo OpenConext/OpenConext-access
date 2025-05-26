@@ -30,6 +30,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .as(Organization.class);
 
         assertEquals(1, organization.getMemberCount());
+        assertEquals(1, organization.getApplications().size());
     }
 
     @Test

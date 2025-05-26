@@ -3,16 +3,16 @@ import React, {useEffect, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate} from "react-router-dom";
-import {searchOrganization} from "../api/index.js";
+import {newOrganization, searchOrganization} from "../api/index.js";
 import { useDebouncedCallback } from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 
-const Landing = () => {
+const Landing = ({refreshUser}) => {
 
-    const {user} = useAppStore(state => state);
+    const {user, setFlash} = useAppStore(state => state);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [organizations, setOrganizations] = useState([]);
@@ -47,12 +47,20 @@ const Landing = () => {
         } else {
             setLoading(true);
             debouncedFetch(val);
-
         }
     }
 
     const createOrganization = () => {
-
+        setLoading(true);
+        newOrganization({name: search})
+            .then(res => {
+                useAppStore.setState({
+                    organization: res
+                });
+                setFlash(I18n.t("welcome.flash", {name: res.name}));
+                refreshUser();
+                navigate(`/organization/${res.id}`)
+            })
     }
 
     return (
@@ -70,15 +78,13 @@ const Landing = () => {
                 </div>
                 <div className="organizations-container">
                     {(isEmpty(organizations) && !isEmpty(search) && !loading) && <>
-                        <p>{I18n.t("welcome.zeroState")}</p>}
-                        <section className="organization"
+                        <p>{I18n.t("welcome.zeroState")}</p>
+                        <section className="organization register"
                                  onClick={() => createOrganization()}>
-                            <div>
-                                <p>{org.name}</p>
-                                <span>{I18n.t("welcome.organizationMembers", {nbr:org.memberCount})}</span>
-                            </div>
+                                <p dangerouslySetInnerHTML={{__html: I18n.t("welcome.register", {name: search})}}/>
                             <ArrowRight/>
-                        </section></>
+                        </section>
+                    </>}
                     {!isEmpty(organizations) &&
                         organizations.map((org, index) =>
                             <section key={index} className="organization"

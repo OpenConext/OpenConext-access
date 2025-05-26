@@ -53,7 +53,7 @@ public class OrganizationController {
     public ResponseEntity<Organization> find(@PathVariable("id") Long id) {
         LOG.debug("/find");
 
-        Organization organization = organizationRepository.findById(id)
+        Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
         return ResponseEntity.ok(organization);
     }

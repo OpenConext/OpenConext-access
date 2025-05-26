@@ -2,7 +2,6 @@ package access.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,7 +48,7 @@ public class JoinRequest {
     //We need organization name and user info, but we don't want cyclic JSON deserialization
     public Map<String, Object> getContext() {
         return Map.of(
-                "organization", getOrganization().getName(),
+                "organization", organization.getName(),
                 "user", Map.of(
                         "name", user.getName(),
                         "email", user.getEmail()

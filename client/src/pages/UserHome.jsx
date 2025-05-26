@@ -2,10 +2,15 @@ import "./UserHome.scss";
 import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
+import {isEmpty} from "../utils/Utils.js";
+import {Link, useNavigate} from "react-router-dom";
+import Relax from "../icons/undraw/relax.svg";
+import DOMPurify from "dompurify";
 
 const UserHome = () => {
 
     const {user} = useAppStore(state => state);
+    const navigate = useNavigate();
 
     useEffect(() => {
         useAppStore.setState({
@@ -14,16 +19,29 @@ const UserHome = () => {
                 {value: I18n.t("breadCrumb.home")}
             ]
         });
+        if (!isEmpty(user.organizationMemberships)) {
+            navigate(`/organizations/${user.organizationMemberships[0].organization.id}`)
+        }
     }, []);
 
     return (
         <div className="home-container">
-            <div className="me">
-                <h2>{I18n.t("welcome.greeting", {name: user.name})}</h2>
-                <code>{JSON.stringify(user)}</code>
-            </div>
-        </div>
 
+            <h2>{I18n.t("welcome.greeting", {name: user.name})}</h2>
+            {isEmpty(user.joinRequests) && <div className="nudge-landing">
+                <span>{I18n.t("userHome.nudgeLanding")}</span>
+                <Link to={"/landing"}>
+                    <span>{I18n.t("userHome.nudgeLandingLink")}</span>
+                </Link>
+            </div>}
+            {!isEmpty(user.joinRequests) && <div>
+                <p dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
+                        {name: user.joinRequests[0].context.organization}))
+                }}/>
+                <Relax/>
+            </div>}
+        </div>
     )
 };
 export default UserHome;

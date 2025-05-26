@@ -210,4 +210,26 @@ public class User implements Serializable {
         return changed;
     }
 
+    @JsonIgnore
+    public OrganizationMembership addOrganizationMembership(OrganizationMembership organizationMembership) {
+        this.organizationMemberships.add(organizationMembership);
+        organizationMembership.setUser(this);
+        return organizationMembership;
+    }
+
+    @JsonIgnore
+    public void removeOrganizationMembership(OrganizationMembership organizationMembership) {
+        //This is required by Hibernate - children can't be dereferenced
+        Set<OrganizationMembership> newOrganizationMemberships = this.organizationMemberships
+                .stream().filter(om -> !om.getId().equals(organizationMembership.getId())).collect(Collectors.toSet());
+        this.organizationMemberships.clear();
+        this.organizationMemberships.addAll(newOrganizationMemberships);
+    }
+
+    @JsonIgnore
+    public boolean isMember(String schacHomeOrganization) {
+        return this.organizationMemberships.stream()
+                .anyMatch(om -> om.getOrganization().getSchacHomeOrganization().equals(schacHomeOrganization));
+    }
+
 }

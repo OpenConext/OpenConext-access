@@ -70,8 +70,15 @@ const en = {
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         searchPlaceholder: "Search for organizations...",
         organizationMembers: "{{nbr}} users. Request access.",
-        zeroState: "No organizations found"
-
+        zeroState: "No organizations found",
+        register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
+        flash: "Created organization {{name}}."
+    },
+    userHome: {
+        greeting: "{{name}}",
+        nudgeLanding: "You are not a member of any organization.",
+        nudgeLandingLink: " You can request to join one.",
+        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
     },
     joinRequest: {
         info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
@@ -121,7 +128,7 @@ const en = {
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         }
     },
-    organisation: {
+    organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         applications: "Applicatiebeheer",
         addApplication: "Voeg je eerste Applicatie toe",
