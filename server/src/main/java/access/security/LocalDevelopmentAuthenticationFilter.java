@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,14 +23,14 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            this.populateSecurityContext();
+            LocalDevelopmentAuthenticationFilter.populateSecurityContext(Map.of());
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private void populateSecurityContext() {
+    public static void populateSecurityContext(Map<String, String> body) {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
-        Map<String, Object> claims = Map.of(
+        Map<String, Object> defaultClaims = Map.of(
                 "eduperson_principal_name", "urn:collab:person:example.com:super",
                 "email", "email",
                 "family_name", "Doe",
@@ -37,16 +38,20 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-                "sub", "urn:collab:person:example.com:admin",
+                "sub", body.getOrDefault("sub", "urn:collab:person:example.com:admin"),
                 "uids", List.of("super"));
-        OidcIdToken idtoken = new OidcIdToken(
+        //We can't rely on the mutability of the body
+        Map<String, Object> claims = new HashMap<>(defaultClaims);
+        claims.putAll(body);
+
+        OidcIdToken idToken = new OidcIdToken(
                 UUID.randomUUID().toString(),
                 Instant.now(),
                 Instant.now().plus(1, ChronoUnit.HOURS),
                 claims
         );
         OidcUserInfo userInfo = new OidcUserInfo(claims);
-        DefaultOidcUser oidcUser = new DefaultOidcUser(authorities, idtoken, userInfo);
+        DefaultOidcUser oidcUser = new DefaultOidcUser(authorities, idToken, userInfo);
         OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(
                 oidcUser,
                 authorities,

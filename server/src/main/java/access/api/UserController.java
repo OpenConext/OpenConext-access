@@ -3,7 +3,11 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.model.Authority;
+import access.model.Organization;
+import access.model.OrganizationMembership;
 import access.model.User;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,15 +15,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.jpa.provider.HibernateUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -44,13 +46,15 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Autowired
     public UserController(Config config,
-                          UserRepository userRepository
-    ) {
+                          UserRepository userRepository,
+                          OrganizationRepository organizationRepository) {
         this.config = config;
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     @GetMapping("config")
@@ -77,12 +81,22 @@ public class UserController {
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
-        //In this case only we do want the organization for each membership.
+        User userFromDB = userRepository.findById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
+        if (userFromDB.getOrganizationMemberships().isEmpty() &&
+                !schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization())) {
+            Optional<Organization> organizationOptional = organizationRepository.findBySchacHomeOrganization(schacHomeOrganization);
+            organizationOptional.ifPresent(organization -> {
+                userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.MEMBER));
+                userRepository.save(userFromDB);
+            });
+        }
+        //In this case only, we do want the organization for each membership.
         // We don't want to do this EAGER for every membership, so we need to re-fetch within this transaction
-        user = userRepository.findById(user.getId()).get();
-        user.getOrganizationMemberships()
+        userFromDB.getOrganizationMemberships()
                 .forEach(organizationMembership -> organizationMembership.getOrganization().getName());
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userFromDB);
     }
 
     @GetMapping("other/{id}")

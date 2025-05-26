@@ -1,0 +1,11 @@
+package access.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.CONFLICT)
+public class DuplicateJoinRequestException extends BaseException {
+    public DuplicateJoinRequestException(String message) {
+        super(message);
+    }
+}

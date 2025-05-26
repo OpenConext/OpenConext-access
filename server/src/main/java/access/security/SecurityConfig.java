@@ -108,8 +108,10 @@ public class SecurityConfig {
                                                    UserRepository userRepository) throws Exception {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer
-                        .ignoringRequestMatchers("/login/oauth2/code/oidcng")
-                        .ignoringRequestMatchers("/api/v1/validations/**"))
+                        .ignoringRequestMatchers(
+                                "/api/v1/test/login",
+                                "/login/oauth2/code/oidcng",
+                                "/api/v1/validations/**"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(authorizeHttpRequestsConfigurer -> authorizeHttpRequestsConfigurer
                         .requestMatchers(
@@ -118,6 +120,7 @@ public class SecurityConfig {
                                 "/api/v1/users/config",
                                 "/api/v1/users/logout",
                                 "/api/v1/validations/**",
+                                "/api/v1/test/login",
                                 "/ui/**",
                                 "/internal/**")
                         .permitAll()

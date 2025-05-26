@@ -62,19 +62,34 @@ const en = {
     breadCrumb: {
         access: "SURF Access",
         landing: "Search for your organization",
-        applications: "Application maintenance"
+        applications: "Application maintenance",
+        home: "Home"
     },
     welcome: {
         greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         searchPlaceholder: "Search for organizations...",
         organizationMembers: "{{nbr}} users. Request access.",
-        zeroState: "No organizations found"
-
+        zeroState: "No organizations found",
+        register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
+        flash: "Created organization {{name}}."
+    },
+    userHome: {
+        greeting: "{{name}}",
+        nudgeLanding: "You are not a member of any organization.",
+        nudgeLandingLink: " You can request to join one.",
+        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
     },
     joinRequest: {
-        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>Sharemania BV</strong>. Je kunt toegang vragen aan de beheerder.",
-        requestAccess: "Request access"
+        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        requestAccess: "Request access",
+        duplicate:"There is already an outstanding request for you to join <strong>{{name}}</strong>.",
+        flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
+        modal: {
+            title: "Join request is created",
+            success: "Your join request is sent to the admins of <strong>{{name}}</strong>. You will receive an email if the join request is accepted",
+            proceed: "Proceed"
+        }
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
@@ -113,7 +128,7 @@ const en = {
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         }
     },
-    organisation: {
+    organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         applications: "Applicatiebeheer",
         addApplication: "Voeg je eerste Applicatie toe",

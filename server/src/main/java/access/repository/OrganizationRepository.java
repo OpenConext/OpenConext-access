@@ -14,9 +14,9 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     List<Organization> findByNameContainingIgnoreCase(String name);
 
-    Optional<Organization> findBySchacHomeOrganizationIgnoreCase(String schacHomeOrganization);
+    Optional<Organization> findBySchacHomeOrganization(String schacHomeOrganization);
 
-    @EntityGraph(attributePaths = "organizationMemberships.user")
-    Organization findDetailsById(Long id);
+    @EntityGraph(attributePaths = {"applications"})
+    Optional<Organization> findDetailsById(Long id);
 
 }
