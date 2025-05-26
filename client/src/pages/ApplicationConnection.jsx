@@ -36,7 +36,7 @@ export const ApplicationConnection = () => {
 
     useEffect(() => {
         organizationById(id).then(res => {
-            setOrg
+            //TODO not necessary ,
         })
         const newApplication = {
             id: 6,

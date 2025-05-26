@@ -18,6 +18,7 @@ const Organization = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        //TODO https://github.com/OpenConext/OpenConext-accessdashboard/issues/31
         organizationById(id).then(res => {
             setOrganization(res);
             useAppStore.setState({

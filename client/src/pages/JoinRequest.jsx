@@ -26,7 +26,7 @@ const JoinRequest = ({refreshUser}) => {
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });
-        organizationById(id).then(res => {
+        organizationLightById(id).then(res => {
             setOrganization(res);
             setLoading(false);
         })
