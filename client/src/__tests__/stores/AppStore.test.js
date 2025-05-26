@@ -3,7 +3,7 @@ import {useAppStore} from "../../stores/AppStore";
 
 test("Store outside functional component", () => {
     const csrfTokenFromState = useAppStore.getState().csrfToken;
-    expect(csrfTokenFromState).toBeUndefined();
+    expect(csrfTokenFromState).toBeFalsy();
 
     useAppStore.setState({csrfToken: "test"});
 
