@@ -6,6 +6,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
+import {organizationById} from "../api/index.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -18,8 +19,10 @@ export const ApplicationConnection = () => {
 
     const {user} = useAppStore(state => state);
 
-    const {id} = useParams();
+    const {organisationId, applicationId, id} = useParams();
+
     const [application, setApplication] = useState({});
+    const {isNew, setIsNew} = useState(true);
     const [tab, setTab] = useState("overview");
     const [connection, setConnection] = useState({
         environment: "test",
@@ -32,7 +35,9 @@ export const ApplicationConnection = () => {
     });
 
     useEffect(() => {
-        //todo fetch application
+        organizationById(id).then(res => {
+            setOrg
+        })
         const newApplication = {
             id: 6,
             name: "BuddyCheck",
@@ -42,8 +47,8 @@ export const ApplicationConnection = () => {
         useAppStore.setState({
             breadcrumbPath: [
                 {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: "/organizations/", value: "TODO Org Name"},
-                {path: `/application/${newApplication.id}`, value: I18n.t("breadCrumb.applications")},
+                {path: `/organization/${organisationId}`, value: "TODO Org Name"},
+                {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
                 {value: newApplication.name}
             ]
         });

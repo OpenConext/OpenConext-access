@@ -14,10 +14,12 @@ const Organization = () => {
 
     const {user} = useAppStore(state => state);
     const [alertClosed, setAlertClosed] = useState(false);
+    const [organization, setOrganization] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         organizationById(id).then(res => {
+            setOrganization(res);
             useAppStore.setState({
                 organization: res,
                 breadcrumbPath: [

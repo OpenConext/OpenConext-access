@@ -10,4 +10,8 @@ public class UserRestrictionException extends AuthenticationException {
     public UserRestrictionException() {
         super("Forbidden");
     }
+
+    public UserRestrictionException(String msg) {
+        super(msg);
+    }
 }

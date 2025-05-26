@@ -20,6 +20,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.1.0",
+    "react-image-crop": "^11.0.10",
     "react-router": "^7.6.1",
     "react-router-dom": "7.6.1",
     "react-select": "^5.10.1",

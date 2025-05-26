@@ -20,7 +20,7 @@ const UserHome = () => {
             ]
         });
         if (!isEmpty(user.organizationMemberships)) {
-            navigate(`/organizations/${user.organizationMemberships[0].organization.id}`)
+            navigate(`/organization/${user.organizationMemberships[0].organization.id}`)
         }
     }, []);
 

@@ -8,29 +8,36 @@ import {Button, ButtonType, RadioOptions, RadioOptionsOrientation, Tooltip} from
 import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";
 import {CollapseField} from "../components/CollapseField.jsx";
 import {isEmpty} from "../utils/Utils.js";
+import {organizationById} from "../api/index.js";
 
 export const ApplicationForm = () => {
 
-    const {id} = useParams();
+    const {organisationId, id} = useParams();
     const navigate = useNavigate();
     const [isNew, setIsNew] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState({type: "app", target: "surf"});
     const [checks, setChecks] = useState({});
 
     useEffect(() => {
-        setIsNew(id === "new");
-        const newChecks = {};
-        const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
-        Object.keys(translationChecks).forEach(check => newChecks[check] = false);
-        setChecks(newChecks);
-        useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: "/organizations/", value: "TODO Org Name"},
-                {value: I18n.t("breadCrumb.applications")}
-            ]
-        });
-    }, [id]);
+        organizationById(organisationId).then(res => {
+                setIsNew(id === "new");
+                const newChecks = {};
+                const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
+                Object.keys(translationChecks).forEach(check => newChecks[check] = false);
+                setChecks(newChecks);
+                useAppStore.setState({
+                    organization: res,
+                    breadcrumbPath: [
+                        {path: "/home", value: I18n.t("breadCrumb.access")},
+                        {path: `/organization/${res.id}`, value: res.name},
+                        {value: I18n.t("breadCrumb.applications")}
+                    ]
+                });
+                setLoading(false);
+            }
+        )
+    }, [id, organisationId]);
 
     const targetGroupLabel = label => {
         const upperText = I18n.t(`application.target${label.toUpperCase()}`);
@@ -38,10 +45,14 @@ export const ApplicationForm = () => {
         return `<div><p class="primary-label-radio-option">${upperText}</p><p>${bottomText}</p></div>`
     }
 
+    if (loading) {
+        return <Loader/>
+    }
+
     return (
         <div className="application-form-container">
             <div className="application-form">
-                <h2>{I18n.t(`application.${isNew ? "new" : "edit"}`,{name: application.name})}</h2>
+                <h2>{I18n.t(`application.${isNew ? "new" : "edit"}`, {name: application.name})}</h2>
                 <InputField name={I18n.t("application.name")}
                             value={application.name || ""}
                             required={true}
@@ -85,16 +96,16 @@ export const ApplicationForm = () => {
                               labelResolver={targetGroupLabel}
                               orientation={RadioOptionsOrientation.column}/>
                 {isNew &&
-                <div className="fair-use-terms">
-                    <span className="label">{I18n.t("application.terms")}<sup className="required">*</sup></span>
-                    {Object.keys(checks).map(check =>
-                        <CollapseField title={I18n.t(`application.checks.${check}`)}
-                                       name={check}
-                                       checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
-                                       checkValue={checks[check]}>
-                            <span>{I18n.t(`application.checksInfo.${check}`)}</span>
-                        </CollapseField>)}
-                </div>}
+                    <div className="fair-use-terms">
+                        <span className="label">{I18n.t("application.terms")}<sup className="required">*</sup></span>
+                        {Object.keys(checks).map(check =>
+                            <CollapseField title={I18n.t(`application.checks.${check}`)}
+                                           name={check}
+                                           checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
+                                           checkValue={checks[check]}>
+                                <span>{I18n.t(`application.checksInfo.${check}`)}</span>
+                            </CollapseField>)}
+                    </div>}
                 <section className="actions">
                     <Button onClick={() => navigate("/home")}
                             type={ButtonType.Secondary}

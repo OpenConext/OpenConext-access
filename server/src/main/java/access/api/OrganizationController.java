@@ -11,7 +11,6 @@ import access.repository.OrganizationRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class OrganizationController {
+public class OrganizationController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(OrganizationController.class);
 
@@ -50,11 +49,14 @@ public class OrganizationController {
     }
 
     @GetMapping("/find/{id}")
-    public ResponseEntity<Organization> find(@PathVariable("id") Long id) {
+    public ResponseEntity<Organization> find(User user, @PathVariable("id") Long id) {
         LOG.debug("/find");
 
         Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+
         return ResponseEntity.ok(organization);
     }
 
@@ -65,7 +67,7 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationRepository.findByNameContainingIgnoreCase(query));
     }
 
-    @PostMapping({"","/"})
+    @PostMapping({"", "/"})
     public ResponseEntity<Organization> create(User user, @RequestBody @Validated Organization organization) {
         String name = organization.getName();
         Organization newOrganization = createOrganization(user, name);
@@ -84,13 +86,13 @@ public class OrganizationController {
             String normalizedName = name
                     .replaceAll("[^a-zA-Z_ ]", "")
                     .trim()
-                    .replaceAll(" ","_")
+                    .replaceAll(" ", "_")
                     .toLowerCase();
             orgSchacHomeOrganization = String.format("%s.%s", normalizedName, config.getEduIdSchacHomeOrganization());
         } else {
             orgSchacHomeOrganization = schacHomeOrganization;
         }
-        return new Organization (name, orgSchacHomeOrganization);
+        return new Organization(name, orgSchacHomeOrganization);
     }
 
 }

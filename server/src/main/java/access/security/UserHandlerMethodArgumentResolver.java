@@ -55,7 +55,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             //This call is always allowed
             return null;
         } else {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("Forbidden");
         }
 
         String sub = attributes.get("sub").toString();

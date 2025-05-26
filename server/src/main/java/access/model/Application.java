@@ -32,6 +32,10 @@ public class Application implements NameHolder{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
+    @Column(name = "organization_id")
+    @NotNull
+    private Long organisationId;
+
     @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Connection> connections = new HashSet<>();
 

@@ -17,7 +17,7 @@ class OrganizationControllerTest extends AbstractTest {
 
     @Test
     void find() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         Organization organization = given()
                 .when()
@@ -31,6 +31,22 @@ class OrganizationControllerTest extends AbstractTest {
 
         assertEquals(1, organization.getMemberCount());
         assertEquals(1, organization.getApplications().size());
+    }
+
+    @Test
+    void findForbidden() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/find/{id}")
+                .then()
+                .statusCode(403);
     }
 
     @Test
