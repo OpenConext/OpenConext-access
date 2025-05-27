@@ -87,9 +87,11 @@ public abstract class AbstractTest {
 
     //Organizations
     public static final String SHARE_LOGICS = "ShareLogics";
+    public static final String FAR_WIND = "FarWind";
+    public static final String LOGISTICS = "Logistics";
     //Applications
     public static final String NITRO_MAP = "NitroMap";
-    public static final String FAR_WIND = "FarWind";
+    public static final String BUDDY_CHECK = "BuddyCheck";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -98,6 +100,7 @@ public abstract class AbstractTest {
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String MULTIPLE_ORG_SUB = "urn:collab:person:eduid.nl:mos";
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -376,23 +379,27 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com");
-        doSave(this.userRepository, superUser, manager, guest);
+        User multipleOrganizationUser =
+                new User(false, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
+        doSave(this.userRepository, superUser, manager, guest, multipleOrganizationUser);
 
         Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org");
-        Organization logistics = new Organization("Logistics", "logistics.org");
+        Organization logistics = new Organization(LOGISTICS, "logistics.org");
         Organization farWind = new Organization(FAR_WIND, "farwind.org");
 
         doSave(this.organizationRepository, shareLogics, logistics, farWind);
 
         OrganizationMembership adminOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.ADMIN);
         OrganizationMembership memberOfFarWind = new OrganizationMembership(guest, farWind, Authority.MEMBER);
-        doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind);
+        OrganizationMembership memberOfShareLogics = new OrganizationMembership(multipleOrganizationUser, shareLogics, Authority.MEMBER);
+        OrganizationMembership memberLogics = new OrganizationMembership(multipleOrganizationUser, logistics, Authority.MEMBER);
+        doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
 
-        Application buddyCheck = new Application("BuddyCheck", shareLogics, Set.of(), ApplicationType.SURF);
+        Application buddyCheck = new Application(BUDDY_CHECK, shareLogics, Map.of());
         ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, Authority.MEMBER);
         buddyCheck.addApplicationMembership(applicationMembership);
 
-        Application nitroMap = new Application(NITRO_MAP, farWind, Set.of(), ApplicationType.SURF);
+        Application nitroMap = new Application(NITRO_MAP, farWind, Map.of());
         doSave(this.applicationRepository, buddyCheck, nitroMap);
 
         adminOfShareLogics.addApplicationMembership(applicationMembership);

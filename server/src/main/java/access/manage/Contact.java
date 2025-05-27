@@ -1,5 +1,6 @@
 package access.manage;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 public class Contact {
 
     private final String type;

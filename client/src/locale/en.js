@@ -83,7 +83,7 @@ const en = {
     joinRequest: {
         info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
         requestAccess: "Request access",
-        duplicate:"There is already an outstanding request for you to join <strong>{{name}}</strong>.",
+        duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
         flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
         modal: {
             title: "Join request is created",
@@ -93,6 +93,9 @@ const en = {
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+    },
+    userMenu: {
+        switchOrganization: "Switch organization"
     },
     application: {
         new: "New Application",
@@ -215,14 +218,14 @@ const en = {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
             profiles: {
                 anonymous: {
-                    name:"Anoniem",
+                    name: "Anoniem",
                     title: "Het meest privacyvriendelijk",
-                    info:"Deze bundel is speciaal bedoeld voor als je zeer privacy bewust wilt werken. Je ontvangt een transient NameID, dit betekent dat de gebruiker elke keer als hij bij de dienst inlogt een nieuw etcetera."
+                    info: "Deze bundel is speciaal bedoeld voor als je zeer privacy bewust wilt werken. Je ontvangt een transient NameID, dit betekent dat de gebruiker elke keer als hij bij de dienst inlogt een nieuw etcetera."
                 },
                 pseudonymized: {
-                    name:"Pseudonymized",
+                    name: "Pseudonymized",
                     title: "Privacy vriendelijk inclusief betrouwbaarheid",
-                    info:"Deze bundel is speciaal bedoeld voor toelichting. Je ontvangt een persistent NameID, dit betekent dat de toelichting gebruiker elke keer als hij bij de dienst inlogt etcetera."
+                    info: "Deze bundel is speciaal bedoeld voor toelichting. Je ontvangt een persistent NameID, dit betekent dat de toelichting gebruiker elke keer als hij bij de dienst inlogt etcetera."
                 },
                 personalized: {
                     name: "Gepersonaliseerd",
@@ -235,7 +238,7 @@ const en = {
                     info: ""
                 }
             },
-            attributes      : "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
+            attributes: "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
         }
 
     },

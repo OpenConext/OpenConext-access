@@ -40,6 +40,9 @@ public class Organization implements NameHolder{
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long memberCount;
 
+    @Formula(value = "(SELECT COUNT(*) FROM applications a WHERE a.organization_id=id)")
+    private Long applicationCount;
+
     public Organization(String name, String schacHomeOrganization) {
         this.name = name;
         this.schacHomeOrganization = schacHomeOrganization;

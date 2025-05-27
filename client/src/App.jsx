@@ -17,7 +17,7 @@ import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
 import {SharedMenu} from "./components/SharedMenu.jsx";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
-import {ApplicationConnection} from "./pages/ApplicationConnection.jsx";
+import {Connection} from "./pages/Connection.jsx";
 import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
 import {isEmpty} from "./utils/Utils.js";
 import Landing from "./pages/Landing.jsx";
@@ -63,7 +63,6 @@ const App = () => {
                     setIsAuthenticated(config.authenticated);
                     if (config.authenticated) {
                         me().then(user => {
-                            setLoading(false);
                             useAppStore.setState(() => ({
                                 user: user
                             }));
@@ -74,9 +73,11 @@ const App = () => {
                                 navigate("/landing");
                             } else {
                                 useAppStore.setState(() => ({
-                                    menuItems: ["home", "applications", "teams"]
+                                    menuItems: ["home", "applications", "teams"],
+                                    currentOrganization: user.organizationMemberships.map(om => om.organization)[0]
                                 }));
                             }
+                            setLoading(false);
                         })
                     } else {
                         setLoading(false);
@@ -103,13 +104,13 @@ const App = () => {
                     <div className="pages">
                         <AuthorizedHeader/>
                         <Routes>
-                            <Route path="/" element={<Navigate replace to="home"/>}/>
+                            <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
-                            <Route path="/organization/:id" element={<Organization/>}/>
-                            <Route path="/application/:organisationId/:id" element={<ApplicationForm/>}/>
-                            <Route path="/join/:id" element={<JoinRequest refreshUser={refreshUser}/>}/>
-                            <Route path="/connection/:organisationId/:applicationId/:id" element={<ApplicationConnection/>}/>
+                            <Route path="/organization/:organisationId" element={<Organization/>}/>
+                            <Route path="/application/:id" element={<ApplicationForm/>}/>
+                            <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
+                            <Route path="/connection/:applicationId/:id" element={<Connection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

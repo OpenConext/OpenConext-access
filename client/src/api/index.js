@@ -89,6 +89,10 @@ export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
+export function organizationLightById(id) {
+    return fetchJson(`/api/v1/organizations/light/${id}`);
+}
+
 export function newOrganization(organization) {
     return postPutJson("/api/v1/organizations", organization, "POST");
 }
@@ -102,11 +106,16 @@ export function joinRequestByOrganization(organization) {
     return fetchJson(`/api/v1/join/all/${organization.id}`);
 }
 
-//Manage
-export function getApplications(organisation) {
+//Applications
+export function getApplicationsByOrganization(organisation) {
+    return fetchJson(`/api/v1/applications/all/${organisation.id}`);
+}
+
+export function getApplicationsById(applicationId) {
     return fetchJson(`/api/v1/applications/applications/${organisation.id}`);
 }
 
+//Manage
 export function parseMedaData(xml) {
     return postPutJson("/api/v1/manage/parse", {xml: xml}, "POST");
 }

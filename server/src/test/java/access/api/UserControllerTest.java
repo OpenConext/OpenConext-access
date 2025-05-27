@@ -63,7 +63,7 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void meManagerWithTestLogin() {
+    void meManagerWithMockLogin() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         User user = given()
@@ -77,6 +77,26 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals("ShareLogics", organization.getName());
+    }
+
+    @Test
+    void meWithMockLoginMultipleOrganizations() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(2, user.getOrganizationMemberships().size());
+
+        List<String> names = user.getOrganizationMemberships().stream()
+                .map(organizationMembership -> organizationMembership.getOrganization().getName()).
+                sorted()
+                .toList();
+        assertEquals(List.of(LOGISTICS, SHARE_LOGICS), names);
     }
 
     @Test

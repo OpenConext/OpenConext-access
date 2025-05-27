@@ -18,6 +18,6 @@ export const useAppStore = create(set => ({
     breadcrumbPath: [],
     //[ "home", "applications", "teams"]
     menuItems: [],
-    //ShareWorks
-    organization: ""
+    //{name: "ShareWorks"}
+    currentOrganization: {name: ""}
 }));

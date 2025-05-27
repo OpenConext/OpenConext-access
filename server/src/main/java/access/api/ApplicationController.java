@@ -3,7 +3,6 @@ package access.api;
 import access.exception.NotFoundException;
 import access.model.*;
 import access.repository.ApplicationRepository;
-import access.repository.JoinRequestRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class ApplicationController {
+public class ApplicationController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ApplicationController.class);
 
@@ -45,15 +45,32 @@ public class ApplicationController {
                 .map(membership -> membership.getOrganization())
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
-        List<Application> joinRequests = this.applicationRepository.findByOrganization(organization);
-        return ResponseEntity.ok(joinRequests);
+        List<Application> applications = this.applicationRepository.findByOrganization(organization);
+        return ResponseEntity.ok(applications);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<Application> create(User user, @RequestBody Application application) {
-        LOG.debug("/create");
+    @PostMapping({"", "/"})
+    public ResponseEntity<Application> create(User user, @Validated @RequestBody Application application) {
+        LOG.debug("/create application by " + user.getEmail());
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Organization organization = application.getOrganization();
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+        applicationRepository.save(application);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(application);
     }
 
+    @PutMapping({"", "/"})
+    public ResponseEntity<Application> update(User user, @Validated @RequestBody Application applicationData) {
+        LOG.debug("/update application by " + user.getEmail());
+
+        applicationRepository.findById(applicationData.getId())
+                .orElseThrow(() -> new NotFoundException("A"))
+
+        Organization organization = application.getOrganization();
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+        applicationRepository.save(application);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(application);
+    }
 }

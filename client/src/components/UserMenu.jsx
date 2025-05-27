@@ -3,10 +3,10 @@ import React, {useState} from "react";
 import "./UserMenu.scss";
 import {useNavigate} from "react-router-dom";
 import {stopEvent} from "../utils/Utils";
-import {UserInfo} from "@surfnet/sds";
+import {Button, ButtonType,UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
-
+import CaretDown from "../icons/caret_down.svg";
 
 export const UserMenu = () => {
 
@@ -15,6 +15,7 @@ export const UserMenu = () => {
     const navigate = useNavigate();
 
     const [dropDownActive, setDropDownActive] = useState(false);
+    const [isSwitchOrganizationOpen, setIsSwitchOrganizationOpen] = useState(false);
 
     const logoutUser = e => {
         stopEvent(e);
@@ -24,6 +25,35 @@ export const UserMenu = () => {
             setTimeout(() =>
                 useAppStore.setState(() => ({user: null, breadcrumbPath: []})), 125);
         });
+    }
+
+    const switchOrganization = organization => {
+        useAppStore.setState(() => ({
+            currentOrganization: organization
+        }));
+        navigate("/home");
+    }
+
+    const renderOrganizationSwitch = () => {
+        if (user.organizationMemberships.length < 2) {
+            return null;
+        }
+        const organizations = user.organizationMemberships.map(om => om.organization);
+        return (
+            <div className="organization-switch"
+                 tabIndex={1}
+                 onBlur={() => setTimeout(() => setIsSwitchOrganizationOpen(false), 475)}>
+                <Button onClick={() => setIsSwitchOrganizationOpen(!isSwitchOrganizationOpen)}
+                        txt={I18n.t("userMenu.switchOrganization")}
+                        icon={<CaretDown/>}
+                        type={ButtonType.Secondary}/>
+                {isSwitchOrganizationOpen &&
+                    <section className="organization-switch-section sds--user-info--dropdown">
+                        {organizations.map((org, index) =>
+                            <span key={index} onClick={() => switchOrganization(org)}>{org.name}</span>)}
+                    </section>}
+            </div>
+        );
     }
 
     const renderMenu = () => {
@@ -38,15 +68,18 @@ export const UserMenu = () => {
     }
 
     return (
-        <div className="user-menu"
-             tabIndex={1}
-             onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
-            <UserInfo isOpen={dropDownActive}
-                      children={renderMenu()}
-                      organisationName={user.schacHomeOrganization}
-                      userName={user.name}
-                      toggle={() => setDropDownActive(!dropDownActive)}
-            />
+        <div className='user-menu-container'>
+            {renderOrganizationSwitch()}
+            <div className="user-menu"
+                 tabIndex={2}
+                 onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
+                <UserInfo isOpen={dropDownActive}
+                          children={renderMenu()}
+                          organisationName={user.schacHomeOrganization}
+                          userName={user.name}
+                          toggle={() => setDropDownActive(!dropDownActive)}
+                />
+            </div>
         </div>
     );
 

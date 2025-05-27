@@ -9,7 +9,7 @@ import DOMPurify from "dompurify";
 
 const UserHome = () => {
 
-    const {user} = useAppStore(state => state);
+    const {user, currentOrganization} = useAppStore(state => state);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,7 +20,7 @@ const UserHome = () => {
             ]
         });
         if (!isEmpty(user.organizationMemberships)) {
-            navigate(`/organization/${user.organizationMemberships[0].organization.id}`)
+            navigate(`/organization/${currentOrganization.id}`);
         }
     }, []);
 

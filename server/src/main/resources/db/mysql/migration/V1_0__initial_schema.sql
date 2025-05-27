@@ -73,7 +73,8 @@ CREATE TABLE `organization_invitations`
 CREATE TABLE `applications`
 (
     `id`              bigint       NOT NULL AUTO_INCREMENT,
-    `name`            varchar(255) DEFAULT NULL,
+    `name`            varchar(255) NOT NULL,
+    `logo_url`        varchar(255) DEFAULT NULL,
     `type`            varchar(255) NOT NULL,
     `meta_data`       json         DEFAULT NULL,
     `organization_id` bigint       NOT NULL,

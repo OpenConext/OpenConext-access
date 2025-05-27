@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router-dom";
-import {newJoinRequest, organizationById} from "../api/index.js";
+import {newJoinRequest, organizationLightById} from "../api/index.js";
 import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 
@@ -16,7 +16,7 @@ const JoinRequest = ({refreshUser}) => {
     const [joinRequestCreated, setJoinRequestCreated] = useState(false);
     const [duplicateJoinRequest, setDuplicateJoinRequest] = useState(false);
 
-    const {id} = useParams();
+    const {organisationId} = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {

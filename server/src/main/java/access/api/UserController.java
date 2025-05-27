@@ -81,6 +81,7 @@ public class UserController {
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
+
         User userFromDB = userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
@@ -92,8 +93,11 @@ public class UserController {
                 userRepository.save(userFromDB);
             });
         }
-        //In this case only, we do want the organization for each membership.
-        // We don't want to do this EAGER for every membership, so we need to re-fetch within this transaction
+        /*
+         * In this case only, we do want the organization for each membership. We don't want to do this EAGER for
+         * every membership, so we need to re-fetch within this transaction. The performance overhead is ok, as users
+         * normally are only member of one organization
+         */
         userFromDB.getOrganizationMemberships()
                 .forEach(organizationMembership -> organizationMembership.getOrganization().getName());
         return ResponseEntity.ok(userFromDB);

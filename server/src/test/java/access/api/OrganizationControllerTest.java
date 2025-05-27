@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class OrganizationControllerTest extends AbstractTest {
 
@@ -29,8 +30,28 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/find/{id}")
                 .as(Organization.class);
 
-        assertEquals(1, organization.getMemberCount());
+        assertEquals(2L, organization.getMemberCount());
         assertEquals(1, organization.getApplications().size());
+        assertEquals(1L, organization.getApplicationCount());
+    }
+
+    @Test
+    void light() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        Organization organization = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/light/{id}")
+                .as(Organization.class);
+
+        assertEquals(2, organization.getMemberCount());
+        assertEquals(1L, organization.getApplicationCount());
+        assertNull(organization.getApplications());
     }
 
     @Test

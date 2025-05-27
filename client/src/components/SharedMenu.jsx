@@ -37,7 +37,7 @@ const allMenuItems = [
 
 export const SharedMenu = () => {
 
-    const {menuItems, config, organization} = useAppStore(state => state);
+    const {menuItems, config, currentOrganization} = useAppStore(state => state);
     const [filteredMenuItems, setFilteredMenuItems] = useState([]);
 
     const navigate = useNavigate();
@@ -71,7 +71,7 @@ export const SharedMenu = () => {
             items={filteredMenuItems}
             logoLabel={"Access"}
             navigate={doNavigate}
-            title={organization?.name || ""}
+            title={currentOrganization?.name || ""}
             settingToolTip={I18n.t("organizations.tooltip")}
             children={<SharedMenuFooter/>}
         />

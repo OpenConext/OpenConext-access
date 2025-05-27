@@ -15,11 +15,11 @@ const protocolOptions = ["oidc10rp", "saml20sp"].map(protocol => ({
     label: I18n.t(`connection.${protocol}`)
 }));
 
-export const ApplicationConnection = () => {
+export const Connection = () => {
 
-    const {user} = useAppStore(state => state);
+    const {user, currentOrganization} = useAppStore(state => state);
 
-    const {organisationId, applicationId, id} = useParams();
+    const {applicationId, id} = useParams();
 
     const [application, setApplication] = useState({});
     const {isNew, setIsNew} = useState(true);

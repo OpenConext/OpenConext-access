@@ -1,6 +1,9 @@
 package access.manage;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.RoleDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
@@ -10,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Getter
+@AllArgsConstructor
+@EqualsAndHashCode
 public class MetaData implements Serializable {
 
     private final String entityID;

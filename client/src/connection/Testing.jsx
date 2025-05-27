@@ -409,8 +409,8 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                             type={ButtonType.Secondary}/>
                     {isCopyConnectionOpen &&
                         <section className="copy-connection-section sds--user-info--dropdown">
-                            {application.connections.map(conn =>
-                                <span onClick={() => alert("TODO")}>{conn.name}</span>)}
+                            {application.connections.map((conn,index) =>
+                                <span key={index}  onClick={() => alert("TODO")}>{conn.name}</span>)}
                         </section>}
                 </div>
             </div>

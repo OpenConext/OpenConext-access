@@ -1,6 +1,11 @@
-.user-menu {
-    margin-left: auto;
-    z-index: 4;
+.user-menu-container {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    .user-menu {
+        z-index: 7;
+    }
 
     color: black;
 
@@ -15,5 +20,28 @@
     .sds--user-info--textual p.name, .sds--user-info--textual p.role {
         color: white;
     }
+
+    .organization-switch {
+        position: relative;
+    }
+
+    .organization-switch-section {
+        width: 100%;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        z-index: 7;
+
+        span {
+            padding: 12px 15px 4px 15px;
+            cursor: pointer;
+            width: 100%;
+
+            &:hover {
+                background-color: var(--sds--color--gray--250);
+            }
+        }
+    }
+
 }
 

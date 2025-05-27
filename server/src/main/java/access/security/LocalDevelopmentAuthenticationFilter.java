@@ -38,7 +38,8 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-                "sub", body.getOrDefault("sub", "urn:collab:person:example.com:admin"),
+//                "sub", body.getOrDefault("sub", "urn:collab:person:example.com:admin"),
+                "sub", body.getOrDefault("sub", "urn:collab:person:eduid.nl:mos"),
                 "uids", List.of("super"));
         //We can't rely on the mutability of the body
         Map<String, Object> claims = new HashMap<>(defaultClaims);

@@ -2,14 +2,18 @@ package access.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,14 +31,17 @@ public class Application implements NameHolder{
     @NotNull
     private String name;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
+    @Type(JsonType.class)
+    @Column(name="meta_data", columnDefinition = "jsonb")
+    private Map<String, ?> metaData = new HashMap<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
-
-    @Column(name = "organization_id")
-    @NotNull
-    private Long organisationId;
 
     @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Connection> connections = new HashSet<>();
@@ -50,11 +57,10 @@ public class Application implements NameHolder{
     @NotNull
     private ApplicationType type = ApplicationType.SURF;
 
-    public Application(String name, Organization organization, Set<Connection> connections, ApplicationType type) {
+    public Application(String name, Organization organization, Map<String, Object> metaData) {
         this.name = name;
         this.organization = organization;
-        this.connections = connections;
-        this.type = type;
+        this.metaData = metaData;
         this.createdAt = Instant.now();
     }
 

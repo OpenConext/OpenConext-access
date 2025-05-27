@@ -60,6 +60,16 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
+    @GetMapping("/light/{id}")
+    public ResponseEntity<Organization> light(@PathVariable("id") Long id) {
+        LOG.debug("/light");
+
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        return ResponseEntity.ok(organization);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<Organization>> search(@RequestParam(value = "query") String query) {
         LOG.debug("/search");
