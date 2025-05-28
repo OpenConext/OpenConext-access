@@ -1,9 +1,6 @@
 package access.mail;
 
-import access.model.Authority;
-import access.model.Language;
-import access.model.OrganizationInvitation;
-import access.model.User;
+import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -77,6 +74,28 @@ public class MailBox {
                 invitation.getEmail());
     }
 
+    @SneakyThrows
+    public void sendJoinRequestMail(JoinRequest joinRequest) {
+        Language language = joinRequest.getLanguage();
+        Organization organization = joinRequest.getOrganization();
+        String title = String.format(subjects.get(language.name()).get("newJoinRequest"),
+                joinRequest.getUser().getName(), organization.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("joinRequest", joinRequest);
+        variables.put("title", title);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        variables.put("url", String.format("%s/organization/%s/joins", clientUrl, organization.getId()));
+        List<String> emails = organization.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getAuthority().equals(Authority.ADMIN))
+                .map(organizationMembership -> organizationMembership.getUser().getEmail())
+                .toList();
+        sendMail(String.format("invitation_%s", language.name()),
+                title,
+                variables,
+                emails.toArray(new String[0]));
+    }
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
     }

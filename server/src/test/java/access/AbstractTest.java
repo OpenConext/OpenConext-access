@@ -3,10 +3,7 @@ package access;
 import access.manage.LocalManage;
 import access.manage.Manage;
 import access.model.*;
-import access.repository.ApplicationRepository;
-import access.repository.OrganizationMembershipRepository;
-import access.repository.OrganizationRepository;
-import access.repository.UserRepository;
+import access.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEObjectType;
@@ -110,6 +107,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected JoinRequestRepository joinRequestRepository;
 
     @Autowired
     protected OrganizationRepository organizationRepository;
@@ -372,6 +372,7 @@ public abstract class AbstractTest {
         this.userRepository.deleteAllInBatch();
         this.applicationRepository.deleteAllInBatch();
         this.organizationRepository.deleteAllInBatch();
+        this.joinRequestRepository.deleteAllInBatch();
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
@@ -404,6 +405,9 @@ public abstract class AbstractTest {
 
         adminOfShareLogics.addApplicationMembership(applicationMembership);
         doSave(this.organizationMembershipRepository, adminOfShareLogics);
+
+        JoinRequest joinRequest = new JoinRequest(guest, shareLogics, Language.en);
+        doSave(this.joinRequestRepository, joinRequest);
     }
 
     @SafeVarargs

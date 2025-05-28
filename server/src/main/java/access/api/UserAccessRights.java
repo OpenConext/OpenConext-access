@@ -1,9 +1,12 @@
 package access.api;
 
 import access.exception.UserRestrictionException;
+import access.model.Application;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.User;
+
+import java.util.Collection;
 
 public interface UserAccessRights {
 
@@ -16,5 +19,17 @@ public interface UserAccessRights {
                     user.getEmail(), organization.getName(), authority.name()));
         }
     }
+
+    default void confirmApplicationMembership(User user, Organization organization, Application application, Authority authority) {
+        if (user.getOrganizationMemberships().stream()
+                .map(organizationMembership -> organizationMembership.getApplicationMemberships())
+                .flatMap(Collection::stream)
+                .noneMatch(applicationMembership -> applicationMembership.getApplication().getId().equals(application.getId()) &&
+                        applicationMembership.getAuthority().isAllowed(authority))) {
+            //Now we fall back to the organization membership
+            confirmOrganizationMembership(user, organization, authority);
+        }
+    }
+
 
 }

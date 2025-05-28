@@ -64,13 +64,13 @@ public class ApplicationController implements UserAccessRights {
     public ResponseEntity<Application> update(User user, @Validated @RequestBody Application applicationData) {
         LOG.debug("/update application by " + user.getEmail());
 
-        applicationRepository.findById(applicationData.getId())
-                .orElseThrow(() -> new NotFoundException("A"))
-
+        Application application = applicationRepository.findById(applicationData.getId())
+                .orElseThrow(() -> new NotFoundException("Application not found"));
         Organization organization = application.getOrganization();
-        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
         applicationRepository.save(application);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
     }
+
 }
