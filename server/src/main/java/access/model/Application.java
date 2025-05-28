@@ -55,7 +55,12 @@ public class Application implements NameHolder{
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private ApplicationType type = ApplicationType.SURF;
+    private ApplicationTarget target = ApplicationTarget.SURF;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private ApplicationType type = ApplicationType.APP;
 
     public Application(String name, Organization organization, Map<String, Object> metaData) {
         this.name = name;
@@ -80,4 +85,11 @@ public class Application implements NameHolder{
         this.applicationMemberships.addAll(newApplicationMemberships);
     }
 
+    public void merge(Application applicationData) {
+        this.name = applicationData.name;
+        this.metaData = applicationData.metaData;
+        this.type = applicationData.type;
+        this.target = applicationData.target;
+        this.logoUrl = applicationData.logoUrl;
+    }
 }

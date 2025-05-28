@@ -17,11 +17,15 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Connection {
+public class Connection implements NameHolder{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    @NotNull
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")
@@ -35,21 +39,26 @@ public class Connection {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Protocol protocol;
+    private Protocol protocol = Protocol.OIDC;
 
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Environment environment;
+    private Environment environment = Environment.TEST;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private Status status = Status.OPEN;
 
     @Column(name = "manage_identifier")
-    @NotNull
     private String manageIdentifier;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public Connection(Application application, Map<String, ?> metaData, Protocol protocol, Environment environment) {
+    public Connection(String name, Application application, Map<String, ?> metaData, Protocol protocol, Environment environment) {
+        this.name = name;
         this.application = application;
         this.metaData = metaData;
         this.protocol = protocol;

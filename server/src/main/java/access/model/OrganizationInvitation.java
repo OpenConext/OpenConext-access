@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity(name = "organization_invitations")
 @NoArgsConstructor
 @Getter
@@ -45,5 +48,12 @@ public class OrganizationInvitation {
     @JoinColumn(name = "invitee_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User invitee;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "invitations_applications",
+            joinColumns = @JoinColumn(name = "invitation_id"),
+            inverseJoinColumns = @JoinColumn(name = "application_id"))
+    private Set<Application> applications = new HashSet<>();
+
 
 }

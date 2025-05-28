@@ -34,7 +34,6 @@ public class ApplicationController implements UserAccessRights {
         this.applicationRepository = applicationRepository;
     }
 
-
     @GetMapping("/all/{organizationId}")
     public ResponseEntity<List<Application>> allByOrganization(@PathVariable("organizationId") Long id, User user) {
         LOG.debug("/all");
@@ -47,6 +46,16 @@ public class ApplicationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
         List<Application> applications = this.applicationRepository.findByOrganization(organization);
         return ResponseEntity.ok(applications);
+    }
+
+    @GetMapping({"/{applicationId}"})
+    public ResponseEntity<Application> find(User user, @PathVariable("applicationId") Long applicationId) {
+        LOG.debug("/find application for " + user.getEmail());
+
+        Application application = applicationRepository.findDetailsById(applicationId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+
+        return ResponseEntity.ok(application);
     }
 
     @PostMapping({"", "/"})
@@ -68,6 +77,8 @@ public class ApplicationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Application not found"));
         Organization organization = application.getOrganization();
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+
+        application.merge(applicationData);
         applicationRepository.save(application);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);

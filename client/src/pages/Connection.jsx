@@ -6,7 +6,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
-import {organizationById} from "../api/index.js";
+import {getApplicationById} from "../api/index.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -22,43 +22,43 @@ export const Connection = () => {
     const {applicationId, id} = useParams();
 
     const [application, setApplication] = useState({});
-    const {isNew, setIsNew} = useState(true);
     const [tab, setTab] = useState("overview");
-    const [connection, setConnection] = useState({
-        environment: "test",
-        protocol: protocolOptions[0],
-        grantTypes: ["authorization_code"],
-        pkce: true,
-        redirectUrls: [""],
-        acsLocations: [""],
-        metaData: {}
-    });
+    const [connection, setConnection] = useState(null);
 
     useEffect(() => {
-        organizationById(id).then(res => {
-            //TODO not necessary ,
-        })
-        const newApplication = {
-            id: 6,
-            name: "BuddyCheck",
-            connections: [{name: "BuddyCheck-TEST"}, {name: "BuddyCheck-PROD"}]
-        };
-        setApplication(newApplication)
-        useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: `/organization/${organisationId}`, value: "TODO Org Name"},
-                {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
-                {value: newApplication.name}
-            ]
-        });
+        getApplicationById(applicationId)
+            .then(res => {
+                setApplication(res);
+                useAppStore.setState({
+                    breadcrumbPath: [
+                        {path: "/home", value: I18n.t("breadCrumb.access")},
+                        {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name},
+                        {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
+                        {value: res.name}
+                    ]
+                });
+            })
     }, [id]);
+
+    const initConnection = () => {
+        setConnection({
+            environment: "test",
+            protocol: protocolOptions[0],
+            grantTypes: ["authorization_code"],
+            pkce: true,
+            redirectUrls: [""],
+            acsLocations: [""],
+            metaData: {}
+        });
+        setTab("testing");
+    }
 
     const renderCurrentTab = () => {
         switch (tab) {
             case "overview": {
                 return <Overview application={application}
                                  user={user}
+                                 initConnection={initConnection}
                                  setTab={setTab}/>
             }
             case  "testing": {

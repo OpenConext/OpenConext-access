@@ -1,5 +1,6 @@
 package access;
 
+import access.manage.Contact;
 import access.manage.LocalManage;
 import access.manage.Manage;
 import access.model.*;
@@ -57,6 +58,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,6 +91,9 @@ public abstract class AbstractTest {
     //Applications
     public static final String NITRO_MAP = "NitroMap";
     public static final String BUDDY_CHECK = "BuddyCheck";
+    //Connections
+    public static final String BUDDY_CHECK_TEST = "BuddyCheck-Test";
+    public static final String BUDDY_CHECK_PROD = "BuddyCheck-Prod";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -110,6 +115,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected JoinRequestRepository joinRequestRepository;
+
+    @Autowired
+    protected ConnectionRepository connectionRepository;
 
     @Autowired
     protected OrganizationRepository organizationRepository;
@@ -365,7 +373,7 @@ public abstract class AbstractTest {
     }
 
     protected Header csrfHeader(AccessCookieFilter accessCookieFilter) {
-        return new Header(accessCookieFilter.csrfToken().getHeaderName() , accessCookieFilter.csrfToken().getToken());
+        return new Header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken());
     }
 
     private void doSeed() {
@@ -402,6 +410,22 @@ public abstract class AbstractTest {
 
         Application nitroMap = new Application(NITRO_MAP, farWind, Map.of());
         doSave(this.applicationRepository, buddyCheck, nitroMap);
+
+        Connection buddyCheckConnectionTest = new Connection(BUDDY_CHECK_TEST, buddyCheck, Map.of(
+                "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
+                "entityID", "https://engine.test.surfconext.nl",
+                "grantTypes", List.of("authorization_code", "refresh_token"),
+                "redirectUrls", List.of("http://localhost:8080/redirect")),
+                Protocol.OIDC,
+                Environment.TEST);
+        Connection buddyCheckConnectionProd = new Connection(BUDDY_CHECK_PROD, buddyCheck, Map.of(
+                "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
+                "entityID", "https://engine.test.surfconext.nl",
+                "grantTypes", List.of("authorization_code", "refresh_token"),
+                "redirectUrls", List.of("http://localhost:8080/redirect")),
+                Protocol.OIDC,
+                Environment.PROD);
+        doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);
 
         adminOfShareLogics.addApplicationMembership(applicationMembership);
         doSave(this.organizationMembershipRepository, adminOfShareLogics);

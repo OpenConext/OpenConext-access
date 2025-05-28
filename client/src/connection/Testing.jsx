@@ -6,7 +6,7 @@ import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {distinctValues, isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
 import {parseMedaData, parseMedaDataUrl} from "../api/index.js";
@@ -45,7 +45,6 @@ export const Testing = ({application, protocolOptions, connection, setConnection
     const [xmlMetaData, setXmlMetaData] = useState(null);
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
-
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
 
@@ -395,8 +394,8 @@ export const Testing = ({application, protocolOptions, connection, setConnection
         }
     }
 
-    return (
-        <div className="testing-container">
+    const renderInitialConnection = () => {
+        return <>
             <div className="testing-header">
                 <h2>{I18n.t("connection.newConnection")}</h2>
                 <div className="copy-connection"
@@ -409,8 +408,8 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                             type={ButtonType.Secondary}/>
                     {isCopyConnectionOpen &&
                         <section className="copy-connection-section sds--user-info--dropdown">
-                            {application.connections.map((conn,index) =>
-                                <span key={index}  onClick={() => alert("TODO")}>{conn.name}</span>)}
+                            {application.connections.map((conn, index) =>
+                                <span key={index} onClick={() => alert("TODO")}>{conn.name}</span>)}
                         </section>}
                 </div>
             </div>
@@ -443,6 +442,20 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                         </div>
                     }    </section>
             </div>
+        </>;
+    }
+
+    const renderConnections = () => {
+        return (
+            <div>TODO LIST</div>
+        );
+
+    };
+
+    const showInitialConnection = isEmpty(application.connections) || !isEmpty(connection)
+    return (
+        <div className="testing-container">
+            {showInitialConnection ? renderInitialConnection() : renderConnections()}
         </div>
     )
 }

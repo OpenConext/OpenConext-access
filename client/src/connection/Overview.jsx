@@ -6,9 +6,9 @@ import {isEmpty} from "../utils/Utils.js";
 import {StatusLink} from "../components/StatusLink.jsx";
 
 
-export const Overview = ({user, application, setTab}) => {
+export const Overview = ({user, application, setTab, initConnection}) => {
 
-    const [alertClosed, setAlertClosed] = useState(false);
+    const [alertClosed, setAlertClosed] = useState(true);
 
     const alertInfo = () => {
         if (alertClosed) {
@@ -31,7 +31,7 @@ export const Overview = ({user, application, setTab}) => {
                 <section className="sub-part">
                     <h2>{I18n.t("connection.test.name")}</h2>
                     <StatusLink info={I18n.t("connection.test.connections")}
-                                action={() => setTab("testing")}
+                                action={() => initConnection()}
                                 status="pending"/>
                 </section>
                 <section className="sub-part">
@@ -43,7 +43,7 @@ export const Overview = ({user, application, setTab}) => {
                 <section className="sub-part">
                     <h2>{I18n.t("connection.production.name")}</h2>
                     <StatusLink info={I18n.t("connection.production.connections")}
-                                action={() => setTab("testing")}
+                                action={() => setTab("prod")}
                                 disabled={true}
                                 status="pending"/>
                     <StatusLink info={I18n.t("connection.production.catalogue")}

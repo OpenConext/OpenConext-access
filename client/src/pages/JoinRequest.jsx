@@ -26,7 +26,7 @@ const JoinRequest = ({refreshUser}) => {
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });
-        organizationLightById(id).then(res => {
+        organizationLightById(organisationId).then(res => {
             setOrganization(res);
             setLoading(false);
         })
@@ -38,7 +38,7 @@ const JoinRequest = ({refreshUser}) => {
 
     const createJoinRequest = () => {
         newJoinRequest({
-            organizationId: id,
+            organizationId: organisationId,
             language: I18n.locale,
         }).then(() => {
             setJoinRequestCreated(true);

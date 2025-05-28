@@ -7,6 +7,10 @@ div.organization-outer-container {
     background-color: white;
     height: 100%;
 
+    &.with-applications {
+        background-color: transparent;
+    }
+
     div.organization-container {
 
         padding: 25px 50px;
@@ -51,6 +55,49 @@ div.organization-outer-container {
                         &:last-child {
                             margin-bottom: 0;
                         }
+                    }
+                }
+            }
+        }
+
+        .applications {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+
+            .first-application {
+                display: flex;
+                align-items: flex-start;
+                gap: 35px;
+            }
+
+            .application {
+                background-color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                width: 500px;
+                padding: 22px;
+                border-radius: 8px;
+                box-shadow: 0 1px 0 2px var(--sds--color--gray--200);
+
+                p {
+                    font-size: 18px;
+                    font-weight: 600;
+                    margin-left: 25px;
+                }
+
+                svg.image-not-found, img {
+                    height: 110px;
+                    padding: 12px;
+                    border-radius: 4px;
+                    border: 1px solid var(--sds--color--gray--250);
+                }
+
+                span {
+                    margin: 0 15px 0 auto;
+
+                    svg {
                     }
                 }
             }

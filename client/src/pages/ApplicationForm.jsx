@@ -4,40 +4,48 @@ import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
-import {Button, ButtonType, RadioOptions, RadioOptionsOrientation, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Loader, RadioOptions, RadioOptionsOrientation, Tooltip} from "@surfnet/sds";
 import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";
 import {CollapseField} from "../components/CollapseField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {organizationById} from "../api/index.js";
+import {getApplicationById, newApplication, updateApplication} from "../api/index.js";
 
 export const ApplicationForm = () => {
 
-    const {organisationId, id} = useParams();
+    const {applicationId} = useParams();
     const navigate = useNavigate();
+
+    const {currentOrganization, setFlash} = useAppStore(state => state);
+
     const [isNew, setIsNew] = useState(true);
     const [loading, setLoading] = useState(true);
-    const [application, setApplication] = useState({type: "app", target: "surf"});
+    const [application, setApplication] = useState({type: "APP", target: "SURF"});
     const [checks, setChecks] = useState({});
 
     useEffect(() => {
-        organizationById(organisationId).then(res => {
-                setIsNew(id === "new");
-                const newChecks = {};
-                const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
-                Object.keys(translationChecks).forEach(check => newChecks[check] = false);
-                setChecks(newChecks);
-                useAppStore.setState({
-                    organization: res,
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("breadCrumb.access")},
-                        {path: `/organization/${res.id}`, value: res.name},
-                        {value: I18n.t("breadCrumb.applications")}
-                    ]
-                });
-                setLoading(false);
-            }
-        )
-    }, [id, organisationId]);
+        const newApp = applicationId === "new";
+        setIsNew(newApp);
+        const newChecks = {};
+        const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
+        Object.keys(translationChecks).forEach(check => newChecks[check] = false);
+        setChecks(newChecks);
+        useAppStore.setState({
+            breadcrumbPath: [
+                {path: "/home", value: I18n.t("breadCrumb.access")},
+                {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name},
+                {value: I18n.t("breadCrumb.applications")}
+            ]
+        });
+        if (!newApp) {
+            getApplicationById(applicationId)
+                .then(res => {
+                    setApplication(res);
+                    setLoading(false)
+                })
+        } else {
+            setLoading(false);
+        }
+    }, [applicationId]);
 
     const targetGroupLabel = label => {
         const upperText = I18n.t(`application.target${label.toUpperCase()}`);
@@ -47,6 +55,16 @@ export const ApplicationForm = () => {
 
     if (loading) {
         return <Loader/>
+    }
+
+    const doSaveApplication = () => {
+        const promise = isNew ? newApplication : updateApplication;
+        application.organization = {id: currentOrganization.id}
+        promise(application)
+            .then(res => {
+                setFlash(I18n.t("application.flash", {name: res.name}));
+                navigate(`/connection/${res.id}`)
+            });
     }
 
     return (
@@ -61,10 +79,13 @@ export const ApplicationForm = () => {
                 <RadioOptions label={I18n.t("application.type")}
                               name={"type"}
                               value={application.type}
-                              onChange={e => setApplication({...application, type: e.target.id.replace("type_", "")})}
+                              onChange={e => setApplication({
+                                  ...application,
+                                  type: e.target.id.replace("type_", "").toUpperCase()
+                              })}
                               isMultiple={true}
-                              labels={["app", "content"]}
-                              labelResolver={label => I18n.t(`application.${label}`)}
+                              labels={["APP", "CONTENT"]}
+                              labelResolver={label => I18n.t(`application.${label.toLowerCase()}`)}
                               orientation={RadioOptionsOrientation.column}/>
                 {application.type === "content" &&
                     <div className="sds--alert sds--alert--status-info">
@@ -89,10 +110,10 @@ export const ApplicationForm = () => {
                               value={application.target}
                               onChange={e => setApplication({
                                   ...application,
-                                  target: e.target.id.replace("target_", "").toLowerCase()
+                                  target: e.target.id.replace("target_", "").toUpperCase()
                               })}
                               isMultiple={true}
-                              labels={["surf", "sram"]}
+                              labels={["SURF", "SRAM"]}
                               labelResolver={targetGroupLabel}
                               orientation={RadioOptionsOrientation.column}/>
                 {isNew &&
@@ -110,7 +131,7 @@ export const ApplicationForm = () => {
                     <Button onClick={() => navigate("/home")}
                             type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}/>
-                    <Button onClick={() => alert("todo")}
+                    <Button onClick={() => doSaveApplication()}
                             txt={I18n.t("forms.submit")}
                             disabled={(isNew && Object.values(checks).some(check => !check)) || isEmpty(application.name)}/>
                 </section>

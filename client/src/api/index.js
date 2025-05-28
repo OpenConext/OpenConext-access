@@ -111,8 +111,16 @@ export function getApplicationsByOrganization(organisation) {
     return fetchJson(`/api/v1/applications/all/${organisation.id}`);
 }
 
-export function getApplicationsById(applicationId) {
-    return fetchJson(`/api/v1/applications/applications/${organisation.id}`);
+export function getApplicationById(applicationId) {
+    return fetchJson(`/api/v1/applications/${applicationId}`);
+}
+
+export function newApplication(application) {
+    return postPutJson("/api/v1/applications", application, "POST");
+}
+
+export function updateApplication(application) {
+    return postPutJson("/api/v1/applications", application, "POST");
 }
 
 //Manage

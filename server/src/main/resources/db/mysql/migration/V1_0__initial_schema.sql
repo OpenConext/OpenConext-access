@@ -76,6 +76,7 @@ CREATE TABLE `applications`
     `name`            varchar(255) NOT NULL,
     `logo_url`        varchar(255) DEFAULT NULL,
     `type`            varchar(255) NOT NULL,
+    `target`          varchar(255) NOT NULL,
     `meta_data`       json         DEFAULT NULL,
     `organization_id` bigint       NOT NULL,
     `created_at`      datetime     DEFAULT CURRENT_TIMESTAMP,
@@ -111,15 +112,30 @@ CREATE TABLE `organization_memberships_application_memberships`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE `invitations_applications`
+(
+    `id`             bigint NOT NULL AUTO_INCREMENT,
+    `invitation_id`  bigint NOT NULL,
+    `application_id` bigint NOT NULL,
+    `created_at`     datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_invitations_applications_invitation_id` FOREIGN KEY (`invitation_id`) REFERENCES `organization_invitations` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_invitations_applications_application_id` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE `connections`
 (
     `id`                bigint       NOT NULL AUTO_INCREMENT,
     `application_id`    bigint       NOT NULL,
-    `meta_data`         json     DEFAULT NULL,
+    `meta_data`         json         DEFAULT NULL,
+    `name`              varchar(255) NOT NULL,
     `protocol`          varchar(255) NOT NULL,
+    `status`            varchar(255) NOT NULL,
     `environment`       varchar(255) NOT NULL,
-    `manage_identifier` varchar(255) NOT NULL,
-    `created_at`        datetime DEFAULT CURRENT_TIMESTAMP,
+    `manage_identifier` varchar(255) DEFAULT NULL,
+    `created_at`        datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_connections_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB

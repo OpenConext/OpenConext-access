@@ -96,4 +96,21 @@ class ApplicationControllerTest extends AbstractTest {
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
+
+    @Test
+    void find() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", seedIdentifiers.get(BUDDY_CHECK))
+                .get("/api/v1/applications/{applicationId}")
+                .as(Application.class);
+
+        assertEquals(BUDDY_CHECK, application.getName());
+        assertEquals(2, application.getConnections().size());
+    }
 }

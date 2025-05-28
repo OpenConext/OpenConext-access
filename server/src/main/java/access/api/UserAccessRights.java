@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface UserAccessRights {
 
     default void confirmOrganizationMembership(User user, Organization organization, Authority authority) {
-        if (user.getOrganizationMemberships().stream()
+        if (!user.isSuperUser() && user.getOrganizationMemberships().stream()
                 .noneMatch(organizationMembership ->
                         organizationMembership.getOrganization().getId().equals(organization.getId()) &&
                                 organizationMembership.getAuthority().isAllowed(authority))) {
@@ -21,7 +21,7 @@ public interface UserAccessRights {
     }
 
     default void confirmApplicationMembership(User user, Organization organization, Application application, Authority authority) {
-        if (user.getOrganizationMemberships().stream()
+        if (!user.isSuperUser() && user.getOrganizationMemberships().stream()
                 .map(organizationMembership -> organizationMembership.getApplicationMemberships())
                 .flatMap(Collection::stream)
                 .noneMatch(applicationMembership -> applicationMembership.getApplication().getId().equals(application.getId()) &&

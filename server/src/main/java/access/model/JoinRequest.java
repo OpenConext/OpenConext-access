@@ -48,13 +48,6 @@ public class JoinRequest {
 
     //We need organization name and user info, but we don't want cyclic JSON deserialization
     public Map<String, Object> getContext() {
-//        Map<String, Object> context = new HashMap<>();
-//        context.put("organization", organization != null ? organization.getName() : "");
-//        Map<String, String> userData = new HashMap<>();
-//        userData.put("name", user != null ? user.getName() : "");
-//        userData.put("email", user != null ? user.getEmail() : "");
-//        context.put("user", userData);
-//        return context;
         return Map.of(
                 "organization", organization.getName(),
                 "user", Map.of(

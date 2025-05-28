@@ -108,9 +108,9 @@ const App = () => {
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
                             <Route path="/organization/:organisationId" element={<Organization/>}/>
-                            <Route path="/application/:id" element={<ApplicationForm/>}/>
+                            <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
-                            <Route path="/connection/:applicationId/:id" element={<Connection/>}/>
+                            <Route path="/connection/:applicationId/:id?" element={<Connection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

@@ -11,9 +11,16 @@
     border: 1px solid var(--sds--color--gray--200);
     cursor: pointer;
 
+    &:hover {
+        background-color: var(--sds--color--gray--100);
+    }
+
     &.disabled {
         color: var(--sds--color--gray--400);
         cursor: initial;
+        &:hover {
+            background-color: white;
+        }
     }
 
     svg {

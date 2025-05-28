@@ -129,12 +129,14 @@ const en = {
             privacy: "De persoonsgegevens worden niet aan derden verstrekt",
             safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
-        }
+        },
+        flash: "Application {{name}} saved."
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         applications: "Applicatiebeheer",
-        addApplication: "Voeg je eerste Applicatie toe",
+        addFirstApplication: "Voeg je eerste Applicatie toe",
+        addApplication: "Nieuwe Applicatie toevoegen",
         catalog: {
             terms: "Voorwaarden voor apps in de SURF catalogus",
             fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
@@ -213,6 +215,14 @@ const en = {
             doPaste: "Plak hier de metadata",
             parsed: "The metadata has successfully been imported",
             errorParsed: "Error in parsing the metadata"
+        },
+        connections: {
+            titleProd: "Koppelingen met de productieomgeving",
+            titleTest: "Koppelingen met de testomgeving",
+            created: "Added at",
+            status: "Status",
+            protocol: "Protocol",
+
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",

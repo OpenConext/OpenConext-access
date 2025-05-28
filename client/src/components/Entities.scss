@@ -1,0 +1,314 @@
+@use "../styles/vars" as *;
+
+.mod-entities {
+
+    max-width: $medium;
+    width: 100%;
+    margin: 0 auto;
+
+    @media (max-width: $medium) {
+        padding: 0 15px;
+    }
+
+
+    &:not(.first) {
+        margin-bottom: 25px;
+    }
+
+    .entities-search {
+        display: flex;
+        align-items: center;
+        padding: 32px 0 28px 0;
+        min-height: 40px;
+        justify-content: flex-end;
+
+        @media (max-width: $medium) {
+            flex-direction: column;
+            align-items: normal;
+        }
+
+        button {
+            margin-left: 25px;
+            @media (max-width: $medium) {
+                margin-left: 0;
+                margin-top: 15px
+            }
+        }
+
+        h2 {
+            margin-right: auto;
+            @media (max-width: $medium) {
+                margin-bottom: 15px
+            }
+
+        }
+
+        .sds--loading-container {
+            flex-direction: row;
+            align-items: flex-start;
+            margin-right: auto;
+
+            .sds--loading {
+                position: inherit;
+            }
+        }
+
+        .search-filter {
+            display: flex;
+            width: 290px;
+            @media (max-width: $medium) {
+                flex-direction: column;
+                margin: 15px 0;
+            }
+        }
+
+        div.filter-select__value-container {
+            min-height: 46px;
+        }
+
+        div.filter-select__control {
+            min-height: 46px;
+            min-width: 240px;
+            border-color: var(--sds--color--gray--400);
+        }
+
+        .search {
+            position: relative;
+            display: flex;
+
+            @media (max-width: $medium) {
+                margin-left: 0;
+                margin-top: 20px;
+
+                .sds--text-field, .sds--text-field--shape {
+                    width: 100%;
+                }
+            }
+
+            input[type=search] {
+                flex-grow: 2;
+                min-width: 360px;
+
+                @media (max-width: $medium) {
+                    min-width: 0;
+                }
+            }
+
+            .sds--text-field--icon svg {
+                width: calc(15em / 16);
+                height: calc(15em / 16)
+            }
+
+        }
+
+    }
+
+    section.entities-list {
+        position: relative;
+
+        div.actions-header {
+            position: absolute;
+            left: 76px;
+            top: 2px;
+
+            div.admin-actions {
+                display: flex;
+                gap: 25px;
+            }
+
+            &.adjust-top {
+                top: 65px;
+            }
+        }
+
+        .sds--pagination {
+            margin-top: 25px;
+        }
+    }
+
+    svg.impersonate {
+        width: 26px;
+        height: auto;
+        cursor: pointer;
+        color: var(--sds--color--blue--400);
+
+    }
+
+
+    table {
+        width: 100%;
+        table-layout: fixed;
+
+        thead {
+            th {
+
+                &.sortable {
+                    cursor: pointer;
+
+                    svg {
+                        width: 16px;
+                        height: auto;
+                        margin-left: 18px;
+                    }
+                }
+
+                &.icon {
+                    width: 44px;
+                    padding-right: 0;
+                    padding-left: 0;
+                }
+
+                &.logo {
+                    width: 85px;
+                    height: auto;
+                }
+
+                svg.fa-caret-up, svg.fa-caret-down {
+                    margin-left: 5px;
+                }
+
+                &.checker {
+                    width: 35px;
+                }
+
+                &.center {
+                    text-align: center;
+                }
+
+                &.right {
+                    text-align: right;
+                }
+
+                &.hide {
+                    color: white;
+                    cursor: default;
+                }
+
+            }
+
+
+        }
+
+        tbody {
+            tr {
+                &.clickable {
+                    cursor: pointer;
+                }
+
+                &.multi-role {
+                    color: var(--sds--color--green--500)
+                }
+
+                .action-icons-container {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                }
+
+                .admin-icons {
+                    display: none;
+                    margin: auto 0;
+
+                    svg {
+                        color: var(--sds--color--gray--400);
+                        cursor: pointer;
+                        margin: 0 5px;
+                        width: 20px;
+                        height: auto;
+
+                        &:hover {
+                            color: black;
+                        }
+                    }
+                }
+
+                &.hoverable {
+                    &:hover {
+                        div.admin-icons {
+                            display: flex;
+                        }
+                    }
+                }
+            }
+
+            td {
+                word-break: break-word;
+                vertical-align: middle;
+
+                &.center {
+                    text-align: center;
+                }
+
+                &.right {
+                    text-align: right;
+                }
+
+                &.icon {
+                    text-align: center;
+                    padding-left: 0;
+                    padding-right: 0;
+
+                    div.member-icon {
+                        display: flex;
+                        justify-content: space-around;
+
+                        svg {
+                            width: 24px;
+                        }
+                    }
+                }
+
+                &.logo {
+                    padding: 8px 0 4px 0;
+
+                    img {
+                        border-radius: 4px;
+                        width: 80px;
+                        height: auto;
+                        margin-right: 5px;
+                    }
+
+                    svg.multi-role {
+                        height: 36px;
+                        width: auto;
+                        margin-left: 15px;
+                    }
+                }
+
+                .sds--chips span {
+                    white-space: nowrap;
+                }
+
+                svg.bin-svg {
+                    &:hover {
+                        color: var(--sds--color--red--400);
+                    }
+                }
+            }
+        }
+    }
+
+    div.user-name-email {
+        display: flex;
+        flex-direction: column;
+
+        span.email {
+            color: var(--sds--color--gray--400);
+            word-break: keep-all;
+        }
+    }
+
+    div.chip-container {
+
+        .sds--chips {
+            margin: 0 auto;
+        }
+    }
+
+    .sds--pagination a {
+        font-weight: normal;
+    }
+
+}
+
+
