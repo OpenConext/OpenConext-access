@@ -10,8 +10,9 @@ $width-percentage: 75%;
     .testing-header {
         display: flex;
         align-items: center;
-        width: $width-percentage;
         margin-bottom: 25px;
+        width: $width-percentage;
+
 
         @media (max-width: $full-mode) {
             width: 100%;
@@ -220,4 +221,16 @@ $width-percentage: 75%;
         }
     }
 
+    .connections {
+        width: $width-percentage;
+
+        .header {
+            display: flex;
+
+            button {
+                margin-left: auto;
+            }
+        }
+
+    }
 }

@@ -53,19 +53,23 @@ CREATE TABLE `organization_memberships`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE `organization_invitations`
+CREATE TABLE `invitations`
 (
     `id`                 bigint       NOT NULL AUTO_INCREMENT,
-    `hash`               varchar(255) NOT NULL,
+    `language`           varchar(255) NOT NULL,
+    `status`             varchar(255) NOT NULL,
+    `hash`               varchar(255) DEFAULT NULL,
+    `email`              varchar(255) NOT NULL,
+    `message`            varchar(255) DEFAULT NULL,
     `organization_id`    bigint       NOT NULL,
     `invitee_id`         bigint       NOT NULL,
     `intended_authority` varchar(255) NOT NULL,
-    `email`              varchar(255) NOT NULL,
-    `message`            varchar(255) DEFAULT NULL,
     `created_at`         datetime     DEFAULT CURRENT_TIMESTAMP,
+    `expiry_date`        datetime     DEFAULT CURRENT_TIMESTAMP,
+    `accepted_at`        datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_organization_invitations_invitee` FOREIGN KEY (`invitee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_organization_invitations_organization` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_invitations_invitee` FOREIGN KEY (`invitee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_invitations_organization` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
@@ -82,6 +86,7 @@ CREATE TABLE `applications`
     `created_at`      datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `applications_unique_name_organization` (`name`, `organization_id`),
+    CONSTRAINT `fk_applications_organization` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE,
     FULLTEXT KEY `full_text_index` (`name`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
@@ -119,7 +124,7 @@ CREATE TABLE `invitations_applications`
     `application_id` bigint NOT NULL,
     `created_at`     datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_invitations_applications_invitation_id` FOREIGN KEY (`invitation_id`) REFERENCES `organization_invitations` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_invitations_applications_invitation_id` FOREIGN KEY (`invitation_id`) REFERENCES `invitations` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_invitations_applications_application_id` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1

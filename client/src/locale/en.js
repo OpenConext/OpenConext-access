@@ -192,6 +192,7 @@ const en = {
         pkceTooltip: "PKCE (Proof Key for Code Exchange) enhances the security of the authorization code flow by preventing authorization code interception. It’s especially important for public clients like mobile or single-page apps",
         optional: "Optional",
         required: "Required (public client)",
+        redirectUrl: "Redirect URL",
         redirectUrls: "Redirect URLs",
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
@@ -250,14 +251,23 @@ const en = {
             },
             attributes: "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
         }
-
+    },
+    testing: {
+        newConnection: "New connection",
+        added: "Added at",
+        status: "Status",
+        protocol: "Protocol",
+        details: "Details",
+        zeroState: "Application <strong>{{name}}</strong> has not connections yet."
     },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
         edit: "Edit",
         delete: "Delete",
-        back: "Back"
+        back: "Back",
+        required: "{{name}} is required",
+        requiredOne: "At least one {{name}} is required"
     },
     footer: {
         terms: "Terms of Use",

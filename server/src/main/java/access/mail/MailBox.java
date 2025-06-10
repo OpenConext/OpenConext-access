@@ -12,7 +12,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -20,8 +19,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class MailBox {
@@ -52,8 +49,7 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(OrganizationInvitation invitation) {
-        Authority intendedAuthority = invitation.getIntendedAuthority();
+    public void sendInviteMail(Invitation invitation) {
         Language language = invitation.getLanguage();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),
                 invitation.getOrganization().getName());
@@ -66,7 +62,7 @@ public class MailBox {
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
-        variables.put("url", String.format("%s/invitation/accept?hash=%s", clientUrl, invitation.getHash()));
+        variables.put("url", String.format("%s/accept?hash=%s", clientUrl, invitation.getHash()));
 
         sendMail(String.format("invitation_%s", language.name()),
                 title,

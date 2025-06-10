@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {//, QueryRewriter {
 
-    @EntityGraph(attributePaths = {"connections"})
+    @EntityGraph(attributePaths = {"connections", "applicationMemberships"})
     Optional<Application> findDetailsById(Long id);
 
     List<Application> findByOrganization(Organization organization);

@@ -1,5 +1,6 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Organization implements NameHolder{
+public class Organization implements NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,4 +49,12 @@ public class Organization implements NameHolder{
         this.schacHomeOrganization = schacHomeOrganization;
         this.createdAt = Instant.now();
     }
+
+    @JsonIgnore
+    public OrganizationMembership addOrganizationMembership(OrganizationMembership organizationMembership) {
+        this.organizationMemberships.add(organizationMembership);
+        organizationMembership.setOrganization(this);
+        return organizationMembership;
+    }
+
 }

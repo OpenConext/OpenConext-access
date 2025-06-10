@@ -2,5 +2,5 @@ package access.model;
 
 public enum Status {
 
-    OPEN, COMPLETE
+    OPEN, COMPLETE, ACCEPTED, EXPIRED
 }

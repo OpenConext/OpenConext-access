@@ -1,5 +1,6 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -8,8 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +21,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Connection implements NameHolder{
+public class Connection implements NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +37,7 @@ public class Connection implements NameHolder{
     private Application application;
 
     @Type(JsonType.class)
-    @Column(name="meta_data", columnDefinition = "jsonb")
+    @Column(name = "meta_data", columnDefinition = "jsonb")
     private Map<String, ?> metaData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
@@ -64,5 +68,30 @@ public class Connection implements NameHolder{
         this.protocol = protocol;
         this.environment = environment;
         this.createdAt = Instant.now();
+    }
+
+    @JsonIgnore
+    public boolean isValid() {
+        if (!StringUtils.hasText(name)) {
+            return false;
+        }
+        if (protocol.equals(Protocol.OIDC) &&
+                (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirect_urls")) ||
+                        CollectionUtils.isEmpty((Collection<?>) metaData.get("grants")))) {
+            return false;
+        }
+        if (protocol.equals(Protocol.SAML) &&
+                CollectionUtils.isEmpty((Collection<?>) metaData.get("acs_locations"))) {
+            return false;
+        }
+        return true;
+    }
+
+    public void merge(Connection connectionData) {
+            this.name = connectionData.name;
+            this.metaData = connectionData.metaData;
+            this.protocol = connectionData.protocol;
+            this.environment = connectionData.environment;
+            this.status = connectionData.status;
     }
 }

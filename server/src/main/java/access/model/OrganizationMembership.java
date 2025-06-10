@@ -56,6 +56,7 @@ public class OrganizationMembership implements NameHolder{
         this.transientName = getClass().getName().concat(organization.getName()).concat(authority.name());
         this.createdAt = Instant.now();
     }
+
     @JsonIgnore
     public ApplicationMembership addApplicationMembership(ApplicationMembership applicationMemberships) {
         this.applicationMemberships.add(applicationMemberships);
@@ -78,4 +79,5 @@ public class OrganizationMembership implements NameHolder{
     public String getName() {
         return transientName;
     }
+
 }

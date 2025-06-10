@@ -82,7 +82,7 @@ public class UserController {
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
-        User userFromDB = userRepository.findById(user.getId())
+        User userFromDB = userRepository.findDetailsById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
         if (userFromDB.getOrganizationMemberships().isEmpty() &&
@@ -100,6 +100,7 @@ public class UserController {
          */
         userFromDB.getOrganizationMemberships()
                 .forEach(organizationMembership -> organizationMembership.getOrganization().getName());
+
         return ResponseEntity.ok(userFromDB);
     }
 

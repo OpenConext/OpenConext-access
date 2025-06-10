@@ -65,6 +65,7 @@ export const Connection = () => {
                 return <Testing application={application}
                                 connection={connection}
                                 setConnection={setConnection}
+                                initConnection={initConnection}
                                 protocolOptions={protocolOptions}/>
             }
             case  "prod": {

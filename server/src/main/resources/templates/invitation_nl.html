@@ -17,13 +17,13 @@
         {{/environment}}
         <p class="title" style="">Hello,</p>
 
-        <p><strong>{{joinRequest.user.name}}</strong> (from <strong>{{joinRequest.user.schacHomeOrganization}}</strong>)
-            has requested to be allowed access to organization {{joinRequest.organization.name}}.</p>
+        <p><strong>{{invitation.invitee.name}}</strong> (from <strong>{{invitation.invitee.schacHomeOrganization}}</strong>)
+            has invited you to organization {{invitation.organization.name}}.</p>
 
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
-                <span style="color: white;margin: auto 0 auto 25px;">Approve join request</span>
+                <span style="color: white;margin: auto 0 auto 25px;">Accept invitation</span>
             </a>
         </div>
     </div>

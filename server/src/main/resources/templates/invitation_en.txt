@@ -1,7 +1,7 @@
-{{joinRequest.user.name}}</strong> (from <strong>{{joinRequest.user.schacHomeOrganization}}</strong>)
-            has requested to be allowed access to organization {{joinRequest.organization.name}}
+{{invitation.invitee.name}} (from {{invitation.invitee.schacHomeOrganization}})
+            has invited you to organization {{invitation.organization.name}}
 
-Approve join request:
+Accept invitation:
 
 {{{ url }}}
 

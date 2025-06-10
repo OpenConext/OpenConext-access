@@ -1,5 +1,6 @@
 package access;
 
+import access.config.HashGenerator;
 import access.manage.Contact;
 import access.manage.LocalManage;
 import access.manage.Manage;
@@ -71,6 +72,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         properties = {
                 "oidcng.introspect-url=http://localhost:8081/introspect",
                 "config.past-date-allowed=False",
+                "logging.level.org.hibernate.SQL=DEBUG",
+//                "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE",
                 "spring.security.oauth2.client.provider.oidcng.authorization-uri=http://localhost:8081/authorization",
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
@@ -94,6 +97,8 @@ public abstract class AbstractTest {
     //Connections
     public static final String BUDDY_CHECK_TEST = "BuddyCheck-Test";
     public static final String BUDDY_CHECK_PROD = "BuddyCheck-Prod";
+    //Invitations
+    public static final String SHARE_LOGICS_INVITATION_HASH = HashGenerator.generateRandomHash();
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -118,6 +123,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected ConnectionRepository connectionRepository;
+
+    @Autowired
+    protected InvitationRepository invitationRepository;
 
     @Autowired
     protected OrganizationRepository organizationRepository;
@@ -429,6 +437,18 @@ public abstract class AbstractTest {
 
         adminOfShareLogics.addApplicationMembership(applicationMembership);
         doSave(this.organizationMembershipRepository, adminOfShareLogics);
+
+        Invitation invitationFarWind = new Invitation(
+                Language.en,
+                SHARE_LOGICS_INVITATION_HASH,
+                "jdoe@invitation.org",
+                "Please join",
+                Authority.MEMBER,
+                shareLogics,
+                manager,
+                Set.of(nitroMap)
+        );
+        doSave(this.invitationRepository, invitationFarWind);
 
         JoinRequest joinRequest = new JoinRequest(guest, shareLogics, Language.en);
         doSave(this.joinRequestRepository, joinRequest);

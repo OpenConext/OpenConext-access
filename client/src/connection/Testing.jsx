@@ -6,13 +6,15 @@ import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {distinctValues, isEmpty, stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
 import {parseMedaData, parseMedaDataUrl} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import Select from 'react-select';
 import {useAppStore} from "../stores/AppStore.js";
+import DOMPurify from "dompurify";
+import ErrorIndicator from "../components/ErrorIndicator.jsx";
 
 const sections = {
     technical: "technical",
@@ -32,7 +34,7 @@ const grantTypes = {
     device_code: "urn:ietf:params:oauth:grant-type:device_code"
 }
 
-export const Testing = ({application, protocolOptions, connection, setConnection}) => {
+export const Testing = ({application, connection, setConnection, initConnection, protocolOptions}) => {
     const {setFlash} = useAppStore(state => state);
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
@@ -45,6 +47,8 @@ export const Testing = ({application, protocolOptions, connection, setConnection
     const [xmlMetaData, setXmlMetaData] = useState(null);
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
+    const [initial, setInitial] = useState(true);
+
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
 
@@ -52,17 +56,30 @@ export const Testing = ({application, protocolOptions, connection, setConnection
         const visited = visitedSections.has(sectionName);
         switch (sectionName) {
             case sections.technical: {
-                return !visited || isEmpty(connection.name) ||
-                    Object.values(invalidRedirects).some(invalid => invalid) ||
-                    Object.values(invalidACSLocations).some(invalid => invalid);
-            }
-            case sections.testIdP: {
-                return !visited;
+                return !visited || !technicalValid();
             }
             case sections.informationProfile: {
                 return true;
             }
+            case sections.testIdP: {
+                return !visited;
+            }
         }
+    }
+
+    const technicalValid = () => {
+        return !(isEmpty(connection.name) ||
+            Object.values(invalidRedirects).some(invalid => invalid) ||
+            Object.values(invalidACSLocations).some(invalid => invalid));
+
+    }
+
+    const informationProfileValid = () => {
+        return true;
+    }
+
+    const testIdPValid = () => {
+        return true;
     }
 
     const changeSection = sectionName => {
@@ -183,6 +200,10 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                                     environment: connection.environment.toUpperCase()
                                 })}
                 />
+                {(!initial && isEmpty(connection.name)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.connectionName")})}
+                                    adjustMargin={true}/>}
+
                 <SelectField name={I18n.t("connection.protocol")}
                              value={connection.protocol}
                              options={protocolOptions}
@@ -238,6 +259,10 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                                                   onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</a>}
                             />
                         </div>
+                        {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
+                            <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
+                                            adjustMargin={true}/>}
+
                     </>}
                 {connection.protocol.value === "saml20sp" &&
                     <>
@@ -388,30 +413,57 @@ export const Testing = ({application, protocolOptions, connection, setConnection
             case sections.testIdP: {
                 return testIdPSection();
             }
-            default: {
-                throw new Error(`Unknown section ${section}`)
-            }
         }
     }
+
+    const storeAndNextDisabled = () => {
+        if (initial) {
+            return false;
+        }
+        switch (section) {
+            case sections.technical: {
+                return !technicalValid();
+            }
+            case sections.informationProfile: {
+                return !informationProfileValid();
+            }
+            case sections.testIdP: {
+                return !testIdPValid();
+            }
+        }
+
+    }
+
+    const storeAndNext = () => {
+        setInitial(false);
+        if (section === sections.technical && technicalValid()) {
+            changeSection(sections.informationProfile);
+        } else if (section === sections.informationProfile && informationProfileValid())
+            if (technicalValid()) {
+                changeSection(section === sections.technical ? sections.informationProfile : sections.testIdP);
+            }
+
+    };
+
 
     const renderInitialConnection = () => {
         return <>
             <div className="testing-header">
                 <h2>{I18n.t("connection.newConnection")}</h2>
-                <div className="copy-connection"
-                     tabIndex={1}
-                     onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}
-                >
-                    <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
-                            txt={I18n.t("connection.copyConnection")}
-                            icon={<CaretDown/>}
-                            type={ButtonType.Secondary}/>
-                    {isCopyConnectionOpen &&
-                        <section className="copy-connection-section sds--user-info--dropdown">
-                            {application.connections.map((conn, index) =>
-                                <span key={index} onClick={() => alert("TODO")}>{conn.name}</span>)}
-                        </section>}
-                </div>
+                {(!isEmpty(application.connections) && application.connections.length > 1) &&
+                    <div className="copy-connection"
+                         tabIndex={1}
+                         onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
+                        <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
+                                txt={I18n.t("connection.copyConnection")}
+                                icon={<CaretDown/>}
+                                type={ButtonType.Secondary}/>
+                        {isCopyConnectionOpen &&
+                            <section className="copy-connection-section sds--user-info--dropdown">
+                                {application.connections.map((conn, index) =>
+                                    <span key={index} onClick={() => alert("TODO")}>{conn.name}</span>)}
+                            </section>}
+                    </div>}
             </div>
             <div className="testing">
                 <section className="left">
@@ -437,22 +489,36 @@ export const Testing = ({application, protocolOptions, connection, setConnection
                     {(section === sections.technical || section === sections.informationProfile) &&
                         <div className="actions">
                             <Button txt={I18n.t("connection.next")}
-                                    onClick={() => changeSection(section === sections.technical ? sections.informationProfile : sections.testIdP)}
+                                    type={ButtonType.secondary}
+                                    disabled={storeAndNextDisabled()}
+                                    onClick={() => storeAndNext()}
                             />
                         </div>
-                    }    </section>
+                    }
+                </section>
             </div>
         </>;
     }
 
     const renderConnections = () => {
         return (
-            <div>TODO LIST</div>
+            <div className="connections">
+                <div className="header">
+                    <h3>{I18n.t("connection.test.connections")}</h3>
+                    <Button txt={I18n.t("testing.newConnection")}
+                            type={ButtonType.Secondary}
+                            onClick={initConnection}/>
+                </div>
+                {isEmpty(application.connections) &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("testing.zeroState", {name: application.name}))}}/>}
+            </div>
+
+
         );
 
     };
 
-    const showInitialConnection = isEmpty(application.connections) || !isEmpty(connection)
+    const showInitialConnection = isEmpty(application.connections) && !isEmpty(connection);
     return (
         <div className="testing-container">
             {showInitialConnection ? renderInitialConnection() : renderConnections()}
