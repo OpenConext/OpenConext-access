@@ -233,4 +233,29 @@ $width-percentage: 75%;
         }
 
     }
+
+    table.table-connections {
+        thead {
+            th.name {
+                width: 25%;
+            }
+            th.createdAt {
+                width: 15%;
+            }
+            th.status {
+                width: 20%;
+            }
+            th.protocol {
+                width: 15%;
+            }
+            th.details {
+                width: 25%;
+            }
+        }
+        tbody {
+            td.details {
+                text-align: right;
+            }
+        }
+    }
 }

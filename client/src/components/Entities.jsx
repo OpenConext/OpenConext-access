@@ -1,13 +1,15 @@
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
+import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
-import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
-import {Button, Loader, Pagination, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Loader, Pagination, Tooltip} from "@surfnet/sds";
 import {pageCount} from "../utils/Pagination";
 import {useNavigate} from "react-router-dom";
+import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
+import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+
 
 export const Entities = ({
                              modelName,
@@ -22,7 +24,6 @@ export const Entities = ({
                              rowLinkMapper,
                              tableClassName,
                              className = "",
-                             customNoEntities,
                              hideTitle,
                              onHover,
                              actionHeader = "",
@@ -64,6 +65,16 @@ export const Entities = ({
         }
     };
 
+    const headerIcon = (column, sorted, reverse) => {
+        if (column.nonSortable) {
+            return null;
+        }
+        if (column.key === sorted) {
+            return reverse ? <ArrowDown/> : <ArrowUp/>;
+        }
+        return null;
+    }
+
     const queryChanged = e => {
         const newQuery = e.target.value;
         const currentQuery = query;
@@ -81,7 +92,7 @@ export const Entities = ({
         return (
             <section className="entities-search">
                 {(!hideTitle) &&
-                    <h2>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h2>}
+                    <h3>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
                 {(loading || hideTitle) && <Loader/>}
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
@@ -104,6 +115,7 @@ export const Entities = ({
                 </div>
                 {showNew &&
                     <Button onClick={newEntity}
+                            type={ButtonType.Secondary}
                             className={`${hideTitle && !filters ? "no-title" : ""}`}
                             txt={newLabel || I18n.t(`${modelName}.new`)}/>
                 }
@@ -206,8 +218,6 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                {(!hasEntities && !initial && !customEmptySearch && !loading && !hideTitle && !busy) &&
-                    <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 <Pagination currentPage={page}
                             onChange={nbr => {
                                 setPage(nbr);

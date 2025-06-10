@@ -1,7 +1,17 @@
 import "./Testing.scss";
 import React, {useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {Button, ButtonType, RadioOptions, RadioOptionsOrientation, Switch, Tooltip} from "@surfnet/sds";
+import {
+    Button,
+    ButtonType,
+    Chip,
+    ChipType,
+    Loader,
+    RadioOptions,
+    RadioOptionsOrientation,
+    Switch,
+    Tooltip
+} from "@surfnet/sds";
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
@@ -9,12 +19,14 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {parseMedaData, parseMedaDataUrl} from "../api/index.js";
+import {newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import Select from 'react-select';
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
+import {Entities} from "../components/Entities.jsx";
+import {dateFromEpoch} from "../utils/Date.js";
 
 const sections = {
     technical: "technical",
@@ -48,6 +60,7 @@ export const Testing = ({application, connection, setConnection, initConnection,
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
     const [initial, setInitial] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
@@ -209,7 +222,7 @@ export const Testing = ({application, connection, setConnection, initConnection,
                              options={protocolOptions}
                              onChange={option => setConnection({...connection, protocol: option})}
                 />
-                {connection.protocol.value === "oidc10rp" &&
+                {connection.protocol.value === "OIDC" &&
                     <>
                         <div>
                             <span className="label">{I18n.t("connection.grantTypes")}</span>
@@ -264,7 +277,7 @@ export const Testing = ({application, connection, setConnection, initConnection,
                                             adjustMargin={true}/>}
 
                     </>}
-                {connection.protocol.value === "saml20sp" &&
+                {connection.protocol.value === "SAML" &&
                     <>
                         <div className="import-metadata">
                             <h2>{I18n.t("connection.configuration")}</h2>
@@ -437,7 +450,16 @@ export const Testing = ({application, connection, setConnection, initConnection,
     const storeAndNext = () => {
         setInitial(false);
         if (section === sections.technical && technicalValid()) {
-            changeSection(sections.informationProfile);
+            setLoading(true);
+            const promise = connection.id ? updateConnection : newConnection
+            promise({...connection, application: {id: application.id}})
+                .then(res => {
+                    setLoading(false);
+                    setConnection(res);
+                    setFlash(I18n.t("connection.flash.created"));
+                    changeSection(sections.informationProfile);
+                })
+
         } else if (section === sections.informationProfile && informationProfileValid())
             if (technicalValid()) {
                 changeSection(section === sections.technical ? sections.informationProfile : sections.testIdP);
@@ -500,6 +522,57 @@ export const Testing = ({application, connection, setConnection, initConnection,
         </>;
     }
 
+    const renderConnectionsTable = () => {
+        const columns = [
+            {
+                key: "name",
+                header: I18n.t("connection.connections.name"),
+                mapper: conn => conn.name
+            },
+            {
+                key: "createdAt",
+                header: I18n.t("connection.connections.created"),
+                mapper: conn => dateFromEpoch(conn.createdAt)
+            },
+            {
+                key: "status",
+                header: I18n.t("connection.connections.status"),
+                mapper: conn => {
+                    const type = conn.status === "OPEN" ? ChipType.Status_success : ChipType.Main_400;
+                    return <Chip type={type}
+                                 label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}/>
+                }
+            },
+            {
+                key: "protocol",
+                header: I18n.t("connection.connections.protocol"),
+                mapper: conn => I18n.t(`connection.${conn.protocol.value.toLowerCase()}`)
+            },
+            {
+                key: "details",
+                header: "",
+                nonSortable: true,
+                mapper: conn => <Button txt={I18n.t("connection.connections.details")}
+                                              onClick={() => {
+                                                  setConnection(conn);
+                                              }}/>
+            },
+        ]
+
+        return (
+            <Entities entities={application.connections}
+                      modelName="table-connections"
+                      defaultSort="name"
+                      columns={columns}
+                      hideTitle={true}
+                      showNew={false}
+                      displaySearch={false}
+                      searchAttributes={["name", "protocol"]}
+                      inputFocus={true}>
+            </Entities>)
+
+    };
+
     const renderConnections = () => {
         return (
             <div className="connections">
@@ -507,8 +580,9 @@ export const Testing = ({application, connection, setConnection, initConnection,
                     <h3>{I18n.t("connection.test.connections")}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={initConnection}/>
+                            onClick={() => initConnection(true)}/>
                 </div>
+                {!isEmpty(application.connections) && renderConnectionsTable()}
                 {isEmpty(application.connections) &&
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("testing.zeroState", {name: application.name}))}}/>}
             </div>
@@ -517,8 +591,11 @@ export const Testing = ({application, connection, setConnection, initConnection,
         );
 
     };
-
-    const showInitialConnection = isEmpty(application.connections) && !isEmpty(connection);
+    if (loading) {
+        return <Loader/>
+    }
+    const showInitialConnection = (isEmpty(application.connections) || connection?.new || connection?.id)
+        && !isEmpty(connection);
     return (
         <div className="testing-container">
             {showInitialConnection ? renderInitialConnection() : renderConnections()}

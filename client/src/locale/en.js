@@ -182,8 +182,8 @@ const en = {
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
-        oidc10rp: "OpenID Connect",
-        saml20sp: "SAML 2.0",
+        oidc: "OpenID Connect",
+        saml: "SAML 2.0",
         grantTypes: "OAuth Grant types",
         authorization_code: "Authorization Code",
         refresh_token: "Refresh tokens",
@@ -217,12 +217,21 @@ const en = {
             parsed: "The metadata has successfully been imported",
             errorParsed: "Error in parsing the metadata"
         },
+        flash: {
+            deleted: "Deleted connnection {{name}}",
+            created: "Created connnection {{name}}",
+            updated: "Updated connnection {{name}}",
+        },
         connections: {
             titleProd: "Koppelingen met de productieomgeving",
             titleTest: "Koppelingen met de testomgeving",
+            name: "Name",
             created: "Added at",
             status: "Status",
+            open:"open",
+            complete: "Completed",
             protocol: "Protocol",
+            details: "Details"
 
         },
         informational: {

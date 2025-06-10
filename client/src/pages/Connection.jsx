@@ -10,9 +10,9 @@ import {getApplicationById} from "../api/index.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
-const protocolOptions = ["oidc10rp", "saml20sp"].map(protocol => ({
+const protocolOptions = ["OIDC", "SAML"].map(protocol => ({
     value: protocol,
-    label: I18n.t(`connection.${protocol}`)
+    label: I18n.t(`connection.${protocol.toLowerCase()}`)
 }));
 
 export const Connection = () => {
@@ -28,6 +28,12 @@ export const Connection = () => {
     useEffect(() => {
         getApplicationById(applicationId)
             .then(res => {
+                //For convenience editing
+                res.connections = (res.connections || [])
+                    .map(conn => ({
+                        ...conn,
+                        ...conn.metaData,
+                        protocol: protocolOptions.find(option => option.value === conn.protocol)}));
                 setApplication(res);
                 useAppStore.setState({
                     breadcrumbPath: [
@@ -40,8 +46,9 @@ export const Connection = () => {
             })
     }, [id]);
 
-    const initConnection = () => {
+    const initConnection = (forceNew = false) => {
         setConnection({
+            new: forceNew,
             environment: "test",
             protocol: protocolOptions[0],
             grantTypes: ["authorization_code"],

@@ -120,7 +120,7 @@ export function newApplication(application) {
 }
 
 export function updateApplication(application) {
-    return postPutJson("/api/v1/applications", application, "POST");
+    return postPutJson("/api/v1/applications", application, "PUT");
 }
 
 //Manage
@@ -133,5 +133,12 @@ export function parseMedaDataUrl(url) {
 }
 
 //Connections
+export function newConnection(connection) {
+    return postPutJson("/api/v1/connections", connection, "POST");
+}
+
+export function updateConnection(connection) {
+    return postPutJson("/api/v1/connections", connection, "PUT");
+}
 
 

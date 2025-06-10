@@ -72,7 +72,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         properties = {
                 "oidcng.introspect-url=http://localhost:8081/introspect",
                 "config.past-date-allowed=False",
-                "logging.level.org.hibernate.SQL=DEBUG",
+//                "logging.level.org.hibernate.SQL=DEBUG",
 //                "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE",
                 "spring.security.oauth2.client.provider.oidcng.authorization-uri=http://localhost:8081/authorization",
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
@@ -81,8 +81,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
-                "spring.jpa.properties.hibernate.format_sql=true",
-                "spring.jpa.show-sql=true",
+                "spring.jpa.properties.hibernate.format_sql=false",
+                "spring.jpa.show-sql=false",
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
