@@ -30,7 +30,6 @@ const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const navigate = useNavigate();
-
     const currentLocation = useLocation();
 
     const sharedRoutes = () => {
@@ -102,7 +101,7 @@ const App = () => {
                 <div className="container">
                     <SharedMenu/>
                     <div className="pages">
-                        <AuthorizedHeader/>
+                        <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>

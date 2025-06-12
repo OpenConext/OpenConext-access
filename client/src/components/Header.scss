@@ -28,7 +28,7 @@
         .mobile-navigation {
             margin: 0 25px 0 auto;
 
-            @media (min-width: calc(index.$mobile-width + 1px)) {
+            @media (min-width: index.$mobile-width-crossover) {
                 display: none;
             }
         }

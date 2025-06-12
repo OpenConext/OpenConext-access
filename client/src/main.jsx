@@ -6,6 +6,7 @@ import '@surfnet/sds/styles/sds.css';
 import '@surfnet/sds/cjs/index.css';
 import "react-tooltip/dist/react-tooltip.css";
 import './index.scss';
+import './sds-overrides.scss'
 import {StrictMode} from "react";
 
 const root = createRoot(document.getElementById("root"));

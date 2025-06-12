@@ -6,7 +6,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
-import {getApplicationById} from "../api/index.js";
+import {arp, getApplicationById} from "../api/index.js";
 import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
 
@@ -24,19 +24,29 @@ export const Connection = () => {
     const {applicationId, id} = useParams();
 
     const [application, setApplication] = useState({});
-    const [arpInfo, setArpInfo] = useState({});
+    const [arpInfo, setArpInfo] = useState({profiles: [], attributes: []});
+    const [profileOptions, setProfileOptions] = useState([]);
     const [tab, setTab] = useState("overview");
     const [connection, setConnection] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([getApplicationById(applicationId)])
+        Promise.all([getApplicationById(applicationId), arp()])
             .then(res => {
                 //For convenience editing
                 res[0].connections = (res[0].connections || [])
-                    .map(conn => convertServerConnectionToClient(conn, protocolOptions));
+                    .map(conn => convertServerConnectionToClient(conn, protocolOptions, res[1]));
                 setApplication(res[0]);
                 setArpInfo(res[1]);
+                debugger;
+                setProfileOptions(res[1].profiles.map(profile => ({
+                    value: profile.name,
+                    label: (<div>
+                        <b>{I18n.t(`connection.informational.profiles.${profile.name}.name`)}</b>
+                        <br/>
+                        {I18n.t(`connection.informational.profiles.${profile.name}.title`)}
+                    </div>)
+                })))
                 setLoading(false);
                 useAppStore.setState({
                     breadcrumbPath: [
@@ -53,7 +63,7 @@ export const Connection = () => {
         getApplicationById(applicationId)
             .then(res => {
                 res.connections = (res.connections || [])
-                    .map(conn => convertServerConnectionToClient(conn, protocolOptions));
+                    .map(conn => convertServerConnectionToClient(conn, protocolOptions, arpInfo));
                 setApplication(res);
                 setConnection(null);
             })
@@ -69,7 +79,11 @@ export const Connection = () => {
             entityID: generateOIDCClientID(application),
             redirectUrls: [""],
             acsLocations: [""],
-            metaData: {}
+            metaData: {},
+            motivations: {},
+            additionalAttributes: [],
+            profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
+            profileMotivation: ""
         });
         setTab("testing");
     }
@@ -88,7 +102,9 @@ export const Connection = () => {
                                 setConnection={setConnection}
                                 initConnection={initConnection}
                                 refresh={refresh}
-                                protocolOptions={protocolOptions}/>
+                                protocolOptions={protocolOptions}
+                                arpInfo={arpInfo}
+                                profileOptions={profileOptions}/>
             }
             case  "prod": {
                 return <span>prod</span>

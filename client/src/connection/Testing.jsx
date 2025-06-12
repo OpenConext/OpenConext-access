@@ -1,5 +1,5 @@
 import "./Testing.scss";
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import React, {Fragment, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Button,
@@ -19,15 +19,18 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {getApplicationById, newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
+import {newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
-import Select from 'react-select';
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
-import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
+import {
+    convertClientConnectionToServer,
+    convertServerConnectionToClient,
+    generateOIDCClientID
+} from "../utils/Connection.js";
 
 const sections = {
     technical: "technical",
@@ -47,7 +50,16 @@ const grantTypes = {
     device_code: "urn:ietf:params:oauth:grant-type:device_code"
 }
 
-export const Testing = ({application, connection, setConnection, initConnection, protocolOptions, refresh}) => {
+export const Testing = ({
+                            application,
+                            connection,
+                            setConnection,
+                            initConnection,
+                            refresh,
+                            protocolOptions,
+                            arpInfo,
+                            profileOptions
+                        }) => {
     const {setFlash} = useAppStore(state => state);
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
@@ -61,8 +73,8 @@ export const Testing = ({application, connection, setConnection, initConnection,
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
     const [initial, setInitial] = useState(true);
+    const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
-
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
 
@@ -73,10 +85,10 @@ export const Testing = ({application, connection, setConnection, initConnection,
                 return !connection.id;
             }
             case sections.informationProfile: {
-                return true;
+                return !visited || informationProfileValid();
             }
             case sections.testIdP: {
-                return !visited;
+                return !visited || testIdPValid();
             }
         }
     }
@@ -87,10 +99,11 @@ export const Testing = ({application, connection, setConnection, initConnection,
             Object.values(invalidRedirects).some(invalid => invalid) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
-            (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim()))) ));
+            (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
     }
 
     const informationProfileValid = () => {
+        //TODO check if all motivations are filled in
         return true;
     }
 
@@ -246,7 +259,7 @@ export const Testing = ({application, connection, setConnection, initConnection,
 
     const technicalSection = () => {
         return (
-            <>
+            <section className="inner-right">
                 <h3>{I18n.t("connection.technical")}</h3>
                 <InputField value={connection.name || ""}
                             onChange={e => setConnection({...connection, name: e.target.value})}
@@ -270,12 +283,12 @@ export const Testing = ({application, connection, setConnection, initConnection,
                 {connection.protocol.value === "OIDC" &&
                     <>
                         <div>
-                            <InputField value={connection.entityID || ""}
-                                        onChange={e => setConnection({...connection, entityID: e.target.value})}
-                                        name={I18n.t("connection.clientID")}
-                                        required={true}
-                                        disabled={true}
-                            />
+                            {/*<InputField value={connection.entityID || ""}*/}
+                            {/*            onChange={e => setConnection({...connection, entityID: e.target.value})}*/}
+                            {/*            name={I18n.t("connection.clientID")}*/}
+                            {/*            required={true}*/}
+                            {/*            disabled={true}*/}
+                            {/*/>*/}
                             {(!initial && isEmpty(connection.entityID)) &&
                                 <ErrorIndicator msg={I18n.t("forms.required",
                                     {name: I18n.t("connection.clientID")})}
@@ -454,9 +467,8 @@ export const Testing = ({application, connection, setConnection, initConnection,
 
                     </>
                 }
-            </>
-        )
-            ;
+            </section>
+        );
     }
 
     const testIdPSection = () => {
@@ -465,38 +477,110 @@ export const Testing = ({application, connection, setConnection, initConnection,
         );
     }
 
+    const toggleAdditionalAttributes = () => {
+        setShowAdditionalAttributes(!showAdditionalAttributes);
+        setConnection({...connection, additionalAttributes: []})
+        setConnection({...connection, motivations: []})
+    }
+
+    const changeAdditionalAttributes = (attribute, val) => {
+        const additionalAttributes = connection.additionalAttributes || [];
+        if (val) {
+            setConnection({...connection, additionalAttributes: [...additionalAttributes, attribute]})
+        } else {
+            setConnection({
+                ...connection,
+                additionalAttributes: [...additionalAttributes.filter(attr => attr !== attribute)]
+            })
+        }
+    }
+
+    const changeMotivation = (e, attribute) => {
+        const motivations = connection.motivations;
+        const newMotivations = {...motivations};
+        newMotivations[attribute] = e.target.value;
+        setConnection({...connection, motivations: newMotivations})
+    }
+
+    const changeProfile = option => {
+        setConnection({...connection, profile: option, profileMotivation: ""})
+    }
+
     const informationProfileSection = () => {
-        const options = [
-            {
-                value: 'option1',
-                label: (
-                    <div>
-                        <b>Bold Text</b>
-                        <br/>
-                        Subtitle or Description
-                    </div>
-                ),
-            },
-            {
-                value: 'option2',
-                label: (
-                    <div>
-                        <b>Another Bold</b>
-                        <br/>
-                        More details
-                    </div>
-                ),
-            },
-        ];
-        return (<>
+        const profileName = connection.profile?.value || arpInfo.profiles[0].name;
+        const profileInfo = I18n.translations[I18n.locale].connection.informational.profiles[profileName].info;
+        const currentProfile = arpInfo.profiles.find(profile => profile.name === profileName);
+        return (
+            <section className="inner-right-informational">
                 <h3>{I18n.t("connection.informationProfile")}</h3>
-                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informationProfileInfo"))}}/>
+                <p className="disclaimer"
+                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.disclaimer"))}}/>
                 <SelectField
                     name={I18n.t("connection.informationProfile")}
-                    options={options}
-
+                    options={profileOptions}
+                    disabled={application.type === "CONTENT"}
+                    value={connection.profile}
+                    onChange={changeProfile}
                 />
-            </>
+                {!isEmpty(profileInfo) &&
+                    <p className="profile-info">{profileInfo}</p>}
+                <p className="attributes"
+                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.attributes"))}}/>
+
+                <div className="attributes">
+                    {currentProfile.attributes.map(attribute =>
+                        <>
+                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span></>
+                    )}
+                </div>
+                {currentProfile.requiresMotivation &&
+                    <div className="profile=motivation">
+                        <InputField value={connection.profileMotivation}
+                                    name={I18n.t("connection.informational.profileMotivation")}
+                                    placeholder={I18n.t("connection.informational.profileMotivationPlaceholder")}
+                                    onChange={e => setConnection({...connection, profileMotivation: e.target.value})}
+                                    multiline={true}/>
+                        <p className="profile-info">{I18n.t("connection.informational.profileMotivationDisclaimer")}</p>
+                    </div>}
+                {(!isEmpty(currentProfile.optionalAttributes) && application.type !== "CONTENT") &&
+                    <>
+                        <section className="additional-attributes">
+                            <span>{I18n.t("connection.informational.additionalAttributes")}</span>
+                            <Switch name="additionalAttributes"
+                                    value={showAdditionalAttributes}
+                                    onChange={toggleAdditionalAttributes}/>
+                        </section>
+                        {showAdditionalAttributes && <>
+                            <p className="available-attributes">{I18n.t("connection.informational.availableAttributes")}</p>
+                            {currentProfile.optionalAttributes.map((optionalAttribute, index) => {
+                                const selected = connection.additionalAttributes.includes(optionalAttribute);
+                                return (
+                                    <div key={index}
+                                         className={`additional-attributes optional ${!selected ? "dormant" : ""}`}>
+                                        <section className="optional-attribute">
+                                            <div className="additional-attribute-info">
+                                                <span>{optionalAttribute}</span>
+                                                <span>{arpInfo.attributes.find(attr => attr.name === optionalAttribute).info[I18n.locale]}</span>
+                                            </div>
+                                            <Switch name={`extraAttribute_${index}`}
+                                                    value={selected}
+                                                    onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
+                                        </section>
+                                        {selected &&
+                                            <InputField value={connection.motivations[optionalAttribute]}
+                                                        name={I18n.t("connection.informational.motivation")}
+                                                        placeholder={I18n.t("connection.informational.motivationPlaceholder")}
+                                                        onChange={e => changeMotivation(e, optionalAttribute)}
+                                                        multiline={true}/>
+                                        }
+                                    </div>
+                                )
+                            })}
+                        </>}
+
+                    </>}
+
+            </section>
         );
     }
 
@@ -534,28 +618,31 @@ export const Testing = ({application, connection, setConnection, initConnection,
 
     const storeAndNext = () => {
         setInitial(false);
-        if (section === sections.technical && technicalValid()) {
+        const nextSection = section === sections.technical ? sections.informationProfile :
+            section === sections.informationProfile ? sections.testIdP : sections.testIdP;
+        const proceed = (section === sections.technical && technicalValid()) ||
+            (section === sections.informationProfile && informationProfileValid()) ||
+            (section === sections.testIdP && testIdPValid());
+        if (proceed) {
             setLoading(true);
+            debugger;
             const promise = connection.id ? updateConnection : newConnection
-            promise({...connection, application: {id: application.id}})
+            const body = convertClientConnectionToServer(application, connection, arpInfo);
+            promise(body)
                 .then(res => {
                     setLoading(false);
-                    setConnection(convertServerConnectionToClient(res, protocolOptions));
+                    setConnection(convertServerConnectionToClient(res, protocolOptions, arpInfo));
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
-                    changeSection(sections.informationProfile);
+                    changeSection(nextSection);
                 })
                 .catch(() => {
                     setLoading(false);
                     setFlash(I18n.t("forms.error"), "error")
                 });
 
-        } else if (section === sections.informationProfile && informationProfileValid())
-            if (technicalValid()) {
-                changeSection(section === sections.technical ? sections.informationProfile : sections.testIdP);
-            }
-
+        }
     };
 
 
@@ -596,9 +683,9 @@ export const Testing = ({application, connection, setConnection, initConnection,
                     </div>
                 </section>
                 <section className="right">
-                    <section className="inner-right">
-                        {getSection()}
-                    </section>
+
+                    {getSection()}
+
                     {(section === sections.technical || section === sections.informationProfile) &&
                         <div className="actions">
                             <Button txt={I18n.t(`forms.${connection.id ? "backToOverview" : "cancel"}`)}

@@ -1,0 +1,9 @@
+.sds--tooltip-parent {
+    .sds--switch.sds--switch--active {
+        background-color: var(--sds--color--green--400);
+    }
+
+    .sds--switch.sds--switch--active:hover {
+        background-color: var(--sds--color--green--500);
+    }
+}

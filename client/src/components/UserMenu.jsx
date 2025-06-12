@@ -2,13 +2,13 @@ import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
 import {useNavigate} from "react-router-dom";
-import {stopEvent} from "../utils/Utils";
-import {Button, ButtonType,UserInfo} from "@surfnet/sds";
+import {isEmpty, stopEvent} from "../utils/Utils";
+import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 import CaretDown from "../icons/caret_down.svg";
 
-export const UserMenu = () => {
+export const UserMenu = ({setIsAuthenticated}) => {
 
     const user = useAppStore(state => state.user);
 
@@ -21,9 +21,9 @@ export const UserMenu = () => {
         stopEvent(e);
         logout().then(() => {
             useAppStore.setState(() => ({breadcrumbPath: [], user: {}}));
-            navigate("/home");
+            setIsAuthenticated(false);
             setTimeout(() =>
-                useAppStore.setState(() => ({user: null, breadcrumbPath: []})), 125);
+                navigate("/home"), 1);
         });
     }
 
@@ -35,7 +35,7 @@ export const UserMenu = () => {
     }
 
     const renderOrganizationSwitch = () => {
-        if (user.organizationMemberships.length < 2) {
+        if (isEmpty(user) || user.organizationMemberships.length < 2) {
             return null;
         }
         const organizations = user.organizationMemberships.map(om => om.organization);
@@ -66,19 +66,21 @@ export const UserMenu = () => {
             </>
         )
     }
-
+    if (isEmpty(user)) {
+        return <Loader/>;
+    }
     return (
         <div className='user-menu-container'>
             {renderOrganizationSwitch()}
             <div className="user-menu"
                  tabIndex={2}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
-                <UserInfo isOpen={dropDownActive}
-                          children={renderMenu()}
-                          organisationName={user.schacHomeOrganization}
-                          userName={user.name}
-                          toggle={() => setDropDownActive(!dropDownActive)}
-                />
+                {user && <UserInfo isOpen={dropDownActive}
+                                   children={renderMenu()}
+                                   organisationName={user.schacHomeOrganization}
+                                   userName={user.name}
+                                   toggle={() => setDropDownActive(!dropDownActive)}
+                />}
             </div>
         </div>
     );

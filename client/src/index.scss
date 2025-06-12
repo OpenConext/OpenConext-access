@@ -4,6 +4,7 @@
 
 $page-width: 1280px;
 $mobile-width: 820px;
+$mobile-width-crossover: 820px;
 
 @mixin page {
     margin: 0 auto;
@@ -51,6 +52,13 @@ body:after {
     color: white;
     line-height: 30px;
     transform: rotate(45deg);
+}
+:root {
+    --sds--color--grey-background: #F4F6F8;
+}
+
+strong {
+    font-weight: 600;
 }
 
 $min-width-pixels: 620px;

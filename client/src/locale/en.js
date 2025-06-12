@@ -207,7 +207,6 @@ const en = {
         acsLocation: "ACS location",
         acsLocations: "ACS location(s)",
         addACSLocation: "+ Add ASC location",
-        informationProfileInfo: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
         next: "Opslaan en volgende",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
@@ -263,7 +262,13 @@ const en = {
                 }
             },
             attributes: "<strong>Je ontvangt de volgende attributen</strong> (we tonen voorbeeldwaarden)",
-            additionalAttributes: "Ik heb additionele attributen nodig"
+            additionalAttributes: "Ik heb additionele attributen nodig",
+            availableAttributes: "De volgende attributen zijn mogelijk bij deze bundel",
+            profileMotivation: "Motivatie voor de noodzaak van dit profiel",
+            profileMotivationPlaceholder: "Beschrijf waarom je dit informatieprofiel nodig hebt",
+            profileMotivationDisclaimer: "Deze tekst wordt getoond aan eindgebruikers die willen aansluiten bij je dienst",
+            motivation: "Motivation",
+            motivationPlaceholder: "Attribute is used to ..."
         }
     },
     testing: {

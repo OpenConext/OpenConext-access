@@ -92,6 +92,7 @@
     },
     {
       "name": "transientNameID",
+      "urn": "urn:oasis:names:tc:SAML:1.1:nameid-format:transient",
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
@@ -100,6 +101,7 @@
     },
     {
       "name": "persistentNameID",
+      "urn": "urn:oasis:names:tc:SAML:1.1:nameid-format:persistent",
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"

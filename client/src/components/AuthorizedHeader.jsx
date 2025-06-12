@@ -3,12 +3,12 @@ import "./AuthorizedHeader.scss";
 import {BreadCrumb} from "./BreadCrumb.jsx";
 import {UserMenu} from "./UserMenu.jsx";
 
-export const AuthorizedHeader = () => {
+export const AuthorizedHeader = ({setIsAuthenticated}) => {
 
     return (
         <div className="authorized-header">
             <BreadCrumb/>
-            <UserMenu/>
+            <UserMenu setIsAuthenticated={setIsAuthenticated}/>
         </div>
     );
 }
