@@ -2,69 +2,298 @@
   "profiles": [
     {
       "name": "anonymous",
-      "attributes": [],
-      "optionalAttributes": [],
+      "attributes": [
+        "schacHomeOrganization",
+        "eduPersonScopedAffiliation",
+        "eduPersonAffiliation",
+        "transientNameID",
+        "eduPersonAssurance"
+      ],
+      "optionalAttributes": [
+        "eduPersonEntitlement",
+        "organizationalUnitName"
+      ],
       "requiresMotivation": false
     },
     {
       "name": "pseudonymized",
-      "attributes": [],
-      "optionalAttributes": [],
+      "attributes": [
+        "schacHomeOrganization",
+        "eduPersonScopedAffiliation",
+        "eduPersonAffiliation",
+        "persistentNameID",
+        "eduPersonAssurance"
+      ],
+      "optionalAttributes": [
+        "eduPersonEntitlement",
+        "organizationalUnitName"
+      ],
       "requiresMotivation": false
     },
     {
       "name": "personalized",
-      "attributes": [],
-      "optionalAttributes": [],
+      "attributes": [
+        "schacHomeOrganization",
+        "eduPersonPrincipalName",
+        "displayName",
+        "givenName",
+        "commonName",
+        "surName",
+        "mail",
+        "eduPersonScopedAffiliation",
+        "eduPersonAffiliation",
+        "eduPersonAssurance"
+      ],
+      "optionalAttributes": [
+        "eduPersonEntitlement",
+        "organizationalUnitName",
+        "eduPersonOrcid",
+        "memberships",
+        "schacPersonalUniqueCode",
+        "eduid",
+        "subject-id",
+        "uid"
+      ],
       "requiresMotivation": true
     },
     {
       "name": "uidOnly",
-      "attributes": [],
-      "optionalAttributes": [],
-      "requiresMotivation": false
+      "attributes": ["uid"],
+      "optionalAttributes": []
     }
-
   ],
   "attributes": [
     {
       "name": "schacHomeOrganization",
-      "info": "The organization name of the identity provider",
+      "urn": "urn:mace:terena.org:attribute-def:schacHomeOrganization",
+      "info": {
+        "en": "The organization name of the identity provider",
+        "nl": "The organization name of the identity provider"
+      },
       "example": "uvh.nl"
     },
     {
       "name": "eduPersonScopedAffiliation",
-      "info": "Some",
+      "urn": "urn:mace:dir:attribute-def:eduPersonScopedAffiliation",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
       "example": "student@uvh.nl"
     },
     {
       "name": "eduPersonAffiliation",
-      "info": "Some",
+      "urn": "urn:mace:dir:attribute-def:eduPersonAffiliation",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
       "example": "student"
     },
     {
-      "name": "TransientNameID",
-      "info": "Some",
+      "name": "transientNameID",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "persistentNameID",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
       "example": "9d2f6e4a-7b1f-***"
     },
     {
       "name": "eduPersonAssurance",
-      "info": "Some",
+      "urn": "urn:mace:dir:attribute-def:eduPersonAssurance",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
       "example": "https://refeds.org/assurance/IAP/low"
     },
     {
       "name": "eduPersonEntitlement",
-      "info": "URI (URN or URL) that indicates rights to specific resources.",
+      "urn": "urn:mace:dir:attribute-def:eduPersonEntitlement",
+      "info": {
+        "en": "URI (URN or URL) that indicates rights to specific resources.",
+        "nl": "URI (URN or URL) that indicates rights to specific resources."
+      },
       "example": "https://uva.teacher.nl"
     },
     {
-      "name": "OrganizationalUnitName",
-      "info": "Departments, teams, or faculties with which the user is associated within the issuing institution.",
+      "name": "eduPersonPrincipalName",
+      "urn": "urn:mace:dir:attribute-def:eduPersonPrincipalName",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "j.doe@harderwijkuniversity"
+    },
+    {
+      "name": "memberships",
+      "urn": "urn:mace:dir:attribute-def:isMemberOf",
+      "info": {
+        "en": "Memberships or teams with which the user is associated.",
+        "nl": "Memberships  or teams with which the user is associated."
+      },
       "example": "https://uva.teacher.nl"
     },
-
-
-
-
+    {
+      "name": "autorisaties",
+      "urn": "urn:mace:surf.nl:attribute-def:surf-autorisaties",
+      "info": {
+        "en": "SURF Authorities for the user.",
+        "nl": "SURF Authorities for the user."
+      },
+      "example": "Instellingsbevoegde"
+    },
+    {
+      "name": "displayName",
+      "urn": "urn:mace:dir:attribute-def:displayName",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "John Doe"
+    },
+    {
+      "name": "givenName",
+      "urn": "urn:mace:dir:attribute-def:givenName",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "John"
+    },
+    {
+      "name": "commonName",
+      "urn": "urn:mace:dir:attribute-def:cn",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "Johnathan Doe"
+    },
+    {
+      "name": "surName",
+      "urn": "urn:mace:dir:attribute-def:sn",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "Doe"
+    },
+    {
+      "name": "mail",
+      "urn": "urn:mace:dir:attribute-def:mail",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "j.doe@harderwijkuniversity"
+    },
+    {
+      "name": "mail",
+      "urn": "urn:mace:dir:attribute-def:mail",
+      "info": {
+        "en": "Description of the attribute",
+        "nl": "Description of the attribute"
+      },
+      "example": "j.doe@harderwijkuniversity"
+    },
+    {
+      "name": "organizationalUnitName",
+      "urn": "urn:mace:dir:attribute-def:ou",
+      "info": {
+        "en": "Departments, teams, or faculties with which the user is associated within the issuing institution.",
+        "nl": "Departments, teams, or faculties with which the user is associated within the issuing institution."
+      },
+      "example": "teachers"
+    },
+    {
+      "name": "schacHomeOrganizationType",
+      "urn": "urn:mace:terena.org:attribute-def:schacHomeOrganizationType",
+      "info": {
+        "en": "The type of organization of the identity provider",
+        "nl": "The type of organization of the identity provider"
+      },
+      "example": "teachers"
+    },
+    {
+      "name": "schacPersonalUniqueCode",
+      "urn": "urn:schac:attribute-def:schacPersonalUniqueCode",
+      "info": {
+        "en": "The unique personal code",
+        "nl": "The unique personal code"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "eduPersonOrcid",
+      "urn": "urn:mace:dir:attribute-def:eduPersonOrcid",
+      "info": {
+        "en": "Orcid ID",
+        "nl": "Orcid ID"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "eckid",
+      "urn": "urn:mace:surf.nl:attribute-def:eckid",
+      "info": {
+        "en": "EckID",
+        "nl": "EckID"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "eduid",
+      "urn": "urn:mace:eduid.nl:1.1",
+      "info": {
+        "en": "eduID",
+        "nl": "eduID"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "surfCrmID",
+      "urn": "urn:mace:surf.nl:attribute-def:surf-crm-id",
+      "info": {
+        "en": "eduID",
+        "nl": "eduID"
+      },
+      "example": "9d2f6e4a-7b1f-***"
+    },
+    {
+      "name": "preferredLanguage",
+      "urn": "urn:mace:dir:attribute-def:preferredLanguage",
+      "info": {
+        "en": "preferredLanguage",
+        "nl": "preferredLanguage"
+      },
+      "example": "en"
+    },
+    {
+      "name": "subject-id",
+      "urn":  "urn:oasis:names:tc:SAML:attribute:subject-id",
+      "info": {
+        "en": "Subject identifier",
+        "nl": "Subject identifier"
+      },
+      "example": "admin@example.com"
+    },
+    {
+      "name": "uid",
+      "urn": "urn:mace:dir:attribute-def:uid",
+      "info": {
+        "en": "UID",
+        "nl": "UID"
+      },
+      "example": "urn:collab:person:example.com:admin"
+    }
   ]
 }

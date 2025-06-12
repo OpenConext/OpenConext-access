@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -54,6 +56,8 @@ public class ConnectionController implements UserAccessRights {
 
         user = this.reinitializeUser(user);
         confirmApplicationMembership(user, application.getOrganization(), application, Authority.MEMBER);
+
+        connection.setCreatedAt(Instant.now());
         connection = connectionRepository.save(connection);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
@@ -62,7 +66,9 @@ public class ConnectionController implements UserAccessRights {
     @PutMapping({"", "/"})
     public ResponseEntity<Connection> update(User user, @Validated @RequestBody Connection connectionData) {
         LOG.debug("/update connection by " + user.getEmail());
-
+        if (!connectionData.isValid()) {
+            throw new InvalidInputException("Connection is not valid");
+        }
         Connection connection = connectionRepository.findById(connectionData.getId())
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();

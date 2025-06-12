@@ -26,7 +26,7 @@ public class ManageController {
 
     @SneakyThrows
     @PostMapping("/api/v1/manage/parse")
-    public List<MetaData> parse(@RequestBody Map<String, String> requestBody) throws IOException {
+    public List<MetaData> parse(@RequestBody Map<String, String> requestBody) {
         List<EntityDescriptor> entityDescriptors;
         if (requestBody.containsKey("url")) {
             URL url = new URI(requestBody.get("url")).toURL();

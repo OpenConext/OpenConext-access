@@ -9,6 +9,8 @@ import access.model.OrganizationMembership;
 import access.model.User;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +51,18 @@ public class UserController {
     private final Config config;
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
+    private final Map<String, Object> arpInfo;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository) {
+                          OrganizationRepository organizationRepository,
+                          ObjectMapper objectMapper) throws IOException {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
+        this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
+        });
     }
 
     @GetMapping("config")
@@ -69,6 +77,12 @@ public class UserController {
             verifyMissingAttributes(user, result, guest);
         }
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/arp")
+    public ResponseEntity<Map<String, Object>> arp() {
+        LOG.debug("/arp");
+        return ResponseEntity.ok(this.arpInfo);
     }
 
     @GetMapping("login")

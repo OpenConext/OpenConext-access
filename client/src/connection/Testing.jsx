@@ -1,5 +1,5 @@
 import "./Testing.scss";
-import React, {useRef, useState} from "react";
+import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Button,
@@ -19,7 +19,7 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
+import {getApplicationById, newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import Select from 'react-select';
 import {useAppStore} from "../stores/AppStore.js";
@@ -27,6 +27,7 @@ import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
+import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
 
 const sections = {
     technical: "technical",
@@ -46,7 +47,7 @@ const grantTypes = {
     device_code: "urn:ietf:params:oauth:grant-type:device_code"
 }
 
-export const Testing = ({application, connection, setConnection, initConnection, protocolOptions}) => {
+export const Testing = ({application, connection, setConnection, initConnection, protocolOptions, refresh}) => {
     const {setFlash} = useAppStore(state => state);
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
@@ -69,7 +70,7 @@ export const Testing = ({application, connection, setConnection, initConnection,
         const visited = visitedSections.has(sectionName);
         switch (sectionName) {
             case sections.technical: {
-                return !visited || !technicalValid();
+                return !connection.id;
             }
             case sections.informationProfile: {
                 return true;
@@ -81,10 +82,12 @@ export const Testing = ({application, connection, setConnection, initConnection,
     }
 
     const technicalValid = () => {
-        return !(isEmpty(connection.name) ||
+        const isOidc = connection.protocol.value === "OIDC";
+        return !(isEmpty(connection.name) || isEmpty(connection.entityID) ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
-            Object.values(invalidACSLocations).some(invalid => invalid));
-
+            Object.values(invalidACSLocations).some(invalid => invalid) ||
+            (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
+            (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim()))) ));
     }
 
     const informationProfileValid = () => {
@@ -143,6 +146,14 @@ export const Testing = ({application, connection, setConnection, initConnection,
         const newRedirectUrls = [...connection.redirectUrls];
         newRedirectUrls[index] = e.target.value;
         setConnection({...connection, redirectUrls: newRedirectUrls});
+        setInvalidRedirects({...invalidRedirects, [index.toString()]: false});
+    }
+    const redirectUrlValueBlurred = (e, index) => {
+        const value = e.target.value;
+        //Empty values are picked up the other validations
+        const valid = isEmpty(value.trim()) || validUrlRegExp.test(value);
+        setInvalidRedirects({...invalidRedirects, [index.toString()]: !valid});
+        return true;
     }
 
     const focusRedirectURL = () => {
@@ -169,6 +180,15 @@ export const Testing = ({application, connection, setConnection, initConnection,
         const newACSLocations = [...connection.acsLocations]
         newACSLocations[index] = e.target.value;
         setConnection({...connection, acsLocations: newACSLocations});
+        setInvalidACSLocations({...invalidACSLocations, [index.toString()]: false});
+    }
+
+    const acsLocationValueBlurred = (e, index) => {
+        const value = e.target.value;
+        //Empty values are picked up the other validations
+        const valid = isEmpty(value.trim()) || validUrlRegExp.test(value);
+        setInvalidACSLocations({...invalidACSLocations, [index.toString()]: !valid});
+        return true;
     }
 
     const doParseMedaData = () => {
@@ -199,10 +219,35 @@ export const Testing = ({application, connection, setConnection, initConnection,
         }
     };
 
+    const protocolChanged = option => {
+        if (option.value === "OIDC") {
+            setConnection({
+                ...connection,
+                protocol: option,
+                grantTypes: ["authorization_code"],
+                pkce: false,
+                entityID: generateOIDCClientID(application),
+                redirectUrls: [""],
+                acsLocations: null
+            })
+        } else {
+            setConnection({
+                ...connection, protocol: option,
+                grantTypes: null,
+                pkce: false,
+                entityID: "",
+                redirectUrls: null,
+                acsLocations: [""]
+            })
+        }
+
+
+    }
+
     const technicalSection = () => {
         return (
             <>
-                <h2>{I18n.t("connection.technical")}</h2>
+                <h3>{I18n.t("connection.technical")}</h3>
                 <InputField value={connection.name || ""}
                             onChange={e => setConnection({...connection, name: e.target.value})}
                             name={I18n.t("connection.connectionName")}
@@ -220,16 +265,27 @@ export const Testing = ({application, connection, setConnection, initConnection,
                 <SelectField name={I18n.t("connection.protocol")}
                              value={connection.protocol}
                              options={protocolOptions}
-                             onChange={option => setConnection({...connection, protocol: option})}
+                             onChange={protocolChanged}
                 />
                 {connection.protocol.value === "OIDC" &&
                     <>
                         <div>
+                            <InputField value={connection.entityID || ""}
+                                        onChange={e => setConnection({...connection, entityID: e.target.value})}
+                                        name={I18n.t("connection.clientID")}
+                                        required={true}
+                                        disabled={true}
+                            />
+                            {(!initial && isEmpty(connection.entityID)) &&
+                                <ErrorIndicator msg={I18n.t("forms.required",
+                                    {name: I18n.t("connection.clientID")})}
+                                                adjustMargin={true}/>}
+
                             <span className="label">{I18n.t("connection.grantTypes")}</span>
                             <div className="grant-types">
                                 {Object.keys(grantTypes).map(grantType =>
-                                    <>
-                                        <section key={grantType} className="grant-type">
+                                    <Fragment key={grantType}>
+                                        <section className="grant-type">
                                             <span>{I18n.t(`connection.${grantType}`)}</span>
                                             <Switch name={grantType}
                                                     value={connection.grantTypes.includes(grantTypes[grantType])}
@@ -250,7 +306,11 @@ export const Testing = ({application, connection, setConnection, initConnection,
 
                                             </section>
                                         }
-                                    </>)}
+                                    </Fragment>)}
+                                {(!initial && isEmpty(connection.grantTypes)) &&
+                                    <ErrorIndicator
+                                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.grantType")})}
+                                        adjustMargin={true}/>}
                             </div>
                         </div>
                         <div className="redirect-urls-container">
@@ -258,11 +318,19 @@ export const Testing = ({application, connection, setConnection, initConnection,
                             <div className="redirect-urls">
                                 {connection.redirectUrls.map((value, index) =>
                                     <div className="redirect-url" key={index}>
-                                        <InputField value={value}
-                                                    onChange={e => redirectUrlValueChanged(e, index)}
-                                                    onRef={el => redirectUrlRefs.current[index] = el}
-                                        />
-                                        <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
+                                        <div className="redirect-url-inner">
+                                            <InputField value={value}
+                                                        onChange={e => redirectUrlValueChanged(e, index)}
+                                                        onBlur={e => redirectUrlValueBlurred(e, index)}
+                                                        onRef={el => redirectUrlRefs.current[index] = el}
+                                            />
+                                            <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
+                                        </div>
+                                        {invalidRedirects[index.toString()] &&
+                                            <ErrorIndicator msg={I18n.t("forms.invalidURL",
+                                                {name: I18n.t("connection.redirectUrl")})}
+                                            />
+                                        }
                                     </div>
                                 )}
                             </div>
@@ -348,16 +416,29 @@ export const Testing = ({application, connection, setConnection, initConnection,
                                     required={true}
                                     placeholder={I18n.t("connection.entityIDPlaceHolder")}
                         />
+                        {(!initial && isEmpty(connection.entityID)) &&
+                            <ErrorIndicator msg={I18n.t("forms.required",
+                                {name: I18n.t("connection.entityID")})}
+                                            adjustMargin={true}/>}
+
                         <div className="acs-locations-container">
                             <span className="label">{I18n.t("connection.acsLocations")}</span>
                             <div className="acs-locations">
                                 {connection.acsLocations.map((value, index) =>
                                     <div className="acs-location" key={index}>
-                                        <InputField value={value}
-                                                    onChange={e => acsLocationChanged(e, index)}
-                                                    onRef={el => acsLocationRefs.current[index] = el}
-                                        />
-                                        <Button type={ButtonType.Delete} onClick={() => removeACSLocation(index)}/>
+                                        <div className="acs-location-inner" key={index}>
+                                            <InputField value={value}
+                                                        onChange={e => acsLocationChanged(e, index)}
+                                                        onBlur={e => acsLocationValueBlurred(e, index)}
+                                                        onRef={el => acsLocationRefs.current[index] = el}
+                                            />
+                                            <Button type={ButtonType.Delete} onClick={() => removeACSLocation(index)}/>
+                                        </div>
+                                        {invalidACSLocations[index.toString()] &&
+                                            <ErrorIndicator msg={I18n.t("forms.invalidURL",
+                                                {name: I18n.t("connection.acsLocation")})}
+                                            />
+                                        }
                                     </div>
                                 )}
                             </div>
@@ -367,6 +448,9 @@ export const Testing = ({application, connection, setConnection, initConnection,
                                                   onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</a>}
                             />
                         </div>
+                        {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
+                            <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
+                                            adjustMargin={true}/>}
 
                     </>
                 }
@@ -405,11 +489,12 @@ export const Testing = ({application, connection, setConnection, initConnection,
             },
         ];
         return (<>
-                <span>informationProfileSection</span>
-                <Select
+                <h3>{I18n.t("connection.informationProfile")}</h3>
+                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informationProfileInfo"))}}/>
+                <SelectField
+                    name={I18n.t("connection.informationProfile")}
                     options={options}
-                    // If you want to also customize how the selected value is shown:
-                    formatOptionLabel={({label}) => label}
+
                 />
             </>
         );
@@ -455,10 +540,16 @@ export const Testing = ({application, connection, setConnection, initConnection,
             promise({...connection, application: {id: application.id}})
                 .then(res => {
                     setLoading(false);
-                    setConnection(res);
-                    setFlash(I18n.t("connection.flash.created"));
+                    setConnection(convertServerConnectionToClient(res, protocolOptions));
+                    setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
+                        name: connection.name
+                    }));
                     changeSection(sections.informationProfile);
                 })
+                .catch(() => {
+                    setLoading(false);
+                    setFlash(I18n.t("forms.error"), "error")
+                });
 
         } else if (section === sections.informationProfile && informationProfileValid())
             if (technicalValid()) {
@@ -510,8 +601,11 @@ export const Testing = ({application, connection, setConnection, initConnection,
                     </section>
                     {(section === sections.technical || section === sections.informationProfile) &&
                         <div className="actions">
+                            <Button txt={I18n.t(`forms.${connection.id ? "backToOverview" : "cancel"}`)}
+                                    type={ButtonType.Secondary}
+                                    onClick={() => refresh()}
+                            />
                             <Button txt={I18n.t("connection.next")}
-                                    type={ButtonType.secondary}
                                     disabled={storeAndNextDisabled()}
                                     onClick={() => storeAndNext()}
                             />
@@ -553,9 +647,9 @@ export const Testing = ({application, connection, setConnection, initConnection,
                 header: "",
                 nonSortable: true,
                 mapper: conn => <Button txt={I18n.t("connection.connections.details")}
-                                              onClick={() => {
-                                                  setConnection(conn);
-                                              }}/>
+                                        onClick={() => {
+                                            setConnection(conn);
+                                        }}/>
             },
         ]
 

@@ -123,7 +123,8 @@ $width-percentage: 75%;
                 flex-direction: column;
                 gap: 15px;
 
-                .redirect-url, .acs-location {
+                .redirect-url-inner, .acs-location-inner {
+
                     width: 100%;
                     display: flex;
 
@@ -215,10 +216,7 @@ $width-percentage: 75%;
     .actions {
         display: flex;
         margin: 25px 0;
-
-        button {
-            margin-left: auto;
-        }
+        justify-content: space-between;
     }
 
     .connections {

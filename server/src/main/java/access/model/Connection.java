@@ -75,18 +75,18 @@ public class Connection implements NameHolder {
         if (!StringUtils.hasText(name)) {
             return false;
         }
-        String entityid = (String) metaData.get("entityid");
+        String entityid = (String) metaData.get("entityID");
         if (!StringUtils.hasText(entityid)) {
             return false;
         }
         String protocolName = this.protocol.name();
         if (protocolName.equals("OIDC") &&
-                (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirect_urls")) ||
-                        CollectionUtils.isEmpty((Collection<?>) metaData.get("grants")))) {
+                (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirectUrls")) ||
+                        CollectionUtils.isEmpty((Collection<?>) metaData.get("grantTypes")))) {
             return false;
         }
         if (protocolName.equals("SAML") &&
-                CollectionUtils.isEmpty((Collection<?>) metaData.get("acs_locations"))) {
+                CollectionUtils.isEmpty((Collection<?>) metaData.get("acsLocations"))) {
             return false;
         }
         return true;

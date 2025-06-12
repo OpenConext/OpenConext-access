@@ -182,8 +182,11 @@ const en = {
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
+        clientID: "Client ID",
+        clientIDPlaceHolder: "",
         oidc: "OpenID Connect",
         saml: "SAML 2.0",
+        grantType: "OAuth Grant type",
         grantTypes: "OAuth Grant types",
         authorization_code: "Authorization Code",
         refresh_token: "Refresh tokens",
@@ -201,6 +204,7 @@ const en = {
         import: "Metadata importeren",
         entityID: "Entity ID",
         entityIDPlaceHolder: "https://entityID.com",
+        acsLocation: "ACS location",
         acsLocations: "ACS location(s)",
         addACSLocation: "+ Add ASC location",
         informationProfileInfo: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
@@ -258,7 +262,8 @@ const en = {
                     info: ""
                 }
             },
-            attributes: "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
+            attributes: "<strong>Je ontvangt de volgende attributen</strong> (we tonen voorbeeldwaarden)",
+            additionalAttributes: "Ik heb additionele attributen nodig"
         }
     },
     testing: {
@@ -276,7 +281,10 @@ const en = {
         delete: "Delete",
         back: "Back",
         required: "{{name}} is required",
-        requiredOne: "At least one {{name}} is required"
+        requiredOne: "At least one {{name}} is required",
+        error: "An unexpected error occurred",
+        backToOverview : "Back to connections",
+        invalidURL: "{{name}} is not a valid URL"
     },
     footer: {
         terms: "Terms of Use",

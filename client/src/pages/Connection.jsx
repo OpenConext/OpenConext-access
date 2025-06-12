@@ -7,6 +7,8 @@ import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHe
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
 import {getApplicationById} from "../api/index.js";
+import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
+import {Loader} from "@surfnet/sds";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -22,19 +24,20 @@ export const Connection = () => {
     const {applicationId, id} = useParams();
 
     const [application, setApplication] = useState({});
+    const [arpInfo, setArpInfo] = useState({});
     const [tab, setTab] = useState("overview");
     const [connection, setConnection] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getApplicationById(applicationId)
+        Promise.all([getApplicationById(applicationId)])
             .then(res => {
                 //For convenience editing
-                res.connections = (res.connections || [])
-                    .map(conn => ({
-                        ...conn,
-                        ...conn.metaData,
-                        protocol: protocolOptions.find(option => option.value === conn.protocol)}));
-                setApplication(res);
+                res[0].connections = (res[0].connections || [])
+                    .map(conn => convertServerConnectionToClient(conn, protocolOptions));
+                setApplication(res[0]);
+                setArpInfo(res[1]);
+                setLoading(false);
                 useAppStore.setState({
                     breadcrumbPath: [
                         {path: "/home", value: I18n.t("breadCrumb.access")},
@@ -46,13 +49,24 @@ export const Connection = () => {
             })
     }, [id]);
 
+    const refresh = () => {
+        getApplicationById(applicationId)
+            .then(res => {
+                res.connections = (res.connections || [])
+                    .map(conn => convertServerConnectionToClient(conn, protocolOptions));
+                setApplication(res);
+                setConnection(null);
+            })
+    }
+
     const initConnection = (forceNew = false) => {
         setConnection({
             new: forceNew,
-            environment: "test",
+            environment: "TEST",
             protocol: protocolOptions[0],
             grantTypes: ["authorization_code"],
-            pkce: true,
+            pkce: false,
+            entityID: generateOIDCClientID(application),
             redirectUrls: [""],
             acsLocations: [""],
             metaData: {}
@@ -73,6 +87,7 @@ export const Connection = () => {
                                 connection={connection}
                                 setConnection={setConnection}
                                 initConnection={initConnection}
+                                refresh={refresh}
                                 protocolOptions={protocolOptions}/>
             }
             case  "prod": {
@@ -87,6 +102,9 @@ export const Connection = () => {
             default:
                 throw new Error(`Unknown tab; ${tab}`)
         }
+    }
+    if (loading) {
+        return <Loader/>
     }
 
     return (

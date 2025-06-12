@@ -1,5 +1,6 @@
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
+import {convertClientConnectionToServer} from "../utils/Connection.js";
 
 //Internal API
 function validateResponse(showErrorDialog) {
@@ -65,6 +66,10 @@ export function configuration() {
 
 export function csrf() {
     return fetchJson("/api/v1/csrf", {}, {}, false);
+}
+
+export function arp() {
+    return fetchJson("/api/v1/users/arp", {}, {}, false);
 }
 
 //Users
@@ -134,11 +139,14 @@ export function parseMedaDataUrl(url) {
 
 //Connections
 export function newConnection(connection) {
-    return postPutJson("/api/v1/connections", connection, "POST");
+    const body = convertClientConnectionToServer(connection);
+    debugger;
+    return postPutJson("/api/v1/connections", body, "POST");
 }
 
 export function updateConnection(connection) {
-    return postPutJson("/api/v1/connections", connection, "PUT");
+    const body = convertClientConnectionToServer(connection);
+    return postPutJson("/api/v1/connections", body, "PUT");
 }
 
 
