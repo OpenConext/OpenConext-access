@@ -1,4 +1,5 @@
 @use "../styles/mixins" as *;
+@use "../index";
 
 .application-connection-form {
     background-color: white;
@@ -7,6 +8,7 @@
     .sds--alert {
         margin-bottom: 30px;
         width: 75%;
+        @include index.page-media;
 
         .sds--alert--inner {
             max-width: none;
@@ -17,6 +19,8 @@
     .application-connection {
         @include form;
         width: 75%;
+
+        @include index.page-media;
 
         .sub-part {
             display: flex;

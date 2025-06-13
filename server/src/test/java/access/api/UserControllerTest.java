@@ -21,7 +21,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void meWithOauth2Login() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "urn:collab:person:example.com:admin");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
 
         User user = given()
                 .when()
@@ -30,7 +30,7 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
                 .as(User.class);
-        assertEquals("urn:collab:person:example.com:admin", user.getEmail());
+        assertEquals(ADMIN_SUB, user.getEmail());
 
         Map res = given()
                 .when()

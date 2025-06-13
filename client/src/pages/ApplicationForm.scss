@@ -7,6 +7,8 @@ div.application-form-container {
         gap: 25px;
         width: 50%;
 
+        @include index.page-media;
+
         span.link {
             text-decoration: underline;
         }

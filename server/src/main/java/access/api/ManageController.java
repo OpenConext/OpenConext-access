@@ -1,18 +1,18 @@
 package access.api;
 
 import access.exception.InvalidInputException;
+import access.manage.EntityType;
+import access.manage.Manage;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
 import lombok.SneakyThrows;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -20,13 +20,19 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ManageController {
 
     private final MetaDataFeedParser metaDataFeedParser = new MetaDataFeedParser();
+    private final Manage manage;
+
+    public ManageController(Manage manage) {
+        this.manage = manage;
+    }
 
     @SneakyThrows
-    @PostMapping("/api/v1/manage/parse")
-    public List<MetaData> parse(@RequestBody Map<String, String> requestBody) {
+    @PostMapping("/parse")
+    public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) {
         List<EntityDescriptor> entityDescriptors;
         if (requestBody.containsKey("url")) {
             URL url = new URI(requestBody.get("url")).toURL();
@@ -39,7 +45,14 @@ public class ManageController {
             String xml = requestBody.get("xml");
             entityDescriptors = metaDataFeedParser.importXML(new ByteArrayResource(xml.getBytes(Charset.defaultCharset())));
         }
-        return entityDescriptors.stream().map(MetaData::new).toList();
+        return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());
+    }
+
+    @SneakyThrows
+    @GetMapping("/identity-providers")
+    public ResponseEntity<List<Map<String, Object>>> identityProviders() {
+        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_IDP);
+        return ResponseEntity.ok(providers);
     }
 
 }

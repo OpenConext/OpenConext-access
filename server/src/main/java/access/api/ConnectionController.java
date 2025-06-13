@@ -1,7 +1,9 @@
 package access.api;
 
+import access.config.HashGenerator;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -9,14 +11,23 @@ import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -33,15 +44,26 @@ public class ConnectionController implements UserAccessRights {
     private final ConnectionRepository connectionRepository;
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
+    private final Manage manage;
+    private final PasswordGenerator passwordGenerator = new PasswordGenerator();
+    private final List<CharacterRule> rules = initPasswordGeneratorRules();
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                Manage manage) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
+        this.manage = manage;
     }
 
+    private List<CharacterRule> initPasswordGeneratorRules() {
+        return List.of(
+                new CharacterRule(EnglishCharacterData.LowerCase, 8),
+                new CharacterRule(EnglishCharacterData.UpperCase, 8),
+                new CharacterRule(EnglishCharacterData.Digit, 8));
+    }
 
     @PostMapping({"", "/"})
     public ResponseEntity<Connection> create(User user, @Validated @RequestBody Connection connection) {
@@ -54,11 +76,11 @@ public class ConnectionController implements UserAccessRights {
         Application application = applicationRepository.findById(applicationID)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
-        user = this.reinitializeUser(user);
+        user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, application.getOrganization(), application, Authority.MEMBER);
 
         connection.setCreatedAt(Instant.now());
-        connection = connectionRepository.save(connection);
+        connection = saveConnection(connection);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
@@ -73,20 +95,39 @@ public class ConnectionController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
         Organization organization = application.getOrganization();
-        user = this.reinitializeUser(user);
+        user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         connection.merge(connectionData);
-        connectionRepository.save(connection);
+        if (connection.getStatus() == Status.COMPLETE && connection.getProtocol().equals(Protocol.OIDC)) {
+            //generate secret
+            connection.getMetaData().put("secret", passwordGenerator.generatePassword(36, rules)) ;
+        }
+        saveConnection(connection);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
 
-    private User reinitializeUser(User user) {
-        //To prevent LazyInitializationException
-        return this.userRepository.findById(user.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+    @PutMapping(value = "/reset-secret/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> secret(User user, @PathVariable("connectionId") Long connectionId) {
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Application application = connection.getApplication();
+        Organization organization = application.getOrganization();
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+
+        connection.getMetaData().put("secret", passwordGenerator.generatePassword(36, rules));
+        saveConnection(connection);
+
+        return Collections.singletonMap("secret", passwordGenerator.generatePassword(36, rules));
     }
 
+    private Connection saveConnection(Connection connection) {
+        //Put / Post to Manage
+
+        return connectionRepository.save(connection);
+    }
 
 }

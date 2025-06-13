@@ -36,7 +36,7 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> providers(EntityType... entityTypes) {
         LOG.debug("Providers for entityTypes: " + List.of(entityTypes));
-        return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(entityType.collectionName()))
+        return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(entityType.collectionName(), false))
                 .flatMap(List::stream)
                 .toList();
     }
@@ -49,15 +49,20 @@ public class RemoteManage implements Manage {
     }
 
 
-    private List<Map<String, Object>> getRemoteMetaData(String type) {
-        Map<String, Object> baseQuery = getBaseQuery();
+    private List<Map<String, Object>> getRemoteMetaData(String type, boolean allAttributes) {
+        Map<String, Object> baseQuery = getBaseQuery(allAttributes);
         String url = String.format("%s/manage/api/internal/search/%s", this.url, type);
         return restTemplate.postForObject(url, baseQuery, List.class);
     }
 
-    private Map<String, Object> getBaseQuery() {
+    private Map<String, Object> getBaseQuery(boolean allAttributes) {
         HashMap<String, Object> baseQuery = new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
-        baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
+        if (!allAttributes) {
+            baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
+        } else {
+            baseQuery.remove("REQUESTED_ATTRIBUTES");
+            baseQuery.put("ALL_ATTRIBUTES", true);
+        }
         return baseQuery;
     }
 

@@ -3,15 +3,12 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
-import access.manage.MetaData;
-import access.model.User;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("unchecked")
 class ManageControllerTest extends AbstractTest {
+
 
     @Test
     void parseForbidden() {
@@ -37,7 +35,7 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void parse() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "urn:collab:person:example.com:admin");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
 
         List<Map<String, Object>> metaDataList = given()
                 .when()
@@ -54,4 +52,31 @@ class ManageControllerTest extends AbstractTest {
         assertEquals("SURFconext TEST EngineBlock", metaData.get("name"));
 
     }
+
+    @Test
+    void identityProviders() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForIdentityProviders();
+        List<Map<String, Object>> identityProviders = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/identity-providers")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(3, identityProviders.size());
+    }
+
+    @SneakyThrows
+    protected void stubForIdentityProviders() {
+        List<Map<String, Object>> providers = localManage.providers(EntityType.SAML20_IDP);
+        String body = objectMapper.writeValueAsString(providers);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
+    }
+
 }

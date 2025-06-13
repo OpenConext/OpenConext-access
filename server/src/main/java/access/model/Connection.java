@@ -38,7 +38,7 @@ public class Connection implements NameHolder {
 
     @Type(JsonType.class)
     @Column(name = "meta_data", columnDefinition = "jsonb")
-    private Map<String, ?> metaData = new HashMap<>();
+    private Map<String, Object> metaData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -61,7 +61,7 @@ public class Connection implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public Connection(String name, Application application, Map<String, ?> metaData, Protocol protocol, Environment environment) {
+    public Connection(String name, Application application, Map<String, Object> metaData, Protocol protocol, Environment environment) {
         this.name = name;
         this.application = application;
         this.metaData = metaData;
@@ -75,8 +75,8 @@ public class Connection implements NameHolder {
         if (!StringUtils.hasText(name)) {
             return false;
         }
-        String entityid = (String) metaData.get("entityID");
-        if (!StringUtils.hasText(entityid)) {
+        String entityID = (String) metaData.get("entityID");
+        if (!StringUtils.hasText(entityID)) {
             return false;
         }
         String protocolName = this.protocol.name();

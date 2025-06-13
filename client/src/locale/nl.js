@@ -62,22 +62,40 @@ const nl = {
     breadCrumb: {
         access: "SURF Access",
         landing: "Search for your organization",
-        applications: "Application maintenance"
+        applications: "Application maintenance",
+        home: "Home"
     },
     welcome: {
         greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         searchPlaceholder: "Search for organizations...",
         organizationMembers: "{{nbr}} users. Request access.",
-        zeroState: "No organizations found"
-
+        zeroState: "No organizations found",
+        register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
+        flash: "Created organization {{name}}."
+    },
+    userHome: {
+        greeting: "{{name}}",
+        nudgeLanding: "You are not a member of any organization.",
+        nudgeLandingLink: " You can request to join one.",
+        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
     },
     joinRequest: {
-        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>Sharemania BV</strong>. Je kunt toegang vragen aan de beheerder.",
-        requestAccess: "Request access"
+        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        requestAccess: "Request access",
+        duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
+        flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
+        modal: {
+            title: "Join request is created",
+            success: "Your join request is sent to the admins of <strong>{{name}}</strong>. You will receive an email if the join request is accepted",
+            proceed: "Proceed"
+        }
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+    },
+    userMenu: {
+        switchOrganization: "Switch organization"
     },
     application: {
         new: "New Application",
@@ -111,12 +129,14 @@ const nl = {
             privacy: "De persoonsgegevens worden niet aan derden verstrekt",
             safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
-        }
+        },
+        flash: "Application {{name}} saved."
     },
-    organisation: {
+    organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         applications: "Applicatiebeheer",
-        addApplication: "Voeg je eerste Applicatie toe",
+        addFirstApplication: "Voeg je eerste Applicatie toe",
+        addApplication: "Nieuwe Applicatie toevoegen",
         catalog: {
             terms: "Voorwaarden voor apps in de SURF catalogus",
             fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
@@ -162,8 +182,11 @@ const nl = {
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
-        oidc10rp: "OpenID Connect",
-        saml20sp: "SAML 2.0",
+        clientID: "Client ID",
+        clientIDPlaceHolder: "",
+        oidc: "OpenID Connect",
+        saml: "SAML 2.0",
+        grantType: "OAuth Grant type",
         grantTypes: "OAuth Grant types",
         authorization_code: "Authorization Code",
         refresh_token: "Refresh tokens",
@@ -172,6 +195,7 @@ const nl = {
         pkceTooltip: "PKCE (Proof Key for Code Exchange) enhances the security of the authorization code flow by preventing authorization code interception. It’s especially important for public clients like mobile or single-page apps",
         optional: "Optional",
         required: "Required (public client)",
+        redirectUrl: "Redirect URL",
         redirectUrls: "Redirect URLs",
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
@@ -180,9 +204,9 @@ const nl = {
         import: "Metadata importeren",
         entityID: "Entity ID",
         entityIDPlaceHolder: "https://entityID.com",
+        acsLocation: "ACS location",
         acsLocations: "ACS location(s)",
         addACSLocation: "+ Add ASC location",
-        informationProfileInfo: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
         next: "Opslaan en volgende",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
@@ -196,18 +220,36 @@ const nl = {
             parsed: "The metadata has successfully been imported",
             errorParsed: "Error in parsing the metadata"
         },
+        flash: {
+            deleted: "Deleted connnection {{name}}",
+            created: "Created connnection {{name}}",
+            updated: "Updated connnection {{name}}",
+        },
+        connections: {
+            titleProd: "Koppelingen met de productieomgeving",
+            titleTest: "Koppelingen met de testomgeving",
+            name: "Name",
+            created: "Added at",
+            status: "Status",
+            open: "open",
+            complete: "Completed",
+            protocol: "Protocol",
+            details: "Details"
+
+        },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
+            contentAppAlert: "Een content application ontvangt de volgend informatie",
             profiles: {
                 anonymous: {
-                    name:"Anoniem",
+                    name: "Anoniem",
                     title: "Het meest privacyvriendelijk",
-                    info:"Deze bundel is speciaal bedoeld voor als je zeer privacy bewust wilt werken. Je ontvangt een transient NameID, dit betekent dat de gebruiker elke keer als hij bij de dienst inlogt een nieuw etcetera."
+                    info: "Deze bundel is speciaal bedoeld voor als je zeer privacy bewust wilt werken. Je ontvangt een transient NameID, dit betekent dat de gebruiker elke keer als hij bij de dienst inlogt een nieuw etcetera."
                 },
                 pseudonymized: {
-                    name:"Pseudonymized",
+                    name: "Pseudonymized",
                     title: "Privacy vriendelijk inclusief betrouwbaarheid",
-                    info:"Deze bundel is speciaal bedoeld voor toelichting. Je ontvangt een persistent NameID, dit betekent dat de toelichting gebruiker elke keer als hij bij de dienst inlogt etcetera."
+                    info: "Deze bundel is speciaal bedoeld voor toelichting. Je ontvangt een persistent NameID, dit betekent dat de toelichting gebruiker elke keer als hij bij de dienst inlogt etcetera."
                 },
                 personalized: {
                     name: "Gepersonaliseerd",
@@ -220,16 +262,55 @@ const nl = {
                     info: ""
                 }
             },
-            attributes      : "Je ontvangt de volgende attributen (we tonen voorbeeldwaarden)",
+            attributes: "<strong>Je ontvangt de volgende attributen</strong> (we tonen voorbeeldwaarden)",
+            additionalAttributes: "Ik heb additionele attributen nodig",
+            availableAttributes: "De volgende attributen zijn mogelijk bij deze bundel",
+            profileMotivation: "Motivatie voor de noodzaak van dit profiel",
+            profileMotivationPlaceholder: "Beschrijf waarom je dit informatieprofiel nodig hebt",
+            profileMotivationDisclaimer: "Deze tekst wordt getoond aan eindgebruikers die willen aansluiten bij je dienst",
+            motivation: "Motivation",
+            motivationPlaceholder: "Attribute is used to ..."
+        },
+        testIdPs: {
+            info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",
+            subTitle: "Test-IdP’s van SURF",
+            identityProviders: [
+                {
+                    name: "SXS IdP",
+                    entityid: "http://mock-idp",
+                    description: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
+                },
+                {
+                    name: "SXS Dummy",
+                    entityid: "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
+                    description: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
+                }
+            ],
+            institutionIdPs: "Test-IdP’s van instellingen",
+            institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
+            placeholder: "Selecteer één of meerdere instellingen",
+            institution: "Institution"
         }
-
+    },
+    testing: {
+        newConnection: "New connection",
+        added: "Added at",
+        status: "Status",
+        protocol: "Protocol",
+        details: "Details",
+        zeroState: "Application <strong>{{name}}</strong> has not connections yet."
     },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
         edit: "Edit",
         delete: "Delete",
-        back: "Back"
+        back: "Back",
+        required: "{{name}} is required",
+        requiredOne: "At least one {{name}} is required",
+        error: "An unexpected error occurred",
+        backToOverview: "Back to connections",
+        invalidURL: "{{name}} is not a valid URL"
     },
     footer: {
         terms: "Terms of Use",
@@ -239,7 +320,6 @@ const nl = {
         surfLink: "https://surf.nl",
         select_locale: "Select your preferred language"
     },
-
 }
 
 export default nl;

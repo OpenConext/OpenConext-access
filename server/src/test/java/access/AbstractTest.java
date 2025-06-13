@@ -3,7 +3,6 @@ package access;
 import access.config.HashGenerator;
 import access.manage.Contact;
 import access.manage.LocalManage;
-import access.manage.Manage;
 import access.model.*;
 import access.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -59,7 +58,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,6 +84,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
+    //Users
+    public static final String ADMIN_SUB = "urn:collab:person:example.com:admin";
+    public static final String SUPER_SUB = "urn:collab:person:example.com:super";
+    public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
+    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String MULTIPLE_ORG_SUB = "urn:collab:person:eduid.nl:mos";
 
     //Organizations
     public static final String SHARE_LOGICS = "ShareLogics";
@@ -103,11 +107,6 @@ public abstract class AbstractTest {
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
-
-    public static final String SUPER_SUB = "urn:collab:person:example.com:super";
-    public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
-    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
-    public static final String MULTIPLE_ORG_SUB = "urn:collab:person:eduid.nl:mos";
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -135,9 +134,6 @@ public abstract class AbstractTest {
 
     @Autowired
     protected OrganizationMembershipRepository organizationMembershipRepository;
-
-    @Autowired
-    protected Manage manage;
 
     protected LocalManage localManage;
 
@@ -423,14 +419,28 @@ public abstract class AbstractTest {
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
                 "entityID", "https://engine.test.surfconext.nl",
                 "grantTypes", List.of("authorization_code", "refresh_token"),
-                "redirectUrls", List.of("http://localhost:8080/redirect")),
+                "redirectUrls", List.of("http://localhost:8080/redirect"),
+                "arp", Map.of(
+                        "profile", "personalized",
+                        "attributes", Map.of(
+                                "urn:mace:dir:attribute-def:cn",
+                                List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
+                        ),
+                        "motivation", "Please")),
                 Protocol.OIDC,
                 Environment.TEST);
         Connection buddyCheckConnectionProd = new Connection(BUDDY_CHECK_PROD, buddyCheck, Map.of(
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
                 "entityID", "https://engine.test.surfconext.nl",
                 "grantTypes", List.of("authorization_code", "refresh_token"),
-                "redirectUrls", List.of("http://localhost:8080/redirect")),
+                "redirectUrls", List.of("http://localhost:8080/redirect"),
+                "arp", Map.of(
+                        "profile", "personalized",
+                        "attributes", Map.of(
+                                "urn:mace:dir:attribute-def:cn",
+                                List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
+                        ),
+                        "motivation", "Please")),
                 Protocol.OIDC,
                 Environment.PROD);
         doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);

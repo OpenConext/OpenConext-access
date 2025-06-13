@@ -9,7 +9,7 @@ export const CollapseField = ({title, info, children, checkRequired, name, check
     const [collapse, setCollapse] = useState(false)
 
     return (
-        <div className="collapse-field">
+        <div className="collapse-field" key={name}>
             <div className="collapse-field-inner">
                 {checkRequired && <Checkbox name={name}
                                             value={checkValue}

@@ -1,12 +1,11 @@
 @use "../styles/vars" as *;
+@use "../index";
 
 .landing-container {
     padding: 60px 50px 0 50px;
     width: 50%;
 
-    @media (max-width: $full-mode) {
-        width: 100%;
-    }
+    @include index.page-media;
 
     .search {
         display: flex;

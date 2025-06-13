@@ -1,5 +1,6 @@
 @use "../styles/mixins" as *;
 @use "../styles/vars" as *;
+@use "../index";
 
 $width-percentage: 75%;
 
@@ -12,11 +13,7 @@ $width-percentage: 75%;
         align-items: center;
         margin-bottom: 25px;
         width: $width-percentage;
-
-
-        @media (max-width: $full-mode) {
-            width: 100%;
-        }
+        @include index.page-media;
 
         .copy-connection {
             margin-left: auto;
@@ -44,10 +41,7 @@ $width-percentage: 75%;
         display: flex;
         gap: 35px;
         width: $width-percentage;
-
-        @media (max-width: $full-mode) {
-            width: 100%;
-        }
+        @include index.page-media;
 
         .left {
             width: 30%;
@@ -63,12 +57,26 @@ $width-percentage: 75%;
             @include card();
         }
 
+        .sds--alert.sds--alert--status-warning {
+            margin: 25px 0 15px 0;
+
+            .sds--page-container {
+                width: 100%;
+                margin: 0;
+            }
+
+            .sds--alert--textual p {
+                font-weight: 400;
+            }
+        }
+
         .inner-right-informational {
             @include card(0);
 
             .select-inner__single-value {
                 padding: 6px 0;
             }
+
 
             p.disclaimer {
                 margin: 20px 0 18px 0;
@@ -80,7 +88,7 @@ $width-percentage: 75%;
             }
 
             p.attributes {
-                margin: 18px 0 4px 0;
+                margin: 18px 0 8px 0;
             }
 
             div.attributes {
@@ -140,6 +148,8 @@ $width-percentage: 75%;
 
                 .input-field {
                     width: 75%;
+                    @include index.page-media;
+
                 }
             }
 
@@ -148,6 +158,47 @@ $width-percentage: 75%;
             }
 
         }
+
+        .inner-right-idp {
+            @include card(25px);
+
+            .identity-providers {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .idp {
+                display: flex;
+                align-items: center;
+
+                .idp-info {
+                    margin-left: 25px;
+                }
+
+                .idp-info p:first-child {
+                    font-weight: 600;
+                }
+
+                .idp-info p:last-child {
+                    color: var(--sds--color--gray--500)
+                }
+
+            }
+
+            .select-field {
+                margin-top: -15px;
+            }
+        }
+
+        .inner-right-overview {
+            @include card(0);
+
+            p.test {
+                margin: 10px 0 15px 0;
+            }
+        }
+
     }
 
     .status-menu {
@@ -159,7 +210,7 @@ $width-percentage: 75%;
         margin-top: 35px;
 
         p {
-            font-weight: 600testin;
+            font-weight: 600;
         }
     }
 
@@ -303,11 +354,23 @@ $width-percentage: 75%;
 .actions {
     display: flex;
     margin: 25px 0;
+    align-items: flex-end;
     justify-content: space-between;
+
+    &.orphan {
+        justify-content: flex-end;
+    }
+
+
+    button svg {
+        width: 16px;
+        height: auto;
+    }
 }
 
 .connections {
     width: $width-percentage;
+    @include index.page-media;
 
     .header {
         display: flex;

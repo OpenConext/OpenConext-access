@@ -17,12 +17,14 @@ public class Config {
     private String baseUrl;
     private String eduIdSchacHomeOrganization;
     private String name;
+    private String discovery;
     private boolean authenticated;
     private List<String> missingAttributes;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
         this.baseUrl = base.baseUrl;
+        this.discovery = base.discovery;
         this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;
     }
 

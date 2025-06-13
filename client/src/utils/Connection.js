@@ -1,7 +1,5 @@
-import {isEmpty} from "./Utils.js";
-
+//Deliberate design choice to have a different format on the server to have all complex data in the metaData attribute
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
-    debugger;
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
     const currentProfile = arpInfo.profiles.find(p => p.name === profile.value);
     const selectedAttributes = currentProfile.attributes.concat(additionalAttributes);
@@ -9,14 +7,13 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
     const arpAttributes = attributes.reduce((acc, attr) => {
         acc[attr.urn] = [
             {
-                "source": "idp",
+                "source": attr.overrideSource || "idp",
                 "value": "*",
                 "motivation": motivations[attr.name] || "Default for profile"
             }
         ];
         return acc;
     }, {});
-    debugger;
     return {
         ...connection,
         application: {id: application.id},
@@ -27,6 +24,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             grantTypes: connection.grantTypes,
             acsLocations: connection.acsLocations,
             contactPersons: connection.contactPersons,
+            allowedEntities: connection.allowedEntities,
             arp: {
                 attributes: arpAttributes,
                 profile: currentProfile.name,
@@ -36,20 +34,34 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
 
     };
 }
-
-export const convertServerConnectionToClient = (connection, protocolOptions, arpInfo) => {
-
-    // if (arpInfo) {
-    //     debugger;
-    // }
+//Deliberate design choice to have a different format on the client to have all complex data in the connection attribute
+export const convertServerConnectionToClient = (connection, protocolOptions, profileOptions, arpInfo) => {
+    const {arp} = connection.metaData;
+    const {profile, attributes, motivation} = arp;
+    const protocol = protocolOptions.find(option => option.value === connection.protocol);
+    const profileAttributesNames = arpInfo.profiles.find(p => p.name === profile).attributes;
+    const profileAttributes = arpInfo.attributes.filter(attr => profileAttributesNames.includes(attr.name));
+    const profileAttributesUrns = profileAttributes.map(attr => attr.urn);
+    //Find all attributes in the metadata that are not in the default array
+    const additionalAttributesUrns = Object.keys(attributes)
+        .filter(attr => !profileAttributesUrns.includes(attr))
+    const additionalAttributes = arpInfo.attributes.filter(attr => additionalAttributesUrns.includes(attr.urn));
+    const additionalAttributesNames = additionalAttributes.map(attr => attr.name);
+    const motivations = additionalAttributesUrns
+        .reduce((acc, urn) => {
+            const attribute = additionalAttributes.find(attr => attr.urn === urn);
+            acc[attribute.name] = attributes[urn][0].motivation;
+            return acc;
+        }, {})
+    const profileOption = profileOptions.find(option => option.value === profile);
     return {
         ...connection,
         ...connection.metaData,
-        protocol: protocolOptions.find(option => option.value === connection.protocol),
-        additionalAttributes: [],
-        profile: {},
-        motivations: {},
-        profileMotivation: ""
+        protocol: protocol,
+        additionalAttributes: additionalAttributesNames,
+        profile: profileOption,
+        motivations: motivations,
+        profileMotivation: motivation
     }
 
 }

@@ -6,6 +6,18 @@
     &.collapsed {
         min-width: 48px;
     }
+
+    .sds--navigation-menu-items .sds--navigation-menu-item {
+        padding: 5px;
+        border-radius: 4px;
+        &.active {
+            background-color: var(--sds--color--white);
+            a, svg {
+                color: black;
+            }
+
+        }
+    }
 }
 
 .sds--navigation-menu-children {
@@ -15,3 +27,4 @@
         display: none;
     }
 }
+

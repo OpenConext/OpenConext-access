@@ -1,10 +1,7 @@
 @use "styles/tooltip" as *;
 @use "styles/forms" as *;
 @use "styles/responsive" as *;
-
-$page-width: 1280px;
-$mobile-width: 820px;
-$mobile-width-crossover: 820px;
+@use "styles/vars" as *;
 
 @mixin page {
     margin: 0 auto;
@@ -14,11 +11,22 @@ $mobile-width-crossover: 820px;
 }
 
 @mixin page-content {
-    max-width: $page-width;
+    max-width: $full-mode;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 25px;
+    @media (max-width: $full-mode) {
+        max-width: 100%;
+    }
+}
+
+@mixin page-media {
+    @media (max-width: $full-mode) {
+        width: 100%;
+        max-width: 100%;
+    }
+
 }
 
 @mixin form-content {
@@ -53,6 +61,7 @@ body:after {
     line-height: 30px;
     transform: rotate(45deg);
 }
+
 :root {
     --sds--color--grey-background: #F4F6F8;
 }

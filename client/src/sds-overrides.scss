@@ -6,4 +6,13 @@
     .sds--switch.sds--switch--active:hover {
         background-color: var(--sds--color--green--500);
     }
+
+    input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual {
+        background-color: var(--sds--color--green--400);
+    }
+    input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual:hover {
+        background-color: var(--sds--color--green--500);
+    }
 }
+
+

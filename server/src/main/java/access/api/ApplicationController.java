@@ -3,6 +3,7 @@ package access.api;
 import access.exception.NotFoundException;
 import access.model.*;
 import access.repository.ApplicationRepository;
+import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,9 +30,12 @@ public class ApplicationController implements UserAccessRights {
     private static final Log LOG = LogFactory.getLog(ApplicationController.class);
 
     private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
 
-    public ApplicationController(ApplicationRepository applicationRepository) {
+    public ApplicationController(ApplicationRepository applicationRepository,
+                                 UserRepository userRepository) {
         this.applicationRepository = applicationRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/all/{organizationId}")
@@ -76,6 +80,8 @@ public class ApplicationController implements UserAccessRights {
         Application application = applicationRepository.findById(applicationData.getId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
         Organization organization = application.getOrganization();
+
+        user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         application.merge(applicationData);

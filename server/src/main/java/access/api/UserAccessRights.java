@@ -1,10 +1,12 @@
 package access.api;
 
+import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.model.Application;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.User;
+import access.repository.UserRepository;
 
 import java.util.Collection;
 
@@ -31,5 +33,10 @@ public interface UserAccessRights {
         }
     }
 
+    default User reinitializeUser(User user, UserRepository userRepository) {
+        //To prevent LazyInitializationException
+        return userRepository.findById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
 
 }

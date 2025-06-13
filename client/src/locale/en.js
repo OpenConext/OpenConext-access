@@ -231,7 +231,7 @@ const en = {
             name: "Name",
             created: "Added at",
             status: "Status",
-            open:"open",
+            open: "open",
             complete: "Completed",
             protocol: "Protocol",
             details: "Details"
@@ -239,6 +239,7 @@ const en = {
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
+            contentAppAlert: "Een content application ontvangt de volgend informatie",
             profiles: {
                 anonymous: {
                     name: "Anoniem",
@@ -269,6 +270,36 @@ const en = {
             profileMotivationDisclaimer: "Deze tekst wordt getoond aan eindgebruikers die willen aansluiten bij je dienst",
             motivation: "Motivation",
             motivationPlaceholder: "Attribute is used to ..."
+        },
+        testIdPs: {
+            info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",
+            subTitle: "Test-IdP’s van SURF",
+            identityProviders: [
+                {
+                    name: "SXS IdP",
+                    entityid: "http://mock-idp",
+                    description: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
+                },
+                {
+                    name: "SXS Dummy",
+                    entityid: "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
+                    description: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
+                }
+            ],
+            institutionIdPs: "Test-IdP’s van instellingen",
+            institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
+            placeholder: "Selecteer één of meerdere instellingen",
+            institution: "test IdP or institution IdP"
+        },
+        connectionOverview: {
+            copy: "Kopieer de inloggegevens",
+            disclaimer: "Het client secret wordt hieronder éénmaal weergegeven. Zorg ervoor dat je het nu kopieert, anders moet er een nieuw seceret aangevraagd worden.",
+            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
+            discovery: "OpenID Connect Discovery",
+            clientID: "Client ID",
+            secret: "Client secret"
+
+
         }
     },
     testing: {
@@ -288,7 +319,8 @@ const en = {
         required: "{{name}} is required",
         requiredOne: "At least one {{name}} is required",
         error: "An unexpected error occurred",
-        backToOverview : "Back to connections",
+        backToOverview: "Back to connections",
+        overview: "Naar overzicht",
         invalidURL: "{{name}} is not a valid URL"
     },
     footer: {

@@ -1,4 +1,4 @@
-@use "../index";
+@use "../styles/vars" as *;
 
 .header-container {
     background-color: white;
@@ -16,19 +16,19 @@
         }
 
         .nav {
-            @media (max-width: index.$mobile-width) {
+            @media (max-width: $mobile-width) {
                 display: none;
             }
         }
         .desktop-navigation {
-            @media (max-width: index.$mobile-width) {
+            @media (max-width: $mobile-width) {
                 display: none;
             }
         }
         .mobile-navigation {
             margin: 0 25px 0 auto;
 
-            @media (min-width: index.$mobile-width-crossover) {
+            @media (min-width: $mobile-width-crossover) {
                 display: none;
             }
         }

@@ -4,7 +4,7 @@
     "version": 1,
     "type": "saml20_idp",
     "data": {
-      "entityid": "https://mock-idp",
+      "entityid": "http://mock-idp",
       "allowedall": false,
       "allowedEntities": [
         {
@@ -34,7 +34,7 @@
     "version": 1,
     "type": "saml20_idp",
     "data": {
-      "entityid": "https://eduid",
+      "entityid": "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
       "allowedall": false,
       "allowedEntities": [
         {

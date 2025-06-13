@@ -77,7 +77,9 @@ const Organization = () => {
                 {!isEmpty(organization.applications) &&
                     <div className="applications">
                         <h2>{I18n.t("organization.applications")}</h2>
-                        {organization.applications.map((application, index) =>
+                        {organization.applications
+                            .sort((a1,a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))
+                            .map((application, index) =>
                             <div key={index} className="first-application">
                                 <div
                                     className="application"

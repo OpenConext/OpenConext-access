@@ -1,4 +1,5 @@
 @use "../styles/mixins" as *;
+@use "../index";
 
 div.organization-outer-container {
     width: 100%;
@@ -18,6 +19,7 @@ div.organization-outer-container {
         .organization {
             @include form;
             width: 75%;
+            @include index.page-media;
 
             .left {
                 padding: 25px;

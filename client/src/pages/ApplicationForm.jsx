@@ -87,7 +87,7 @@ export const ApplicationForm = () => {
                               labels={["APP", "CONTENT"]}
                               labelResolver={label => I18n.t(`application.${label.toLowerCase()}`)}
                               orientation={RadioOptionsOrientation.column}/>
-                {application.type === "content" &&
+                {application.type === "CONTENT" &&
                     <div className="sds--alert sds--alert--status-info">
                         <div className="sds--alert--inner">
                             <div className="sds--alert--visual">

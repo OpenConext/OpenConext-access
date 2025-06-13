@@ -136,6 +136,10 @@ export function parseMedaDataUrl(url) {
     return postPutJson("/api/v1/manage/parse", {url: url}, "POST");
 }
 
+export function getIdentityProviders() {
+    return fetchJson("/api/v1/manage/identity-providers");
+}
+
 //Connections
 export function newConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "POST");

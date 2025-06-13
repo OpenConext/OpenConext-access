@@ -142,7 +142,8 @@
         "en": "Memberships or teams with which the user is associated.",
         "nl": "Memberships  or teams with which the user is associated."
       },
-      "example": "https://uva.teacher.nl"
+      "example": "administrators",
+      "overrideSource": "voot"
     },
     {
       "name": "autorisaties",
