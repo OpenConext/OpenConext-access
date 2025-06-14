@@ -184,8 +184,8 @@ const nl = {
         protocol: "Protocol",
         clientID: "Client ID",
         clientIDPlaceHolder: "",
-        oidc: "OpenID Connect",
-        saml: "SAML 2.0",
+        oidc10_rp: "OpenID Connect",
+        saml20_sp: "SAML 2.0",
         grantType: "OAuth Grant type",
         grantTypes: "OAuth Grant types",
         authorization_code: "Authorization Code",
@@ -289,7 +289,17 @@ const nl = {
             institutionIdPs: "Test-IdP’s van instellingen",
             institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
             placeholder: "Selecteer één of meerdere instellingen",
-            institution: "Institution"
+            institution: "test IdP or institution IdP"
+        },
+        connectionOverview: {
+            copy: "Kopieer de inloggegevens",
+            disclaimer: "Het client secret wordt hieronder éénmaal weergegeven. Zorg ervoor dat je het nu kopieert, anders moet er een nieuw seceret aangevraagd worden.",
+            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
+            discovery: "OpenID Connect Discovery",
+            clientID: "Client ID",
+            secret: "Client secret"
+
+
         }
     },
     testing: {
@@ -310,6 +320,7 @@ const nl = {
         requiredOne: "At least one {{name}} is required",
         error: "An unexpected error occurred",
         backToOverview: "Back to connections",
+        overview: "Naar overzicht",
         invalidURL: "{{name}} is not a valid URL"
     },
     footer: {

@@ -33,7 +33,7 @@ import {
     convertServerConnectionToClient,
     generateOIDCClientID
 } from "../utils/Connection.js";
-import {identityProviderOption, identityProviderOptions} from "../utils/Manage.js";
+import {identityProviderOption, identityProviderOptions, PROTOCOLS} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 
 
@@ -101,7 +101,7 @@ export const Testing = ({
     }
 
     const technicalValid = () => {
-        const isOidc = connection.protocol.value === "OIDC";
+        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         return !(isEmpty(connection.name) || isEmpty(connection.entityID) ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
@@ -246,7 +246,7 @@ export const Testing = ({
     };
 
     const changeProtocol = option => {
-        if (option.value === "OIDC") {
+        if (option.value === PROTOCOLS.OIDC10_RP) {
             setConnection({
                 ...connection,
                 protocol: option,
@@ -293,7 +293,7 @@ export const Testing = ({
                              options={protocolOptions}
                              onChange={changeProtocol}
                 />
-                {connection.protocol.value === "OIDC" &&
+                {connection.protocol.value === PROTOCOLS.OIDC10_RP &&
                     <>
                         <div>
                             {/*<InputField value={connection.entityID || ""}*/}
@@ -722,7 +722,7 @@ export const Testing = ({
 
     const storeAndNext = (finished = false) => {
         setInitial(false);
-        const isOidc = connection.protocol.value === "OIDC";
+        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const nextSection = section === sections.technical ? sections.informationProfile :
             section === sections.informationProfile ? sections.testIdP :
                 (section === sections.testIdP && isOidc) ? sections.overview : sections.testIdP;
@@ -763,7 +763,7 @@ export const Testing = ({
     }
 
     const renderInitialConnection = () => {
-        const isOidc = connection.protocol.value === "OIDC";
+        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const showOverviewButton = section === sections.overview || (lastSection && !isOidc && valid);

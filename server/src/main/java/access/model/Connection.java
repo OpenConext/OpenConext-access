@@ -43,7 +43,7 @@ public class Connection implements NameHolder {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Protocol protocol = Protocol.OIDC;
+    private EntityType protocol = EntityType.oidc10_rp;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -58,16 +58,23 @@ public class Connection implements NameHolder {
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 
+    @Column(name = "manage_version")
+    private Integer manageVersion;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public Connection(String name, Application application, Map<String, Object> metaData, Protocol protocol, Environment environment) {
+    public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol, Environment environment) {
         this.name = name;
         this.application = application;
         this.metaData = metaData;
         this.protocol = protocol;
         this.environment = environment;
         this.createdAt = Instant.now();
+    }
+
+    public Connection(Map<String, Object> provider) {
+        //TODO
     }
 
     @JsonIgnore

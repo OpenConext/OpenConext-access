@@ -1,0 +1,24 @@
+  {
+  {%- if manageIdentifier is defined and manageIdentifier -%}
+  "_id": "{{ manageIdentifier }}",
+  {%- endif -%}
+  {%- if manageVersion is defined and manageVersion -%}
+  "version": "{{ manageVersion }}",
+  {%- endif -%}
+    "type": "{{ protocol }}",
+    "data": {
+      "entityid": "{{ metaData.entityID }}",
+      "metaDataFields": {
+        "name:en": "{{ name }}",
+        "name:nl": "{{ name }}",
+        "OrganizationName:en": "{{ application.organization.name }}",
+        "grants": {{ metaData.grants | array_to_json }},
+        "redirectUrls": {{ metaData.redirectUrls | array_to_json }},
+        "accessTokenValidity": 3600,
+        "refreshTokenValidity": 3600,
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
+        "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
+        "coin:application_url": "https://default-url-calendar.org"
+      }
+    }
+  }

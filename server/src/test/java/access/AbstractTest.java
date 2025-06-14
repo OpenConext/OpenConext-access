@@ -2,6 +2,7 @@ package access;
 
 import access.config.HashGenerator;
 import access.manage.Contact;
+import access.model.EntityType;
 import access.manage.LocalManage;
 import access.model.*;
 import access.repository.*;
@@ -427,7 +428,7 @@ public abstract class AbstractTest {
                                 List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
                         ),
                         "motivation", "Please")),
-                Protocol.OIDC,
+                EntityType.oidc10_rp,
                 Environment.TEST);
         Connection buddyCheckConnectionProd = new Connection(BUDDY_CHECK_PROD, buddyCheck, Map.of(
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
@@ -441,7 +442,7 @@ public abstract class AbstractTest {
                                 List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
                         ),
                         "motivation", "Please")),
-                Protocol.OIDC,
+                EntityType.oidc10_rp,
                 Environment.PROD);
         doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);
 

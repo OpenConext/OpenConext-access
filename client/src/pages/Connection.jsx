@@ -9,10 +9,11 @@ import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders} from "../api/index.js";
 import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
+import {PROTOCOLS} from "../utils/Manage.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
-const protocolOptions = ["OIDC", "SAML"].map(protocol => ({
+const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,
     label: I18n.t(`connection.${protocol.toLowerCase()}`)
 }));

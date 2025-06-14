@@ -394,6 +394,7 @@ table.table-connections {
 
         th.status {
             width: 20%;
+            text-align: center;
         }
 
         th.protocol {
@@ -408,6 +409,9 @@ table.table-connections {
     tbody {
         td.details {
             text-align: right;
+        }
+        td,status {
+            text-align: center;
         }
     }
 }

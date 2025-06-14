@@ -1,8 +1,8 @@
 package access.api;
 
-import access.config.HashGenerator;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.model.EntityType;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationRepository;
@@ -11,20 +11,18 @@ import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +97,7 @@ public class ConnectionController implements UserAccessRights {
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         connection.merge(connectionData);
-        if (connection.getStatus() == Status.COMPLETE && connection.getProtocol().equals(Protocol.OIDC)) {
+        if (connection.getStatus() == Status.COMPLETE && connection.getProtocol().equals(EntityType.oidc10_rp)) {
             //generate secret
             connection.getMetaData().put("secret", passwordGenerator.generatePassword(36, rules)) ;
         }
@@ -126,7 +124,15 @@ public class ConnectionController implements UserAccessRights {
 
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage
-
+        if (connection.getStatus().equals(Status.COMPLETE)) {
+            if (StringUtils.hasText(connection.getManageIdentifier())) {
+                manage.updateProvider(connection);
+            } else {
+                manage.saveProvider(connection);
+            }
+            //Not saving redundant data
+            connection.setMetaData(null);
+        }
         return connectionRepository.save(connection);
     }
 

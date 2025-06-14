@@ -140,6 +140,7 @@ CREATE TABLE `connections`
     `status`            varchar(255) NOT NULL,
     `environment`       varchar(255) NOT NULL,
     `manage_identifier` varchar(255) DEFAULT NULL,
+    `manage_version`    bigint       DEFAULT NULL,
     `created_at`        datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_connections_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE

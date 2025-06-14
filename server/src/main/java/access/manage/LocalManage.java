@@ -1,6 +1,8 @@
 package access.manage;
 
 import access.exception.NotFoundException;
+import access.model.Connection;
+import access.model.EntityType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -8,13 +10,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.Collections.emptyList;
 
 @SuppressWarnings("unchecked")
 public final class LocalManage implements Manage {
@@ -62,6 +61,26 @@ public final class LocalManage implements Manage {
                 .filter(provider -> provider.get("_id").equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
+        LOG.debug("providersByIdIn for : " + entityType);
+
+        List<Map<String, Object>> providers = this.allProviders.get(entityType);
+        return providers.stream()
+                .filter(provider -> identifiers.contains(provider.get("_id")))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> saveProvider(Connection connection) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Object> updateProvider(Connection connection) {
+        return Map.of();
     }
 
 }

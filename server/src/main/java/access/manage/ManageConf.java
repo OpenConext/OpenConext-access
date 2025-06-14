@@ -21,4 +21,9 @@ public class ManageConf {
         return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper, staticManageDirectory);
     }
 
+    @Bean
+    public ConnectionProviderConverter connectionProviderConverter(ObjectMapper objectMapper) {
+        return new ConnectionProviderConverter(objectMapper);
+    }
+
 }

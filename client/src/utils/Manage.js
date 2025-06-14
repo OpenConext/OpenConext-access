@@ -13,3 +13,7 @@ export const identityProviderOption = (identityProviders, entityId, locale) => {
 export const identityProviderOptions = (identityProviders, locale) => {
     return identityProviders.map(idp => createIdPOption(locale, idp))
 }
+
+export const PROTOCOLS = {
+    SAML20_SP: "saml20_sp", OIDC10_RP: "oidc10_rp"
+}

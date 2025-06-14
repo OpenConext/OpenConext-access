@@ -2,7 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.manage.EntityType;
+import access.model.EntityType;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
@@ -70,7 +70,7 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     protected void stubForIdentityProviders() {
-        List<Map<String, Object>> providers = localManage.providers(EntityType.SAML20_IDP);
+        List<Map<String, Object>> providers = localManage.providers(EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")

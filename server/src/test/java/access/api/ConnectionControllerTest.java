@@ -2,14 +2,11 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.manage.Contact;
-import access.manage.MetaData;
+import access.model.EntityType;
 import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -25,12 +22,12 @@ class ConnectionControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         Map<String, Object> metaData = Map.of(
-                "entityid", "https://engine.test",
+                "entityID", "https://engine.test",
                 "redirect_urls", List.of("https://redirect.url") ,
                 "grants", List.of("authorization_code")
         );
 
-        Connection connection = new Connection("New Connection", application, metaData, Protocol.OIDC, Environment.TEST);
+        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
         //Otherwise rest-assured does not deserialize the Organization
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });

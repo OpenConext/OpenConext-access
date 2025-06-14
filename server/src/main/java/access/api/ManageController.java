@@ -1,7 +1,7 @@
 package access.api;
 
 import access.exception.InvalidInputException;
-import access.manage.EntityType;
+import access.model.EntityType;
 import access.manage.Manage;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
@@ -51,7 +51,7 @@ public class ManageController {
     @SneakyThrows
     @GetMapping("/identity-providers")
     public ResponseEntity<List<Map<String, Object>>> identityProviders() {
-        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_IDP);
+        List<Map<String, Object>> providers = manage.providers(EntityType.saml20_idp);
         return ResponseEntity.ok(providers);
     }
 

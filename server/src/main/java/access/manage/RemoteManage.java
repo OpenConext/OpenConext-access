@@ -1,11 +1,14 @@
 package access.manage;
 
+import access.model.Connection;
+import access.model.EntityType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,7 +16,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -46,6 +52,28 @@ public class RemoteManage implements Manage {
         LOG.debug("providerById: " + entityType);
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
+        LOG.debug("providersByIdIn: " + entityType);
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return emptyList();
+        }
+        String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
+        String body = String.format("{ \"id\": { \"$in\": [%s]}}", param);
+        String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
+        return restTemplate.postForObject(manageUrl, body, List.class);
+    }
+
+    @Override
+    public Map<String, Object> saveProvider(Connection connection) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Object> updateProvider(Connection connection) {
+        return Map.of();
     }
 
 
