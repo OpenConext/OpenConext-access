@@ -298,8 +298,6 @@ const nl = {
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
             secret: "Client secret"
-
-
         }
     },
     testing: {
@@ -309,6 +307,15 @@ const nl = {
         protocol: "Protocol",
         details: "Details",
         zeroState: "Application <strong>{{name}}</strong> has not connections yet."
+    },
+    confirmationDialog: {
+        title: "Confirm",
+        error: "Error",
+        subTitle: "This action requires a confirmation",
+        subTitleError: "An error has occurred",
+        confirm: "Confirm",
+        ok: "OK",
+        cancel: "Cancel",
     },
     forms: {
         cancel: "Cancel",

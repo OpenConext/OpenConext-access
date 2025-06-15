@@ -39,6 +39,7 @@ public class ConnectionProviderConverter {
     public String convert(Connection connection) {
         Map<String, Object> context = objectMapper.convertValue(connection, typeRef);
         Application application = connection.getApplication();
+        //Because of  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         context.put("application", objectMapper.convertValue(application, typeRef));
         ((Map) context.get("application")).put("organization", objectMapper.convertValue(application.getOrganization(), typeRef));
 

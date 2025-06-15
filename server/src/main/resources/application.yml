@@ -106,10 +106,11 @@ email:
 # configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
-  #  enabled: True
-  enabled: False
-  url: "https://manage.test2.surfconext.nl"
-  user: invite
+  enabled: True
+#  enabled: False
+#  url: "https://manage.test2.surfconext.nl"
+  url: "http://localhost:8081"
+  user: access
   password: secret
   # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
   # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage

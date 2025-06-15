@@ -11,7 +11,7 @@ import RefreshRoute from "./pages/RefreshRoute.jsx";
 import {Home} from "./pages/Home.jsx";
 import {Footer} from "./components/Footer.jsx";
 import {useLocation} from "react-router";
-import Organization from "./pages/organization.jsx";
+import Organization from "./pages/Organization.jsx";
 import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
 import Applications from "./pages/Applications.jsx";
