@@ -2,36 +2,34 @@ package access.manage;
 
 import access.AbstractTest;
 import access.model.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.jinjava.Jinjava;
-import org.jetbrains.annotations.NotNull;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.nimbusds.jose.util.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConnectionProviderConverterTest extends AbstractTest {
 
+    @Autowired
+    private ConnectionProviderConverter connectionProviderConverter;
+
     @Test
-    void convert() {
-        ConnectionProviderConverter converter = new ConnectionProviderConverter(super.objectMapper);
-
+    void convert() throws IOException {
         Connection connection = getConnection();
-        String converted = converter.convert(connection);
-        System.out.println(converted);
-
-        Jinjava jinjava = new Jinjava();
-
-        Map<String, Object> context = new HashMap<>();
-        context.put("protocol", "oidc_rp");
-
-        String template = "\"type\": \"{{ protocol }}\"";
-
-        String rendered = jinjava.render(template, context);
-        System.out.println(rendered);
+        String converted = connectionProviderConverter.convert(connection);
+        Map<String, Object> map = objectMapper.readValue(converted, new TypeReference<>() {
+        });
+        Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
+                new ClassPathResource("/manage/oidc10_rp.expected.json").getInputStream()), new TypeReference<>() {
+        });
+        assertEquals(expected, map);
     }
 
     private Connection getConnection() {
@@ -39,8 +37,12 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Application application = new Application("ShareLogic", organization, Map.of());
         Map<String, Object> metaData = Map.of(
                 "entityID", "https://engine.test",
-                "redirectUrls", List.of("https://redirect.url") ,
-                "grants", List.of("authorization_code")
+                "redirectUrls", List.of("https://redirect.url"),
+                "grants", List.of("authorization_code"),
+                "contactPersons", List.of(
+                        new Contact("technical", "John", "Doe", "jdoe@example.com"),
+                        new Contact("support", "Mary", "Doe", "mdoe@example.com")
+                )
         );
 
         Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);

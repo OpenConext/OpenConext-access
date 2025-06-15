@@ -2,9 +2,9 @@
   {%- if manageIdentifier is defined and manageIdentifier -%}
   "_id": "{{ manageIdentifier }}",
   {%- endif -%}
-  {%- if manageVersion is defined and manageVersion -%}
+  {% if manageVersion is defined and manageVersion %}
   "version": "{{ manageVersion }}",
-  {%- endif -%}
+  {% endif -%}
     "type": "{{ protocol }}",
     "data": {
       "entityid": "{{ metaData.entityID }}",
@@ -14,11 +14,25 @@
         "OrganizationName:en": "{{ application.organization.name }}",
         "grants": {{ metaData.grants | array_to_json }},
         "redirectUrls": {{ metaData.redirectUrls | array_to_json }},
-        "accessTokenValidity": 3600,
-        "refreshTokenValidity": 3600,
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-        "coin:application_url": "https://default-url-calendar.org"
+        "coin:application_url": "https://default-url-calendar.org",
+        {%- for contactPerson in metaData.contactPersons -%}
+            {% if contactPerson.type is defined and contactPerson.type %}
+            "contacts:{{ loop.index0 }}:contactType": "{{ contactPerson.type }}",
+            {%- endif -%}
+            {% if contactPerson.givenName is defined and contactPerson.givenName %}
+            "contacts:{{ loop.index0 }}:givenName": "{{ contactPerson.givenName }}",
+            {%- endif -%}
+            {% if contactPerson.surName is defined and contactPerson.surName %}
+            "contacts:{{ loop.index0 }}:surName": "{{ contactPerson.surName }}",
+            {%- endif -%}
+            {% if contactPerson.email is defined and contactPerson.email %}
+            "contacts:{{ loop.index0 }}:emailAddress": "{{ contactPerson.email }}",
+            {%- endif -%}
+        {% endfor %}
+        "accessTokenValidity": 3600,
+        "refreshTokenValidity": 3600
       }
     }
   }

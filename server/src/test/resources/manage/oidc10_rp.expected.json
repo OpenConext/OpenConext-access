@@ -1,0 +1,32 @@
+{
+  "_id": "123456",
+  "version": "2",
+  "type": "oidc10_rp",
+  "data": {
+    "entityid": "https://engine.test",
+    "metaDataFields": {
+      "name:en": "New Connection",
+      "name:nl": "New Connection",
+      "OrganizationName:en": "ORG name",
+      "grants": [
+        "authorization_code"
+      ],
+      "redirectUrls": [
+        "https://redirect.url"
+      ],
+      "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
+      "coin:application_url": "https://default-url-calendar.org",
+      "contacts:0:contactType": "technical",
+      "contacts:0:givenName": "John",
+      "contacts:0:surName": "Doe",
+      "contacts:0:emailAddress": "jdoe@example.com",
+      "contacts:1:contactType": "support",
+      "contacts:1:givenName": "Mary",
+      "contacts:1:surName": "Doe",
+      "contacts:1:emailAddress": "mdoe@example.com",
+      "accessTokenValidity": 3600,
+      "refreshTokenValidity": 3600
+    }
+  }
+}
