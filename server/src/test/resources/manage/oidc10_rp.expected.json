@@ -1,6 +1,7 @@
 {
   "id": "123456",
-  "version": "2",
+  "version": 2,
+  "eid": 99,
   "type": "oidc10_rp",
   "data": {
     "entityid": "https://engine.test",

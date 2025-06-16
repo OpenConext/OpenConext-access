@@ -95,10 +95,10 @@ export const Testing = ({
                 return !connection.id;
             }
             case sections.informationProfile: {
-                return !connection.id || (!finished && !informationProfileValid());
+                return !connection.id || (!finished || !informationProfileValid());
             }
             case sections.testIdP: {
-                return !connection.id || (!finished && !testIdPValid());
+                return !connection.id || (!finished || !testIdPValid());
             }
         }
     }
@@ -322,8 +322,8 @@ export const Testing = ({
                                                 <Tooltip tip={I18n.t("connection.pkceTooltip")}/>
                                                 <RadioOptions name="pkce"
                                                               value={connection.pkce}
-                                                              trueLabel={I18n.t("connection.optional")}
-                                                              falseLabel={I18n.t("connection.required")}
+                                                              trueLabel={I18n.t("connection.required")}
+                                                              falseLabel={I18n.t("connection.optional")}
                                                               onChange={() => setConnection({
                                                                   ...connection,
                                                                   pkce: !connection.pkce
@@ -527,6 +527,7 @@ export const Testing = ({
                     options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
                     value={allowedEntities.map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
                     isMulti={true}
+                    searchable={true}
                     placeholder={I18n.t("connection.testIdPs.placeholder")}
                     onChange={options => changeAllowedEntity(options)}
                 />

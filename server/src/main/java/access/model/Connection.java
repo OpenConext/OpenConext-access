@@ -61,6 +61,9 @@ public class Connection implements NameHolder {
     @Column(name = "manage_version")
     private Integer manageVersion;
 
+    @Column(name = "manage_eid")
+    private Integer manageEid;
+
     @Column(name = "created_at")
     private Instant createdAt;
 

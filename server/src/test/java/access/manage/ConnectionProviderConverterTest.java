@@ -70,6 +70,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
         connection.setManageIdentifier("123456");
         connection.setManageVersion(2);
+        connection.setManageEid(99);
         return connection;
     }
 

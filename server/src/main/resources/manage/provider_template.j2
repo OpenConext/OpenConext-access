@@ -3,7 +3,10 @@
   "id": "{{ manageIdentifier }}",
   {%- endif -%}
   {% if manageVersion is defined %}
-  "version": "{{ manageVersion }}",
+  "version": {{ manageVersion }},
+  {% endif -%}
+  {% if manageEid is defined %}
+  "eid": {{ manageEid }},
   {% endif -%}
     "type": "{{ protocol }}",
     "data": {
