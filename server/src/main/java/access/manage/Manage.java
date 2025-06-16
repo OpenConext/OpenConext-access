@@ -16,6 +16,15 @@ public interface Manage {
 
     Map<String, Object> saveProvider(Connection connection);
 
-    Map<String, Object> updateProvider(Connection connection);
+    void deleteProvider(Connection connection);
 
+    default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
+        //Different Manage API calls return 'id' or '_id'
+        if (provider.containsKey("id")) {
+            provider.put("_id", provider.get("id"));
+        } else {
+            provider.put("id", provider.get("_id"));
+        }
+        return provider;
+    }
 }

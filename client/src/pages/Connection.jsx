@@ -73,6 +73,7 @@ export const Connection = () => {
     }
 
     const initConnection = (forceNew = false) => {
+        const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
         setConnection({
             new: forceNew,
             environment: "TEST",
@@ -87,7 +88,7 @@ export const Connection = () => {
             additionalAttributes: [],
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
-            allowedEntities: []
+            allowedEntities: iDps.map(idp => idp.entityid)
         });
         setTab("testing");
     }

@@ -4,15 +4,24 @@ import access.model.Connection;
 import access.model.EntityType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,15 +36,24 @@ public class RemoteManage implements Manage {
     private static final Log LOG = LogFactory.getLog(RemoteManage.class);
 
     private final String url;
-    private final RestTemplate restTemplate = new RestTemplate();
+    //Because of the custom error handling, we need to use Buffering
+    private final RestTemplate restTemplate = new RestTemplate(
+            new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())
+    );
     private final Map<String, Object> queries;
+    private final ConnectionProviderConverter converter;
+    private final ObjectMapper objectMapper;
 
-    public RemoteManage(String url, String user, String password, ObjectMapper objectMapper) throws IOException {
+    public RemoteManage(String url, String user, String password, ConnectionProviderConverter converter, ObjectMapper objectMapper) throws IOException {
         this.url = url;
+        this.objectMapper = objectMapper;
+        this.converter = converter;
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
-        restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(user, password));
-        ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler();
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+        interceptors.add(new BasicAuthenticationInterceptor(user, password));
+        interceptors.add(new JSONHeaderInterceptor());
+        ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
         restTemplate.setErrorHandler(resilientErrorHandler);
     }
 
@@ -66,16 +84,32 @@ public class RemoteManage implements Manage {
         return restTemplate.postForObject(manageUrl, body, List.class);
     }
 
+    @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
-        return Map.of();
+        String provider = converter.convert(connection);
+        ResponseEntity<Map> responseEntity;
+        if (StringUtils.hasText(connection.getManageIdentifier())) {
+            responseEntity = this.restTemplate.exchange(String.format("%s/manage/api/internal/metadata", this.url),
+                    HttpMethod.PUT, new HttpEntity<>(provider), Map.class);
+        } else {
+            responseEntity = this.restTemplate.postForEntity(String.format("%s/manage/api/internal/metadata", this.url), provider, Map.class);
+        }
+        Map body = responseEntity.getBody();
+        if (ResilientErrorHandler.ignoreError(body)) {
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is already thrown
+            return objectMapper.readValue(provider, new TypeReference<>() {
+            });
+        }
+        return body;
     }
 
     @Override
-    public Map<String, Object> updateProvider(Connection connection) {
-        return Map.of();
+    public void deleteProvider(Connection connection) {
+        this.restTemplate.delete(String.format("%s/manage/api/internal/metadata/{type}/{id}", this.url),
+                connection.getProtocol(),
+                connection.getManageIdentifier());
     }
-
 
     private List<Map<String, Object>> getRemoteMetaData(String type, boolean allAttributes) {
         Map<String, Object> baseQuery = getBaseQuery(allAttributes);

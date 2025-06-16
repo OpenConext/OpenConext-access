@@ -1,0 +1,58 @@
+  {
+  {%- if manageIdentifier is defined and manageIdentifier -%}
+  "id": "{{ manageIdentifier }}",
+  {%- endif -%}
+  {% if manageVersion is defined %}
+  "version": "{{ manageVersion }}",
+  {% endif -%}
+    "type": "{{ protocol }}",
+    "data": {
+      "entityid": "{{ metaData.entityID }}",
+      "state": "prodaccepted",
+      "allowedall": false,
+      "arp": {{ metaData.arp | to_json }},
+      "allowedEntities": [
+      {%- for allowedEntity in metaData.allowedEntities -%}
+        {"name": "{{ allowedEntity }}"}{% if not loop.last %},{% endif %}
+      {% endfor %}
+      ],
+      "metaDataFields": {
+        "name:en": "{{ name }}",
+        "name:nl": "{{ name }}",
+        {% if logoUrl is defined and logoUrl %}
+        "logo:0:url": "{{ logoUrl }}",
+        {% endif -%}
+        {% if protocol == "oidc10_rp" %}
+        "grants": {{ metaData.grantTypes | to_json }},
+        "redirectUrls": {{ metaData.redirectUrls | to_json }},
+        "isPublicClient" : {{ metaData.pkce }},
+        "accessTokenValidity": 3600,
+        "refreshTokenValidity": 3600,
+        {% endif -%}
+        {% if protocol == "saml20_sp" %}
+        {%- for acsLocation in metaData.acsLocations -%}
+            "AssertionConsumerService:{{ loop.index0 }}:Location": "{{ acsLocation }}",
+            "AssertionConsumerService:{{ loop.index0 }}:Binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+        {% endfor %}
+        {% endif -%}
+        {%- for contactPerson in metaData.contactPersons -%}
+            {% if contactPerson.type is defined and contactPerson.type %}
+            "contacts:{{ loop.index0 }}:contactType": "{{ contactPerson.type }}",
+            {%- endif -%}
+            {% if contactPerson.givenName is defined and contactPerson.givenName %}
+            "contacts:{{ loop.index0 }}:givenName": "{{ contactPerson.givenName }}",
+            {%- endif -%}
+            {% if contactPerson.surName is defined and contactPerson.surName %}
+            "contacts:{{ loop.index0 }}:surName": "{{ contactPerson.surName }}",
+            {%- endif -%}
+            {% if contactPerson.email is defined and contactPerson.email %}
+            "contacts:{{ loop.index0 }}:emailAddress": "{{ contactPerson.email }}",
+            {%- endif -%}
+        {% endfor %}
+        {% if metaData.secret is defined and metaData.secret %}
+        "secret": "{{ metaData.secret }}",
+        {% endif -%}
+        "OrganizationName:en": "{{ organizationName }}"
+      }
+    }
+  }

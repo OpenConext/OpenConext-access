@@ -15,5 +15,9 @@ export const identityProviderOptions = (identityProviders, locale) => {
 }
 
 export const PROTOCOLS = {
-    SAML20_SP: "saml20_sp", OIDC10_RP: "oidc10_rp"
+    OIDC10_RP: "oidc10_rp", SAML20_SP: "saml20_sp"
+}
+
+export const STATUSES = {
+    OPEN: "OPEN", COMPLETE: "COMPLETE"
 }

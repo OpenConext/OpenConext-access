@@ -92,7 +92,7 @@ public class UserController {
     }
 
 
-    @GetMapping("me")
+    @GetMapping("/me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 

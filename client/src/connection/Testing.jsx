@@ -21,7 +21,7 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
+import {getConnectionById, newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
@@ -33,7 +33,7 @@ import {
     convertServerConnectionToClient,
     generateOIDCClientID
 } from "../utils/Connection.js";
-import {identityProviderOption, identityProviderOptions, PROTOCOLS} from "../utils/Manage.js";
+import {identityProviderOption, identityProviderOptions, PROTOCOLS, STATUSES} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 
 
@@ -71,7 +71,7 @@ export const Testing = ({
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
     const [section, setSection] = useState(sections.technical);
-    const [visitedSections, setVisitedSections] = useState(new Set());
+    const [finishedSections, setFinishedSections] = useState([]);
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
     const [invalidACSLocations, setInvalidACSLocations] = useState({"0": false});
     const [showImport, setShowImport] = useState(false);
@@ -86,16 +86,19 @@ export const Testing = ({
     const acsLocationRefs = useRef([]);
 
     const isPending = sectionName => {
-        // const visited = visitedSections.has(sectionName);
+        if (connection.status === STATUSES.COMPLETE) {
+            return false;
+        }
+        const finished = finishedSections.includes(sectionName);
         switch (sectionName) {
             case sections.technical: {
                 return !connection.id;
             }
             case sections.informationProfile: {
-                return !connection.id || !informationProfileValid();
+                return !connection.id || (!finished && !informationProfileValid());
             }
             case sections.testIdP: {
-                return !connection.id || !testIdPValid();
+                return !connection.id || (!finished && !testIdPValid());
             }
         }
     }
@@ -125,7 +128,6 @@ export const Testing = ({
     }
 
     const changeSection = sectionName => {
-        setVisitedSections(new Set([...visitedSections, section]));
         setSection(sectionName);
     }
 
@@ -223,8 +225,7 @@ export const Testing = ({
             setShowImport(false);
             const newConnection = {...connection, ...res[0]}
             setConnection(newConnection);
-            setXmlMetaData(null);
-            setUrlMetaData(null);
+            resetMetaData();
             setFlash(I18n.t("connection.metadata.parsed"));
         }).catch(() => {
             setFlash(I18n.t("connection.metadata.errorParsed"), "error");
@@ -266,8 +267,6 @@ export const Testing = ({
                 acsLocations: [""]
             })
         }
-
-
     }
 
     const technicalSection = () => {
@@ -371,7 +370,7 @@ export const Testing = ({
                                             adjustMargin={true}/>}
 
                     </>}
-                {connection.protocol.value === "SAML" &&
+                {connection.protocol.value === PROTOCOLS.SAML20_SP &&
                     <>
                         <div className="import-metadata">
                             <h2>{I18n.t("connection.configuration")}</h2>
@@ -548,7 +547,8 @@ export const Testing = ({
                        asChild={true}
                        message={I18n.t("connection.connectionOverview.disclaimer")}/>
                 <p className="test"
-                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test"))}}/>
+                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test",
+                           {ADD_ATTR: ["target"]}))}}/>
                 <InputField name={I18n.t("connection.connectionOverview.discovery")}
                             value={config.discovery}
                             disabled={true}
@@ -620,9 +620,9 @@ export const Testing = ({
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.attributes"))}}/>
 
                 <div className="attributes">
-                    {currentProfile.attributes.map(attribute =>
-                        <>
-                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span></>
+                    {currentProfile.attributes.map((attribute, index) =>
+                        <Fragment key={index}>
+                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span></Fragment>
                     )}
                 </div>
                 {currentProfile.requiresMotivation &&
@@ -723,9 +723,10 @@ export const Testing = ({
     const storeAndNext = (finished = false) => {
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isComplete = connection.status === STATUSES.COMPLETE;
         const nextSection = section === sections.technical ? sections.informationProfile :
             section === sections.informationProfile ? sections.testIdP :
-                (section === sections.testIdP && isOidc) ? sections.overview : sections.testIdP;
+                (section === sections.testIdP && isOidc && !isComplete) ? sections.overview : sections.testIdP;
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
             (section === sections.testIdP && testIdPValid());
@@ -734,20 +735,17 @@ export const Testing = ({
             const promise = connection.id ? updateConnection : newConnection
             const body = convertClientConnectionToServer(application, connection, arpInfo);
             if (finished && connection.status === "OPEN") {
-                body.status = "COMPLETE";
+                body.status = STATUSES.COMPLETE;
             }
             promise(body)
                 .then(res => {
+                    setFinishedSections([...finishedSections, section]);
                     setLoading(false);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
-                    if (finished) {
-                        backToConnections()
-                    } else {
-                        setConnection(convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo));
-                        changeSection(nextSection);
-                    }
+                    setConnection(convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo));
+                    changeSection(nextSection);
                 })
                 .catch(() => {
                     setLoading(false);
@@ -766,7 +764,10 @@ export const Testing = ({
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
-        const showOverviewButton = section === sections.overview || (lastSection && !isOidc && valid);
+        const isComplete = connection.status === STATUSES.COMPLETE;
+        const showOverviewButton = section === sections.overview ||
+            (lastSection && !isOidc && isComplete);
+        const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return <>
             <div className="testing-header">
                 <h2>{I18n.t("connection.newConnection")}</h2>
@@ -808,26 +809,43 @@ export const Testing = ({
                 <section className="right">
                     {renderSection()}
                     <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
-
                         {!showOverviewButton &&
-                            <Button txt={I18n.t(`forms.${connection.id ? "backToOverview" : "cancel"}`)}
-                                    type={ButtonType.Secondary}
-                                    onClick={backToConnections}/>}
+                            <>
+                                <Button txt={I18n.t(`forms.${connection.id ? "backToOverview" : "cancel"}`)}
+                                        type={ButtonType.Secondary}
+                                        onClick={backToConnections}/>
+                                <Button txt={submitTxt}
+                                        disabled={!valid}
+                                        onClick={() => storeAndNext(lastSection)}/>
+                            </>
+                        }
 
-                        {!showOverviewButton && <Button txt={I18n.t("connection.next")}
-                                                        disabled={!valid}
-                                                        onClick={() => storeAndNext(false)}
-                        />}
                         {showOverviewButton &&
                             <Button txt={I18n.t("forms.overview")}
                                     type={ButtonType.Secondary}
                                     icon={<ArrowRight/>}
-                                    onClick={() => storeAndNext(true)}/>}
+                                    onClick={() => backToConnections()}/>
+                        }
                     </div>
 
                 </section>
             </div>
         </>;
+    }
+
+    const showConnectionDetails = conn => {
+        if (conn.status === STATUSES.COMPLETE) {
+            setLoading(true);
+            getConnectionById(conn.id).then(res => {
+                const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
+                setConnection(convertedConnection);
+                setLoading(false);
+            })
+        } else {
+            //Not yet persisted to Manage
+            setConnection(conn);
+        }
+
     }
 
     const renderConnectionsTable = () => {
@@ -861,9 +879,7 @@ export const Testing = ({
                 header: "",
                 nonSortable: true,
                 mapper: conn => <Button txt={I18n.t("connection.connections.details")}
-                                        onClick={() => {
-                                            setConnection(conn);
-                                        }}/>
+                                        onClick={() => showConnectionDetails(conn)}/>
             },
         ]
 

@@ -1,9 +1,8 @@
 @use "../index";
 
 .about-container {
-
-    @include index.page;
     background-color: white;
+    @include index.page;
 
     .about {
         @include index.page-content;

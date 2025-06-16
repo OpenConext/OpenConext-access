@@ -4,6 +4,31 @@
   "type": "oidc10_rp",
   "data": {
     "entityid": "https://engine.test",
+    "allowedall": false,
+    "state": "prodaccepted",
+    "allowedEntities": [
+      "http://mock-idp",
+      "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
+    ],
+    "arp": {
+      "enabled": true,
+      "attributes": {
+        "urn:mace:dir:attribute-def:cn": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Because"
+          }
+        ],
+        "urn:mace:dir:attribute-def:displayName": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Because"
+          }
+        ]
+      }
+    },
     "metaDataFields": {
       "name:en": "New Connection",
       "name:nl": "New Connection",
@@ -14,9 +39,9 @@
       "redirectUrls": [
         "https://redirect.url"
       ],
+      "secret": "secret",
+      "isPublicClient": false,
       "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
-      "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-      "coin:application_url": "https://default-url-calendar.org",
       "contacts:0:contactType": "technical",
       "contacts:0:givenName": "John",
       "contacts:0:surName": "Doe",

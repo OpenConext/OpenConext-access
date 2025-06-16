@@ -25,10 +25,13 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             acsLocations: connection.acsLocations,
             contactPersons: connection.contactPersons,
             allowedEntities: connection.allowedEntities,
+            pkce: connection.pkce,
+            secret: connection.secret,
             arp: {
                 attributes: arpAttributes,
                 profile: currentProfile.name,
-                motivation: profileMotivation
+                motivation: profileMotivation,
+                enabled: true
             }
         }
 

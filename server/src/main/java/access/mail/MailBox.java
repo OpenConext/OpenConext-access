@@ -87,7 +87,7 @@ public class MailBox {
                 .filter(organizationMembership -> organizationMembership.getAuthority().equals(Authority.ADMIN))
                 .map(organizationMembership -> organizationMembership.getUser().getEmail())
                 .toList();
-        sendMail(String.format("invitation_%s", language.name()),
+        sendMail(String.format("join_request_%s", language.name()),
                 title,
                 variables,
                 emails.toArray(new String[0]));

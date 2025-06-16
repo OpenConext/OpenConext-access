@@ -25,7 +25,8 @@ public class Contact {
         this.givenName = getValue(contactPerson.getGivenName());
         this.surName = getValue(contactPerson.getSurName());
         List<EmailAddress> emailAddresses = contactPerson.getEmailAddresses();
-        this.email = CollectionUtils.isEmpty(emailAddresses) ? null : emailAddresses.getFirst().getURI();
+        this.email = CollectionUtils.isEmpty(emailAddresses) ? null :
+                emailAddresses.getFirst().getURI().replace("mailto:","");
     }
 
     private String getValue(XSString xsString) {

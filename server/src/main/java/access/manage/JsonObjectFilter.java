@@ -5,17 +5,17 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.lib.filter.Filter;
 import lombok.SneakyThrows;
 
-public class JsonArrayFilter implements Filter {
+public class JsonObjectFilter implements Filter {
 
     private final ObjectMapper objectMapper;
 
-    public JsonArrayFilter(ObjectMapper objectMapper) {
+    public JsonObjectFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
     public String getName() {
-        return "array_to_json";
+        return "to_json";
     }
 
     @SneakyThrows

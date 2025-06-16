@@ -1,0 +1,8 @@
+{{joinRequest.user.name}} (from {{joinRequest.user.schacHomeOrganization}})
+            has requested access to your organization {{joinRequest.organization.name}}
+
+Accept joinRequest:
+
+{{{ url }}}
+
+{{> footer_en.txt}}

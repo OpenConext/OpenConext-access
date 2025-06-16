@@ -2,7 +2,6 @@ package access.manage;
 
 import access.AbstractTest;
 import access.model.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -39,12 +38,33 @@ class ConnectionProviderConverterTest extends AbstractTest {
                 "entityID", "https://engine.test",
                 "redirectUrls", List.of("https://redirect.url"),
                 "grants", List.of("authorization_code"),
+                "secret", "secret",
+                "logoUrl", "https://static.surfconext.nl/media/idp/surfconext.png",
+                "pkce", false,
+                "arp", Map.of(
+                        "enabled", true,
+                        "attributes", Map.of(
+                                "urn:mace:dir:attribute-def:cn", List.of(
+                                        Map.of("value", "*",
+                                                "source", "idp",
+                                                "motivation", "Because")
+                                ),
+                                "urn:mace:dir:attribute-def:displayName", List.of(
+                                        Map.of("value", "*",
+                                                "source", "idp",
+                                                "motivation", "Because")
+                                )
+                        )
+                ),
                 "contactPersons", List.of(
                         new Contact("technical", "John", "Doe", "jdoe@example.com"),
                         new Contact("support", "Mary", "Doe", "mdoe@example.com")
+                ),
+                "allowedEntities", List.of(
+                        "http://mock-idp",
+                        "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
                 )
         );
-
         Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
         connection.setManageIdentifier("123456");
         connection.setManageVersion(2);

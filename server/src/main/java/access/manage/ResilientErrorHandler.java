@@ -1,32 +1,47 @@
 package access.manage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.util.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Map;
 
-public class ResilientErrorHandler implements ResponseErrorHandler {
+public class ResilientErrorHandler extends DefaultResponseErrorHandler {
 
-    private static final Log LOG = LogFactory.getLog(ResilientErrorHandler.class);
+    private final ObjectMapper objectMapper;
 
-    @Override
-    public boolean hasError(ClientHttpResponse response) throws IOException {
-        HttpStatusCode statusCode = response.getStatusCode();
-        return statusCode.isError();
+    public ResilientErrorHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
+
 
     @Override
     public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-        //ignore
-        LOG.warn(String.format("Error from Manage: %s, %s, %s, %s",
-                url,
-                method,
-                response.getStatusText(),
-                new String(response.getBody().readAllBytes())));
+        String responseBody = IOUtils.readInputStreamToString(response.getBody());
+        Map<String, Object> errorMap = this.objectMapper.readValue(responseBody, new TypeReference<>() {
+        });
+        if (ignoreError(errorMap)) {
+            //ignore this exception, as nothing is changed are wrong
+            return;
+        }
+        super.handleError(url, method, response);
+
     }
+
+    protected static boolean ignoreError(Map<String, Object> errorMap) {
+        return errorMap.containsKey("validations") && ((String) errorMap.get("validations")).contains("No data is changed");
+    }
+
 }
+

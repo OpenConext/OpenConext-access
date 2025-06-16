@@ -149,4 +149,9 @@ export function updateConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "PUT");
 }
 
+export function getConnectionById(connectionId) {
+    return fetchJson(`/api/v1/connections/${connectionId}`);
+}
+
+
 

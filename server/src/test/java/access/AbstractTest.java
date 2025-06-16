@@ -1,6 +1,7 @@
 package access;
 
 import access.config.HashGenerator;
+import access.manage.ConnectionProviderConverter;
 import access.manage.Contact;
 import access.model.EntityType;
 import access.manage.LocalManage;
@@ -160,7 +161,7 @@ public abstract class AbstractTest {
             this.doSeed();
         }
         if (this.localManage == null) {
-            this.localManage = new LocalManage(objectMapper, staticManageDirectory);
+            this.localManage = new LocalManage(new ConnectionProviderConverter(objectMapper), objectMapper, staticManageDirectory);
         }
     }
 

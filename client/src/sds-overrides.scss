@@ -10,9 +10,31 @@
     input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual {
         background-color: var(--sds--color--green--400);
     }
+
     input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual:hover {
         background-color: var(--sds--color--green--500);
     }
+
+}
+
+.sds--radio-options{
+
+    input[type=radio]:not(:disabled):checked + label .sds--radio--visual {
+        border-color: var(--sds--color--green--400);
+    }
+
+    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:before {
+        background-color: var(--sds--color--green--400);
+    }
+
+    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:hover {
+        border-color: var(--sds--color--green--500);
+    }
+
+    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:before:hover {
+        background-color: var(--sds--color--green--500);
+    }
+
 }
 
 

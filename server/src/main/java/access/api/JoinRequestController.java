@@ -70,7 +70,7 @@ public class JoinRequestController implements UserAccessRights {
                             user.getEmail(), organization.getName()));
         }
         JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getLanguage());
-        joinRequestRepository.save(joinRequest);
+        joinRequest = joinRequestRepository.save(joinRequest);
 
         mailBox.sendJoinRequestMail(joinRequest);
 

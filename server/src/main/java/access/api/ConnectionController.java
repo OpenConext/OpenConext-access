@@ -2,7 +2,6 @@ package access.api;
 
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
-import access.model.EntityType;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationRepository;
@@ -63,6 +62,17 @@ public class ConnectionController implements UserAccessRights {
                 new CharacterRule(EnglishCharacterData.Digit, 8));
     }
 
+    @GetMapping({"/{connectionId}"})
+    public ResponseEntity<Connection> find(User user, @PathVariable("connectionId") Long connectionId) {
+        LOG.debug("/find connection for " + user.getEmail());
+
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Map<String, Object> provider = manage.providerById(connection.getProtocol(), connection.getManageIdentifier());
+        connection.mergeMetaData(provider);
+        return ResponseEntity.ok(connection);
+    }
+
     @PostMapping({"", "/"})
     public ResponseEntity<Connection> create(User user, @Validated @RequestBody Connection connection) {
         LOG.debug("/create connection by " + user.getEmail());
@@ -97,12 +107,14 @@ public class ConnectionController implements UserAccessRights {
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         connection.merge(connectionData);
-        if (connection.getStatus() == Status.COMPLETE && connection.getProtocol().equals(EntityType.oidc10_rp)) {
-            //generate secret
-            connection.getMetaData().put("secret", passwordGenerator.generatePassword(36, rules)) ;
+        if (connection.getStatus() == Status.COMPLETE &&
+                connection.getProtocol().equals(EntityType.oidc10_rp) &&
+                !StringUtils.hasText((String) connection.getMetaData().get("secret"))) {
+            //generate secret, but store the raw-text variant, because Manage encodes it
+            String secret = passwordGenerator.generatePassword(36, rules);
+            connection.getMetaData().put("secret", secret);
         }
-        saveConnection(connection);
-
+        connection = saveConnection(connection);
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
 
@@ -116,22 +128,19 @@ public class ConnectionController implements UserAccessRights {
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
-        connection.getMetaData().put("secret", passwordGenerator.generatePassword(36, rules));
+        String secret = passwordGenerator.generatePassword(36, rules);
+        connection.getMetaData().put("secret", secret);
         saveConnection(connection);
 
-        return Collections.singletonMap("secret", passwordGenerator.generatePassword(36, rules));
+        return Collections.singletonMap("secret", secret);
     }
 
     private Connection saveConnection(Connection connection) {
-        //Put / Post to Manage
+        //Put / Post to Manage only if the status is COMPLETE
         if (connection.getStatus().equals(Status.COMPLETE)) {
-            if (StringUtils.hasText(connection.getManageIdentifier())) {
-                manage.updateProvider(connection);
-            } else {
-                manage.saveProvider(connection);
-            }
-            //Not saving redundant data
-            connection.setMetaData(null);
+            Map<String, Object> provider = manage.saveProvider(connection);
+            connection.setManageVersion((Integer) provider.get("version"));
+            connection.setManageIdentifier((String) provider.get("id"));
         }
         return connectionRepository.save(connection);
     }

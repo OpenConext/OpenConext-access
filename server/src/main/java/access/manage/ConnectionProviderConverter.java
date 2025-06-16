@@ -11,6 +11,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class ConnectionProviderConverter {
 
     private final ObjectMapper objectMapper;
     private final Jinjava jinJava;
-    private final Map<EntityType, String> templates;
+    private final String template;
     private final TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {
     };
 
@@ -29,33 +30,22 @@ public class ConnectionProviderConverter {
     public ConnectionProviderConverter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.jinJava = new Jinjava();
-        this.jinJava.registerFilter(new JsonArrayFilter(objectMapper));
-        this.templates = Map.of(
-                EntityType.oidc10_rp, readTemplate(EntityType.oidc10_rp),
-                EntityType.saml20_sp, readTemplate(EntityType.saml20_sp)
-        );
+        this.jinJava.registerFilter(new JsonObjectFilter(objectMapper));
+        this.template = readTemplate();
     }
 
     public String convert(Connection connection) {
         Map<String, Object> context = objectMapper.convertValue(connection, typeRef);
-        Application application = connection.getApplication();
-        //Because of  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        context.put("application", objectMapper.convertValue(application, typeRef));
-        ((Map) context.get("application")).put("organization", objectMapper.convertValue(application.getOrganization(), typeRef));
+        String organizationName = connection.getApplication().getOrganization().getName();
+        //Because of @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        context.put("organizationName", organizationName);
 
-        String template = this.templates.get(connection.getProtocol());
         return this.jinJava.render(template, context);
     }
 
-    public Connection convert(Map<String, Object> provider) {
-        return new Connection(provider);
-    }
-
     @SneakyThrows
-    private String readTemplate(EntityType entityType) {
-        return IOUtils.readInputStreamToString(
-                new ClassPathResource(String.format("/manage/%s.j2", entityType.name()))
-                        .getInputStream());
+    private String readTemplate() {
+        return IOUtils.readInputStreamToString(new ClassPathResource("/manage/provider_template.j2").getInputStream());
     }
 
 }

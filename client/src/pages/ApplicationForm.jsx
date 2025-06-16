@@ -122,6 +122,7 @@ export const ApplicationForm = () => {
                         {Object.keys(checks).map(check =>
                             <CollapseField title={I18n.t(`application.checks.${check}`)}
                                            name={check}
+                                           key={check}
                                            checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
                                            checkValue={checks[check]}>
                                 <span>{I18n.t(`application.checksInfo.${check}`)}</span>

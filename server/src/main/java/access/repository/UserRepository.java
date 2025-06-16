@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewriter {
 
     @EntityGraph(attributePaths = {
-            "joinRequests",
+            "joinRequests.organization",
             "organizationMemberships.organization",
             "organizationMemberships.applicationMemberships.application"})
     Optional<User> findDetailsById(Long id);
