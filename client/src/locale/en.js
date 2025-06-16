@@ -299,8 +299,6 @@ const en = {
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
             secret: "Client secret"
-
-
         }
     },
     testing: {

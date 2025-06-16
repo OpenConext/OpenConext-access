@@ -5,6 +5,7 @@ import access.model.EntityType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RemoteManageTest extends AbstractTest {
 
@@ -49,12 +50,24 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providerByIdExceptionHandling() {
+    void providerByIdNoDataChanged() throws JsonProcessingException {
+        Map<String, String> errorMap = Map.of("validations", "No data is changed");
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(errorMap))
                 .withStatus(404)));
         Map<String, Object> remoteProvider = manage.providerById(EntityType.saml20_sp, "1");
-        assertNull(remoteProvider);
+        assertEquals(errorMap, remoteProvider);
     }
 
+    @Test
+    void providerByIdExceptionHandling() throws JsonProcessingException {
+        Map<String, String> errorMap = Map.of("error", "NotFound");
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(errorMap))
+                .withStatus(404)));
+        assertThrows(NotFound.class, () -> manage.providerById(EntityType.saml20_sp, "1"));
+
+    }
 }

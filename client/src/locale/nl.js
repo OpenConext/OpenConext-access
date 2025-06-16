@@ -207,7 +207,8 @@ const nl = {
         acsLocation: "ACS location",
         acsLocations: "ACS location(s)",
         addACSLocation: "+ Add ASC location",
-        next: "Opslaan en volgende",
+        save: "Opslaan",
+        saveAndNext: "Opslaan en volgende",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "De URL van een metadata-bestand opgeven",

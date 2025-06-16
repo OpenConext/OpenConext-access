@@ -19,8 +19,8 @@
       "metaDataFields": {
         "name:en": "{{ name }}",
         "name:nl": "{{ name }}",
-        {% if logoUrl is defined and logoUrl %}
-        "logo:0:url": "{{ logoUrl }}",
+        {% if metaData.logoUrl is defined and metaData.logoUrl %}
+        "logo:0:url": "{{ metaData.logoUrl }}",
         {% endif -%}
         {% if protocol == "oidc10_rp" %}
         "grants": {{ metaData.grantTypes | to_json }},

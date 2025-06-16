@@ -1,14 +1,14 @@
 {
-  "_id": "123456",
+  "id": "123456",
   "version": "2",
   "type": "oidc10_rp",
   "data": {
     "entityid": "https://engine.test",
-    "allowedall": false,
     "state": "prodaccepted",
+    "allowedall": false,
     "allowedEntities": [
-      "http://mock-idp",
-      "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
+      {"name": "http://mock-idp"},
+      {"name": "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"}
     ],
     "arp": {
       "enabled": true,

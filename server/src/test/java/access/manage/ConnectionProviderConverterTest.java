@@ -28,6 +28,8 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource("/manage/oidc10_rp.expected.json").getInputStream()), new TypeReference<>() {
         });
+//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(expected));
+//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
         assertEquals(expected, map);
     }
 
@@ -37,7 +39,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Map<String, Object> metaData = Map.of(
                 "entityID", "https://engine.test",
                 "redirectUrls", List.of("https://redirect.url"),
-                "grants", List.of("authorization_code"),
+                "grantTypes", List.of("authorization_code"),
                 "secret", "secret",
                 "logoUrl", "https://static.surfconext.nl/media/idp/surfconext.png",
                 "pkce", false,
