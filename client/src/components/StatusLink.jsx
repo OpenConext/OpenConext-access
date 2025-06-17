@@ -6,7 +6,7 @@ import CompletedIcon from "../icons/completed.svg";
 
 export const StatusLink = ({status, info, action, disabled}) => {
 
-    const icon = status === "pending" ? <PendingIcon/> : status === "team" ? <TeamIcon/> : <CompletedIcon/>;
+    const icon = status === "team" ? <TeamIcon/> : status ? <CompletedIcon/> : <PendingIcon/>;
 
     return (
         <div className={`status-link ${disabled && "disabled"}`}

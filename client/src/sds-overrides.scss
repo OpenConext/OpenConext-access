@@ -53,4 +53,13 @@ $min-width-pixels: 620px;
 
 }
 
+.sds--footer--single-bar .sds--footer--inner nav.menu a:link, .sds--footer--single-bar .sds--footer--inner nav.menu a:visited {
+    text-decoration: none;
+    color: white;
 
+    &:hover {
+        text-decoration: underline;
+        color: white;
+
+    }
+}

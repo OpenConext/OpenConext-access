@@ -36,7 +36,7 @@ public class Application implements NameHolder{
 
     @Type(JsonType.class)
     @Column(name="meta_data", columnDefinition = "jsonb")
-    private Map<String, ?> metaData = new HashMap<>();
+    private Map<String, Object> metaData = new HashMap<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")

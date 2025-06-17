@@ -3,6 +3,7 @@ package access.manage;
 import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
+import access.model.Environment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +46,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providers(EntityType... entityTypes) {
+    public List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes) {
         LOG.debug("providers for : " + List.of(entityTypes));
 
         //Ensure it is mutable
@@ -55,24 +56,14 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerById(EntityType entityType, String id) {
+    public Map<String, Object> providerById(Environment environment, EntityType entityType, String id) {
         LOG.debug("providerById for : " + entityType);
 
-        List<Map<String, Object>> providers = providers(entityType);
+        List<Map<String, Object>> providers = providers(environment, entityType);
         return providers.stream()
                 .filter(provider -> provider.get("id").equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
-    }
-
-    @Override
-    public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug("providersByIdIn for : " + entityType);
-
-        List<Map<String, Object>> providers = this.allProviders.get(entityType);
-        return providers.stream()
-                .filter(provider -> identifiers.contains(provider.get("id")))
-                .collect(Collectors.toList());
     }
 
     @SneakyThrows

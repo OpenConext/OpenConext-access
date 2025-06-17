@@ -106,7 +106,7 @@ const App = () => {
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
-                            <Route path="/organization/:organisationId" element={<Organization/>}/>
+                            <Route path="/organization/:organizationId" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:id?" element={<Connection/>}/>

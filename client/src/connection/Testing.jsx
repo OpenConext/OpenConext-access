@@ -79,7 +79,8 @@ export const Testing = ({
                             protocolOptions,
                             arpInfo,
                             profileOptions,
-                            identityProviders
+                            identityProviders,
+                            isProduction
                         }) => {
     const {setFlash, config} = useAppStore(state => state);
 

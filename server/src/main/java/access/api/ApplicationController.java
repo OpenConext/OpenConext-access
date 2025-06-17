@@ -90,4 +90,19 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
     }
 
+    @DeleteMapping({"", "/{applicationId}"})
+    public ResponseEntity<Void> delete(User user, @PathVariable("applicationId") Long applicationId) {
+        LOG.debug("/delete application by " + user.getEmail());
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Organization organization = application.getOrganization();
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmApplicationMembership(user, organization, application, Authority.ADMIN);
+
+        applicationRepository.delete(application);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

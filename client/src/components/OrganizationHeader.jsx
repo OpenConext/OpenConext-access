@@ -6,11 +6,11 @@ import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {deleteApplicationById, resetConnectionSecret} from "../api/index.js";
+import {deleteApplicationById, deleteOrganizationById, resetConnectionSecret} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import InputField from "./InputField.jsx";
 
-export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab, setLoading}) => {
+export const OrganizationHeader = ({tabNames, organization, tab, setTab, setLoading}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -34,12 +34,12 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
                 open: true,
                 cancel: () => setConfirmation({open: false}),
                 action: () => doDelete(null, false),
-                question: I18n.t("application.deleteConfirmation", {name: application.name}),
+                question: I18n.t("organization.deleteConfirmation", {name: organization.name}),
                 okButton: I18n.t("forms.delete")
             });
         } else {
             setLoading(true);
-            deleteApplicationById(application.id).then(() => {
+            deleteOrganizationById(organization.id).then(() => {
                 setConfirmation({});
                 navigate("/home");
                 setLoading(false);
@@ -53,7 +53,7 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
                 <ul>
                     <li>
                         <PencilIcon/>
-                        <a href="/edit" onClick={e => menuLink(e, `/application/${application.id}`)}>
+                        <a href="/edit" onClick={e => menuLink(e, `/organisation/${application.id}`)}>
                             {I18n.t(`forms.edit`)}
                         </a>
                     </li>
@@ -81,7 +81,7 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
             <div className="top-header"
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 475)}>
-                <h1>{application.name}</h1>
+                <h1>{organization.name}</h1>
                 <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
                       onClick={() => setDropDownActive(!dropDownActive)}>
                     <MenuIcon/>
@@ -95,7 +95,7 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
                                             href={`/${tabName}`}
                                             className={tabName === tab ? "active" : ""}
                                             onClick={e => doNavigate(e, tabName)}>
-                    {I18n.t(`connection.${tabName}`)}
+                    {I18n.t(`organization.${tabName}`)}
                 </a>)}
             </div>
         </div>

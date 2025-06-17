@@ -130,19 +130,23 @@ const en = {
             safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         },
-        flash: "Application {{name}} saved."
+        flash: "Application {{name}} saved.",
+        deleteConfirmation: "Are you sure you want to delete the Application {{name}}?"
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
-        applications: "Applicatiebeheer",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
+        deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
         catalog: {
             terms: "Voorwaarden voor apps in de SURF catalogus",
             fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
             agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
             disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
-        }
+        },
+        applications: "Applications",
+        team: "My Team",
+        todo: "?????"
     },
     connection: {
         overview: "Overview",
@@ -171,6 +175,7 @@ const en = {
             contract: "Contract",
             disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
         },
+        productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         newConnection: "Nieuwe koppeling met de testomgeving",
         copyConnection: "Kopieer info van andere koppeling",
         technical: "Technische gegevens",
@@ -322,7 +327,7 @@ const en = {
         subTitle: "This action requires a confirmation",
         subTitleError: "An error has occurred",
         confirm: "Confirm",
-        ok: "OK",
+        ok: "Ok",
         cancel: "Cancel",
     },
     forms: {

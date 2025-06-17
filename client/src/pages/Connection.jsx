@@ -118,10 +118,22 @@ export const Connection = () => {
                                 protocolOptions={protocolOptions}
                                 arpInfo={arpInfo}
                                 profileOptions={profileOptions}
-                                identityProviders={identityProviders}/>
+                                identityProviders={identityProviders}
+                                isProduction={false}
+                />
             }
             case  "prod": {
-                return <span>prod</span>
+                return <Testing application={application}
+                                connection={connection}
+                                setConnection={setConnection}
+                                initConnection={initConnection}
+                                refresh={refresh}
+                                protocolOptions={protocolOptions}
+                                arpInfo={arpInfo}
+                                profileOptions={profileOptions}
+                                identityProviders={identityProviders}
+                                isProduction={false}
+                />
             }
             case "application": {
                 return <span>application</span>
@@ -142,6 +154,7 @@ export const Connection = () => {
             <ApplicationConnectionHeader tabNames={tabNames}
                                          application={application}
                                          tab={tab}
+                                         setLoading={setLoading}
                                          setTab={changeTab}/>
             {renderCurrentTab()}
         </div>

@@ -93,6 +93,10 @@ export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
+export function deleteOrganizationById(organizationId) {
+    return fetchDelete(`/api/v1/organizations/${organizationId}`);
+}
+
 export function organizationLightById(id) {
     return fetchJson(`/api/v1/organizations/light/${id}`);
 }
@@ -117,6 +121,10 @@ export function getApplicationsByOrganization(organisation) {
 
 export function getApplicationById(applicationId) {
     return fetchJson(`/api/v1/applications/${applicationId}`);
+}
+
+export function deleteApplicationById(applicationId) {
+    return fetchDelete(`/api/v1/applications/${applicationId}`);
 }
 
 export function newApplication(application) {

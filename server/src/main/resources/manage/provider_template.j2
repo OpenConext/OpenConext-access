@@ -30,7 +30,9 @@
         "redirectUrls": {{ metaData.redirectUrls | to_json }},
         "isPublicClient" : {{ metaData.pkce }},
         "accessTokenValidity": 3600,
+        {% if "refresh_token" in metaData.grantTypes %}
         "refreshTokenValidity": 3600,
+        {% endif %}
         {% endif -%}
         {%- if protocol == "saml20_sp" -%}
         {%- for acsLocation in metaData.acsLocations -%}

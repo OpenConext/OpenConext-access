@@ -1,9 +1,9 @@
 {
   "id": "123456",
   "version": 2,
-  "eid": 99,
   "type": "oidc10_rp",
   "data": {
+    "eid": 99,
     "entityid": "https://engine.test",
     "state": "prodaccepted",
     "allowedall": false,

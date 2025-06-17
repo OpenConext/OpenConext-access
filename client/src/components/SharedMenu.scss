@@ -7,11 +7,17 @@
         min-width: 48px;
     }
 
+    .sds--navigation-menu-inner .sds--navigation-menu-items {
+        gap: 15px;
+    }
+
     .sds--navigation-menu-items .sds--navigation-menu-item {
-        padding: 5px;
+        padding: 15px;
         border-radius: 4px;
+
         &.active {
             background-color: var(--sds--color--white);
+
             a, svg {
                 color: black;
             }

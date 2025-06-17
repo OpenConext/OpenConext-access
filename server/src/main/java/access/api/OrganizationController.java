@@ -2,12 +2,10 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
-import access.model.Authority;
-import access.model.Organization;
-import access.model.OrganizationMembership;
-import access.model.User;
+import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,14 +36,17 @@ public class OrganizationController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final Config config;
+    private final UserRepository userRepository;
 
     @Autowired
     public OrganizationController(OrganizationRepository organizationRepository,
                                   OrganizationMembershipRepository organizationMembershipRepository,
+                                  UserRepository userRepository,
                                   Config config) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
         this.config = config;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/find/{id}")
@@ -87,6 +88,21 @@ public class OrganizationController implements UserAccessRights {
         organizationMembershipRepository.save(organizationMembership);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+    }
+
+    @DeleteMapping({"", "/{organizationId}"})
+    public ResponseEntity<Void> delete(User user, @PathVariable("organizationId") Long organizationId) {
+        LOG.debug("/delete organization by " + user.getEmail());
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+
+        organizationRepository.delete(organization);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private Organization createOrganization(User user, String name) {

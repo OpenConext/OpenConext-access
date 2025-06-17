@@ -21,3 +21,7 @@ export const PROTOCOLS = {
 export const STATUSES = {
     OPEN: "OPEN", COMPLETE: "COMPLETE"
 }
+
+export const ENVIRONMENTS = {
+    TEST: "TEST", PROD: "PROD"
+}
