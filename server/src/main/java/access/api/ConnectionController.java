@@ -135,13 +135,15 @@ public class ConnectionController implements UserAccessRights {
         return Collections.singletonMap("secret", secret);
     }
 
+    @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is COMPLETE
         if (connection.getStatus().equals(Status.COMPLETE)) {
             Map<String, Object> provider = manage.saveProvider(connection);
-            connection.setManageVersion((Integer) provider.get("version"));
-            connection.setManageEid((Integer) provider.get("eid"));
             connection.setManageIdentifier((String) provider.get("id"));
+            connection.setManageVersion((Integer) provider.get("version"));
+            Map<String, Object> data = (Map<String, Object>) provider.get("data");
+            connection.setManageEid((Integer) data.get("eid"));
         }
         return connectionRepository.save(connection);
     }

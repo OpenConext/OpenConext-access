@@ -381,6 +381,19 @@ $width-percentage: 75%;
     }
 
 }
+.oidc-authentication {
+    margin-top: 10px;
+    .oidc-authentication-inner {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: var(--sl-color-warning-50);
+    }
+
+    .secret-link {
+        margin-top: 15px;
+    }
+}
+
 
 table.table-connections {
     thead {

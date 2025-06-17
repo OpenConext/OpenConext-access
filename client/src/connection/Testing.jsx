@@ -3,6 +3,7 @@ import React, {Fragment, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Alert,
+    AlertType,
     Button,
     ButtonType,
     Checkbox,
@@ -21,7 +22,14 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
-import {getConnectionById, newConnection, parseMedaData, parseMedaDataUrl, updateConnection} from "../api/index.js";
+import {
+    getConnectionById,
+    newConnection,
+    parseMedaData,
+    parseMedaDataUrl,
+    resetConnectionSecret,
+    updateConnection
+} from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
@@ -35,6 +43,7 @@ import {
 } from "../utils/Connection.js";
 import {identityProviderOption, identityProviderOptions, PROTOCOLS, STATUSES} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
 const sections = {
@@ -54,6 +63,11 @@ const grantTypes = {
     authorization_code: "authorization_code",
     refresh_token: "refresh_token",
     device_code: "urn:ietf:params:oauth:grant-type:device_code"
+}
+
+const modals = {
+    resetSecretDisclaimer: "resetSecretDisclaimer",
+    resetSecret: "resetSecret"
 }
 
 export const Testing = ({
@@ -82,6 +96,8 @@ export const Testing = ({
     const [initial, setInitial] = useState(true);
     const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [confirmation, setConfirmation] = useState({});
+
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
 
@@ -269,6 +285,32 @@ export const Testing = ({
         }
     }
 
+    const newClientSecret = (e, confirmationRequired) => {
+        stopEvent(e);
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => newClientSecret(null, false),
+                modal: modals.resetSecretDisclaimer,
+                okButton: I18n.t("connection.connectionOverview.reset")
+            });
+        } else {
+            setLoading(true);
+            resetConnectionSecret(connection.id).then(res => {
+                setConnection({...connection, secret: res.secret})
+                setConfirmation({
+                    open: true,
+                    cancel: null,
+                    action: () => setConfirmation({open: false}),
+                    modal: modals.resetSecret,
+                    okButton: I18n.t("connection.connectionOverview.resetContinue")
+                });
+                setLoading(false);
+            })
+        }
+    }
+
     const technicalSection = () => {
         return (
             <section className="inner-right">
@@ -368,8 +410,31 @@ export const Testing = ({
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
+                        {connection.status === STATUSES.COMPLETE &&
+                            <div className="oidc-authentication">
+                                <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
+                                <div className="oidc-authentication-inner">
+                                    <InputField name={I18n.t("connection.connectionOverview.discovery")}
+                                                value={config.discovery}
+                                                disabled={true}
+                                                copyClipBoard={true}/>
+                                    <InputField name={I18n.t("connection.connectionOverview.clientID")}
+                                                value={connection.entityID}
+                                                disabled={true}
+                                                copyClipBoard={true}/>
+                                    <div className="input-field sds--text-field secret-link">
+                                        <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
+                                        <span>{I18n.t("connection.connectionOverview.secretReset")}</span>
+                                        <a href="/" onClick={e => newClientSecret(e, true)}>
+                                            {I18n.t("connection.connectionOverview.secretResetLink")}
+                                        </a>
+                                    </div>
 
-                    </>}
+                                </div>
+                            </div>
+                        }
+                    </>
+                }
                 {connection.protocol.value === PROTOCOLS.SAML20_SP &&
                     <>
                         <div className="import-metadata">
@@ -544,12 +609,14 @@ export const Testing = ({
         return (
             <section className="inner-right-overview">
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
-                <Alert alertType="sds--alert--status-warning"
+                <Alert alertType={AlertType.Warning}
                        asChild={true}
                        message={I18n.t("connection.connectionOverview.disclaimer")}/>
                 <p className="test"
-                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test",
-                           {ADD_ATTR: ["target"]}))}}/>
+                   dangerouslySetInnerHTML={{
+                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test",
+                           {ADD_ATTR: ["target"]}))
+                   }}/>
                 <InputField name={I18n.t("connection.connectionOverview.discovery")}
                             value={config.discovery}
                             disabled={true}
@@ -602,7 +669,7 @@ export const Testing = ({
         return (
             <section className="inner-right-informational">
                 <h3>{I18n.t("connection.informationProfile")}</h3>
-                {isContentApp && <Alert alertType="sds--alert--status-warning"
+                {isContentApp && <Alert alertType={AlertType.Warning}
                                         asChild={true}
                                         message={I18n.t("connection.informational.contentAppAlert")}/>
                 }
@@ -769,7 +836,28 @@ export const Testing = ({
         const showOverviewButton = section === sections.overview ||
             (lastSection && !isOidc && isComplete);
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+        const {open, cancel, action, modal, okButton} = confirmation;
         return <>
+            {open && <ConfirmationDialog confirm={action}
+                                         cancel={cancel}
+                                         confirmationHeader={I18n.t("connection.connectionOverview.secretResetTitle")}
+                                         confirmationTxt={okButton}
+                                         children={modal === modals.resetSecretDisclaimer ?
+                                             <Alert alertType={AlertType.Error}
+                                                    asChild={true}
+                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")} /> :
+                                             <div>
+                                                 <Alert alertType={AlertType.Warning}
+                                                        asChild={true}
+                                                        message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                                                 <InputField name={I18n.t("connection.connectionOverview.secret")}
+                                                             value={connection.secret}
+                                                             disabled={true}
+                                                             copyClipBoard={true}/>
+
+                                             </div>
+                                             }
+            />}
             <div className="testing-header">
                 <h2>{I18n.t("connection.newConnection")}</h2>
                 {(!isEmpty(application.connections) && application.connections.length > 1) &&

@@ -70,16 +70,6 @@ strong {
     font-weight: 600;
 }
 
-$min-width-pixels: 620px;
-
-.sds--card--big {
-    width: $min-width-pixels;
-
-    @media (max-width: 680px) {
-        width: 100%;
-    }
-}
-
 h1.large {
     font-size: 56px;
     font-weight: 600;

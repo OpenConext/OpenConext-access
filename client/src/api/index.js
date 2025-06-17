@@ -149,6 +149,10 @@ export function updateConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "PUT");
 }
 
+export function resetConnectionSecret(connectionId) {
+    return postPutJson(`/api/v1/connections/reset-secret/${connectionId}`, {}, "PUT");
+}
+
 export function getConnectionById(connectionId) {
     return fetchJson(`/api/v1/connections/${connectionId}`);
 }

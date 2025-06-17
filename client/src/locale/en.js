@@ -298,7 +298,14 @@ const en = {
             test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
-            secret: "Client secret"
+            secret: "Client secret",
+            authentication: "Authenticatie",
+            secretReset: "For security reasons your current secret can not be displayed.",
+            secretResetLink: "Reset your secret when needed.",
+            secretResetDisclaimer: "Let op. Regenerating the secret will break your current connection.",
+            secretResetTitle: "Reset your secret",
+            reset: "Reset my secret",
+            resetContinue: "I’ve copied the secret. Continue"
         }
     },
     testing: {

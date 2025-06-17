@@ -5,11 +5,11 @@
   {% if manageVersion is defined %}
   "version": {{ manageVersion }},
   {% endif -%}
-  {% if manageEid is defined %}
-  "eid": {{ manageEid }},
-  {% endif -%}
     "type": "{{ protocol }}",
     "data": {
+      {% if manageEid is defined %}
+      "eid": {{ manageEid }},
+      {% endif -%}
       "entityid": "{{ metaData.entityID }}",
       "state": "prodaccepted",
       "allowedall": false,
@@ -32,7 +32,7 @@
         "accessTokenValidity": 3600,
         "refreshTokenValidity": 3600,
         {% endif -%}
-        {% if protocol == "saml20_sp" %}
+        {%- if protocol == "saml20_sp" -%}
         {%- for acsLocation in metaData.acsLocations -%}
             "AssertionConsumerService:{{ loop.index0 }}:Location": "{{ acsLocation }}",
             "AssertionConsumerService:{{ loop.index0 }}:Binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",

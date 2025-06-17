@@ -113,6 +113,7 @@ public class Connection implements NameHolder {
         this.metaData = new HashMap<>();
 
         Map<String, Object> data = (Map<String, Object>) provider.get("data");
+        this.manageEid = (Integer) data.get("eid");
 
         String entityID = (String) data.get("entityid");
         this.metaData.put("entityID", entityID);

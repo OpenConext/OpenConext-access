@@ -93,6 +93,14 @@ export const Connection = () => {
         setTab("testing");
     }
 
+    const changeTab = newTab => {
+        if (tab === "testing") {
+            //force the overview
+            setConnection(null);
+        }
+        setTab(newTab);
+    }
+
     const renderCurrentTab = () => {
         switch (tab) {
             case "overview": {
@@ -134,7 +142,7 @@ export const Connection = () => {
             <ApplicationConnectionHeader tabNames={tabNames}
                                          application={application}
                                          tab={tab}
-                                         setTab={setTab}/>
+                                         setTab={changeTab}/>
             {renderCurrentTab()}
         </div>
     )

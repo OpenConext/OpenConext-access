@@ -4,22 +4,18 @@ import I18n from "../locale/I18n";
 
 
 export default function ConfirmationDialog({
-                                               isOpen = false,
                                                cancel,
                                                confirm,
                                                question = "",
                                                isError = false,
                                                disabledConfirm = false,
                                                children = null,
-                                               confirmationTxt = I18n.t("confirmationDialog.confirm"),
+                                               confirmationTxt = null,
                                                largeWidth = false,
-                                               confirmationHeader = I18n.t("confirmationDialog.title")
+                                               confirmationHeader = null
                                            }) {
     const [busy, setBusy] = useState(false);
 
-    if (!isOpen) {
-        return null;
-    }
     return (
         <Modal
             confirm={() => {

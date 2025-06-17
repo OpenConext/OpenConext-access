@@ -1,3 +1,19 @@
+$min-width-pixels: 620px;
+
+:root {
+    --sds--color--grey-background: #F4F6F8;
+    --sl-color-warning-50: #FEFBE6;
+}
+
+
+.sds--card--big {
+    width: $min-width-pixels;
+
+    @media (max-width: 680px) {
+        width: 100%;
+    }
+}
+
 .sds--tooltip-parent {
     .sds--switch.sds--switch--active {
         background-color: var(--sds--color--green--400);
