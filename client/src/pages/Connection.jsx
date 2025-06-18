@@ -33,7 +33,7 @@ export const Connection = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([getApplicationById(applicationId), arp(), getIdentityProviders()])
+        Promise.all([getApplicationById(applicationId), arp(), getIdentityProviders("TEST")])
             .then(res => {
                 //For convenience editing
                 const options = res[1].profiles.map(profile => ({

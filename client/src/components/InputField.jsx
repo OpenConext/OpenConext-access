@@ -70,7 +70,7 @@ export default function InputField({
                            }}/>}
                 {(multiline && !noInput) &&
                     <textarea disabled={disabled}
-                              value={value}
+                              value={value || ""}
                               onChange={onChange}
                               onBlur={onBlur}
                               id={name}

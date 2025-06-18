@@ -3,12 +3,12 @@ package access;
 import access.config.HashGenerator;
 import access.manage.ConnectionProviderConverter;
 import access.manage.Contact;
-import access.model.EntityType;
 import access.manage.LocalManage;
 import access.model.*;
 import access.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -27,6 +27,7 @@ import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
+import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,18 +72,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "oidcng.introspect-url=http://localhost:8081/introspect",
-                "config.past-date-allowed=False",
-//                "logging.level.org.hibernate.SQL=DEBUG",
-//                "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE",
+                "logging.level.org.hibernate.SQL=DEBUG",
+                "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE",
+                "spring.jpa.show-sql=true",
+                "spring.jpa.properties.hibernate.format_sql=true",
+                "spring.jpa.properties.hibernate.use_sql_comments=true",
                 "spring.security.oauth2.client.provider.oidcng.authorization-uri=http://localhost:8081/authorization",
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
-                "manage.url: http://localhost:8081",
-                "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
+                "manage.test.url: http://localhost:8081",
                 "manage.enabled: true",
-                "spring.jpa.properties.hibernate.format_sql=false",
-                "spring.jpa.show-sql=false",
+                "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
@@ -381,6 +382,35 @@ public abstract class AbstractTest {
     protected Header csrfHeader(AccessCookieFilter accessCookieFilter) {
         return new Header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken());
     }
+
+    @SneakyThrows
+    protected void stubForSaveProvider(Connection connection) {
+        Map<String, Object> provider = localManage.saveProvider(connection);
+        String body = objectMapper.writeValueAsString(provider);
+        MappingBuilder mappingBuilder = StringUtils.hasText(connection.getManageIdentifier()) ?
+                put(urlPathMatching("/manage/api/internal/metadata")) :
+                post(urlPathMatching("/manage/api/internal/metadata"));
+        stubFor(mappingBuilder
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
+    protected void stubForGetProvider(Connection connection) {
+        Map<String, Object> provider = localManage.providerById(connection);
+        String body = objectMapper.writeValueAsString(provider);
+        MappingBuilder mappingBuilder = StringUtils.hasText(connection.getManageIdentifier()) ?
+                put(urlPathMatching("/manage/api/internal/metadata")) :
+                post(urlPathMatching("/manage/api/internal/metadata"));
+        stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
+                connection.getProtocol().name(),
+                connection.getManageIdentifier()))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
 
     private void doSeed() {
         this.userRepository.deleteAllInBatch();

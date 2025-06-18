@@ -43,7 +43,7 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
-    protected List<MimeMessageParser> allMailMessages(int expectedLength) throws Exception {
+    protected List<MimeMessageParser> allMailMessages(int expectedLength) {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
         return Stream.of(receivedMessages)

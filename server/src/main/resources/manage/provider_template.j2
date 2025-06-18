@@ -11,7 +11,12 @@
       "eid": {{ manageEid }},
       {% endif -%}
       "entityid": "{{ metaData.entityID }}",
+      {%- if environment == "TEST" -%}
+      "state": "testaccepted",
+      {% endif -%}
+      {%- if environment == "PROD" -%}
       "state": "prodaccepted",
+      {% endif -%}
       "allowedall": false,
       "arp": {{ metaData.arp | to_json }},
       "allowedEntities": [
@@ -28,7 +33,7 @@
         {% if protocol == "oidc10_rp" %}
         "grants": {{ metaData.grantTypes | to_json }},
         "redirectUrls": {{ metaData.redirectUrls | to_json }},
-        "isPublicClient" : {{ metaData.pkce }},
+        "isPublicClient" : {{ metaData.pkce or false }},
         "accessTokenValidity": 3600,
         {% if "refresh_token" in metaData.grantTypes %}
         "refreshTokenValidity": 3600,

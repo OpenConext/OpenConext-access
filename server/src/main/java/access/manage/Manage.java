@@ -11,7 +11,7 @@ public interface Manage {
 
     List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes);
 
-    Map<String, Object> providerById(Environment environment, EntityType entityType, String id);
+    Map<String, Object> providerById(Connection connection);
 
     Map<String, Object> saveProvider(Connection connection);
 

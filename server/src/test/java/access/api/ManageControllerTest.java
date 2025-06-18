@@ -3,10 +3,13 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
+import access.model.Environment;
+import com.nimbusds.jose.util.IOUtils;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -30,11 +33,10 @@ class ManageControllerTest extends AbstractTest {
                 .post("/api/v1/manage/parse")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
-
     }
 
     @Test
-    void parse() throws Exception {
+    void parseURL() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
 
         List<Map<String, Object>> metaDataList = given()
@@ -50,7 +52,26 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(1, metaDataList.size());
         Map<String, Object> metaData = metaDataList.getFirst();
         assertEquals("SURFconext TEST EngineBlock", metaData.get("name"));
+    }
 
+    @Test
+    void parseXML() throws Exception {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        String url = "https://engine.test.surfconext.nl/authentication/sp/metadata";
+        String xml = IOUtils.readInputStreamToString(new UrlResource(url).getInputStream());
+        List<Map<String, Object>> metaDataList = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("xml", xml))
+                .post("/api/v1/manage/parse")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, metaDataList.size());
+        Map<String, Object> metaData = metaDataList.getFirst();
+        assertEquals("SURFconext TEST EngineBlock", metaData.get("name"));
     }
 
     @Test
@@ -62,7 +83,8 @@ class ManageControllerTest extends AbstractTest {
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .get("/api/v1/manage/identity-providers")
+                .pathParam("environment", Environment.TEST)
+                .get("/api/v1/manage/identity-providers/{environment}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(3, identityProviders.size());
@@ -70,7 +92,7 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     protected void stubForIdentityProviders() {
-        List<Map<String, Object>> providers = localManage.providers(EntityType.saml20_idp);
+        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")

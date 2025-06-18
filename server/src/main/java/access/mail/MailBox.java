@@ -92,6 +92,28 @@ public class MailBox {
                 variables,
                 emails.toArray(new String[0]));
     }
+
+    @SneakyThrows
+    public void sendJoinRequestAcceptedMail(JoinRequest joinRequest) {
+        Language language = joinRequest.getLanguage();
+        Organization organization = joinRequest.getOrganization();
+        String title = String.format(subjects.get(language.name()).get("acceptJoinRequest"),
+                organization.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("joinRequest", joinRequest);
+        variables.put("title", title);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        variables.put("url", String.format("%s/organization/%s/applications", clientUrl, organization.getId()));
+        sendMail(String.format("join_request_accepted_%s", language.name()),
+                title,
+                variables,
+                joinRequest.getUser().getEmail());
+
+    }
+
+
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
     }
@@ -113,6 +135,5 @@ public class MailBox {
     private String mailTemplate(String templateName, Map<String, Object> context) {
         return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();
     }
-
 
 }

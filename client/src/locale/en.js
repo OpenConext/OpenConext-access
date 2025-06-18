@@ -81,7 +81,7 @@ const en = {
         infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
     },
     joinRequest: {
-        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
         requestAccess: "Request access",
         duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
         flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
@@ -146,7 +146,7 @@ const en = {
         },
         applications: "Applications",
         team: "My Team",
-        todo: "?????"
+        joins: "Join Requests"
     },
     connection: {
         overview: "Overview",
@@ -177,6 +177,9 @@ const en = {
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         newConnection: "Nieuwe koppeling met de testomgeving",
+        existingConnection: "Testkoppeling bewerken",
+        newConnectionProd: "Nieuwe koppeling met de productieomgeving",
+        existingConnectionProd: "Productiekoppeling bewerken",
         copyConnection: "Kopieer info van andere koppeling",
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",

@@ -5,7 +5,7 @@
   "data": {
     "eid": 99,
     "entityid": "https://engine.test",
-    "state": "prodaccepted",
+    "state": "testaccepted",
     "allowedall": false,
     "allowedEntities": [
       {"name": "http://mock-idp"},
@@ -51,8 +51,7 @@
       "contacts:1:givenName": "Mary",
       "contacts:1:surName": "Doe",
       "contacts:1:emailAddress": "mdoe@example.com",
-      "accessTokenValidity": 3600,
-      "refreshTokenValidity": 3600
+      "accessTokenValidity": 3600
     }
   }
 }

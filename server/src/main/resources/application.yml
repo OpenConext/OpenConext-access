@@ -46,6 +46,8 @@ spring:
     properties:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        format_sql: false
+        show_sql: false
     open-in-view: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -108,10 +110,16 @@ email:
 manage:
   enabled: True
 #  enabled: False
-  url: "https://manage.test2.surfconext.nl"
-#  url: "http://localhost:8081"
-  user: access
-  password: secret
+  test:
+    url: "https://manage.test2.surfconext.nl"
+  #  url: "http://localhost:8081"
+    user: access
+    password: secret
+  prod:
+    url: "https://manage.test2.surfconext.nl"
+    #  url: "http://localhost:8081"
+    user: access
+    password: secret
   # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
   # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage

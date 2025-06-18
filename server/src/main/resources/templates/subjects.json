@@ -1,10 +1,12 @@
 {
   "en": {
     "newInvitation": "Invitation for %s at OpenConext Access",
-    "newJoinRequest": "New join request from %s for %s"
+    "newJoinRequest": "New join request from %s for %s",
+    "acceptJoinRequest": "Join request for %s accepted"
   },
   "nl": {
     "newInvitation": "Invitation for %s at OpenConext Access",
-    "newJoinRequest": "New join request from %s for %s"
+    "newJoinRequest": "New join request from %s for %s",
+    "acceptJoinRequest": "Join request for %s accepted"
   }
 }

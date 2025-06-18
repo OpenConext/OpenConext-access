@@ -563,12 +563,21 @@ export const Testing = ({
     };
 
     const changeAllowedEntity = options => {
-        setConnection({...connection, allowedEntities: options.map(option => option.value)});
+        const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
+        const allowedEntities = connection.allowedEntities || [];
+        const testEntityIdentifiers = iDps.map(idp => idp.entityid)
+            .filter(entityID => allowedEntities.includes(entityID));
+
+        setConnection({
+            ...connection,
+            allowedEntities: options.map(option => option.value).concat(testEntityIdentifiers)
+        });
     };
 
     const testIdPSection = () => {
         const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
+        const testEntityIdentifiers = iDps.map(idp => idp.entityid);
         return (
             <section className="inner-right-idp">
                 <h3>{I18n.t("connection.testIdP")}</h3>
@@ -591,7 +600,9 @@ export const Testing = ({
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.testIdPs.institutionIdPsInfo"))}}/>
                 <SelectField
                     options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
-                    value={allowedEntities.map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
+                    value={allowedEntities
+                        .filter(entityID => !testEntityIdentifiers.includes(entityID))
+                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
                     isMulti={true}
                     searchable={true}
                     placeholder={I18n.t("connection.testIdPs.placeholder")}
@@ -793,7 +804,7 @@ export const Testing = ({
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const isComplete = connection.status === STATUSES.COMPLETE;
-        const nextSection = section === sections.technical ? sections.informationProfile :
+        const nextSection = isComplete ? section : section === sections.technical ? sections.informationProfile :
             section === sections.informationProfile ? sections.testIdP :
                 (section === sections.testIdP && isOidc && !isComplete) ? sections.overview : sections.testIdP;
         const proceed = (section === sections.technical && technicalValid()) ||
@@ -834,8 +845,7 @@ export const Testing = ({
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status === STATUSES.COMPLETE;
-        const showOverviewButton = section === sections.overview ||
-            (lastSection && !isOidc && isComplete);
+        const showOverviewButton = section === sections.overview;
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         const {open, cancel, action, modal, okButton} = confirmation;
         return <>
@@ -846,7 +856,7 @@ export const Testing = ({
                                          children={modal === modals.resetSecretDisclaimer ?
                                              <Alert alertType={AlertType.Error}
                                                     asChild={true}
-                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")} /> :
+                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
                                              <div>
                                                  <Alert alertType={AlertType.Warning}
                                                         asChild={true}
@@ -857,10 +867,10 @@ export const Testing = ({
                                                              copyClipBoard={true}/>
 
                                              </div>
-                                             }
+                                         }
             />}
             <div className="testing-header">
-                <h2>{I18n.t("connection.newConnection")}</h2>
+                <h2>{I18n.t(`connection.${connection.status === STATUSES.OPEN ? "new" : "existing"}Connection`)}</h2>
                 {(!isEmpty(application.connections) && application.connections.length > 1) &&
                     <div className="copy-connection"
                          tabIndex={1}
@@ -874,7 +884,7 @@ export const Testing = ({
                                 {application.connections
                                     .filter(conn => conn.id && conn.name !== connection.name)
                                     .map((conn, index) =>
-                                        <span key={index} onClick={() => alert("TODO")}>{conn.name}</span>)}
+                                        <span key={index} onClick={() => alert("TODO. Copy from "+conn.name)}>{conn.name}</span>)}
                             </section>}
                     </div>}
             </div>

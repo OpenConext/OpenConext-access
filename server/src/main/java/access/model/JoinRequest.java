@@ -1,20 +1,21 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 
 @Entity(name = "join_requests")
 @NoArgsConstructor
 @Getter
 @Setter
-public class JoinRequest {
+public class JoinRequest implements NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,21 +40,38 @@ public class JoinRequest {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
+    @Transient
+    private String transientName;
+
     public JoinRequest(User user, Organization organization, Language language) {
         this.user = user;
         this.organization = organization;
         this.language = language;
         this.createdAt = Instant.now();
+        this.transientName = getClass().getName().concat(organization.getName()).concat(user.getName());
     }
 
     //We need organization name and user info, but we don't want cyclic JSON deserialization
-    public Map<String, Object> getContext() {
+    public Map<String, Serializable> getUserInfo() {
         return Map.of(
-                "organization", organization.getName(),
-                "user", Map.of(
-                        "name", user.getName(),
-                        "email", user.getEmail()
-                ));
+                "id", user.getId(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "schacHomeOrganization", user.getSchacHomeOrganization()
+        );
     }
 
+    public Map<String, Serializable> getOrganizationInfo() {
+        return Map.of(
+                "id", organization.getId(),
+                "name", organization.getName()
+        );
+    }
+
+    @Override
+    @Transient
+    @JsonIgnore
+    public String getName() {
+        return transientName;
+    }
 }

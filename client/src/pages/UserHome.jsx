@@ -19,10 +19,10 @@ const UserHome = () => {
                 {value: I18n.t("breadCrumb.home")}
             ]
         });
-        if (!isEmpty(user.organizationMemberships)) {
+        if (!isEmpty(currentOrganization?.id)) {
             navigate(`/organization/${currentOrganization.id}`);
         }
-    }, []);
+    }, [currentOrganization]);
 
     return (
         <div className="home-container">
@@ -37,7 +37,7 @@ const UserHome = () => {
             {!isEmpty(user.joinRequests) && <div>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
-                        {name: user.joinRequests[0].context.organization}))
+                        {name: user.joinRequests[0].organizationInfo.name}))
                 }}/>
                 <Relax/>
             </div>}

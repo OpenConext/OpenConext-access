@@ -2,7 +2,10 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
-import access.model.*;
+import access.model.Authority;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
@@ -51,7 +54,7 @@ public class OrganizationController implements UserAccessRights {
 
     @GetMapping("/find/{id}")
     public ResponseEntity<Organization> find(User user, @PathVariable("id") Long id) {
-        LOG.debug("/find");
+        LOG.debug("/find Organization by " + user.getEmail());
 
         Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
@@ -97,8 +100,14 @@ public class OrganizationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
-        user = this.reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        User userFromDB = this.reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+
+        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+        user.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organizationId))
+                .findFirst()
+                .ifPresent(organizationMembership -> userFromDB.removeOrganizationMembership(organizationMembership));
 
         organizationRepository.delete(organization);
 

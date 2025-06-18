@@ -11,6 +11,7 @@ import org.hibernate.annotations.Formula;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity(name = "organizations")
 @NoArgsConstructor
@@ -38,6 +39,9 @@ public class Organization implements NameHolder {
     @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 
+    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<JoinRequest> joinRequests = new HashSet<>();
+
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long memberCount;
 
@@ -55,6 +59,24 @@ public class Organization implements NameHolder {
         this.organizationMemberships.add(organizationMembership);
         organizationMembership.setOrganization(this);
         return organizationMembership;
+    }
+
+    @JsonIgnore
+    public void removeApplication(Application application) {
+        //This is required by Hibernate - children can't be dereferenced
+        Set<Application> newApplications = this.applications
+                .stream().filter(app -> !app.getId().equals(application.getId())).collect(Collectors.toSet());
+        this.applications.clear();
+        this.applications.addAll(newApplications);
+    }
+
+    @JsonIgnore
+    public void removeJoinRequest(JoinRequest joinRequest) {
+        //This is required by Hibernate - children can't be dereferenced
+        Set<JoinRequest> newJoinRequests = this.joinRequests
+                .stream().filter(jr -> !jr.getId().equals(joinRequest.getId())).collect(Collectors.toSet());
+        this.joinRequests.clear();
+        this.joinRequests.addAll(newJoinRequests);
     }
 
 }

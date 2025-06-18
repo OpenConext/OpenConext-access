@@ -81,7 +81,7 @@ const nl = {
         infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
     },
     joinRequest: {
-        info: "Jouw eduID heeft geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
         requestAccess: "Request access",
         duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
         flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",

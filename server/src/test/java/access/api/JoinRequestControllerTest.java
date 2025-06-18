@@ -2,21 +2,22 @@ package access.api;
 
 import access.AbstractMailTest;
 import access.AccessCookieFilter;
+import access.model.JoinRequest;
 import access.model.Language;
 import access.model.Organization;
+import access.model.User;
 import access.request.JoinRequestForm;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JoinRequestControllerTest extends AbstractMailTest {
 
@@ -70,4 +71,27 @@ class JoinRequestControllerTest extends AbstractMailTest {
                 .then()
                 .statusCode(HttpStatus.CONFLICT.value());
     }
+
+    @Test
+    void accept() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long joinRequestId = seedIdentifiers.get(String.format("%s%s%s", JoinRequest.class.getName(), SHARE_LOGICS, "Peter Doe"));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("joinRequestId", joinRequestId)
+                .put("/api/v1/join/accept/{joinRequestId}")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        String htmlContent = super.mailMessage().getHtmlContent();
+        assertTrue(htmlContent.contains(SHARE_LOGICS));
+
+        Optional<JoinRequest> optionalJoinRequest = joinRequestRepository.findById(joinRequestId);
+        assertFalse(optionalJoinRequest.isPresent());
+    }
+
 }

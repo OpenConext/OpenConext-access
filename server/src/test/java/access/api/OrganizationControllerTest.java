@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.model.Application;
 import access.model.Organization;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -9,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class OrganizationControllerTest extends AbstractTest {
 
@@ -32,6 +33,7 @@ class OrganizationControllerTest extends AbstractTest {
 
         assertEquals(2L, organization.getMemberCount());
         assertEquals(1, organization.getApplications().size());
+        assertEquals(1, organization.getJoinRequests().size());
         assertEquals(1L, organization.getApplicationCount());
     }
 
@@ -123,4 +125,25 @@ class OrganizationControllerTest extends AbstractTest {
         Organization organizationFromDB = organizationRepository.findById(organization.getId()).get();
         assertEquals("example.com", organizationFromDB.getSchacHomeOrganization());
     }
+
+    @Test
+    void delete() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .delete("/api/v1/organizations/{organizationId}")
+                .then()
+                .statusCode(200);
+
+        Optional<Organization> optionalOrganization = organizationRepository.findById(organizationId);
+        assertFalse(optionalOrganization.isPresent());
+    }
+
 }

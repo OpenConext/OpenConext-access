@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -101,7 +102,16 @@ public class ApplicationController implements UserAccessRights {
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.ADMIN);
 
-        applicationRepository.delete(application);
+        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+        organization.removeApplication(application);
+        user.getOrganizationMemberships().forEach(organizationMembership -> {
+            List<ApplicationMembership> applicationMemberships = organizationMembership.getApplicationMemberships()
+                    .stream()
+                    .filter(applicationMembership -> applicationMembership.getApplication().getId().equals(applicationId)).toList();
+            organizationMembership.removeApplicationMemberships(applicationMemberships);
+        });
+
+        applicationRepository.deleteById(application.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

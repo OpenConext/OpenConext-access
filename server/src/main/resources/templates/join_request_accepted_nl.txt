@@ -1,0 +1,4 @@
+Your join request for <strong>{{joinRequest.organization.name}}</strong> has been accepted. You can
+        view this organization by visiting the following link: {{{ url }}}
+
+{{> footer_en.txt}}

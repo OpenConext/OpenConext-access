@@ -1,6 +1,5 @@
 package access.repository;
 
-import access.model.Application;
 import access.model.Organization;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +15,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     Optional<Organization> findBySchacHomeOrganization(String schacHomeOrganization);
 
-    @EntityGraph(attributePaths = {"applications"})
+    @EntityGraph(attributePaths = {"applications", "organizationMemberships.user", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
 
 }

@@ -1,7 +1,9 @@
 package access.manage;
 
 import access.AbstractTest;
+import access.model.Connection;
 import access.model.EntityType;
+import access.model.Environment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +29,23 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providers() throws JsonProcessingException {
-        List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.saml20_sp);
+        List<Map<String, Object>> serviceProviders = localManage.providers(Environment.TEST,EntityType.saml20_sp);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        List<Map<String, Object>> remoteServiceProviders = manage.providers(EntityType.saml20_sp);
+        List<Map<String, Object>> remoteServiceProviders = manage.providers(Environment.TEST,EntityType.saml20_sp);
         assertEquals(4, remoteServiceProviders.size());
     }
 
     @Test
     void providerById() throws JsonProcessingException {
-        Map<String, Object> provider = localManage.providerById(EntityType.saml20_sp, "1");
+        Map<String, Object> provider = localManage.providerById(connection(EntityType.saml20_sp, "1"));
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        Map<String, Object> remoteProvider = manage.providerById(EntityType.saml20_sp, "1");
+        Map<String, Object> remoteProvider = manage.providerById(connection(EntityType.saml20_sp, "1"));
         provider.values().removeIf(Objects::isNull);
         remoteProvider.values().removeIf(Objects::isNull);
         assertEquals(provider, remoteProvider);
@@ -56,7 +58,7 @@ class RemoteManageTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(errorMap))
                 .withStatus(404)));
-        Map<String, Object> remoteProvider = manage.providerById(EntityType.saml20_sp, "1");
+        Map<String, Object> remoteProvider = manage.providerById(connection(EntityType.saml20_sp, "1"));
         assertEquals(errorMap, remoteProvider);
     }
 
@@ -67,7 +69,14 @@ class RemoteManageTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(errorMap))
                 .withStatus(404)));
-        assertThrows(NotFound.class, () -> manage.providerById(EntityType.saml20_sp, "1"));
+        assertThrows(NotFound.class, () -> manage.providerById(connection(EntityType.saml20_sp, "1")));
 
+    }
+
+    private Connection connection(EntityType entityType, String manageIdentifier) {
+        Connection connection = new Connection();
+        connection.setManageIdentifier(manageIdentifier);
+        connection.setProtocol(entityType);
+        return connection;
     }
 }

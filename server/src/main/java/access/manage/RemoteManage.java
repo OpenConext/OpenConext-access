@@ -68,16 +68,21 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes) {
         LOG.debug("Providers for entityTypes: " + List.of(entityTypes));
-        return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(environment, entityType.collectionName(), false))
+        return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(environment, entityType.name(), false))
                 .flatMap(List::stream)
                 .toList();
     }
 
     @Override
-    public Map<String, Object> providerById(Environment environment, EntityType entityType, String id) {
-        LOG.debug("providerById: " + entityType);
+    public Map<String, Object> providerById(Connection connection) {
+        String manageIdentifier = connection.getManageIdentifier();
+        EntityType protocol = connection.getProtocol();
+        Environment environment = connection.getEnvironment();
+
+        LOG.debug("providerById: " + protocol);
+
         String url = environmentUrl(environment);
-        String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
+        String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, protocol.name(), manageIdentifier);
         RestTemplate restTemplate = environmentRestTemplate(environment);
         return restTemplate.getForEntity(queryUrl, Map.class).getBody();
     }
@@ -88,11 +93,12 @@ public class RemoteManage implements Manage {
         String provider = converter.convert(connection);
         ResponseEntity<Map> responseEntity;
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
+        String url = environmentUrl(connection.getEnvironment());
         if (StringUtils.hasText(connection.getManageIdentifier())) {
-            responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", this.url),
+            responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                     HttpMethod.PUT, new HttpEntity<>(provider), Map.class);
         } else {
-            responseEntity = restTemplate.postForEntity(String.format("%s/manage/api/internal/metadata", this.url), provider, Map.class);
+            responseEntity = restTemplate.postForEntity(String.format("%s/manage/api/internal/metadata", url), provider, Map.class);
         }
         Map body = responseEntity.getBody();
         if (ResilientErrorHandler.ignoreError(body)) {
@@ -105,16 +111,17 @@ public class RemoteManage implements Manage {
 
     @Override
     public void deleteProvider(Connection connection) {
-        RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
-    restTemplate.delete(String.format("%s/manage/api/internal/metadata/{type}/{id}", this.url),
+        Environment environment = connection.getEnvironment();
+        RestTemplate restTemplate = environmentRestTemplate(environment);
+        restTemplate.delete(String.format("%s/manage/api/internal/metadata/{type}/{id}", environmentUrl(environment)),
                 connection.getProtocol(),
                 connection.getManageIdentifier());
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
         Map<String, Object> baseQuery = getBaseQuery(allAttributes);
-        String url = String.format("%s/manage/api/internal/search/%s", this.url, type);
-        return restTemplate.postForObject(url, baseQuery, List.class);
+        String url = String.format("%s/manage/api/internal/search/%s", environmentUrl(environment), type);
+        return environmentRestTemplate(environment).postForObject(url, baseQuery, List.class);
     }
 
     private Map<String, Object> getBaseQuery(boolean allAttributes) {

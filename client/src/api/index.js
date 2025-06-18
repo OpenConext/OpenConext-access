@@ -144,8 +144,8 @@ export function parseMedaDataUrl(url) {
     return postPutJson("/api/v1/manage/parse", {url: url}, "POST");
 }
 
-export function getIdentityProviders() {
-    return fetchJson("/api/v1/manage/identity-providers");
+export function getIdentityProviders(environment) {
+    return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
 }
 
 //Connections

@@ -1,0 +1,14 @@
+import {isEmpty, sanitizeURL} from "./Utils.js";
+
+export const LOCAL_STORAGE_LOCATION = "local_storage_location";
+
+export const login = (config, force = true) => {
+    let params = force ? `?force=true` : "";
+    let serverUrl = config.serverUrl;
+    if (isEmpty(serverUrl)) {
+        const local = window.location.hostname === "localhost";
+        serverUrl = local ? "http://localhost:8886" :
+            `${window.location.protocol}//${window.location.host}`
+    }
+    window.location.href = sanitizeURL(`${serverUrl}/api/v1/users/login${params}`);
+}

@@ -14,10 +14,10 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ApplicationControllerTest extends AbstractTest {
 
@@ -112,5 +112,50 @@ class ApplicationControllerTest extends AbstractTest {
 
         assertEquals(BUDDY_CHECK, application.getName());
         assertEquals(2, application.getConnections().size());
+    }
+
+    @Test
+    void update() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        application.setName("Changed");
+        Organization organization = application.getOrganization();
+        //Otherwise rest-assured does not deserialize the Organization
+        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
+        });
+        applicationData.put("organization", Map.of("id", organization.getId()));
+
+        Application savedApplication = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(applicationData)
+                .put("/api/v1/applications")
+                .as(Application.class);
+
+        Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
+        assertEquals(application.getName(), applicationFromDB.getName());
+    }
+
+    @Test
+    void delete() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", applicationId)
+                .delete("/api/v1/applications/{applicationId}")
+                .then()
+                .statusCode(200);
+
+        Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
+        assertFalse(optionalApplication.isPresent());
     }
 }

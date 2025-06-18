@@ -38,11 +38,14 @@ public final class LocalManage implements Manage {
 
     @SneakyThrows
     private List<Map<String, Object>> initialize(EntityType entityType, String staticManageDirectory) {
-        String resourceName = String.format("%s/%s.json", staticManageDirectory, entityType.collectionName());
+        String resourceName = String.format("%s/%s.json", staticManageDirectory, entityType.name());
         Resource resource = defaultResourceLoader.getResource(resourceName);
         List<Map<String, Object>> providers = objectMapper.readValue(resource.getInputStream(), new TypeReference<>() {
         });
-        return providers.stream().map(provider -> sanitizeProvider(provider)).toList();
+        //Need mutability
+
+        return providers.stream().map(provider -> sanitizeProvider(provider))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -56,12 +59,16 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerById(Environment environment, EntityType entityType, String id) {
-        LOG.debug("providerById for : " + entityType);
+    public Map<String, Object> providerById(Connection connection) {
+        String manageIdentifier = connection.getManageIdentifier();
+        EntityType protocol = connection.getProtocol();
+        Environment environment = connection.getEnvironment();
 
-        List<Map<String, Object>> providers = providers(environment, entityType);
+        LOG.debug("providerById for : " + protocol);
+
+        List<Map<String, Object>> providers = providers(environment, protocol);
         return providers.stream()
-                .filter(provider -> provider.get("id").equals(id))
+                .filter(provider -> provider.get("id").equals(manageIdentifier))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
     }
@@ -76,7 +83,7 @@ public final class LocalManage implements Manage {
             provider.put("version", (int) provider.get("version") + 1);
         } else {
             provider.put("id", UUID.randomUUID().toString());
-            provider.put("version", 1);
+            provider.put("version", 0);
         }
         List<Map<String, Object>> providers = this.allProviders.get(connection.getProtocol());
         providers.add(provider);

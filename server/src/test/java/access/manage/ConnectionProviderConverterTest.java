@@ -11,6 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,8 +29,8 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource("/manage/oidc10_rp.expected.json").getInputStream()), new TypeReference<>() {
         });
-//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(expected));
-//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
+//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(new TreeMap<>(expected)));
+//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(new TreeMap<>(map)));
         assertEquals(expected, map);
     }
 

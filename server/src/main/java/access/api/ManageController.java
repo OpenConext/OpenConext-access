@@ -1,13 +1,15 @@
 package access.api;
 
 import access.exception.InvalidInputException;
-import access.model.EntityType;
 import access.manage.Manage;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
+import access.model.EntityType;
+import access.model.Environment;
 import lombok.SneakyThrows;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,24 +36,26 @@ public class ManageController {
     @PostMapping("/parse")
     public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) {
         List<EntityDescriptor> entityDescriptors;
+        Resource resource;
         if (requestBody.containsKey("url")) {
             URL url = new URI(requestBody.get("url")).toURL();
             String protocol = url.getProtocol().toLowerCase();
             if (!List.of("http", "https").contains(protocol)) {
                 throw new InvalidInputException("Not allowed protocol: " + protocol);
             }
-            entityDescriptors = metaDataFeedParser.importXML(new UrlResource(url));
+            resource = new UrlResource(url);
         } else {
             String xml = requestBody.get("xml");
-            entityDescriptors = metaDataFeedParser.importXML(new ByteArrayResource(xml.getBytes(Charset.defaultCharset())));
+            resource = new ByteArrayResource(xml.getBytes(Charset.defaultCharset()));
         }
+        entityDescriptors = metaDataFeedParser.importXML(resource);
         return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());
     }
 
     @SneakyThrows
-    @GetMapping("/identity-providers")
-    public ResponseEntity<List<Map<String, Object>>> identityProviders() {
-        List<Map<String, Object>> providers = manage.providers(EntityType.saml20_idp);
+    @GetMapping("/identity-providers/{environment}")
+    public ResponseEntity<List<Map<String, Object>>> identityProviders(@PathVariable("environment") Environment environment) {
+        List<Map<String, Object>> providers = manage.providers(environment, EntityType.saml20_idp);
         return ResponseEntity.ok(providers);
     }
 

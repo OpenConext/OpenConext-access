@@ -21,9 +21,8 @@ export const UserMenu = ({setIsAuthenticated}) => {
         stopEvent(e);
         logout().then(() => {
             useAppStore.setState(() => ({breadcrumbPath: [], user: {}}));
+            navigate("/home");
             setIsAuthenticated(false);
-            setTimeout(() =>
-                navigate("/home"), 1);
         });
     }
 

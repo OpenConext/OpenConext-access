@@ -10,18 +10,16 @@ import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
-import {Overview} from "../connection/Overview.jsx";
-import {Testing} from "../connection/Testing.jsx";
 
-const tabNames = ["applications", "team", "todo"]
+const tabNames = ["applications", "team", "joins"]
 
 const Organization = () => {
-
+    const {tab = "applications"} = useParams();
     const {organizationId} = useParams();
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [alertClosed, setAlertClosed] = useState(false);
-    const [tab, setTab] = useState("applications");
+    const [currentTab, setCurrentTab] = useState(tab);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -36,6 +34,7 @@ const Organization = () => {
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });
+                tabChanged(currentTab);
                 setLoading(false);
             }).catch(() => {
             navigate("/404")
@@ -57,7 +56,6 @@ const Organization = () => {
     const renderApplications = () => {
         return (
             <>
-
                 <div className="organization-container">
                     {isEmpty(organization.applications) &&
                         <div className="organization">
@@ -105,19 +103,44 @@ const Organization = () => {
         );
     }
 
+    const tabChanged = (name) => {
+        setCurrentTab(name);
+        navigate(`/organization/${organizationId}/${name}`);
+    }
+
+    const renderTeamManagement = () => {
+        return (
+            <>
+                <div className="organization-container">
+                    <code>{JSON.stringify(organization.organizationMemberships)}</code>
+                </div>
+            </>
+        );
+    };
+
+    const renderJoinRequests = () => {
+        return (
+            <>
+                <div className="organization-container">
+                    <code>{JSON.stringify(organization.joinRequests)}</code>
+                </div>
+            </>
+        );
+    };
+
     const renderCurrentTab = () => {
-        switch (tab) {
+        switch (currentTab) {
             case "applications": {
                 return renderApplications();
             }
             case  "team": {
-                return <span>Team Management</span>
+                return renderTeamManagement();
             }
-            case  "todo": {
-                return <span>todo</span>
+            case  "joins": {
+                return renderJoinRequests();
             }
             default:
-                throw new Error(`Unknown tab; ${tab}`)
+                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
 
@@ -131,8 +154,8 @@ const Organization = () => {
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
             {alertInfo()}
             <OrganizationHeader organization={organization}
-                                tab={tab}
-                                setTab={setTab}
+                                tab={currentTab}
+                                setTab={tabChanged}
                                 tabNames={tabNames}
                                 setLoading={setLoading}/>
             {renderCurrentTab()}

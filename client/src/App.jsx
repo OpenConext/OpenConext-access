@@ -23,6 +23,8 @@ import {isEmpty} from "./utils/Utils.js";
 import Landing from "./pages/Landing.jsx";
 import JoinRequest from "./pages/JoinRequest.jsx";
 import UserHome from "./pages/UserHome.jsx";
+import {LoginRedirect} from "./pages/LoginRedirect.jsx";
+import {LOCAL_STORAGE_LOCATION} from "./utils/Login.js";
 
 const App = () => {
 
@@ -39,7 +41,6 @@ const App = () => {
                 <Route path="/institutions" element={<Institutions/>}/>
                 <Route path="/connect" element={<Connect/>}/>
                 <Route path="/applications" element={<Applications/>}/>
-                <Route path="/*" element={<NotFound/>}/>
             </>
         );
     }
@@ -73,14 +74,18 @@ const App = () => {
                             } else {
                                 useAppStore.setState(() => ({
                                     menuItems: ["home", "applications", "teams"],
-                                    currentOrganization: user.organizationMemberships.map(om => om.organization)[0]
+                                    currentOrganization: user.organizationMemberships.map(om => om.organizationInfo)[0]
                                 }));
+                            }
+                            const storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
+                            if (!isEmpty(storedLocation)) {
+                                localStorage.removeItem(LOCAL_STORAGE_LOCATION);
+                                navigate(storedLocation);
                             }
                             setLoading(false);
                         })
                     } else {
                         setLoading(false);
-                        navigate("/home");
                     }
                 })
                 .catch(() => {
@@ -106,7 +111,7 @@ const App = () => {
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
-                            <Route path="/organization/:organizationId" element={<Organization/>}/>
+                            <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:id?" element={<Connection/>}/>
@@ -124,6 +129,7 @@ const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         {sharedRoutes()}
+                        <Route path="/*" element={<LoginRedirect/>}/>
                     </Routes>
                     <Footer/>
                 </>

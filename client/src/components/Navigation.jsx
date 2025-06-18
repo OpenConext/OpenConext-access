@@ -5,6 +5,7 @@ import {isEmpty, sanitizeURL, stopEvent} from "../utils/Utils.js";
 import {useNavigate} from "react-router";
 import {Button} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
+import {login} from "../utils/Login.js";
 
 const tabNames = ["home", "connect", "institutions", "applications"];
 
@@ -25,17 +26,6 @@ export const Navigation = ({mobile, path}) => {
         navigate(`/${tabName}`)
     }
 
-    const login = (force = true) => {
-        let params = force ? `?force=true` : "";
-        let serverUrl = config.serverUrl;
-        if (isEmpty(serverUrl)) {
-            const local = window.location.hostname === "localhost";
-            serverUrl = local ? "http://localhost:8886" :
-                `${window.location.protocol}//${window.location.host}`
-        }
-        window.location.href = sanitizeURL(`${serverUrl}/api/v1/users/login${params}`);
-    }
-
     return (
         <div className={`desktop-navigation ${mobile ? "mobile" : ""}`}>
             {tabNames.map(tabName => <a key={tabName}
@@ -45,7 +35,7 @@ export const Navigation = ({mobile, path}) => {
                 {I18n.t(`landing.tabs.${tabName}`)}
             </a>)}
             <div className="links">
-                <Button onClick={() => login()}
+                <Button onClick={() => login(config)}
                         txt={I18n.t("landing.header.login")}/>
             </div>
         </div>

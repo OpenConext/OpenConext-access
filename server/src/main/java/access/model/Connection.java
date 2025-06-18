@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuppressWarnings("unchecked")
 public class Connection implements NameHolder {
 
     @Id
