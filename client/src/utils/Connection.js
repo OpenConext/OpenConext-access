@@ -69,9 +69,6 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
 
 }
 
-export const generateOIDCClientID = application => {
-    const name = application.name;
-    const alphanumericOnly = name.replace(/[^a-zA-Z0-9]/g, '');
-    const result = alphanumericOnly.replace(/^\d+/, '').toLowerCase();
-    return result + "_" + (application.connections.length + 1);
+export const generateOIDCClientID = () => {
+    return "SURFACCESS-" + crypto.randomUUID();
 }

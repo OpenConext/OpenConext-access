@@ -164,6 +164,7 @@ public class ConnectionController implements UserAccessRights {
             connection.setManageVersion((Integer) provider.get("version"));
             Map<String, Object> data = (Map<String, Object>) provider.get("data");
             connection.setManageEid((Integer) data.get("eid"));
+            connection.setState(State.valueOf((String) data.get("state")));
         }
         return connectionRepository.save(connection);
     }

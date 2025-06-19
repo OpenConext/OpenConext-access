@@ -9,7 +9,7 @@ import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders} from "../api/index.js";
 import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
-import {PROTOCOLS} from "../utils/Manage.js";
+import {ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -72,11 +72,11 @@ export const Connection = () => {
             })
     }
 
-    const initConnection = (forceNew = false) => {
+    const initConnection = (environment = ENVIRONMENTS.TEST, forceNew = false) => {
         const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
         setConnection({
             new: forceNew,
-            environment: "TEST",
+            environment: environment,
             protocol: protocolOptions[0],
             grantTypes: ["authorization_code"],
             pkce: false,
@@ -90,7 +90,7 @@ export const Connection = () => {
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid)
         });
-        setTab("testing");
+        setTab(environment === ENVIRONMENTS.TEST ? "testing": "prod");
     }
 
     const changeTab = newTab => {
@@ -132,7 +132,7 @@ export const Connection = () => {
                                 arpInfo={arpInfo}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
-                                isProduction={false}
+                                isProduction={true}
                 />
             }
             case "application": {

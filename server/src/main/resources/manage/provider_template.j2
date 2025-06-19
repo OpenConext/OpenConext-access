@@ -11,12 +11,7 @@
       "eid": {{ manageEid }},
       {% endif -%}
       "entityid": "{{ metaData.entityID }}",
-      {%- if environment == "TEST" -%}
-      "state": "testaccepted",
-      {% endif -%}
-      {%- if environment == "PROD" -%}
-      "state": "prodaccepted",
-      {% endif -%}
+      "state": "{{ state }}",
       "allowedall": false,
       "arp": {{ metaData.arp | to_json }},
       "allowedEntities": [

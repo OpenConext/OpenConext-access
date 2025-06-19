@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate} from "react-router-dom";
 import {newOrganization, searchOrganization} from "../api/index.js";
-import { useDebouncedCallback } from 'use-debounce';
+import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
@@ -81,7 +81,7 @@ const Landing = ({refreshUser}) => {
                         <p>{I18n.t("welcome.zeroState")}</p>
                         <section className="organization register"
                                  onClick={() => createOrganization()}>
-                                <p dangerouslySetInnerHTML={{__html: I18n.t("welcome.register", {name: search})}}/>
+                            <p dangerouslySetInnerHTML={{__html: I18n.t("welcome.register", {name: search})}}/>
                             <ArrowRight/>
                         </section>
                     </>}
@@ -91,7 +91,12 @@ const Landing = ({refreshUser}) => {
                                      onClick={() => navigate(`/join/${org.id}`)}>
                                 <div>
                                     <p>{org.name}</p>
-                                    <span>{I18n.t("welcome.organizationMembers", {nbr:org.memberCount})}</span>
+                                    <span>{I18n.t("welcome.organizationMembers", {
+                                        memberCount: org.memberCount,
+                                        user: I18n.t(`welcome.${org.memberCount === 1 ? "user" : "users"}`),
+                                        applicationCount: org.applicationCount,
+                                        application: I18n.t(`welcome.${org.applicationCount === 1 ? "application" : "applications"}`)
+                                    })}</span>
                                 </div>
                                 <ArrowRight/>
                             </section>

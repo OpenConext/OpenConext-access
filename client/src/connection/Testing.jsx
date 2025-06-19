@@ -1,5 +1,5 @@
 import "./Testing.scss";
-import React, {Fragment, useRef, useState} from "react";
+import React, {Fragment, useMemo, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Alert,
@@ -42,7 +42,7 @@ import {
     convertServerConnectionToClient,
     generateOIDCClientID
 } from "../utils/Connection.js";
-import {identityProviderOption, identityProviderOptions, PROTOCOLS, STATUSES} from "../utils/Manage.js";
+import {ENVIRONMENTS, identityProviderOption, identityProviderOptions, PROTOCOLS, STATUSES} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
@@ -100,6 +100,10 @@ export const Testing = ({
     const [loading, setLoading] = useState(false);
     const [confirmation, setConfirmation] = useState({});
 
+    const connections = useMemo(() => application.connections
+            .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
+        [application, isProduction]);
+
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
 
@@ -121,9 +125,35 @@ export const Testing = ({
         }
     }
 
+    const copyConnectionData = connectionId => {
+        setLoading(true);
+        getConnectionById(connectionId).then(res => {
+            const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
+            const originalName = convertedConnection.name;
+            convertedConnection.name = "";
+            //This must also work for already persisted connections
+            convertedConnection.id = connection.id;
+            convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
+            convertedConnection.status = STATUSES.OPEN;
+            if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
+                convertedConnection.entityID = generateOIDCClientID();
+            }
+            setConnection(convertedConnection);
+            setLoading(false);
+            setFlash(I18n.t("connection.flash.copied", {name: originalName}))
+        })
+
+    }
+
+    const isDuplicateConnectionName = () => {
+        const nbr = application.connections.filter(conn => conn.name === connection.name).length;
+        return connection.id ? nbr > 1 : nbr === 1;
+    }
+
     const technicalValid = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
-        return !(isEmpty(connection.name) || isEmpty(connection.entityID) ||
+
+        return !(isEmpty(connection.name) || isEmpty(connection.entityID) || isDuplicateConnectionName() ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
@@ -341,7 +371,7 @@ export const Testing = ({
         }
     }
 
-    const technicalSection = () => {
+    const renderTechnicalSection = () => {
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.technical")}</h3>
@@ -357,6 +387,9 @@ export const Testing = ({
                 />
                 {(!initial && isEmpty(connection.name)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.connectionName")})}
+                                    adjustMargin={true}/>}
+                {isDuplicateConnectionName() &&
+                    <ErrorIndicator msg={I18n.t("connection.duplicatedName", {name: connection.name})}
                                     adjustMargin={true}/>}
 
                 <SelectField name={I18n.t("connection.protocol")}
@@ -603,7 +636,7 @@ export const Testing = ({
         });
     };
 
-    const testIdPSection = () => {
+    const renderTestIdPSection = () => {
         const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
         const testEntityIdentifiers = iDps.map(idp => idp.entityid);
@@ -702,7 +735,7 @@ export const Testing = ({
         setConnection({...connection, profile: option, profileMotivation: ""})
     }
 
-    const informationProfileSection = () => {
+    const renderInformationProfileSection = () => {
         const profileName = connection.profile?.value || arpInfo.profiles[0].name;
         const profileInfo = I18n.translations[I18n.locale].connection.informational.profiles[profileName].info;
         const currentProfile = arpInfo.profiles.find(profile => profile.name === profileName);
@@ -797,13 +830,13 @@ export const Testing = ({
     const renderSection = () => {
         switch (section) {
             case sections.technical: {
-                return technicalSection();
+                return renderTechnicalSection();
             }
             case sections.informationProfile: {
-                return informationProfileSection();
+                return renderInformationProfileSection();
             }
             case sections.testIdP: {
-                return testIdPSection();
+                return renderTestIdPSection();
             }
             case sections.overview: {
                 return overview();
@@ -901,8 +934,10 @@ export const Testing = ({
                                          }
             />}
             <div className="testing-header">
-                <h2>{I18n.t(`connection.${connection.status === STATUSES.OPEN ? "new" : "existing"}Connection`)}</h2>
-                {(!isEmpty(application.connections) && application.connections.length > 1) &&
+                <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
+                {(!isEmpty(application.connections) &&
+                        (application.connections.length > 1 ||
+                            (isEmpty(connection.id) && application.connections.length === 1))) &&
                     <div className="copy-connection"
                          tabIndex={1}
                          onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
@@ -916,7 +951,7 @@ export const Testing = ({
                                     .filter(conn => conn.id && conn.name !== connection.name)
                                     .map((conn, index) =>
                                         <span key={index}
-                                              onClick={() => alert("TODO. Copy from " + conn.name)}>{conn.name}</span>)}
+                                              onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
                             </section>}
                     </div>}
             </div>
@@ -983,7 +1018,7 @@ export const Testing = ({
 
     }
 
-    const renderConnectionsTable = () => {
+    const renderConnectionsTable = (connections) => {
         const columns = [
             {
                 key: "name",
@@ -1019,7 +1054,7 @@ export const Testing = ({
         ]
 
         return (
-            <Entities entities={application.connections}
+            <Entities entities={connections}
                       modelName="table-connections"
                       defaultSort="name"
                       columns={columns}
@@ -1039,11 +1074,17 @@ export const Testing = ({
                     <h3>{I18n.t("connection.test.connections")}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={() => initConnection(true)}/>
+                            onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST)}/>
                 </div>
-                {!isEmpty(application.connections) && renderConnectionsTable()}
-                {isEmpty(application.connections) &&
-                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("testing.zeroState", {name: application.name}))}}/>}
+                {!isEmpty(connections) && renderConnectionsTable(connections)}
+                {isEmpty(connections) &&
+                    <p dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("testing.zeroState",
+                            {
+                                name: application.name,
+                                type: I18n.t(`testing.${isProduction ? "production" : "test"}`)
+                            }))
+                    }}/>}
             </div>
         );
 
@@ -1051,7 +1092,7 @@ export const Testing = ({
     if (loading) {
         return <Loader/>
     }
-    const showInitialConnection = (isEmpty(application.connections) || connection?.new || connection?.id)
+    const showInitialConnection = (isEmpty(connections) || connection?.new || connection?.id)
         && !isEmpty(connection);
     return (
         <div className="testing-container">

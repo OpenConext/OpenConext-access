@@ -54,7 +54,7 @@ export const Overview = ({user, application, setTab, initConnection}) => {
                 <section className="sub-part">
                     <h2>{I18n.t("connection.test.name")}</h2>
                     <StatusLink info={I18n.t("connection.test.connections")}
-                                action={() => initConnection()}
+                                action={() => initConnection(ENVIRONMENTS.TEST)}
                                 status={testConnectionComplete}/>
                 </section>
                 <section className="sub-part">
@@ -66,7 +66,7 @@ export const Overview = ({user, application, setTab, initConnection}) => {
                 <section className="sub-part">
                     <h2>{I18n.t("connection.production.name")}</h2>
                     <StatusLink info={I18n.t("connection.production.connections")}
-                                action={() => setTab("prod")}
+                                action={() => initConnection(ENVIRONMENTS.PROD)}
                                 disabled={!testConnectionComplete}
                                 status={productionConnectionComplete}/>
                     <StatusLink info={I18n.t("connection.production.catalogue")}

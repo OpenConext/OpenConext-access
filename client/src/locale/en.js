@@ -69,7 +69,11 @@ const en = {
         greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         searchPlaceholder: "Search for organizations...",
-        organizationMembers: "{{nbr}} users. Request access.",
+        organizationMembers: "{{memberCount}} {{user}} and {{applicationCount}} {{application}}. Request access.",
+        user: "user",
+        users: "users",
+        application: "application",
+        applications: "applications",
         zeroState: "No organizations found",
         register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
         flash: "Created organization {{name}}."
@@ -157,10 +161,12 @@ const en = {
         welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
         testSection: "Test",
         teamSection: "Team",
+        duplicatedName: "A connection with name {{name}} already exists for this Application.",
         test: {
             name: "Test",
             connections: "Koppelingen met onze testomgeving",
-            info: "Test of federatief inloggen werkt via onze testomgeving."
+            info: "Test of federatief inloggen werkt via onze testomgeving.",
+
         },
         team: {
             name: "Teams",
@@ -234,6 +240,7 @@ const en = {
             created: "Created connection {{name}}",
             updated: "Updated connection {{name}}",
             deleted: "Deleted connection {{name}}",
+            copied: "Copied connection data from {{name}}"
         },
         connections: {
             titleProd: "Koppelingen met de productieomgeving",
@@ -324,7 +331,9 @@ const en = {
         status: "Status",
         protocol: "Protocol",
         details: "Details",
-        zeroState: "Application <strong>{{name}}</strong> has not connections yet."
+        zeroState: "Application <strong>{{name}}</strong> has no {{type}} connections yet.",
+        production: "production",
+        test: "test"
     },
     confirmationDialog: {
         title: "Confirm",

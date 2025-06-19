@@ -83,6 +83,10 @@ div.organization-outer-container {
                 border-radius: 8px;
                 box-shadow: 0 1px 0 2px var(--sds--color--gray--200);
 
+                &:hover {
+                    background-color: var(--sds--color--gray--background);
+                }
+
                 p {
                     font-size: 18px;
                     font-weight: 600;
@@ -93,6 +97,7 @@ div.organization-outer-container {
                     height: 110px;
                     padding: 12px;
                     border-radius: 4px;
+                    background-color: white;
                     border: 1px solid var(--sds--color--gray--250);
                 }
 

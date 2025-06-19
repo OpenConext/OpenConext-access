@@ -103,7 +103,7 @@ $width-percentage: 75%;
             }
 
             div.attributes {
-                background-color: var(--sds--color--grey-background);
+                background-color: var(--sds--color--gray--background);
                 padding: 8px 15px;
                 display: grid;
                 border-radius: 8px;
@@ -129,7 +129,7 @@ $width-percentage: 75%;
                 width: 100%;
 
                 &.dormant {
-                    background-color: var(--sds--color--grey-background);
+                    background-color: var(--sds--color--gray--background);
                 }
 
                 &.optional {
