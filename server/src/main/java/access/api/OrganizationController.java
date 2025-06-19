@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -100,16 +101,10 @@ public class OrganizationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
-        User userFromDB = this.reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+        user = this.reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
-        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
-        user.getOrganizationMemberships().stream()
-                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organizationId))
-                .findFirst()
-                .ifPresent(organizationMembership -> userFromDB.removeOrganizationMembership(organizationMembership));
-
-        organizationRepository.delete(organization);
+        organizationRepository.deleteOrganizationById(organizationId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

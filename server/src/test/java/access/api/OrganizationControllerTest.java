@@ -2,7 +2,6 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.model.Application;
 import access.model.Organization;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;

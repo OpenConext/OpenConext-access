@@ -10,10 +10,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity(name = "organization_memberships")
@@ -68,21 +65,30 @@ public class OrganizationMembership implements NameHolder {
     }
 
     //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "organization")
     public Map<String, Serializable> getOrganizationInfo() {
-        return Map.of("id", organization.getId(),
-                "name", organization.getName());
+        Organization organization = getOrganization();
+        Map<String, Serializable> organizationInfo = new HashMap<>();
+        if (organization != null) {
+            organizationInfo.put("id", organization.getId());
+            organizationInfo.put("name", organization.getName());
+            organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
+        }
+        return organizationInfo;
     }
 
     //We need user info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "user")
     public Map<String, Serializable> getUserInfo() {
         User user = getUser();
-
-        return user != null ? Map.of(
-                "id", user.getId(),
-                "name", user.getName(),
-                "email", user.getEmail(),
-                "schacHomeOrganization", user.getSchacHomeOrganization()
-        ) : Map.of();
+        Map<String, Serializable> userInfo = new HashMap<>();
+        if (user != null) {
+            userInfo.put("id", user.getId());
+            userInfo.put("name", user.getName());
+            userInfo.put("email", user.getEmail());
+            userInfo.put("schacHomeOrganization", user.getSchacHomeOrganization());
+        }
+        return userInfo;
     }
 
     @JsonIgnore

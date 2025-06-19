@@ -3,7 +3,11 @@ package access.repository;
 import access.model.Organization;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,5 +21,10 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     @EntityGraph(attributePaths = {"applications", "organizationMemberships.user", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
+
+    @Modifying
+    @Query(value = "DELETE FROM organizations WHERE id = ?1", nativeQuery = true)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void deleteOrganizationById(Long id);
 
 }

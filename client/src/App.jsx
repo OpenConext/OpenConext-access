@@ -74,7 +74,7 @@ const App = () => {
                             } else {
                                 useAppStore.setState(() => ({
                                     menuItems: ["home", "applications", "teams"],
-                                    currentOrganization: user.organizationMemberships.map(om => om.organizationInfo)[0]
+                                    currentOrganization: user.organizationMemberships.map(om => om.organization)[0]
                                 }));
                             }
                             const storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);

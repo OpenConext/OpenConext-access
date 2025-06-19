@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity(name = "join_requests")
@@ -51,21 +52,30 @@ public class JoinRequest implements NameHolder {
         this.transientName = getClass().getName().concat(organization.getName()).concat(user.getName());
     }
 
-    //We need organization name and user info, but we don't want cyclic JSON deserialization
-    public Map<String, Serializable> getUserInfo() {
-        return Map.of(
-                "id", user.getId(),
-                "name", user.getName(),
-                "email", user.getEmail(),
-                "schacHomeOrganization", user.getSchacHomeOrganization()
-        );
+    //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "organization")
+    public Map<String, Serializable> getOrganizationInfo() {
+        Organization organization = getOrganization();
+        Map<String, Serializable> organizationInfo = new HashMap<>();
+        if (organization != null) {
+            organizationInfo.put("id", organization.getId());
+            organizationInfo.put("name", organization.getName());
+        }
+        return organizationInfo;
     }
 
-    public Map<String, Serializable> getOrganizationInfo() {
-        return Map.of(
-                "id", organization.getId(),
-                "name", organization.getName()
-        );
+    //We need user info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "user")
+    public Map<String, Serializable> getUserInfo() {
+        User user = getUser();
+        Map<String, Serializable> userInfo = new HashMap<>();
+        if (user != null) {
+            userInfo.put("id", user.getId());
+            userInfo.put("name", user.getName());
+            userInfo.put("email", user.getEmail());
+            userInfo.put("schacHomeOrganization", user.getSchacHomeOrganization());
+        }
+        return userInfo;
     }
 
     @Override

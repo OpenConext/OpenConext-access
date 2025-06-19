@@ -102,13 +102,13 @@ public class Invitation {
     @JsonProperty(value = "inviter", access = JsonProperty.Access.READ_ONLY)
     public Map<String, Object> getInviterEmail() {
         User inviter = this.getInvitee();
+        Map<String, Object> info = new HashMap<>();
         if (inviter != null) {
-            return Map.of(
-                    "email", inviter.getEmail(),
-                    "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail(),
-                    "user_id", inviter.getId());
+            info.put("email", inviter.getEmail());
+            info.put("name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail());
+            info.put("user_id", inviter.getId());
         }
-        return Collections.emptyMap();
+        return info;
     }
 
     @JsonIgnore

@@ -37,7 +37,7 @@ const UserHome = () => {
             {!isEmpty(user.joinRequests) && <div>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
-                        {name: user.joinRequests[0].organizationInfo.name}))
+                        {name: user.joinRequests[0].organization.name}))
                 }}/>
                 <Relax/>
             </div>}

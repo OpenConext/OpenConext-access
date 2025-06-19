@@ -118,7 +118,8 @@ class UserControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/users/me")
-                .as(User.class);
+                .as(new TypeRef<>() {
+                });
         assertEquals(1, user.getOrganizationMemberships().size());
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
@@ -152,5 +153,13 @@ class UserControllerTest extends AbstractTest {
 
     private boolean attributePresent(String attribute, List<Map<String, Object>> attributes) {
         return attributes.stream().anyMatch(attr -> attr.get("name").equals(attribute));
+    }
+
+    private User convertuser(Map<String, Object> userMap) {
+        User user = objectMapper.convertValue(userMap, User.class);
+        List<Map<String, Object>> organizationMemberships = (List<Map<String, Object>>) userMap.get("organizationMemberships");
+        user.getOrganizationMemberships().forEach(organizationMembership ->
+                organizationMembership.setOrganization(new Organization()));
+        return user;
     }
 }

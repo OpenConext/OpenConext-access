@@ -44,7 +44,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
         JoinRequestForm joinRequestForm = new JoinRequestForm(organization.getId(), false, Language.en);
 
-        Map<String, Object> joinRequest = given()
+        JoinRequest joinRequest = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
@@ -54,7 +54,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
                 .post("/api/v1/join")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(SHARE_LOGICS, ((Map) joinRequest.get("context")).get("organization"));
+        assertEquals(SHARE_LOGICS, joinRequest.getOrganization().getName());
 
         String htmlContent = super.mailMessage().getHtmlContent();
         assertTrue(htmlContent.contains(SHARE_LOGICS));
