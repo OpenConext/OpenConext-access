@@ -75,12 +75,14 @@ public class OrganizationMembership implements NameHolder {
 
     //We need user info, but we don't want cyclic JSON deserialization
     public Map<String, Serializable> getUserInfo() {
-        return Map.of(
+        User user = getUser();
+
+        return user != null ? Map.of(
                 "id", user.getId(),
                 "name", user.getName(),
                 "email", user.getEmail(),
                 "schacHomeOrganization", user.getSchacHomeOrganization()
-        );
+        ) : Map.of();
     }
 
     @JsonIgnore

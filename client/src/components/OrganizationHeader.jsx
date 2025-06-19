@@ -2,13 +2,11 @@ import I18n from "../locale/I18n";
 import "./ApplicationConnectionHeader.scss"
 import {stopEvent} from "../utils/Utils.js";
 import MenuIcon from "../icons/menu.svg";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {deleteApplicationById, deleteOrganizationById, resetConnectionSecret} from "../api/index.js";
+import {deleteOrganizationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import InputField from "./InputField.jsx";
 
 export const OrganizationHeader = ({tabNames, organization, tab, setTab, setLoading}) => {
 
@@ -51,13 +49,13 @@ export const OrganizationHeader = ({tabNames, organization, tab, setTab, setLoad
         return (
             <div className="sds--user-info--dropdown">
                 <ul>
-                    <li>
-                        <PencilIcon/>
-                        <a href="/edit" onClick={e => menuLink(e, `/organisation/${application.id}`)}>
-                            {I18n.t(`forms.edit`)}
-                        </a>
-                    </li>
-                    <li>
+                    {/*<li>*/}
+                    {/*    <PencilIcon/>*/}
+                    {/*    <a href="/edit" onClick={e => menuLink(e, `/organisation/${application.id}`)}>*/}
+                    {/*        {I18n.t(`forms.edit`)}*/}
+                    {/*    </a>*/}
+                    {/*</li>*/}
+                    <li onClick={e => doDelete(e, true)}>
                         <TrashIcon/>
                         <a href="/delete" onClick={e => doDelete(e, true)}>
                             {I18n.t(`forms.delete`)}

@@ -165,5 +165,8 @@ export function getConnectionById(connectionId) {
     return fetchJson(`/api/v1/connections/${connectionId}`);
 }
 
+export function deleteConnectionById(connectionId) {
+    return fetchDelete(`/api/v1/connections/${connectionId}`);
+}
 
 

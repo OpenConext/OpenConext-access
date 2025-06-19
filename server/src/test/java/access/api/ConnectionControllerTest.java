@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConnectionControllerTest extends AbstractTest {
 
@@ -132,4 +132,25 @@ class ConnectionControllerTest extends AbstractTest {
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
         assertEquals(newSecret.get("secret"), connection.getMetaData().get("secret"));
     }
+
+    @Test
+    void delete() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long connectionId = seedIdentifiers.get(BUDDY_CHECK_TEST);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("connectionId", connectionId)
+                .delete("/api/v1/connections/{connectionId}")
+                .then()
+                .statusCode(200);
+
+        Optional<Connection> optionalConnection = connectionRepository.findById(connectionId);
+        assertFalse(optionalConnection.isPresent());
+    }
+
 }

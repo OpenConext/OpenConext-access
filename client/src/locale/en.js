@@ -217,6 +217,7 @@ const en = {
         addACSLocation: "+ Add ASC location",
         save: "Opslaan",
         saveAndNext: "Opslaan en volgende",
+        deleteConfirmation: "Are you sure you want to delete this connection?",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "De URL van een metadata-bestand opgeven",
@@ -230,9 +231,9 @@ const en = {
             errorParsed: "Error in parsing the metadata"
         },
         flash: {
-            deleted: "Deleted connnection {{name}}",
-            created: "Created connnection {{name}}",
-            updated: "Updated connnection {{name}}",
+            created: "Created connection {{name}}",
+            updated: "Updated connection {{name}}",
+            deleted: "Deleted connection {{name}}",
         },
         connections: {
             titleProd: "Koppelingen met de productieomgeving",
@@ -312,6 +313,7 @@ const en = {
             secretResetLink: "Reset your secret when needed.",
             secretResetDisclaimer: "Let op. Regenerating the secret will break your current connection.",
             secretResetTitle: "Reset your secret",
+            secretResetNew: "New secret",
             reset: "Reset my secret",
             resetContinue: "I’ve copied the secret. Continue"
         }

@@ -37,7 +37,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
         if (isEmpty(user) || user.organizationMemberships.length < 2) {
             return null;
         }
-        const organizations = user.organizationMemberships.map(om => om.organization);
+        const organizations = user.organizationMemberships.map(om => om.organizationInfo);
         return (
             <div className="organization-switch"
                  tabIndex={1}

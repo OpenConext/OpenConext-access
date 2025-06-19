@@ -51,13 +51,13 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
         return (
             <div className="sds--user-info--dropdown">
                 <ul>
-                    <li>
+                    <li onClick={e => menuLink(e, `/application/${application.id}`)}>
                         <PencilIcon/>
                         <a href="/edit" onClick={e => menuLink(e, `/application/${application.id}`)}>
                             {I18n.t(`forms.edit`)}
                         </a>
                     </li>
-                    <li>
+                    <li onClick={e => doDelete(e, true)}>
                         <TrashIcon/>
                         <a href="/delete" onClick={e => doDelete(e, true)}>
                             {I18n.t(`forms.delete`)}

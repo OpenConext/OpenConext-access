@@ -85,6 +85,15 @@ public class Application implements NameHolder{
         this.applicationMemberships.addAll(newApplicationMemberships);
     }
 
+    @JsonIgnore
+    public void removeConnection(Connection connection) {
+        //This is required by Hibernate - children can't be dereferenced
+        Set<Connection> newConnections = this.connections
+                .stream().filter(conn -> !conn.getId().equals(connection.getId())).collect(Collectors.toSet());
+        this.connections.clear();
+        this.connections.addAll(newConnections);
+    }
+
     public void merge(Application applicationData) {
         this.name = applicationData.name;
         this.metaData = applicationData.metaData;

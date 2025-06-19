@@ -32,7 +32,11 @@
 
                     &:hover {
                         background-color: var(--sds--color--gray--500);
+                        svg {
+                            color: white;
+                        }
                     }
+
                 }
             }
 

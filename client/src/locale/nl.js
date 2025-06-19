@@ -130,19 +130,23 @@ const nl = {
             safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         },
-        flash: "Application {{name}} saved."
+        flash: "Application {{name}} saved.",
+        deleteConfirmation: "Are you sure you want to delete the Application {{name}}?"
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
-        applications: "Applicatiebeheer",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
+        deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
         catalog: {
             terms: "Voorwaarden voor apps in de SURF catalogus",
             fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
             agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
             disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
-        }
+        },
+        applications: "Applications",
+        team: "My Team",
+        joins: "Join Requests"
     },
     connection: {
         overview: "Overview",
@@ -171,7 +175,11 @@ const nl = {
             contract: "Contract",
             disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
         },
+        productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         newConnection: "Nieuwe koppeling met de testomgeving",
+        existingConnection: "Testkoppeling bewerken",
+        newConnectionProd: "Nieuwe koppeling met de productieomgeving",
+        existingConnectionProd: "Productiekoppeling bewerken",
         copyConnection: "Kopieer info van andere koppeling",
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",
@@ -209,6 +217,7 @@ const nl = {
         addACSLocation: "+ Add ASC location",
         save: "Opslaan",
         saveAndNext: "Opslaan en volgende",
+        deleteConfirmation: "Are you sure you want to delete this connection?",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "De URL van een metadata-bestand opgeven",
@@ -222,9 +231,9 @@ const nl = {
             errorParsed: "Error in parsing the metadata"
         },
         flash: {
-            deleted: "Deleted connnection {{name}}",
-            created: "Created connnection {{name}}",
-            updated: "Updated connnection {{name}}",
+            created: "Created connection {{name}}",
+            updated: "Updated connection {{name}}",
+            deleted: "Deleted connection {{name}}",
         },
         connections: {
             titleProd: "Koppelingen met de productieomgeving",
@@ -298,7 +307,15 @@ const nl = {
             test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
-            secret: "Client secret"
+            secret: "Client secret",
+            authentication: "Authenticatie",
+            secretReset: "For security reasons your current secret can not be displayed.",
+            secretResetLink: "Reset your secret when needed.",
+            secretResetDisclaimer: "Let op. Regenerating the secret will break your current connection.",
+            secretResetTitle: "Reset your secret",
+            secretResetNew: "New secret",
+            reset: "Reset my secret",
+            resetContinue: "I’ve copied the secret. Continue"
         }
     },
     testing: {
@@ -315,7 +332,7 @@ const nl = {
         subTitle: "This action requires a confirmation",
         subTitleError: "An error has occurred",
         confirm: "Confirm",
-        ok: "OK",
+        ok: "Ok",
         cancel: "Cancel",
     },
     forms: {
@@ -339,6 +356,7 @@ const nl = {
         surfLink: "https://surf.nl",
         select_locale: "Select your preferred language"
     },
+
 }
 
 export default nl;

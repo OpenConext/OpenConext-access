@@ -23,6 +23,7 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {validUrlRegExp} from "../validations/regExps.js";
 import {
+    deleteConnectionById,
     getConnectionById,
     newConnection,
     parseMedaData,
@@ -286,11 +287,37 @@ export const Testing = ({
         }
     }
 
+    const doDeleteConnection = confirmationRequired => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                header: I18n.t("forms.delete"),
+                question: I18n.t("connection.deleteConfirmation"),
+                action: () => doDeleteConnection(false),
+                modal: null,
+                okButton: I18n.t("forms.delete")
+            });
+        } else {
+            setLoading(true);
+            deleteConnectionById(connection.id).then(() => {
+                refresh();
+                setConfirmation({open: false});
+                setLoading(false);
+                setFlash(I18n.t("connection.flash.deleted", {
+                    name: connection.name
+                }));
+            })
+        }
+    }
+
     const newClientSecret = (e, confirmationRequired) => {
         stopEvent(e);
         if (confirmationRequired) {
             setConfirmation({
                 open: true,
+                question: null,
+                header: I18n.t("connection.connectionOverview.secretResetTitle"),
                 cancel: () => setConfirmation({open: false}),
                 action: () => newClientSecret(null, false),
                 modal: modals.resetSecretDisclaimer,
@@ -302,7 +329,9 @@ export const Testing = ({
                 setConnection({...connection, secret: res.secret})
                 setConfirmation({
                     open: true,
+                    header: I18n.t("connection.connectionOverview.secretResetNew"),
                     cancel: null,
+                    question: null,
                     action: () => setConfirmation({open: false}),
                     modal: modals.resetSecret,
                     okButton: I18n.t("connection.connectionOverview.resetContinue")
@@ -847,26 +876,28 @@ export const Testing = ({
         const isComplete = connection.status === STATUSES.COMPLETE;
         const showOverviewButton = section === sections.overview;
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
-        const {open, cancel, action, modal, okButton} = confirmation;
+        const {open, cancel, action, modal, okButton, question, header} = confirmation;
         return <>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
-                                         confirmationHeader={I18n.t("connection.connectionOverview.secretResetTitle")}
+                                         confirmationHeader={header}
                                          confirmationTxt={okButton}
+                                         question={question}
                                          children={modal === modals.resetSecretDisclaimer ?
                                              <Alert alertType={AlertType.Error}
                                                     asChild={true}
                                                     message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
-                                             <div>
-                                                 <Alert alertType={AlertType.Warning}
-                                                        asChild={true}
-                                                        message={I18n.t("connection.connectionOverview.disclaimer")}/>
-                                                 <InputField name={I18n.t("connection.connectionOverview.secret")}
-                                                             value={connection.secret}
-                                                             disabled={true}
-                                                             copyClipBoard={true}/>
+                                             modal === modals.resetSecret ?
+                                                 <div>
+                                                     <Alert alertType={AlertType.Warning}
+                                                            asChild={true}
+                                                            message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                                                     <InputField name={I18n.t("connection.connectionOverview.secret")}
+                                                                 value={connection.secret}
+                                                                 disabled={true}
+                                                                 copyClipBoard={true}/>
 
-                                             </div>
+                                                 </div> : null
                                          }
             />}
             <div className="testing-header">
@@ -884,7 +915,8 @@ export const Testing = ({
                                 {application.connections
                                     .filter(conn => conn.id && conn.name !== connection.name)
                                     .map((conn, index) =>
-                                        <span key={index} onClick={() => alert("TODO. Copy from "+conn.name)}>{conn.name}</span>)}
+                                        <span key={index}
+                                              onClick={() => alert("TODO. Copy from " + conn.name)}>{conn.name}</span>)}
                             </section>}
                     </div>}
             </div>
@@ -904,6 +936,9 @@ export const Testing = ({
                         <Button txt={I18n.t("connection.callSurf")}
                                 type={ButtonType.Secondary}
                                 onClick={() => callSurf()}/>
+                    </div>
+                    <div className="delete-connection">
+                        <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
                     </div>
                 </section>
                 <section className="right">

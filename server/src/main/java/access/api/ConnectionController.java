@@ -135,6 +135,26 @@ public class ConnectionController implements UserAccessRights {
         return Collections.singletonMap("secret", secret);
     }
 
+    @DeleteMapping({"", "/{connectionId}"})
+    public ResponseEntity<Void> delete(User user, @PathVariable("connectionId") Long connectionId) {
+        LOG.debug("/delete connection by " + user.getEmail());
+
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Application application = connection.getApplication();
+        Organization organization = application.getOrganization();
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+
+        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+        application.removeConnection(connection);
+
+        connectionRepository.deleteById(connectionId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is COMPLETE
