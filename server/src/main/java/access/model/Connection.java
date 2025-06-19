@@ -54,6 +54,11 @@ public class Connection implements NameHolder {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
+    private State state = State.prodaccepted;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
     private Status status = Status.OPEN;
 
     @Column(name = "manage_identifier")

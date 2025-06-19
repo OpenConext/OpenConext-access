@@ -139,6 +139,7 @@ CREATE TABLE `connections`
     `protocol`          varchar(255) NOT NULL,
     `status`            varchar(255) NOT NULL,
     `environment`       varchar(255) NOT NULL,
+    `state`             varchar(255) NOT NULL,
     `manage_identifier` varchar(255) DEFAULT NULL,
     `manage_version`    bigint       DEFAULT NULL,
     `manage_eid`        bigint       DEFAULT NULL,
