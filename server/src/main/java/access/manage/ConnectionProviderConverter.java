@@ -37,6 +37,7 @@ public class ConnectionProviderConverter {
     public String convert(Connection connection) {
         Map<String, Object> context = objectMapper.convertValue(connection, typeRef);
         String organizationName = connection.getApplication().getOrganization().getName();
+        //TODO Logo, descriptions, Contact information, privacy information from the application metaData
         //Because of @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         context.put("organizationName", organizationName);
 

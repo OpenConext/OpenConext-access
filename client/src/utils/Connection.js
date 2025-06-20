@@ -66,7 +66,6 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
         motivations: motivations,
         profileMotivation: motivation
     }
-
 }
 
 export const generateOIDCClientID = () => {

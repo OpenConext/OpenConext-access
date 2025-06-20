@@ -18,6 +18,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("unchecked")
 class ManageControllerTest extends AbstractTest {
@@ -90,8 +91,51 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(3, identityProviders.size());
     }
 
+    @Test
+    void privacyInfo() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        List<Map<String, Object>> privacyInfo = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/privacy")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(7, privacyInfo.size());
+    }
+
+    @Test
+    void arpInfo() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        Map<String, Object> arpInfo = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/arp")
+                .as(new TypeRef<>() {
+                });
+        List<Map<String, Object>> profiles = (List<Map<String, Object>>) arpInfo.get("profiles");
+        List<Map<String, Object>> attributes = (List<Map<String, Object>>) arpInfo.get("attributes");
+        //Check if all the attributes and optionalAttributes in the profiles are present in the attribute list
+        boolean allAttributesPresent = profiles.stream().allMatch(profile -> {
+            List<String> profileAttributes = (List<String>) profile.get("attributes");
+            List<String> optionalAttributes = (List<String>) profile.get("optionalAttributes");
+            return profileAttributes.stream().allMatch(attribute -> attributePresent(attribute, attributes)) &&
+                    optionalAttributes.stream().allMatch(attribute -> attributePresent(attribute, attributes));
+        });
+        assertTrue(allAttributesPresent);
+    }
+
+    private boolean attributePresent(String attribute, List<Map<String, Object>> attributes) {
+        return attributes.stream().anyMatch(attr -> attr.get("name").equals(attribute));
+    }
+
     @SneakyThrows
-    protected void stubForIdentityProviders() {
+    private void stubForIdentityProviders() {
         List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))

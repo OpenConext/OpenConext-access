@@ -21,7 +21,7 @@ import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
-import {validUrlRegExp} from "../validations/regExps.js";
+import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
     getConnectionById,
@@ -131,6 +131,9 @@ export const Testing = ({
             const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
             const originalName = convertedConnection.name;
             convertedConnection.name = "";
+            //Filter out all unknown entityIDs
+            convertedConnection.allowedEntities = convertedConnection.allowedEntities
+                .filter(entityID => identityProviders.some(idp => idp.data.entityid === entityID));
             //This must also work for already persisted connections
             convertedConnection.id = connection.id;
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
@@ -224,10 +227,11 @@ export const Testing = ({
         setConnection({...connection, redirectUrls: newRedirectUrls});
         setInvalidRedirects({...invalidRedirects, [index.toString()]: false});
     }
+
     const redirectUrlValueBlurred = (e, index) => {
         const value = e.target.value;
         //Empty values are picked up the other validations
-        const valid = isEmpty(value.trim()) || validUrlRegExp.test(value);
+        const valid = isValidUrl(value.trim());
         setInvalidRedirects({...invalidRedirects, [index.toString()]: !valid});
         return true;
     }
@@ -262,7 +266,7 @@ export const Testing = ({
     const acsLocationValueBlurred = (e, index) => {
         const value = e.target.value;
         //Empty values are picked up the other validations
-        const valid = isEmpty(value.trim()) || validUrlRegExp.test(value);
+        const valid = isValidUrl(value.trim());
         setInvalidACSLocations({...invalidACSLocations, [index.toString()]: !valid});
         return true;
     }
@@ -679,6 +683,31 @@ export const Testing = ({
         );
     }
 
+    const renderVisibilitySection = () => {
+        const allowedEntities = connection.allowedEntities || [];
+        return (
+            <section className="inner-right-idp">
+                <h3>{I18n.t("connection.visibility")}</h3>
+                <p>{I18n.t("connection.visibilities.info")}</p>
+                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.institutionIdPsInfo"))}}/>
+                <SelectField
+                    options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
+                    value={allowedEntities
+                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
+                    isMulti={true}
+                    searchable={true}
+                    placeholder={I18n.t("connection.testIdPs.placeholder")}
+                    onChange={options => changeAllowedEntity(options)}
+                />
+                {(!initial && isEmpty(connection.allowedEntities)) &&
+                    <ErrorIndicator
+                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.testIdPs.institution")})}
+                    />}
+
+            </section>
+        );
+    }
+
     const overview = () => {
         return (
             <section className="inner-right-overview">
@@ -958,12 +987,13 @@ export const Testing = ({
             <div className="testing">
                 <section className="left">
                     <div className="status-menu">
-                        {Object.values(sections).filter(s => s !== sections.overview)
+                        {Object.values(sections)
+                            .filter(s => s !== sections.overview)
                             .map(sectionValue =>
                                 <StatusMenuItem key={sectionValue}
                                                 pending={isPending(sectionValue)}
                                                 action={() => changeSection(sectionValue)}
-                                                info={I18n.t(`connection.${sectionValue}`)}
+                                                info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
                                                 active={section === sectionValue}/>)}
                     </div>
                     <div className="call-for-action">

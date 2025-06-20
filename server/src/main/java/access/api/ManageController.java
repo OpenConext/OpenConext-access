@@ -6,9 +6,14 @@ import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
 import access.model.EntityType;
 import access.model.Environment;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -25,11 +30,33 @@ import java.util.Map;
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ManageController {
 
+    private static final Log LOG = LogFactory.getLog(ManageController.class);
+
     private final MetaDataFeedParser metaDataFeedParser = new MetaDataFeedParser();
     private final Manage manage;
+    private final Map<String, Object> arpInfo;
+    private final List<Map<String, Object>> privacyInfo;
 
-    public ManageController(Manage manage) {
+    @SneakyThrows
+    public ManageController(Manage manage,
+                            ObjectMapper objectMapper) {
         this.manage = manage;
+        this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
+        });
+        this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
+        });
+    }
+
+    @GetMapping("/arp")
+    public ResponseEntity<Map<String, Object>> arp() {
+        LOG.debug("/arp");
+        return ResponseEntity.ok(this.arpInfo);
+    }
+
+    @GetMapping("/privacy")
+    public ResponseEntity<List<Map<String, Object>>> privacy() {
+        LOG.debug("/privacy");
+        return ResponseEntity.ok(this.privacyInfo);
     }
 
     @SneakyThrows

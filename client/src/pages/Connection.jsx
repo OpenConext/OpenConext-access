@@ -6,10 +6,15 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
-import {arp, getApplicationById, getIdentityProviders} from "../api/index.js";
-import {convertServerConnectionToClient, generateOIDCClientID} from "../utils/Connection.js";
+import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
+import {
+    convertServerConnectionToClient,
+    generateOIDCClientID
+} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
 import {ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
+import {AppInformation} from "../connection/AppInformation.jsx";
+import {convertServerApplicationToClient} from "../utils/Application.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -26,14 +31,21 @@ export const Connection = () => {
 
     const [application, setApplication] = useState({});
     const [arpInfo, setArpInfo] = useState({profiles: [], attributes: []});
+    const [privacyInfo, setPrivacyInfo] = useState([]);
     const [profileOptions, setProfileOptions] = useState([]);
     const [tab, setTab] = useState("overview");
     const [connection, setConnection] = useState(null);
     const [identityProviders, setIdentityProviders] = useState([]);
+    const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([getApplicationById(applicationId), arp(), getIdentityProviders("TEST")])
+        Promise.all([
+            getApplicationById(applicationId),
+            arp(),
+            privacy(),
+            getIdentityProviders(ENVIRONMENTS.TEST),
+            getIdentityProviders(ENVIRONMENTS.PROD)])
             .then(res => {
                 //For convenience editing
                 const options = res[1].profiles.map(profile => ({
@@ -46,9 +58,11 @@ export const Connection = () => {
                 }));
                 res[0].connections = (res[0].connections || [])
                     .map(conn => convertServerConnectionToClient(conn, protocolOptions, options, res[1]));
-                setApplication(res[0]);
+                setApplication(convertServerApplicationToClient(res[0]));
                 setArpInfo(res[1]);
-                setIdentityProviders(res[2]);
+                setPrivacyInfo(res[2])
+                setIdentityProviders(res[3]);
+                setProdIdentityProviders(res[4]);
                 setProfileOptions(options)
                 setLoading(false);
                 useAppStore.setState({
@@ -90,7 +104,7 @@ export const Connection = () => {
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid)
         });
-        setTab(environment === ENVIRONMENTS.TEST ? "testing": "prod");
+        setTab(environment === ENVIRONMENTS.TEST ? "testing" : "prod");
     }
 
     const changeTab = newTab => {
@@ -107,7 +121,9 @@ export const Connection = () => {
                 return <Overview application={application}
                                  user={user}
                                  initConnection={initConnection}
-                                 setTab={setTab}/>
+                                 setTab={setTab}
+                                 privacyInfo={privacyInfo}
+                />
             }
             case  "testing": {
                 return <Testing application={application}
@@ -131,12 +147,16 @@ export const Connection = () => {
                                 protocolOptions={protocolOptions}
                                 arpInfo={arpInfo}
                                 profileOptions={profileOptions}
-                                identityProviders={identityProviders}
+                                identityProviders={prodIdentityProviders}
                                 isProduction={true}
                 />
             }
             case "application": {
-                return <span>application</span>
+                return <AppInformation application={application}
+                                       setApplication={setApplication}
+                                       refresh={refresh}
+                                       privacyInfo={privacyInfo}
+                />
             }
             case "contract": {
                 return <span>contract</span>

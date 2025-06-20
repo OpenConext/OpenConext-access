@@ -67,10 +67,6 @@ export function csrf() {
     return fetchJson("/api/v1/csrf", {}, {}, false);
 }
 
-export function arp() {
-    return fetchJson("/api/v1/users/arp", {}, {}, false);
-}
-
 //Users
 export function me() {
     return fetchJson("/api/v1/users/me");
@@ -147,6 +143,15 @@ export function parseMedaDataUrl(url) {
 export function getIdentityProviders(environment) {
     return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
 }
+
+export function arp() {
+    return fetchJson("/api/v1/manage/arp", {}, {}, false);
+}
+
+export function privacy() {
+    return fetchJson("/api/v1/manage/privacy", {}, {}, false);
+}
+
 
 //Connections
 export function newConnection(connection) {

@@ -51,18 +51,14 @@ public class UserController {
     private final Config config;
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
-    private final Map<String, Object> arpInfo;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository,
-                          ObjectMapper objectMapper) throws IOException {
+                          OrganizationRepository organizationRepository) throws IOException {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
-        this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
-        });
     }
 
     @GetMapping("config")
@@ -77,12 +73,6 @@ public class UserController {
             verifyMissingAttributes(user, result, guest);
         }
         return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/arp")
-    public ResponseEntity<Map<String, Object>> arp() {
-        LOG.debug("/arp");
-        return ResponseEntity.ok(this.arpInfo);
     }
 
     @GetMapping("login")

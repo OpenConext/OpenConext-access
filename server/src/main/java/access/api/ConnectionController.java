@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -165,6 +166,16 @@ public class ConnectionController implements UserAccessRights {
             Map<String, Object> data = (Map<String, Object>) provider.get("data");
             connection.setManageEid((Integer) data.get("eid"));
             connection.setState(State.valueOf((String) data.get("state")));
+
+            List<Map<String, Object>> contactPersons = (List<Map<String, Object>>) connection.getMetaData().get("contactPersons");
+            if (!CollectionUtils.isEmpty(contactPersons)) {
+                Application application = connection.getApplication();
+                application.getMetaData().put("contactPersons", contactPersons);
+                applicationRepository.save(application);
+                //No need to store redundant
+                connection.getMetaData().remove("contactPersons");
+            }
+
         }
         return connectionRepository.save(connection);
     }

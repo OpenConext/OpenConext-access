@@ -5,13 +5,18 @@ import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
 import {StatusLink} from "../components/StatusLink.jsx";
 import {ENVIRONMENTS, STATUSES} from "../utils/Manage.js";
+import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
 
 
-export const Overview = ({user, application, setTab, initConnection}) => {
+export const Overview = ({user, application, setTab, initConnection, privacyInfo}) => {
 
     const [alertClosed, setAlertClosed] = useState(false);
 
-    const {testConnectionComplete, productionConnectionComplete, appInformationComplete} =
+    const {
+        testConnectionComplete,
+        productionConnectionComplete,
+        appInformationComplete
+    } =
         useMemo(() => ({
             testConnectionComplete: !isEmpty(application.connections) &&
                 application.connections
@@ -21,7 +26,7 @@ export const Overview = ({user, application, setTab, initConnection}) => {
                 application.connections
                     .filter(conn => conn.environment === ENVIRONMENTS.PROD)
                     .some(conn => conn.status === STATUSES.COMPLETE),
-            appInformationComplete: !isEmpty(application.logoUrl)
+            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacyInfo, application)
         }), []);
 
     const alertInfo = () => {
@@ -42,6 +47,14 @@ export const Overview = ({user, application, setTab, initConnection}) => {
                        alertType={AlertType.Info}
                        asChild={true}
                        message={I18n.t("connection.productionConnectionHint")}/>
+            )
+        }
+        if (productionConnectionComplete && !appInformationComplete) {
+            return (
+                <Alert close={() => setAlertClosed(true)}
+                       alertType={AlertType.Warning}
+                       asChild={true}
+                       message={I18n.t("connection.applicationInformationHint")}/>
             )
         }
 

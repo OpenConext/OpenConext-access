@@ -1,0 +1,67 @@
+[
+  {
+    "name": "what_data",
+    "info_en": "1. What (kind of) data is processed?",
+    "info_nl": "1. What (kind of) data is processed?",
+    "tooltip_en": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
+    "tooltip_nl": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
+    "required": true
+  },
+  {
+    "name": "access_data",
+    "info_en": "2. Who can access the data?",
+    "info_nl": "2. Who can access the data?",
+    "tooltip_en": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
+    "tooltip_nl": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
+    "required": true
+  },
+  {
+    "name": "country",
+    "info_en": "3. In what country is the data stored?",
+    "info_nl": "3. In what country is the data stored?",
+    "tooltip_en": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
+    "tooltip_nl": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
+    "required": true
+  },
+  {
+    "name": "security_measures",
+    "info_en": "4. What security measures have you taken?",
+    "info_nl": "4. What security measures have you taken?",
+    "tooltip_en": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
+    "tooltip_nl": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
+    "required": false
+  },
+  {
+    "name": "dpa_type",
+    "info_en": "5. What data processing agreement (DPA) type applies?",
+    "info_nl": "5. What data processing agreement (DPA) type applies?",
+    "tooltip_en": "",
+    "tooltip_nl": "",
+    "enum": [
+      "dpa_not_applicable",
+      "dpa_in_surf_agreement",
+      "dpa_model_surf",
+      "dpa_supplied_by_service",
+      "other"
+    ],
+    "default": "dpa_supplied_by_service",
+    "required": true
+  },
+  {
+    "name": "privacy_policy_url",
+    "format": "url",
+    "info_en": "6. Privacy statement URL",
+    "info_nl": "6. Privacy statement URL",
+    "tooltip_en": "",
+    "tooltip_nl": "",
+    "required": true
+  },
+  {
+    "name": "other_info",
+    "info_en": "8. Other data privacy and security information",
+    "info_nl": "8. Other data privacy and security information",
+    "tooltip_en": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
+    "tooltip_nl": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
+    "required": false
+  }
+]
