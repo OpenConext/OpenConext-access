@@ -1,0 +1,11 @@
+@use "../styles/mixins" as *;
+@use "../index";
+
+$width-percentage: 75%;
+
+.app-information {
+    background-color: white;
+    padding: 25px 50px;
+
+
+}
