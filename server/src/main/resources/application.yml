@@ -115,18 +115,20 @@ manage:
   #  url: "http://localhost:8081"
     user: access
     password: secret
+    defaultState: prodaccepted
   prod:
     url: "https://manage.test2.surfconext.nl"
     #  url: "http://localhost:8081"
     user: access
     password: secret
+    defaultState: testaccepted
   # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
   # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 s3storage:
-  url: http://127.0.0.1:9000
+  url: http:/localhost:9000
   key: "minioadmin"
   secret: "minioadmin"
   bucket: "s3-images"

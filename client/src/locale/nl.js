@@ -69,7 +69,11 @@ const nl = {
         greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         searchPlaceholder: "Search for organizations...",
-        organizationMembers: "{{nbr}} users. Request access.",
+        organizationMembers: "{{memberCount}} {{user}} and {{applicationCount}} {{application}}. Request access.",
+        user: "user",
+        users: "users",
+        application: "application",
+        applications: "applications",
         zeroState: "No organizations found",
         register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
         flash: "Created organization {{name}}."
@@ -157,10 +161,12 @@ const nl = {
         welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
         testSection: "Test",
         teamSection: "Team",
+        duplicatedName: "A connection with name {{name}} already exists for this Application.",
         test: {
             name: "Test",
             connections: "Koppelingen met onze testomgeving",
-            info: "Test of federatief inloggen werkt via onze testomgeving."
+            info: "Test of federatief inloggen werkt via onze testomgeving.",
+
         },
         team: {
             name: "Teams",
@@ -176,6 +182,7 @@ const nl = {
             disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
+        applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",
         newConnection: "Nieuwe koppeling met de testomgeving",
         existingConnection: "Testkoppeling bewerken",
         newConnectionProd: "Nieuwe koppeling met de productieomgeving",
@@ -184,6 +191,7 @@ const nl = {
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",
         testIdP: "Test-IdP's",
+        visibility: "Visibility",
         help: "Hulp nodig?",
         callSurf: "Plan een call met SURF",
         mailToSurf: "mailto:surf@info.nl",
@@ -234,6 +242,7 @@ const nl = {
             created: "Created connection {{name}}",
             updated: "Updated connection {{name}}",
             deleted: "Deleted connection {{name}}",
+            copied: "Copied connection data from {{name}}"
         },
         connections: {
             titleProd: "Koppelingen met de productieomgeving",
@@ -301,6 +310,12 @@ const nl = {
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "test IdP or institution IdP"
         },
+        visibilities: {
+            info: "Kies met welke IdP’s je wilt koppelen.",
+            institutionIdPsInfo: "<strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
+            placeholder: "Selecteer één of meerdere instellingen",
+            institution: "Institution IdP"
+        },
         connectionOverview: {
             copy: "Kopieer de inloggegevens",
             disclaimer: "Het client secret wordt hieronder éénmaal weergegeven. Zorg ervoor dat je het nu kopieert, anders moet er een nieuw seceret aangevraagd worden.",
@@ -316,7 +331,31 @@ const nl = {
             secretResetNew: "New secret",
             reset: "Reset my secret",
             resetContinue: "I’ve copied the secret. Continue"
-        }
+        },
+        appInfo: {
+            title: "App informatie voor de SURF App catalogus",
+            label: "App informatie",
+            sections: {
+                logo: "Logo en beschrijving",
+                contact: "Contactgegevens",
+                privacy:"Privacy & Security "
+            },
+            descriptionEn : "Beschrijving in het Engels",
+            descriptionNl : "Beschrijving in het Nederlands",
+            webSite: "Website",
+            tags: "Tag je applicatie",
+            tagPlaceholder: "Maximaal 3 tags",
+            tagInfo: "In de appstore kunnen instellingen hierop filteren"
+        },
+        logo: {
+            name: "logo",
+            add: "Add a logo",
+            edit: "Change logo",
+            disclaimers: [
+                "png, jpg or gif",
+                "min 100 * 100 pixels"
+            ]
+        },
     },
     testing: {
         newConnection: "New connection",
@@ -324,7 +363,9 @@ const nl = {
         status: "Status",
         protocol: "Protocol",
         details: "Details",
-        zeroState: "Application <strong>{{name}}</strong> has not connections yet."
+        zeroState: "Application <strong>{{name}}</strong> has no {{type}} connections yet.",
+        production: "production",
+        test: "test"
     },
     confirmationDialog: {
         title: "Confirm",

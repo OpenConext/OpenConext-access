@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static access.manage.MapSorter.toSortedTreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConnectionProviderConverterTest extends AbstractTest {
@@ -29,8 +30,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource("/manage/oidc10_rp.expected.json").getInputStream()), new TypeReference<>() {
         });
-//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(new TreeMap<>(expected)));
-//        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(new TreeMap<>(map)));
+        MapDiffer.printDifferences(toSortedTreeMap(expected), toSortedTreeMap(map));
         assertEquals(expected, map);
     }
 

@@ -86,6 +86,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+        System.setProperty("testcontainers.ryuk.disabled", "true");
+    }
+
     //Users
     public static final String ADMIN_SUB = "urn:collab:person:example.com:admin";
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
@@ -105,10 +111,6 @@ public abstract class AbstractTest {
     public static final String BUDDY_CHECK_PROD = "BuddyCheck-Prod";
     //Invitations
     public static final String SHARE_LOGICS_INVITATION_HASH = HashGenerator.generateRandomHash();
-
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -161,7 +163,8 @@ public abstract class AbstractTest {
             this.doSeed();
         }
         if (this.localManage == null) {
-            this.localManage = new LocalManage(new ConnectionProviderConverter(objectMapper), objectMapper, staticManageDirectory);
+            ConnectionProviderConverter converter = new ConnectionProviderConverter(objectMapper, State.testaccepted, State.prodaccepted);
+            this.localManage = new LocalManage(converter, objectMapper, staticManageDirectory);
         }
     }
 

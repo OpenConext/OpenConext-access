@@ -1,8 +1,6 @@
 package access.manage;
 
-import access.model.Application;
-import access.model.Connection;
-import access.model.EntityType;
+import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.jinjava.Jinjava;
@@ -23,15 +21,20 @@ public class ConnectionProviderConverter {
     private final ObjectMapper objectMapper;
     private final Jinjava jinJava;
     private final String template;
+    private final State defaultTestState;
+    private final State defaultProdState;
+
     private final TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {
     };
 
     @SneakyThrows
-    public ConnectionProviderConverter(ObjectMapper objectMapper) {
+    public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultTestState, State defaultProdState) {
         this.objectMapper = objectMapper;
         this.jinJava = new Jinjava();
         this.jinJava.registerFilter(new JsonObjectFilter(objectMapper));
         this.template = readTemplate();
+        this.defaultTestState = defaultTestState;
+        this.defaultProdState = defaultProdState;
     }
 
     public String convert(Connection connection) {
@@ -40,7 +43,7 @@ public class ConnectionProviderConverter {
         //TODO Logo, descriptions, Contact information, privacy information from the application metaData
         //Because of @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         context.put("organizationName", organizationName);
-
+        context.put("state", connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState);
         return this.jinJava.render(template, context);
     }
 

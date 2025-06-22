@@ -2,6 +2,7 @@ package access.manage;
 
 
 import access.model.Environment;
+import access.model.State;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +31,11 @@ public class ManageConf {
     }
 
     @Bean
-    public ConnectionProviderConverter connectionProviderConverter(ObjectMapper objectMapper) {
-        return new ConnectionProviderConverter(objectMapper);
+    public ConnectionProviderConverter connectionProviderConverter(
+            @Value("${manage.test.defaultState}") State defaultTestState,
+            @Value("${manage.prod.defaultState}") State defaultProdState,
+            ObjectMapper objectMapper) {
+        return new ConnectionProviderConverter(objectMapper, defaultTestState, defaultProdState);
     }
 
 }

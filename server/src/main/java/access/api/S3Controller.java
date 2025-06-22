@@ -52,7 +52,7 @@ public class S3Controller {
         this.s3Client = S3Client.builder()
                 .endpointOverride(new URI(s3URL))
 //                .region(Region.US_EAST_1)
-                .serviceConfiguration(e -> e.pathStyleAccessEnabled(false))
+                .forcePathStyle(true)
                 .overrideConfiguration(c -> {
                     c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
                             AwsS3V4Signer.create());

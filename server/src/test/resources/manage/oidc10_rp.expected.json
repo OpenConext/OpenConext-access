@@ -5,7 +5,7 @@
   "data": {
     "eid": 99,
     "entityid": "https://engine.test",
-    "state": "testaccepted",
+    "state": "prodaccepted",
     "allowedall": false,
     "allowedEntities": [
       {"name": "http://mock-idp"},
