@@ -15,6 +15,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.auth.signer.AwsS3V4Signer;
 import software.amazon.awssdk.core.client.config.SdkAdvancedClientOption;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
@@ -51,7 +52,7 @@ public class S3Controller {
 
         this.s3Client = S3Client.builder()
                 .endpointOverride(new URI(s3URL))
-//                .region(Region.US_EAST_1)
+                .region(Region.US_EAST_1)
                 .forcePathStyle(true)
                 .overrideConfiguration(c -> {
                     c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
