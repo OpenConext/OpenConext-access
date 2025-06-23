@@ -144,6 +144,10 @@ export function getIdentityProviders(environment) {
     return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
 }
 
+export function providersByEntityId(environment, entityID) {
+    return postPutJson(`/api/v1/manage/providers-by-entityid/${environment}`, {entityID: entityID},"POST");
+}
+
 export function arp() {
     return fetchJson("/api/v1/manage/arp", {}, {}, false);
 }

@@ -1,18 +1,15 @@
 import "./ApplicationConnection.scss";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
-import {
-    convertServerConnectionToClient,
-    generateOIDCClientID
-} from "../utils/Connection.js";
+import {convertServerConnectionToClient} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
-import {ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
+import {ENVIRONMENTS, PROTOCOLS, STATUSES} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 
@@ -24,20 +21,20 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 }));
 
 export const Connection = () => {
-
+    const {applicationId, tab = "overview"} = useParams();
     const {user, currentOrganization} = useAppStore(state => state);
-
-    const {applicationId, id} = useParams();
 
     const [application, setApplication] = useState({});
     const [arpInfo, setArpInfo] = useState({profiles: [], attributes: []});
     const [privacyInfo, setPrivacyInfo] = useState([]);
     const [profileOptions, setProfileOptions] = useState([]);
-    const [tab, setTab] = useState("overview");
+    const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
     const [identityProviders, setIdentityProviders] = useState([]);
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         Promise.all([
@@ -63,7 +60,8 @@ export const Connection = () => {
                 setPrivacyInfo(res[2])
                 setIdentityProviders(res[3]);
                 setProdIdentityProviders(res[4]);
-                setProfileOptions(options)
+                setProfileOptions(options);
+                changeTab(currentTab);
                 setLoading(false);
                 useAppStore.setState({
                     breadcrumbPath: [
@@ -74,7 +72,7 @@ export const Connection = () => {
                     ]
                 });
             })
-    }, [id]);
+    }, []);
 
     const refresh = () => {
         getApplicationById(applicationId)
@@ -94,34 +92,36 @@ export const Connection = () => {
             protocol: protocolOptions[0],
             grantTypes: ["authorization_code"],
             pkce: false,
-            entityID: generateOIDCClientID(application),
+            entityID: "",
             redirectUrls: [""],
             acsLocations: null,
             metaData: {},
+            status: STATUSES.OPEN,
             motivations: {},
             additionalAttributes: [],
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid)
         });
-        setTab(environment === ENVIRONMENTS.TEST ? "testing" : "prod");
+        changeTab(environment === ENVIRONMENTS.TEST ? "testing" : "prod");
     }
 
     const changeTab = newTab => {
-        if (tab === "testing") {
+        if (currentTab === "testing") {
             //force the overview
             setConnection(null);
         }
-        setTab(newTab);
+        setCurrentTab(newTab);
+        navigate(`/connection/${applicationId}/${newTab}`);
     }
 
     const renderCurrentTab = () => {
-        switch (tab) {
+        switch (currentTab) {
             case "overview": {
                 return <Overview application={application}
                                  user={user}
                                  initConnection={initConnection}
-                                 setTab={setTab}
+                                 setTab={changeTab}
                                  privacyInfo={privacyInfo}
                 />
             }
@@ -162,7 +162,7 @@ export const Connection = () => {
                 return <span>contract</span>
             }
             default:
-                throw new Error(`Unknown tab; ${tab}`)
+                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
     if (loading) {
@@ -173,7 +173,7 @@ export const Connection = () => {
         <div className="application-connection-container">
             <ApplicationConnectionHeader tabNames={tabNames}
                                          application={application}
-                                         tab={tab}
+                                         tab={currentTab}
                                          setLoading={setLoading}
                                          setTab={changeTab}/>
             {renderCurrentTab()}

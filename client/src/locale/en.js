@@ -162,6 +162,7 @@ const en = {
         testSection: "Test",
         teamSection: "Team",
         duplicatedName: "A connection with name {{name}} already exists for this Application.",
+        duplicateEntityID: "A connection with entityID {{entityID}} already exists",
         test: {
             name: "Test",
             connections: "Koppelingen met onze testomgeving",
@@ -250,7 +251,7 @@ const en = {
             name: "Name",
             created: "Added at",
             status: "Status",
-            open: "open",
+            open: "Open",
             complete: "Completed",
             protocol: "Protocol",
             details: "Details"
@@ -312,7 +313,7 @@ const en = {
         },
         visibilities: {
             info: "Kies met welke IdP’s je wilt koppelen.",
-            institutionIdPsInfo: "<strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
+            institutionIdPsInfo: "<strong>Let wel op<strong/>: voordat we je koppeling definitief maken voor ptoductie gebruik, kijken we naar de gekozen IdP's",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -351,9 +352,11 @@ const en = {
             name: "logo",
             add: "Add a logo",
             edit: "Change logo",
+            imageToLarge: "Image is larger then 2MB.",
             disclaimers: [
                 "png, jpg or gif",
-                "min 100 * 100 pixels"
+                "min 100 * 100 pixels",
+                "max 2MB.",
             ]
         },
     },

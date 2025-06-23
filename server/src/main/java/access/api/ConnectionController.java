@@ -89,6 +89,7 @@ public class ConnectionController implements UserAccessRights {
         confirmApplicationMembership(user, application.getOrganization(), application, Authority.MEMBER);
 
         connection.setCreatedAt(Instant.now());
+        connection.setApplication(application);
         connection = saveConnection(connection);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
@@ -108,13 +109,6 @@ public class ConnectionController implements UserAccessRights {
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         connection.merge(connectionData);
-        if (connection.getStatus() == Status.COMPLETE &&
-                connection.getProtocol().equals(EntityType.oidc10_rp) &&
-                !StringUtils.hasText((String) connection.getMetaData().get("secret"))) {
-            //generate secret, but store the raw-text variant, because Manage encodes it
-            String secret = passwordGenerator.generatePassword(36, rules);
-            connection.getMetaData().put("secret", secret);
-        }
         connection = saveConnection(connection);
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
@@ -160,6 +154,14 @@ public class ConnectionController implements UserAccessRights {
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is COMPLETE
         if (connection.getStatus().equals(Status.COMPLETE)) {
+            if (connection.getProtocol().equals(EntityType.oidc10_rp) &&
+                    !StringUtils.hasText((String) connection.getMetaData().get("secret")) &&
+                    connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE) {
+                //generate secret, but store the raw-text variant, because Manage encodes it
+                String secret = passwordGenerator.generatePassword(36, rules);
+                connection.getMetaData().put("secret", secret);
+            }
+
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.setManageIdentifier((String) provider.get("id"));
             connection.setManageVersion((Integer) provider.get("version"));

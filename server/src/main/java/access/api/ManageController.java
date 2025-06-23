@@ -86,4 +86,13 @@ public class ManageController {
         return ResponseEntity.ok(providers);
     }
 
+    @SneakyThrows
+    @PostMapping("/providers-by-entityid/{environment}")
+    public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@PathVariable("environment") Environment environment,
+                                                                         @RequestBody Map<String, String> data) {
+        String entityID = data.get("entityID");
+        //It does not matter which entityType we use, all services will be queried
+        List<Map<String, Object>> providers = manage.providersByEntityID(environment, EntityType.saml20_sp, entityID);
+        return ResponseEntity.ok(providers);
+    }
 }

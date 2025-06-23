@@ -114,7 +114,7 @@ const App = () => {
                             <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
-                            <Route path="/connection/:applicationId/:id?" element={<Connection/>}/>
+                            <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

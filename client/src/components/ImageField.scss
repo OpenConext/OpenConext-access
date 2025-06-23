@@ -1,3 +1,37 @@
-.image-field {
+.image-field-container {
+    display: flex;
+    gap: 20px;
+
+    .image-field {
+        border-radius: 6px;
+        border: 1px solid var(--sds--color--gray--200);
+        padding: 25px;
+
+        svg, img {
+            width: 90px;
+            height: auto;
+        }
+
+    }
+
+    .edit-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        ul {
+            list-style: initial;
+
+            li {
+                margin-left: 15px;
+                color: var(--sds--color--gray--400);
+                font-size: smaller;
+            }
+        }
+    }
+
+    input[type="file"] {
+        display: none;
+    }
 
 }

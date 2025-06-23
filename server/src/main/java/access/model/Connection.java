@@ -88,7 +88,7 @@ public class Connection implements NameHolder {
             return false;
         }
         String entityID = (String) metaData.get("entityID");
-        if (!StringUtils.hasText(entityID)) {
+        if (!StringUtils.hasText(entityID) && EntityType.saml20_sp.equals(this.protocol)) {
             return false;
         }
         String protocolName = this.protocol.name();

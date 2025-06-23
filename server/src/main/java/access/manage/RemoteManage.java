@@ -118,6 +118,14 @@ public class RemoteManage implements Manage {
                 connection.getManageIdentifier());
     }
 
+    @Override
+    public List<Map<String, Object>> providersByEntityID(Environment environment,  EntityType entityType, String entityID) {
+        RestTemplate restTemplate = environmentRestTemplate(environment);
+        String url = environmentUrl(environment);
+        String queryUrl = String.format("%s/manage/api/internal/uniqueEntityId/%s", url, entityType.name());
+        return restTemplate.postForEntity(queryUrl, Map.of("entityid", entityID),List.class).getBody();
+    }
+
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
         Map<String, Object> baseQuery = getBaseQuery(allAttributes);
         String url = String.format("%s/manage/api/internal/search/%s", environmentUrl(environment), type);

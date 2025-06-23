@@ -7,8 +7,20 @@
     background-color: white;
     cursor: pointer;
 
+    &:hover {
+        background-color: var(--sds--color--green--100);
+    }
+
     &.active {
-        background-color: #f2f5f7;
+        cursor: initial;
+        background-color: var(--sds--color--gray--100);
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        &:hover:not(.active) {
+            background-color: white;
+        }
     }
 
     svg {

@@ -10,7 +10,7 @@ import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {updateApplication} from "../api/index.js";
 import {
     contactSectionValid,
-    convertClientApplicationToServer,
+    convertClientApplicationToServer, convertServerApplicationToClient,
     logoSectionValid,
     privacySectionValid
 } from "../utils/Application.js";
@@ -21,7 +21,7 @@ const sections = {
     logo: "logo",
     contact: "contact",
     privacy: "privacy",
-    overview: "Overview"
+    overview: "overview"
 }
 
 export const AppInformation = ({
@@ -53,6 +53,13 @@ export const AppInformation = ({
         }
     }
 
+    const isDisabled = sectionName => {
+        const validCurrentSection = section === sections.logo ? logoSectionValid() :
+            section === sections.contact ? contactSectionValid() : privacySectionValid();
+        const sectionIsCurrent = sectionName === section;
+        return !validCurrentSection && !sectionIsCurrent
+    }
+
     const storeAndNextDisabled = () => {
         if (initial) {
             return false;
@@ -68,7 +75,6 @@ export const AppInformation = ({
                 return !privacySectionValid(privacyInfo, application)
             }
         }
-
     }
 
     const storeAndNext = () => {
@@ -102,34 +108,58 @@ export const AppInformation = ({
         setSection(sections.logo);
     }
 
+    const updateApplicationAttribute = (container, attribute, value) => {
+        const newApplication = {...application, [container]: {...application[container], [attribute]: value}};
+        setApplication(newApplication);
+    }
+
     const renderLogoSection = () => {
         return (
-            <>
-                <h3>{I18n.t("connection.technical")}</h3>
+            <section className="inner-right">
+                <h3>{I18n.t("connection.appInfo.label")}</h3>
 
-                <ImageField image={application.information.imageURL || ""}
-                            onChange={imageURL => setApplication({...application, information: {...application.information}, logo: imageURL})}
+                <ImageField imageSource={application.information.imageURL || ""}
+                            onChange={imageURL => updateApplicationAttribute("information", "imageURL", imageURL)}
                 />
-                <InputField value={connection.name || ""}
-                            onChange={e => setConnection({...connection, name: e.target.value})}
-                            name={I18n.t("connection.connectionName")}
+
+                <InputField value={application.information.descriptionEN || ""}
+                            onChange={e => updateApplicationAttribute("information", "descriptionEN", e.target.value)}
+                            name={I18n.t("connection.appInfo.descriptionEn")}
                             required={true}
-                            placeholder={I18n.t("connection.connectionPlaceholder",
-                                {
-                                    application: application.name,
-                                    environment: connection.environment.toUpperCase()
-                                })}
+                            multiline={true}
                 />
-                {(!initial && isEmpty(connection.name)) &&
-                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.connectionName")})}
+                {(!initial && isEmpty(application.information.descriptionNL)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionEn")})}
                                     adjustMargin={true}/>}
-            </>
+
+                <InputField value={application.information.descriptionNL || ""}
+                            onChange={e => updateApplicationAttribute("information", "descriptionNL", e.target.value)}
+                            name={I18n.t("connection.appInfo.descriptionNl")}
+                            required={true}
+                            multiline={true}
+                />
+                {(!initial && isEmpty(application.information.descriptionNL)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionNl")})}
+                                    adjustMargin={true}/>}
+            </section>
         );
     }
 
     const changeSection = sectionName => {
         setSection(sectionName);
     }
+
+    const renderContactSection = () => {
+        return (
+            <span>TODO</span>
+        );
+    };
+
+    const renderPrivacySection = () => {
+        return (
+            <span>TODO</span>
+        );
+    };
 
     const renderSection = () => {
         switch (section) {
@@ -146,42 +176,46 @@ export const AppInformation = ({
     }
 
     return (
-        <div className="app-information">
+        <div className="app-information-container">
             <div className="app-header">
                 <h2>{I18n.t("connection.appInfo.title")}</h2>
             </div>
-            <section className="left">
-                <div className="status-menu">
-                    {Object.values(sections)
-                        .map(sectionValue =>
-                            <StatusMenuItem key={sectionValue}
-                                            pending={isPending(sectionValue)}
-                                            action={() => changeSection(sectionValue)}
-                                            info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
-                                            active={section === sectionValue}/>)}
-                </div>
-            </section>
-            <section className="right">
-                {renderSection()}
-                <div className={`actions ${section === sections.overview ? "orphan" : ""}`}>
-                    {section !== sections.overview &&
-                        <>
-                            <Button txt={I18n.t("forms.backToOverview")}
+            <div className="app-information">
+                <section className="left">
+                    <div className="status-menu">
+                        {Object.values(sections)
+                            .filter(sectionValue => sectionValue !== sections.overview)
+                            .map(sectionValue =>
+                                <StatusMenuItem key={sectionValue}
+                                                pending={isPending(sectionValue)}
+                                                disabled={isDisabled(sectionValue)}
+                                                action={() => changeSection(sectionValue)}
+                                                info={I18n.t(`connection.appInfo.sections.${sectionValue}`)}
+                                                active={section === sectionValue}/>)}
+                    </div>
+                </section>
+                <section className="right">
+                    {renderSection()}
+                    <div className={`actions ${section === sections.overview ? "orphan" : ""}`}>
+                        {section !== sections.overview &&
+                            <>
+                                <Button txt={I18n.t("forms.backToOverview")}
+                                        type={ButtonType.Secondary}
+                                        onClick={backToConnections}/>
+                                <Button txt={I18n.t("connection.saveAndNext")}
+                                        disabled={storeAndNextDisabled()}
+                                        onClick={() => storeAndNext()}/>
+                            </>
+                        }
+                        {section === sections.overview &&
+                            <Button txt={I18n.t("forms.overview")}
                                     type={ButtonType.Secondary}
-                                    onClick={backToConnections}/>
-                            <Button txt={I18n.t("connection.saveAndNext")}
-                                    disabled={!valid}
-                                    onClick={() => storeAndNext(lastSection)}/>
-                        </>
-                    }
-                    {section !== sections.overview &&
-                        <Button txt={I18n.t("forms.overview")}
-                                type={ButtonType.Secondary}
-                                icon={<ArrowRight/>}
-                                onClick={() => backToConnections()}/>
-                    }
-                </div>
-            </section>
+                                    icon={<ArrowRight/>}
+                                    onClick={() => backToConnections()}/>
+                        }
+                    </div>
+                </section>
+            </div>
         </div>
     );
 }

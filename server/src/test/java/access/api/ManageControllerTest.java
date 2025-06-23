@@ -91,6 +91,31 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(3, identityProviders.size());
     }
 
+    @SneakyThrows
+    @Test
+    void providersByEntityId() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        String entityID = "https://network";
+        List<Map<String, Object>> providers = localManage.providersByEntityID(Environment.TEST, EntityType.saml20_idp, entityID);
+        String body = objectMapper.writeValueAsString(providers);
+        stubFor(post(urlPathMatching("/manage/api/internal/uniqueEntityId/saml20_sp"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+        List<Map<String, Object>> serviceProviders = given()
+                .when()
+                .header(csrfHeader(accessCookieFilter))
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("environment", Environment.TEST)
+                .body(Map.of("entityID", entityID))
+                .post("/api/v1/manage/providers-by-entityid/{environment}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, serviceProviders.size());
+    }
+
     @Test
     void privacyInfo() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);

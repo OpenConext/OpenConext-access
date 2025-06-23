@@ -28,6 +28,7 @@ import {
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
+    providersByEntityId,
     resetConnectionSecret,
     updateConnection
 } from "../api/index.js";
@@ -95,6 +96,7 @@ export const Testing = ({
     const [xmlMetaData, setXmlMetaData] = useState(null);
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
+    const [duplicateEntityID, setDuplicateEntityID] = useState(false);
     const [initial, setInitial] = useState(true);
     const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -125,6 +127,13 @@ export const Testing = ({
         }
     }
 
+    const isDisabled = sectionName => {
+        const validCurrentSection = section === sections.technical ? technicalValid() :
+            section === sections.informationProfile ? informationProfileValid() : testIdPValid();
+        const sectionIsCurrent = sectionName === section;
+        return !validCurrentSection && !sectionIsCurrent
+    }
+
     const copyConnectionData = connectionId => {
         setLoading(true);
         getConnectionById(connectionId).then(res => {
@@ -138,9 +147,7 @@ export const Testing = ({
             convertedConnection.id = connection.id;
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = STATUSES.OPEN;
-            if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
-                convertedConnection.entityID = generateOIDCClientID();
-            }
+            convertedConnection.entityID = "";
             setConnection(convertedConnection);
             setLoading(false);
             setFlash(I18n.t("connection.flash.copied", {name: originalName}))
@@ -155,8 +162,7 @@ export const Testing = ({
 
     const technicalValid = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
-
-        return !(isEmpty(connection.name) || isEmpty(connection.entityID) || isDuplicateConnectionName() ||
+        return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc) || isDuplicateConnectionName() ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
@@ -305,7 +311,7 @@ export const Testing = ({
                 protocol: option,
                 grantTypes: ["authorization_code"],
                 pkce: false,
-                entityID: generateOIDCClientID(application),
+                entityID: "",
                 redirectUrls: [""],
                 acsLocations: null
             })
@@ -375,6 +381,14 @@ export const Testing = ({
         }
     }
 
+    const onBlurEntityID = (e) => {
+        providersByEntityId(connection.environment, e.target.value).then(res => {
+            const duplicated = (connection.status === STATUSES.COMPLETE && res.length > 1) ||
+                (connection.status === STATUSES.OPEN && res.length > 0)
+            setDuplicateEntityID(duplicated);
+        });
+    };
+
     const renderTechnicalSection = () => {
         return (
             <section className="inner-right">
@@ -404,17 +418,6 @@ export const Testing = ({
                 {connection.protocol.value === PROTOCOLS.OIDC10_RP &&
                     <>
                         <div>
-                            {/*<InputField value={connection.entityID || ""}*/}
-                            {/*            onChange={e => setConnection({...connection, entityID: e.target.value})}*/}
-                            {/*            name={I18n.t("connection.clientID")}*/}
-                            {/*            required={true}*/}
-                            {/*            disabled={true}*/}
-                            {/*/>*/}
-                            {(!initial && isEmpty(connection.entityID)) &&
-                                <ErrorIndicator msg={I18n.t("forms.required",
-                                    {name: I18n.t("connection.clientID")})}
-                                                adjustMargin={true}/>}
-
                             <span className="label">{I18n.t("connection.grantTypes")}</span>
                             <div className="grant-types">
                                 {Object.keys(grantTypes).map(grantType =>
@@ -568,14 +571,22 @@ export const Testing = ({
 
                             </div>}
                         <InputField value={connection.entityID || ""}
-                                    onChange={e => setConnection({...connection, entityID: e.target.value})}
+                                    onChange={e => {
+                                        setConnection({...connection, entityID: e.target.value});
+                                        setDuplicateEntityID(false);
+                                    }}
                                     name={I18n.t("connection.entityID")}
                                     required={true}
+                                    onBlur={e => onBlurEntityID(e)}
                                     placeholder={I18n.t("connection.entityIDPlaceHolder")}
                         />
                         {(!initial && isEmpty(connection.entityID)) &&
                             <ErrorIndicator msg={I18n.t("forms.required",
                                 {name: I18n.t("connection.entityID")})}
+                                            adjustMargin={true}/>}
+                        {duplicateEntityID &&
+                            <ErrorIndicator msg={I18n.t("connection.duplicateEntityID",
+                                {entityID: connection.entityID})}
                                             adjustMargin={true}/>}
 
                         <div className="acs-locations-container">
@@ -701,14 +712,14 @@ export const Testing = ({
                 />
                 {(!initial && isEmpty(connection.allowedEntities)) &&
                     <ErrorIndicator
-                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.testIdPs.institution")})}
+                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.visibilities.institution")})}
                     />}
 
             </section>
         );
     }
 
-    const overview = () => {
+    const renderOverview = () => {
         return (
             <section className="inner-right-overview">
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
@@ -865,10 +876,10 @@ export const Testing = ({
                 return renderInformationProfileSection();
             }
             case sections.testIdP: {
-                return renderTestIdPSection();
+                return isProduction ? renderVisibilitySection() : renderTestIdPSection();
             }
             case sections.overview: {
-                return overview();
+                return renderOverview();
             }
         }
     }
@@ -905,13 +916,17 @@ export const Testing = ({
             setLoading(true);
             const promise = connection.id ? updateConnection : newConnection
             const body = convertClientConnectionToServer(application, connection, arpInfo);
-            if (finished && connection.status === "OPEN") {
+            if (finished && !isComplete) {
+                if (isOidc) {
+                    body.metaData.entityID = generateOIDCClientID();
+                }
                 body.status = STATUSES.COMPLETE;
             }
             promise(body)
                 .then(res => {
                     setFinishedSections([...finishedSections, section]);
                     setLoading(false);
+                    setInitial(true);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
@@ -992,6 +1007,7 @@ export const Testing = ({
                             .map(sectionValue =>
                                 <StatusMenuItem key={sectionValue}
                                                 pending={isPending(sectionValue)}
+                                                disabled={isDisabled(sectionValue)}
                                                 action={() => changeSection(sectionValue)}
                                                 info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
                                                 active={section === sectionValue}/>)}
@@ -1064,7 +1080,7 @@ export const Testing = ({
                 key: "status",
                 header: I18n.t("connection.connections.status"),
                 mapper: conn => {
-                    const type = conn.status === "OPEN" ? ChipType.Status_success : ChipType.Main_400;
+                    const type = conn.status === "OPEN" ? ChipType.Status_warning : ChipType.Support_400;
                     return <Chip type={type}
                                  label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}/>
                 }
@@ -1104,7 +1120,7 @@ export const Testing = ({
                     <h3>{I18n.t("connection.test.connections")}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST)}/>
+                            onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST, true)}/>
                 </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&

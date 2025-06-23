@@ -17,6 +17,8 @@ public interface Manage {
 
     void deleteProvider(Connection connection);
 
+    List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID);
+
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'
         if (provider.containsKey("id")) {

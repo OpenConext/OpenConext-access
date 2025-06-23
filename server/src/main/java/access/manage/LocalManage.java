@@ -99,5 +99,14 @@ public final class LocalManage implements Manage {
         this.allProviders.put(connection.getProtocol(), newProviders);
     }
 
+    @Override
+    public List<Map<String, Object>> providersByEntityID(Environment environment,  EntityType entityType, String entityID) {
+        return Stream.of(EntityType.values())
+                .flatMap(type -> this.allProviders.get(type).stream())
+                .filter(provider -> ((Map)provider.get("data")).get("entityid").equals(entityID))
+                .toList();
+
+    }
+
 
 }
