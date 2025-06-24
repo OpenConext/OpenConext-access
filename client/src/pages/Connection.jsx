@@ -79,7 +79,7 @@ export const Connection = () => {
             .then(res => {
                 res.connections = (res.connections || [])
                     .map(conn => convertServerConnectionToClient(conn, protocolOptions, profileOptions, arpInfo));
-                setApplication(res);
+                setApplication(convertServerApplicationToClient(res));
                 setConnection(null);
             })
     }

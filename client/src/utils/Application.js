@@ -1,7 +1,7 @@
 import {isEmpty} from "./Utils.js";
 
 export const logoSectionValid = (application) => {
-    return ["logo", "descriptionEn", "descriptionNl", "webSite"]
+    return ["logo", "descriptionEN", "descriptionNL", "webSite"]
         .every(attr => !isEmpty(application?.information?.[attr]))
 };
 
@@ -35,6 +35,9 @@ export const convertServerApplicationToClient = (application) => {
 export const convertClientApplicationToServer = (application) => {
     return {
         ...application,
+        //Connections and memberships are created separately
+        connections: null,
+        applicationMemberships: null,
         metaData: {
             information: application.information,
             contactPersons: application.contactPersons,

@@ -64,4 +64,9 @@
         background-color: $background;
         border-radius: 6px;
     }
+
+    p.select-info {
+        margin-top: 8px;
+        color: var(--sds--color--gray--500);
+    }
 }

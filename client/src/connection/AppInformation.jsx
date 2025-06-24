@@ -10,12 +10,15 @@ import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {updateApplication} from "../api/index.js";
 import {
     contactSectionValid,
-    convertClientApplicationToServer, convertServerApplicationToClient,
+    convertClientApplicationToServer,
+    convertServerApplicationToClient,
     logoSectionValid,
     privacySectionValid
 } from "../utils/Application.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import {Button, ButtonType} from "@surfnet/sds";
+import SelectField from "../components/SelectField.jsx";
+import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 
 const sections = {
     logo: "logo",
@@ -81,9 +84,9 @@ export const AppInformation = ({
         setInitial(false);
         const nextSection = section === sections.logo ? sections.contact :
             section === sections.logo ? sections.privacy : section === section.privacy ? section.overview : section;
-        const proceed = (section === sections.logo && logoSectionValid()) ||
-            (section === sections.contact && contactSectionValid()) ||
-            (section === sections.privacy && privacySectionValid());
+        const proceed = (section === sections.logo && logoSectionValid(application)) ||
+            (section === sections.contact && contactSectionValid(application)) ||
+            (section === sections.privacy && privacySectionValid(privacyInfo, application));
         if (proceed) {
             setLoading(true);
             const body = convertClientApplicationToServer(application);
@@ -113,14 +116,28 @@ export const AppInformation = ({
         setApplication(newApplication);
     }
 
+    const tagOption = tag => {
+        return {
+            value: tag,
+            label: I18n.t(`connection.appInfo.tagsAvailable.${tag}`)
+        }
+    };
+
+    const tagOptions = () => {
+        return Object.keys(I18n.translations[I18n.locale].connection.appInfo.tagsAvailable).map(tagOption);
+    };
+
     const renderLogoSection = () => {
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.appInfo.label")}</h3>
 
-                <ImageField imageSource={application.information.imageURL || ""}
-                            onChange={imageURL => updateApplicationAttribute("information", "imageURL", imageURL)}
+                <ImageField imageSource={application.information.logoUrl || ""}
+                            onChange={logoUrl => updateApplicationAttribute("information", "logoUrl", logoUrl)}
                 />
+                {(!initial && isEmpty(application.information.logoUrl)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.logoUrl")})}
+                                    />}
 
                 <InputField value={application.information.descriptionEN || ""}
                             onChange={e => updateApplicationAttribute("information", "descriptionEN", e.target.value)}
@@ -130,7 +147,7 @@ export const AppInformation = ({
                 />
                 {(!initial && isEmpty(application.information.descriptionNL)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionEn")})}
-                                    adjustMargin={true}/>}
+                                    />}
 
                 <InputField value={application.information.descriptionNL || ""}
                             onChange={e => updateApplicationAttribute("information", "descriptionNL", e.target.value)}
@@ -140,7 +157,32 @@ export const AppInformation = ({
                 />
                 {(!initial && isEmpty(application.information.descriptionNL)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionNl")})}
-                                    adjustMargin={true}/>}
+                                    />}
+
+                <InputField value={application.information.webSite || ""}
+                            onChange={e => updateApplicationAttribute("information", "webSite", e.target.value)}
+                            name={I18n.t("connection.appInfo.webSite")}
+                            required={true}
+                />
+                {(!initial && isEmpty(application.information.webSite)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.webSite")})}
+                                    />}
+                {(!initial && !isValidUrl(application.information.webSite)) &&
+                    <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: I18n.t("connection.appInfo.webSite")})}
+                    />}
+
+                <SelectField
+                    name={I18n.t("connection.appInfo.tags")}
+                    options={tagOptions().filter(tag => !(application.information.tags || []).includes(tag))}
+                    value={(application.information.tags || []).map(tag => tagOption(tag))}
+                    isMulti={true}
+                    searchable={true}
+                    placeholder={I18n.t("connection.appInfo.tagPlaceholder")}
+                    onChange={options => updateApplicationAttribute("information", "tags", options.map(option => option.value))}
+                    info={I18n.t("connection.appInfo.tagInfo")}
+                />
+
+
             </section>
         );
     }

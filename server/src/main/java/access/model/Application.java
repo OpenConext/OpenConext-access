@@ -43,10 +43,10 @@ public class Application implements NameHolder{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
-    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Connection> connections = new HashSet<>();
 
-    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ApplicationMembership> applicationMemberships = new HashSet<>();
 
     @Column(name = "created_at")

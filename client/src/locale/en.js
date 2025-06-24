@@ -341,18 +341,26 @@ const en = {
                 contact: "Contactgegevens",
                 privacy:"Privacy & Security "
             },
+            logoUrl: "Logo",
             descriptionEn : "Beschrijving in het Engels",
             descriptionNl : "Beschrijving in het Nederlands",
             webSite: "Website",
             tags: "Tag je applicatie",
             tagPlaceholder: "Maximaal 3 tags",
-            tagInfo: "In de appstore kunnen instellingen hierop filteren"
+            tagInfo: "In de appstore kunnen instellingen hierop filteren",
+            tagsAvailable: {
+                education: "Education service",
+                business: "Business service",
+                commerce: "Commercial service"
+            }
         },
         logo: {
             name: "logo",
             add: "Add a logo",
             edit: "Change logo",
             imageToLarge: "Image is larger then 2MB.",
+            confirm: "Set new logo image",
+            header: "Crop your new logo image",
             disclaimers: [
                 "png, jpg or gif",
                 "min 100 * 100 pixels",
