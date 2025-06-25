@@ -1,0 +1,43 @@
+@use "../styles/mixins" as *;
+@use "../index";
+@use "../styles/application";
+
+$width-percentage: 75%;
+
+.contract-container {
+    background-color: white;
+    padding: 25px 50px;
+
+    .contract-inner {
+        max-width: 60%;
+    }
+    .app-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    .contract-information {
+        max-width: 100%;
+    }
+    .happy svg {
+        margin: 25px;
+        width: 285px;
+        height: auto;
+    }
+    .actions {
+        display: flex;
+        margin: 25px 0;
+        align-items: flex-end;
+        justify-content: space-between;
+
+        &.orphan {
+            justify-content: flex-end;
+        }
+
+
+        button svg {
+            width: 16px;
+            height: auto;
+        }
+    }
+}

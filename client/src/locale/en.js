@@ -313,7 +313,7 @@ const en = {
         },
         visibilities: {
             info: "Kies met welke IdP’s je wilt koppelen.",
-            institutionIdPsInfo: "<strong>Let wel op<strong/>: voordat we je koppeling definitief maken voor ptoductie gebruik, kijken we naar de gekozen IdP's",
+            institutionIdPsInfo: "<strong>Let wel op<strong/>: voordat we je koppeling definitief maken voor productie gebruik, kijken we naar de gekozen IdP's",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -339,7 +339,8 @@ const en = {
             sections: {
                 logo: "Logo en beschrijving",
                 contact: "Contactgegevens",
-                privacy:"Privacy & Security "
+                privacy:"Privacy & Security ",
+                overview: "Overview"
             },
             logoUrl: "Logo",
             descriptionEn : "Beschrijving in het Engels",
@@ -352,7 +353,8 @@ const en = {
                 education: "Education service",
                 business: "Business service",
                 commerce: "Commercial service"
-            }
+            },
+            targetGroup: "Ga door naar de doelgroep"
         },
         logo: {
             name: "logo",
@@ -362,11 +364,43 @@ const en = {
             confirm: "Set new logo image",
             header: "Crop your new logo image",
             disclaimers: [
-                "png, jpg or gif",
+                "png, jpg, svg or gif",
                 "min 100 * 100 pixels",
                 "max 2MB.",
             ]
         },
+        contacts: {
+            label: "Contactgegevens",
+            info: "Gebruik zoveel mogelijk functionele adressen in plaats van persoonlijke.",
+            name: "name",
+            administrative: "Administratief contact",
+            administrativeTooltip: "Administratief contact Tooltip",
+            administrativePlaceholder: "e.g. admin@{{name}}",
+            emailOrWebsite:"Email-adres of website",
+            technical: "Technisch contact (anders dan administratief)",
+            technicalTooltip: "Technical contact Tooltip",
+            technicalPlaceholder: "e.g. technical@{{name}}",
+            support: "Support contact (eindgebruikers zien dit)",
+            supportTooltip: "Support contact Tooltip",
+            supportPlaceholder: "e.g. support@{{name}}",
+        },
+        privacy: {
+            label: "Privacy & Security",
+            info: "Please fill out the questions below. We will share the answers with institutions connected to SURFconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
+            answerIsRequired: "Answer to this privacy question is required"
+        },
+        appOverview : {
+            label: "De App informatie zijn compleet.",
+            info: "Zo verschijnt uw app in de SURF App catalogus.",
+        },
+        contractSection: {
+            title: "Contract",
+            info: "Voor apps op SURF Access moet je een SURF-aansluitovereenkomst tekenen.",
+            notSigned: "Er is nog geen overeenkomst getekend.",
+            signed: "Er is ee overeenkomst getekend.",
+            sign: "Teken de overeenkomst"
+
+        }
     },
     testing: {
         newConnection: "New connection",
@@ -398,7 +432,10 @@ const en = {
         error: "An unexpected error occurred",
         backToOverview: "Back to connections",
         overview: "Naar overzicht",
-        invalidURL: "{{name}} is not a valid URL"
+        invalidURL: "{{name}} is not a valid URL",
+        invalidEmailURL: "{{name}} is not a valid URL or valid email",
+        moreLabel: "Show me more",
+        lessLabel: "Show me less",
     },
     footer: {
         terms: "Terms of Use",

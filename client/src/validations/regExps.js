@@ -7,5 +7,10 @@ export const validUrlRegExp = /(https?|ssh|ftp):\/\/(((www\.)?[-a-zA-Z0-9@:%._+~
 export const isValidUrl = url => {
     //We allow for empty URL's, enforcing required is different responsibility
     return isEmpty(url) || (validUrlRegExp.test(url) && (url.startsWith("https")
-        || (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1"))))
+        || (url.startsWith("http://localhost") || url.startsWith("http://127.0.0.1"))));
+}
+
+export const isValidEmail = email => {
+    //We allow for empty URL's, enforcing required is different responsibility
+    return isEmpty(email) || validEmailRegExp.test(email);
 }

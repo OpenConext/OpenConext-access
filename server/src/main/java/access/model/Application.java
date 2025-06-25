@@ -38,6 +38,11 @@ public class Application implements NameHolder{
     @Column(name="meta_data", columnDefinition = "jsonb")
     private Map<String, Object> metaData = new HashMap<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private ApplicationStatus status = ApplicationStatus.OPEN;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -51,6 +56,9 @@ public class Application implements NameHolder{
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Column(name = "signed_contract")
+    private boolean signedContract;
 
     @Enumerated(EnumType.STRING)
     @Column

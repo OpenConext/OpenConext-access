@@ -1,8 +1,11 @@
 import {isEmpty} from "./Utils.js";
+import {isValidUrl} from "../validations/regExps.js";
 
 export const logoSectionValid = (application) => {
-    return ["logo", "descriptionEN", "descriptionNL", "webSite"]
-        .every(attr => !isEmpty(application?.information?.[attr]))
+    return !isEmpty(application?.logoUrl) &&
+        ["descriptionEN", "descriptionNL", "webSite"]
+            .every(attr => !isEmpty(application?.information?.[attr])) &&
+        isValidUrl(application?.information?.webSite)
 };
 
 export const contactSectionValid = (application) => {
@@ -16,6 +19,7 @@ export const contactSectionValid = (application) => {
 export const privacySectionValid = (privacyInfo, application) => {
     const requiredPrivacyAttributes = privacyInfo.filter(p => p.required);
     return requiredPrivacyAttributes
+        .map(val => val.name)
         .every(attr => !isEmpty(application?.privacy?.[attr]))
 };
 

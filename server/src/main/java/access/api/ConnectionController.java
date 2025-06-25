@@ -153,7 +153,7 @@ public class ConnectionController implements UserAccessRights {
     @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is COMPLETE
-        if (connection.getStatus().equals(Status.COMPLETE)) {
+        if (connection.getStatus().equals(ConnectionStatus.COMPLETE)) {
             if (connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     !StringUtils.hasText((String) connection.getMetaData().get("secret")) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE) {
@@ -163,18 +163,14 @@ public class ConnectionController implements UserAccessRights {
             }
 
             Map<String, Object> provider = manage.saveProvider(connection);
-            connection.setManageIdentifier((String) provider.get("id"));
-            connection.setManageVersion((Integer) provider.get("version"));
-            Map<String, Object> data = (Map<String, Object>) provider.get("data");
-            connection.setManageEid((Integer) data.get("eid"));
-            connection.setState(State.valueOf((String) data.get("state")));
+            connection.updateRemoteManageData( provider);
 
             List<Map<String, Object>> contactPersons = (List<Map<String, Object>>) connection.getMetaData().get("contactPersons");
             if (!CollectionUtils.isEmpty(contactPersons)) {
                 Application application = connection.getApplication();
                 application.getMetaData().put("contactPersons", contactPersons);
                 applicationRepository.save(application);
-                //No need to store redundant
+                //No need to store redundant data
                 connection.getMetaData().remove("contactPersons");
             }
 

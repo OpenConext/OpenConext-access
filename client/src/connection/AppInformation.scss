@@ -1,5 +1,6 @@
 @use "../styles/mixins" as *;
 @use "../index";
+@use "../styles/application";
 
 $width-percentage: 75%;
 
@@ -43,5 +44,7 @@ $width-percentage: 75%;
             margin-bottom: 15px;
         }
     }
-
+    .application {
+        margin-top: 25px;
+    }
 }

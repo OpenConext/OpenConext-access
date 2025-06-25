@@ -162,6 +162,7 @@ const nl = {
         testSection: "Test",
         teamSection: "Team",
         duplicatedName: "A connection with name {{name}} already exists for this Application.",
+        duplicateEntityID: "A connection with entityID {{entityID}} already exists",
         test: {
             name: "Test",
             connections: "Koppelingen met onze testomgeving",
@@ -250,7 +251,7 @@ const nl = {
             name: "Name",
             created: "Added at",
             status: "Status",
-            open: "open",
+            open: "Open",
             complete: "Completed",
             protocol: "Protocol",
             details: "Details"
@@ -312,7 +313,7 @@ const nl = {
         },
         visibilities: {
             info: "Kies met welke IdP’s je wilt koppelen.",
-            institutionIdPsInfo: "<strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
+            institutionIdPsInfo: "<strong>Let wel op<strong/>: voordat we je koppeling definitief maken voor productie gebruik, kijken we naar de gekozen IdP's",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -338,24 +339,60 @@ const nl = {
             sections: {
                 logo: "Logo en beschrijving",
                 contact: "Contactgegevens",
-                privacy:"Privacy & Security "
+                privacy:"Privacy & Security ",
+                overview: "Overview"
             },
+            logoUrl: "Logo",
             descriptionEn : "Beschrijving in het Engels",
             descriptionNl : "Beschrijving in het Nederlands",
             webSite: "Website",
             tags: "Tag je applicatie",
             tagPlaceholder: "Maximaal 3 tags",
-            tagInfo: "In de appstore kunnen instellingen hierop filteren"
+            tagInfo: "In de appstore kunnen instellingen hierop filteren",
+            tagsAvailable: {
+                education: "Education service",
+                business: "Business service",
+                commerce: "Commercial service"
+            }
         },
         logo: {
             name: "logo",
             add: "Add a logo",
             edit: "Change logo",
+            imageToLarge: "Image is larger then 2MB.",
+            confirm: "Set new logo image",
+            header: "Crop your new logo image",
             disclaimers: [
-                "png, jpg or gif",
-                "min 100 * 100 pixels"
+                "png, jpg, svg or gif",
+                "min 100 * 100 pixels",
+                "max 2MB.",
             ]
         },
+        contacts: {
+            label: "Contactgegevens",
+            info: "Gebruik zoveel mogelijk functionele adressen in plaats van persoonlijke.",
+            name: "name",
+            administrative: "Administratief contact",
+            administrativeTooltip: "Administratief contact Tooltip",
+            administrativePlaceholder: "e.g. admin@{{name}}",
+            emailOrWebsite:"Email-adres of website",
+            technical: "Technisch contact (anders dan administratief)",
+            technicalTooltip: "Technical contact Tooltip",
+            technicalPlaceholder: "e.g. technical@{{name}}",
+            support: "Support contact (eindgebruikers zien dit)",
+            supportTooltip: "Support contact Tooltip",
+            supportPlaceholder: "e.g. support@{{name}}",
+        },
+        privacy: {
+            label: "Privacy & Security",
+            info: "Please fill out the questions below. We will share the answers with institutions connected to SURFconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
+            answerIsRequired: "Answer to this privacy question is required"
+        },
+        appOverview : {
+            label: "De App informatie zijn compleet.",
+            info: "Zo verschijnt uw app in de SURF App catalogus.",
+
+        }
     },
     testing: {
         newConnection: "New connection",
@@ -387,7 +424,10 @@ const nl = {
         error: "An unexpected error occurred",
         backToOverview: "Back to connections",
         overview: "Naar overzicht",
-        invalidURL: "{{name}} is not a valid URL"
+        invalidURL: "{{name}} is not a valid URL",
+        invalidEmailURL: "{{name}} is not a valid URL or valid email",
+        moreLabel: "Show me more",
+        lessLabel: "Show me less",
     },
     footer: {
         terms: "Terms of Use",

@@ -65,20 +65,16 @@ export const ImageField = ({imageSource, onChange}) => {
             const scaleX = image.naturalWidth / image.width;
             const scaleY = image.naturalHeight / image.height;
 
-            // Calculate crop size in source image pixels
             const cropWidth = completedCrop.width * scaleX;
             const cropHeight = completedCrop.height * scaleY;
 
-            // Use the largest dimension to make the output a square
             const outputSize = Math.max(cropWidth, cropHeight);
             const canvas = new OffscreenCanvas(outputSize, outputSize);
 
             const ctx = canvas.getContext('2d');
-            // Fill background (optional)
             ctx.fillStyle = '#fff';
             ctx.fillRect(0, 0, outputSize, outputSize);
 
-            // Draw the cropped image centered in the square canvas
             ctx.drawImage(
                 image,
                 completedCrop.x * scaleX, // source x
@@ -155,23 +151,20 @@ export const ImageField = ({imageSource, onChange}) => {
                         onChange={(_, percentCrop) => setCrop(percentCrop)}
                         onComplete={c => setCompletedCrop(c)}
                         aspect={1}
-                        // minWidth={400}
                         minHeight={100}
-                        // circularCrop
                     >
                         <img
-                            alt="Crop me"
-                            ref={imageRef}
                             src={srcUrl(source, isSvg ? "svg+xml" : "jpeg")}
-                            style={{transform: `scale(${1}) rotate(${0}deg)`}}
                             onLoad={onImageLoaded}
+                            ref={imageRef}
+                            alt="Crop me"
                         />
                     </ReactCrop>
                 </ConfirmationDialog>}
             <div className="image-field">
                 {source &&
                     <img alt="Crop me"
-                         src={srcUrl(source, isSvg ? "svg+xml" : "jpeg")}
+                         src={srcUrl(source, "jpeg")}
                     />}
                 {!source && <NotFoundImage/>}
             </div>

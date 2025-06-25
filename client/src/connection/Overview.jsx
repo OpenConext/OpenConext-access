@@ -4,7 +4,7 @@ import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
 import {StatusLink} from "../components/StatusLink.jsx";
-import {ENVIRONMENTS, STATUSES} from "../utils/Manage.js";
+import {ENVIRONMENTS, CONNECTION_STATUSES, APPLICATION_STATUSES} from "../utils/Manage.js";
 import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
 
 
@@ -21,12 +21,13 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
             testConnectionComplete: !isEmpty(application.connections) &&
                 application.connections
                     .filter(conn => conn.environment === ENVIRONMENTS.TEST)
-                    .some(conn => conn.status === STATUSES.COMPLETE),
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE),
             productionConnectionComplete: !isEmpty(application.connections) &&
                 application.connections
                     .filter(conn => conn.environment === ENVIRONMENTS.PROD)
-                    .some(conn => conn.status === STATUSES.COMPLETE),
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE),
             appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacyInfo, application)
+                                    && application.status !== APPLICATION_STATUSES.OPEN
         }), []);
 
     const alertInfo = () => {
@@ -83,7 +84,7 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
                                 disabled={!testConnectionComplete}
                                 status={productionConnectionComplete}/>
                     <StatusLink info={I18n.t("connection.production.catalogue")}
-                                action={() => setTab("testing")}
+                                action={() => setTab("application")}
                                 disabled={!productionConnectionComplete}
                                 status={appInformationComplete}/>
                     {/*<StatusLink info={I18n.t("connection.production.access")}*/}
@@ -91,7 +92,7 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
                     {/*            disabled={!appInformationComplete}*/}
                     {/*            status={accessComplete}/>*/}
                     <StatusLink info={I18n.t("connection.production.contract")}
-                                action={() => setTab("testing")}
+                                action={() => setTab("contract")}
                                 disabled={!appInformationComplete}
                                 status={false}/>
                     <p className={`${productionConnectionComplete} ? "":"pending`}>

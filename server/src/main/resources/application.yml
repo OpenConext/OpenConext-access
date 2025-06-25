@@ -128,7 +128,7 @@ manage:
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 s3storage:
-  url: http:/localhost:9000
+  url: http://localhost:9000
   key: "minioadmin"
   secret: "minioadmin"
   bucket: "s3-images"

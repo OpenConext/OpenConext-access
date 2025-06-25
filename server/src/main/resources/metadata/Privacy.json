@@ -38,11 +38,31 @@
     "tooltip_en": "",
     "tooltip_nl": "",
     "enum": [
-      "dpa_not_applicable",
-      "dpa_in_surf_agreement",
-      "dpa_model_surf",
-      "dpa_supplied_by_service",
-      "other"
+      {
+        "name": "dpa_not_applicable",
+        "info_en": "DPA not applicable",
+        "info_nl": "DPA not applicable"
+      },
+      {
+        "name": "dpa_in_surf_agreement",
+        "info_en": "DPA in SURF agreement",
+        "info_nl": "DPA in SURF agreement"
+      },
+      {
+        "name": "dpa_model_surf",
+        "info_en": "DPA model SURF",
+        "info_nl": "DPA model SURF"
+      },
+      {
+        "name": "dpa_supplied_by_service",
+        "info_en": "DPA supplied by Service",
+        "info_nl": "DPA supplied by Service"
+      },
+      {
+        "name": "other",
+        "info_en": "Other",
+        "info_nl": "Other"
+      }
     ],
     "default": "dpa_supplied_by_service",
     "required": true

@@ -2,13 +2,13 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.model.FileUploadRequest;
-import io.restassured.common.mapper.TypeRef;
+import access.model.Application;
+import access.model.Organization;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.http.ContentType;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MinIOContainer;
@@ -20,13 +20,12 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-class S3ControllerTest extends AbstractTest {
+class ApplicationS3ControllerTest extends AbstractTest {
 
     @Container
     public static MinIOContainer minioContainer = new MinIOContainer(
@@ -43,37 +42,35 @@ class S3ControllerTest extends AbstractTest {
 
     @Test
     void uploadFile() throws IOException {
-        // Stub the PUT request to S3
-        stubFor(put(urlPathMatching("/s3-images/.*"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("ETag", "\"mock-etag\"")));
-
         InputStream inputStream = new ClassPathResource("/s3/squirl.jpg").getInputStream();
         byte[] byteArray = IOUtils.toByteArray(inputStream);
         String base64Encoded = Base64.getEncoder().encodeToString(byteArray);
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        application.setName("Changed");
+        application.setLogoUrl(base64Encoded);
+        Organization organization = application.getOrganization();
+        //Otherwise rest-assured does not deserialize the Organization
+        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
+        });
+        applicationData.put("organization", Map.of("id", organization.getId()));
 
-        Map<String, String> body = given()
+        Application savedApplication = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(new FileUploadRequest(base64Encoded))
-                .post("/api/v1/s3/upload")
-                .as(new TypeRef<>() {
-                });
-        System.out.println("XXXXXX");
-        System.out.println(body);
-        String url = body.get("url");
+                .body(applicationData)
+                .put("/api/v1/applications")
+                .as(Application.class);
+
+        Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
+        assertEquals(application.getName(), applicationFromDB.getName());
+        String url = applicationFromDB.getLogoUrl();
         assertTrue(url.startsWith("http://localhost"));
         assertTrue(url.contains("s3-images"));
     }
 
-    @Override
-    protected boolean seedDatabase() {
-        return false;
-    }
 }

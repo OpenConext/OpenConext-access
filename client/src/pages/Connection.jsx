@@ -9,9 +9,10 @@ import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
 import {convertServerConnectionToClient} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
-import {ENVIRONMENTS, PROTOCOLS, STATUSES} from "../utils/Manage.js";
+import {CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
+import {Contract} from "../connection/Contract.jsx";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract"]
 
@@ -96,7 +97,7 @@ export const Connection = () => {
             redirectUrls: [""],
             acsLocations: null,
             metaData: {},
-            status: STATUSES.OPEN,
+            status: CONNECTION_STATUSES.OPEN,
             motivations: {},
             additionalAttributes: [],
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
@@ -159,7 +160,9 @@ export const Connection = () => {
                 />
             }
             case "contract": {
-                return <span>contract</span>
+                return <Contract application={application}
+                                 setApplication={setApplication}
+                />
             }
             default:
                 throw new Error(`Unknown tab; ${currentTab}`)

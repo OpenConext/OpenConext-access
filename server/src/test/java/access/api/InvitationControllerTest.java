@@ -59,7 +59,7 @@ class InvitationControllerTest extends AbstractMailTest {
                 .post("/api/v1/invitations")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(Status.OPEN.name(), invitation.get("status"));
+        assertEquals(ConnectionStatus.OPEN.name(), invitation.get("status"));
 
         Map<String, Object> inviter = (Map<String, Object>) invitation.get("inviter");
         assertEquals("Mary Doe", inviter.get("name"));
@@ -96,7 +96,7 @@ class InvitationControllerTest extends AbstractMailTest {
         assertEquals(1, user.getOrganizationMemberships().size());
 
         Invitation invitationFromDB = invitationRepository.findById(invitation.getId()).get();
-        assertEquals(Status.ACCEPTED, invitationFromDB.getStatus());
+        assertEquals(InvitationStatus.ACCEPTED, invitationFromDB.getStatus());
         assertNull(invitationFromDB.getHash());
         assertNotNull(invitationFromDB.getAcceptedAt());
     }

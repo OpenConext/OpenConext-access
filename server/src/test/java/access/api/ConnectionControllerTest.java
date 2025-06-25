@@ -76,7 +76,7 @@ class ConnectionControllerTest extends AbstractTest {
     void updateAndComplete() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
-        connection.setStatus(Status.COMPLETE);
+        connection.setStatus(ConnectionStatus.COMPLETE);
         //Otherwise rest-assured does not deserialize the Application
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });
@@ -97,7 +97,7 @@ class ConnectionControllerTest extends AbstractTest {
         String manageIdentifier = (String) savedConnection.get("manageIdentifier");
         assertNotNull(manageIdentifier);
         assertEquals(0, savedConnection.get("manageVersion"));
-        assertEquals(Status.COMPLETE.name(), savedConnection.get("status"));
+        assertEquals(ConnectionStatus.COMPLETE.name(), savedConnection.get("status"));
 
         //Now do a find, which needs stubbing for getProvider
         connection.setManageIdentifier(manageIdentifier);

@@ -29,7 +29,7 @@ public class Invitation {
     private Language language;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.OPEN;
+    private InvitationStatus status = InvitationStatus.OPEN;
 
     @Column
     private String hash;
@@ -113,7 +113,7 @@ public class Invitation {
 
     @JsonIgnore
     public void accept() {
-        this.status = Status.ACCEPTED;
+        this.status = InvitationStatus.ACCEPTED;
         this.hash = null;
         this.acceptedAt = Instant.now();
     }

@@ -1,8 +1,10 @@
 package access.api;
 
 import access.exception.NotFoundException;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationRepository;
+import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -11,10 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -31,12 +36,21 @@ public class ApplicationController implements UserAccessRights {
     private static final Log LOG = LogFactory.getLog(ApplicationController.class);
 
     private final ApplicationRepository applicationRepository;
+    private final ConnectionRepository connectionRepository;
+    private final Manage manage;
     private final UserRepository userRepository;
+    private final S3Storage s3Storage;
 
     public ApplicationController(ApplicationRepository applicationRepository,
-                                 UserRepository userRepository) {
+                                 ConnectionRepository connectionRepository,
+                                 Manage manage,
+                                 UserRepository userRepository,
+                                 S3Storage s3Storage) {
         this.applicationRepository = applicationRepository;
+        this.connectionRepository = connectionRepository;
+        this.manage = manage;
         this.userRepository = userRepository;
+        this.s3Storage = s3Storage;
     }
 
     @GetMapping("/all/{organizationId}")
@@ -69,6 +83,8 @@ public class ApplicationController implements UserAccessRights {
 
         Organization organization = application.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
+        application.setCreatedAt(Instant.now());
+
         applicationRepository.save(application);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
@@ -85,7 +101,24 @@ public class ApplicationController implements UserAccessRights {
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
+        //If the metadata has changed, we must propagate this to manage
+        if (!application.getMetaData().equals(applicationData.getMetaData())) {
+            application.getConnections().forEach(connection -> {
+                connection.getMetaData().putAll(application.getMetaData());
+                Map<String, Object> provider = manage.saveProvider(connection);
+                connection.updateRemoteManageData( provider);
+                connectionRepository.save(connection);
+            });
+        }
+
         application.merge(applicationData);
+        //Upload base64 encoded image to s3 storage
+        String logoUrl = application.getLogoUrl();
+        if (StringUtils.hasText(logoUrl) && !logoUrl.startsWith("http")) {
+            String url = s3Storage.uploadFile(logoUrl);
+            application.setLogoUrl(url);
+        }
+
         applicationRepository.save(application);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);

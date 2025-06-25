@@ -43,7 +43,7 @@ import {
     convertServerConnectionToClient,
     generateOIDCClientID
 } from "../utils/Connection.js";
-import {ENVIRONMENTS, identityProviderOption, identityProviderOptions, PROTOCOLS, STATUSES} from "../utils/Manage.js";
+import {ENVIRONMENTS, identityProviderOption, identityProviderOptions, PROTOCOLS, CONNECTION_STATUSES} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
@@ -110,7 +110,7 @@ export const Testing = ({
     const acsLocationRefs = useRef([]);
 
     const isPending = sectionName => {
-        if (connection.status === STATUSES.COMPLETE) {
+        if (connection.status === CONNECTION_STATUSES.COMPLETE) {
             return false;
         }
         const finished = finishedSections.includes(sectionName);
@@ -146,7 +146,7 @@ export const Testing = ({
             //This must also work for already persisted connections
             convertedConnection.id = connection.id;
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
-            convertedConnection.status = STATUSES.OPEN;
+            convertedConnection.status = CONNECTION_STATUSES.OPEN;
             convertedConnection.entityID = "";
             setConnection(convertedConnection);
             setLoading(false);
@@ -383,8 +383,8 @@ export const Testing = ({
 
     const onBlurEntityID = (e) => {
         providersByEntityId(connection.environment, e.target.value).then(res => {
-            const duplicated = (connection.status === STATUSES.COMPLETE && res.length > 1) ||
-                (connection.status === STATUSES.OPEN && res.length > 0)
+            const duplicated = (connection.status === CONNECTION_STATUSES.COMPLETE && res.length > 1) ||
+                (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);
         });
     };
@@ -480,7 +480,7 @@ export const Testing = ({
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
-                        {connection.status === STATUSES.COMPLETE &&
+                        {connection.status === CONNECTION_STATUSES.COMPLETE &&
                             <div className="oidc-authentication">
                                 <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
                                 <div className="oidc-authentication-inner">
@@ -905,7 +905,7 @@ export const Testing = ({
     const storeAndNext = (finished = false) => {
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
-        const isComplete = connection.status === STATUSES.COMPLETE;
+        const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
         const nextSection = isComplete ? section : section === sections.technical ? sections.informationProfile :
             section === sections.informationProfile ? sections.testIdP :
                 (section === sections.testIdP && isOidc && !isComplete) ? sections.overview : sections.testIdP;
@@ -920,7 +920,7 @@ export const Testing = ({
                 if (isOidc) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
-                body.status = STATUSES.COMPLETE;
+                body.status = CONNECTION_STATUSES.COMPLETE;
             }
             promise(body)
                 .then(res => {
@@ -950,8 +950,8 @@ export const Testing = ({
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
-        const isComplete = connection.status === STATUSES.COMPLETE;
-        const showOverviewButton = section === sections.overview;
+        const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
+        const showOverviewButton = section === sections.overview || (isComplete && section === sections.testIdP && !isOidc);
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         const {open, cancel, action, modal, okButton, question, header} = confirmation;
         return <>
@@ -1050,7 +1050,7 @@ export const Testing = ({
     }
 
     const showConnectionDetails = conn => {
-        if (conn.status === STATUSES.COMPLETE) {
+        if (conn.status === CONNECTION_STATUSES.COMPLETE) {
             setLoading(true);
             getConnectionById(conn.id).then(res => {
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);

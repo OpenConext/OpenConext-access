@@ -4,12 +4,7 @@ import access.model.FileUploadRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.auth.signer.AwsS3V4Signer;
@@ -21,17 +16,14 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 
-@RestController
-@RequestMapping(value = {"/api/v1/s3"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
-public class S3Controller {
+@Service
+public class S3Storage {
 
     private final String bucketName;
     private final String s3URL;
@@ -41,18 +33,18 @@ public class S3Controller {
     private boolean bucketExists;
 
     @SneakyThrows
-    public S3Controller(@Value("${s3storage.url}") String s3URL,
-                        @Value("${s3storage.key}") String s3AccessKey,
-                        @Value("${s3storage.secret}") String s3SecretKey,
-                        @Value("${s3storage.bucket}") String s3BucketName,
-                        ObjectMapper objectMapper) {
+    public S3Storage(@Value("${s3storage.url}") String s3URL,
+                     @Value("${s3storage.key}") String s3AccessKey,
+                     @Value("${s3storage.secret}") String s3SecretKey,
+                     @Value("${s3storage.bucket}") String s3BucketName,
+                     ObjectMapper objectMapper) {
         this.s3URL = s3URL;
         AwsBasicCredentials credentials =
                 AwsBasicCredentials.create(s3AccessKey, s3SecretKey);
 
         this.s3Client = S3Client.builder()
                 .endpointOverride(new URI(s3URL))
-                .region(Region.US_EAST_1)
+//                .region(Region.US_EAST_1)
                 .forcePathStyle(true)
                 .overrideConfiguration(c -> {
                     c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
@@ -64,9 +56,8 @@ public class S3Controller {
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadFile(@org.springframework.web.bind.annotation.RequestBody FileUploadRequest request) {
-        byte[] decodedBytes = Base64.getDecoder().decode(request.getContent());
+    public String uploadFile(String content) {
+        byte[] decodedBytes = Base64.getDecoder().decode(content);
 
         if (!bucketExists) {
             createBucket(s3Client);
@@ -82,8 +73,7 @@ public class S3Controller {
                         .build(),
                 RequestBody.fromInputStream(inputStream, inputStream.available()));
 
-        String imageUrl = String.format("%s/%s/%s", s3URL, bucketName, uuid);
-        return ResponseEntity.ok(Map.of("url", imageUrl));
+        return String.format("%s/%s/%s", s3URL, bucketName, uuid);
     }
 
 

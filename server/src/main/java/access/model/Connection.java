@@ -59,7 +59,7 @@ public class Connection implements NameHolder {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Status status = Status.OPEN;
+    private ConnectionStatus status = ConnectionStatus.OPEN;
 
     @Column(name = "manage_identifier")
     private String manageIdentifier;
@@ -156,4 +156,15 @@ public class Connection implements NameHolder {
         });
         this.metaData.put("contactPersons", contactPersons);
     }
+
+    @JsonIgnore
+    public void updateRemoteManageData(Map<String, Object> provider) {
+        this.manageIdentifier = (String) provider.get("id");
+        this.manageVersion = (Integer) provider.get("version");
+        Map<String, Object> data = (Map<String, Object>) provider.get("data");
+        this.manageEid = (Integer) data.get("eid");
+        this.state = State.valueOf((String) data.get("state"));
+    }
+
+
 }

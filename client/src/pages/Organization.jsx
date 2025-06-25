@@ -2,7 +2,7 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertType, Button, Loader} from "@surfnet/sds";
+import {Alert, AlertType, Button, Loader, MoreLessToggle} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {organizationById} from "../api/index.js";
@@ -10,6 +10,7 @@ import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
+import {convertServerApplicationToClient} from "../utils/Application.js";
 
 const tabNames = ["applications", "team", "joins"]
 
@@ -25,6 +26,7 @@ const Organization = () => {
     useEffect(() => {
         organizationById(organizationId)
             .then(res => {
+                res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                 setOrganization(res);
                 useAppStore.setState({
                     currentOrganization: res,
@@ -89,8 +91,21 @@ const Organization = () => {
                                             onClick={() => navigate(`/connection/${application.id}`)}>
                                             {isEmpty(application.logoUrl) ? <ImageNotFound/> :
                                                 <img src={application.logoUrl} alt={application.name}/>}
-                                            <p>{application.name}</p>
-                                            <span><ArrowRight/></span>
+                                            <div className="application-info">
+                                                <h4>{application.name}</h4>
+                                                {application.information.descriptionEN &&
+                                                    <MoreLessToggle
+                                                        txt={application.information[`description${I18n.locale.toUpperCase()}`]}
+                                                        cutoffNumber={300}
+                                                        moreLabel={I18n.t("forms.moreLabel")}
+                                                        lessLabel={I18n.t("forms.lessLabel")}/>
+                                                }
+                                                {application.information.webSite &&
+                                                    <a href={application.information.webSite}
+                                                       className="web-site"
+                                                       target="_blank">{application.information.webSite}</a>}
+                                            </div>
+                                            <span className="navigation"><ArrowRight/></span>
                                         </div>
                                         {index === 0 && <Button onClick={() => navigate("/application/new")}
                                                                 txt={I18n.t("organization.addApplication")}/>}
