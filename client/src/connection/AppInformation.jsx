@@ -33,7 +33,11 @@ export const AppInformation = ({
                                    application,
                                    setApplication,
                                    refresh,
-                                   privacyInfo
+                                   privacyInfo,
+                                   changeTab,
+                                   protocolOptions,
+                                   profileOptions,
+                                   arpInfo
                                }) => {
 
     const {setFlash} = useAppStore(state => state);
@@ -106,8 +110,10 @@ export const AppInformation = ({
                     setFinishedSections([...finishedSections, section]);
                     setLoading(false);
                     setFlash(I18n.t("application.flash", {name: res.name}));
-                    setApplication(convertServerApplicationToClient(res));
-                    changeSection(nextSection);
+                    setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
+                    if (res.status === APPLICATION_STATUSES.OPEN) {
+                        changeSection(nextSection);
+                    }
                     setInitial(true);
                 })
                 .catch(() => {
@@ -120,6 +126,7 @@ export const AppInformation = ({
 
     const backToConnections = () => {
         refresh();
+        changeTab("overview");
         setSection(sections.logo);
     }
 
@@ -184,7 +191,7 @@ export const AppInformation = ({
                 {(!initial && isEmpty(application.information.webSite)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.webSite")})}
                     />}
-                {!isValidUrl(application.information.webSite) &&
+                {(!initial && !isValidUrl(application.information.webSite)) &&
                     <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: I18n.t("connection.appInfo.webSite")})}
                     />}
 
@@ -195,7 +202,7 @@ export const AppInformation = ({
                     isMulti={true}
                     searchable={true}
                     placeholder={I18n.t("connection.appInfo.tagPlaceholder")}
-                    onChange={options => updateApplicationAttribute("information", "tags", options.map(option => option.value))}
+                    onChange={options => options.length <= 3 && updateApplicationAttribute("information", "tags", options.map(option => option.value))}
                     info={I18n.t("connection.appInfo.tagInfo")}
                 />
 

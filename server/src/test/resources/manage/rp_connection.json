@@ -1,0 +1,70 @@
+{
+  "id": 1,
+  "name": "SURFconext TEST EngineBlock",
+  "protocol": "oidc10_rp",
+  "environment": "TEST",
+  "state": "prodaccepted",
+  "status": "COMPLETE",
+  "manageIdentifier": "49a117bb-f384-48d8-85d2-71d458b85ac8",
+  "manageVersion": 12,
+  "createdAt": 1750924866.000000000,
+  "metaData": {
+    "arp": {
+      "enabled": true,
+      "profile": "pseudonymized",
+      "attributes": {
+        "urn:mace:dir:attribute-def:eduPersonAssurance": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:oasis:names:tc:SAML:1.1:nameid-format:persistent": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ]
+      },
+      "motivation": ""
+    },
+    "entityID": "ACCESS-C4EA112E-C76F-4BF2-8384-99D321F9DCC4",
+    "allowedall": false,
+    "redirectUrls": [
+      "http://localhost:8080/redirect",
+      "https://redirect.com"
+    ],
+    "grantTypes": [
+      "authorization_code",
+      "refresh_token",
+      "urn:ietf:params:oauth:grant-type:device_code"
+    ],
+    "allowedEntities": [
+      "http://mock-idp",
+      "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
+    ]
+  }
+}

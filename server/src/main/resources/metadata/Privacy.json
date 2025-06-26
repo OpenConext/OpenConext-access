@@ -5,7 +5,8 @@
     "info_nl": "1. What (kind of) data is processed?",
     "tooltip_en": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
     "tooltip_nl": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
-    "required": true
+    "required": true,
+    "manage": "coin:privacy:what_data"
   },
   {
     "name": "access_data",
@@ -13,7 +14,8 @@
     "info_nl": "2. Who can access the data?",
     "tooltip_en": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
     "tooltip_nl": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
-    "required": true
+    "required": true,
+    "manage": "coin:privacy:access_data"
   },
   {
     "name": "country",
@@ -21,7 +23,8 @@
     "info_nl": "3. In what country is the data stored?",
     "tooltip_en": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
     "tooltip_nl": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
-    "required": true
+    "required": true,
+    "manage": "coin:privacy:country"
   },
   {
     "name": "security_measures",
@@ -29,7 +32,8 @@
     "info_nl": "4. What security measures have you taken?",
     "tooltip_en": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
     "tooltip_nl": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
-    "required": false
+    "required": false,
+    "manage": "coin:privacy:security_measures"
   },
   {
     "name": "dpa_type",
@@ -65,16 +69,28 @@
       }
     ],
     "default": "dpa_supplied_by_service",
-    "required": true
+    "required": true,
+    "manage": "coin:privacy:dpa_type"
   },
   {
-    "name": "privacy_policy_url",
+    "name": "privacy_policy_url_nl",
     "format": "url",
-    "info_en": "6. Privacy statement URL",
-    "info_nl": "6. Privacy statement URL",
+    "info_en": "6. Dutch privacy statement URL",
+    "info_nl": "6. Dutch privacy statement URL",
     "tooltip_en": "",
     "tooltip_nl": "",
-    "required": true
+    "required": true,
+    "manage": "mdui:PrivacyStatementURL:nl"
+  },
+  {
+    "name": "privacy_policy_url_en",
+    "format": "url",
+    "info_en": "7. English privacy statement URL",
+    "info_nl": "7. English privacy statement URL",
+    "tooltip_en": "",
+    "tooltip_nl": "",
+    "required": true,
+    "manage": "mdui:PrivacyStatementURL:en"
   },
   {
     "name": "other_info",
@@ -82,6 +98,7 @@
     "info_nl": "8. Other data privacy and security information",
     "tooltip_en": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
     "tooltip_nl": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
-    "required": false
+    "required": false,
+    "manage": "coin:privacy:other_info"
   }
 ]

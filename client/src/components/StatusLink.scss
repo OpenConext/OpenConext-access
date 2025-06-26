@@ -35,8 +35,12 @@
         fill: white;
     }
 
-    svg.pending, svg.completed, svg.team {
+    svg.pending, svg.completed, svg.team, svg.alert-triangle {
         margin-right: 20px;
+    }
+
+    svg.alert-triangle {
+        color: white;
     }
 
     svg.caret_right {

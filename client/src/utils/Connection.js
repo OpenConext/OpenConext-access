@@ -27,6 +27,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             allowedEntities: connection.allowedEntities,
             pkce: connection.pkce,
             secret: connection.secret,
+            visibility: connection.visibility,
             arp: {
                 attributes: arpAttributes,
                 profile: currentProfile.name,

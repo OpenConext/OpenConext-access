@@ -1,82 +1,129 @@
 package access.manage;
 
 import access.AbstractTest;
-import access.model.*;
+import access.model.Application;
+import access.model.Connection;
+import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
-import static access.manage.MapSorter.toSortedTreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("unchecked")
 class ConnectionProviderConverterTest extends AbstractTest {
 
     @Autowired
     private ConnectionProviderConverter connectionProviderConverter;
 
     @Test
-    void convert() throws IOException {
-        Connection connection = getConnection();
+    void convertConnections() {
+        Map.of(
+                "/manage/rp_connection.json",
+                "/manage/oidc10_rp.expected.json",
+                "/manage/sp_connection.json",
+                "/manage/saml20_sp.expected.json"
+        ).forEach((connectionPath, expectedPath) -> {
+            doConvertConnection(connectionPath, expectedPath);
+        });
+    }
+
+    @SneakyThrows
+    private void doConvertConnection(String connectionPath, String expectedPath) {
+        Connection connection = readJson(connectionPath, Connection.class);
+        Application application = readJson("/manage/application.json", Application.class);
+        Organization organization = new Organization("ORG name", "example.com");
+        application.setOrganization(organization);
+        connection.setApplication(application);
+
         String converted = connectionProviderConverter.convert(connection);
+
         Map<String, Object> map = objectMapper.readValue(converted, new TypeReference<>() {
         });
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
-                new ClassPathResource("/manage/oidc10_rp.expected.json").getInputStream()), new TypeReference<>() {
+                new ClassPathResource(expectedPath).getInputStream()), new TypeReference<>() {
         });
-        MapDiffer.printDifferences(toSortedTreeMap(expected), toSortedTreeMap(map));
+        List<String> differences = differences(toSortedTreeMap(expected), toSortedTreeMap(map));
+        if (!differences.isEmpty()) {
+            //Easy to compare sorted maps / lists
+            System.out.println(differences);
+        }
         assertEquals(expected, map);
     }
 
-    private Connection getConnection() {
-        Organization organization = new Organization("ORG name", "example.com");
-        Application application = new Application("ShareLogic", organization, Map.of());
-        Map<String, Object> metaData = Map.of(
-                "entityID", "https://engine.test",
-                "redirectUrls", List.of("https://redirect.url"),
-                "grantTypes", List.of("authorization_code"),
-                "secret", "secret",
-                "logoUrl", "https://static.surfconext.nl/media/idp/surfconext.png",
-                "pkce", false,
-                "arp", Map.of(
-                        "enabled", true,
-                        "attributes", Map.of(
-                                "urn:mace:dir:attribute-def:cn", List.of(
-                                        Map.of("value", "*",
-                                                "source", "idp",
-                                                "motivation", "Because")
-                                ),
-                                "urn:mace:dir:attribute-def:displayName", List.of(
-                                        Map.of("value", "*",
-                                                "source", "idp",
-                                                "motivation", "Because")
-                                )
-                        )
-                ),
-                "contactPersons", List.of(
-                        new Contact("technical", "John", "Doe", "jdoe@example.com"),
-                        new Contact("support", "Mary", "Doe", "mdoe@example.com")
-                ),
-                "allowedEntities", List.of(
-                        "http://mock-idp",
-                        "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
-                )
-        );
-        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
-        connection.setManageIdentifier("123456");
-        connection.setManageVersion(2);
-        connection.setManageEid(99);
-        return connection;
+
+    @SneakyThrows
+    private <T> T readJson(String path, Class<T> clazz) {
+        return objectMapper.readValue(IOUtils.readInputStreamToString(
+                new ClassPathResource(path).getInputStream()), clazz);
     }
 
     @Override
     protected boolean seedDatabase() {
         return false;
     }
+
+    private Map<String, Object> toSortedTreeMap(Map<String, Object> input) {
+        Map<String, Object> result = new TreeMap<>();
+
+        input.forEach((key, value) -> {
+            if (value instanceof Map) {
+                result.put(key, toSortedTreeMap((Map<String, Object>) value));
+            } else if (value instanceof List) {
+                result.put(key, sortListIfNeeded((List<?>) value));
+            } else {
+                result.put(key, value);
+            }
+
+        });
+        return result;
+    }
+
+    private List<Object> sortListIfNeeded(List<?> list) {
+        List<Object> sortedList = new ArrayList<>();
+        list.forEach(item -> {
+            if (item instanceof Map) {
+                sortedList.add(toSortedTreeMap((Map<String, Object>) item));
+            } else {
+                sortedList.add(item);
+            }
+        });
+        return sortedList;
+    }
+
+    private List<String> differences(Map<String, Object> left, Map<String, Object> right) {
+        return differencesRecursive(left, right, "", new ArrayList<>());
+    }
+
+    private List<String> differencesRecursive(Map<String, Object> left, Map<String, Object> right, String path, List<String> differences) {
+        Set<String> allKeys = new TreeSet<>();
+        allKeys.addAll(left.keySet());
+        allKeys.addAll(right.keySet());
+        allKeys.forEach(key -> {
+
+        });
+        for (String key : allKeys) {
+            String fullPath = path.isEmpty() ? key : path + "." + key;
+            Object val1 = left.get(key);
+            Object val2 = right.get(key);
+
+            if (!left.containsKey(key)) {
+                differences.add(String.format("Only in right: %s = %s%n", fullPath, val2));
+            } else if (!right.containsKey(key)) {
+                differences.add(String.format("Only in left: %s = %s%n", fullPath, val2));
+            } else if (val1 instanceof Map && val2 instanceof Map) {
+                differencesRecursive((Map<String, Object>) val1, (Map<String, Object>) val2, fullPath, differences);
+            } else if (!Objects.equals(val1, val2)) {
+                differences.add(String.format("Different at %s: left=%s, right=%s%n", fullPath, val1, val2));
+            }
+        }
+        return differences;
+    }
+
+
 }

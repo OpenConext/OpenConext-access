@@ -1,0 +1,51 @@
+{
+  "id": 1,
+  "name": "WelcomeAPP",
+  "logoUrl": "http://localhost:9000/s3-images/ea597f2d-8632-4d99-b295-a58509fc3689",
+  "metaData": {
+    "privacy": {
+      "country": "NL",
+      "dpa_type": "dpa_supplied_by_service",
+      "what_data": "Every",
+      "other_info": "dfsdfsf",
+      "access_data": "Everybody",
+      "security_measures": "Ssssssaasasa",
+      "privacy_policy_url_en": "dfdkjddfs",
+      "privacy_policy_url_nl": "dudud"
+    },
+    "information": {
+      "tags": [
+        "education",
+        "business"
+      ],
+      "webSite": "https://website.com",
+      "descriptionEN": "Beschrijving in het Engels",
+      "descriptionNL": "Beschrijving in het Nederlands"
+    },
+    "contactPersons": [
+      {
+        "type": "support",
+        "email": "help@surfconext.nl",
+        "surName": "Doe",
+        "givenName": "Supp"
+      },
+      {
+        "type": "technical",
+        "email": "help@surfconext.nl",
+        "surName": "DPEOOE",
+        "givenName": "Tech"
+      },
+      {
+        "type": "administrative",
+        "email": "help@surfconext.nl",
+        "surName": "Codo",
+        "givenName": "Admin"
+      }
+    ]
+  },
+  "status": "COMPLETE",
+  "createdAt": 1750924829.000000000,
+  "signedContract": true,
+  "target": "SURF",
+  "type": "APP"
+}

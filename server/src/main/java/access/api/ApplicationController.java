@@ -104,7 +104,6 @@ public class ApplicationController implements UserAccessRights {
         //If the metadata has changed, we must propagate this to manage
         if (!application.getMetaData().equals(applicationData.getMetaData())) {
             application.getConnections().forEach(connection -> {
-                connection.getMetaData().putAll(application.getMetaData());
                 Map<String, Object> provider = manage.saveProvider(connection);
                 connection.updateRemoteManageData( provider);
                 connectionRepository.save(connection);

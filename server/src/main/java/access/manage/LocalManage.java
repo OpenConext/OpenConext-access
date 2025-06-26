@@ -4,18 +4,20 @@ import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
@@ -79,14 +81,26 @@ public final class LocalManage implements Manage {
         String providerString = converter.convert(connection);
         Map<String, Object> provider = objectMapper.readValue(providerString, new TypeReference<>() {
         });
-        if (provider.containsKey("id")) {
+        boolean existingProvider = provider.containsKey("id");
+        if (existingProvider) {
             provider.put("version", (int) provider.get("version") + 1);
         } else {
             provider.put("id", UUID.randomUUID().toString());
             provider.put("version", 0);
         }
         List<Map<String, Object>> providers = this.allProviders.get(connection.getProtocol());
-        providers.add(provider);
+        if (existingProvider) {
+            int index = IntStream.range(0, providers.size())
+                    .filter(i -> providers.get(i).get("id") == provider.get("id"))
+                    .findFirst()
+                    .orElse(-1);
+
+            if (index != -1) {
+                providers.set(index, provider);
+            }
+        } else {
+            providers.add(provider);
+        }
         return provider;
     }
 
@@ -100,10 +114,10 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersByEntityID(Environment environment,  EntityType entityType, String entityID) {
+    public List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID) {
         return Stream.of(EntityType.values())
                 .flatMap(type -> this.allProviders.get(type).stream())
-                .filter(provider -> ((Map)provider.get("data")).get("entityid").equals(entityID))
+                .filter(provider -> ((Map) provider.get("data")).get("entityid").equals(entityID))
                 .toList();
 
     }

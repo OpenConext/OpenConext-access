@@ -4,12 +4,17 @@ import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
 import {updateApplication} from "../api/index.js";
 import {convertClientApplicationToServer, convertServerApplicationToClient} from "../utils/Application.js";
-import {Button, Loader} from "@surfnet/sds";
+import {Button, Loader, ButtonType} from "@surfnet/sds";
 import ContractSignedIcon from "../icons/undraw/contract_signed.svg";
 
 export const Contract = ({
                              application,
-                             setApplication
+                             setApplication,
+                             changeTab,
+                             refresh,
+                             protocolOptions,
+                             profileOptions,
+                             arpInfo
                          }) => {
 
     const {setFlash} = useAppStore(state => state);
@@ -23,16 +28,23 @@ export const Contract = ({
             .then(res => {
                 setLoading(false);
                 setFlash(I18n.t("application.flash", {name: res.name}));
-                setApplication(convertServerApplicationToClient(res));
+                setApplication(convertServerApplicationToClient(res,protocolOptions, profileOptions, arpInfo));
             })
             .catch(() => {
                 setLoading(false);
                 setFlash(I18n.t("forms.error"), "error")
             });
     };
+
+    const backToOverview = () => {
+        refresh();
+        changeTab("overview");
+    }
+
     if (loading) {
         return <Loader/>
     }
+
     return (
         <div className="contract-container">
             <div className="contract-inner">
@@ -43,7 +55,7 @@ export const Contract = ({
                     <h4>{I18n.t("connection.contractSection.title")}</h4>
                     <p>{I18n.t("connection.contractSection.info")}</p>
                     <p>{I18n.t(`connection.contractSection.${application.signedContract ? "signed" : "notSigned"}`)}</p>
-                    {!application.signedContract &&
+                    {application.signedContract &&
                         <div className="happy">
                             <ContractSignedIcon/>
                         </div>
@@ -54,6 +66,13 @@ export const Contract = ({
                         <>
                             <Button txt={I18n.t("connection.contractSection.sign")}
                                     onClick={() => submit()}/>
+                        </>
+                    }
+                    {application.signedContract &&
+                        <>
+                            <Button txt={I18n.t("forms.backToOverview")}
+                                    type={ButtonType.Secondary}
+                                    onClick={() => backToOverview()}/>
                         </>
                     }
                 </div>

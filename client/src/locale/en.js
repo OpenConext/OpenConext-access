@@ -184,6 +184,8 @@ const en = {
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",
+        productionActivationHint: "Vraag activatie van de propductiekoppeling aan.",
+        productionActivationAction: "Doe het direct",
         newConnection: "Nieuwe koppeling met de testomgeving",
         existingConnection: "Testkoppeling bewerken",
         newConnectionProd: "Nieuwe koppeling met de productieomgeving",
@@ -312,8 +314,13 @@ const en = {
             institution: "test IdP or institution IdP"
         },
         visibilities: {
-            info: "Kies met welke IdP’s je wilt koppelen.",
-            institutionIdPsInfo: "<strong>Let wel op<strong/>: voordat we je koppeling definitief maken voor productie gebruik, kijken we naar de gekozen IdP's",
+            info: "Kies hoe je wilt dat deze koppeling zichtbaar is in de SURF App catalogus",
+            disclaimer: "<strong>Let op</strong>: je kan de zichtbaarheid altijd later nog aanpassen",
+            options: {
+                "visible_to_all": "Visible for all users and institutions",
+                "visible_to_idp_only": "Only visible for users from institutions that are granted access to this connection",
+                "visible_to_none": "Not visible for any users or institutions (e.g. hidden in the catalogus)",
+            },
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -339,12 +346,12 @@ const en = {
             sections: {
                 logo: "Logo en beschrijving",
                 contact: "Contactgegevens",
-                privacy:"Privacy & Security ",
+                privacy: "Privacy & Security ",
                 overview: "Overview"
             },
             logoUrl: "Logo",
-            descriptionEn : "Beschrijving in het Engels",
-            descriptionNl : "Beschrijving in het Nederlands",
+            descriptionEn: "Beschrijving in het Engels",
+            descriptionNl: "Beschrijving in het Nederlands",
             webSite: "Website",
             tags: "Tag je applicatie",
             tagPlaceholder: "Maximaal 3 tags",
@@ -376,7 +383,7 @@ const en = {
             administrative: "Administratief contact",
             administrativeTooltip: "Administratief contact Tooltip",
             administrativePlaceholder: "e.g. admin@{{name}}",
-            emailOrWebsite:"Email-adres of website",
+            emailOrWebsite: "Email-adres of website",
             technical: "Technisch contact (anders dan administratief)",
             technicalTooltip: "Technical contact Tooltip",
             technicalPlaceholder: "e.g. technical@{{name}}",
@@ -389,17 +396,16 @@ const en = {
             info: "Please fill out the questions below. We will share the answers with institutions connected to SURFconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
             answerIsRequired: "Answer to this privacy question is required"
         },
-        appOverview : {
+        appOverview: {
             label: "De App informatie zijn compleet.",
-            info: "Zo verschijnt uw app in de SURF App catalogus.",
+            info: "Zo verschijnt je app in de SURF App catalogus.",
         },
         contractSection: {
             title: "Contract",
             info: "Voor apps op SURF Access moet je een SURF-aansluitovereenkomst tekenen.",
             notSigned: "Er is nog geen overeenkomst getekend.",
-            signed: "Er is ee overeenkomst getekend.",
+            signed: "Er is een overeenkomst getekend.",
             sign: "Teken de overeenkomst"
-
         }
     },
     testing: {
@@ -430,7 +436,8 @@ const en = {
         required: "{{name}} is required",
         requiredOne: "At least one {{name}} is required",
         error: "An unexpected error occurred",
-        backToOverview: "Back to connections",
+        backToConnections: "Back to connections",
+        backToOverview: "Back to overview",
         overview: "Naar overzicht",
         invalidURL: "{{name}} is not a valid URL",
         invalidEmailURL: "{{name}} is not a valid URL or valid email",

@@ -3,15 +3,35 @@ import CaretRight from "../icons/caret_right.svg";
 import PendingIcon from "../icons/pending.svg";
 import TeamIcon from "../icons/teams.svg";
 import CompletedIcon from "../icons/completed.svg";
+import AlertIcon from "../icons/alert-triangle.svg";
+
+
+export const STATUS_LINK_TYPE = {
+    ACTIVE: "ACTIVE",
+    PENDING: "PENDING",
+    ALERT: "ALERT",
+    TEAM: "TEAM"
+}
 
 export const StatusLink = ({status, info, action, disabled}) => {
 
-    const icon = status === "team" ? <TeamIcon/> : status ? <CompletedIcon/> : <PendingIcon/>;
+    const getIcon = () => {
+        switch (status) {
+            case STATUS_LINK_TYPE.ACTIVE:
+                return <CompletedIcon/>
+            case STATUS_LINK_TYPE.PENDING:
+                return <PendingIcon/>
+            case STATUS_LINK_TYPE.ALERT:
+                return <AlertIcon/>
+            case STATUS_LINK_TYPE.TEAM:
+                return <TeamIcon/>
+        }
+    }
 
     return (
         <div className={`status-link ${disabled && "disabled"}`}
              onClick={action}>
-            {icon}
+            {getIcon()}
             <span className="info">{info}</span>
             <CaretRight/>
         </div>

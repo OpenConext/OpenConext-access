@@ -43,7 +43,13 @@ import {
     convertServerConnectionToClient,
     generateOIDCClientID
 } from "../utils/Connection.js";
-import {ENVIRONMENTS, identityProviderOption, identityProviderOptions, PROTOCOLS, CONNECTION_STATUSES} from "../utils/Manage.js";
+import {
+    CONNECTION_STATUSES,
+    ENVIRONMENTS,
+    identityProviderOption,
+    identityProviderOptions,
+    PROTOCOLS
+} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
@@ -147,7 +153,9 @@ export const Testing = ({
             convertedConnection.id = connection.id;
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
-            convertedConnection.entityID = "";
+            if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
+                convertedConnection.entityID = "";
+            }
             setConnection(convertedConnection);
             setLoading(false);
             setFlash(I18n.t("connection.flash.copied", {name: originalName}))
@@ -694,27 +702,28 @@ export const Testing = ({
         );
     }
 
+    const visibilityOption = option => {
+        return {
+            value: option[0],
+            label: option[1]
+        }
+    }
+
     const renderVisibilitySection = () => {
-        const allowedEntities = connection.allowedEntities || [];
+        const visibilityEntries = Object.entries(I18n.translations[I18n.locale].connection.visibilities.options);
+        const value = connection.visibility ? visibilityOption(visibilityEntries.find(entry => entry[0] === connection.visibility)) : visibilityOption(visibilityEntries[0]);
         return (
             <section className="inner-right-idp">
                 <h3>{I18n.t("connection.visibility")}</h3>
                 <p>{I18n.t("connection.visibilities.info")}</p>
-                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.institutionIdPsInfo"))}}/>
+                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                 <SelectField
-                    options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
-                    value={allowedEntities
-                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
-                    isMulti={true}
-                    searchable={true}
-                    placeholder={I18n.t("connection.testIdPs.placeholder")}
-                    onChange={options => changeAllowedEntity(options)}
+                    options={visibilityEntries
+                        .filter(option => option[0] !== connection.visibility)
+                        .map(visibilityOption)}
+                    value={value}
+                    onChange={option => setConnection({...connection, visibility: option.value})}
                 />
-                {(!initial && isEmpty(connection.allowedEntities)) &&
-                    <ErrorIndicator
-                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.visibilities.institution")})}
-                    />}
-
             </section>
         );
     }
@@ -951,7 +960,7 @@ export const Testing = ({
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
-        const showOverviewButton = section === sections.overview || (isComplete && section === sections.testIdP && !isOidc);
+        const showOverviewButton = section === sections.overview ;
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         const {open, cancel, action, modal, okButton, question, header} = confirmation;
         return <>
@@ -1027,7 +1036,7 @@ export const Testing = ({
                     <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
                         {!showOverviewButton &&
                             <>
-                                <Button txt={I18n.t(`forms.${connection.id ? "backToOverview" : "cancel"}`)}
+                                <Button txt={I18n.t(`forms.${connection.id ? "backToConnections" : "cancel"}`)}
                                         type={ButtonType.Secondary}
                                         onClick={backToConnections}/>
                                 <Button txt={submitTxt}

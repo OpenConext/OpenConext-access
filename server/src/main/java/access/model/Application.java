@@ -108,5 +108,7 @@ public class Application implements NameHolder{
         this.type = applicationData.type;
         this.target = applicationData.target;
         this.logoUrl = applicationData.logoUrl;
+        this.signedContract = applicationData.signedContract;
+        this.status = applicationData.status;
     }
 }

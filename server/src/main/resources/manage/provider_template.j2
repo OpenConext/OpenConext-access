@@ -22,8 +22,14 @@
       "metaDataFields": {
         "name:en": "{{ name }}",
         "name:nl": "{{ name }}",
-        {% if metaData.logoUrl is defined and metaData.logoUrl %}
-        "logo:0:url": "{{ metaData.logoUrl }}",
+        {% if logoUrl is defined and logoUrl %}
+        "logo:0:url": "{{ logoUrl }}",
+        {% endif -%}
+        {% if metaData.information.descriptionEN is defined and metaData.information.descriptionEN %}
+        "description:en": "{{ metaData.information.descriptionEN }}",
+        {% endif -%}
+        {% if metaData.information.descriptionNL is defined and metaData.information.descriptionNL %}
+        "description:en": "{{ metaData.information.descriptionNL }}",
         {% endif -%}
         {% if protocol == "oidc10_rp" %}
         "grants": {{ metaData.grantTypes | to_json }},
@@ -57,6 +63,9 @@
         {% if metaData.secret is defined and metaData.secret %}
         "secret": "{{ metaData.secret }}",
         {% endif -%}
+        {%- for privacy in metaData.privacyData -%}
+        "{{ privacy.name }}": "{{ privacy.value }}"
+        {% endfor %}
         "OrganizationName:en": "{{ organizationName }}"
       }
     }

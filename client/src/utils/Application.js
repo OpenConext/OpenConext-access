@@ -1,5 +1,6 @@
 import {isEmpty} from "./Utils.js";
 import {isValidUrl} from "../validations/regExps.js";
+import {convertServerConnectionToClient} from "./Connection.js";
 
 export const logoSectionValid = (application) => {
     return !isEmpty(application?.logoUrl) &&
@@ -24,19 +25,38 @@ export const privacySectionValid = (privacyInfo, application) => {
 };
 
 //Pull the metaData of the application up in the root
-export const convertServerApplicationToClient = (application) => {
-    //Sensible defaults for first rendering, but override for applications already catalogized
+export const convertServerApplicationToClient = (application, protocolOptions, profileOptions, arpInfo) => {
+    application.metaData.contactPersons = (application.metaData.contactPersons || [])
+        .map(person => ({
+            type: person.type,
+            email: person.email,
+            name: `${person.givenName} ${person.surName}`
+        }));
     return {
         ...application,
+        connections: isEmpty(protocolOptions) ? application.connections : application.connections
+            .map(con => convertServerConnectionToClient(con, protocolOptions, profileOptions, arpInfo)),
         information: {},
         contactPersons: [],
         privacy: {},
+        //Sensible defaults for first rendering, but override for applications already catalogized
         ...application.metaData
 
     }
 }
 //Push the metaData of the application to the actual JSON metaData version
 export const convertClientApplicationToServer = (application) => {
+    application.contactPersons = application.contactPersons
+        .map(person => {
+            const parts = person.name.split(" ");
+            //Not trivial, but SAML and Manage dictates givenName and surName
+            return {
+                type: person.type,
+                email: person.email,
+                givenName: parts[0],
+                surName: parts.slice(1).join(" ")
+            }
+        })
     return {
         ...application,
         //Connections and memberships are created separately

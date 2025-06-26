@@ -7,7 +7,6 @@ import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHe
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
-import {convertServerConnectionToClient} from "../utils/Connection.js";
 import {Loader} from "@surfnet/sds";
 import {CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
@@ -34,6 +33,7 @@ export const Connection = () => {
     const [identityProviders, setIdentityProviders] = useState([]);
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshApp, setRefreshApp] = useState(0);
 
     const navigate = useNavigate();
 
@@ -54,9 +54,7 @@ export const Connection = () => {
                         {I18n.t(`connection.informational.profiles.${profile.name}.title`)}
                     </div>)
                 }));
-                res[0].connections = (res[0].connections || [])
-                    .map(conn => convertServerConnectionToClient(conn, protocolOptions, options, res[1]));
-                setApplication(convertServerApplicationToClient(res[0]));
+                setApplication(convertServerApplicationToClient(res[0], protocolOptions, options, res[1]));
                 setArpInfo(res[1]);
                 setPrivacyInfo(res[2])
                 setIdentityProviders(res[3]);
@@ -76,12 +74,13 @@ export const Connection = () => {
     }, []);
 
     const refresh = () => {
+        setLoading(true);
         getApplicationById(applicationId)
             .then(res => {
-                res.connections = (res.connections || [])
-                    .map(conn => convertServerConnectionToClient(conn, protocolOptions, profileOptions, arpInfo));
-                setApplication(convertServerApplicationToClient(res));
+                setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
                 setConnection(null);
+                setLoading(false);
+                setRefreshApp(new Date().getTime());
             })
     }
 
@@ -108,7 +107,7 @@ export const Connection = () => {
     }
 
     const changeTab = newTab => {
-        if (currentTab === "testing") {
+        if (currentTab === "testing" || currentTab === "prod") {
             //force the overview
             setConnection(null);
         }
@@ -124,6 +123,7 @@ export const Connection = () => {
                                  initConnection={initConnection}
                                  setTab={changeTab}
                                  privacyInfo={privacyInfo}
+                                 refreshApp={refreshApp}
                 />
             }
             case  "testing": {
@@ -156,12 +156,21 @@ export const Connection = () => {
                 return <AppInformation application={application}
                                        setApplication={setApplication}
                                        refresh={refresh}
+                                       changeTab={changeTab}
                                        privacyInfo={privacyInfo}
+                                       protocolOptions={protocolOptions}
+                                       profileOptions={profileOptions}
+                                       arpInfo={arpInfo}
                 />
             }
             case "contract": {
                 return <Contract application={application}
                                  setApplication={setApplication}
+                                 changeTab={changeTab}
+                                 refresh={refresh}
+                                 protocolOptions={protocolOptions}
+                                 profileOptions={profileOptions}
+                                 arpInfo={arpInfo}
                 />
             }
             default:

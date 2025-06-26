@@ -94,12 +94,9 @@ public class RemoteManage implements Manage {
         ResponseEntity<Map> responseEntity;
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());
-        if (StringUtils.hasText(connection.getManageIdentifier())) {
-            responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                    HttpMethod.PUT, new HttpEntity<>(provider), Map.class);
-        } else {
-            responseEntity = restTemplate.postForEntity(String.format("%s/manage/api/internal/metadata", url), provider, Map.class);
-        }
+        HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
+        responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+                httpMethod, new HttpEntity<>(provider), Map.class);
         Map body = responseEntity.getBody();
         if (ResilientErrorHandler.ignoreError(body)) {
             //See ResilientErrorHandler#handleError. Any no-data-changed error is already thrown
@@ -119,11 +116,11 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersByEntityID(Environment environment,  EntityType entityType, String entityID) {
+    public List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID) {
         RestTemplate restTemplate = environmentRestTemplate(environment);
         String url = environmentUrl(environment);
         String queryUrl = String.format("%s/manage/api/internal/uniqueEntityId/%s", url, entityType.name());
-        return restTemplate.postForEntity(queryUrl, Map.of("entityid", entityID),List.class).getBody();
+        return restTemplate.postForEntity(queryUrl, Map.of("entityid", entityID), List.class).getBody();
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
