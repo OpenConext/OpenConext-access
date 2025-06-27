@@ -186,6 +186,7 @@ const en = {
         applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",
         productionActivationHint: "Vraag activatie van de propductiekoppeling aan.",
         productionActivationAction: "Doe het direct",
+        productActivationPending: "De aanvraag voor activatie van uw productiekoppeling is ontvangen. SURF neemt binnen drie werkdagen contact met u op.",
         newConnection: "Nieuwe koppeling met de testomgeving",
         existingConnection: "Testkoppeling bewerken",
         newConnectionProd: "Nieuwe koppeling met de productieomgeving",
@@ -256,7 +257,8 @@ const en = {
             open: "Open",
             complete: "Completed",
             protocol: "Protocol",
-            details: "Details"
+            details: "Details",
+            requestProductionStatus: "Vraag productiestatus aan"
 
         },
         informational: {

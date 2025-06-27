@@ -412,34 +412,51 @@ $width-percentage: 75%;
 table.table-connections {
     thead {
         th.name {
-            width: 25%;
+            width: 18%;
         }
 
         th.createdAt {
-            width: 15%;
+            width: 16%;
         }
 
         th.status {
-            width: 20%;
+            width: 15%;
             text-align: center;
         }
 
         th.protocol {
-            width: 15%;
+            width: 10%;
+        }
+
+        th.buttons {
+            width: 26%;
         }
 
         th.details {
-            width: 25%;
+            width: 15%;
         }
     }
 
     tbody {
         td.details {
+            padding-right: 0;
             text-align: right;
         }
 
         td.status {
             text-align: center;
         }
+
+        td.buttons {
+            word-break: keep-all;
+            button.sds--btn--ghost--dark {
+                color: white;
+                background-color: var(--sds--color--gray--500);
+                &:hover {
+                    background-color: var(--sds--color--black--navigation);
+                }
+            }
+        }
+
     }
 }

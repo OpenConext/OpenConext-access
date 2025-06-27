@@ -1095,6 +1095,24 @@ export const Testing = ({
                 }
             },
             {
+                key: "buttons",
+                header: "",
+                mapper: conn => {
+                    if (!isProduction) {
+                        return null;
+                    }
+                    const productionConnectionNeedsActivation = application.signedContract && conn.status === CONNECTION_STATUSES.COMPLETE;
+                    if (productionConnectionNeedsActivation) {
+                        return <Button txt={I18n.t("connection.connections.requestProductionStatus")}
+                                       type={ButtonType.GhostDark}
+                                       onClick={() => alert("TODO")}
+                                       className="sds--button-blue-mode"
+                                       />
+                    }
+
+                }
+            },
+            {
                 key: "protocol",
                 header: I18n.t("connection.connections.protocol"),
                 mapper: conn => I18n.t(`connection.${conn.protocol.value.toLowerCase()}`)

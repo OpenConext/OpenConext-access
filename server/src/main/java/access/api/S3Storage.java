@@ -1,6 +1,5 @@
 package access.api;
 
-import access.model.FileUploadRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.auth.signer.AwsS3V4Signer;
 import software.amazon.awssdk.core.client.config.SdkAdvancedClientOption;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
@@ -46,10 +44,10 @@ public class S3Storage {
                 .endpointOverride(new URI(s3URL))
 //                .region(Region.US_EAST_1)
                 .forcePathStyle(true)
-                .overrideConfiguration(c -> {
-                    c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
-                            AwsS3V4Signer.create());
-                })
+//                .overrideConfiguration(c -> {
+//                    c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
+//                            AwsS3V4Signer.create());
+//                })
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
         this.bucketName = s3BucketName;

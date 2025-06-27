@@ -16,7 +16,7 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
         testConnectionComplete,
         productionConnectionComplete,
         appInformationComplete,
-        productionConnectionNeedsActivation
+        productionConnectionNeedsActivation,
     } = useMemo(() => {
         return {
             testConnectionComplete: !isEmpty(application.connections) &&

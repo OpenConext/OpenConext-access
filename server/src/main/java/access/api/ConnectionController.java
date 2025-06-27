@@ -2,6 +2,7 @@ package access.api;
 
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.jira.JiraClient;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationRepository;
@@ -43,17 +44,20 @@ public class ConnectionController implements UserAccessRights {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final Manage manage;
+    private final JiraClient jiraClient;
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
     private final List<CharacterRule> rules = initPasswordGeneratorRules();
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
                                 UserRepository userRepository,
-                                Manage manage) {
+                                Manage manage,
+                                JiraClient jiraClient) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.manage = manage;
+        this.jiraClient = jiraClient;
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -163,7 +167,7 @@ public class ConnectionController implements UserAccessRights {
             }
 
             Map<String, Object> provider = manage.saveProvider(connection);
-            connection.updateRemoteManageData( provider);
+            connection.updateRemoteManageData(provider);
 
             List<Map<String, Object>> contactPersons = (List<Map<String, Object>>) connection.getMetaData().get("contactPersons");
             if (!CollectionUtils.isEmpty(contactPersons)) {

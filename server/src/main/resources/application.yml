@@ -49,6 +49,7 @@ spring:
         format_sql: false
         show_sql: false
     open-in-view: false
+    show-sql: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost/access?autoReconnect=true&useSSL=false&permitMysqlScheme=true&allowPublicKeyRetrieval=true
@@ -74,6 +75,17 @@ invite:
   base-url: "http://localhost:8099"
   manage-identifier: "9940c56f-b834-4ea8-aceb-74352bb4a390"
   manage-type: oidc10_rp
+
+jira:
+  enabled: false
+  base-url: "http://localhost:8081/"
+  user-name: "test-beheer-rpc"
+  project-key: CXT
+  environment: test
+  api-key: secret
+  # Timeout in milliseconds
+  connection-timeout: 20
+
 
 config:
   client-url: "http://localhost:3002"
