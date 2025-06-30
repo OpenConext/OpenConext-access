@@ -31,7 +31,7 @@ public class ConnectionProviderConverter {
 
     public String convert(Connection connection) throws JsonProcessingException {
         Application application = connection.getApplication();
-        //Combine the two metaData maps
+        //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();
         Map<String, Object> applicationMetaData = application.getMetaData();
         Map<String, Object> information = (Map<String, Object>) applicationMetaData.getOrDefault("information", Map.of());
@@ -87,6 +87,10 @@ public class ConnectionProviderConverter {
                 metaDataFields.put("AssertionConsumerService:" + i + ":Binding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
             });
         }
+
+        String visibility = (String) connectionMetaData.get("visibility");
+        metaDataFields.put("coin:ss:idp_visible_only", Visibility.visible_to_idp_only.name().equals(visibility));
+        metaDataFields.put("coin:ss:hidden", Visibility.visible_to_none.name().equals(visibility));
 
         List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
         IntStream.range(0, contactPersons.size()).forEach(i -> {

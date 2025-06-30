@@ -1,5 +1,6 @@
 //Deliberate design choice to have a different format on the server to have all complex data in the metaData attribute
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
+
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
     const currentProfile = arpInfo.profiles.find(p => p.name === profile.value);
     const selectedAttributes = currentProfile.attributes.concat(additionalAttributes);

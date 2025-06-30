@@ -44,10 +44,10 @@ public class S3Storage {
                 .endpointOverride(new URI(s3URL))
 //                .region(Region.US_EAST_1)
                 .forcePathStyle(true)
-//                .overrideConfiguration(c -> {
-//                    c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
-//                            AwsS3V4Signer.create());
-//                })
+                .overrideConfiguration(c -> {
+                    c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,
+                            AwsS3V4Signer.create());
+                })
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
         this.bucketName = s3BucketName;
@@ -81,7 +81,6 @@ public class S3Storage {
                 .build();
         try {
             s3Client.headBucket(headBucketRequest);
-            bucketExists = true;
         } catch (NoSuchBucketException e) {
             s3Client.createBucket(CreateBucketRequest.builder()
                     .bucket(bucketName)
@@ -92,6 +91,7 @@ public class S3Storage {
                     .policy(getPublicBucketPolicy(bucketName))
                     .build();
             s3Client.putBucketPolicy(putBucketPolicyRequest);
+            bucketExists = true;
         }
     }
 

@@ -121,7 +121,7 @@ email:
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
 #  enabled: True
-  enabled: False
+  enabled: True
   test:
     url: "https://manage.test2.surfconext.nl"
   #  url: "http://localhost:8081"
@@ -140,10 +140,14 @@ manage:
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 s3storage:
-  url: http://localhost:9000
+  url: "https://minioapi.test2.surfconext.nl"
   key: "minioadmin"
-  secret: "minioadmin"
+  secret: "jippie123"
   bucket: "s3-images"
+#  url: http://localhost:9000
+#  key: "minioadmin"
+#  secret: "minioadmin"
+#  bucket: "s3-images"
 
 springdoc:
   pathsToMatch: "/access/api/v1/**"

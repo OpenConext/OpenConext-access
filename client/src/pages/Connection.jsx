@@ -103,7 +103,9 @@ export const Connection = () => {
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid)
         });
-        changeTab(environment === ENVIRONMENTS.TEST ? "testing" : "prod");
+        const newTab = environment === ENVIRONMENTS.TEST ? "testing" : "prod";
+        setCurrentTab(newTab);
+        navigate(`/connection/${applicationId}/${newTab}`);
     }
 
     const changeTab = newTab => {

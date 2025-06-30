@@ -74,7 +74,9 @@ public class ConnectionController implements UserAccessRights {
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         Map<String, Object> provider = manage.providerById(connection);
-        connection.mergeMetaData(provider);
+        if (connection.mergeMetaData(provider)) {
+            connectionRepository.save(connection);
+        }
         return ResponseEntity.ok(connection);
     }
 
@@ -161,7 +163,7 @@ public class ConnectionController implements UserAccessRights {
             if (connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     !StringUtils.hasText((String) connection.getMetaData().get("secret")) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE) {
-                //generate secret, but store the raw-text variant, because Manage encodes it
+                //generate secret but store the raw-text variant, because Manage encodes it
                 String secret = passwordGenerator.generatePassword(36, rules);
                 connection.getMetaData().put("secret", secret);
             }
@@ -177,7 +179,6 @@ public class ConnectionController implements UserAccessRights {
                 //No need to store redundant data
                 connection.getMetaData().remove("contactPersons");
             }
-
         }
         return connectionRepository.save(connection);
     }

@@ -112,10 +112,16 @@ public class Connection implements NameHolder {
         this.status = connectionData.status;
     }
 
-    public void mergeMetaData(Map<String, Object> provider) {
+    public boolean mergeMetaData(Map<String, Object> provider) {
         // For new Connections
+        boolean changed = false;
         this.manageIdentifier = (String) provider.get("id");
-        this.manageVersion = (Integer) provider.get("version");
+        Integer newManageVersion = (Integer) provider.get("version");
+        if (newManageVersion.equals(this.manageVersion)) {
+            //Two-way synchronization and optimistic locking
+            changed = true;
+        }
+        this.manageVersion = newManageVersion;
         this.metaData = new HashMap<>();
 
         Map<String, Object> data = (Map<String, Object>) provider.get("data");
@@ -155,6 +161,14 @@ public class Connection implements NameHolder {
             }
         });
         this.metaData.put("contactPersons", contactPersons);
+
+        boolean ssHidden = (boolean) metaDataFields.getOrDefault("coin:ss:hidden", false);
+        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault("coin:ss:idp_visible_only", false);
+        String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?
+                Visibility.visible_to_idp_only.name() : Visibility.visible_to_all.name();
+        this.metaData.put("visibility", visibility);
+
+        return changed;
     }
 
     @JsonIgnore

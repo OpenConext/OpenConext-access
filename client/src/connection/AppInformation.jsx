@@ -215,7 +215,15 @@ export const AppInformation = ({
     }
 
     const updateContactPerson = (typeContact, attribute, value) => {
-        const contactPerson = application.contactPersons.find(c => c.type === typeContact);
+        let contactPerson = application.contactPersons.find(c => c.type === typeContact);
+        if (isEmpty(contactPerson)) {
+            contactPerson = {
+                type: typeContact,
+                "email": "",
+                "name": ""
+            };
+            application.contactPersons.push(contactPerson);
+        }
         contactPerson[attribute] = value;
         const newApplication = {...application, contactPersons: [...application.contactPersons]};
         setApplication(newApplication);
@@ -228,7 +236,7 @@ export const AppInformation = ({
                 <p>{I18n.t("connection.contacts.info")}</p>
                 {["administrative", "technical", "support"].map(typeContact => {
                     const contactPerson = application.contactPersons.find(c => c.type === typeContact) || {
-                        type: "support",
+                        type: typeContact,
                         "email": "",
                         "name": ""
                     };

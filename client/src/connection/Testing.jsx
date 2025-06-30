@@ -155,12 +155,12 @@ export const Testing = ({
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
             if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
                 convertedConnection.entityID = "";
+                convertedConnection.secret = null;
             }
             setConnection(convertedConnection);
             setLoading(false);
             setFlash(I18n.t("connection.flash.copied", {name: originalName}))
         })
-
     }
 
     const isDuplicateConnectionName = () => {

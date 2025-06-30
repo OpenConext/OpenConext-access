@@ -6,9 +6,8 @@ import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {deleteApplicationById, resetConnectionSecret} from "../api/index.js";
+import {deleteApplicationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import InputField from "./InputField.jsx";
 
 export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab, setLoading}) => {
 
