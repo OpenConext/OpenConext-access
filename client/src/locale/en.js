@@ -259,7 +259,6 @@ const en = {
             protocol: "Protocol",
             details: "Details",
             requestProductionStatus: "Vraag productiestatus aan"
-
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
