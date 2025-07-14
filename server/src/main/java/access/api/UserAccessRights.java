@@ -38,5 +38,11 @@ public interface UserAccessRights {
         return userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
+    default void confirmSuperUser(User user) {
+        if (!user.isSuperUser()) {
+            throw new UserRestrictionException(String.format("User %s is no super user",
+                    user.getEmail()));
+        }
+    }
 
 }

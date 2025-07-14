@@ -1,10 +1,14 @@
 package access.repository;
 
 import access.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -17,5 +21,14 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
     Optional<User> findDetailsById(Long id);
 
     Optional<User> findBySubIgnoreCase(String sub);
+
+    @Query(value = """
+             SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
+                u.created_at as createdAt, u.last_activity as lastActivity
+              FROM users u WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)
+            """,
+            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
 
 }

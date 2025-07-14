@@ -56,6 +56,24 @@ class OrganizationControllerTest extends AbstractTest {
     }
 
     @Test
+    void name() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        Map<String, Object> map = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/name/{id}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(SHARE_LOGICS, map.get("name"));
+    }
+
+    @Test
     void findForbidden() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
 

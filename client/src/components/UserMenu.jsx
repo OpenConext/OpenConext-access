@@ -1,7 +1,7 @@
 import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
@@ -34,7 +34,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
     }
 
     const renderOrganizationSwitch = () => {
-        if (isEmpty(user) || user.organizationMemberships.length < 2) {
+        if (isEmpty(user) || !user.organizationMemberships || user.organizationMemberships.length < 2) {
             return null;
         }
         const organizations = user.organizationMemberships.map(om => om.organization);
@@ -62,6 +62,13 @@ export const UserMenu = ({setIsAuthenticated}) => {
                         <a href="/logout" onClick={logoutUser}>{I18n.t(`landing.header.logout`)}</a>
                     </li>
                 </ul>
+            {user.superUser && <ul>
+                    <li>
+                        <Link to="/system">
+                            {I18n.t("landing.header.system")}
+                        </Link>
+                    </li>
+                </ul>}
             </>
         )
     }

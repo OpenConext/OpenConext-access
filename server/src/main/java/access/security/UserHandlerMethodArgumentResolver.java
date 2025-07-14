@@ -59,7 +59,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         }
 
         String sub = attributes.get("sub").toString();
-        AtomicBoolean validImpersonation = new AtomicBoolean(false);
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub)
                 .or(() ->
                         //Provision super-admin users on the fly
@@ -75,7 +74,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 .map(user -> {
                     String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
                     if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
-                        validImpersonation.set(true);
                         return userRepository.findById(Long.valueOf(impersonateId))
                                 .orElseThrow(UserRestrictionException::new);
                     }

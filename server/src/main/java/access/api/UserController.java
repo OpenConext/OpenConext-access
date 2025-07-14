@@ -20,6 +20,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,7 +48,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class UserController {
+public class UserController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(UserController.class);
 
@@ -128,6 +132,21 @@ public class UserController {
             session.invalidate();
         }
         return Results.okResult();
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
+        LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
+
+        confirmSuperUser(user);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> usersPage = userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable);
+        return ResponseEntity.ok(usersPage);
     }
 
     private void verifyMissingAttributes(User user, Config result, boolean guest) {

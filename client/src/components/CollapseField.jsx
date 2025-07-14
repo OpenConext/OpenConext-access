@@ -8,6 +8,11 @@ export const CollapseField = ({title, info, children, checkRequired, name, check
 
     const [collapse, setCollapse] = useState(false)
 
+    const onCollapseToggle = () => {
+        setCollapse(!collapse)
+        checkRequired({target: {checked: !checkValue}});
+    }
+
     return (
         <div className="collapse-field" key={name}>
             <div className="collapse-field-inner">
@@ -16,7 +21,7 @@ export const CollapseField = ({title, info, children, checkRequired, name, check
                                             onChange={e => checkRequired(e)}
                 />}
                 <div className="collapse-field-switch"
-                     onClick={() => setCollapse(!collapse)}>
+                     onClick={onCollapseToggle}>
                     <span className={`${collapse ? "collapsed" : "open"}`}>
                         {title}
                     </span>

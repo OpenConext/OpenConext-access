@@ -11,15 +11,18 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
+import {TeamManagement} from "../organization/TeamManagement.jsx";
 
 const tabNames = ["applications", "team", "joins"]
 
 const Organization = () => {
+    const {user} = useAppStore(state => state);
     const {tab = "applications"} = useParams();
     const {organizationId} = useParams();
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [alertClosed, setAlertClosed] = useState(false);
+    const [refresh, setRefresh] = useState(false);
     const [currentTab, setCurrentTab] = useState(tab);
     const navigate = useNavigate();
 
@@ -41,7 +44,7 @@ const Organization = () => {
             }).catch(() => {
             navigate("/404")
         });
-    }, [organizationId]);
+    }, [organizationId, refresh]);
 
     const alertInfo = () => {
         if (alertClosed || organization.applicationCount > 0) {
@@ -120,6 +123,13 @@ const Organization = () => {
 
     const tabChanged = (name) => {
         setCurrentTab(name);
+        useAppStore.setState({
+            breadcrumbPath: [
+                {path: "/home", value: I18n.t("breadCrumb.access")},
+                {path: `/organization/${organizationId}`, value: organization.name},
+                {value: I18n.t(`breadCrumb.${name}`)}
+            ]
+        });
         navigate(`/organization/${organizationId}/${name}`);
     }
 
@@ -127,7 +137,7 @@ const Organization = () => {
         return (
             <>
                 <div className="organization-container">
-                    <code>{JSON.stringify(organization.organizationMemberships)}</code>
+                    <TeamManagement organization={organization} user={user} setRefresh={setRefresh}/>
                 </div>
             </>
         );

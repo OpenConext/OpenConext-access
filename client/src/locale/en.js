@@ -12,7 +12,8 @@ const en = {
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Come on in",
             sup: "EduID ServiceDesk is by invitation only.",
-            logout: "Logout"
+            logout: "Logout",
+            system: "System"
         },
         tabs: {
             home: "Home",
@@ -63,6 +64,9 @@ const en = {
         access: "SURF Access",
         landing: "Search for your organization",
         applications: "Application maintenance",
+        team: "Team management",
+        joins: "Join Requests",
+        invitations: "Invitation",
         home: "Home"
     },
     welcome: {
@@ -83,6 +87,9 @@ const en = {
         nudgeLanding: "You are not a member of any organization.",
         nudgeLandingLink: " You can request to join one.",
         infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
+    },
+    tabs: {
+        users: "Users"
     },
     joinRequest: {
         info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
@@ -428,6 +435,50 @@ const en = {
         ok: "Ok",
         cancel: "Cancel",
     },
+    teamManagement: {
+        nameEmail: "Name & Email",
+        applicationMemberships: "Member of ApplicationTeams",
+        active: "Active since",
+        role: "Role",
+        maintain: "Maintain the {{name}} team",
+        searchPlaceHolder: "Search for members",
+        new: "Invite team member",
+        deleteConfirmation: "Are you sure you want to remove the organization membership of {{name}}?",
+        flash: {
+            deleted: "The organization membership of {{name}} has been removed"
+        }
+    },
+    roles: {
+        admin: "Admin",
+        member: "Member",
+        guest: "Guest"
+    },
+    impersonate: {
+        exit: "Stop impersonating",
+        impersonator: "You are impersonating <strong>{{name}}</strong>",
+        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>.",
+        flash: {
+            startedImpersonation: "You now impersonate {{name}}.",
+            clearedImpersonation: "Cleared your impersonation. You are you again."
+        },
+    },
+    users: {
+        name_email: "Name & Email",
+        schacHomeOrganization: "Organization",
+        createdAt: "Active since",
+        lastActivity: "Last activity",
+        searchPlaceHolder: "Search users...",
+        impersonate: "Impersonate user {{name}}",
+    },
+    invitation: {
+        title: "New invitation for {{name}} membership",
+        invitees: "Invitees",
+        intendedAuthority: "Rol",
+        message: "Personal note",
+        messagePlaceholder: "Add an optional personal note to your invitation",
+        inviteesPlaceholder: "Invitee email addresses",
+        invite: "Invite"
+    },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
@@ -444,6 +495,7 @@ const en = {
         invalidEmailURL: "{{name}} is not a valid URL or valid email",
         moreLabel: "Show me more",
         lessLabel: "Show me less",
+        you: "You",
     },
     footer: {
         terms: "Terms of Use",

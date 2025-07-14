@@ -1,0 +1,39 @@
+@use "../styles/mixins" as *;
+@use "../styles/vars" as *;
+@use "../index";
+
+table.teamManagement {
+    thead {
+        th.name {
+            width: 30%;
+        }
+
+        th.applicationMemberships {
+            width: 25%;
+            text-align: center;
+        }
+
+        th.role {
+            width: 15%;
+        }
+
+        th.created {
+            width: 15%;
+        }
+
+        th.buttons {
+            width: 15%;
+        }
+    }
+
+    tbody {
+        td.applicationMemberships {
+            text-align: center;
+        }
+
+        td.buttons {
+            text-align: right;
+        }
+
+    }
+}

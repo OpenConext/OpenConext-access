@@ -90,10 +90,7 @@ export const Entities = ({
     const renderSearch = () => {
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
-            <section className="entities-search">
-                {(!hideTitle) &&
-                    <h3>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
-                {(loading || hideTitle) && <Loader/>}
+            <section className={`entities-search ${showNew ? "" : "only-search"}`}>
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
@@ -115,7 +112,7 @@ export const Entities = ({
                 </div>
                 {showNew &&
                     <Button onClick={newEntity}
-                            type={ButtonType.Secondary}
+                            type={ButtonType.Primary}
                             className={`${hideTitle && !filters ? "no-title" : ""}`}
                             txt={newLabel || I18n.t(`${modelName}.new`)}/>
                 }
@@ -236,6 +233,8 @@ export const Entities = ({
     const sortedEntities = customSearch ? filteredEntities : sortObjects(filteredEntities, sorted, reverse);
     return (
         <div className={`mod-entities ${className}`}>
+            {(!hideTitle) &&
+                <h3>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
             {displaySearch && renderSearch()}
             {renderEntities(sortedEntities)}
             <div>{children}</div>

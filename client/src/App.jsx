@@ -25,12 +25,15 @@ import JoinRequest from "./pages/JoinRequest.jsx";
 import UserHome from "./pages/UserHome.jsx";
 import {LoginRedirect} from "./pages/LoginRedirect.jsx";
 import {LOCAL_STORAGE_LOCATION} from "./utils/Login.js";
+import {Impersonating} from "./components/Impersonating.jsx";
+import System from "./pages/System.jsx";
+import {InvitationForm} from "./pages/InvitationForm.jsx";
 
 const App = () => {
 
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+    const {impersonator} = useAppStore(state => state);
     const navigate = useNavigate();
     const currentLocation = useLocation();
 
@@ -93,7 +96,7 @@ const App = () => {
                     navigate("/home");
                 });
         })
-    }, []);
+    }, [impersonator]);
 
     if (loading) {
         return <Loader/>
@@ -103,6 +106,7 @@ const App = () => {
         <div className="access">
             {isAuthenticated && <>
                 <Flash/>
+                {impersonator && <Impersonating/>}
                 <div className="container">
                     <SharedMenu/>
                     <div className="pages">
@@ -115,6 +119,8 @@ const App = () => {
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
+                            <Route path="/invitation/:organizationId/new" element={<InvitationForm/>}/>
+                            <Route path="/system" element={<System/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

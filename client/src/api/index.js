@@ -1,5 +1,6 @@
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
+import {paginationQueryParams} from "../utils/Pagination.js";
 
 //Internal API
 function validateResponse(showErrorDialog) {
@@ -35,6 +36,10 @@ function validFetch(path, options, headers = {}, showErrorDialog = true) {
         "X-CSRF-TOKEN": useAppStore.getState().csrfToken,
         ...headers
     };
+    const impersonator = useAppStore.getState().impersonator;
+    if (impersonator) {
+        contentHeaders["X-IMPERSONATE-ID"] = useAppStore.getState().user.id.toString();
+    }
     const fetchOptions = Object.assign({}, {headers: contentHeaders}, options, {
         credentials: "same-origin",
         redirect: "manual",
@@ -80,6 +85,11 @@ export function logout() {
     return fetchJson("/api/v1/users/logout");
 }
 
+export function searchUsers(pagination = {}) {
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/users/search?${queryPart}`);
+}
+
 //Organization
 export function searchOrganization(query) {
     return fetchJson(`/api/v1/organizations/search?query=${query}`);
@@ -95,6 +105,10 @@ export function deleteOrganizationById(organizationId) {
 
 export function organizationLightById(id) {
     return fetchJson(`/api/v1/organizations/light/${id}`);
+}
+
+export function organizationNameById(id) {
+    return fetchJson(`/api/v1/organizations/name/${id}`);
 }
 
 export function newOrganization(organization) {
@@ -145,7 +159,7 @@ export function getIdentityProviders(environment) {
 }
 
 export function providersByEntityId(environment, entityID) {
-    return postPutJson(`/api/v1/manage/providers-by-entityid/${environment}`, {entityID: entityID},"POST");
+    return postPutJson(`/api/v1/manage/providers-by-entityid/${environment}`, {entityID: entityID}, "POST");
 }
 
 export function arp() {
@@ -176,6 +190,16 @@ export function getConnectionById(connectionId) {
 
 export function deleteConnectionById(connectionId) {
     return fetchDelete(`/api/v1/connections/${connectionId}`);
+}
+
+//OrganizationMemberships
+export function deleteOrganizationMembershipById(organizationMembership) {
+    return fetchDelete(`/api/v1/organization_memberships/${organizationMembership.id}`);
+}
+
+//Invitations
+export function createInvitation(invitation) {
+    return postPutJson("/api/v1/invitations", invitation, "POST")
 }
 
 

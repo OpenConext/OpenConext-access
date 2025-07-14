@@ -1,0 +1,17 @@
+.impersonator {
+    background-color: var(--sds--color--yellow--200);
+    display: flex;
+    align-items: center;
+    padding: 5px 2px;
+
+    svg {
+        width: 32px;
+        height: auto;
+        margin: 4px 15px 0 15px;
+        color: var(--sds--color--yellow--500);
+    }
+
+    button {
+        margin: 0 25px 0 auto;
+    }
+}

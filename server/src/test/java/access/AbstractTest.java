@@ -88,11 +88,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-        System.setProperty("testcontainers.ryuk.disabled", "true");
-    }
-
     //Users
     public static final String ADMIN_SUB = "urn:collab:person:example.com:admin";
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
@@ -428,7 +423,7 @@ public abstract class AbstractTest {
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com");
         User multipleOrganizationUser =
-                new User(false, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
+                new User(true, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
         doSave(this.userRepository, superUser, manager, guest, multipleOrganizationUser);
 
         Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org");

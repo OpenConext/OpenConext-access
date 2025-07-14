@@ -1,0 +1,15 @@
+@use "../index";
+@use "../styles/vars" as *;
+
+.tab-header-container {
+    padding: 25px 50px 0 50px;
+    display: flex;
+    width: 75%;
+    flex-direction: column;
+    gap: 25px;
+    background-color: $background;
+    @include index.page-media;
+
+
+}
+

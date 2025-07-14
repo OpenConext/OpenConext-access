@@ -1,0 +1,12 @@
+.user-membership {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+        font-weight: 600;
+    }
+
+    .email {
+        color: var(--sds--color--gray--500);
+    }
+}

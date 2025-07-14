@@ -3,6 +3,12 @@ import {create} from 'zustand'
 export const useAppStore = create(set => ({
     user: {},
     csrfToken: null,
+    startImpersonation: otherUser => {
+        set(state => ({impersonator: state.user, user: otherUser}));
+    },
+    stopImpersonation: () => {
+        set(state => ({impersonator: null, user: state.impersonator}));
+    },
     flash: {msg: "", className: "hide", type: "info"},
     setFlash: (message, type) => {
         set({flash: {msg: message, type: type || "info"}});

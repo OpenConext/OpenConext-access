@@ -1,0 +1,68 @@
+@use "../styles/mixins" as *;
+@use "../styles/vars.scss" as *;
+
+.mod-invitation-form {
+
+    &.inviter {
+        background-color: white;
+
+        height: 100%;
+    }
+
+    .invitation-form {
+        padding: 25px 50px;
+        max-width: 70%;
+        .invite-header {
+            padding: 35px 15px;
+            display: flex;
+
+            span {
+                margin-left: auto;
+                cursor: pointer;
+
+                svg {
+                    width: 25px;
+                    height: auto;
+                }
+            }
+        }
+
+        .email-field, .advanced-settings, .advanced-settings-container, .card-containers, .inviter-wrapper {
+            grid-column-start: first;
+        }
+
+        p.info {
+            grid-column-start: first;
+            margin-top: 4px;
+        }
+
+        .inviter-wrapper {
+            margin-top: 25px;
+            padding: 25px 155px 25px 25px;
+            border-radius: 0.175rem;
+            border: 1px solid var(--sds--color--gray--400);
+            background-color: white;
+
+            @media (max-width: $medium) {
+                padding: 25px;
+            }
+        }
+
+        .card-containers {
+            padding: 25px;
+            border-radius: 0.175rem;
+            border: 1px solid var(--sds--color--gray--400);
+            background-color: white;
+
+            span.label {
+                font-weight: 600;
+                font-size: 22px;
+                display: block;
+                margin-bottom: 6px;
+            }
+        }
+
+    }
+
+
+}

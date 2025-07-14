@@ -22,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -74,6 +74,13 @@ public class OrganizationController implements UserAccessRights {
 
         return ResponseEntity.ok(organization);
     }
+
+    @GetMapping("/name/{id}")
+    public ResponseEntity<Map<String, Object>> name(@PathVariable("id") Long id) {
+        LOG.debug("/name");
+        return ResponseEntity.ok(organizationRepository.selectOrganizationNameById(id));
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<Organization>> search(@RequestParam(value = "query") String query) {
