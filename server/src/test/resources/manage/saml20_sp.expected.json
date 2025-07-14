@@ -1,80 +1,95 @@
 {
-  "id" : "49a117bb-f384-48d8-85d2-71d458b85ac8",
-  "type" : "saml20_sp",
-  "version" : 12,
-  "data" : {
-    "entityid" : "https://engine.test.surfconext.nl/authentication/sp/metadata",
-    "state" : "prodaccepted",
-    "allowedall" : false,
-    "allowedEntities" : [ {
-      "name" : "http://mock-idp"
-    }, {
-      "name" : "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
-    } ],
-    "metaDataFields" : {
-      "coin:privacy:country" : "NL",
-      "coin:privacy:access_data" : "Everybody",
-      "coin:privacy:what_data" : "Every",
-      "description:en" : "Beschrijving in het Engels",
-      "coin:ss:type_of_service:nl" : "education business",
-      "contacts:2:givenName" : "Admin",
-      "contacts:1:surName" : "DPEOOE",
-      "contacts:2:surName" : "Codo",
-      "coin:application_url" : "https://website.com",
-      "contacts:2:emailAddress" : "help@surfconext.nl",
-      "OrganizationName:en" : "ORG name",
-      "description:nl" : "Beschrijving in het Nederlands",
-      "logo:0:url" : "http://localhost:9000/s3-images/ea597f2d-8632-4d99-b295-a58509fc3689",
-      "coin:ss:type_of_service:en" : "education business",
-      "name:en" : "SURFconext TEST EngineBlock",
-      "contacts:0:givenName" : "Supp",
-      "contacts:0:surName" : "Doe",
-      "contacts:1:emailAddress" : "help@surfconext.nl",
-      "contacts:0:emailAddress" : "help@surfconext.nl",
-      "AssertionConsumerService:0:Location" : "https://engine.test.surfconext.nl/authentication/sp/consume-assertion",
-      "contacts:0:contactType" : "support",
-      "contacts:2:contactType" : "administrative",
-      "contacts:1:contactType" : "technical",
-      "contacts:1:givenName" : "Tech",
-      "coin:privacy:security_measures" : "Ssssssaasasa",
-      "coin:privacy:other_info" : "dfsdfsf",
-      "mdui:PrivacyStatementURL:en" : "dfdkjddfs",
-      "name:nl" : "SURFconext TEST EngineBlock",
-      "AssertionConsumerService:0:Binding" : "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-      "mdui:PrivacyStatementURL:nl" : "dudud",
-      "coin:privacy:dpa_type" : "dpa_supplied_by_service"
-    },
-    "arp" : {
-      "enabled" : true,
-      "profile" : "pseudonymized",
-      "attributes" : {
-        "urn:mace:dir:attribute-def:eduPersonAssurance" : [ {
-          "value" : "*",
-          "source" : "idp",
-          "motivation" : "Default for profile"
-        } ],
-        "urn:mace:dir:attribute-def:eduPersonAffiliation" : [ {
-          "value" : "*",
-          "source" : "idp",
-          "motivation" : "Default for profile"
-        } ],
-        "urn:oasis:names:tc:SAML:1.1:nameid-format:persistent" : [ {
-          "value" : "*",
-          "source" : "idp",
-          "motivation" : "Default for profile"
-        } ],
-        "urn:mace:dir:attribute-def:eduPersonScopedAffiliation" : [ {
-          "value" : "*",
-          "source" : "idp",
-          "motivation" : "Default for profile"
-        } ],
-        "urn:mace:terena.org:attribute-def:schacHomeOrganization" : [ {
-          "value" : "*",
-          "source" : "idp",
-          "motivation" : "Default for profile"
-        } ]
+  "id": "49a117bb-f384-48d8-85d2-71d458b85ac8",
+  "type": "saml20_sp",
+  "version": 12,
+  "data": {
+    "entityid": "https://engine.test.surfconext.nl/authentication/sp/metadata",
+    "state": "prodaccepted",
+    "allowedall": false,
+    "allowedEntities": [
+      {
+        "name": "http://mock-idp"
       },
-      "motivation" : ""
+      {
+        "name": "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
+      }
+    ],
+    "metaDataFields": {
+      "coin:privacy:country": "NL",
+      "coin:privacy:access_data": "Everybody",
+      "coin:privacy:what_data": "Every",
+      "description:en": "Beschrijving in het Engels",
+      "coin:ss:type_of_service:nl": "education business",
+      "contacts:2:givenName": "Admin",
+      "contacts:1:surName": "DPEOOE",
+      "contacts:2:surName": "Codo",
+      "coin:application_url": "https://website.com",
+      "contacts:2:emailAddress": "help@surfconext.nl",
+      "OrganizationName:en": "ORG name",
+      "description:nl": "Beschrijving in het Nederlands",
+      "logo:0:url": "http://localhost:9000/s3-images/ea597f2d-8632-4d99-b295-a58509fc3689",
+      "coin:ss:type_of_service:en": "education business",
+      "name:en": "SURFconext TEST EngineBlock",
+      "contacts:0:givenName": "Supp",
+      "contacts:0:surName": "Doe",
+      "contacts:1:emailAddress": "help@surfconext.nl",
+      "contacts:0:emailAddress": "help@surfconext.nl",
+      "AssertionConsumerService:0:Location": "https://engine.test.surfconext.nl/authentication/sp/consume-assertion",
+      "contacts:0:contactType": "support",
+      "contacts:2:contactType": "administrative",
+      "contacts:1:contactType": "technical",
+      "contacts:1:givenName": "Tech",
+      "coin:privacy:security_measures": "Ssssssaasasa",
+      "coin:privacy:other_info": "dfsdfsf",
+      "mdui:PrivacyStatementURL:en": "dfdkjddfs",
+      "name:nl": "SURFconext TEST EngineBlock",
+      "AssertionConsumerService:0:Binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+      "mdui:PrivacyStatementURL:nl": "dudud",
+      "coin:privacy:dpa_type": "dpa_supplied_by_service",
+      "coin:ss:hidden": false,
+      "coin:ss:idp_visible_only": false
+    },
+    "arp": {
+      "enabled": true,
+      "profile": "pseudonymized",
+      "attributes": {
+        "urn:mace:dir:attribute-def:eduPersonAssurance": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:oasis:names:tc:SAML:1.1:nameid-format:persistent": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": "Default for profile"
+          }
+        ]
+      },
+      "motivation": ""
     }
   }
 }

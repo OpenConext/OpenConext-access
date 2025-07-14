@@ -83,7 +83,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.test.url=http://localhost:8081",
                 "manage.enabled=true",
                 "jira.enabled=true",
-                "myconext.uri=http://localhost:8081/myconext/api/invite/provision-eduid",
+                "s3storage.url=http://localhost:8081"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {

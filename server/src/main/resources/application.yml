@@ -140,14 +140,14 @@ manage:
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 s3storage:
-  url: "https://minioapi.test2.surfconext.nl"
-  key: "minioadmin"
-  secret: "jippie123"
-  bucket: "s3-images"
-#  url: http://localhost:9000
+#  url: "https://minioapi.test2.surfconext.nl"
 #  key: "minioadmin"
-#  secret: "minioadmin"
+#  secret: "jippie123"
 #  bucket: "s3-images"
+  url: http://localhost:9000
+  key: "minioadmin"
+  secret: "minioadmin"
+  bucket: "s3-images"
 
 springdoc:
   pathsToMatch: "/access/api/v1/**"

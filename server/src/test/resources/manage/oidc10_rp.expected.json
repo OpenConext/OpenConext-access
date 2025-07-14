@@ -45,7 +45,9 @@
       "mdui:PrivacyStatementURL:en" : "dfdkjddfs",
       "name:nl" : "SURFconext TEST EngineBlock",
       "mdui:PrivacyStatementURL:nl" : "dudud",
-      "coin:privacy:dpa_type" : "dpa_supplied_by_service"
+      "coin:privacy:dpa_type" : "dpa_supplied_by_service",
+      "coin:ss:hidden": false,
+      "coin:ss:idp_visible_only": false
     },
     "arp" : {
       "enabled" : true,

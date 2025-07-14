@@ -128,7 +128,7 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/privacy")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(7, privacyInfo.size());
+        assertEquals(8, privacyInfo.size());
     }
 
     @Test

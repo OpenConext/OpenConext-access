@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,21 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 class ApplicationS3ControllerTest extends AbstractTest {
 
-    @Container
-    public static MinIOContainer minioContainer = new MinIOContainer(
-            "minio/minio:RELEASE.2025-05-24T17-08-30Z"
-    )
-            .withUserName("minioadmin")
-            .withPassword("minioadmin")
-            .withReuse(true); // Reuse container across tests for faster execution
-
-    @DynamicPropertySource
-    static void setMinioProperties(DynamicPropertyRegistry registry) {
-        registry.add("s3storage.url", minioContainer::getS3URL);
-    }
-
     @Test
     void uploadFile() throws IOException {
+        stubFor(head(urlPathMatching("/s3-images"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withStatus(200)));
+        stubFor(put(urlPathMatching("/s3-images/.*"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withStatus(201)));
+
         InputStream inputStream = new ClassPathResource("/s3/squirl.jpg").getInputStream();
         byte[] byteArray = IOUtils.toByteArray(inputStream);
         String base64Encoded = Base64.getEncoder().encodeToString(byteArray);
