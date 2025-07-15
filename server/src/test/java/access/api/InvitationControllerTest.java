@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,29 +42,33 @@ class InvitationControllerTest extends AbstractMailTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
-        Map<String, Object> invitationData = Map.of(
-                "language", Language.en,
-                "email", "jdoe@test.com",
-                "message", "Please join",
-                "authority", Authority.MEMBER,
-                "organization", Map.of("id", organization.getId()),
-                "applications", List.of(Map.of("id", application.getId()))
-        );
-        Map<String, Object> invitation = given()
+        String inviteeMail = "jdoe@test.com";
+        InvitationForm invitationForm = new InvitationForm(
+                Language.en,
+                List.of(inviteeMail),
+                "Please join",
+                Authority.MEMBER,
+                organization.getId(),
+                Set.of(application.getId()));
+        Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(invitationData)
+                .body(invitationForm)
                 .post("/api/v1/invitations")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(ConnectionStatus.OPEN.name(), invitation.get("status"));
+        assertEquals(201, results.get("status"));
 
-        Map<String, Object> inviter = (Map<String, Object>) invitation.get("inviter");
-        assertEquals("Mary Doe", inviter.get("name"));
-        String hash = invitation.get("hash").toString();
+
+        Invitation invitation = invitationRepository.findByOrganization(organization).stream()
+                .filter(inv -> inv.getEmail().equals(inviteeMail))
+                .findFirst()
+                .get();
+        assertEquals("Mary Doe", invitation.getInvitee().getName());
+        String hash = invitation.getHash();
         assertNotNull(hash);
 
         String htmlContent = super.mailMessage().getHtmlContent();
@@ -74,7 +79,7 @@ class InvitationControllerTest extends AbstractMailTest {
     @Test
     void accept() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
-        Invitation invitation = invitationRepository.findByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -99,5 +104,26 @@ class InvitationControllerTest extends AbstractMailTest {
         assertEquals(InvitationStatus.ACCEPTED, invitationFromDB.getStatus());
         assertNull(invitationFromDB.getHash());
         assertNotNull(invitationFromDB.getAcceptedAt());
+    }
+
+    @Test
+    void findByHash() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
+        Map<String, Object> invitation = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("hash", SHARE_LOGICS_INVITATION_HASH)
+                .get("/api/v1/invitations/hash")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("jdoe@invitation.org", invitation.get("email"));
+        Map<String, Object> inviter = (Map<String, Object>) invitation.get("inviter");
+        assertNotNull(inviter.get("email"));
+
+        Map<String, Object> organization = (Map<String, Object>) invitation.get("organization");
+        assertNotNull(organization.get("name"));
     }
 }

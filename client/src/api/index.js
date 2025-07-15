@@ -107,8 +107,8 @@ export function organizationLightById(id) {
     return fetchJson(`/api/v1/organizations/light/${id}`);
 }
 
-export function organizationNameById(id) {
-    return fetchJson(`/api/v1/organizations/name/${id}`);
+export function organizationForInvitationById(id) {
+    return fetchJson(`/api/v1/organizations/invitation/${id}`);
 }
 
 export function newOrganization(organization) {
@@ -202,4 +202,11 @@ export function createInvitation(invitation) {
     return postPutJson("/api/v1/invitations", invitation, "POST")
 }
 
+export function getInvitationByHash(hash) {
+    return fetchJson(`/api/v1/invitations/hash?hash=${hash}`,{},{},false);
+}
 
+export function acceptInvitation(invitation) {
+    const body = {hash: invitation.hash, invitationId: invitation.id}
+    return postPutJson("/api/v1/invitations/accept", body, "PUT")
+}

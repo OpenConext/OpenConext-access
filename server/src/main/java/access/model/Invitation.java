@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -103,10 +104,21 @@ public class Invitation {
     public Map<String, Object> getInviterEmail() {
         User inviter = this.getInvitee();
         Map<String, Object> info = new HashMap<>();
-        if (inviter != null) {
+        if (inviter != null && Hibernate.isInitialized(inviter)) {
             info.put("email", inviter.getEmail());
             info.put("name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail());
             info.put("user_id", inviter.getId());
+        }
+        return info;
+    }
+
+    @JsonProperty(value = "organization", access = JsonProperty.Access.READ_ONLY)
+    public Map<String, Object> getOrganizationInfo() {
+        Organization organization = this.getOrganization();
+        Map<String, Object> info = new HashMap<>();
+        if (organization != null && Hibernate.isInitialized(organization)) {
+            info.put("name", organization.getName());
+            info.put("id", organization.getId());
         }
         return info;
     }

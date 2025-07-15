@@ -433,8 +433,8 @@ public abstract class AbstractTest {
         doSave(this.organizationRepository, shareLogics, logistics, farWind);
 
         OrganizationMembership adminOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.ADMIN);
-        OrganizationMembership memberOfFarWind = new OrganizationMembership(guest, farWind, Authority.MEMBER);
         OrganizationMembership memberOfShareLogics = new OrganizationMembership(multipleOrganizationUser, shareLogics, Authority.MEMBER);
+        OrganizationMembership memberOfFarWind = new OrganizationMembership(guest, farWind, Authority.MEMBER);
         OrganizationMembership memberLogics = new OrganizationMembership(multipleOrganizationUser, logistics, Authority.MEMBER);
         doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
 

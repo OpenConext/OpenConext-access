@@ -56,7 +56,7 @@ class OrganizationControllerTest extends AbstractTest {
     }
 
     @Test
-    void name() {
+    void invitation() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
 
         Map<String, Object> map = given()
@@ -66,10 +66,10 @@ class OrganizationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
-                .get("/api/v1/organizations/name/{id}")
+                .get("/api/v1/organizations/invitation/{id}")
                 .as(new TypeRef<>() {
                 });
-
+        assertEquals(1, ((List) map.get("applications")).size());
         assertEquals(SHARE_LOGICS, map.get("name"));
     }
 

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {createInvitation, organizationNameById} from "../api";
+import {createInvitation, organizationForInvitationById} from "../api";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import InputField from "../components/InputField";
@@ -21,13 +21,11 @@ export const InvitationForm = () => {
     const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
     const {user, setFlash, config} = useAppStore(state => state);
 
-    const [organizationName, setOrganizationName] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [guest, setGuest] = useState(false);
-    const [roles, setRoles] = useState([]);
-    const [selectedRoles, setSelectedRoles] = useState([]);
+    const [organization, setOrganization] = useState({});
+    const [loading, setLoading] = useState(true);
     const [invitation, setInvitation] = useState({
         invites: [],
+        applicationIdentifiers: [],
         intendedAuthority: authorities.GUEST
     });
 
@@ -36,16 +34,17 @@ export const InvitationForm = () => {
     const required = ["intendedAuthority", "invites"];
 
     useEffect(() => {
-        organizationNameById(organizationId)
+        organizationForInvitationById(organizationId)
             .then(res => {
-                setOrganizationName(res.name);
+                setOrganization(res);
                 useAppStore.setState({
                     breadcrumbPath: [
                         {path: "/home", value: I18n.t("breadCrumb.access")},
                         {path: `/organization/${organizationId}`, value: res.name},
                         {value: I18n.t("breadCrumb.invitations")}
                     ]
-                })
+                });
+                setLoading(false);
             });
     }, [organizationId]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -54,20 +53,15 @@ export const InvitationForm = () => {
         if (isValid()) {
             const invitationRequest = {
                 ...invitation,
-                language: language.value
+                language: language.value,
+                organizationId: organizationId
             };
             setLoading(true);
             createInvitation(invitationRequest)
                 .then(() => {
                     setLoading(false);
                     setFlash(I18n.t("invitation.createFlash"));
-                    if (originalRoleId) {
-                        navigate(`/roles/${originalRoleId}/invitations`);
-                    } else if (!isEmpty(invitationRequest.roleIdentifiers)) {
-                        navigate(`/roles/${invitationRequest.roleIdentifiers[0]}/invitations`);
-                    } else {
-                        navigate(-1);
-                    }
+                    navigate(`/organization/${organizationId}/team`);
                 });
         }
     }
@@ -88,10 +82,23 @@ export const InvitationForm = () => {
     const authorityChanged = option => {
         setInvitation({
             ...invitation,
-            intendedAuthority: option.value,
-            roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
+            intendedAuthority: option.value
         });
     }
+
+    const applicationChanged = options => {
+        setInvitation({
+            ...invitation,
+            applicationIdentifiers: isEmpty(options) ? [] : options.map(option => option.value)
+        });
+    }
+
+    const applicationOption = application => {
+        return {
+            value: application.id,
+            label: application.name
+        }
+    };
 
     const renderFormElements = authorityOptions => {
         return (
@@ -109,17 +116,35 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitation.requiredEmail")}/>}
 
-                {authorityOptions.length > 1 && <SelectField
-                    value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
-                        || authorityOptions[authorityOptions.length - 1]}
-                    options={authorityOptions}
-                    name={I18n.t("invitation.intendedAuthority")}
-                    searchable={false}
-                    disabled={authorityOptions.length === 1}
-                    onChange={authorityChanged}
-                    toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
-                    clearable={false}
-                />}
+                {authorityOptions.length > 1 &&
+                    <SelectField
+                        value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
+                            || authorityOptions[authorityOptions.length - 1]}
+                        options={authorityOptions}
+                        name={I18n.t("invitation.intendedAuthority")}
+                        searchable={false}
+                        disabled={authorityOptions.length === 1}
+                        onChange={authorityChanged}
+                        toolTip={I18n.t("invitation.intendedAuthorityTooltip")}
+                        clearable={false}
+                        className={"small"}
+                    />}
+
+                {organization.applications.length > 0 &&
+                    <SelectField
+                        value={organization.applications
+                            .filter(app => invitation.applicationIdentifiers.includes(app.id))
+                            .map(applicationOption)}
+                        options={organization.applications
+                            .filter(app => !invitation.applicationIdentifiers.includes(app.id))
+                            .map(applicationOption)}
+                        name={I18n.t("invitation.applications")}
+                        searchable={true}
+                        isMulti={true}
+                        onChange={applicationChanged}
+                        toolTip={I18n.t("invitation.applicationsTooltip")}
+                        clearable={true}
+                    />}
 
                 <InputField name={I18n.t("invitation.message")}
                             value={invitation.message}
@@ -135,8 +160,9 @@ export const InvitationForm = () => {
                     name={I18n.t("languages.language")}
                     searchable={false}
                     onChange={val => setLanguage(val)}
-                    toolTip={I18n.t("languages.languageTooltip")}
+                    toolTip={I18n.t("invitation.languageTooltip")}
                     clearable={false}
+                    className={"small"}
                 />
             </>
         );
@@ -169,9 +195,9 @@ export const InvitationForm = () => {
         return <Loader/>
     }
     return (
-        <div className={`mod-invitation-form inviter`}>
+        <div className="mod-invitation-form">
             <TabHeader tab={"nope"} tabNames={[]}>
-                <h3>{I18n.t("invitation.title", {name: organizationName})}</h3>
+                <h3>{I18n.t("invitation.title", {name: organization.name})}</h3>
             </TabHeader>
             <div className={`invitation-form`}>
                 {renderForm()}

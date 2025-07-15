@@ -15,7 +15,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     @EntityGraph(attributePaths = {"invitee"})
     List<Invitation> findByOrganization(Organization organization);
 
-    @EntityGraph(attributePaths = {"invitee"})
-    Optional<Invitation> findByHash(String hash);
+    Optional<Invitation> findByIdAndHash(Long id, String hash);
 
+    @EntityGraph(attributePaths = {"invitee", "organization"})
+    Optional<Invitation> findDetailsByHash(String hash);
 }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -69,7 +70,7 @@ public class OrganizationMembership implements NameHolder {
     public Map<String, Serializable> getOrganizationInfo() {
         Organization organization = getOrganization();
         Map<String, Serializable> organizationInfo = new HashMap<>();
-        if (organization != null) {
+        if (organization != null && Hibernate.isInitialized(organization)) {
             organizationInfo.put("id", organization.getId());
             organizationInfo.put("name", organization.getName());
             organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
@@ -82,7 +83,7 @@ public class OrganizationMembership implements NameHolder {
     public Map<String, Serializable> getUserInfo() {
         User user = getUser();
         Map<String, Serializable> userInfo = new HashMap<>();
-        if (user != null) {
+        if (user != null && Hibernate.isInitialized(user)) {
             userInfo.put("id", user.getId());
             userInfo.put("name", user.getName());
             userInfo.put("email", user.getEmail());

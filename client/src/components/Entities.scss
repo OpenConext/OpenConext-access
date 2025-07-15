@@ -57,12 +57,8 @@
         }
 
         .search-filter {
-            display: flex;
-            width: 290px;
-            @media (max-width: $medium) {
-                flex-direction: column;
-                margin: 15px 0;
-            }
+            margin: 0 auto 0 20px;
+            min-width: 160px;
         }
 
         div.filter-select__value-container {

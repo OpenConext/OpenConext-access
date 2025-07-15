@@ -91,7 +91,6 @@ export const Entities = ({
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className={`entities-search ${showNew ? "" : "only-search"}`}>
-                {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
                         <div className={"sds--text-field sds--text-field--has-icon"}>
@@ -110,6 +109,7 @@ export const Entities = ({
                             </div>
                         </div>}
                 </div>
+                {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 {showNew &&
                     <Button onClick={newEntity}
                             type={ButtonType.Primary}
@@ -127,7 +127,6 @@ export const Entities = ({
         const queryLower = newQuery.toLowerCase();
         return entities.filter(entity => searchAttributes.some(attr => {
             const val = valueForSort(attr, entity);
-            //When the application is unknown in Manage then the val is a React span child object
             return (isEmpty(val) || typeof val !== "string" || val.toLowerCase === undefined) ? false : val.toLowerCase().indexOf(queryLower) > -1;
         }));
     };

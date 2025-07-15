@@ -28,6 +28,7 @@ import {LOCAL_STORAGE_LOCATION} from "./utils/Login.js";
 import {Impersonating} from "./components/Impersonating.jsx";
 import System from "./pages/System.jsx";
 import {InvitationForm} from "./pages/InvitationForm.jsx";
+import {Invitation} from "./pages/Invitation.jsx";
 
 const App = () => {
 
@@ -120,6 +121,7 @@ const App = () => {
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
                             <Route path="/invitation/:organizationId/new" element={<InvitationForm/>}/>
+                            <Route path="/accept" element={<Invitation/>}/>
                             <Route path="/system" element={<System/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             {/*{sharedRoutes()}*/}

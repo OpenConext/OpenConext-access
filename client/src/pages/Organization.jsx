@@ -39,7 +39,7 @@ const Organization = () => {
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });
-                tabChanged(currentTab);
+                tabChanged(currentTab, res);
                 setLoading(false);
             }).catch(() => {
             navigate("/404")
@@ -121,12 +121,12 @@ const Organization = () => {
         );
     }
 
-    const tabChanged = (name) => {
+    const tabChanged = (name, res) => {
         setCurrentTab(name);
         useAppStore.setState({
             breadcrumbPath: [
                 {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: `/organization/${organizationId}`, value: organization.name},
+                {path: `/organization/${organizationId}`, value: res ? res.name : organization.name},
                 {value: I18n.t(`breadCrumb.${name}`)}
             ]
         });

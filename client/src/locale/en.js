@@ -451,7 +451,8 @@ const en = {
     roles: {
         admin: "Admin",
         member: "Member",
-        guest: "Guest"
+        guest: "Guest",
+        all: "Roles - all"
     },
     impersonate: {
         exit: "Stop impersonating",
@@ -477,12 +478,24 @@ const en = {
         message: "Personal note",
         messagePlaceholder: "Add an optional personal note to your invitation",
         inviteesPlaceholder: "Invitee email addresses",
-        invite: "Invite"
+        invite: "Invite",
+        invalidEmails: "Invalid email addresses removed: {{emails}}.",
+        requiredEmail: "At least one email is required for an invitation",
+        intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted on accepting the invitation",
+        inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or on seperate lines. You can also paste a csv file with line-separated email addresses.",
+        applications: "Applications",
+        applicationsTooltip: "You can already add applications to this invitation. The invitees will be granted read and write access to the applications",
+        languageTooltip: "Choose the language of the invitation mail",
+        createFlash: "Invitations are created and sent to the invitees",
+        acceptedFlash: "Invitation is accepted and you are now a member of the {{name}} organization",
+        accept: "{{inviter}} has invited you to join organization {{name}}. Press proceed to accept the invitation and checkout the organization",
     },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
         edit: "Edit",
+        accept: "Accept",
+        proceed: "Proceed",
         delete: "Delete",
         back: "Back",
         required: "{{name}} is required",

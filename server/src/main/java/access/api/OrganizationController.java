@@ -12,6 +12,7 @@ import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
@@ -75,10 +76,13 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
-    @GetMapping("/name/{id}")
-    public ResponseEntity<Map<String, Object>> name(@PathVariable("id") Long id) {
+    @GetMapping("/invitation/{id}")
+    public ResponseEntity<Organization> name(@PathVariable("id") Long id) {
         LOG.debug("/name");
-        return ResponseEntity.ok(organizationRepository.selectOrganizationNameById(id));
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+        Hibernate.initialize(organization.getApplications());
+        return ResponseEntity.ok(organization);
     }
 
 

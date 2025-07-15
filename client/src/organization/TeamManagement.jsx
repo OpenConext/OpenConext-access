@@ -5,19 +5,22 @@ import {Button, ButtonType} from "@surfnet/sds";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
-import {isOrganizationAdmin} from "../utils/Permissions.js";
+import {allAuthorities, isOrganizationAdmin} from "../utils/Permissions.js";
 import {useNavigate} from "react-router-dom";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {stopEvent} from "../utils/Utils.js";
-import {deleteOrganizationById, deleteOrganizationMembershipById} from "../api/index.js";
+import {deleteOrganizationMembershipById} from "../api/index.js";
+import SelectField from "../components/SelectField.jsx";
 
+const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
+    .concat(allAuthorities.map(authority => ({
+        value: authority,
+        label: I18n.t(`roles.${authority.toLowerCase()}`)})));
 
-export const TeamManagement = ({
-                                   organization, user, setRefresh
-                               }) => {
+export const TeamManagement = ({organization, user, setRefresh}) => {
 
     const navigate = useNavigate();
     const [confirmation, setConfirmation] = useState({});
+    const [authority, setAuthority] = useState(authorityOptions[0].value);
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {
@@ -74,17 +77,32 @@ export const TeamManagement = ({
             }
         ]
 
+        const filters = () => {
+            return (
+                <SelectField
+                    value={authorityOptions.find(option => option.value === authority)
+                        || authorityOptions[0]}
+                    options={authorityOptions}
+                    searchable={false}
+                    onChange={option => setAuthority(option.value)}
+                    clearable={false}
+                />
+            )
+        }
+
         return (
-            <Entities entities={organization.organizationMemberships}
-                      modelName="teamManagement"
-                      defaultSort="name"
-                      title={I18n.t("teamManagement.maintain", {name: organization.name})}
-                      columns={columns}
-                      showNew={true}
-                      displaySearch={true}
-                      searchAttributes={["name"]}
-                      newEntityFunc={() => navigate(`/invitation/${organization.id}/new`)}
-                      inputFocus={true}/>
+            <Entities
+                entities={organization.organizationMemberships.filter(m => authority === "ALL" || m.authority === authority)}
+                modelName="teamManagement"
+                defaultSort="name"
+                title={I18n.t("teamManagement.maintain", {name: organization.name})}
+                columns={columns}
+                filters={filters()}
+                showNew={true}
+                displaySearch={true}
+                searchAttributes={["user__name", "user__email"]}
+                newEntityFunc={() => navigate(`/invitation/${organization.id}/new`)}
+                inputFocus={true}/>
         )
     };
     const {open, cancel, action, question, okButton} = confirmation;

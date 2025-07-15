@@ -1,11 +1,10 @@
 package access.api;
 
 import access.exception.NotFoundException;
-import access.model.*;
-import access.repository.ApplicationMembershipRepository;
-import access.repository.ApplicationRepository;
+import access.model.Authority;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.OrganizationMembershipRepository;
-import access.request.ApplicationMembershipForm;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
-
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -25,7 +22,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class OrganizationMembershipController implements UserAccessRights{
+public class OrganizationMembershipController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(OrganizationMembershipController.class);
 
@@ -35,15 +32,25 @@ public class OrganizationMembershipController implements UserAccessRights{
         this.organizationMembershipRepository = organizationMembershipRepository;
     }
 
-    @DeleteMapping({ "/{membership_id}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable( "membership_id") Long membershipId) {
+    @DeleteMapping({"/{membership_id}"})
+    public ResponseEntity<Void> delete(User user, @PathVariable("membership_id") Long membershipId) {
         LOG.debug("/delete");
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
         organizationMembershipRepository.delete(organizationMembership);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PutMapping({"", "/"})
+    public ResponseEntity<OrganizationMembership> update(User user, @RequestBody OrganizationMembership organizationMembershipUpdate) {
+        LOG.debug("/update");
+        OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(organizationMembershipUpdate.getId())
+                .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
+        confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
+        organizationMembership.setAuthority(organizationMembershipUpdate.getAuthority());
+        organizationMembership = organizationMembershipRepository.save(organizationMembership);
+        return ResponseEntity.ok(organizationMembership);
+    }
 }

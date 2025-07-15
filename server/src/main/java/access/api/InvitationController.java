@@ -5,7 +5,9 @@ import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
 import access.model.*;
-import access.repository.*;
+import access.repository.ApplicationRepository;
+import access.repository.InvitationRepository;
+import access.repository.OrganizationRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,11 +19,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.createResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/invitations"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,18 +38,15 @@ public class InvitationController implements UserAccessRights {
 
     private final InvitationRepository invitationRepository;
     private final OrganizationRepository organizationRepository;
-    private final OrganizationMembershipRepository organizationMembershipRepository;
     private final ApplicationRepository applicationRepository;
     private final MailBox mailBox;
 
     public InvitationController(InvitationRepository invitationRepository,
                                 OrganizationRepository organizationRepository,
-                                OrganizationMembershipRepository organizationMembershipRepository,
                                 ApplicationRepository applicationRepository,
                                 MailBox mailBox) {
         this.invitationRepository = invitationRepository;
         this.organizationRepository = organizationRepository;
-        this.organizationMembershipRepository = organizationMembershipRepository;
         this.applicationRepository = applicationRepository;
         this.mailBox = mailBox;
     }
@@ -63,44 +64,53 @@ public class InvitationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(invitations);
     }
 
+    @GetMapping({"/hash"})
+    public ResponseEntity<Invitation> byHash(User user, @RequestParam(value = "hash") String hash) {
+        LOG.debug("/by hash by " + user.getEmail());
+
+        Invitation invitation = invitationRepository.findDetailsByHash(hash).orElseThrow(() -> new NotFoundException("Invitation not found"));
+
+        return ResponseEntity.ok(invitation);
+    }
+
     @PostMapping({"", "/"})
-    public ResponseEntity<Invitation> create(User user, @Validated @RequestBody Invitation invitationData) {
+    public ResponseEntity<Map<String, Integer>> create(User user, @RequestBody InvitationForm invitationForm) {
         LOG.debug("/create invitation by " + user.getEmail());
 
-        Long organizationID = invitationData.getOrganization().getId();
+        Long organizationID = invitationForm.getOrganizationId();
         Organization organization = organizationRepository.findById(organizationID)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Set<Application> applications = invitationData.getApplications();
-        applications = applications.stream()
-                .map(application -> this.applicationRepository.findById(application.getId())
+        Set<Application> applications = invitationForm.getApplicationIdentifiers().stream()
+                .map(applicationId -> this.applicationRepository.findById(applicationId)
                         .orElseThrow(() -> new NotFoundException("Application not found")))
                 .collect(Collectors.toSet());
         if (!applications.stream().allMatch(application -> application.getOrganization().getId().equals(organizationID))) {
             throw new NotAllowedException("Not allowed to add application");
         }
-        Invitation invitation = new Invitation(
-                invitationData.getLanguage(),
-                HashGenerator.generateRandomHash(),
-                invitationData.getEmail(),
-                invitationData.getMessage(),
-                invitationData.getIntendedAuthority(),
-                organization,
-                user,
-                applications
-        );
-        invitation = invitationRepository.save(invitation);
-        mailBox.sendInviteMail(invitation);
+        invitationForm.getInvites().forEach(invitee -> {
+            Invitation invitation = new Invitation(
+                    invitationForm.getLanguage(),
+                    HashGenerator.generateRandomHash(),
+                    invitee,
+                    invitationForm.getMessage(),
+                    invitationForm.getIntendedAuthority(),
+                    organization,
+                    user,
+                    applications);
+            invitation = invitationRepository.save(invitation);
+            mailBox.sendInviteMail(invitation);
+        });
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(invitation);
+        return createResult();
     }
 
     @PutMapping({"/accept"})
     public ResponseEntity<OrganizationMembership> accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
         LOG.debug("/accept invitation by " + user.getEmail());
 
-        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash())
+        Invitation invitation = invitationRepository.findByIdAndHash(acceptInvitation.invitationId(), acceptInvitation.hash())
                 .orElseThrow(() -> new NotFoundException("Invitation not found"));
         invitation.accept();
 
@@ -113,12 +123,10 @@ public class InvitationController implements UserAccessRights {
         List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
                 .map(application -> new ApplicationMembership(application, Authority.ADMIN))
                 .toList();
-//        applicationMemberships = applicationMembershipRepository.saveAll(applicationMemberships);
         applicationMemberships.forEach(applicationMembership -> organizationMembership.addApplicationMembership(applicationMembership));
 
         organization.addOrganizationMembership(organizationMembership);
         organizationRepository.save(organization);
-//        organizationMembershipRepository.save(organizationMembership);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(organizationMembership);
     }
