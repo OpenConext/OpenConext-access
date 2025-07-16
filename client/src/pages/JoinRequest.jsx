@@ -6,6 +6,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {newJoinRequest, organizationLightById} from "../api/index.js";
 import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
 import DOMPurify from "dompurify";
+import InputField from "../components/InputField.jsx";
 
 const JoinRequest = ({refreshUser}) => {
 
@@ -15,6 +16,7 @@ const JoinRequest = ({refreshUser}) => {
     const [organization, setOrganization] = useState({});
     const [joinRequestCreated, setJoinRequestCreated] = useState(false);
     const [duplicateJoinRequest, setDuplicateJoinRequest] = useState(false);
+    const [message, setMessage] = useState("");
 
     const {organisationId} = useParams();
     const navigate = useNavigate();
@@ -39,6 +41,7 @@ const JoinRequest = ({refreshUser}) => {
     const createJoinRequest = () => {
         newJoinRequest({
             organizationId: organisationId,
+            message: message,
             language: I18n.locale,
         }).then(() => {
             setJoinRequestCreated(true);
@@ -55,6 +58,12 @@ const JoinRequest = ({refreshUser}) => {
             <p dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(I18n.t("joinRequest.info", {name: organization.name}))
             }}/>
+            <InputField name={I18n.t("joinRequest.optionalMessage")}
+                        info={I18n.t("joinRequest.optionalMessageInfo")}
+                        onChange={e => setMessage(e.target.value)}
+                        value={message}
+                        multiline={true}
+                        placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
             <section className="actions">
                 <Button type={ButtonType.Secondary}
                         txt={I18n.t("forms.back")}

@@ -10,7 +10,7 @@ import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
-import {allAuthorities, authorities} from "../utils/Permissions.js";
+import {allAuthorities, authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 
 export const InvitationForm = () => {
@@ -19,8 +19,8 @@ export const InvitationForm = () => {
     const {organizationId} = useParams();
 
     const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
-    const {user, setFlash, config} = useAppStore(state => state);
-
+    const {user, setFlash} = useAppStore(state => state);
+    const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [organization, setOrganization] = useState({});
     const [loading, setLoading] = useState(true);
     const [invitation, setInvitation] = useState({
@@ -45,6 +45,8 @@ export const InvitationForm = () => {
                     ]
                 });
                 setLoading(false);
+                const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
+                setCurrentUserAuthority(currentUserMembershipAuthority(user, membership));
             });
     }, [organizationId]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -171,8 +173,8 @@ export const InvitationForm = () => {
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allAuthorities
-            .map(authority => ({value: authority, label: I18n.t(`roles.${authority.toLowerCase()}`)}));
-
+            .filter(authority => currentUserAuthority === authorities.ADMIN || authority !== authorities.ADMIN)
+            .map(authority => ({value: authority, label: I18n.t(`roles.${authority.toLowerCase()}`)}))
         return (
             <>
                 {renderFormElements(authorityOptions)}

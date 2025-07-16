@@ -48,8 +48,12 @@ public class OrganizationMembershipController implements UserAccessRights {
         LOG.debug("/update");
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(organizationMembershipUpdate.getId())
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
-        confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
-        organizationMembership.setAuthority(organizationMembershipUpdate.getAuthority());
+
+        Authority newAuthority = organizationMembershipUpdate.getAuthority();
+        Authority requiredAuthority = Authority.ADMIN.equals(newAuthority) ? Authority.ADMIN : Authority.MEMBER;
+        confirmOrganizationMembership(user, organizationMembership.getOrganization(), requiredAuthority);
+
+        organizationMembership.setAuthority(newAuthority);
         organizationMembership = organizationMembershipRepository.save(organizationMembership);
         return ResponseEntity.ok(organizationMembership);
     }

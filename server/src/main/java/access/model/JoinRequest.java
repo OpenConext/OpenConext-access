@@ -44,9 +44,10 @@ public class JoinRequest implements NameHolder {
     @Transient
     private String transientName;
 
-    public JoinRequest(User user, Organization organization, Language language) {
+    public JoinRequest(User user, Organization organization, String message, Language language) {
         this.user = user;
         this.organization = organization;
+        this.message = message;
         this.language = language;
         this.createdAt = Instant.now();
         this.transientName = getClass().getName().concat(organization.getName()).concat(user.getName());

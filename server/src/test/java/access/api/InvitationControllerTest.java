@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
@@ -125,5 +126,64 @@ class InvitationControllerTest extends AbstractMailTest {
 
         Map<String, Object> organization = (Map<String, Object>) invitation.get("organization");
         assertNotNull(organization.get("name"));
+    }
+
+    @Test
+    void deleteInvitation() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("invitationId", invitation.getId())
+                .delete("/api/v1/invitations/{invitationId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        Optional<Invitation> optionalInvitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH);
+        assertTrue(optionalInvitation.isEmpty());
+    }
+
+    @Test
+    void deleteAllInvitation() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organization.getId())
+                .delete("/api/v1/invitations/delete/all/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        List<Invitation> invitations = invitationRepository.findByOrganization(organization);
+        assertTrue(invitations.isEmpty());
+    }
+
+
+    @Test
+    void resendInvitation() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("invitationId", invitation.getId())
+                .put("/api/v1/invitations/resend/{invitationId}")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        String htmlContent = super.mailMessage().getHtmlContent();
+        assertTrue(htmlContent.contains(SHARE_LOGICS));
     }
 }

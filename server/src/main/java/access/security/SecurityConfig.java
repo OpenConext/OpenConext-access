@@ -45,24 +45,13 @@ public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
 
-    private final String introspectionUri;
-    private final String clientId;
-    private final String secret;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final Environment environment;
 
-    private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
-
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
-                          Environment environment,
-                          @Value("${oidcng.introspect-url}") String introspectionUri,
-                          @Value("${oidcng.resource-server-id}") String clientId,
-                          @Value("${oidcng.resource-server-secret}") String secret) {
+                          Environment environment) {
         this.clientRegistrationRepository = clientRegistrationRepository;
-        this.introspectionUri = introspectionUri;
-        this.clientId = clientId;
-        this.secret = secret;
         this.environment = environment;
     }
 
@@ -72,13 +61,11 @@ public class SecurityConfig {
 
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
-        private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, Manage manage) {
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {
             this.userRepository = userRepository;
             this.superAdmin = superAdmin;
-            this.manage = manage;
         }
 
         @Override

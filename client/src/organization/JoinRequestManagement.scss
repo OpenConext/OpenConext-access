@@ -1,0 +1,54 @@
+@use "../styles/mixins" as *;
+@use "../styles/vars" as *;
+@use "../index";
+
+.organization-join-requests {
+    .menu.drop-down {
+        position: relative;
+    }
+
+    @include index.menu-header;
+
+    ul li {
+        padding: 12px 0 12px 0;
+    }
+
+    .mod-entities {
+        width: 60%;
+        margin: 0;
+        @media (max-width: $full-mode) {
+            width: 100%;
+        }
+
+    }
+
+    table.joinRequestManagement {
+        thead {
+            th.user__name {
+                width: 25%;
+            }
+
+            th.message {
+                width: 40%;
+            }
+
+            th.created {
+                width: 20%;
+            }
+
+            th.buttons {
+                width: 15%;
+            }
+        }
+
+        tbody {
+            td.buttons {
+                text-align: right;
+            }
+
+        }
+
+    }
+
+}
+

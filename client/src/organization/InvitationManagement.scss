@@ -2,16 +2,14 @@
 @use "../styles/vars" as *;
 @use "../index";
 
-.organization-memberships {
-    display: flex;
-    gap: 40px;
-
-    @media (max-width: $full-mode) {
-        flex-direction: column;
-    }
+.organization-invitations {
 
     .mod-entities {
+        width: 90%;
         margin: 0;
+        @media (max-width: $full-mode) {
+            width: 100%;
+        }
     }
 
     .menu.drop-down {
@@ -24,19 +22,27 @@
         padding: 12px 0 12px 0;
     }
 
-    table.teamManagement {
+    table.invitationsManagement {
 
         thead {
+            th.mail {
+                width: 20%;
+            }
+
             th.user__name {
-                width: 45%;
+                width: 20%;
             }
 
             th.role {
-                width: 20%;
+                width: 15%;
             }
 
-            th.created {
-                width: 20%;
+            th.createdAt {
+                width: 15%;
+            }
+
+            th.expiryDate {
+                width: 15%;
             }
 
             th.buttons {

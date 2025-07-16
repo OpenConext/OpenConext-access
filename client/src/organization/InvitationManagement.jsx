@@ -1,4 +1,4 @@
-import "./TeamManagement.scss";
+import "./InvitationManagement.scss";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Entities} from "../components/Entities.jsx";
@@ -7,12 +7,13 @@ import {UserMembership} from "../components/UserMembership.jsx";
 import {allAuthorities, authorities} from "../utils/Permissions.js";
 import {useNavigate} from "react-router-dom";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {changeOrganizationMembershipById, deleteOrganizationMembershipById} from "../api/index.js";
+import {deleteAllInvitations, deleteInvitation, resendInvitation} from "../api/index.js";
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
+import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {isEmpty} from "../utils/Utils.js";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -20,9 +21,8 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
         label: I18n.t(`roles.${authority.toLowerCase()}`)
     })));
 
-export const TeamManagement = ({organization, currentUserAuthority, setRefresh}) => {
+export const InvitationManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
-    const navigate = useNavigate();
     const {user: currentUser} = useAppStore(state => state);
 
     const [confirmation, setConfirmation] = useState({});
@@ -33,72 +33,66 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         setRefresh(new Date().getTime())
     }
 
-    const doDelete = (membership, confirmationRequired) => {
+    const doDelete = (invitation, confirmationRequired) => {
         if (confirmationRequired) {
             setConfirmation({
                 open: true,
                 cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(membership, false),
-                question: I18n.t("teamManagement.deleteConfirmation", {name: membership.user.name}),
+                action: () => doDelete(invitation, false),
+                question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
                 okButton: I18n.t("forms.delete")
             });
         } else {
-            deleteOrganizationMembershipById(membership).then(() => {
+            deleteInvitation(membership).then(() => {
                 setConfirmation({});
                 refreshMemberships();
             })
         }
     }
 
-    const doDemoteCurrentUser = (membership, authority, confirmationRequired) => {
+    const doDeleteAll = (confirmationRequired) => {
         if (confirmationRequired) {
             setConfirmation({
                 open: true,
                 cancel: () => setConfirmation({open: false}),
-                action: () => doDemoteCurrentUser(membership, authority, false),
-                question: I18n.t("teamManagement.deleteDemotion", {name: membership.user.name}),
-                okButton: I18n.t("forms.sure")
+                action: () => doDeleteAll(false),
+                question: I18n.t("invitationsManagement.deleteAllConfirmation", {name: organization.name}),
+                okButton: I18n.t("forms.delete")
             });
         } else {
-            changeOrganizationMembershipById(membership, authority).then(() => {
+            deleteAllInvitations(organization).then(() => {
                 setConfirmation({});
                 refreshMemberships();
             })
         }
     }
 
-    const changeOrganizationMembership = (membership, authority) => {
-        if (membership.user.id === currentUser.id && authority !== authorities.ADMIN) {
-            doDemoteCurrentUser(membership, authority, true);
-            refreshMemberships();
+    const doResend = (invitation, confirmationRequired) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doResend(invitation, false),
+                question: I18n.t("invitationsManagement.resendConfirmation", {email: invitation.inviter.name}),
+                okButton: I18n.t("invitationsManagement.resend")
+            });
         } else {
-            changeOrganizationMembershipById(membership, authority).then(() => {
+            resendInvitation(invitation).then(() => {
                 setConfirmation({});
                 refreshMemberships();
             })
         }
     }
 
-    const renderMenu = membership => {
+    const renderMenu = invitation => {
         return (
             <div className="sds--user-info--dropdown">
                 <ul>
-                    {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.ADMIN)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeAdmin")}</span>
-                        </li>}
-                    {(membership.authority !== authorities.MEMBER && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.MEMBER)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeMember")}</span>
-                        </li>}
-                    {(membership.authority !== authorities.GUEST && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.GUEST)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeGuest")}</span>
-                        </li>}
-                    <li onClick={() => doDelete(membership, true)}>
+                    <li onClick={() => doResend(invitation, true)}>
+                        <ArrowRight/>
+                        <span>{I18n.t("invitationsManagement.resend")}</span>
+                    </li>
+                    <li onClick={() => doDelete(invitation)}>
                         <TrashIcon/>
                         <span>{I18n.t("forms.delete")}</span>
                     </li>
@@ -107,39 +101,54 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         )
     }
 
-    const renderOrganizationMembers = () => {
+    const renderOrganizationInvitations = () => {
+        if (isEmpty(organization.invitations)) {
+            return <h3>{I18n.t("invitationsManagement.zeroState", {name: organization.name})}</h3>
+        }
+
         const columns = [
             {
-                key: "user__name",
-                header: I18n.t("teamManagement.nameEmail"),
-                mapper: membership => <UserMembership user={membership.user} currentUser={currentUser}/>
+                key: "email",
+                header: I18n.t("invitationsManagement.email"),
+                mapper: invitation => invitation.email
             },
             {
                 key: "role",
-                header: I18n.t("teamManagement.role"),
-                mapper: membership => I18n.t(`roles.${membership.authority.toLowerCase()}`)
+                header: I18n.t("invitationsManagement.role"),
+                mapper: invitation => I18n.t(`roles.${invitation.intendedAuthority.toLowerCase()}`)
             },
             {
-                key: "created",
-                header: I18n.t("teamManagement.active"),
-                mapper: membership => dateFromEpoch(membership.createdAt)
+                key: "inviter__name",
+                header: I18n.t("invitationsManagement.inviter"),
+                mapper: invitation => <UserMembership user={invitation.inviter} currentUser={currentUser}/>
+            },
+            {
+                key: "createdAt",
+                header: I18n.t("invitationsManagement.createdAt"),
+                mapper: invitation => dateFromEpoch(invitation.createdAt)
+            },
+            {
+                key: "expiryDate",
+                header: I18n.t("invitationsManagement.expiryDate"),
+                mapper: invitation => dateFromEpoch(invitation.expiryDate)
             },
             {
                 key: "buttons",
                 header: "",
                 nonSortable: true,
-                mapper: membership => {
-                    if (currentUserAuthority === authorities.GUEST) {
+                mapper: invitation => {
+                    if (currentUserAuthority !== authorities.ADMIN ||
+                        invitation.intendedAuthority === authorities.ADMIN) {
                         return null;
                     }
                     return (
                         <div className="top-header"
                              tabIndex={1}
                              onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                            <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
+                            <span className={`menu ${dropDownActive === invitation.id ? "drop-down" : ""}`}
+                                  onClick={() => setDropDownActive(dropDownActive === -1 ? invitation.id : -1)}>
                                 <MenuIcon/>
-                                {dropDownActive === membership.id && renderMenu(membership)}
+                                {dropDownActive === invitation.id && renderMenu(invitation)}
                             </span>
                         </div>
                     );
@@ -162,16 +171,18 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
 
         return (
             <Entities
-                entities={organization.organizationMemberships.filter(m => authority === "ALL" || m.authority === authority)}
-                modelName="teamManagement"
-                defaultSort="user__name"
-                title={I18n.t("teamManagement.maintain", {name: organization.name})}
+                entities={organization.invitations
+                    .filter(invitation => authority === "ALL" || invitation.intendedAuthority === authority)}
+                modelName="invitationsManagement"
+                defaultSort="email"
+                title={I18n.t("invitationsManagement.maintain", {name: organization.name})}
                 columns={columns}
                 filters={filters()}
                 showNew={true}
+                newLabel={I18n.t("invitationsManagement.deleteAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
-                newEntityFunc={() => navigate(`/invitation/${organization.id}/new`)}
+                newEntityFunc={() => doDeleteAll()}
                 inputFocus={true}/>
         )
     };
@@ -195,15 +206,15 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
 
     const {open, cancel, action, question, okButton} = confirmation;
     return (
-        <div className="organization-memberships">
+        <div className="organization-invitations">
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          confirmationHeader={I18n.t("forms.delete")}
                                          confirmationTxt={okButton}
                                          question={question}
             />}
-            {renderOrganizationMembers()}
-            {renderExplanations()}
+            {renderOrganizationInvitations()}
+
         </div>
     )
 }

@@ -2,11 +2,13 @@
   "en": {
     "newInvitation": "Invitation for %s at OpenConext Access",
     "newJoinRequest": "New join request from %s for %s",
-    "acceptJoinRequest": "Join request for %s accepted"
+    "acceptJoinRequest": "Join request for %s accepted",
+    "deniedJoinRequest": "Join request for %s denied"
   },
   "nl": {
     "newInvitation": "Invitation for %s at OpenConext Access",
     "newJoinRequest": "New join request from %s for %s",
-    "acceptJoinRequest": "Join request for %s accepted"
+    "acceptJoinRequest": "Join request for %s accepted",
+    "deniedJoinRequest": "Join request for %s denied"
   }
 }

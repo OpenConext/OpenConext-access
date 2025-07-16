@@ -120,6 +120,11 @@ export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");
 }
 
+export function approvalJoinRequest(joinRequestId, approved, authority) {
+    const body = {joinRequestId, approved, authority};
+    return postPutJson("/api/v1/join/approval", body, "PUT");
+}
+
 export function joinRequestByOrganization(organization) {
     return fetchJson(`/api/v1/join/all/${organization.id}`);
 }
@@ -193,6 +198,11 @@ export function deleteConnectionById(connectionId) {
 }
 
 //OrganizationMemberships
+export function changeOrganizationMembershipById(organizationMembership, authority) {
+    const body = {id: organizationMembership.id, authority: authority}
+    return postPutJson("/api/v1/organization_memberships", body, "PUT");
+}
+
 export function deleteOrganizationMembershipById(organizationMembership) {
     return fetchDelete(`/api/v1/organization_memberships/${organizationMembership.id}`);
 }
@@ -203,10 +213,22 @@ export function createInvitation(invitation) {
 }
 
 export function getInvitationByHash(hash) {
-    return fetchJson(`/api/v1/invitations/hash?hash=${hash}`,{},{},false);
+    return fetchJson(`/api/v1/invitations/hash?hash=${hash}`, {}, {}, false);
 }
 
 export function acceptInvitation(invitation) {
     const body = {hash: invitation.hash, invitationId: invitation.id}
     return postPutJson("/api/v1/invitations/accept", body, "PUT")
+}
+
+export function resendInvitation(invitation) {
+    return postPutJson(`/api/v1/invitations/resend/${invitation.id}`, {}, "PUT")
+}
+
+export function deleteInvitation(invitation) {
+    return fetchDelete(`/api/v1/invitations/${invitation.id}`)
+}
+
+export function deleteAllInvitations(organization) {
+    return fetchDelete(`/api/v1/invitations/delete/all/${organization.id}`)
 }

@@ -1,5 +1,6 @@
 package access.request;
 
+import access.model.Authority;
 import access.model.Language;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +11,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JoinRequestForm {
+public class JoinRequestApproval {
 
-    private Long organizationId;
-    private String message;
-    private Language language;
+    private Long joinRequestId;
+    private boolean approved;
+    private Authority authority;
 
 }

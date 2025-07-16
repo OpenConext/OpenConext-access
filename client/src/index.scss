@@ -29,6 +29,56 @@
 
 }
 
+@mixin menu-header {
+    .top-header {
+        display: flex;
+
+        span.menu {
+            margin-left: auto;
+            position: relative;
+            cursor: pointer;
+
+            &.drop-down svg.menu-icon {
+                transform: rotate(90deg);
+            }
+        }
+
+        .sds--user-info--dropdown {
+            z-index: 7;
+
+            ul {
+                li {
+                    display: flex;
+                    align-items: center;
+                    &:hover {
+                        background-color: var(--sds--color--gray--500);
+                        color: white;
+                    }
+
+                }
+            }
+
+            span.svg {
+                font-size: 22px;
+                margin: 0 6px 0 16px;
+            }
+
+            span:not(.svg) {
+                display: block;
+                margin-left: 20px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            svg {
+                fill: white;
+                margin: 0 6px 0 16px;
+            }
+        }
+    }
+
+}
+
 @mixin form-content {
     display: flex;
     flex-direction: column;

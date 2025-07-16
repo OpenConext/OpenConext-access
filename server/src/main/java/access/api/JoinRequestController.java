@@ -7,9 +7,9 @@ import access.model.*;
 import access.repository.JoinRequestRepository;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
+import access.request.JoinRequestApproval;
 import access.request.JoinRequestForm;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.persistence.EntityManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -67,13 +67,12 @@ public class JoinRequestController implements UserAccessRights {
         Organization organization = this.organizationRepository.findById(joinRequestForm.getOrganizationId())
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
         List<JoinRequest> joinRequests = joinRequestRepository.findByOrganization(organization);
-        boolean force = joinRequestForm.isForce();
-        if (!force && joinRequests.stream().anyMatch(jr -> jr.getUser().getId().equals(user.getId()))) {
+        if (joinRequests.stream().anyMatch(jr -> jr.getUser().getId().equals(user.getId()))) {
             throw new DuplicateJoinRequestException(
                     String.format("Duplicate join request for user %s and organization %s",
                             user.getEmail(), organization.getName()));
         }
-        JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getLanguage());
+        JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getMessage(), joinRequestForm.getLanguage());
         joinRequest = joinRequestRepository.save(joinRequest);
 
         mailBox.sendJoinRequestMail(joinRequest);
@@ -81,22 +80,27 @@ public class JoinRequestController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(joinRequest);
     }
 
-    @PutMapping({"/accept/{joinRequestId}"})
-    public ResponseEntity<Map<String, Integer>> accepts(User user, @PathVariable("joinRequestId") Long joinRequestId) {
-        LOG.debug("/create joinRequest by " + user.getEmail());
+    @PutMapping({"/approval"})
+    public ResponseEntity<Map<String, Integer>> approval(User user, @RequestBody JoinRequestApproval joinRequestApproval) {
+        LOG.debug("/approval joinRequest by " + user.getEmail());
 
+        Long joinRequestId = joinRequestApproval.getJoinRequestId();
         JoinRequest joinRequest = joinRequestRepository.findById(joinRequestId)
                 .orElseThrow(() -> new NotFoundException("JoinRequest not found"));
 
         Organization organization = joinRequest.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
-        OrganizationMembership organizationMembership = new OrganizationMembership(
-                joinRequest.getUser(),organization, Authority.MEMBER);
-        organizationMembershipRepository.save(organizationMembership);
+        if (joinRequestApproval.isApproved()) {
+            OrganizationMembership organizationMembership = new OrganizationMembership(
+                    joinRequest.getUser(), organization, Authority.GUEST);
+            organizationMembershipRepository.save(organizationMembership);
 
-        mailBox.sendJoinRequestAcceptedMail(joinRequest);
+            mailBox.sendJoinRequestAcceptedMail(joinRequest);
 
+        } else {
+            mailBox.sendJoinRequestDeniedMail(joinRequest);
+        }
         organization.removeJoinRequest(joinRequest);
         joinRequestRepository.deleteJoinRequestById(joinRequestId);
         return Results.createResult();

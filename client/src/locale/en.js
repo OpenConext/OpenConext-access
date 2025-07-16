@@ -85,14 +85,19 @@ const en = {
     userHome: {
         greeting: "{{name}}",
         nudgeLanding: "You are not a member of any organization.",
-        nudgeLandingLink: " You can request to join one.",
-        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
+        nudgeLandingLink: " You can request to join one or create your own.",
+        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending.",
+        backToLanding: "Go back to ",
+        backToLandingLink: " create your own organization.",
     },
     tabs: {
         users: "Users"
     },
     joinRequest: {
         info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        optionalMessage: "Message (optional)",
+        optionalMessageInfo: "Message included in the join request send to the administrators",
+        optionalMessagePlaceHolder: "Please, please...",
         requestAccess: "Request access",
         duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
         flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
@@ -157,7 +162,8 @@ const en = {
         },
         applications: "Applications",
         team: "My Team",
-        joins: "Join Requests"
+        joins: "Join Requests",
+        invitations: "Invitations",
     },
     connection: {
         overview: "Overview",
@@ -444,9 +450,55 @@ const en = {
         searchPlaceHolder: "Search for members",
         new: "Invite team member",
         deleteConfirmation: "Are you sure you want to remove the organization membership of {{name}}?",
+        deleteDemotion: "Are you sure you don't want to be admin anymore? This can not be reverted",
         flash: {
             deleted: "The organization membership of {{name}} has been removed"
+        },
+        makeAdmin: "Make admin",
+        makeMember: "Make member",
+        makeGuest: "Make guest",
+        explanations: {
+            title: "Toelichting SXS rollen",
+            admin: "Admin",
+            adminRights: "Admins kunnen alle functies van SXS bedienen en members en guests beheren.",
+            member: "Member",
+            memberRights: "Members horen bij de organsatie en mogen applicatie beheren en applicatie gebruikers uitnodigen.",
+            guest: "Guest",
+            guestRights: "Gasten zijn gebruikers die niet bij de organisatie horen maar externen die betrokken zijn om bepaalde applicaties te beheren."
         }
+    },
+    joinRequestManagement: {
+        nameEmail: "Name & Email",
+        message: "Personal message",
+        createdAt: "Created at",
+        maintain: "Maintain the {{name}} join requests",
+        zeroState: "There are no outstanding join requests for {{name}}",
+        searchPlaceHolder: "Search for join requests",
+        approveConfirmation: "Are you sure you want to approve the organization join request of {{name}}?",
+        denialConfirmation: "Are you sure you want to deny the organization join request of {{name}}?",
+        flash: {
+            approved: "The organization membership of {{name}} has been created",
+            denied: "The join request of {{name}} has been denied"
+        },
+        deny: "Deny",
+        approve: "Approve"
+    },
+    invitationsManagement: {
+        email: "Email",
+        active: "Active since",
+        role: "Role",
+        createdAt: "Send at",
+        expiryDate: "Expires on",
+        inviter: "Inviter",
+        maintain: "Open invitations",
+        searchPlaceHolder: "Search for members",
+        zeroState: "There are no outstanding invitations for {{name}}",
+        new: "Invite team member",
+        deleteAll: "Delete all",
+        deleteConfirmation: "Are you sure you want to revoke the invitation for {{email}}?",
+        deleteAllConfirmation: "Are you sure you want to revoke all the invitation of {{name}}?",
+        resend: "Resend",
+        resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
     },
     roles: {
         admin: "Admin",
@@ -470,6 +522,7 @@ const en = {
         lastActivity: "Last activity",
         searchPlaceHolder: "Search users...",
         impersonate: "Impersonate user {{name}}",
+        you: "You"
     },
     invitation: {
         title: "New invitation for {{name}} membership",
@@ -493,6 +546,7 @@ const en = {
     forms: {
         cancel: "Cancel",
         submit: "Submit",
+        sure: "I'm sure",
         edit: "Edit",
         accept: "Accept",
         proceed: "Proceed",

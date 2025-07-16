@@ -110,9 +110,26 @@ public class MailBox {
                 title,
                 variables,
                 joinRequest.getUser().getEmail());
-
     }
 
+    @SneakyThrows
+    public void sendJoinRequestDeniedMail(JoinRequest joinRequest) {
+        Language language = joinRequest.getLanguage();
+        Organization organization = joinRequest.getOrganization();
+        String title = String.format(subjects.get(language.name()).get("deniedJoinRequest"),
+                organization.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("joinRequest", joinRequest);
+        variables.put("title", title);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("join_request_denied_%s", language.name()),
+                title,
+                variables,
+                joinRequest.getUser().getEmail());
+
+    }
 
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();

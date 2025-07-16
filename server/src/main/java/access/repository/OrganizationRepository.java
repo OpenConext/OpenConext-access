@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -21,7 +20,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     Optional<Organization> findBySchacHomeOrganization(String schacHomeOrganization);
 
     @EntityGraph(attributePaths = {
-            "applications", "organizationMemberships.user", "organizationMemberships.applicationMemberships", "joinRequests.user"})
+            "applications", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
 
     @Modifying

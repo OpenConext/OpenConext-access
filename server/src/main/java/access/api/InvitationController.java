@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
-import static access.api.Results.createResult;
+import static access.api.Results.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/invitations"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -81,7 +83,8 @@ public class InvitationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(organizationID)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
-        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        Authority requiredAuthority = invitationForm.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
+        confirmOrganizationMembership(user, organization, requiredAuthority);
         Set<Application> applications = invitationForm.getApplicationIdentifiers().stream()
                 .map(applicationId -> this.applicationRepository.findById(applicationId)
                         .orElseThrow(() -> new NotFoundException("Application not found")))
@@ -131,4 +134,53 @@ public class InvitationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(organizationMembership);
     }
 
+    @DeleteMapping({"/{invitationId}"})
+    public ResponseEntity<Void> deleteInvitation(User user, @PathVariable("invitationId") Long invitationId) {
+        LOG.debug("/delete invitation by " + user.getEmail());
+
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new NotFoundException("Invitation not found"));
+
+        Organization organization = invitation.getOrganization();
+        Authority requiredAuthority = invitation.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
+        confirmOrganizationMembership(user, organization, requiredAuthority);
+
+        invitationRepository.delete(invitation);
+
+        return deleteResult();
+    }
+
+    @DeleteMapping({"/delete/all/{organizationId}"})
+    public ResponseEntity<Void> deleteAll(User user, @PathVariable("organizationId") Long organizationId) {
+        LOG.debug("/delete all invitation by " + user.getEmail());
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        Set<Invitation> invitations = organization.getInvitations();
+        organization.getInvitations().clear();
+
+        invitationRepository.deleteAll(invitations);
+
+        return deleteResult();
+    }
+
+    @PutMapping({"/resend/{invitationId}"})
+    public ResponseEntity<Map<String, Integer>> resendInvitation(User user, @PathVariable("invitationId") Long invitationId) {
+        LOG.debug("/resend invitation by " + user.getEmail());
+
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new NotFoundException("Invitation not found"));
+
+        Organization organization = invitation.getOrganization();
+        Authority requiredAuthority = invitation.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
+        confirmOrganizationMembership(user, organization, requiredAuthority);
+        invitation.setExpiryDate(Instant.now().plus(30, ChronoUnit.DAYS));
+        invitationRepository.save(invitation);
+
+        mailBox.sendInviteMail(invitation);
+
+        return okResult();
+    }
 }

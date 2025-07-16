@@ -19,6 +19,9 @@ import java.util.UUID;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
+    private static final String sub = "urn:collab:person:eduid.nl:mos";
+//    private final String sub = "urn:collab:person:example.com:admin";
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,8 +41,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-//                "sub", body.getOrDefault("sub", "urn:collab:person:example.com:admin"),
-                "sub", body.getOrDefault("sub", "urn:collab:person:eduid.nl:mos"),
+                "sub", body.getOrDefault("sub", LocalDevelopmentAuthenticationFilter.sub),
                 "uids", List.of("super"));
         //We can't rely on the mutability of the body
         Map<String, Object> claims = new HashMap<>(defaultClaims);

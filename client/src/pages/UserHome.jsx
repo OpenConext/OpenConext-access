@@ -28,18 +28,25 @@ const UserHome = () => {
         <div className="home-container">
 
             <h2>{I18n.t("welcome.greeting", {name: user.name})}</h2>
-            {isEmpty(user.joinRequests) && <div className="nudge-landing">
-                <span>{I18n.t("userHome.nudgeLanding")}</span>
-                <Link to={"/landing"}>
-                    <span>{I18n.t("userHome.nudgeLandingLink")}</span>
-                </Link>
-            </div>}
-            {!isEmpty(user.joinRequests) && <div>
+            {(isEmpty(user.joinRequests)) &&
+                <div className="nudge-landing">
+                    <span>{I18n.t("userHome.nudgeLanding")}</span>
+                    <Link to={"/landing"}>
+                        <span>{I18n.t("userHome.nudgeLandingLink")}</span>
+                    </Link>
+                </div>}
+            {!isEmpty(user.joinRequests) && <div >
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
                         {name: user.joinRequests[0].organization.name}))
                 }}/>
                 <Relax/>
+                <div className="nudge-landing">
+                    <span>{I18n.t("userHome.backToLanding")}</span>
+                    <Link to={"/landing"}>
+                        <span>{I18n.t("userHome.backToLandingLink")}</span>
+                    </Link>
+                </div>
             </div>}
         </div>
     )

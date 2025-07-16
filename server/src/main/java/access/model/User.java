@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 @SuppressWarnings("unchecked")
-public class User implements Serializable {
+public class User implements Serializable, NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,12 +1,23 @@
-.user-membership {
+.user-membership-container {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 25px;
 
-    .name {
-        font-weight: 600;
+    .user-membership {
+        display: inline-block;
+
+        span {
+            display: block;
+        }
+
+        .name {
+            font-weight: 600;
+        }
+
+        .email {
+            color: var(--sds--color--gray--500);
+        }
     }
 
-    .email {
-        color: var(--sds--color--gray--500);
-    }
+
 }

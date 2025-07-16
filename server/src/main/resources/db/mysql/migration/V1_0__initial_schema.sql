@@ -60,7 +60,7 @@ CREATE TABLE `invitations`
     `status`             varchar(255) NOT NULL,
     `hash`               varchar(255) DEFAULT NULL,
     `email`              varchar(255) NOT NULL,
-    `message`            varchar(255) DEFAULT NULL,
+    `message`            text DEFAULT NULL,
     `organization_id`    bigint       NOT NULL,
     `invitee_id`         bigint       NOT NULL,
     `intended_authority` varchar(255) NOT NULL,

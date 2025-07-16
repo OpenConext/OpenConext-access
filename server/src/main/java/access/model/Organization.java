@@ -42,6 +42,9 @@ public class Organization implements NameHolder {
     @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
+    @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Invitation> invitations = new HashSet<>();
+
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long memberCount;
 
