@@ -38,7 +38,7 @@ class ApplicationControllerTest extends AbstractTest {
 
         Application application = applications.getFirst();
         assertEquals(BUDDY_CHECK, application.getName());
-        assertNull(application.getOrganization());
+        assertNotNull(application.getOrganization());
     }
 
     @Test

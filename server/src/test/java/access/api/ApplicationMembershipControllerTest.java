@@ -23,7 +23,7 @@ class ApplicationMembershipControllerTest extends AbstractTest {
 
     @Test
     void create() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", MANAGE_SUB);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(FAR_WIND)).get();
         Application application = applicationRepository.findById(seedIdentifiers.get(NITRO_MAP)).get();
 
