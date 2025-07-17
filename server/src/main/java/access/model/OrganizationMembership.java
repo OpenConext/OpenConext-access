@@ -42,10 +42,7 @@ public class OrganizationMembership implements NameHolder {
     @NotNull
     private Authority authority = Authority.MEMBER;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "organization_memberships_application_memberships",
-            joinColumns = @JoinColumn(name = "organization_membership_id"),
-            inverseJoinColumns = @JoinColumn(name = "application_membership_id"))
+    @OneToMany(mappedBy = "organizationMembership", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ApplicationMembership> applicationMemberships = new HashSet<>();
 
     @Transient

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,22 +23,29 @@ public class ApplicationMembership implements NameHolder{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "created_at")
+    private Instant createdAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Application application;
 
-    @ManyToMany(mappedBy = "applicationMemberships", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_membership_id")
+    private OrganizationMembership organizationMembership;
 
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
     private Authority authority = Authority.MEMBER;
 
-    public ApplicationMembership(Application application, Authority authority) {
+    public ApplicationMembership(Application application, OrganizationMembership organizationMembership, Authority authority) {
         this.application = application;
         this.authority = authority;
+        this.organizationMembership = organizationMembership;
+        this.createdAt = Instant.now();
     }
 
     @Override

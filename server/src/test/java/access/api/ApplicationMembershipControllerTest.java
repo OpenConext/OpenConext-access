@@ -7,13 +7,13 @@ import access.request.ApplicationMembershipForm;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
 
-import java.util.Map;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationMembershipControllerTest extends AbstractTest {
 
@@ -46,5 +46,26 @@ class ApplicationMembershipControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertNotNull(applicationMembership.getId());
+    }
+
+    @Test
+    void delete()  {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        String identifier = ApplicationMembership.class.getName().concat(BUDDY_CHECK).concat(Authority.MEMBER.name());
+        ApplicationMembership applicationMembership = applicationMembershipRepository.findById(seedIdentifiers.get(identifier)).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("membership_id", applicationMembership.getId())
+                .delete("/api/v1/application_memberships/{membership_id}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        Optional<ApplicationMembership> optionalApplicationMembership =
+                applicationMembershipRepository.findById(seedIdentifiers.get(identifier));
+        assertTrue(optionalApplicationMembership.isEmpty());
     }
 }

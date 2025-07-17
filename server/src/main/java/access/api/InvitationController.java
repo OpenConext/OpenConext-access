@@ -124,7 +124,7 @@ public class InvitationController implements UserAccessRights {
 
 
         List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
-                .map(application -> new ApplicationMembership(application, Authority.ADMIN))
+                .map(application -> new ApplicationMembership(application, organizationMembership, Authority.ADMIN))
                 .toList();
         applicationMemberships.forEach(applicationMembership -> organizationMembership.addApplicationMembership(applicationMembership));
 

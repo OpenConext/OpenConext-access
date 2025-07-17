@@ -99,6 +99,10 @@ export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
+export function organizationUsersById(id) {
+    return fetchJson(`/api/v1/organizations/users/${id}`);
+}
+
 export function deleteOrganizationById(organizationId) {
     return fetchDelete(`/api/v1/organizations/${organizationId}`);
 }
@@ -148,6 +152,16 @@ export function newApplication(application) {
 
 export function updateApplication(application) {
     return postPutJson("/api/v1/applications", application, "PUT");
+}
+
+//Application memberships
+export function deleteApplicationMembershipById(applicationMembership) {
+    return fetchDelete(`/api/v1/application_memberships/${applicationMembership.id}`);
+}
+
+export function createApplicationMembership(organizationMembershipId,applicationId,organizationId) {
+    const body = {organizationMembershipId,applicationId,organizationId}
+    return postPutJson("/api/v1/application_memberships", body, "POST");
 }
 
 //Manage

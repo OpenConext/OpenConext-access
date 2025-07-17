@@ -11,23 +11,12 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
-import {TeamManagement} from "../organization/TeamManagement.jsx";
-import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
-import {JoinRequestManagement} from "../organization/JoinRequestManagement.jsx";
-import {InvitationManagement} from "../organization/InvitationManagement.jsx";
-
-const tabNames = ["applications", "team", "invitations", "joins"]
 
 const Organization = () => {
-    const {user} = useAppStore(state => state);
-    const {tab = "applications"} = useParams();
     const {organizationId} = useParams();
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
-    const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [alertClosed, setAlertClosed] = useState(false);
-    const [refresh, setRefresh] = useState(-1);
-    const [currentTab, setCurrentTab] = useState(tab);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -43,14 +32,11 @@ const Organization = () => {
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });
-                const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
-                setCurrentUserAuthority(currentUserMembershipAuthority(user, membership));
-                tabChanged(currentTab, res);
                 setLoading(false);
             }).catch(() => {
             navigate("/404")
         });
-    }, [organizationId, refresh]);
+    }, [organizationId]);
 
     const alertInfo = () => {
         if (alertClosed || organization.applicationCount > 0) {
@@ -69,7 +55,6 @@ const Organization = () => {
             <>
                 {isEmpty(organization.applications) &&
                     <div className="organization">
-                        <h2 className="one-row">{I18n.t("organization.applications")}</h2>
                         <div className="left">
                             <Logo/>
                             <Button onClick={() => navigate("/application/new")}
@@ -89,7 +74,6 @@ const Organization = () => {
                     </div>}
                 {!isEmpty(organization.applications) &&
                     <div className="applications">
-                        <h2>{I18n.t("organization.applications")}</h2>
                         {organization.applications
                             .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))
                             .map((application, index) =>
@@ -125,62 +109,6 @@ const Organization = () => {
         );
     }
 
-    const tabChanged = (name, res) => {
-        setCurrentTab(name);
-        useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: `/organization/${organizationId}`, value: res ? res.name : organization.name},
-                {value: I18n.t(`breadCrumb.${name}`)}
-            ]
-        });
-        navigate(`/organization/${organizationId}/${name}`);
-    }
-
-    const renderTeamManagement = () => {
-        return (
-            <TeamManagement organization={organization}
-                            currentUserAuthority={currentUserAuthority}
-                            setRefresh={setRefresh}/>
-        );
-    };
-
-    const renderJoinRequests = () => {
-        return (
-            <JoinRequestManagement organization={organization}
-                                   currentUserAuthority={currentUserAuthority}
-                                   setRefresh={setRefresh}/>
-        );
-    };
-
-    const renderInvitations = () => {
-        return (
-            <InvitationManagement organization={organization}
-                                  currentUserAuthority={currentUserAuthority}
-                                  setRefresh={setRefresh}/>
-        );
-    };
-
-    const renderCurrentTab = () => {
-        switch (currentTab) {
-            case "applications": {
-                return renderApplications();
-            }
-            case  "team": {
-                return renderTeamManagement();
-            }
-            case  "joins": {
-                return renderJoinRequests();
-            }
-            case  "invitations": {
-                return renderInvitations();
-            }
-            default:
-                throw new Error(`Unknown tab; ${currentTab}`)
-        }
-    }
-
-
     if (loading) {
         return <Loader/>
     }
@@ -190,12 +118,9 @@ const Organization = () => {
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
             {alertInfo()}
             <OrganizationHeader organization={organization}
-                                tab={currentTab}
-                                setTab={tabChanged}
-                                tabNames={tabNames}
                                 setLoading={setLoading}/>
             <div className="organization-container">
-                {renderCurrentTab()}
+                {renderApplications()}
             </div>
         </div>
 

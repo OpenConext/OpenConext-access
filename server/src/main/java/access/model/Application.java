@@ -8,8 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +53,7 @@ public class Application implements NameHolder{
     @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Connection> connections = new HashSet<>();
 
-    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "application", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<ApplicationMembership> applicationMemberships = new HashSet<>();
 
     @Column(name = "created_at")
@@ -75,6 +77,19 @@ public class Application implements NameHolder{
         this.organization = organization;
         this.metaData = metaData;
         this.createdAt = Instant.now();
+    }
+
+    //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "organization")
+    public Map<String, Serializable> getOrganizationInfo() {
+        Organization organization = getOrganization();
+        Map<String, Serializable> organizationInfo = new HashMap<>();
+        if (organization != null && Hibernate.isInitialized(organization)) {
+            organizationInfo.put("id", organization.getId());
+            organizationInfo.put("name", organization.getName());
+            organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
+        }
+        return organizationInfo;
     }
 
     @JsonIgnore

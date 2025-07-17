@@ -32,6 +32,7 @@ public class S3Storage {
     private boolean bucketExists;
 
     @SneakyThrows
+    @SuppressWarnings("deprecation")
     public S3Storage(@Value("${s3storage.url}") String s3URL,
                      @Value("${s3storage.key}") String s3AccessKey,
                      @Value("${s3storage.secret}") String s3SecretKey,

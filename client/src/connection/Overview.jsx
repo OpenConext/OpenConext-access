@@ -88,7 +88,7 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
                 <section className="sub-part">
                     <h2>{I18n.t("connection.team.name")}</h2>
                     <StatusLink info={I18n.t("connection.team.members")}
-                                action={() => setTab("testing")}
+                                action={() => setTab("appteam")}
                                 status={STATUS_LINK_TYPE.TEAM}/>
                 </section>
                 <section className="sub-part">

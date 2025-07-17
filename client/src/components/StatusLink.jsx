@@ -29,7 +29,7 @@ export const StatusLink = ({status, info, action, disabled}) => {
     }
 
     return (
-        <div className={`status-link ${disabled && "disabled"}`}
+        <div className={`status-link ${disabled ? "disabled" : "enabled"}`}
              onClick={action}>
             {getIcon()}
             <span className="info">{info}</span>

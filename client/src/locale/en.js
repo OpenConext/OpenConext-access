@@ -20,7 +20,6 @@ const en = {
             connect: "How to connect",
             institutions: "All institutions",
             applications: "All applications",
-
         },
         applicationProviders: {
             title: "For application providers",
@@ -56,6 +55,11 @@ const en = {
         }
     },
     navigation: {
+        organizationMaintenance: "Organization maintenance",
+        catalogue: "SURF app catalogue",
+        yourApps: "Your apps",
+        allApps: "All apps",
+        users: "User management",
         home: "Home",
         applications: "Applications",
         teams: "Teams"
@@ -91,7 +95,10 @@ const en = {
         backToLandingLink: " create your own organization.",
     },
     tabs: {
-        users: "Users"
+        users: "Users",
+        team: "My Team",
+        joins: "Join Requests",
+        invitations: "Invitations",
     },
     joinRequest: {
         info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
@@ -151,6 +158,7 @@ const en = {
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
+        applicationManagement: "Application management",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
         deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
@@ -161,9 +169,6 @@ const en = {
             disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
         },
         applications: "Applications",
-        team: "My Team",
-        joins: "Join Requests",
-        invitations: "Invitations",
     },
     connection: {
         overview: "Overview",
@@ -171,6 +176,7 @@ const en = {
         prod: "Production",
         application: "App information",
         contract: "Contract",
+        appteam: "Appteam",
         welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
         testSection: "Test",
         teamSection: "Team",
@@ -441,6 +447,9 @@ const en = {
         ok: "Ok",
         cancel: "Cancel",
     },
+    userManagement: {
+        title: "Gebruikersbeheer"
+    },
     teamManagement: {
         nameEmail: "Name & Email",
         applicationMemberships: "Member of ApplicationTeams",
@@ -499,6 +508,21 @@ const en = {
         deleteAllConfirmation: "Are you sure you want to revoke all the invitation of {{name}}?",
         resend: "Resend",
         resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
+    },
+    appTeamManagement: {
+        name: "Name",
+        role: "Role",
+        createdAt: "Member since",
+        maintain: "Applicatieteam",
+        searchPlaceHolder: "Search for members",
+        zeroState: "There are no application memberships for {{name}} yet",
+        new: "Invite new user",
+        addPlaceHolder: "Add existing user",
+        remove: "Remove from appteam",
+        deleteConfirmation: "Are you sure you want to delete the application role for {{name}}?",
+        organizationMembersPre: "Je kunt ",
+        organizationMembersLink: "organisatiegebruikers",
+        organizationMembersPost: " toevoegen aan dit applicatieteam. ",
     },
     roles: {
         admin: "Admin",

@@ -66,6 +66,18 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
+    @GetMapping("/users/{id}")
+    public ResponseEntity<Organization> light(User user, @PathVariable("id") Long id) {
+        LOG.debug("/find Organization light by " + user.getEmail());
+
+        Organization organization = organizationRepository.findUsersById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        confirmOrganizationMembership(user, organization, Authority.GUEST);
+
+        return ResponseEntity.ok(organization);
+    }
+
     @GetMapping("/light/{id}")
     public ResponseEntity<Organization> light(@PathVariable("id") Long id) {
         LOG.debug("/light");

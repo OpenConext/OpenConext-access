@@ -23,6 +23,9 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
             "applications", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
 
+    @EntityGraph(attributePaths = {"organizationMemberships.user"})
+    Optional<Organization> findUsersById(Long id);
+
     @Modifying
     @Query(value = "DELETE FROM organizations WHERE id = ?1", nativeQuery = true)
     @Transactional(isolation = Isolation.SERIALIZABLE)

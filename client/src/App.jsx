@@ -29,6 +29,7 @@ import {Impersonating} from "./components/Impersonating.jsx";
 import System from "./pages/System.jsx";
 import {InvitationForm} from "./pages/InvitationForm.jsx";
 import {Invitation} from "./pages/Invitation.jsx";
+import {UserManagement} from "./organization/UserManagement.jsx";
 
 const App = () => {
 
@@ -72,12 +73,12 @@ const App = () => {
                             }));
                             if (isEmpty(user.organizationMemberships)) {
                                 useAppStore.setState(() => ({
-                                    menuItems: ["home"]
+                                    menuItems: ["allApps"]
                                 }));
                                 navigate("/landing");
                             } else {
                                 useAppStore.setState(() => ({
-                                    menuItems: ["home", "applications", "teams"],
+                                    menuItems: ["users", "yourApps", "allApps"],
                                     currentOrganization: user.organizationMemberships.map(om => om.organization)[0]
                                 }));
                             }
@@ -116,11 +117,12 @@ const App = () => {
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
+                            <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
                             <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
-                            <Route path="/invitation/:organizationId/new" element={<InvitationForm/>}/>
+                            <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation/>}/>
                             <Route path="/system" element={<System/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>

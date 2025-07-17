@@ -12,8 +12,9 @@ import {CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {Contract} from "../connection/Contract.jsx";
+import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 
-const tabNames = ["overview", "testing", "prod", "application", "contract"]
+const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
 const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,
@@ -41,9 +42,7 @@ export const Connection = () => {
         Promise.all([
             getApplicationById(applicationId),
             arp(),
-            privacy(),
-            getIdentityProviders(ENVIRONMENTS.TEST),
-            getIdentityProviders(ENVIRONMENTS.PROD)])
+            privacy()])
             .then(res => {
                 //For convenience editing
                 const options = res[1].profiles.map(profile => ({
@@ -57,8 +56,6 @@ export const Connection = () => {
                 setApplication(convertServerApplicationToClient(res[0], protocolOptions, options, res[1]));
                 setArpInfo(res[1]);
                 setPrivacyInfo(res[2])
-                setIdentityProviders(res[3]);
-                setProdIdentityProviders(res[4]);
                 setProfileOptions(options);
                 changeTab(currentTab);
                 setLoading(false);
@@ -70,6 +67,14 @@ export const Connection = () => {
                         {value: res.name}
                     ]
                 });
+                Promise.all([
+                    getIdentityProviders(ENVIRONMENTS.TEST),
+                    getIdentityProviders(ENVIRONMENTS.PROD)
+                ]).then(providers => {
+                        setIdentityProviders(providers[0]);
+                        setProdIdentityProviders(providers[1]);
+
+                    })
             })
     }, []);
 
@@ -173,6 +178,12 @@ export const Connection = () => {
                                  protocolOptions={protocolOptions}
                                  profileOptions={profileOptions}
                                  arpInfo={arpInfo}
+                />
+            }
+            case "appteam": {
+                return <AppTeamManagement application={application}
+                                          refresh={refresh}
+                                          refreshApp={refreshApp}
                 />
             }
             default:

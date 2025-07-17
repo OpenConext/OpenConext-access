@@ -1,57 +1,66 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useNavigate} from "react-router";
-import {Loader, NavigationMenu} from "@surfnet/sds";
-import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
+import {NavigationMenu} from "@surfnet/sds";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
+import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {useEffect, useState} from "react";
-import {isEmpty} from "../utils/Utils.js";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 
-const allMenuItems = [
-    {
-        name: "home",
-        path: "/home",
+const allMenuGroups = [{
+    label: "organizationMaintenance",
+    items: [{
+        name: "users",
+        path: "/users/organizationId",
         relative: true,
-        Logo: HomeIcon
-    },
+        Logo: TeamIcon
+    }]
+},
     {
-        name: "applications",
-        path: "dashboard",
-        relative: false,
-        postPath: "login",
-        Logo: ScreenIcon
-    },
-    {
-        name: "teams",
-        path: "invite",
-        relative: false,
-        postPath: "home",
-        Logo: LaptopIcon
+        label: "catalogue",
+        items: [{
+            name: "yourApps",
+            path: "/organization/organizationId",
+            relative: true,
+            Logo: ScreenIcon
+        },
+            {
+                name: "allApps",
+                path: "dashboard",
+                relative: false,
+                postPath: "",
+                Logo: LaptopIcon
+            }]
     }
-
 ]
 
 export const SharedMenu = () => {
 
     const {menuItems, config, currentOrganization} = useAppStore(state => state);
-    const [filteredMenuItems, setFilteredMenuItems] = useState([]);
+    const [filteredMenuGroups, setFilteredMenuGroups] = useState([]);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const items = allMenuItems
-            .filter(menuItem => menuItems.includes(menuItem.name))
-            .map(menuItem => ({
-                Logo: menuItem.Logo,
-                label: I18n.t(`navigation.${menuItem.name}`),
-                href: menuItem.relative ? menuItem.path : `https://${menuItem.path}.${config.baseUrl}/${menuItem.postPath}`
-            }));
-        setFilteredMenuItems(items);
-    }, [menuItems]);
+        const newMenuGroups = allMenuGroups
+            .map(menuGroup => ({
+                label: I18n.t(`navigation.${menuGroup.label}`),
+                items: menuGroup.items
+                    .filter(menuItem => menuItems.includes(menuItem.name))
+                    .map(menuItem => ({
+                        Logo: menuItem.Logo,
+                        label: I18n.t(`navigation.${menuItem.name}`),
+                        name: menuItem.name,
+                        href: menuItem.relative ? menuItem.path.replace("organizationId", currentOrganization.id) :
+                            `https://${menuItem.path}.${config.baseUrl}/${menuItem.postPath}`
+                    }))
+            }))
+            .filter(menuGroup => menuGroup.items.length > 0);
+        setFilteredMenuGroups(newMenuGroups);
+    }, [menuItems, currentOrganization]);
 
 
     const doNavigate = href => {
@@ -62,13 +71,13 @@ export const SharedMenu = () => {
         }
     }
 
-    if (isEmpty(filteredMenuItems)) {
-        return <Loader/>
-    }
+    // if (isEmpty(filteredMenuGroups)) {
+    //     return <Loader/>
+    // }
 
     return (
         <NavigationMenu
-            items={filteredMenuItems}
+            groups={filteredMenuGroups}
             logoLabel={"Access"}
             navigate={doNavigate}
             title={currentOrganization?.name || ""}

@@ -60,7 +60,7 @@ CREATE TABLE `invitations`
     `status`             varchar(255) NOT NULL,
     `hash`               varchar(255) DEFAULT NULL,
     `email`              varchar(255) NOT NULL,
-    `message`            text DEFAULT NULL,
+    `message`            text         DEFAULT NULL,
     `organization_id`    bigint       NOT NULL,
     `invitee_id`         bigint       NOT NULL,
     `intended_authority` varchar(255) NOT NULL,
@@ -96,25 +96,14 @@ CREATE TABLE `applications`
 
 CREATE TABLE `application_memberships`
 (
-    `id`             bigint       NOT NULL AUTO_INCREMENT,
-    `application_id` bigint       NOT NULL,
-    `authority`      varchar(255) NOT NULL,
-    `created_at`     datetime DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `fk_application_memberships_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 1
-  DEFAULT CHARSET = utf8mb4;
-
-CREATE TABLE `organization_memberships_application_memberships`
-(
-    `id`                         bigint NOT NULL AUTO_INCREMENT,
-    `organization_membership_id` bigint NOT NULL,
-    `application_membership_id`  bigint NOT NULL,
+    `id`                         bigint       NOT NULL AUTO_INCREMENT,
+    `application_id`             bigint       NOT NULL,
+    `organization_membership_id` bigint       NOT NULL,
+    `authority`                  varchar(255) NOT NULL,
     `created_at`                 datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_cm_am_organization_membership` FOREIGN KEY (`organization_membership_id`) REFERENCES `organization_memberships` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_cm_am_application_membership` FOREIGN KEY (`application_membership_id`) REFERENCES `application_memberships` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_application_memberships_application` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_application_memberships_organization_membership` FOREIGN KEY (`organization_membership_id`) REFERENCES `organization_memberships` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;

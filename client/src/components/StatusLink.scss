@@ -11,7 +11,7 @@
     border: 1px solid var(--sds--color--gray--200);
     cursor: pointer;
 
-    &:hover {
+    &.enabled:hover {
         border: 1px solid var(--sds--color--green--400);
         background-color: var(--sds--color--green--200);
         color: var(--sds--color--green--500);

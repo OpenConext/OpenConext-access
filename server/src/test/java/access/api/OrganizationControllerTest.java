@@ -7,6 +7,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +54,23 @@ class OrganizationControllerTest extends AbstractTest {
         assertEquals(2, organization.getMemberCount());
         assertEquals(1L, organization.getApplicationCount());
         assertNull(organization.getApplications());
+    }
+
+    @Test
+    void users() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        Map<String, Object>  res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/users/{id}")
+                .as(new TypeRef<>() {
+                });
+        System.out.println(res);
     }
 
     @Test

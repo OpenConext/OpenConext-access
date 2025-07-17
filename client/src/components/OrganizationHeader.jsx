@@ -8,22 +8,12 @@ import {useNavigate} from "react-router-dom";
 import {deleteOrganizationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 
-export const OrganizationHeader = ({tabNames, organization, tab, setTab, setLoading}) => {
+export const OrganizationHeader = ({organization, setLoading}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
 
     const navigate = useNavigate();
-
-    const doNavigate = (e, tabName) => {
-        stopEvent(e);
-        setTab(tabName);
-    }
-
-    const menuLink = (e, link) => {
-        stopEvent(e);
-        navigate(link);
-    }
 
     const doDelete = (e, confirmationRequired) => {
         stopEvent(e);
@@ -79,22 +69,12 @@ export const OrganizationHeader = ({tabNames, organization, tab, setTab, setLoad
             <div className="top-header"
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 475)}>
-                <h1>{organization.name}</h1>
+                <h1>{I18n.t("organization.applicationManagement")}</h1>
                 <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
                       onClick={() => setDropDownActive(!dropDownActive)}>
                     <MenuIcon/>
                     {dropDownActive && renderMenu()}
                 </span>
-            </div>
-
-            <div className="tabs-menu">
-
-                {tabNames.map(tabName => <a key={tabName}
-                                            href={`/${tabName}`}
-                                            className={tabName === tab ? "active" : ""}
-                                            onClick={e => doNavigate(e, tabName)}>
-                    {I18n.t(`organization.${tabName}`)}
-                </a>)}
             </div>
         </div>
     );

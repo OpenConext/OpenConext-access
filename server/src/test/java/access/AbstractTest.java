@@ -132,6 +132,9 @@ public abstract class AbstractTest {
     protected OrganizationRepository organizationRepository;
 
     @Autowired
+    protected ApplicationMembershipRepository applicationMembershipRepository;
+
+    @Autowired
     protected ApplicationRepository applicationRepository;
 
     @Autowired
@@ -441,11 +444,12 @@ public abstract class AbstractTest {
         doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
 
         Application buddyCheck = new Application(BUDDY_CHECK, shareLogics, Map.of());
-        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, Authority.MEMBER);
-        buddyCheck.addApplicationMembership(applicationMembership);
 
         Application nitroMap = new Application(NITRO_MAP, farWind, Map.of());
         doSave(this.applicationRepository, buddyCheck, nitroMap);
+
+        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, adminOfShareLogics, Authority.MEMBER);
+        doSave(this.applicationMembershipRepository, applicationMembership);
 
         Connection buddyCheckConnectionTest = new Connection(BUDDY_CHECK_TEST, buddyCheck, Map.of(
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
@@ -476,9 +480,6 @@ public abstract class AbstractTest {
                 EntityType.oidc10_rp,
                 Environment.PROD);
         doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);
-
-        adminOfShareLogics.addApplicationMembership(applicationMembership);
-        doSave(this.organizationMembershipRepository, adminOfShareLogics);
 
         Invitation invitationFarWind = new Invitation(
                 Language.en,

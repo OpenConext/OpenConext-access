@@ -25,7 +25,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class ApplicationMembershipController {
+public class ApplicationMembershipController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ApplicationMembershipController.class);
 
@@ -40,8 +40,8 @@ public class ApplicationMembershipController {
     }
 
     @GetMapping("/all/{applicationId}")
-    public ResponseEntity<Set<ApplicationMembership>> allByOApplication(
-            @PathVariable("applicationId") Long applicationId, User user) {
+    public ResponseEntity<Set<ApplicationMembership>> allByOApplication(User user,
+            @PathVariable("applicationId") Long applicationId ) {
         LOG.debug("/all");
 
         Application application = this.applicationRepository.findById(applicationId).orElseThrow(() -> new NotFoundException("Application not found"));
@@ -63,16 +63,27 @@ public class ApplicationMembershipController {
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         Application application = this.applicationRepository.findById(applicationMembershipForm.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
+
+        confirmOrganizationMembership(user,application.getOrganization(),Authority.GUEST);
+
         if (!application.getOrganization().getId().equals(organizationMembership.getOrganization().getId())) {
             throw new NotFoundException("Organization not found");
         }
-        ApplicationMembership applicationMembership = new ApplicationMembership(application, Authority.MEMBER);
+        ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership, Authority.MEMBER);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
-        //Now fill the join table
-        organizationMembership.addApplicationMembership(applicationMembership);
-        organizationMembershipRepository.save(organizationMembership);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationMembership);
+    }
+
+    @DeleteMapping({"/{membership_id}"})
+    public ResponseEntity<Void> delete(User user, @PathVariable("membership_id") Long membershipId) {
+        LOG.debug("/delete");
+        ApplicationMembership applicationMembership = this.applicationMembershipRepository.findById(membershipId)
+                .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));
+        confirmOrganizationMembership(user, applicationMembership.getOrganizationMembership().getOrganization(), Authority.GUEST);
+        applicationMembershipRepository.delete(applicationMembership);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

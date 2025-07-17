@@ -171,7 +171,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                 showNew={true}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
-                newEntityFunc={() => navigate(`/invitation/${organization.id}/new`)}
+                newEntityFunc={() => navigate(`/invitation/${organization.id}`)}
                 inputFocus={true}/>
         )
     };

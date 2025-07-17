@@ -16,7 +16,7 @@ import {TabHeader} from "../components/TabHeader.jsx";
 export const InvitationForm = () => {
     const navigate = useNavigate();
 
-    const {organizationId} = useParams();
+    const {organizationId, applicationId} = useParams();
 
     const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
     const {user, setFlash} = useAppStore(state => state);
@@ -47,6 +47,10 @@ export const InvitationForm = () => {
                 setLoading(false);
                 const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                 setCurrentUserAuthority(currentUserMembershipAuthority(user, membership));
+                if (applicationId) {
+                    const newInvitation = {...invitation, applicationIdentifiers: [parseInt(applicationId, 10)]};
+                    setInvitation(newInvitation)
+                }
             });
     }, [organizationId]);// eslint-disable-line react-hooks/exhaustive-deps
 
