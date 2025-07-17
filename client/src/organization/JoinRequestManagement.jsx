@@ -14,7 +14,7 @@ import {isEmpty} from "../utils/Utils.js";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
-    const {user: currentUser} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(state => state);
 
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
@@ -35,6 +35,8 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
         } else {
             approvalJoinRequest(joinRequest.id, approved, authorities.GUEST).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t(`joinRequestManagement.flash${approved ? "Approved":"Denied"}`, {name: option.label}));
+
                 refreshJoinRequest();
             })
         }

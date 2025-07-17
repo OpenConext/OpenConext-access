@@ -168,6 +168,10 @@ public class Connection implements NameHolder {
                 Visibility.visible_to_idp_only.name() : Visibility.visible_to_all.name();
         this.metaData.put("visibility", visibility);
 
+        String connectOption = (String) metaDataFields
+                .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction);
+        this.metaData.put("connectOption", connectOption);
+
         return changed;
     }
 

@@ -10,6 +10,7 @@ import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import ReactCrop, {centerCrop, convertToPixelCrop, makeAspectCrop} from "react-image-crop";
 import 'react-image-crop/dist/ReactCrop.css'
 import {detect} from "detect-browser";
+import ErrorIndicator from "./ErrorIndicator.jsx";
 
 const browser = detect();
 
@@ -35,6 +36,7 @@ export const ImageField = ({imageSource, onChange}) => {
             if (file.size > 2 * 1024 * 1000) {
                 setError(I18n.t("connection.logo.imageToLarge"));
             } else {
+                setError(null);
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     let res = reader.result;
@@ -182,6 +184,7 @@ export const ImageField = ({imageSource, onChange}) => {
                         <li key={index}>{disclaimer}</li>
                     )}
                 </ul>
+                {error && <ErrorIndicator standalone={true} msg={error}/>}
             </div>
         </div>
     );

@@ -29,6 +29,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             pkce: connection.pkce,
             secret: connection.secret,
             visibility: connection.visibility,
+            connectOption: connection.connectOption,
             arp: {
                 attributes: arpAttributes,
                 profile: currentProfile.name,
@@ -73,3 +74,16 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
 export const generateOIDCClientID = () => {
     return "SURFACCESS-" + crypto.randomUUID();
 }
+
+export const visibilities = {
+    visible_to_all: "visible_to_all",
+    visible_to_idp_only: "visible_to_idp_only",
+    visible_to_none: "visible_to_none"
+};
+
+export const connectOptions = {
+    connect_with_interaction: "connect_with_interaction",
+    connect_without_interaction_with_email: "connect_without_interaction_with_email",
+    connect_without_interaction_without_email: "connect_without_interaction_without_email"
+}
+

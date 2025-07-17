@@ -214,7 +214,7 @@ const en = {
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",
         testIdP: "Test-IdP's",
-        visibility: "Visibility",
+        visibility: "Zichtbaarheid in de SURF app catalogus",
         help: "Hulp nodig?",
         callSurf: "Plan een call met SURF",
         mailToSurf: "mailto:surf@info.nl",
@@ -334,13 +334,14 @@ const en = {
             institution: "test IdP or institution IdP"
         },
         visibilities: {
-            info: "Kies hoe je wilt dat deze koppeling zichtbaar is in de SURF App catalogus",
+            info: "Jouw app is straks zichtbaar in de SURF app catalogus. Instellingen of groepen die jouw applicatie willen gebruiken, kunnen deze zelf activeren of een koppeling aanvragen.",
             disclaimer: "<strong>Let op</strong>: je kan de zichtbaarheid altijd later nog aanpassen",
-            options: {
-                "visible_to_all": "Visible for all users and institutions",
-                "visible_to_idp_only": "Only visible for users from institutions that are granted access to this connection",
-                "visible_to_none": "Not visible for any users or institutions (e.g. hidden in the catalogus)",
-            },
+            who: "1. Wie mogen jouw applicatie zien?",
+            visible_to_all: "Alle organisaties",
+            visible_to_none: "Nog niemand (app is nog niet zichtbaar in de Appstore)",
+            connect: "2. Kan men direct met de applicatie koppelen?",
+            connect_with_interaction: "Yes",
+            connect_without_interaction_with_email: "Nee, een koppeling moet worden aangevraagd",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -506,8 +507,10 @@ const en = {
         deleteAll: "Delete all",
         deleteConfirmation: "Are you sure you want to revoke the invitation for {{email}}?",
         deleteAllConfirmation: "Are you sure you want to revoke all the invitation of {{name}}?",
+        flashDeleteAll: "All invitations have been deleted",
         resend: "Resend",
         resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
+        flashReminderSent: "Reminder mail has been sent"
     },
     appTeamManagement: {
         name: "Name",
@@ -523,6 +526,7 @@ const en = {
         organizationMembersPre: "Je kunt ",
         organizationMembersLink: "organisatiegebruikers",
         organizationMembersPost: " toevoegen aan dit applicatieteam. ",
+        flashCreated: "Created application membership for {{name}}"
     },
     roles: {
         admin: "Admin",
@@ -561,6 +565,7 @@ const en = {
         intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted on accepting the invitation",
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or on seperate lines. You can also paste a csv file with line-separated email addresses.",
         applications: "Applications",
+        applicationsPlaceHolder: "Find and add application access for this invitation",
         applicationsTooltip: "You can already add applications to this invitation. The invitees will be granted read and write access to the applications",
         languageTooltip: "Choose the language of the invitation mail",
         createFlash: "Invitations are created and sent to the invitees",

@@ -5,18 +5,15 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {Loader} from "@surfnet/sds";
-import {
-    changeOrganizationMembershipById,
-    deleteApplicationMembershipById,
-    organizationUsersById
-} from "../api/index.js";
+import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import {isEmpty} from "../utils/Utils.js";
+import SelectField from "../components/SelectField.jsx";
 
 export const AppTeamManagement = ({
                                       application,
@@ -24,7 +21,7 @@ export const AppTeamManagement = ({
                                       refreshApp
                                   }) => {
 
-    const {user: currentUser, currentOrganization} = useAppStore(state => state);
+    const {user: currentUser, currentOrganization, setFlash} = useAppStore(state => state);
     const navigate = useNavigate();
 
     const [confirmation, setConfirmation] = useState({});
@@ -37,13 +34,13 @@ export const AppTeamManagement = ({
         organizationUsersById(currentOrganization.id)
             .then(res => {
                 setOrganization(res);
-                setLoading(false);
                 (application.applicationMemberships || [])
                     .forEach(membership => membership.user = res.organizationMemberships
                         .find(m => m.id === membership.organizationMembership.id).user
                     );
                 const membership = (currentUser.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                 setCurrentUserAuthority(currentUserMembershipAuthority(currentUser, membership));
+                setLoading(false);
             }).catch(() => {
             navigate("/404")
         });
@@ -79,11 +76,37 @@ export const AppTeamManagement = ({
         )
     }
 
-    const renderApplicationMembers = () => {
-        if (isEmpty(application.applicationMemberships)) {
-            return <h3>{I18n.t("appTeamManagement.zeroState", {name: application.name})}</h3>
+    const organizationMemberOption = organizationMember => {
+        return {
+            value: organizationMember.id,
+            label: organizationMember.user.name
         }
+    }
 
+    const organizationMemberChanged = option => {
+        createApplicationMembership(option.value, application.id, organization.id)
+            .then(() => {
+                refresh();
+                setFlash(I18n.t("appTeamManagement.flashCreated", {name: option.label}));
+            })
+    }
+
+    const filters = () => {
+        return (
+            <SelectField
+                value={null}
+                options={organization.organizationMemberships
+                    .filter(member => !application.applicationMemberships.some(appMember => appMember.organizationMembership.id === member.id))
+                    .map(organizationMemberOption)}
+                placeholder={I18n.t("appTeamManagement.addPlaceHolder")}
+                searchable={true}
+                onChange={organizationMemberChanged}
+                clearable={false}
+            />
+        )
+    }
+
+    const renderApplicationMembers = () => {
         const columns = [
             {
                 key: "user__name",
@@ -118,18 +141,12 @@ export const AppTeamManagement = ({
             }
         ]
 
-        const filters = () => {
-            return (
-                <div>TODO, show all users in select box</div>
-            )
-        }
-
         return (
             <Entities
                 entities={application.applicationMemberships}
                 modelName="appTeamManagement"
                 defaultSort="user__name"
-                title={I18n.t("appTeamManagement.maintain", {name: application.name})}
+                hideTitle={true}
                 columns={columns}
                 filters={filters()}
                 showNew={true}
@@ -153,6 +170,12 @@ export const AppTeamManagement = ({
                                          confirmationTxt={okButton}
                                          question={question}
             />}
+            <h3>{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
+            <p className="info">
+                {I18n.t("appTeamManagement.organizationMembersPre")}
+                <Link to={`/users/${organization.id}/team`}>{I18n.t("appTeamManagement.organizationMembersLink")}</Link>
+                {I18n.t("appTeamManagement.organizationMembersPost")}
+            </p>
             {renderApplicationMembers()}
         </div>
     )

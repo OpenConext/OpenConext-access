@@ -92,6 +92,9 @@ public class ConnectionProviderConverter {
         metaDataFields.put("coin:ss:idp_visible_only", Visibility.visible_to_idp_only.name().equals(visibility));
         metaDataFields.put("coin:ss:hidden", Visibility.visible_to_none.name().equals(visibility));
 
+        String connectOption = (String) connectionMetaData.getOrDefault("connectOption", ConnectOptions.connect_with_interaction.name());
+        metaDataFields.put("coin:dashboard_connect_option", connectOption);
+
         List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);

@@ -39,9 +39,10 @@ import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {
+    connectOptions,
     convertClientConnectionToServer,
     convertServerConnectionToClient,
-    generateOIDCClientID
+    generateOIDCClientID, visibilities
 } from "../utils/Connection.js";
 import {
     CONNECTION_STATUSES,
@@ -151,6 +152,9 @@ export const Testing = ({
                 .filter(entityID => identityProviders.some(idp => idp.data.entityid === entityID));
             //This must also work for already persisted connections
             convertedConnection.id = connection.id;
+            //To prevent optimistic locking failures later on
+            ["manageEid", "manageIdentifier", "manageVersion"]
+                .forEach(attr => convertedConnection[attr] = connection[attr]);
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
             if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
@@ -702,28 +706,38 @@ export const Testing = ({
         );
     }
 
-    const visibilityOption = option => {
-        return {
-            value: option[0],
-            label: option[1]
-        }
-    }
-
     const renderVisibilitySection = () => {
-        const visibilityEntries = Object.entries(I18n.translations[I18n.locale].connection.visibilities.options);
-        const value = connection.visibility ? visibilityOption(visibilityEntries.find(entry => entry[0] === connection.visibility)) : visibilityOption(visibilityEntries[0]);
         return (
             <section className="inner-right-idp">
                 <h3>{I18n.t("connection.visibility")}</h3>
                 <p>{I18n.t("connection.visibilities.info")}</p>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
-                <SelectField
-                    options={visibilityEntries
-                        .filter(option => option[0] !== connection.visibility)
-                        .map(visibilityOption)}
-                    value={value}
-                    onChange={option => setConnection({...connection, visibility: option.value})}
-                />
+                <div className="visibility-options">
+                <p className="question">{I18n.t("connection.visibilities.who")}</p>
+                <RadioOptions name={"visibility"}
+                              value={connection.visibility}
+                              onChange={e => setConnection({
+                                  ...connection,
+                                  visibility: e.target.id.replace("visibility_", "")
+                              })}
+                              isMultiple={true}
+                              labels={[visibilities.visible_to_all, visibilities.visible_to_none]}
+                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                              orientation={RadioOptionsOrientation.column}/>
+                </div>
+                <div className="visibility-options">
+                <p className="question">{I18n.t("connection.visibilities.connect")}</p>
+                <RadioOptions name={"connectOption"}
+                              value={connection.connectOption}
+                              onChange={e => setConnection({
+                                  ...connection,
+                                  connectOption: e.target.id.replace("connectOption_", "")
+                              })}
+                              isMultiple={true}
+                              labels={[connectOptions.connect_with_interaction, connectOptions.connect_without_interaction_with_email]}
+                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                              orientation={RadioOptionsOrientation.column}/>
+                </div>
             </section>
         );
     }
@@ -960,7 +974,7 @@ export const Testing = ({
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
-        const showOverviewButton = section === sections.overview ;
+        const showOverviewButton = section === sections.overview;
         const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         const {open, cancel, action, modal, okButton, question, header} = confirmation;
         return <>
@@ -1107,7 +1121,7 @@ export const Testing = ({
                                        type={ButtonType.GhostDark}
                                        onClick={() => alert("TODO")}
                                        className="sds--button-blue-mode"
-                                       />
+                        />
                     }
 
                 }

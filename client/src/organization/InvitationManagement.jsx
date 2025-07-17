@@ -5,7 +5,6 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
 import {allAuthorities, authorities} from "../utils/Permissions.js";
-import {useNavigate} from "react-router-dom";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {deleteAllInvitations, deleteInvitation, resendInvitation} from "../api/index.js";
 import SelectField from "../components/SelectField.jsx";
@@ -23,7 +22,7 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
 
 export const InvitationManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
-    const {user: currentUser} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(state => state);
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
@@ -43,7 +42,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                 okButton: I18n.t("forms.delete")
             });
         } else {
-            deleteInvitation(membership).then(() => {
+            deleteInvitation(invitation).then(() => {
                 setConfirmation({});
                 refreshMemberships();
             })
@@ -62,6 +61,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
         } else {
             deleteAllInvitations(organization).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t("invitationsManagement.flashDeleteAll", {name: option.label}));
                 refreshMemberships();
             })
         }
@@ -79,6 +79,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
         } else {
             resendInvitation(invitation).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t("invitationsManagement.flashReminderSent", {name: option.label}));
                 refreshMemberships();
             })
         }
@@ -92,7 +93,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                         <ArrowRight/>
                         <span>{I18n.t("invitationsManagement.resend")}</span>
                     </li>
-                    <li onClick={() => doDelete(invitation)}>
+                    <li onClick={() => doDelete(invitation, true)}>
                         <TrashIcon/>
                         <span>{I18n.t("forms.delete")}</span>
                     </li>

@@ -67,7 +67,7 @@ export const InvitationForm = () => {
                 .then(() => {
                     setLoading(false);
                     setFlash(I18n.t("invitation.createFlash"));
-                    navigate(`/organization/${organizationId}/team`);
+                    navigate(`/users/${organizationId}/team`);
                 });
         }
     }
@@ -146,6 +146,7 @@ export const InvitationForm = () => {
                             .map(applicationOption)}
                         name={I18n.t("invitation.applications")}
                         searchable={true}
+                        placeholder={I18n.t("invitation.applicationsPlaceHolder")}
                         isMulti={true}
                         onChange={applicationChanged}
                         toolTip={I18n.t("invitation.applicationsTooltip")}

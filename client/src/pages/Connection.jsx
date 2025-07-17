@@ -13,6 +13,7 @@ import {AppInformation} from "../connection/AppInformation.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {Contract} from "../connection/Contract.jsx";
 import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
+import {connectOptions, visibilities} from "../utils/Connection.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
@@ -106,7 +107,9 @@ export const Connection = () => {
             additionalAttributes: [],
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
-            allowedEntities: iDps.map(idp => idp.entityid)
+            allowedEntities: iDps.map(idp => idp.entityid),
+            visibility: visibilities.visible_to_all,
+            connectOption: connectOptions.connect_with_interaction
         });
         const newTab = environment === ENVIRONMENTS.TEST ? "testing" : "prod";
         setCurrentTab(newTab);
