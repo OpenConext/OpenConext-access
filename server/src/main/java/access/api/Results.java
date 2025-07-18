@@ -18,7 +18,7 @@ public class Results {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("status", HttpStatus.OK.value()));
     }
 
-    public static ResponseEntity<Void> deleteResult() {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public static ResponseEntity<Map<String, Integer>> deleteResult() {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("status", HttpStatus.OK.value()));
     }
 }

@@ -135,7 +135,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{invitationId}"})
-    public ResponseEntity<Void> deleteInvitation(User user, @PathVariable("invitationId") Long invitationId) {
+    public ResponseEntity<Map<String, Integer>> deleteInvitation(User user, @PathVariable("invitationId") Long invitationId) {
         LOG.debug("/delete invitation by " + user.getEmail());
 
         Invitation invitation = invitationRepository.findById(invitationId)
@@ -151,7 +151,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @DeleteMapping({"/delete/all/{organizationId}"})
-    public ResponseEntity<Void> deleteAll(User user, @PathVariable("organizationId") Long organizationId) {
+    public ResponseEntity<Map<String, Integer>> deleteAll(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete all invitation by " + user.getEmail());
 
         Organization organization = organizationRepository.findById(organizationId)

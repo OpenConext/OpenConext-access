@@ -29,7 +29,8 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
     const [dropDownActive, setDropDownActive] = useState(-1);
 
     const refreshMemberships = () => {
-        setRefresh(new Date().getTime())
+        debugger;
+        setRefresh(new Date().getTime());
     }
 
     const doDelete = (invitation, confirmationRequired) => {
@@ -39,11 +40,12 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                 cancel: () => setConfirmation({open: false}),
                 action: () => doDelete(invitation, false),
                 question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
-                okButton: I18n.t("forms.delete")
+                okButton: I18n.t("invitationsManagement.revoke")
             });
         } else {
             deleteInvitation(invitation).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t("invitationsManagement.flashReminderSent"));
                 refreshMemberships();
             })
         }
@@ -61,7 +63,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
         } else {
             deleteAllInvitations(organization).then(() => {
                 setConfirmation({});
-                setFlash(I18n.t("invitationsManagement.flashDeleteAll", {name: option.label}));
+                setFlash(I18n.t("invitationsManagement.flashDeleteAll"));
                 refreshMemberships();
             })
         }
@@ -78,8 +80,9 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
             });
         } else {
             resendInvitation(invitation).then(() => {
+                debugger;
                 setConfirmation({});
-                setFlash(I18n.t("invitationsManagement.flashReminderSent", {name: option.label}));
+                setFlash(I18n.t("invitationsManagement.flashReminderSent"));
                 refreshMemberships();
             })
         }
@@ -95,7 +98,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                     </li>
                     <li onClick={() => doDelete(invitation, true)}>
                         <TrashIcon/>
-                        <span>{I18n.t("forms.delete")}</span>
+                        <span>{I18n.t("invitationsManagement.revoke")}</span>
                     </li>
                 </ul>
             </div>

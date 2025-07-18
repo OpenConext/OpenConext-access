@@ -28,6 +28,7 @@ export const UserManagement = () => {
     useEffect(() => {
         organizationById(organizationId)
             .then(res => {
+                debugger;
                 res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                 setOrganization(res);
                 useAppStore.setState({

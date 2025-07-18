@@ -508,7 +508,9 @@ const en = {
         deleteConfirmation: "Are you sure you want to revoke the invitation for {{email}}?",
         deleteAllConfirmation: "Are you sure you want to revoke all the invitation of {{name}}?",
         flashDeleteAll: "All invitations have been deleted",
+        flashDelete: "Invitations have been revoked",
         resend: "Resend",
+        revoke: "Revoke",
         resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
         flashReminderSent: "Reminder mail has been sent"
     },

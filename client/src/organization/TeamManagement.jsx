@@ -23,14 +23,14 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
 export const TeamManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
     const navigate = useNavigate();
-    const {user: currentUser} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(state => state);
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
     const [dropDownActive, setDropDownActive] = useState(-1);
 
     const refreshMemberships = () => {
-        setRefresh(new Date().getTime())
+        setRefresh(new Date().getTime());
     }
 
     const doDelete = (membership, confirmationRequired) => {
@@ -45,6 +45,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             deleteOrganizationMembershipById(membership).then(() => {
                 setConfirmation({});
+                setFlash("teamManagement.flash.deleted");
                 refreshMemberships();
             })
         }
