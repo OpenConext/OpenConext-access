@@ -19,6 +19,6 @@ public class Results {
     }
 
     public static ResponseEntity<Map<String, Integer>> deleteResult() {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("status", HttpStatus.OK.value()));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("status", HttpStatus.NO_CONTENT.value()));
     }
 }

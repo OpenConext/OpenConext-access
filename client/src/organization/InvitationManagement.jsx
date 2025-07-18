@@ -29,7 +29,6 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
     const [dropDownActive, setDropDownActive] = useState(-1);
 
     const refreshMemberships = () => {
-        debugger;
         setRefresh(new Date().getTime());
     }
 
@@ -80,7 +79,6 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
             });
         } else {
             resendInvitation(invitation).then(() => {
-                debugger;
                 setConfirmation({});
                 setFlash(I18n.t("invitationsManagement.flashReminderSent"));
                 refreshMemberships();

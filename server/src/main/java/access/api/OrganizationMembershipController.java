@@ -8,14 +8,16 @@ import access.repository.OrganizationMembershipRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/organization_memberships"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,14 +35,14 @@ public class OrganizationMembershipController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{membership_id}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable("membership_id") Long membershipId) {
+    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("membership_id") Long membershipId) {
         LOG.debug("/delete");
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
         organizationMembershipRepository.delete(organizationMembership);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return deleteResult();
     }
 
     @PutMapping({"", "/"})

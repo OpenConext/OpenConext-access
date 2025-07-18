@@ -21,10 +21,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/applications"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -124,7 +124,7 @@ public class ApplicationController implements UserAccessRights {
     }
 
     @DeleteMapping({"", "/{applicationId}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable("applicationId") Long applicationId) {
+    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("applicationId") Long applicationId) {
         LOG.debug("/delete application by " + user.getEmail());
 
         Application application = applicationRepository.findById(applicationId)
@@ -145,6 +145,6 @@ public class ApplicationController implements UserAccessRights {
 
         applicationRepository.deleteById(application.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return deleteResult();
     }
 }

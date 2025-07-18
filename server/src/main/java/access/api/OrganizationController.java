@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/organizations"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -118,7 +119,7 @@ public class OrganizationController implements UserAccessRights {
     }
 
     @DeleteMapping({"", "/{organizationId}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable("organizationId") Long organizationId) {
+    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete organization by " + user.getEmail());
 
         Organization organization = organizationRepository.findById(organizationId)
@@ -129,7 +130,7 @@ public class OrganizationController implements UserAccessRights {
 
         organizationRepository.deleteOrganizationById(organizationId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return deleteResult();
     }
 
     private Organization createOrganization(User user, String name) {

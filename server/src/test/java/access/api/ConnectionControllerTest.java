@@ -147,7 +147,7 @@ class ConnectionControllerTest extends AbstractTest {
                 .pathParam("connectionId", connectionId)
                 .delete("/api/v1/connections/{connectionId}")
                 .then()
-                .statusCode(200);
+                .statusCode(204);
 
         Optional<Connection> optionalConnection = connectionRepository.findById(connectionId);
         assertFalse(optionalConnection.isPresent());

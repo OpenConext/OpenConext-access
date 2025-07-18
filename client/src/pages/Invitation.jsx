@@ -30,7 +30,6 @@ export const Invitation = () => {
                 setLoading(false);
             })
             .catch(e => {
-                debugger;
                 navigate("/404")
             });
     }, []);// eslint-disable-line react-hooks/exhaustive-deps

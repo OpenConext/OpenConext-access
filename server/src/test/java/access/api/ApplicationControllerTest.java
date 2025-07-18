@@ -153,7 +153,7 @@ class ApplicationControllerTest extends AbstractTest {
                 .pathParam("applicationId", applicationId)
                 .delete("/api/v1/applications/{applicationId}")
                 .then()
-                .statusCode(200);
+                .statusCode(204);
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
         assertFalse(optionalApplication.isPresent());

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/connections"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -137,7 +138,7 @@ public class ConnectionController implements UserAccessRights {
     }
 
     @DeleteMapping({"", "/{connectionId}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable("connectionId") Long connectionId) {
+    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("connectionId") Long connectionId) {
         LOG.debug("/delete connection by " + user.getEmail());
 
         Connection connection = connectionRepository.findById(connectionId)
@@ -153,7 +154,7 @@ public class ConnectionController implements UserAccessRights {
 
         connectionRepository.deleteById(connectionId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return deleteResult();
     }
 
     @SuppressWarnings("unchecked")

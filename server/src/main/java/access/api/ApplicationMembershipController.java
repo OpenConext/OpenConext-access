@@ -15,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Set;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/application_memberships"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,14 +78,14 @@ public class ApplicationMembershipController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{membership_id}"})
-    public ResponseEntity<Void> delete(User user, @PathVariable("membership_id") Long membershipId) {
+    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("membership_id") Long membershipId) {
         LOG.debug("/delete");
         ApplicationMembership applicationMembership = this.applicationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));
         confirmOrganizationMembership(user, applicationMembership.getOrganizationMembership().getOrganization(), Authority.GUEST);
         applicationMembershipRepository.delete(applicationMembership);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return deleteResult();
     }
 
 }

@@ -175,7 +175,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .pathParam("organizationId", organizationId)
                 .delete("/api/v1/organizations/{organizationId}")
                 .then()
-                .statusCode(200);
+                .statusCode(204);
 
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationId);
         assertFalse(optionalOrganization.isPresent());
