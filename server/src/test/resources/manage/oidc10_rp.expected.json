@@ -47,7 +47,8 @@
       "mdui:PrivacyStatementURL:nl" : "dudud",
       "coin:privacy:dpa_type" : "dpa_supplied_by_service",
       "coin:ss:hidden": false,
-      "coin:ss:idp_visible_only": false
+      "coin:ss:idp_visible_only": false,
+      "coin:dashboard_connect_option":"connect_with_interaction"
     },
     "arp" : {
       "enabled" : true,
