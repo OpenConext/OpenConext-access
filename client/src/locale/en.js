@@ -462,7 +462,8 @@ const en = {
         deleteConfirmation: "Are you sure you want to remove the organization membership of {{name}}?",
         deleteDemotion: "Are you sure you don't want to be admin anymore? This can not be reverted",
         flash: {
-            deleted: "The organization membership of {{name}} has been removed"
+            deleted: "The organization membership of {{name}} has been removed",
+            updated: "The organization membership of {{name}} has been updated"
         },
         makeAdmin: "Make admin",
         makeMember: "Make member",
@@ -506,7 +507,7 @@ const en = {
         new: "Invite team member",
         deleteAll: "Delete all",
         deleteConfirmation: "Are you sure you want to revoke the invitation for {{email}}?",
-        deleteAllConfirmation: "Are you sure you want to revoke all the invitation of {{name}}?",
+        deleteAllConfirmation: "Are you sure you want to revoke all of the invitations of {{name}}?",
         flashDeleteAll: "All invitations have been deleted",
         flashDelete: "Invitations have been revoked",
         resend: "Resend",
@@ -528,7 +529,8 @@ const en = {
         organizationMembersPre: "Je kunt ",
         organizationMembersLink: "organisatiegebruikers",
         organizationMembersPost: " toevoegen aan dit applicatieteam. ",
-        flashCreated: "Created application membership for {{name}}"
+        flashCreated: "Created application membership for {{name}}",
+        createdBy: "Created by {{name}} on {{date}}"
     },
     roles: {
         admin: "Admin",

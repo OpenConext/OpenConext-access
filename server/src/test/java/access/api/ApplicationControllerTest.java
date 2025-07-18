@@ -54,7 +54,7 @@ class ApplicationControllerTest extends AbstractTest {
 
         Map<String, Object> metaDataMap = super.objectMapper.convertValue(metaData, new TypeReference<>() {
         });
-        Application application = new Application("New App", organization, metaDataMap);
+        Application application = new Application("New App", organization, "System", metaDataMap);
         //Otherwise rest-assured does not deserialize the Organization
         Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
         });
@@ -79,7 +79,7 @@ class ApplicationControllerTest extends AbstractTest {
     void createNotAllowed() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
-        Application application = new Application("New App", organization, Map.of());
+        Application application = new Application("New App", organization, "System",Map.of());
 
         //Otherwise rest-assured does not deserialize the Organization
         Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {

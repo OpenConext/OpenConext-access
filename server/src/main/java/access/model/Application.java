@@ -59,6 +59,10 @@ public class Application implements NameHolder{
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column
+    @NotNull
+    private String createdBy;
+
     @Column(name = "signed_contract")
     private boolean signedContract;
 
@@ -72,11 +76,12 @@ public class Application implements NameHolder{
     @NotNull
     private ApplicationType type = ApplicationType.APP;
 
-    public Application(String name, Organization organization, Map<String, Object> metaData) {
+    public Application(String name, Organization organization, String createdBy, Map<String, Object> metaData) {
         this.name = name;
         this.organization = organization;
         this.metaData = metaData;
         this.createdAt = Instant.now();
+        this.createdBy = createdBy;
     }
 
     //We need organization info, but we don't want cyclic JSON deserialization

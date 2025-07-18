@@ -444,9 +444,9 @@ public abstract class AbstractTest {
         OrganizationMembership memberLogics = new OrganizationMembership(multipleOrganizationUser, logistics, Authority.MEMBER);
         doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
 
-        Application buddyCheck = new Application(BUDDY_CHECK, shareLogics, Map.of());
+        Application buddyCheck = new Application(BUDDY_CHECK, shareLogics,"System", Map.of());
 
-        Application nitroMap = new Application(NITRO_MAP, farWind, Map.of());
+        Application nitroMap = new Application(NITRO_MAP, farWind, "System", Map.of());
         doSave(this.applicationRepository, buddyCheck, nitroMap);
 
         ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, adminOfShareLogics, Authority.MEMBER);
@@ -495,7 +495,8 @@ public abstract class AbstractTest {
         doSave(this.invitationRepository, invitationFarWind);
 
         JoinRequest joinRequest = new JoinRequest(guest, shareLogics, "Please", Language.en);
-        doSave(this.joinRequestRepository, joinRequest);
+        JoinRequest joinRequestSuperUser = new JoinRequest(superUser, shareLogics, "Please", Language.en);
+        doSave(this.joinRequestRepository, joinRequest, joinRequestSuperUser);
     }
 
     @SafeVarargs

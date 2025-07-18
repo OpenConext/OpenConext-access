@@ -241,7 +241,7 @@ export const AppInformation = ({
                         "name": ""
                     };
                     return (
-                        <section key={typeContact}>
+                        <section key={typeContact} className="contact-person">
                             <InputField value={contactPerson.name}
                                         name={I18n.t(`connection.contacts.${typeContact}`)}
                                         placeholder={I18n.t("connection.contacts.name")}

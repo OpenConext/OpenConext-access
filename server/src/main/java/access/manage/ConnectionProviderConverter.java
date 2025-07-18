@@ -60,6 +60,8 @@ public class ConnectionProviderConverter {
         metaDataFields.put("name:nl", connection.getName());
 
         putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
+        putIf(metaDataFields, "coin:application_name", application.getName());
+
 
         putIf(metaDataFields, "description:en", information.get("descriptionEN"));
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));

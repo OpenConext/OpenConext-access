@@ -7,12 +7,11 @@ import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {Link, useNavigate} from "react-router-dom";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {Loader} from "@surfnet/sds";
+import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
-import {isEmpty} from "../utils/Utils.js";
 import SelectField from "../components/SelectField.jsx";
 
 export const AppTeamManagement = ({
@@ -170,7 +169,15 @@ export const AppTeamManagement = ({
                                          confirmationTxt={okButton}
                                          question={question}
             />}
-            <h3>{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
+            <div className="application-header">
+                <h3>{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
+                <Chip type={ChipType.Status_success} label={I18n.t("appTeamManagement.createdBy",
+                    {
+                        name: application.createdBy,
+                        date: dateFromEpoch(application.createdAt)
+                    })}/>
+            </div>
+
             <p className="info">
                 {I18n.t("appTeamManagement.organizationMembersPre")}
                 <Link to={`/users/${organization.id}/team`}>{I18n.t("appTeamManagement.organizationMembersLink")}</Link>

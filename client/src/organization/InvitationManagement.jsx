@@ -184,7 +184,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                 newLabel={I18n.t("invitationsManagement.deleteAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
-                newEntityFunc={() => doDeleteAll()}
+                newEntityFunc={() => doDeleteAll(true)}
                 inputFocus={true}/>
         )
     };

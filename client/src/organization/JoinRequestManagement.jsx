@@ -35,7 +35,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
         } else {
             approvalJoinRequest(joinRequest.id, approved, authorities.GUEST).then(() => {
                 setConfirmation({});
-                setFlash(I18n.t(`joinRequestManagement.flash${approved ? "Approved":"Denied"}`, {name: option.label}));
+                setFlash(I18n.t(`joinRequestManagement.flash.${approved ? "approved" : "denied"}`, {name: joinRequest.user.name}));
                 refreshJoinRequest();
             })
         }

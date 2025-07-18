@@ -84,6 +84,7 @@ public class ApplicationController implements UserAccessRights {
         Organization organization = application.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
         application.setCreatedAt(Instant.now());
+        application.setCreatedBy(user.getName());
 
         applicationRepository.save(application);
 
@@ -102,20 +103,21 @@ public class ApplicationController implements UserAccessRights {
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         //If the metadata has changed, we must propagate this to manage
-        if (!application.getMetaData().equals(applicationData.getMetaData())) {
+        boolean metaDataHasChanged = application.getMetaData().equals(applicationData.getMetaData());
+        //However, we first need to merge the data; otherwise the outdated application metadata is used
+        application.merge(applicationData);
+        //Upload base64 encoded image to s3 storage if the logo has changed
+        String logoUrl = application.getLogoUrl();
+        if (StringUtils.hasText(logoUrl) && !logoUrl.startsWith("http")) {
+            String url = s3Storage.uploadFile(logoUrl);
+            application.setLogoUrl(url);
+        }
+        if (!metaDataHasChanged) {
             application.getConnections().forEach(connection -> {
                 Map<String, Object> provider = manage.saveProvider(connection);
                 connection.updateRemoteManageData( provider);
                 connectionRepository.save(connection);
             });
-        }
-
-        application.merge(applicationData);
-        //Upload base64 encoded image to s3 storage
-        String logoUrl = application.getLogoUrl();
-        if (StringUtils.hasText(logoUrl) && !logoUrl.startsWith("http")) {
-            String url = s3Storage.uploadFile(logoUrl);
-            application.setLogoUrl(url);
         }
 
         applicationRepository.save(application);

@@ -47,4 +47,11 @@ $width-percentage: 75%;
     .application {
         margin-top: 25px;
     }
+
+    .contact-person {
+        &:not(:last-child) {
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--sds--color--gray--400);
+        }
+    }
 }

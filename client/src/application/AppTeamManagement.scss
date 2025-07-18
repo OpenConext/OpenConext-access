@@ -2,9 +2,20 @@
 @use "../styles/vars" as *;
 @use "../index";
 
+$page_width: 60%;
+
 .application-memberships {
     background-color: white;
     padding: 25px 50px;
+
+    .application-header {
+        display: flex;
+        width: $page_width;
+
+        .sds--chips {
+            margin-left: auto;
+        }
+    }
 
     p.info {
         margin: 15px 0;
@@ -21,7 +32,7 @@
     }
 
     .mod-entities {
-        width: 60%;
+        width: $page_width;
         margin: 0;
         @media (max-width: $full-mode) {
             width: 100%;

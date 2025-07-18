@@ -45,7 +45,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             deleteOrganizationMembershipById(membership).then(() => {
                 setConfirmation({});
-                setFlash("teamManagement.flash.deleted");
+                setFlash(I18n.t("teamManagement.flash.deleted",{name: membership.user.name}));
                 refreshMemberships();
             })
         }
@@ -63,6 +63,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t("teamManagement.flash.updated",{name: membership.user.name}));
                 refreshMemberships();
             })
         }
@@ -75,6 +76,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
+                setFlash(I18n.t("teamManagement.flash.updated",{name: membership.user.name}));
                 refreshMemberships();
             })
         }
