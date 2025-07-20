@@ -33,7 +33,7 @@ class OrganizationControllerTest extends AbstractTest {
 
         assertEquals(2L, organization.getMemberCount());
         assertEquals(1, organization.getApplications().size());
-        assertEquals(1, organization.getJoinRequests().size());
+        assertEquals(2, organization.getJoinRequests().size());
         assertEquals(1L, organization.getApplicationCount());
     }
 

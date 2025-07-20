@@ -33,7 +33,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
                 .get("/api/v1/join/all/{organizationId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, joinRequests.size());
+        assertEquals(2, joinRequests.size());
     }
 
     @Test

@@ -1,6 +1,6 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
-import {useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {NavigationMenu} from "@surfnet/sds";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
@@ -41,7 +41,7 @@ export const SharedMenu = () => {
 
     const {menuItems, config, currentOrganization} = useAppStore(state => state);
     const [filteredMenuGroups, setFilteredMenuGroups] = useState([]);
-
+    const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -60,7 +60,7 @@ export const SharedMenu = () => {
             }))
             .filter(menuGroup => menuGroup.items.length > 0);
         setFilteredMenuGroups(newMenuGroups);
-    }, [menuItems, currentOrganization]);
+    }, [menuItems, currentOrganization, location]);
 
 
     const doNavigate = href => {
@@ -71,15 +71,15 @@ export const SharedMenu = () => {
         }
     }
 
-    // if (isEmpty(filteredMenuGroups)) {
-    //     return <Loader/>
-    // }
-
+    const activePath = location.pathname.startsWith("/organization") ? `/organization/${currentOrganization.id}` :
+        `/users/${currentOrganization.id}/team`
+    console.log(activePath)
     return (
         <NavigationMenu
             groups={filteredMenuGroups}
             logoLabel={"Access"}
             navigate={doNavigate}
+            active={activePath}
             title={currentOrganization?.name || ""}
             settingToolTip={I18n.t("organizations.tooltip")}
             children={<SharedMenuFooter/>}
