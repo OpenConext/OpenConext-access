@@ -155,7 +155,10 @@ h1.large {
             color: black;
             border-bottom: 3px solid var(--sds--color--gray--500);
         }
-
+        &.disabled {
+            cursor: not-allowed;
+            color: var(--sds--color--gray--300);
+        }
     }
 }
 

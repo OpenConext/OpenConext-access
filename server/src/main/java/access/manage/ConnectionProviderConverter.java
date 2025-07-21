@@ -1,7 +1,6 @@
 package access.manage;
 
 import access.model.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -29,7 +28,7 @@ public class ConnectionProviderConverter {
         });
     }
 
-    public String convert(Connection connection) throws JsonProcessingException {
+    public Map<String, Object> convert(Connection connection, Map<String, Object> result) {
         Application application = connection.getApplication();
         //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();
@@ -37,31 +36,27 @@ public class ConnectionProviderConverter {
         Map<String, Object> information = (Map<String, Object>) applicationMetaData.getOrDefault("information", Map.of());
 
         //Base structure
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> metaDataFields = new HashMap<>();
-        data.put("metaDataFields", metaDataFields);
-        result.put("data", data);
+        Map<String, Object> data = (Map<String, Object>) result.get("data");
+        Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
 
+        //Now copy all information from the connection to the data / metadata
         putIf(result, "id", connection.getManageIdentifier());
         putIf(result, "version", connection.getManageVersion());
-        result.put("type", connection.getProtocol());
+        result.put("type", connection.getProtocol().name());
         putIf(result, "eid", connection.getManageEid());
 
         data.put("entityid", connectionMetaData.get("entityID"));
-        data.put("state", connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState);
+        data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
         data.put("allowedall", false);
-        putIf(data, "arp", connectionMetaData.get("arp"));
 
-        List<String> allowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
-        data.put("allowedEntities", allowedEntities.stream().map(entity -> Map.of("name", entity)).toList());
+        mergeAttributeReleasePolicies(connectionMetaData, data);
+        mergeAllowedEntities(data, connectionMetaData);
 
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
 
         putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
         putIf(metaDataFields, "coin:application_name", application.getName());
-
 
         putIf(metaDataFields, "description:en", information.get("descriptionEN"));
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
@@ -107,7 +102,25 @@ public class ConnectionProviderConverter {
         privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));
 
         metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+        return result;
+    }
+
+    private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
+        List<String> existingAllowedEntities = (List<String>) data.getOrDefault("allowedEntities", new ArrayList<>());
+        List<String> newAllowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
+        Set<String> uniqueAllowedEntities = new LinkedHashSet<>(existingAllowedEntities);
+        uniqueAllowedEntities.addAll(newAllowedEntities);
+        data.put("allowedEntities", uniqueAllowedEntities.stream().map(entity -> Map.of("name", entity)).toList());
+    }
+
+    private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
+        Map<String, Object> newArp = (Map<String, Object>) connectionMetaData.get("arp");
+        Map<String, Object> arpFromManage = (Map<String, Object>) data.get("arp");
+        //Merge the two ARP's, ensuring no existing data is overridden
+        Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.get("attributes");
+        Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.get("attributes");
+        newArpAttributes.putAll(existingArpAttributes);
+        putIf(data, "arp", newArp);
     }
 
     private void putIf(Map<String, Object> result, String key, Object value) {

@@ -43,14 +43,12 @@ public class RemoteManage implements Manage {
     );
     private final Map<String, Object> queries;
     private final ConnectionProviderConverter converter;
-    private final ObjectMapper objectMapper;
     private final ManageAuthorization testAuthorization;
     private final ManageAuthorization productionAuthorization;
 
     public RemoteManage(ManageAuthorization testAuthorization, ManageAuthorization productionAuthorization, ConnectionProviderConverter converter, ObjectMapper objectMapper) throws IOException {
         this.testAuthorization = testAuthorization;
         this.productionAuthorization = productionAuthorization;
-        this.objectMapper = objectMapper;
         this.converter = converter;
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
@@ -90,18 +88,21 @@ public class RemoteManage implements Manage {
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
-        String provider = converter.convert(connection);
-        ResponseEntity<Map> responseEntity;
+        Map<String, Object> baseStructure = StringUtils.hasText(connection.getManageIdentifier()) ?
+                providerById(connection) :
+                baseStructureProvider();
+        //We must ensure that no data is overridden that was altered in Manage, especially additional metadata and
+        //changed Attribute Release Policies
+        Map<String, Object> provider = converter.convert(connection, baseStructure);
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
-        responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 httpMethod, new HttpEntity<>(provider), Map.class);
         Map body = responseEntity.getBody();
         if (ResilientErrorHandler.ignoreError(body)) {
-            //See ResilientErrorHandler#handleError. Any no-data-changed error is already thrown
-            return objectMapper.readValue(provider, new TypeReference<>() {
-            });
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
+            return provider;
         }
         return body;
     }

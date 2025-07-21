@@ -21,7 +21,7 @@ export const privacySectionValid = (privacyInfo, application) => {
     const requiredPrivacyAttributes = privacyInfo.filter(p => p.required);
     return requiredPrivacyAttributes
         .map(val => val.name)
-        .every(attr => !isEmpty(application?.privacy?.[attr]))
+        .every(attr => !isEmpty(application?.privacy?.[attr]));
 };
 
 //Pull the metaData of the application up in the root
@@ -32,21 +32,21 @@ export const convertServerApplicationToClient = (application, protocolOptions, p
             email: person.email,
             name: `${person.givenName} ${person.surName}`
         }));
-    return {
+    const clientApplication = {
         ...application,
-        connections: isEmpty(protocolOptions) ? application.connections : application.connections
+        connections: isEmpty(protocolOptions) ? (application.connections || []) : (application.connections || [])
             .map(con => convertServerConnectionToClient(con, protocolOptions, profileOptions, arpInfo)),
         information: {},
         contactPersons: [],
-        privacy: {},
+        privacy: {dpa_type: "dpa_supplied_by_service"},
         //Sensible defaults for first rendering, but override for applications already catalogized
         ...application.metaData
-
-    }
+    };
+    return clientApplication
 }
 //Push the metaData of the application to the actual JSON metaData version
 export const convertClientApplicationToServer = (application) => {
-    application.contactPersons = application.contactPersons
+    const serverContactPersons = application.contactPersons
         .map(person => {
             const parts = person.name.split(" ");
             //Not trivial, but SAML and Manage dictates givenName and surName
@@ -64,7 +64,7 @@ export const convertClientApplicationToServer = (application) => {
         applicationMemberships: null,
         metaData: {
             information: application.information,
-            contactPersons: application.contactPersons,
+            contactPersons: serverContactPersons,
             privacy: application.privacy
         }
 

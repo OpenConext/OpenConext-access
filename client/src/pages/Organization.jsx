@@ -26,9 +26,9 @@ const Organization = () => {
                 setOrganization(res);
                 useAppStore.setState({
                     currentOrganization: res,
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("breadCrumb.access")},
-                        {path: `/organization/${res.id}`, value: res.name},
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                        {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });

@@ -60,7 +60,6 @@ public class Application implements NameHolder{
     private Instant createdAt;
 
     @Column
-    @NotNull
     private String createdBy;
 
     @Column(name = "signed_contract")

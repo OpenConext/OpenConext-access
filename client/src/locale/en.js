@@ -361,6 +361,10 @@ const en = {
             reset: "Reset my secret",
             resetContinue: "I’ve copied the secret. Continue"
         },
+        connectionOverviewSAML: {
+          title: "De SAML koppeling is gereed",
+          link: "Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>testinstructies</a> om te kijken of alles werkt."
+        },
         appInfo: {
             title: "App informatie voor de SURF App catalogus",
             label: "App informatie",

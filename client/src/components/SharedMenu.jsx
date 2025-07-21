@@ -39,9 +39,10 @@ const allMenuGroups = [{
 
 export const SharedMenu = () => {
 
-    const {menuItems, config, currentOrganization} = useAppStore(state => state);
+    const {menuItems, config, currentOrganization, activeMenuItem} = useAppStore(state => state);
+
     const [filteredMenuGroups, setFilteredMenuGroups] = useState([]);
-    const location = useLocation();
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,32 +55,33 @@ export const SharedMenu = () => {
                         Logo: menuItem.Logo,
                         label: I18n.t(`navigation.${menuItem.name}`),
                         name: menuItem.name,
+                        active: menuItem.name === activeMenuItem,
                         href: menuItem.relative ? menuItem.path.replace("organizationId", currentOrganization.id) :
                             `https://${menuItem.path}.${config.baseUrl}/${menuItem.postPath}`
                     }))
             }))
             .filter(menuGroup => menuGroup.items.length > 0);
         setFilteredMenuGroups(newMenuGroups);
-    }, [menuItems, currentOrganization, location]);
+    }, [activeMenuItem, menuItems, currentOrganization]);
 
 
-    const doNavigate = href => {
+    const setActiveMenuItem = menuItem => {
+        const href = menuItem.href;
         if (href.startsWith("http")) {
             window.location.href = href;
         } else {
             navigate(href);
         }
+        useAppStore.setState(() => ({
+            activeMenuItem: menuItem.name
+        }));
     }
 
-    const activePath = location.pathname.startsWith("/organization") ? `/organization/${currentOrganization.id}` :
-        `/users/${currentOrganization.id}/team`
-    console.log(activePath)
     return (
         <NavigationMenu
             groups={filteredMenuGroups}
             logoLabel={"Access"}
-            navigate={doNavigate}
-            active={activePath}
+            setActiveMenuItem={setActiveMenuItem}
             title={currentOrganization?.name || ""}
             settingToolTip={I18n.t("organizations.tooltip")}
             children={<SharedMenuFooter/>}

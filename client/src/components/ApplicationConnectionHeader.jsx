@@ -9,16 +9,18 @@ import {useNavigate} from "react-router-dom";
 import {deleteApplicationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 
-export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab, setLoading}) => {
+export const ApplicationConnectionHeader = ({tabs, application, currentTab, setTab, setLoading}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
 
     const navigate = useNavigate();
 
-    const doNavigate = (e, tabName) => {
+    const doNavigate = (e, tab) => {
         stopEvent(e);
-        setTab(tabName);
+        if (!tab.disabled) {
+            setTab(tab.name);
+        }
     }
 
     const menuLink = (e, link) => {
@@ -90,11 +92,11 @@ export const ApplicationConnectionHeader = ({tabNames, application, tab, setTab,
 
             <div className="tabs-menu">
 
-                {tabNames.map(tabName => <a key={tabName}
-                                            href={`/${tabName}`}
-                                            className={tabName === tab ? "active" : ""}
-                                            onClick={e => doNavigate(e, tabName)}>
-                    {I18n.t(`connection.${tabName}`)}
+                {tabs.map(tab => <a key={tab.name}
+                                    href={`/${tab.name}`}
+                                    className={tab.name === currentTab ? "active" : tab.disabled ? "disabled" : ""}
+                                    onClick={e => doNavigate(e, tab)}>
+                    {I18n.t(`connection.${tab.name}`)}
                 </a>)}
             </div>
         </div>

@@ -30,7 +30,7 @@ export const StatusLink = ({status, info, action, disabled}) => {
 
     return (
         <div className={`status-link ${disabled ? "disabled" : "enabled"}`}
-             onClick={action}>
+             onClick={() => !disabled && action()}>
             {getIcon()}
             <span className="info">{info}</span>
             <CaretRight/>

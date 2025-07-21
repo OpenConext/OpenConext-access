@@ -9,6 +9,7 @@ import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -118,8 +119,9 @@ public class ApplicationController implements UserAccessRights {
                 connection.updateRemoteManageData( provider);
                 connectionRepository.save(connection);
             });
+        } else {
+            Hibernate.initialize(application.getConnections());
         }
-
         applicationRepository.save(application);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);

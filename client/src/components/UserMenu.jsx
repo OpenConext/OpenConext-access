@@ -20,7 +20,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const logoutUser = e => {
         stopEvent(e);
         logout().then(() => {
-            useAppStore.setState(() => ({breadcrumbPath: [], user: {}}));
+            useAppStore.setState(() => ({breadcrumbPaths: [], user: {}}));
             navigate("/home");
             setIsAuthenticated(false);
         });

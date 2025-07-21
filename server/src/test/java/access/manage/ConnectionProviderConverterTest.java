@@ -20,6 +20,8 @@ class ConnectionProviderConverterTest extends AbstractTest {
 
     @Autowired
     private ConnectionProviderConverter connectionProviderConverter;
+    @Autowired
+    private Manage manage;
 
     @Test
     void convertConnections() {
@@ -41,19 +43,17 @@ class ConnectionProviderConverterTest extends AbstractTest {
         application.setOrganization(organization);
         connection.setApplication(application);
 
-        String converted = connectionProviderConverter.convert(connection);
+        Map<String, Object> converted = connectionProviderConverter.convert(connection, manage.baseStructureProvider());
 
-        Map<String, Object> map = objectMapper.readValue(converted, new TypeReference<>() {
-        });
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource(expectedPath).getInputStream()), new TypeReference<>() {
         });
-        List<String> differences = differences(toSortedTreeMap(expected), toSortedTreeMap(map));
+        List<String> differences = differences(toSortedTreeMap(expected), toSortedTreeMap(converted));
         if (!differences.isEmpty()) {
             //Easy to compare sorted maps / lists
             System.out.println(differences);
         }
-        assertEquals(expected, map);
+        assertEquals(expected, converted);
     }
 
 

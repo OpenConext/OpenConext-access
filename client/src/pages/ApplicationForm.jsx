@@ -30,9 +30,9 @@ export const ApplicationForm = () => {
         Object.keys(translationChecks).forEach(check => newChecks[check] = false);
         setChecks(newChecks);
         useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name},
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name, menuItemName: "yourApps"},
                 {value: I18n.t("breadCrumb.applications")}
             ]
         });

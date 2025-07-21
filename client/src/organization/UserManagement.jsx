@@ -32,9 +32,9 @@ export const UserManagement = () => {
                 setOrganization(res);
                 useAppStore.setState({
                     currentOrganization: res,
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("breadCrumb.access")},
-                        {path: `/organization/${res.id}`, value: res.name},
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                        {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });
@@ -50,9 +50,9 @@ export const UserManagement = () => {
     const tabChanged = (name, res) => {
         setCurrentTab(name);
         useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
-                {path: `/organization/${organizationId}`, value: res ? res.name : organization.name},
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"),menuItemName: "yourApps"},
+                {path: `/organization/${organizationId}`, value: res ? res.name : organization.name, menuItemName: "yourApps"},
                 {value: I18n.t(`breadCrumb.${name}`)}
             ]
         });

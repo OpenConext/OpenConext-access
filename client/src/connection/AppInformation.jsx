@@ -1,5 +1,5 @@
 import "./AppInformation.scss";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
@@ -47,10 +47,14 @@ export const AppInformation = ({
     const [initial, setInitial] = useState(true);
     const [loading, setLoading] = useState(false);
 
-    const isPending = sectionName => {
-        if (application.status !== APPLICATION_STATUSES.OPEN) {
-            return false;
+    useEffect(() => {
+        if (isEmpty(application.privacy.dpa_type)) {
+            application.privacy.dpa_type = "dpa_supplied_by_service";
+            setApplication({...application})
         }
+    }, []);
+
+    const isPending = sectionName => {
         const finished = finishedSections.includes(sectionName);
         switch (sectionName) {
             case sections.logo: {
@@ -101,8 +105,10 @@ export const AppInformation = ({
             (section === sections.privacy && privacySectionValid(privacyInfo, application));
         if (proceed) {
             setLoading(true);
-            if (section === sections.privacy) {
+            let proceedToOverview = false;
+            if (section === sections.privacy && application.status === APPLICATION_STATUSES.OPEN) {
                 application.status = APPLICATION_STATUSES.COMPLETE;
+                proceedToOverview = true;
             }
             const body = convertClientApplicationToServer(application);
             updateApplication(body)
@@ -111,12 +117,12 @@ export const AppInformation = ({
                     setLoading(false);
                     setFlash(I18n.t("application.flash", {name: res.name}));
                     setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
-                    if (res.status === APPLICATION_STATUSES.OPEN) {
+                    if (res.status === APPLICATION_STATUSES.OPEN || proceedToOverview) {
                         changeSection(nextSection);
                     }
                     setInitial(true);
                 })
-                .catch(() => {
+                .catch(e => {
                     setLoading(false);
                     setFlash(I18n.t("forms.error"), "error")
                 });
@@ -275,7 +281,7 @@ export const AppInformation = ({
 
     const updatePrivacy = (name, value) => {
         application.privacy[name] = value;
-        setApplication({...application})
+        setApplication({...application});
     }
 
     const enumOption = enumInstance => {
@@ -375,6 +381,7 @@ export const AppInformation = ({
                                 <StatusMenuItem key={sectionValue}
                                                 pending={isPending(sectionValue)}
                                                 disabled={isDisabled(sectionValue)}
+                                                hideIcon={application.status === APPLICATION_STATUSES.COMPLETE}
                                                 action={() => changeSection(sectionValue)}
                                                 info={I18n.t(`connection.appInfo.sections.${sectionValue}`)}
                                                 active={section === sectionValue}/>)}

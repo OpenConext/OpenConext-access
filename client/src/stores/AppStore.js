@@ -20,8 +20,14 @@ export const useAppStore = create(set => ({
     config: {
         baseUrl: "http://localhost:3000"
     },
-    //[{path: "/roles/4", value: role.name}]
-    breadcrumbPath: [],
+    /*
+     * [{path: "/roles/4", value: role.name, menuItemName: "yourApps"}] - the menuItemName is optional, but must be
+     * specified if the breadcrumb link corresponds with a menu item in the SharedMenu. Otherwise, URL and active
+     * menuitem are not synced
+     */
+    breadcrumbPaths: [],
+    //users
+    activeMenuItem: "yourApps",
     //[ "home", "applications", "teams"]
     menuItems: [],
     //{name: "ShareWorks"}

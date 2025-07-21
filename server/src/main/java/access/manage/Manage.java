@@ -4,6 +4,8 @@ import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,4 +30,23 @@ public interface Manage {
         }
         return provider;
     }
+
+    default Map<String, Object> baseStructureProvider() {
+        //Base structure must be mutable
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> metaDataFields = new HashMap<>();
+        data.put("metaDataFields", metaDataFields);
+        data.put("allowedEntities", new ArrayList<>());
+
+        Map<String, Object> arp = new HashMap<>();
+        arp.put("attributes", new HashMap<>());
+        data.put("arp", arp);
+        data.put("allowedEntities", new ArrayList<>());
+
+        result.put("data", data);
+        return result;
+    }
+
+
 }

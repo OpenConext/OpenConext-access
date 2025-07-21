@@ -1,5 +1,5 @@
 import "./ApplicationConnection.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
@@ -8,12 +8,18 @@ import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
 import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
-import {CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
+import {APPLICATION_STATUSES, CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
-import {convertServerApplicationToClient} from "../utils/Application.js";
+import {
+    contactSectionValid,
+    convertServerApplicationToClient,
+    logoSectionValid,
+    privacySectionValid
+} from "../utils/Application.js";
 import {Contract} from "../connection/Contract.jsx";
 import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 import {connectOptions, visibilities} from "../utils/Connection.js";
+import {isEmpty} from "../utils/Utils.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
@@ -61,9 +67,13 @@ export const Connection = () => {
                 changeTab(currentTab);
                 setLoading(false);
                 useAppStore.setState({
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("breadCrumb.access")},
-                        {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name},
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                        {
+                            path: `/organization/${currentOrganization.id}`,
+                            value: currentOrganization.name,
+                            menuItemName: "yourApps"
+                        },
                         {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
                         {value: res.name}
                     ]
@@ -72,12 +82,37 @@ export const Connection = () => {
                     getIdentityProviders(ENVIRONMENTS.TEST),
                     getIdentityProviders(ENVIRONMENTS.PROD)
                 ]).then(providers => {
-                        setIdentityProviders(providers[0]);
-                        setProdIdentityProviders(providers[1]);
+                    setIdentityProviders(providers[0]);
+                    setProdIdentityProviders(providers[1]);
 
-                    })
+                })
             })
     }, []);
+
+    const {
+        testConnectionComplete,
+        productionConnectionComplete,
+        appInformationComplete,
+        productionConnectionNeedsActivation,
+    } = useMemo(() => {
+        return {
+            testConnectionComplete: !isEmpty(application.connections) &&
+                application.connections
+                    .filter(conn => conn.environment === ENVIRONMENTS.TEST)
+                    .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
+            productionConnectionComplete: !isEmpty(application.connections) &&
+                application.connections
+                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
+                    .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
+            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacyInfo, application)
+                && application.status !== APPLICATION_STATUSES.OPEN,
+            productionConnectionNeedsActivation: application.signedContract && !isEmpty(application.connections) &&
+                application.connections
+                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
+        }
+    }, [application]);
+
 
     const refresh = () => {
         setLoading(true);
@@ -132,8 +167,10 @@ export const Connection = () => {
                                  user={user}
                                  initConnection={initConnection}
                                  setTab={changeTab}
-                                 privacyInfo={privacyInfo}
-                                 refreshApp={refreshApp}
+                                 testConnectionComplete={testConnectionComplete}
+                                 productionConnectionComplete={productionConnectionComplete}
+                                 appInformationComplete={appInformationComplete}
+                                 productionConnectionNeedsActivation={productionConnectionNeedsActivation}
                 />
             }
             case  "testing": {
@@ -144,6 +181,7 @@ export const Connection = () => {
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
                                 arpInfo={arpInfo}
+                                setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
                                 isProduction={false}
@@ -156,6 +194,7 @@ export const Connection = () => {
                                 initConnection={initConnection}
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
+                                setTab={changeTab}
                                 arpInfo={arpInfo}
                                 profileOptions={profileOptions}
                                 identityProviders={prodIdentityProviders}
@@ -199,9 +238,17 @@ export const Connection = () => {
 
     return (
         <div className="application-connection-container">
-            <ApplicationConnectionHeader tabNames={tabNames}
+            <ApplicationConnectionHeader tabs={tabNames.map(name => {
+                return {
+                    name: name,
+                    disabled:
+                        (name === "prod" && !testConnectionComplete) ||
+                        (name === "application" && !testConnectionComplete) ||
+                        (name === "contract" && !productionConnectionComplete)
+                }
+            })}
                                          application={application}
-                                         tab={currentTab}
+                                         currentTab={currentTab}
                                          setLoading={setLoading}
                                          setTab={changeTab}/>
             {renderCurrentTab()}

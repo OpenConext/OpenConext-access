@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,9 +79,11 @@ public final class LocalManage implements Manage {
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
-        String providerString = converter.convert(connection);
-        Map<String, Object> provider = objectMapper.readValue(providerString, new TypeReference<>() {
-        });
+        Map<String, Object> baseStructure = StringUtils.hasText(connection.getManageIdentifier()) ?
+                providerById(connection) :
+                baseStructureProvider();
+
+        Map<String, Object> provider = converter.convert(connection, baseStructure);
         boolean existingProvider = provider.containsKey("id");
         if (existingProvider) {
             provider.put("version", (int) provider.get("version") + 1);

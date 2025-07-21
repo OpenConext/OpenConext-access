@@ -38,9 +38,9 @@ export const InvitationForm = () => {
             .then(res => {
                 setOrganization(res);
                 useAppStore.setState({
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("breadCrumb.access")},
-                        {path: `/organization/${organizationId}`, value: res.name},
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                        {path: `/organization/${organizationId}`, value: res.name, menuItemName: "yourApps"},
                         {value: I18n.t("breadCrumb.invitations")}
                     ]
                 });

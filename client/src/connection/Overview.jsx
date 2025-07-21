@@ -1,40 +1,19 @@
 import "./Overview.scss";
-import React, {useMemo, useState} from "react";
+import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
-import {APPLICATION_STATUSES, CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
-import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
+import {ENVIRONMENTS} from "../utils/Manage.js";
 
 
-export const Overview = ({user, application, setTab, initConnection, privacyInfo, refreshApp}) => {
+export const Overview = ({
+                             user, application, setTab, initConnection, testConnectionComplete,
+                             productionConnectionComplete, appInformationComplete,
+                             productionConnectionNeedsActivation
+                         }) => {
 
     const [alertClosed, setAlertClosed] = useState(false);
-
-    const {
-        testConnectionComplete,
-        productionConnectionComplete,
-        appInformationComplete,
-        productionConnectionNeedsActivation,
-    } = useMemo(() => {
-        return {
-            testConnectionComplete: !isEmpty(application.connections) &&
-                application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.TEST)
-                    .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
-            productionConnectionComplete: !isEmpty(application.connections) &&
-                application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
-                    .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
-            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacyInfo, application)
-                && application.status !== APPLICATION_STATUSES.OPEN,
-            productionConnectionNeedsActivation: application.signedContract && !isEmpty(application.connections) &&
-                application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
-                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
-        }
-    }, [refreshApp]);
 
     const alertInfo = () => {
         if (alertClosed) {
@@ -100,12 +79,8 @@ export const Overview = ({user, application, setTab, initConnection, privacyInfo
                                     productionConnectionNeedsActivation ? STATUS_LINK_TYPE.ALERT : STATUS_LINK_TYPE.ACTIVE}/>
                     <StatusLink info={I18n.t("connection.production.catalogue")}
                                 action={() => setTab("application")}
-                                disabled={!productionConnectionComplete}
+                                disabled={!testConnectionComplete}
                                 status={appInformationComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
-                    {/*<StatusLink info={I18n.t("connection.production.access")}*/}
-                    {/*            action={() => setTab("testing")}*/}
-                    {/*            disabled={!appInformationComplete}*/}
-                    {/*            status={accessComplete}/>*/}
                     <StatusLink info={I18n.t("connection.production.contract")}
                                 action={() => setTab("contract")}
                                 disabled={!appInformationComplete}

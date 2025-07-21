@@ -23,8 +23,8 @@ const JoinRequest = ({refreshUser}) => {
 
     useEffect(() => {
         useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("breadCrumb.access")},
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });

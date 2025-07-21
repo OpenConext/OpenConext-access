@@ -87,6 +87,7 @@ export const Testing = ({
                             refresh,
                             protocolOptions,
                             arpInfo,
+                            setTab,
                             profileOptions,
                             identityProviders,
                             isProduction
@@ -117,9 +118,6 @@ export const Testing = ({
     const acsLocationRefs = useRef([]);
 
     const isPending = sectionName => {
-        if (connection.status === CONNECTION_STATUSES.COMPLETE) {
-            return false;
-        }
         const finished = finishedSections.includes(sectionName);
         switch (sectionName) {
             case sections.technical: {
@@ -742,7 +740,20 @@ export const Testing = ({
         );
     }
 
-    const renderOverview = () => {
+    const renderSAMLOverview = () => {
+        return (
+            <section className="inner-right-overview">
+                <h3>{I18n.t("connection.connectionOverviewSAML.title")}</h3>
+                <p className="test"
+                   dangerouslySetInnerHTML={{
+                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverviewSAML.link",
+                           {ADD_ATTR: ["target"]}))
+                   }}/>
+            </section>
+        )
+    }
+
+    const renderOIDCOverview = () => {
         return (
             <section className="inner-right-overview">
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
@@ -891,6 +902,7 @@ export const Testing = ({
     }
 
     const renderSection = () => {
+        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         switch (section) {
             case sections.technical: {
                 return renderTechnicalSection();
@@ -902,7 +914,7 @@ export const Testing = ({
                 return isProduction ? renderVisibilitySection() : renderTestIdPSection();
             }
             case sections.overview: {
-                return renderOverview();
+                return isOidc ? renderOIDCOverview() : renderSAMLOverview();
             }
         }
     }
@@ -929,9 +941,13 @@ export const Testing = ({
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
-        const nextSection = isComplete ? section : section === sections.technical ? sections.informationProfile :
-            section === sections.informationProfile ? sections.testIdP :
-                (section === sections.testIdP && isOidc && !isComplete) ? sections.overview : sections.testIdP;
+        let nextSection;
+        if (isComplete) {
+            nextSection = section;
+        } else {
+            nextSection = section === sections.technical ? sections.informationProfile :
+                section === sections.informationProfile ? sections.testIdP :  sections.overview;
+        }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
             (section === sections.testIdP && testIdPValid());
@@ -969,13 +985,17 @@ export const Testing = ({
         setSection(sections.technical);
     }
 
+    const backToMainOverview = () => {
+        refresh();
+        setTab("overview");
+    }
+
     const renderInitialConnection = () => {
-        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
         const showOverviewButton = section === sections.overview;
-        const submitTxt = (isComplete || (lastSection && !isOidc)) ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+        const submitTxt = isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         const {open, cancel, action, modal, okButton, question, header} = confirmation;
         return <>
             {open && <ConfirmationDialog confirm={action}
@@ -1030,6 +1050,7 @@ export const Testing = ({
                             .map(sectionValue =>
                                 <StatusMenuItem key={sectionValue}
                                                 pending={isPending(sectionValue)}
+                                                hideIcon={connection.status === CONNECTION_STATUSES.COMPLETE}
                                                 disabled={isDisabled(sectionValue)}
                                                 action={() => changeSection(sectionValue)}
                                                 info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
@@ -1050,7 +1071,7 @@ export const Testing = ({
                     <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
                         {!showOverviewButton &&
                             <>
-                                <Button txt={I18n.t(`forms.${connection.id ? "backToConnections" : "cancel"}`)}
+                                <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
                                         type={ButtonType.Secondary}
                                         onClick={backToConnections}/>
                                 <Button txt={submitTxt}
@@ -1063,7 +1084,7 @@ export const Testing = ({
                             <Button txt={I18n.t("forms.overview")}
                                     type={ButtonType.Secondary}
                                     icon={<ArrowRight/>}
-                                    onClick={() => backToConnections()}/>
+                                    onClick={backToMainOverview}/>
                         }
                     </div>
 

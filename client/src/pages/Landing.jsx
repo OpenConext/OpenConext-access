@@ -31,7 +31,7 @@ const Landing = ({refreshUser}) => {
 
     useEffect(() => {
         useAppStore.setState({
-            breadcrumbPath: [
+            breadcrumbPaths: [
                 {path: "/home", value: I18n.t("breadCrumb.access")},
                 {value: I18n.t("breadCrumb.landing")}
             ]
