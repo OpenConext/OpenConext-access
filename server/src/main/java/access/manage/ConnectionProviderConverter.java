@@ -13,7 +13,6 @@ import java.util.stream.IntStream;
 @SuppressWarnings("unchecked")
 public class ConnectionProviderConverter {
 
-    private final ObjectMapper objectMapper;
     private final List<Map<String, Object>> privacyInfo;
 
     private final State defaultTestState;
@@ -23,7 +22,6 @@ public class ConnectionProviderConverter {
     public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultTestState, State defaultProdState) {
         this.defaultTestState = defaultTestState;
         this.defaultProdState = defaultProdState;
-        this.objectMapper = objectMapper;
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
     }
