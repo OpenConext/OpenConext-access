@@ -62,8 +62,8 @@ mvn versions:use-latest-releases
 ```
 To see the latest versions report for the client run
 ```
-nvm use
 cd client
+nvm use
 yarn outdated
 ```
 
