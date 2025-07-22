@@ -43,9 +43,11 @@ public class ConnectionProviderConverter {
         result.put("type", connection.getProtocol().name());
         putIf(result, "eid", connection.getManageEid());
 
+
         data.put("entityid", connectionMetaData.get("entityID"));
         data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
         data.put("allowedall", false);
+        data.put("revisionnote", "SURF Access update with remote API");
 
         mergeAttributeReleasePolicies(connectionMetaData, data);
         mergeAllowedEntities(data, connectionMetaData);
@@ -104,7 +106,9 @@ public class ConnectionProviderConverter {
     }
 
     private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
-        List<String> existingAllowedEntities = (List<String>) data.getOrDefault("allowedEntities", new ArrayList<>());
+        List<String> existingAllowedEntities = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", new ArrayList<>()))
+                .stream().map(m -> m.get("name"))
+                .toList();
         List<String> newAllowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
         Set<String> uniqueAllowedEntities = new LinkedHashSet<>(existingAllowedEntities);
         uniqueAllowedEntities.addAll(newAllowedEntities);

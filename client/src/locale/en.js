@@ -275,9 +275,20 @@ const en = {
             status: "Status",
             open: "Open",
             complete: "Completed",
+            pending_prod: "Pending production",
+            prod_ready: "Production ready",
+            tooltips: {
+                //A null tooltip won't show
+                open: "Your connection has unfinished sections. Please fill in all the required fields.",
+                complete: null,
+                pending_prod: "Je productieverzoek ligt ter inzage bij <strong>SURF Access</strong>. Eén van onze medewerkers beoordeelt nu de configuratie en laat zo snel mogelijk weten of deze akkoord is.<br><br> Na publicatie kunnen instellingen aan je applicatie koppelen.",
+                prod_ready: "Je applicatie is klaar voor productie en instellingen kunnen aan je applicatie koppelen.",
+            },
             protocol: "Protocol",
             details: "Details",
-            requestProductionStatus: "Vraag productiestatus aan"
+            requestProductionStatus: "Vraag productiestatus aan",
+            requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
+            requestProductionStatusPostInfo: "Your request is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>"
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
@@ -492,11 +503,14 @@ const en = {
         approveConfirmation: "Are you sure you want to approve the organization join request of {{name}}?",
         denialConfirmation: "Are you sure you want to deny the organization join request of {{name}}?",
         flash: {
-            approved: "The organization membership of {{name}} has been created",
-            denied: "The join request of {{name}} has been denied"
+            approved: "The organization membership of {{name}} has been created.",
+            approveAll: "The organization memberships habe been created.",
+            denied: "The join request of {{name}} has been denied."
         },
         deny: "Deny",
-        approve: "Approve"
+        approve: "Approve",
+        approveAll: "Approve all",
+        approveAllConfirmation: "Are you sure you want to approve all the organization join requests?"
     },
     invitationsManagement: {
         email: "Email",

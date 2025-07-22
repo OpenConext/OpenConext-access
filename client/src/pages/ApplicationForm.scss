@@ -20,6 +20,8 @@ div.application-form-container {
         .sds--tooltip-container {
             .react-tooltip {
                 text-align: left;
+                word-break: break-word;
+
 
                 ul {
                     list-style: initial;

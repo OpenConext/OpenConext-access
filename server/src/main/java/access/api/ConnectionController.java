@@ -3,7 +3,10 @@ package access.api;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
+import access.jira.JiraIssue;
+import access.manage.ChangeRequest;
 import access.manage.Manage;
+import access.manage.PathUpdateType;
 import access.model.*;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -137,6 +140,51 @@ public class ConnectionController implements UserAccessRights {
         return Collections.singletonMap("secret", secret);
     }
 
+    @PutMapping(value = "/request-production-status/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> requestProductionStatus(User user,
+                                                                       @PathVariable("connectionId") Long connectionId) {
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Application application = connection.getApplication();
+        Organization organization = application.getOrganization();
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+
+        String changeRequestURL = manage.changeRequestURL(connection.getEnvironment(), connection);
+
+        Map<String, Object> provider = manage.providerById(connection);
+        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        String lineSeparator = System.lineSeparator();
+        String jiraKey = jiraClient.create(new JiraIssue(
+                entityId,
+                String.format("Production status requested by %s for %s.",
+                        user.getName(), connection.getName()),
+                String.format("A change request in manage has been created to merge this user request. See:%s%s",
+                        lineSeparator, changeRequestURL),
+                connection.getProtocol(),
+                user.getEmail()
+        ));
+        ChangeRequest changeRequest = new ChangeRequest(
+                connection.getManageIdentifier(),
+                connection.getProtocol(),
+                Map.of("state", "prodaccepted"),
+                Map.of("user", user.getEmail(),
+                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                                user.getName(), connection.getName(), jiraKey)),
+                false,
+                PathUpdateType.ADDITION);
+        Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
+
+        LOG.debug("Change request response from manage: " + changeRequestResponse);
+
+        connection.setStatus(ConnectionStatus.PENDING_PROD);
+        saveConnection(connection);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
+    }
+
     @DeleteMapping({"", "/{connectionId}"})
     public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("connectionId") Long connectionId) {
         LOG.debug("/delete connection by " + user.getEmail());
@@ -162,8 +210,8 @@ public class ConnectionController implements UserAccessRights {
 
     @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
-        //Put / Post to Manage only if the status is COMPLETE
-        if (connection.getStatus().equals(ConnectionStatus.COMPLETE)) {
+        //Put / Post to Manage only if the status is not OPEN
+        if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             if (connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     !StringUtils.hasText((String) connection.getMetaData().get("secret")) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE) {

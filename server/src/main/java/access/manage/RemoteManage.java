@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -122,6 +123,24 @@ public class RemoteManage implements Manage {
         String url = environmentUrl(environment);
         String queryUrl = String.format("%s/manage/api/internal/uniqueEntityId/%s", url, entityType.name());
         return restTemplate.postForEntity(queryUrl, Map.of("entityid", entityID), List.class).getBody();
+    }
+
+    @Override
+    public Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        RestTemplate restTemplate = environmentRestTemplate(environment);
+        String url = String.format("%s/manage/api/internal/change-requests", environmentUrl(environment));
+        HttpEntity<ChangeRequest> requestEntity = new HttpEntity<>(changeRequest);
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
+                new ParameterizedTypeReference<>() {
+                });
+        return responseEntity.getBody();
+    }
+
+    @Override
+    public String changeRequestURL(Environment environment, Connection connection) {
+        String url = this.environmentUrl(environment);
+        return String.format("%s/metadata/%s/%s/requests",
+                url, connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {

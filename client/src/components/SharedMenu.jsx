@@ -1,6 +1,6 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
-import {useLocation, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import {NavigationMenu} from "@surfnet/sds";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";

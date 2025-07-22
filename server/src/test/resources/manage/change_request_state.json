@@ -1,0 +1,11 @@
+{
+  "metaDataId" : "bdf56e36-2fd2-4cff-b773-3e6911ea546c",
+  "type" : "oidc10_rp",
+  "pathUpdates" : {
+    "state" : "testaccepted"
+  },
+  "auditData" : {
+    "user" : "jdoe"
+  },
+  "note": "Optional note describing the reason for this change"
+}

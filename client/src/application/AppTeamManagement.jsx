@@ -180,7 +180,11 @@ export const AppTeamManagement = ({
 
             <p className="info">
                 {I18n.t("appTeamManagement.organizationMembersPre")}
-                <Link to={`/users/${organization.id}/team`}>{I18n.t("appTeamManagement.organizationMembersLink")}</Link>
+                <Link to={`/users/${organization.id}/team`} onClick={() => useAppStore.setState(() => ({
+                    activeMenuItem: "users"
+                }))}>
+                    {I18n.t("appTeamManagement.organizationMembersLink")}
+                </Link>
                 {I18n.t("appTeamManagement.organizationMembersPost")}
             </p>
             {renderApplicationMembers()}

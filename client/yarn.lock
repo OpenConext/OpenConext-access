@@ -891,10 +891,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.45.1.tgz#e5085c6d13da15b4c5133cd2a6bb11f25b6bb77a"
   integrity sha512-M/fKi4sasCdM8i0aWJjCSFm2qEnYRR8AMLG2kxp6wD13+tMGA4Z1tVAuHkNRjud5SW2EM3naLuK35w9twvf6aA==
 
-"@surfnet/sds@^0.0.142":
-  version "0.0.142"
-  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.142.tgz#7e9c8d347527ce5234e829344f8f0f9a64e88c48"
-  integrity sha512-zdhOgs8DJ/rBVvk4VZnqWJVtQskqevkdxdGxSxEPyLU1hFMQRaqdk5NQbCEC8BbHtDzMTBeWCyo0d34hCYyShQ==
+"@surfnet/sds@^0.0.143":
+  version "0.0.143"
+  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.143.tgz#2e0a877934faece496d9ee9979c479ef3f548304"
+  integrity sha512-GcHWmzUzQM/dh8ZCZvVQxmfVde2icq8brVrMqb/tgXbP3Liby6mPn7AE0ngmIUYSod8GVd/t2PzppoC+2/+H7Q==
 
 "@svgr/babel-plugin-add-jsx-attribute@8.0.0":
   version "8.0.0"

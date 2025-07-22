@@ -29,6 +29,7 @@ import {
     parseMedaData,
     parseMedaDataUrl,
     providersByEntityId,
+    requestConnectionProductionStatus,
     resetConnectionSecret,
     updateConnection
 } from "../api/index.js";
@@ -42,7 +43,8 @@ import {
     connectOptions,
     convertClientConnectionToServer,
     convertServerConnectionToClient,
-    generateOIDCClientID, visibilities
+    generateOIDCClientID,
+    visibilities
 } from "../utils/Connection.js";
 import {
     CONNECTION_STATUSES,
@@ -109,7 +111,7 @@ export const Testing = ({
     const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirmation, setConfirmation] = useState({});
-
+    const [busy, setBusy] = useState(false);
     const connections = useMemo(() => application.connections
             .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
         [application, isProduction]);
@@ -393,7 +395,7 @@ export const Testing = ({
 
     const onBlurEntityID = (e) => {
         providersByEntityId(connection.environment, e.target.value).then(res => {
-            const duplicated = (connection.status === CONNECTION_STATUSES.COMPLETE && res.length > 1) ||
+            const duplicated = (connection.status === !CONNECTION_STATUSES.OPEN && res.length > 1) ||
                 (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);
         });
@@ -490,7 +492,7 @@ export const Testing = ({
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
-                        {connection.status === CONNECTION_STATUSES.COMPLETE &&
+                        {connection.status !== CONNECTION_STATUSES.OPEN &&
                             <div className="oidc-authentication">
                                 <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
                                 <div className="oidc-authentication-inner">
@@ -711,30 +713,30 @@ export const Testing = ({
                 <p>{I18n.t("connection.visibilities.info")}</p>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                 <div className="visibility-options">
-                <p className="question">{I18n.t("connection.visibilities.who")}</p>
-                <RadioOptions name={"visibility"}
-                              value={connection.visibility}
-                              onChange={e => setConnection({
-                                  ...connection,
-                                  visibility: e.target.id.replace("visibility_", "")
-                              })}
-                              isMultiple={true}
-                              labels={[visibilities.visible_to_all, visibilities.visible_to_none]}
-                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                              orientation={RadioOptionsOrientation.column}/>
+                    <p className="question">{I18n.t("connection.visibilities.who")}</p>
+                    <RadioOptions name={"visibility"}
+                                  value={connection.visibility}
+                                  onChange={e => setConnection({
+                                      ...connection,
+                                      visibility: e.target.id.replace("visibility_", "")
+                                  })}
+                                  isMultiple={true}
+                                  labels={[visibilities.visible_to_all, visibilities.visible_to_none]}
+                                  labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                                  orientation={RadioOptionsOrientation.column}/>
                 </div>
                 <div className="visibility-options">
-                <p className="question">{I18n.t("connection.visibilities.connect")}</p>
-                <RadioOptions name={"connectOption"}
-                              value={connection.connectOption}
-                              onChange={e => setConnection({
-                                  ...connection,
-                                  connectOption: e.target.id.replace("connectOption_", "")
-                              })}
-                              isMultiple={true}
-                              labels={[connectOptions.connect_with_interaction, connectOptions.connect_without_interaction_with_email]}
-                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                              orientation={RadioOptionsOrientation.column}/>
+                    <p className="question">{I18n.t("connection.visibilities.connect")}</p>
+                    <RadioOptions name={"connectOption"}
+                                  value={connection.connectOption}
+                                  onChange={e => setConnection({
+                                      ...connection,
+                                      connectOption: e.target.id.replace("connectOption_", "")
+                                  })}
+                                  isMultiple={true}
+                                  labels={[connectOptions.connect_with_interaction, connectOptions.connect_without_interaction_with_email]}
+                                  labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                                  orientation={RadioOptionsOrientation.column}/>
                 </div>
             </section>
         );
@@ -940,13 +942,13 @@ export const Testing = ({
     const storeAndNext = (finished = false) => {
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
-        const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
+        const isOpen = connection.status === CONNECTION_STATUSES.OPEN;
         let nextSection;
-        if (isComplete) {
+        if (!isOpen) {
             nextSection = section;
         } else {
             nextSection = section === sections.technical ? sections.informationProfile :
-                section === sections.informationProfile ? sections.testIdP :  sections.overview;
+                section === sections.informationProfile ? sections.testIdP : sections.overview;
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
@@ -955,7 +957,7 @@ export const Testing = ({
             setLoading(true);
             const promise = connection.id ? updateConnection : newConnection
             const body = convertClientConnectionToServer(application, connection, arpInfo);
-            if (finished && !isComplete) {
+            if (finished && isOpen) {
                 if (isOidc) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
@@ -980,6 +982,41 @@ export const Testing = ({
         }
     };
 
+    const doRequestProduction = (confirmationRequired, connection) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doRequestProduction(false, connection),
+                modal: null,
+                header: I18n.t("confirmationDialog.confirm"),
+                question: I18n.t("connection.connections.requestProductionStatusConfirmation", {name: connection.name}),
+                okButton: I18n.t("connection.connections.requestProductionStatus")
+            });
+        } else {
+            setBusy(true);
+            requestConnectionProductionStatus(connection.id)
+                .then(res => {
+                    debugger;
+                    setBusy(false);
+                    setConfirmation({
+                        open: true,
+                        cancel: null,
+                        modal: null,
+                        header: I18n.t("confirmationDialog.ok"),
+                        action: () => {
+                            refresh();
+                            setConfirmation({open: false});
+                        },
+                        question: I18n.t("connection.connections.requestProductionStatusPostInfo",
+                            {jiraKey: res.jiraKey}),
+                        okButton: I18n.t("confirmationDialog.ok")
+                    });
+                })
+        }
+    }
+
+
     const backToConnections = () => {
         refresh();
         setSection(sections.technical);
@@ -993,108 +1030,86 @@ export const Testing = ({
     const renderInitialConnection = () => {
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
-        const isComplete = connection.status === CONNECTION_STATUSES.COMPLETE;
+        const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const showOverviewButton = section === sections.overview;
         const submitTxt = isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
-        const {open, cancel, action, modal, okButton, question, header} = confirmation;
-        return <>
-            {open && <ConfirmationDialog confirm={action}
-                                         cancel={cancel}
-                                         confirmationHeader={header}
-                                         confirmationTxt={okButton}
-                                         question={question}
-                                         children={modal === modals.resetSecretDisclaimer ?
-                                             <Alert alertType={AlertType.Error}
-                                                    asChild={true}
-                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
-                                             modal === modals.resetSecret ?
-                                                 <div>
-                                                     <Alert alertType={AlertType.Warning}
-                                                            asChild={true}
-                                                            message={I18n.t("connection.connectionOverview.disclaimer")}/>
-                                                     <InputField name={I18n.t("connection.connectionOverview.secret")}
-                                                                 value={connection.secret}
-                                                                 disabled={true}
-                                                                 copyClipBoard={true}/>
-
-                                                 </div> : null
-                                         }
-            />}
-            <div className="testing-header">
-                <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
-                {(!isEmpty(application.connections) &&
-                        (application.connections.length > 1 ||
-                            (isEmpty(connection.id) && application.connections.length === 1))) &&
-                    <div className="copy-connection"
-                         tabIndex={1}
-                         onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
-                        <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
-                                txt={I18n.t("connection.copyConnection")}
-                                icon={<CaretDown/>}
-                                type={ButtonType.Secondary}/>
-                        {isCopyConnectionOpen &&
-                            <section className="copy-connection-section sds--user-info--dropdown">
-                                {application.connections
-                                    .filter(conn => conn.id && conn.name !== connection.name)
-                                    .map((conn, index) =>
-                                        <span key={index}
-                                              onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
-                            </section>}
-                    </div>}
-            </div>
-            <div className="testing">
-                <section className="left">
-                    <div className="status-menu">
-                        {Object.values(sections)
-                            .filter(s => s !== sections.overview)
-                            .map(sectionValue =>
-                                <StatusMenuItem key={sectionValue}
-                                                pending={isPending(sectionValue)}
-                                                hideIcon={connection.status === CONNECTION_STATUSES.COMPLETE}
-                                                disabled={isDisabled(sectionValue)}
-                                                action={() => changeSection(sectionValue)}
-                                                info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
-                                                active={section === sectionValue}/>)}
-                    </div>
-                    <div className="call-for-action">
-                        <p>{I18n.t("connection.help")}</p>
-                        <Button txt={I18n.t("connection.callSurf")}
-                                type={ButtonType.Secondary}
-                                onClick={() => callSurf()}/>
-                    </div>
-                    <div className="delete-connection">
-                        <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
-                    </div>
-                </section>
-                <section className="right">
-                    {renderSection()}
-                    <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
-                        {!showOverviewButton &&
-                            <>
-                                <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
-                                        type={ButtonType.Secondary}
-                                        onClick={backToConnections}/>
-                                <Button txt={submitTxt}
-                                        disabled={!valid}
-                                        onClick={() => storeAndNext(lastSection)}/>
-                            </>
-                        }
-
-                        {showOverviewButton &&
-                            <Button txt={I18n.t("forms.overview")}
+        return (
+            <>
+                <div className="testing-header">
+                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
+                    {(!isEmpty(application.connections) &&
+                            (application.connections.length > 1 ||
+                                (isEmpty(connection.id) && application.connections.length === 1))) &&
+                        <div className="copy-connection"
+                             tabIndex={1}
+                             onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
+                            <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
+                                    txt={I18n.t("connection.copyConnection")}
+                                    icon={<CaretDown/>}
+                                    type={ButtonType.Secondary}/>
+                            {isCopyConnectionOpen &&
+                                <section className="copy-connection-section sds--user-info--dropdown">
+                                    {application.connections
+                                        .filter(conn => conn.id && conn.name !== connection.name)
+                                        .map((conn, index) =>
+                                            <span key={index}
+                                                  onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
+                                </section>}
+                        </div>}
+                </div>
+                <div className="testing">
+                    <section className="left">
+                        <div className="status-menu">
+                            {Object.values(sections)
+                                .filter(s => s !== sections.overview)
+                                .map(sectionValue =>
+                                    <StatusMenuItem key={sectionValue}
+                                                    pending={isPending(sectionValue)}
+                                                    hideIcon={connection.status !== CONNECTION_STATUSES.OPEN}
+                                                    disabled={isDisabled(sectionValue)}
+                                                    action={() => changeSection(sectionValue)}
+                                                    info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
+                                                    active={section === sectionValue}/>)}
+                        </div>
+                        <div className="call-for-action">
+                            <p>{I18n.t("connection.help")}</p>
+                            <Button txt={I18n.t("connection.callSurf")}
                                     type={ButtonType.Secondary}
-                                    icon={<ArrowRight/>}
-                                    onClick={backToMainOverview}/>
-                        }
-                    </div>
+                                    onClick={() => callSurf()}/>
+                        </div>
+                        <div className="delete-connection">
+                            <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
+                        </div>
+                    </section>
+                    <section className="right">
+                        {renderSection()}
+                        <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
+                            {!showOverviewButton &&
+                                <>
+                                    <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
+                                            type={ButtonType.Secondary}
+                                            onClick={backToConnections}/>
+                                    <Button txt={submitTxt}
+                                            disabled={!valid}
+                                            onClick={() => storeAndNext(lastSection)}/>
+                                </>
+                            }
 
-                </section>
-            </div>
-        </>;
+                            {showOverviewButton &&
+                                <Button txt={I18n.t("forms.overview")}
+                                        type={ButtonType.Secondary}
+                                        icon={<ArrowRight/>}
+                                        onClick={backToMainOverview}/>
+                            }
+                        </div>
+
+                    </section>
+                </div>
+            </>);
     }
 
     const showConnectionDetails = conn => {
-        if (conn.status === CONNECTION_STATUSES.COMPLETE) {
+        if (conn.status !== CONNECTION_STATUSES.OPEN) {
             setLoading(true);
             getConnectionById(conn.id).then(res => {
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
@@ -1124,9 +1139,15 @@ export const Testing = ({
                 key: "status",
                 header: I18n.t("connection.connections.status"),
                 mapper: conn => {
-                    const type = conn.status === "OPEN" ? ChipType.Status_warning : ChipType.Support_400;
-                    return <Chip type={type}
-                                 label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}/>
+                    const type = conn.status === CONNECTION_STATUSES.PROD_READY ? ChipType.Support_400 :
+                        ChipType.Status_warning;
+                    const toolTip = I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
+                    return <div className="status-chip">
+                        <Chip type={type}
+                              label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}
+                        />
+                        {toolTip && <Tooltip tip={toolTip} />}
+                    </div>
                 }
             },
             {
@@ -1140,7 +1161,7 @@ export const Testing = ({
                     if (productionConnectionNeedsActivation) {
                         return <Button txt={I18n.t("connection.connections.requestProductionStatus")}
                                        type={ButtonType.GhostDark}
-                                       onClick={() => alert("TODO")}
+                                       onClick={() => doRequestProduction(true, conn)}
                                        className="sds--button-blue-mode"
                         />
                     }
@@ -1202,8 +1223,32 @@ export const Testing = ({
     }
     const showInitialConnection = (isEmpty(connections) || connection?.new || connection?.id)
         && !isEmpty(connection);
+    const {open, cancel, action, modal, okButton, question, header} = confirmation;
     return (
         <div className="testing-container">
+            {open && <ConfirmationDialog confirm={action}
+                                         cancel={cancel}
+                                         confirmationHeader={header}
+                                         confirmationTxt={okButton}
+                                         disabledConfirm={busy}
+                                         question={question}
+                                         children={modal === modals.resetSecretDisclaimer ?
+                                             <Alert alertType={AlertType.Error}
+                                                    asChild={true}
+                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
+                                             modal === modals.resetSecret ?
+                                                 <div>
+                                                     <Alert alertType={AlertType.Warning}
+                                                            asChild={true}
+                                                            message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                                                     <InputField name={I18n.t("connection.connectionOverview.secret")}
+                                                                 value={connection.secret}
+                                                                 disabled={true}
+                                                                 copyClipBoard={true}/>
+
+                                                 </div> : null
+                                         }
+            />}
             {showInitialConnection ? renderInitialConnection() : renderConnections()}
         </div>
     )

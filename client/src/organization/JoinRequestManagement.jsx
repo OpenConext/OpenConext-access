@@ -19,7 +19,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
 
-    const refreshJoinRequest = () => {
+    const refreshJoinRequests = () => {
         setRefresh(new Date().getTime())
     }
 
@@ -36,7 +36,27 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
             approvalJoinRequest(joinRequest.id, approved, authorities.GUEST).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t(`joinRequestManagement.flash.${approved ? "approved" : "denied"}`, {name: joinRequest.user.name}));
-                refreshJoinRequest();
+                refreshJoinRequests();
+            })
+        }
+    }
+
+    const doApproveAll = confirmationRequired => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doApproveAll(false),
+                question: I18n.t("joinRequestManagement.approveAllConfirmation"),
+                okButton: I18n.t("joinRequestManagement.approveAll")
+            });
+        } else {
+            const promises = organization.joinRequests
+                .map(joinRequest => approvalJoinRequest(joinRequest.id, true, authorities.GUEST));
+            Promise.all(promises).then(() => {
+                setConfirmation({});
+                setFlash(I18n.t("joinRequestManagement.flash.approveAll"));
+                refreshJoinRequests();
             })
         }
     }
@@ -111,7 +131,9 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
                 defaultSort="user__name"
                 title={I18n.t("joinRequestManagement.maintain", {name: organization.name})}
                 columns={columns}
-                showNew={false}
+                newEntityFunc={() => doApproveAll(true)}
+                showNew={true}
+                newLabel={I18n.t("joinRequestManagement.approveAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
                 inputFocus={true}/>

@@ -21,6 +21,10 @@ public interface Manage {
 
     List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID);
 
+    Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest);
+
+    String changeRequestURL(Environment environment, Connection connection);
+
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'
         if (provider.containsKey("id")) {

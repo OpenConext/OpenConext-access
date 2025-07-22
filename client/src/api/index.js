@@ -211,6 +211,10 @@ export function deleteConnectionById(connectionId) {
     return fetchDelete(`/api/v1/connections/${connectionId}`);
 }
 
+export function requestConnectionProductionStatus(connectionId) {
+    return postPutJson(`/api/v1/connections/request-production-status/${connectionId}`, {}, "PUT");
+}
+
 //OrganizationMemberships
 export function changeOrganizationMembershipById(organizationMembership, authority) {
     const body = {id: organizationMembership.id, authority: authority}

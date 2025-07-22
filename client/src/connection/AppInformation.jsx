@@ -114,13 +114,13 @@ export const AppInformation = ({
             updateApplication(body)
                 .then(res => {
                     setFinishedSections([...finishedSections, section]);
+                    setInitial(true);
                     setLoading(false);
                     setFlash(I18n.t("application.flash", {name: res.name}));
                     setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
                     if (res.status === APPLICATION_STATUSES.OPEN || proceedToOverview) {
                         changeSection(nextSection);
                     }
-                    setInitial(true);
                 })
                 .catch(e => {
                     setLoading(false);
@@ -269,7 +269,7 @@ export const AppInformation = ({
                                 <ErrorIndicator
                                     msg={I18n.t("forms.required", {name: I18n.t("connection.contacts.emailOrWebsite")})}
                                 />}
-                            {!(isValidUrl(contactPerson.email) || isValidEmail(contactPerson.email)) &&
+                            {(!initial && !(isValidUrl(contactPerson.email) || isValidEmail(contactPerson.email))) &&
                                 <ErrorIndicator msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
                                 />}
 
@@ -389,7 +389,7 @@ export const AppInformation = ({
                 </section>
                 <section className="right">
                     {renderSection()}
-                    <div className={`actions`}>
+                    <div className={`actions ${section === sections.overview ? "orphan": ""}`}>
                         {section !== sections.overview &&
                             <>
                                 <Button txt={I18n.t("forms.backToOverview")}
@@ -403,13 +403,8 @@ export const AppInformation = ({
                         {section === sections.overview &&
                             <Button txt={I18n.t("forms.overview")}
                                     type={ButtonType.Secondary}
-                                    onClick={() => backToConnections()}/>
-                        }
-                        {section === sections.overview &&
-                            <Button txt={I18n.t("connection.appInfo.targetGroup")}
-                                    type={ButtonType.Secondary}
                                     icon={<ArrowRight/>}
-                                    onClick={() => alert("No clue that to do here")}/>
+                                    onClick={() => backToConnections()}/>
                         }
                     </div>
                 </section>
