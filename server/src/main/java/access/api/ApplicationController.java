@@ -74,7 +74,12 @@ public class ApplicationController implements UserAccessRights {
 
         Application application = applicationRepository.findDetailsById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
-
+        application.getConnections().stream().forEach(connection -> {
+            Map<String, Object> provider = manage.providerById(connection);
+            if (connection.mergeMetaData(provider)) {
+                connectionRepository.save(connection);
+            }
+        });
         return ResponseEntity.ok(application);
     }
 

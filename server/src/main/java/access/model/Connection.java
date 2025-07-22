@@ -117,7 +117,7 @@ public class Connection implements NameHolder {
         boolean changed = false;
         this.manageIdentifier = (String) provider.get("id");
         Integer newManageVersion = (Integer) provider.get("version");
-        if (newManageVersion.equals(this.manageVersion)) {
+        if (!newManageVersion.equals(this.manageVersion)) {
             //Two-way synchronization and optimistic locking
             changed = true;
         }
@@ -171,7 +171,16 @@ public class Connection implements NameHolder {
         String connectOption = (String) metaDataFields
                 .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction);
         this.metaData.put("connectOption", connectOption);
-
+        /*
+         * Business logic. If a status for a production connection is pending production and the state has changed
+         * to prodaccepted, then we set the status to production ready
+         */
+        this.state = State.valueOf((String) data.get("state"));
+        if (this.environment.equals(Environment.PROD) &&
+                ConnectionStatus.PENDING_PROD.equals(this.status) &&
+                this.state.equals(State.prodaccepted)) {
+            this.status = ConnectionStatus.PROD_READY;
+        }
         return changed;
     }
 
