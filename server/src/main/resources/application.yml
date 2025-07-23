@@ -78,7 +78,7 @@ invite:
 
 jira:
   enabled: false
-  base-url: "http://localhost:8081/"
+  base-url: "http://localhost:8081"
   user-name: "test-beheer-rpc"
   project-key: CXT
   environment: test
@@ -86,6 +86,9 @@ jira:
   # Timeout in milliseconds
   connection-timeout: 20
 
+institution-admin:
+  entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
+  organization-guid-prefix: "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:"
 
 config:
   client-url: "http://localhost:3002"

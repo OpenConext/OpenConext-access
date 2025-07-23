@@ -43,3 +43,4 @@ spieldata
 .run/
 queries
 pom.xml.versionsBackup
+dependency.tree

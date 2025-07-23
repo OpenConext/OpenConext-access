@@ -14,11 +14,6 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 public class InstitutionAdmin {
 
-    public static final String INSTITUTION_ADMIN = "INSTITUTION_ADMIN";
-    public static final String ORGANIZATION_GUID = "ORGANIZATION_GUID";
-    public static final String APPLICATIONS = "APPLICATIONS";
-    public static final String INSTITUTION = "INSTITUTION";
-
     private InstitutionAdmin() {
     }
 
@@ -31,29 +26,28 @@ public class InstitutionAdmin {
         return false;
     }
 
-//    public static boolean isInstitutionAdmin(User user) {
-//        return StringUtils.hasText(user.getOrganizationGUID()) && (user.isInstitutionAdmin() ||
-//                user.isInstitutionAdminByInvite());
-//    }
-//
-//    public static Optional<String> getOrganizationGuid(Map<String, Object> attributes,
-//                                                       String organizationGuidPrefix,
-//                                                       Optional<User> optionalUser) {
-//
-//        if (attributes.containsKey("eduperson_entitlement")) {
-//            List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
-//            final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();
-//            Optional<String> optionalOrganizationGuid = entitlements.stream()
-//                    .filter(entitlement -> entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))
-//                    .map(entitlement -> entitlement.substring(organizationGuidPrefix.length()))
-//                    .filter(StringUtils::hasText)
-//                    .findFirst();
-//            if (optionalOrganizationGuid.isPresent()) {
-//                return optionalOrganizationGuid.filter(StringUtils::hasText);
-//            }
-//        }
-//        return optionalUser.map(User::getOrganizationGUID)
-//                .filter(StringUtils::hasText);
-//    }
-//
+    public static boolean isInstitutionAdmin(User user) {
+        return StringUtils.hasText(user.getOrganizationGUID()) && user.isInstitutionAdmin();
+    }
+
+    public static Optional<String> getOrganizationGuid(Map<String, Object> attributes,
+                                                       String organizationGuidPrefix,
+                                                       Optional<User> optionalUser) {
+
+        if (attributes.containsKey("eduperson_entitlement")) {
+            List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
+            final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();
+            Optional<String> optionalOrganizationGuid = entitlements.stream()
+                    .filter(entitlement -> entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))
+                    .map(entitlement -> entitlement.substring(organizationGuidPrefix.length()))
+                    .filter(StringUtils::hasText)
+                    .findFirst();
+            if (optionalOrganizationGuid.isPresent()) {
+                return optionalOrganizationGuid.filter(StringUtils::hasText);
+            }
+        }
+        return optionalUser.map(User::getOrganizationGUID)
+                .filter(StringUtils::hasText);
+    }
+
 }
