@@ -102,7 +102,7 @@ class ApplicationControllerTest extends AbstractTest {
     @Test
     void find() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        //A find application, needs stubbing for getProvider
+        //A find application, needs stubbing for getProvider because of syncing connections
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 EntityType.oidc10_rp.name(),
                 null))
