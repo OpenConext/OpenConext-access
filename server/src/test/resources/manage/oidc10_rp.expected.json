@@ -5,6 +5,7 @@
   "data" : {
     "entityid" : "ACCESS-C4EA112E-C76F-4BF2-8384-99D321F9DCC4",
     "state" : "prodaccepted",
+    "revisionnote": "SURF Access update with remote API",
     "allowedall" : false,
     "allowedEntities" : [ {
       "name" : "http://mock-idp"

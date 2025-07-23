@@ -5,6 +5,7 @@
   "data": {
     "entityid": "https://engine.test.surfconext.nl/authentication/sp/metadata",
     "state": "prodaccepted",
+    "revisionnote": "SURF Access update with remote API",
     "allowedall": false,
     "allowedEntities": [
       {

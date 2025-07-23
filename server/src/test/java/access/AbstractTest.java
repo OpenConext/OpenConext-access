@@ -82,7 +82,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.test.url=http://localhost:8081",
                 "manage.enabled=true",
-                "jira.enabled=true",
+                "manage.prod.url=http://localhost:8081",
+                "jira.enabled=false",
                 "s3storage.url=http://localhost:8081"
         })
 @SuppressWarnings("unchecked")
@@ -404,9 +405,6 @@ public abstract class AbstractTest {
     protected void stubForGetProvider(Connection connection) {
         Map<String, Object> provider = localManage.providerById(connection);
         String body = objectMapper.writeValueAsString(provider);
-        MappingBuilder mappingBuilder = StringUtils.hasText(connection.getManageIdentifier()) ?
-                put(urlPathMatching("/manage/api/internal/metadata")) :
-                post(urlPathMatching("/manage/api/internal/metadata"));
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 connection.getProtocol().name(),
                 connection.getManageIdentifier()))

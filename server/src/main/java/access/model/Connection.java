@@ -80,6 +80,7 @@ public class Connection implements NameHolder {
         this.protocol = protocol;
         this.environment = environment;
         this.createdAt = Instant.now();
+        this.manageVersion = 0;
     }
 
     @JsonIgnore
@@ -114,13 +115,13 @@ public class Connection implements NameHolder {
 
     public boolean mergeMetaData(Map<String, Object> provider) {
         // For new Connections
-        boolean changed = false;
-        this.manageIdentifier = (String) provider.get("id");
+        boolean changed = true;
         Integer newManageVersion = (Integer) provider.get("version");
-        if (!newManageVersion.equals(this.manageVersion)) {
+        if (newManageVersion.equals(this.manageVersion)) {
             //Two-way synchronization and optimistic locking
-            changed = true;
+            return false;
         }
+        this.manageIdentifier = (String) provider.get("id");
         this.manageVersion = newManageVersion;
         this.metaData = new HashMap<>();
 

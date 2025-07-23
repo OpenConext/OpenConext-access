@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.manage.Contact;
 import access.manage.MetaData;
 import access.model.Application;
+import access.model.EntityType;
 import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,6 +102,14 @@ class ApplicationControllerTest extends AbstractTest {
     @Test
     void find() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        //A find application, needs stubbing for getProvider
+        stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
+                EntityType.oidc10_rp.name(),
+                null))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody("{\"version\":0}")
+                        .withStatus(200)));
+
         Application application = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
