@@ -92,13 +92,15 @@ public abstract class AbstractTest {
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
+
     //Users
     public static final String ADMIN_SUB = "urn:collab:person:example.com:admin";
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String MULTIPLE_ORG_SUB = "urn:collab:person:eduid.nl:mos";
-
+    //Organisation GUD of the mock-idp
+    public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     //Organizations
     public static final String SHARE_LOGICS = "ShareLogics";
     public static final String FAR_WIND = "FarWind";
@@ -208,6 +210,17 @@ public abstract class AbstractTest {
                                                    UnaryOperator<Map<String, Object>> userInfoEnhancer) throws Exception {
         return this.openIDConnectFlow(path, sub, s -> {
         }, userInfoEnhancer);
+    }
+
+    protected UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator(String organisationGuid) {
+        return m -> {
+            m.put("eduperson_entitlement",
+                    List.of(
+                            "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                            "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid
+                    ));
+            return m;
+        };
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path,
@@ -413,6 +426,16 @@ public abstract class AbstractTest {
                         .withStatus(200)));
     }
 
+    @SneakyThrows
+    protected void stubForIdentityProviderByInstitutionalGUID(String organisationGuid) {
+        Map<String, Object> provider = localManage.identityProviderByInstitutionalGUID(Environment.PROD, organisationGuid).get();
+        String body = objectMapper.writeValueAsString(List.of(provider));
+        stubFor(post("/manage/api/internal/search/saml20_idp")
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
 
     private void doSeed() {
         this.userRepository.deleteAllInBatch();
@@ -442,7 +465,7 @@ public abstract class AbstractTest {
         OrganizationMembership memberLogics = new OrganizationMembership(multipleOrganizationUser, logistics, Authority.MEMBER);
         doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
 
-        Application buddyCheck = new Application(BUDDY_CHECK, shareLogics,"System", Map.of());
+        Application buddyCheck = new Application(BUDDY_CHECK, shareLogics, "System", Map.of());
 
         Application nitroMap = new Application(NITRO_MAP, farWind, "System", Map.of());
         doSave(this.applicationRepository, buddyCheck, nitroMap);

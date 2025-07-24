@@ -3,8 +3,7 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.UserInfoEnhancer;
-import access.model.Organization;
-import access.model.User;
+import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -125,6 +124,36 @@ class UserControllerTest extends AbstractTest {
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals(SHARE_LOGICS, organization.getName());
         assertEquals(attributes.get("schac_home_organization"), organization.getSchacHomeOrganization());
+    }
+
+    @Test
+    void createOrganizationForInstitutionAdmin() throws Exception {
+        super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(new TypeRef<>() {
+                });
+
+        assertTrue(user.isInstitutionAdmin());
+        assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        OrganizationMembership organizationMembership = user.getOrganizationMemberships().iterator().next();
+        assertEquals("SURF bv", organizationMembership.getOrganization().getName());
+        assertEquals(Authority.ADMIN, organizationMembership.getAuthority());
+
+        Institution institution = user.getInstitution();
+        assertEquals("http://mock-idp", institution.getEntityID());
+        assertEquals("SURF bv", institution.getOrganizationName());
+        assertEquals("Mock IdP EN", institution.getName());
     }
 
 }

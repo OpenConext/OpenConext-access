@@ -1,5 +1,7 @@
 package access.security;
 
+import access.manage.Manage;
+import access.model.*;
 import access.model.User;
 import access.repository.UserRepository;
 import lombok.Getter;
@@ -12,10 +14,13 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static access.security.InstitutionAdmin.*;
 
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
@@ -24,9 +29,18 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     @Getter
     private final UserRepository userRepository;
     private final OidcUserService delegate;
+    private final Manage manage;
+    private final String entitlement;
+    private final String organizationGuidPrefix;
 
-    public CustomOidcUserService(UserRepository userRepository) {
+    public CustomOidcUserService(UserRepository userRepository,
+                                 Manage manage,
+                                 String entitlement,
+                                 String organizationGuidPrefix) {
         this.userRepository = userRepository;
+        this.manage = manage;
+        this.entitlement = entitlement;
+        this.organizationGuidPrefix = organizationGuidPrefix;
         delegate = new OidcUserService();
     }
 
@@ -40,13 +54,26 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
         String sub = (String) newClaims.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+
+        boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement) ||
+                (optionalUser.isPresent() && InstitutionAdmin.isInstitutionAdmin(optionalUser.get()));
+        newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
+
+        String organizationGuid = institutionAdmin ? InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
+                .orElse(null) : null;
+        newClaims.put(ORGANIZATION_GUID, organizationGuid);
+
+        if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
+            Optional<Map<String, Object>> optionalIdentityProvider = manage.identityProviderByInstitutionalGUID(Environment.PROD, organizationGuid);
+            optionalIdentityProvider.ifPresent(provider -> newClaims.put(INSTITUTION, new Institution(provider)));
+        }
+
         optionalUser.ifPresent(user -> {
             boolean changed = user.updateAttributes(newClaims);
             if (changed) {
                 LOG.debug("Updating user with new attributes: " + newClaims);
                 userRepository.save(user);
             }
-
         });
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);

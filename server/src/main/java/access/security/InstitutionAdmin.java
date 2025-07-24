@@ -14,6 +14,10 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 public class InstitutionAdmin {
 
+    public static final String INSTITUTION_ADMIN = "INSTITUTION_ADMIN";
+    public static final String ORGANIZATION_GUID = "ORGANIZATION_GUID";
+    public static final String INSTITUTION = "INSTITUTION";
+
     private InstitutionAdmin() {
     }
 

@@ -13,10 +13,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -134,5 +131,14 @@ public final class LocalManage implements Manage {
         return String.format("http://localhost:8088/metadata/%s/%s", connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
-
+    @Override
+    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID) {
+        return this.allProviders.get(EntityType.saml20_idp).stream()
+                .filter(provider -> {
+                    Map<String, Object> data = (Map<String, Object>) provider.get("data");
+                    Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+                    return organisationGUID.equalsIgnoreCase((String) metaDataFields.get("coin:institution_guid"));
+                })
+                .findFirst();
+    }
 }

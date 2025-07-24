@@ -91,8 +91,10 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http,
+                                                   UserRepository userRepository,
                                                    Manage manage,
-                                                   UserRepository userRepository) throws Exception {
+                                                   @Value("${institution-admin.entitlement}") String entitlement,
+                                                   @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer
                         .ignoringRequestMatchers(
@@ -120,9 +122,9 @@ public class SecurityConfig {
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
                         ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
-                                new CustomOidcUserService(userRepository)))
+                                new CustomOidcUserService(userRepository, manage, entitlement, organizationGuidPrefix)))
                 )
-                //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin invitation accept
+                //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
                 .securityContext(securityContextConfigurer ->
                         securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
         if (environment.acceptsProfiles(Profiles.of("local"))) {

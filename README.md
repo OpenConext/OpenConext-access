@@ -53,6 +53,12 @@ See <https://github.com/axllent/mailpit>
 
 Login with Mujina IdP and user `admin` to become superuser in the local environment.
 
+To become an institution admin in access, add the following values as `eduPersonEntitlements` using Mujina:
+
+- urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
+- urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke
+
+
 ### [Upgrade](#upgrade)
 
 To update the pom.xml with the latest versions, run 

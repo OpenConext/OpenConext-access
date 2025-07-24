@@ -4,10 +4,7 @@ import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface Manage {
 
@@ -24,6 +21,8 @@ public interface Manage {
     Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest);
 
     String changeRequestURL(Environment environment, Connection connection);
+
+    Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID);
 
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'
@@ -51,6 +50,5 @@ public interface Manage {
         result.put("data", data);
         return result;
     }
-
 
 }

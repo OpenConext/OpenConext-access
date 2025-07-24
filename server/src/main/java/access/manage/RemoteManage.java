@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
@@ -141,6 +142,22 @@ public class RemoteManage implements Manage {
         String url = this.environmentUrl(environment);
         return String.format("%s/metadata/%s/%s/requests",
                 url, connection.getProtocol().name(), connection.getManageIdentifier());
+    }
+
+    @Override
+    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID) {
+        LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
+
+        Map<String, Object> baseQuery = getBaseQuery(false);
+        baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
+
+        String url = String.format("%s/manage/api/internal/search/%s",
+                environmentUrl(environment),
+                EntityType.saml20_idp.name());
+        List<Map<String, Object>> identityProviders = environmentRestTemplate(environment).postForObject(
+                url,
+                baseQuery, List.class);
+        return identityProviders.isEmpty() ? Optional.empty() : Optional.of(identityProviders.get(0));
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {

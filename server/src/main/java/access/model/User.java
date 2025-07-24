@@ -1,6 +1,7 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,6 +14,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static access.security.InstitutionAdmin.*;
+import static access.security.InstitutionAdmin.INSTITUTION;
 
 
 @Entity(name = "users")
@@ -80,6 +84,10 @@ public class User implements Serializable, NameHolder {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
+    @Transient
+    @JsonProperty
+    private Institution institution = null;
+
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }
@@ -97,8 +105,11 @@ public class User implements Serializable, NameHolder {
         this.uid = ((List<String>) attributes.getOrDefault("uids", List.of())).stream().findAny().orElse(null);
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
+        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
+        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        this.institution = (Institution) attributes.getOrDefault(INSTITUTION, null);
 
-        //Defensive mode, EPPN is not a required attribute for invite SP
+        //Defensive mode, EPPN is not a required attribute for access RP
         if (!StringUtils.hasText(this.eduPersonPrincipalName)) {
             this.eduPersonPrincipalName = this.email;
         }
@@ -176,6 +187,14 @@ public class User implements Serializable, NameHolder {
         changed = changed || !Objects.equals(this.subjectId, newSubjectId);
         this.subjectId = newSubjectId;
 
+        boolean newInstitutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
+        changed = changed || !Objects.equals(this.institutionAdmin, newInstitutionAdmin);
+        this.institutionAdmin = newInstitutionAdmin;
+
+        String newOrganizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        changed = changed || !Objects.equals(this.organizationGUID, newOrganizationGUID);
+        this.organizationGUID = newOrganizationGUID;
+
         this.lastActivity = Instant.now();
 
         String currentName = this.name;
@@ -211,5 +230,6 @@ public class User implements Serializable, NameHolder {
         return this.organizationMemberships.stream()
                 .anyMatch(om -> om.getOrganization().getSchacHomeOrganization().equals(schacHomeOrganization));
     }
+
 
 }

@@ -3,10 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
-import access.model.Authority;
-import access.model.Organization;
-import access.model.OrganizationMembership;
-import access.model.User;
+import access.model.*;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
@@ -87,6 +85,7 @@ public class UserController implements UserAccessRights {
 
 
     @GetMapping("/me")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
@@ -100,14 +99,19 @@ public class UserController implements UserAccessRights {
                 userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.MEMBER));
                 userRepository.save(userFromDB);
             });
+            Institution institution = user.getInstitution();
+            if (userFromDB.isInstitutionAdmin() && institution != null) {
+                userFromDB.setInstitution(institution);
+                //Check if we need to create an Organization on the fly
+                if (organizationOptional.isEmpty()) {
+                    String name = institution.getOrganizationName();
+                    Organization organization = new Organization(name, schacHomeOrganization);
+                    organizationRepository.save(organization);
+                    userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.ADMIN));
+                    userRepository.save(userFromDB);
+                }
+            }
         }
-        /*
-         * In this case only, we do want the organization for each membership. We don't want to do this EAGER for
-         * every membership, so we need to re-fetch within this transaction. The performance overhead is ok, as users
-         * normally are only member of one organization
-         */
-        userFromDB.getOrganizationMemberships()
-                .forEach(organizationMembership -> organizationMembership.getOrganization().getName());
 
         return ResponseEntity.ok(userFromDB);
     }
