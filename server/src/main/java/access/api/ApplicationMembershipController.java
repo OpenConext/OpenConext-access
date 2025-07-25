@@ -41,22 +41,6 @@ public class ApplicationMembershipController implements UserAccessRights {
         this.organizationMembershipRepository = organizationMembershipRepository;
     }
 
-    @GetMapping("/all/{applicationId}")
-    public ResponseEntity<Set<ApplicationMembership>> allByOApplication(User user,
-                                                                        @PathVariable("applicationId") Long applicationId) {
-        LOG.debug("/all");
-
-        Application application = this.applicationRepository.findById(applicationId).orElseThrow(() -> new NotFoundException("Application not found"));
-        Organization organization = application.getOrganization();
-        Set<OrganizationMembership> organizationMemberships = user.getOrganizationMemberships();
-        boolean isMemberOfOrganization = organizationMemberships.stream()
-                .anyMatch(membership -> membership.getOrganization().getId().equals(organization.getId()));
-        if (!isMemberOfOrganization) {
-            throw new NotFoundException("Organization not found");
-        }
-        return ResponseEntity.ok(application.getApplicationMemberships());
-    }
-
     @PostMapping({"", "/"})
     public ResponseEntity<ApplicationMembership> create(
             User user, @RequestBody ApplicationMembershipForm applicationMembershipForm) {

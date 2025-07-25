@@ -97,22 +97,6 @@ public class Application implements NameHolder {
     }
 
     @JsonIgnore
-    public ApplicationMembership addApplicationMembership(ApplicationMembership applicationMembership) {
-        this.applicationMemberships.add(applicationMembership);
-        applicationMembership.setApplication(this);
-        return applicationMembership;
-    }
-
-    @JsonIgnore
-    public void removeApplicationMembership(ApplicationMembership applicationMembership) {
-        //This is required by Hibernate - children can't be dereferenced
-        Set<ApplicationMembership> newApplicationMemberships = this.applicationMemberships
-                .stream().filter(am -> !am.getId().equals(applicationMembership.getId())).collect(Collectors.toSet());
-        this.applicationMemberships.clear();
-        this.applicationMemberships.addAll(newApplicationMemberships);
-    }
-
-    @JsonIgnore
     public void removeConnection(Connection connection) {
         //This is required by Hibernate - children can't be dereferenced
         Set<Connection> newConnections = this.connections

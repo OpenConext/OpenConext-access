@@ -39,6 +39,21 @@ class InvitationControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void findByOrganization404() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", 999L)
+                .get("/api/v1/invitations/all/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void create() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();

@@ -7,13 +7,15 @@ import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
 class UserControllerTest extends AbstractTest {
@@ -77,6 +79,101 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals("ShareLogics", organization.getName());
+    }
+
+    @Test
+    void meMissingAttributes() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "",
+                m -> {
+                    List.of("given_name", "family_name", "schac_home_organization", "email", "name", "nickname",
+                                    "preferred_username")
+                            .forEach(attr -> m.remove(attr));
+                    return m;
+                });
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, ((List) results.get("missingAttributes")).size());
+    }
+
+
+    @Test
+    void configUnauthorized() {
+        Map map = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertFalse((Boolean) map.get("authenticated"));
+    }
+
+    @Test
+    void meUnauthorized() {
+        String location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .header("Location");
+        assertTrue(location.endsWith("/oauth2/authorization/oidcng"));
+    }
+
+    @Test
+    void otherNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("id", 1L)
+                .get("/api/v1/users/other/{id}")
+                .then()
+                .statusCode(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    void logout() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(new TypeRef<>() {
+                });
+        assertTrue((Boolean) results.get("authenticated"));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/logout")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(new TypeRef<>() {
+                });
+        assertFalse((Boolean) results.get("authenticated"));
     }
 
     @Test
@@ -154,6 +251,26 @@ class UserControllerTest extends AbstractTest {
         assertEquals("http://mock-idp", institution.getEntityID());
         assertEquals("SURF bv", institution.getOrganizationName());
         assertEquals("Mock IdP EN", institution.getName());
+    }
+
+    @Test
+    void searchSuperUser() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query","doe")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .queryParam("sort", "name")
+                .queryParam("sortDirection", Sort.Direction.ASC)
+                .get("/api/v1/users/search")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, ((List)results.get("content")).size());
     }
 
 }

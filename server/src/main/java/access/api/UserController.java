@@ -59,26 +59,18 @@ public class UserController implements UserAccessRights {
         this.organizationRepository = organizationRepository;
     }
 
-    @GetMapping("config")
-    public ResponseEntity<Config> config(User user,
-                                         @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
+    @GetMapping("/config")
+    public ResponseEntity<Config> config(User user) {
         LOG.debug("/config");
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)
                 .withName(user != null ? user.getName() : null);
         if (user != null) {
-            verifyMissingAttributes(user, result, guest);
+            verifyMissingAttributes(user, result);
         }
         return ResponseEntity.ok(result);
     }
-
-    @GetMapping("login")
-    public View login() {
-        LOG.debug("/login");
-        return new RedirectView(config.getClientUrl(), false);
-    }
-
 
     @GetMapping("/me")
     @SuppressWarnings("unchecked")
@@ -112,7 +104,7 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(userFromDB);
     }
 
-    @GetMapping("other/{id}")
+    @GetMapping("/other/{id}")
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
 
@@ -123,7 +115,7 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(other);
     }
 
-    @GetMapping("logout")
+    @GetMapping("/logout")
     public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request) {
         LOG.debug("/logout");
         SecurityContextHolder.clearContext();
@@ -134,7 +126,7 @@ public class UserController implements UserAccessRights {
         return Results.okResult();
     }
 
-    @GetMapping("search")
+    @GetMapping("/search")
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                             @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
@@ -149,21 +141,18 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(usersPage);
     }
 
-    private void verifyMissingAttributes(User user, Config result, boolean guest) {
+    private void verifyMissingAttributes(User user, Config result) {
         List<String> missingAttributes = new ArrayList<>();
-        if (!StringUtils.hasText(user.getSub())) {
-            missingAttributes.add("sub");
-        }
         if (!StringUtils.hasText(user.getEmail())) {
             missingAttributes.add("email");
         }
         if (!StringUtils.hasText(user.getSchacHomeOrganization())) {
             missingAttributes.add("schacHomeOrganization");
         }
-        if (guest && !StringUtils.hasText(user.getFamilyName())) {
+        if (!StringUtils.hasText(user.getFamilyName())) {
             missingAttributes.add("familyName");
         }
-        if (guest && !StringUtils.hasText(user.getGivenName())) {
+        if (!StringUtils.hasText(user.getGivenName())) {
             missingAttributes.add("givenName");
         }
         if (!missingAttributes.isEmpty()) {

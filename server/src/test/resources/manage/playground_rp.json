@@ -1,0 +1,255 @@
+{
+  "id": "8fdd01a9-57e3-4f4d-ba66-f3f55700685a",
+  "version": 244,
+  "type": "oidc10_rp",
+  "revision": {
+    "number": 242,
+    "created": "2025-07-21T10:47:00.215Z",
+    "parentId": null,
+    "updatedBy": "urn:collab:person:example.com:admin",
+    "terminated": null
+  },
+  "data": {
+    "entityid": "playground_client",
+    "state": "prodaccepted",
+    "allowedall": true,
+    "arp": {
+      "enabled": true,
+      "attributes": {
+        "urn:mace:dir:attribute-def:cn": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:displayName": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:surf.nl:attribute-def:eckid": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:eduid.nl:1.1": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAssurance": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonOrcid": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:givenName": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:mail": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:ou": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:preferredLanguage": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:terena.org:attribute-def:schacHomeOrganizationType": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:uid": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:schac:attribute-def:schacPersonalUniqueCode": [
+          {
+            "value": ".*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:sn": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:surf.nl:attribute-def:surf-crm-id": [
+          {
+            "value": "*",
+            "source": "manage",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:isMemberOf": [
+          {
+            "value": "*",
+            "source": "voot",
+            "motivation": ""
+          }
+        ],
+        "urn:oasis:names:tc:SAML:attribute:subject-id": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonEntitlement": [
+          {
+            "value": "*",
+            "source": "idp",
+            "motivation": ""
+          }
+        ],
+        "urn:mace:surf.nl:attribute-def:surf-autorisaties": [
+          {
+            "value": "*",
+            "source": "sabrest",
+            "motivation": "",
+            "release_as": "",
+            "use_as_nameid": false
+          }
+        ]
+      }
+    },
+    "metaDataFields": {
+      "name:en": "OIDC Playground Client",
+      "secret": "$2a$10$KDkFwwFy72EaSYwB6dfXNunG438w/FTEFXE30H2rHBn.W2mZmadsO",
+      "redirectUrls": [
+        "https://oidc-playground.test2.surfconext.nl/oidc/api/redirect",
+        "https://oidctest.vm.openconext.org/test/redirect",
+        "http://localhost:3006/redirect",
+        "http://localhost:3006/oidc/api/redirect",
+        "https://oidc-playground.test2.surfconext.nl/redirect",
+        "https://oidc-playground.test2.surfconext.nl/redirect?123",
+        "http://login.test2.eduid.nl/myconext/api/mobile/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8081/myconext/api/mobile/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8080/login/oauth2/code/oidcng",
+        "http://localhost:8080/ui/swagger-ui/oauth2-redirect.html",
+        "https://manage.test2.surfconext.nl/redirect",
+        "http://localhost:8081/myconext/api/swagger-ui/oauth2-redirect.html",
+        "https://login.test2.eduid.nl/myconext/api/swagger-ui/oauth2-redirect.html"
+      ],
+      "grants": [
+        "implicit",
+        "client_credentials",
+        "authorization_code",
+        "refresh_token",
+        "urn:ietf:params:oauth:grant-type:device_code"
+      ],
+      "accessTokenValidity": 3600,
+      "isPublicClient": false,
+      "oidc:signingCertificateUrl": "https://oidc-playground.test2.surfconext.nl/oidc/api/certs",
+      "description:en": "Playground client - do not edit please",
+      "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+      "clientSecretJWT": "very-long-long-long-long-long-secret",
+      "name:nl": "OIDC Speeltuintje Klant",
+      "logo:0:url": "https://static.surfconext.nl/logos/idp/surfconext.png",
+      "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
+      "displayName:en": "SURFconext Teams",
+      "OrganizationName:en": "SURF",
+      "coin:no_consent_required": true,
+      "oidc:claims_in_id_token": true,
+      "coin:privacy:dpa_type": "dpa_model_surf",
+      "coin:stepup:forceauthn": false,
+      "oidc:state_parameter_decoding_disabled": true,
+      "coin:policy_enforcement_decision_required": true,
+      "contacts:0:contactType": "technical",
+      "contacts:0:emailAddress": "okke.harsta@surf.nl",
+      "contacts:0:givenName": "Okke",
+      "contacts:0:surName": "Harsta",
+      "coin:application_url": "https://playground.com"
+    },
+    "allowedEntities": [],
+    "revisionnote": "test",
+    "eid": 24541,
+    "discoveryurl": "https://discovery",
+    "allowedResourceServers": [
+      {
+        "name": "test.edubadges.rs.nl"
+      },
+      {
+        "name": "student.mobility.home.institution.mock"
+      },
+      {
+        "name": "myconext.rs"
+      },
+      {
+        "name": "voot.test2.surfconext.nl"
+      },
+      {
+        "name": "resource-server-playground-client"
+      }
+    ],
+    "manipulation": null
+  }
+}

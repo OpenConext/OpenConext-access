@@ -2,6 +2,7 @@ package access.api;
 
 
 import access.exception.NotFoundException;
+import access.exception.RemoteException;
 import access.exception.UserRestrictionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
@@ -30,6 +32,10 @@ import static org.springframework.http.HttpStatus.*;
 public class DefaultErrorController implements ErrorController {
 
     private static final Log LOG = LogFactory.getLog(DefaultErrorController.class);
+
+    private static final List<Class> suppressStackTraceClasses = List.of(UserRestrictionException.class,
+            RemoteException.class,
+            NotFoundException.class);
 
     private final ErrorAttributes errorAttributes;
 
@@ -61,10 +67,8 @@ public class DefaultErrorController implements ErrorController {
             }
 
         } else {
-            if (!(error instanceof NotFoundException)) {
-                boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof access.exception.RemoteException);
-                LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
-            }
+            boolean suppressStackTrace = suppressStackTraceClasses.stream().anyMatch(clazz -> clazz.equals(error.getClass()));
+            LOG.error(String.format("Error occurred: %s", error), suppressStackTrace ? null : error);
             if (error instanceof AccessDeniedException) {
                 statusCode = FORBIDDEN;
             } else {

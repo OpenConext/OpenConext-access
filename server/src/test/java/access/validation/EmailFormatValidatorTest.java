@@ -2,6 +2,7 @@ package access.validation;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EmailFormatValidatorTest {
@@ -12,6 +13,6 @@ class EmailFormatValidatorTest {
     void isValid() {
         assertTrue(emailFormatValidator.isValid("o@o"));
         assertTrue(emailFormatValidator.isValid("Frits Voorbeeld <frits.fritsmans@voorbeeld.nl>"));
-
+        assertEquals("email", emailFormatValidator.formatName());
     }
 }

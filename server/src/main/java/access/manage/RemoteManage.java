@@ -22,6 +22,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,9 +114,11 @@ public class RemoteManage implements Manage {
     public void deleteProvider(Connection connection) {
         Environment environment = connection.getEnvironment();
         RestTemplate restTemplate = environmentRestTemplate(environment);
-        restTemplate.delete(String.format("%s/manage/api/internal/metadata/{type}/{id}", environmentUrl(environment)),
+        String url = String.format("%s/manage/api/internal/metadata/%s/%s",
+                environmentUrl(environment),
                 connection.getProtocol(),
                 connection.getManageIdentifier());
+        restTemplate.exchange(URI.create(url), HttpMethod.DELETE, null, Void.class);
     }
 
     @Override

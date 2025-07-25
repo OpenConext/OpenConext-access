@@ -77,9 +77,11 @@ public class ConnectionController implements UserAccessRights {
 
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Map<String, Object> provider = manage.providerById(connection);
-        if (connection.mergeMetaData(provider)) {
-            connectionRepository.save(connection);
+        if (StringUtils.hasText(connection.getManageIdentifier())) {
+            Map<String, Object> provider = manage.providerById(connection);
+            if (connection.mergeMetaData(provider)) {
+                connectionRepository.save(connection);
+            }
         }
         return ResponseEntity.ok(connection);
     }

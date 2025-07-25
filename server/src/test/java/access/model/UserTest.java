@@ -1,0 +1,63 @@
+package access.model;
+
+import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class UserTest {
+
+    @Test
+    void fromAttributes() {
+        Map<String, Object> attributes = Map.of(
+                "email", "john.doe@example.com"
+        );
+        User user = new User(false, attributes);
+        assertEquals("John Doe", user.getName());
+
+        user.updateAttributes(attributes);
+        assertEquals("John Doe", user.getName());
+
+        user = new User(false, Map.of(
+                "name", "John Doe"
+        ));
+        assertEquals("John Doe", user.getName());
+
+        user = new User(false, Map.of(
+                "preferred_username", "John Doe"
+        ));
+        assertEquals("John Doe", user.getName());
+
+        user = new User(false, Map.of(
+                "given_name", "John",
+                "family_name", "Doe"
+        ));
+        assertEquals("John Doe", user.getName());
+
+        user = new User(false, Map.of(
+                "sub", "urn:collab:person:example.com:manager"
+        ));
+        assertEquals("Manager", user.getName());
+
+        user = new User(false, Map.of(
+                "sub", "manager"
+        ));
+        assertEquals("Manager", user.getName());
+
+        user = new User(false, Map.of(
+                "name", "John Doe"
+        ));
+        assertEquals("John Doe", user.getName());
+        assertEquals("John", user.getGivenName());
+        assertEquals("Doe", user.getFamilyName());
+
+        user = new User(false, Map.of());
+        assertNull(user.getName());
+    }
+
+
+}

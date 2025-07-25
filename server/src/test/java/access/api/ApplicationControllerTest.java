@@ -10,9 +10,13 @@ import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,16 +103,15 @@ class ApplicationControllerTest extends AbstractTest {
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
+    @SneakyThrows
     @Test
     void find() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        //A find application, needs stubbing for getProvider because of syncing connections
-        stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
-                EntityType.oidc10_rp.name(),
-                null))
-                .willReturn(aResponse().withHeader("Content-Type", "application/json")
-                        .withBody("{\"version\":0}")
-                        .withStatus(200)));
+        //A find application needs stubbing for getProvider because of syncing connections
+        String provider = IOUtils.toString(new ClassPathResource("/manage/playground_rp.json").getInputStream(), Charset.defaultCharset());
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(provider)));
 
         Application application = given()
                 .when()

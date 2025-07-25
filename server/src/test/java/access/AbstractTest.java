@@ -9,6 +9,7 @@ import access.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -29,8 +30,11 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +66,7 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -87,7 +92,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "s3storage.url=http://localhost:8081"
         })
 @SuppressWarnings("unchecked")
-public abstract class AbstractTest {
+public abstract class AbstractTest  {
+
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -111,6 +117,7 @@ public abstract class AbstractTest {
     //Connections
     public static final String BUDDY_CHECK_TEST = "BuddyCheck-Test";
     public static final String BUDDY_CHECK_PROD = "BuddyCheck-Prod";
+    public static final String MANAGE_IDENTIFIER = "MANAGE_IDENTIFIER";
     //Invitations
     public static final String SHARE_LOGICS_INVITATION_HASH = HashGenerator.generateRandomHash();
 
@@ -149,7 +156,7 @@ public abstract class AbstractTest {
     protected final Map<String, Long> seedIdentifiers = new HashMap<>();
 
     @RegisterExtension
-    WireMockExtension mockServer = new WireMockExtension(8081);
+    CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
 
     @LocalServerPort
     protected int port;
@@ -501,6 +508,11 @@ public abstract class AbstractTest {
                         "motivation", "Please")),
                 EntityType.oidc10_rp,
                 Environment.PROD);
+        //Need to mimic a pending production connection
+        buddyCheckConnectionProd.setManageIdentifier(MANAGE_IDENTIFIER);
+        buddyCheckConnectionProd.setManageVersion(1);
+        buddyCheckConnectionProd.setStatus(ConnectionStatus.PENDING_PROD);
+        buddyCheckConnectionProd.setState(State.prodaccepted);
         doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);
 
         Invitation invitationFarWind = new Invitation(

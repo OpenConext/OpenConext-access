@@ -2,6 +2,7 @@ package access.validation;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class URLFormatValidatorTest {
@@ -11,5 +12,6 @@ class URLFormatValidatorTest {
     @Test
     void isValid() {
         assertFalse(urlFormatValidator.isValid("javascript:alert(42)"));
+        assertEquals("url", urlFormatValidator.formatName());
     }
 }

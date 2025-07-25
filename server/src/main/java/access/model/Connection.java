@@ -92,13 +92,12 @@ public class Connection implements NameHolder {
         if (!StringUtils.hasText(entityID) && EntityType.saml20_sp.equals(this.protocol)) {
             return false;
         }
-        String protocolName = this.protocol.name();
-        if (protocolName.equals("OIDC") &&
+        if (this.protocol.equals(EntityType.oidc10_rp) &&
                 (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirectUrls")) ||
                         CollectionUtils.isEmpty((Collection<?>) metaData.get("grantTypes")))) {
             return false;
         }
-        if (protocolName.equals("SAML") &&
+        if (this.protocol.equals(EntityType.saml20_sp) &&
                 CollectionUtils.isEmpty((Collection<?>) metaData.get("acsLocations"))) {
             return false;
         }
@@ -170,7 +169,7 @@ public class Connection implements NameHolder {
         this.metaData.put("visibility", visibility);
 
         String connectOption = (String) metaDataFields
-                .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction);
+                .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction.name());
         this.metaData.put("connectOption", connectOption);
         /*
          * Business logic. If a status for a production connection is pending production and the state has changed
