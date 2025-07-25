@@ -373,8 +373,8 @@ const en = {
             resetContinue: "I’ve copied the secret. Continue"
         },
         connectionOverviewSAML: {
-          title: "De SAML koppeling is gereed",
-          link: "Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>testinstructies</a> om te kijken of alles werkt."
+            title: "De SAML koppeling is gereed",
+            link: "Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>testinstructies</a> om te kijken of alles werkt."
         },
         appInfo: {
             title: "App informatie voor de SURF App catalogus",
@@ -393,9 +393,18 @@ const en = {
             tagPlaceholder: "Maximaal 3 tags",
             tagInfo: "In de appstore kunnen instellingen hierop filteren",
             tagsAvailable: {
-                education: "Education service",
-                business: "Business service",
-                commerce: "Commercial service"
+                education: "Education",
+                research: "Research",
+                privacy: "Privacy/security",
+                content: "Content/library",
+                repository: " Repository",
+                company: "Business management",
+                recommended: "Suggested",
+                productivity: "Productivity",
+                organization: "Management of education/research",
+                cooperation: "Collaborate",
+                video: "Video platform",
+                surf: "SURF"
             },
             targetGroup: "Ga door naar de doelgroep"
         },

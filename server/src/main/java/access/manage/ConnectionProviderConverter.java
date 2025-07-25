@@ -62,8 +62,7 @@ public class ConnectionProviderConverter {
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
         putIf(metaDataFields, "coin:application_url", information.get("webSite"));
         List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
-        putIf(metaDataFields, "coin:ss:type_of_service:en", String.join(" ", tags));
-        putIf(metaDataFields, "coin:ss:type_of_service:nl", String.join(" ", tags));
+        putIf(metaDataFields, "application_tags", String.join(",", tags));
 
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");

@@ -358,9 +358,18 @@ const nl = {
             tagPlaceholder: "Maximaal 3 tags",
             tagInfo: "In de appstore kunnen instellingen hierop filteren",
             tagsAvailable: {
-                education: "Education service",
-                business: "Business service",
-                commerce: "Commercial service"
+                education: "Onderwijs",
+                research: "Onderzoek",
+                privacy: "Privacy/beveiliging",
+                content: "Content/bibliotheek",
+                repository: "Repository",
+                company: "Bedrijfsvoering",
+                recommended: "Aangeraden",
+                productivity: "Productiviteit",
+                organization: "Organisatie van onderwijs/onderzoek",
+                cooperation: "Samenwerken",
+                video: "Videoplatform",
+                surf: "SURF"
             },
             targetGroup: "Ga door naar de doelgroep"
         },
