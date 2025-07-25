@@ -9,15 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity(name = "application_memberships")
 @NoArgsConstructor
 @Getter
 @Setter
-public class ApplicationMembership implements NameHolder{
+public class ApplicationMembership implements NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static access.security.InstitutionAdmin.*;
-import static access.security.InstitutionAdmin.INSTITUTION;
 
 
 @Entity(name = "users")

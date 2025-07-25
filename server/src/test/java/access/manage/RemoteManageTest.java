@@ -29,12 +29,12 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providers() throws JsonProcessingException {
-        List<Map<String, Object>> serviceProviders = localManage.providers(Environment.TEST,EntityType.saml20_sp);
+        List<Map<String, Object>> serviceProviders = localManage.providers(Environment.TEST, EntityType.saml20_sp);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        List<Map<String, Object>> remoteServiceProviders = manage.providers(Environment.TEST,EntityType.saml20_sp);
+        List<Map<String, Object>> remoteServiceProviders = manage.providers(Environment.TEST, EntityType.saml20_sp);
         assertEquals(4, remoteServiceProviders.size());
     }
 

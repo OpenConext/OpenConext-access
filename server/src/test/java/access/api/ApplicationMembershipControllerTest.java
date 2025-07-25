@@ -49,7 +49,7 @@ class ApplicationMembershipControllerTest extends AbstractTest {
     }
 
     @Test
-    void delete()  {
+    void delete() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         String identifier = ApplicationMembership.class.getName().concat(BUDDY_CHECK).concat(Authority.MEMBER.name());
         ApplicationMembership applicationMembership = applicationMembershipRepository.findById(seedIdentifiers.get(identifier)).get();

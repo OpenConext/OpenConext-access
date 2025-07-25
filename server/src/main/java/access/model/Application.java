@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Application implements NameHolder{
+public class Application implements NameHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class Application implements NameHolder{
     private String logoUrl;
 
     @Type(JsonType.class)
-    @Column(name="meta_data", columnDefinition = "jsonb")
+    @Column(name = "meta_data", columnDefinition = "jsonb")
     private Map<String, Object> metaData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)

@@ -81,7 +81,7 @@ class ApplicationControllerTest extends AbstractTest {
     void createNotAllowed() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
-        Application application = new Application("New App", organization, "System",Map.of());
+        Application application = new Application("New App", organization, "System", Map.of());
 
         //Otherwise rest-assured does not deserialize the Organization
         Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {

@@ -43,7 +43,7 @@ public class ApplicationMembershipController implements UserAccessRights {
 
     @GetMapping("/all/{applicationId}")
     public ResponseEntity<Set<ApplicationMembership>> allByOApplication(User user,
-            @PathVariable("applicationId") Long applicationId ) {
+                                                                        @PathVariable("applicationId") Long applicationId) {
         LOG.debug("/all");
 
         Application application = this.applicationRepository.findById(applicationId).orElseThrow(() -> new NotFoundException("Application not found"));
@@ -66,7 +66,7 @@ public class ApplicationMembershipController implements UserAccessRights {
         Application application = this.applicationRepository.findById(applicationMembershipForm.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
-        confirmOrganizationMembership(user,application.getOrganization(),Authority.GUEST);
+        confirmOrganizationMembership(user, application.getOrganization(), Authority.GUEST);
 
         if (!application.getOrganization().getId().equals(organizationMembership.getOrganization().getId())) {
             throw new NotFoundException("Organization not found");

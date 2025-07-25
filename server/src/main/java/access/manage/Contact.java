@@ -2,8 +2,6 @@ package access.manage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.metadata.ContactPerson;
 import org.opensaml.saml.saml2.metadata.EmailAddress;
@@ -26,7 +24,7 @@ public class Contact {
         this.surName = getValue(contactPerson.getSurName());
         List<EmailAddress> emailAddresses = contactPerson.getEmailAddresses();
         this.email = CollectionUtils.isEmpty(emailAddresses) ? null :
-                emailAddresses.getFirst().getURI().replace("mailto:","");
+                emailAddresses.getFirst().getURI().replace("mailto:", "");
     }
 
     private String getValue(XSString xsString) {

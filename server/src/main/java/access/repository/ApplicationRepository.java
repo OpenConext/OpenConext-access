@@ -2,7 +2,6 @@ package access.repository;
 
 import access.model.Application;
 import access.model.Organization;
-import access.model.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,7 +16,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             "organization",
             "connections",
             "applicationMemberships.organizationMembership"
-            })
+    })
     Optional<Application> findDetailsById(Long id);
 
     List<Application> findByOrganization(Organization organization);

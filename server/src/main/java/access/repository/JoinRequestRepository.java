@@ -1,6 +1,5 @@
 package access.repository;
 
-import access.model.Application;
 import access.model.JoinRequest;
 import access.model.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;

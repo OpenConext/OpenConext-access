@@ -58,7 +58,9 @@
     },
     {
       "name": "uidOnly",
-      "attributes": ["uid"],
+      "attributes": [
+        "uid"
+      ],
       "optionalAttributes": []
     }
   ],
@@ -282,7 +284,7 @@
     },
     {
       "name": "subject-id",
-      "urn":  "urn:oasis:names:tc:SAML:attribute:subject-id",
+      "urn": "urn:oasis:names:tc:SAML:attribute:subject-id",
       "info": {
         "en": "Subject identifier",
         "nl": "Subject identifier"

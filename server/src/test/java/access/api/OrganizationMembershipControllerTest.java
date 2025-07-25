@@ -10,7 +10,6 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -33,7 +32,8 @@ class OrganizationMembershipControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(body)
                 .put("/api/v1/organization_memberships")
-                .as(new TypeRef<>() {});
+                .as(new TypeRef<>() {
+                });
         assertEquals(Authority.GUEST.name(), result.get("authority"));
     }
 

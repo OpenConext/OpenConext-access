@@ -17,7 +17,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 

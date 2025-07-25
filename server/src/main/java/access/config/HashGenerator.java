@@ -1,8 +1,5 @@
 package access.config;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Random;

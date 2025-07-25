@@ -95,8 +95,8 @@ public class ConnectionProviderConverter {
         List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);
-            Map.of("type","contactType","email", "emailAddress", "givenName","givenName", "surName", "surName")
-                    .forEach((k,v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
+            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
+                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
         });
         Map<String, String> privacy = (Map<String, String>) applicationMetaData.getOrDefault("privacy", Map.of());
         privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));

@@ -123,11 +123,11 @@ email:
 # configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
-#  enabled: True
+  #  enabled: True
   enabled: True
   test:
     url: "https://manage.test2.surfconext.nl"
-  #  url: "http://localhost:8081"
+    #  url: "http://localhost:8081"
     user: access
     password: secret
     defaultState: prodaccepted
@@ -143,10 +143,10 @@ manage:
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 s3storage:
-#  url: "https://minioapi.test2.surfconext.nl"
-#  key: "minioadmin"
-#  secret: "jippie123"
-#  bucket: "s3-images"
+  #  url: "https://minioapi.test2.surfconext.nl"
+  #  key: "minioadmin"
+  #  secret: "jippie123"
+  #  bucket: "s3-images"
   url: http://localhost:9000
   key: "minioadmin"
   secret: "minioadmin"

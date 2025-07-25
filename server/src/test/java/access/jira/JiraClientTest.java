@@ -10,8 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -32,7 +31,7 @@ class JiraClientTest extends AbstractTest {
     @SneakyThrows
     @Test
     void create() {
-        Map<String, String> response = Map.of("key","CTX-1000");
+        Map<String, String> response = Map.of("key", "CTX-1000");
         stubFor(post(urlPathMatching("/issue")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));

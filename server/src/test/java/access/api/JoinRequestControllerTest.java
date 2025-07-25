@@ -40,7 +40,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
     void create() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:example.com:new_user");
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
-        JoinRequestForm joinRequestForm = new JoinRequestForm(organization.getId(), "Please",Language.en);
+        JoinRequestForm joinRequestForm = new JoinRequestForm(organization.getId(), "Please", Language.en);
 
         JoinRequest joinRequest = given()
                 .when()

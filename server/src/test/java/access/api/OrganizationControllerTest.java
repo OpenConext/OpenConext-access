@@ -7,7 +7,6 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,7 +59,7 @@ class OrganizationControllerTest extends AbstractTest {
     void users() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
-        Map<String, Object>  res = given()
+        Map<String, Object> res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
