@@ -2,8 +2,11 @@ import {isEmpty, sanitizeURL} from "./Utils.js";
 
 export const LOCAL_STORAGE_LOCATION = "local_storage_location";
 
-export const login = (config, force = true) => {
-    let params = force ? `?force=true` : "";
+export const login = (config, force = true, useEduID = false) => {
+    let params = force ? "?force=true" : "";
+    if (useEduID) {
+        params += (force ? "&eduId=true" : "?eduId=true");
+    }
     let serverUrl = config.serverUrl;
     if (isEmpty(serverUrl)) {
         const local = window.location.hostname === "localhost";

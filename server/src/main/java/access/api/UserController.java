@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
@@ -49,14 +50,16 @@ public class UserController implements UserAccessRights {
     private final Config config;
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
+    private final Manage manage;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository) throws IOException {
+                          OrganizationRepository organizationRepository, Manage manage) throws IOException {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
+        this.manage = manage;
     }
 
     @GetMapping("/config")
@@ -65,11 +68,19 @@ public class UserController implements UserAccessRights {
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)
-                .withName(user != null ? user.getName() : null);
+                .withName(user != null ? user.getName() : null)
+                .withStats(manage.stats());
         if (user != null) {
             verifyMissingAttributes(user, result);
         }
+
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("login")
+    public View login() {
+        LOG.debug("/login");
+        return new RedirectView(config.getClientUrl(), false);
     }
 
     @GetMapping("/me")

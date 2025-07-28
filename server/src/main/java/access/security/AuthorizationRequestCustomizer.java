@@ -11,6 +11,12 @@ import java.util.function.Consumer;
 
 public class AuthorizationRequestCustomizer implements Consumer<OAuth2AuthorizationRequest.Builder> {
 
+    private final String eduidIdpEntityId;
+
+    public AuthorizationRequestCustomizer(String eduidIdpEntityId) {
+        this.eduidIdpEntityId = eduidIdpEntityId;
+    }
+
     @Override
     public void accept(OAuth2AuthorizationRequest.Builder builder) {
         builder.additionalParameters(params -> {
@@ -24,6 +30,10 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             String[] force = savedRequest.getParameterValues("force");
             if (force != null && force.length == 1) {
                 params.put("prompt", "login");
+            }
+            String[] eduId = savedRequest.getParameterValues("eduId");
+            if (eduId != null && eduId.length == 1) {
+                params.put("login_hint", eduidIdpEntityId);
             }
         });
     }

@@ -141,4 +141,18 @@ public final class LocalManage implements Manage {
                 })
                 .findFirst();
     }
+
+    @Override
+    public List<Map<String, Object>> identityProvidersLight(Environment environment) {
+        return this.allProviders.get(EntityType.saml20_idp);
+    }
+
+    @Override
+    public Map<String, Integer> stats() {
+        return Arrays.stream(EntityType.values())
+                .collect(Collectors.toMap(
+                        entityType -> entityType.name(),
+                        entityType -> this.allProviders.get(entityType).size()));
+
+    }
 }

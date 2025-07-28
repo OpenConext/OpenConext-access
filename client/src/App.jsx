@@ -30,6 +30,7 @@ import System from "./pages/System.jsx";
 import {InvitationForm} from "./pages/InvitationForm.jsx";
 import {Invitation} from "./pages/Invitation.jsx";
 import {UserManagement} from "./organization/UserManagement.jsx";
+import {LoginInfo} from "./pages/LoginInfo.jsx";
 
 const App = () => {
 
@@ -46,6 +47,7 @@ const App = () => {
                 <Route path="/institutions" element={<Institutions/>}/>
                 <Route path="/connect" element={<Connect/>}/>
                 <Route path="/applications" element={<Applications/>}/>
+                <Route path="/login-info" element={<LoginInfo/>}/>
             </>
         );
     }

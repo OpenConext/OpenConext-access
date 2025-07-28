@@ -24,6 +24,12 @@ public interface Manage {
 
     Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID);
 
+    Map<String, Integer> stats();
+
+    List<Map<String, Object>> identityProvidersLight(Environment environment);
+
+    List<Map<String, Object>> serviceProvidersLight(Environment environment);
+
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'
         if (provider.containsKey("id")) {

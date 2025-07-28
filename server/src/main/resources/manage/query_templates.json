@@ -3,9 +3,10 @@
     "REQUESTED_ATTRIBUTES": [
       "entityid",
       "metaDataFields.name:en",
-      "metaDataFields.OrganizationName:en",
       "metaDataFields.name:nl",
-      "metaDataFields.OrganizationName:nl"
+      "metaDataFields.OrganizationName:en",
+      "metaDataFields.OrganizationName:nl",
+      "metaDataFields.logo:0:url"
     ]
   }
 }

@@ -15,6 +15,26 @@ const en = {
             logout: "Logout",
             system: "System"
         },
+        loginInfo: {
+            title: "Inloggen / aanmelden",
+            subTitle: "je kunt op SURF Access inloggen met een bestaand instellingsaccount, of als je deze niet met een eduID. Kies hieronder je situatie",
+            commercial: {
+                title: "Je werkt bij een (commercieel) bedrijf",
+                info: [
+                    "Maken jullie zelf software die je wilt aanbieden in het onderwijsveld?",
+                    "Dan moet je inloggen met eduID. Heb je nog geen account, geen zorgen, het aanmaken van een nieuwe account kan binnen 30 seconden"
+                ],
+                login: "Login met eduID"
+            },
+            education: {
+                title: "Je werkt bij een instelling",
+                info: [
+                    "Ben je medewerker, student of onderzoeker bij een instelling die al is aangesloten op SURF, dan kan je direct inloggen met je instellingsaccount."
+                ],
+                login: "Login met je instellingsaccount"
+            }
+
+        },
         tabs: {
             home: "Home",
             connect: "How to connect",
@@ -199,7 +219,7 @@ const en = {
             catalogue: "App informatie voor de SURF App catalogus",
             access: "Toegang en zichtbaarheid",
             contract: "Contract",
-            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
+            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle bovenstaande informatie is verplicht.",
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",

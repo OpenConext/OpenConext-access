@@ -163,6 +163,48 @@ public class RemoteManage implements Manage {
         return identityProviders.isEmpty() ? Optional.empty() : Optional.of(identityProviders.get(0));
     }
 
+    @Override
+    public List<Map<String, Object>> identityProvidersLight(Environment environment) {
+        LOG.debug("identityProvidersLight for environment: " + environment);
+
+        Map<String, Object> baseQuery = getBaseQuery(false);
+        ((List)baseQuery.get("REQUESTED_ATTRIBUTES")).add("coin:institution_type");
+
+        String url = String.format("%s/manage/api/internal/search/%s",
+                environmentUrl(environment),
+                EntityType.saml20_idp.name());
+        return environmentRestTemplate(environment).postForObject(
+                url,
+                baseQuery, List.class);
+    }
+
+    @Override
+    public List<Map<String, Object>> serviceProvidersLight(Environment environment) {
+        LOG.debug("serviceProvidersLight for environment: " + environment);
+
+        Map<String, Object> baseQuery = getBaseQuery(false);
+        List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
+        requestedAttributes.add("coin:interfed_source");
+
+        String url = String.format("%s/manage/api/internal/search/%s",
+                environmentUrl(environment),
+                EntityType.saml20_idp.name());
+        return environmentRestTemplate(environment).postForObject(
+                url,
+                baseQuery, List.class);
+    }
+
+    @Override
+    public Map<String, Integer> stats() {
+        LOG.debug("stats");
+
+        String url = String.format("%s/manage/api/internal/stats",
+                environmentUrl(Environment.PROD),
+                EntityType.saml20_idp.name());
+        return environmentRestTemplate(Environment.PROD)
+                .getForEntity(url, Map.class).getBody();
+    }
+
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
         Map<String, Object> baseQuery = getBaseQuery(allAttributes);
         String url = String.format("%s/manage/api/internal/search/%s", environmentUrl(environment), type);

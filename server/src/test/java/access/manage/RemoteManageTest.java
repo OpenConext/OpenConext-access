@@ -73,6 +73,18 @@ class RemoteManageTest extends AbstractTest {
 
     }
 
+    @Test
+    void identityProvidersLight() throws JsonProcessingException {
+        List<Map<String, Object>> identityProviders = localManage.providers(Environment.TEST, EntityType.saml20_idp);
+        String body = objectMapper.writeValueAsString(identityProviders);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        List<Map<String, Object>> remoteIdentityProviders = manage.identityProvidersLight(Environment.TEST);
+        assertEquals(3, remoteIdentityProviders.size());
+    }
+
+
     private Connection connection(EntityType entityType, String manageIdentifier) {
         Connection connection = new Connection();
         connection.setManageIdentifier(manageIdentifier);

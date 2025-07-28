@@ -1,0 +1,40 @@
+@use "../index";
+
+.login-info-container {
+    background-color: white;
+    width: 100%;
+    @include index.page;
+
+    .about {
+        @include index.page-content;
+        flex-direction: row;
+        margin-top: 35px;
+    }
+
+    .top {
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        max-width: 440px;
+
+        h1.large {
+            margin-bottom: 25px;
+        }
+
+        p {
+            line-height: 24px;
+        }
+    }
+
+    .cards {
+        @include index.page-content;
+        margin: 35px auto;
+        flex-direction: row;
+
+        .card {
+            button {
+                margin-top: auto;
+            }
+        }
+    }
+}

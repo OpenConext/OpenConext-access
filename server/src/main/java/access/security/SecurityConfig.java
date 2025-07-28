@@ -46,12 +46,15 @@ public class SecurityConfig {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final Environment environment;
+    private final String eduidIdpEntityId;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
-                          Environment environment) {
+                          Environment environment,
+                          @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.environment = environment;
+        this.eduidIdpEntityId = eduidIdpEntityId;
     }
 
     @Configuration
@@ -147,7 +150,7 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer());
+                new AuthorizationRequestCustomizer(eduidIdpEntityId));
         return authorizationRequestResolver;
     }
 

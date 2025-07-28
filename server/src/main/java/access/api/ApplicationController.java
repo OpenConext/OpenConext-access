@@ -3,6 +3,7 @@ package access.api;
 import access.exception.NotFoundException;
 import access.manage.Manage;
 import access.model.*;
+import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -37,17 +39,20 @@ public class ApplicationController implements UserAccessRights {
     private static final Log LOG = LogFactory.getLog(ApplicationController.class);
 
     private final ApplicationRepository applicationRepository;
+    private final ApplicationMembershipRepository applicationMembershipRepository;
     private final ConnectionRepository connectionRepository;
     private final Manage manage;
     private final UserRepository userRepository;
     private final S3Storage s3Storage;
 
     public ApplicationController(ApplicationRepository applicationRepository,
+                                 ApplicationMembershipRepository applicationMembershipRepository,
                                  ConnectionRepository connectionRepository,
                                  Manage manage,
                                  UserRepository userRepository,
                                  S3Storage s3Storage) {
         this.applicationRepository = applicationRepository;
+        this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
         this.manage = manage;
         this.userRepository = userRepository;
@@ -93,10 +98,18 @@ public class ApplicationController implements UserAccessRights {
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
         application.setCreatedAt(Instant.now());
         application.setCreatedBy(user.getName());
+        Application applicationSaved = applicationRepository.save(application);
 
-        applicationRepository.save(application);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(application);
+        Optional<OrganizationMembership> optionalOrganizationMembership = user.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
+                .findFirst();
+        //Super User's may not have organization memberships
+        optionalOrganizationMembership.ifPresent(organizationMembership -> {
+            ApplicationMembership applicationMembership =
+                    new ApplicationMembership(applicationSaved, organizationMembership, Authority.MEMBER);
+            applicationMembershipRepository.save(applicationMembership);
+        });
+        return ResponseEntity.status(HttpStatus.CREATED).body(applicationSaved);
     }
 
     @PutMapping({"", "/"})

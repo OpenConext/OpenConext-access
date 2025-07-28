@@ -18,7 +18,8 @@ export const useAppStore = create(set => ({
     },
     clearFlash: () => set({flash: {}}),
     config: {
-        baseUrl: "http://localhost:3000"
+        baseUrl: "http://localhost:3000",
+        stats: {}
     },
     /*
      * [{path: "/roles/4", value: role.name, menuItemName: "yourApps"}] - the menuItemName is optional, but must be

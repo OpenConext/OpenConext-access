@@ -96,6 +96,8 @@ config:
   edu_id_schac_home_organization: "eduid.nl"
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
 
+eduid-idp-entity-id: "https://login.test2.eduid.nl"
+
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"

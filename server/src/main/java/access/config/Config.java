@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
+import java.util.Map;
 
 @ConfigurationProperties(prefix = "config")
 @Getter
@@ -20,6 +21,7 @@ public class Config {
     private String discovery;
     private boolean authenticated;
     private List<String> missingAttributes;
+    private Map<String, Integer> stats;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -43,4 +45,8 @@ public class Config {
         return this;
     }
 
+    public Config withStats(Map<String, Integer> stats) {
+        this.stats = stats;
+        return this;
+    }
 }

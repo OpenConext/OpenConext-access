@@ -11,7 +11,6 @@ const tabNames = ["home", "connect", "institutions", "applications"];
 
 export const Navigation = ({mobile, path}) => {
 
-    const config = useAppStore(state => state.config);
     const [tab, setTab] = useState("");
 
     const navigate = useNavigate();
@@ -35,8 +34,9 @@ export const Navigation = ({mobile, path}) => {
                 {I18n.t(`landing.tabs.${tabName}`)}
             </a>)}
             <div className="links">
-                <Button onClick={() => login(config)}
-                        txt={I18n.t("landing.header.login")}/>
+                {path !== "/login-info" &&
+                    <Button onClick={() => navigate("/login-info")}
+                        txt={I18n.t("landing.header.login")}/>}
             </div>
         </div>
     );
