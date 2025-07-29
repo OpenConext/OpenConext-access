@@ -6,6 +6,7 @@ import access.UserInfoEnhancer;
 import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +24,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void meWithOauth2Login() throws Exception {
+        this.stubForStats();
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
 
         User user = given()
@@ -83,6 +86,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void meMissingAttributes() throws Exception {
+        this.stubForStats();
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "",
                 m -> {
                     List.of("given_name", "family_name", "schac_home_organization", "email", "name", "nickname",
@@ -105,6 +109,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void configUnauthorized() {
+        this.stubForStats();
         Map map = given()
                 .when()
                 .accept(ContentType.JSON)
@@ -144,6 +149,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void logout() {
+        this.stubForStats();
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         Map<String, Object> results = given()
@@ -271,6 +277,16 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(4, ((List)results.get("content")).size());
+    }
+
+    @SneakyThrows
+    protected void stubForStats() {
+        Map<String, Long> stats = Map.of();
+        String body = objectMapper.writeValueAsString(stats);
+        stubFor(get("/manage/api/internal/stats")
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
     }
 
 }
