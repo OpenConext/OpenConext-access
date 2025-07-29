@@ -82,10 +82,20 @@ public class RemoteManage implements Manage {
 
         LOG.debug("providerById: " + protocol);
 
+        return providerDetails(environment, protocol, manageIdentifier);
+    }
+
+    private Map providerDetails(Environment environment, EntityType protocol, String manageIdentifier) {
         String url = environmentUrl(environment);
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, protocol.name(), manageIdentifier);
         RestTemplate restTemplate = environmentRestTemplate(environment);
         return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+    }
+
+    public Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment) {
+        LOG.debug("providerById: " + entityType);
+
+        return providerDetails(environment, entityType, manageIdentifier);
     }
 
     @SneakyThrows
@@ -168,7 +178,7 @@ public class RemoteManage implements Manage {
         LOG.debug("identityProvidersLight for environment: " + environment);
 
         Map<String, Object> baseQuery = getBaseQuery(false);
-        ((List)baseQuery.get("REQUESTED_ATTRIBUTES")).add("coin:institution_type");
+        ((List)baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
 
         String url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
@@ -184,14 +194,25 @@ public class RemoteManage implements Manage {
 
         Map<String, Object> baseQuery = getBaseQuery(false);
         List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
-        requestedAttributes.add("coin:interfed_source");
+        requestedAttributes.add("metaDataFields.coin:interfed_source");
+        requestedAttributes.add("metaDataFields.application_tags");
 
         String url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
-                EntityType.saml20_idp.name());
-        return environmentRestTemplate(environment).postForObject(
+                EntityType.saml20_sp.name());
+        List<Map<String, Object>>  serviceProviders = environmentRestTemplate(environment).postForObject(
                 url,
-                baseQuery, List.class);
+                baseQuery,
+                List.class);
+        url = String.format("%s/manage/api/internal/search/%s",
+                environmentUrl(environment),
+                EntityType.oidc10_rp.name());
+        List<Map<String, Object>>  relyingParties = environmentRestTemplate(environment).postForObject(
+                url,
+                baseQuery,
+                List.class);
+        serviceProviders.addAll(relyingParties);
+        return serviceProviders;
     }
 
     @Override

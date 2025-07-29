@@ -159,15 +159,5 @@ class ManageControllerTest extends AbstractTest {
         return attributes.stream().anyMatch(attr -> attr.get("name").equals(attribute));
     }
 
-    @SneakyThrows
-    private void stubForIdentityProviders() {
-        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
-        String body = objectMapper.writeValueAsString(providers);
-        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
-                .willReturn(aResponse().withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                        .withStatus(200)));
-
-    }
 
 }

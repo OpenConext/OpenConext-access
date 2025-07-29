@@ -10,7 +10,9 @@
         "name:nl": "Wiki NL",
         "OrganizationName:en": "SURF bv",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-        "coin:application_url": "https://default-url-wiki.org"
+        "coin:application_url": "https://default-url-wiki.org",
+        "application_tags": "education",
+        "coin:interfed_source": "WO"
       }
     }
   },

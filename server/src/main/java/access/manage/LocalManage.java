@@ -73,6 +73,17 @@ public final class LocalManage implements Manage {
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
     }
 
+    @Override
+    public Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment) {
+        LOG.debug("providerById for : " + entityType);
+
+        List<Map<String, Object>> providers = providers(environment, entityType);
+        return providers.stream()
+                .filter(provider -> provider.get("id").equals(manageIdentifier))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Provider not found"));
+    }
+
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {

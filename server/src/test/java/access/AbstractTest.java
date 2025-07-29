@@ -9,7 +9,6 @@ import access.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -30,11 +29,8 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +62,6 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -92,7 +87,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "s3storage.url=http://localhost:8081"
         })
 @SuppressWarnings("unchecked")
-public abstract class AbstractTest  {
+public abstract class AbstractTest {
 
 
     static {
@@ -442,6 +437,34 @@ public abstract class AbstractTest  {
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
+    }
+
+    @SneakyThrows
+    protected void stubForIdentityProviders() {
+        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
+        String body = objectMapper.writeValueAsString(providers);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
+    }
+
+    @SneakyThrows
+    protected void stubForServiceProviders() {
+        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_sp);
+        List<Map<String, Object>> relyingParties = localManage.providers(Environment.TEST, EntityType.oidc10_rp);
+        String body = objectMapper.writeValueAsString(providers);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+        body = objectMapper.writeValueAsString(relyingParties);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/oidc10_rp"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
     }
 
     private void doSeed() {

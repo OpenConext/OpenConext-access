@@ -12,6 +12,8 @@ public interface Manage {
 
     Map<String, Object> providerById(Connection connection);
 
+    Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment);
+
     Map<String, Object> saveProvider(Connection connection);
 
     void deleteProvider(Connection connection);

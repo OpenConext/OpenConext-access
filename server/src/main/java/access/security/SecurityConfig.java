@@ -112,6 +112,7 @@ public class SecurityConfig {
                                 "/api/v1/users/logout",
                                 "/api/v1/validations/**",
                                 "/api/v1/test/login",
+                                "/api/v1/public/**",
                                 "/ui/**",
                                 "/internal/**")
                         .permitAll()
