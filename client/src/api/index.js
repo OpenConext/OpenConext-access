@@ -250,3 +250,13 @@ export function deleteInvitation(invitation) {
 export function deleteAllInvitations(organization) {
     return fetchDelete(`/api/v1/invitations/delete/all/${organization.id}`)
 }
+//Public
+export function publicIdentityProviders() {
+    return fetchJson("/api/v1/public/identity-providers");
+}
+export function publicServiceProviders() {
+    return fetchJson("/api/v1/public/service-providers");
+}
+export function publicIdentityProviders(type, identifier) {
+    return fetchJson(`/api/v1/public/service-provider-detail/${type}/${identifier}`);
+}

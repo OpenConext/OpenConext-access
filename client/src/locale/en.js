@@ -623,6 +623,12 @@ const en = {
         acceptedFlash: "Invitation is accepted and you are now a member of the {{name}} organization",
         accept: "{{inviter}} has invited you to join organization {{name}}. Press proceed to accept the invitation and checkout the organization",
     },
+    institutions: {
+        title: "Institutions",
+        subTitle: "Browse the institutions currently connected to SURF Access, categorized into education, research and affiliated institutions.",
+        category: "Category",
+        searchPlaceHolder: "Search"
+    },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
