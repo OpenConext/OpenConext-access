@@ -14,6 +14,18 @@ export const identityProviderOptions = (identityProviders, locale) => {
     return identityProviders.map(idp => createIdPOption(locale, idp))
 }
 
+export const idpOrganizationName = (locale, idp) => {
+    const metaData = idp.data.metaDataFields;
+    const name = (locale === "en" ? metaData["OrganizationName:en"] : metaData["OrganizationName:nl"] || metaData["OrganizationName:en"]);
+    return name || "";
+}
+
+export const idpName = (locale, idp) => {
+    const metaData = idp.data.metaDataFields;
+    const name = ( locale === "en" ? metaData["name:en"] : metaData["name:nl"] || metaData["name:en"]);
+    return name || "";
+}
+
 export const PROTOCOLS = {
     OIDC10_RP: "oidc10_rp", SAML20_SP: "saml20_sp"
 }

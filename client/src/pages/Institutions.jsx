@@ -1,46 +1,153 @@
 import "./Institutions.scss";
-import React, {useEffect, useState} from "react";
-import {publicServiceProviders} from "../api/index.js";
+import React, {useEffect, useRef, useState} from "react";
+import {publicIdentityProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
-import {Button, ButtonType, Loader, RadioOptions, RadioOptionsOrientation, Tooltip} from "@surfnet/sds";
+import {Loader} from "@surfnet/sds";
 import StudentPng from "../icons/student.png";
+import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
+import SelectField from "../components/SelectField.jsx";
+import {isEmpty} from "../utils/Utils.js";
+import {idpName, idpOrganizationName} from "../utils/Manage.js";
+import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 
 const Institutions = () => {
 
         const navigate = useNavigate();
-
+        const searchRef = useRef();
+        const [query, setQuery] = useState("");
         const [loading, setLoading] = useState(true);
         const [identityProviders, setIdentityProviders] = useState([]);
+        const [filteredIdentityProviders, setFilteredIdentityProviders] = useState([]);
+        const [category, setCategory] = useState(null);
+        const [categoryOptions, setCategoryOptions] = useState([]);
 
         useEffect(() => {
-            publicServiceProviders(hash)
+            publicIdentityProviders()
                 .then(res => {
                     setIdentityProviders(res);
+                    setFilteredIdentityProviders(res);
+                    const categoryCounts = res.reduce((acc, idp) => {
+                        const type = idp.data.metaDataFields["coin:institution_type"];
+                        if (!isEmpty(type)) {
+                            if (acc[type]) {
+                                acc[type] = acc[type] + 1
+                            } else {
+                                acc[type] = 1;
+                            }
+                        }
+                        return acc;
+                    }, {});
+                    const defaultCategory = {
+                        value: "all",
+                        label: `${I18n.t("institutions.all")} (${res.length})`
+                    };
+                    let newCategoryOptions = [defaultCategory];
+                    newCategoryOptions = newCategoryOptions.concat(Object.entries(categoryCounts)
+                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
+                        .map(entry => ({
+                            value: entry[0],
+                            label: `${entry[0]} (${entry[1]})`
+                        })));
+                    setCategory(defaultCategory.value);
+                    setCategoryOptions(newCategoryOptions);
                     setLoading(false);
                 })
                 .catch(() => {
-                    navigate("/404")
+                    navigate("/404");
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+        useEffect(() => {
+            setFilteredIdentityProviders((isEmpty(query) && isEmpty(category)) ? identityProviders :
+                identityProviders.filter(filterIdP));
+        }, [query, category]);
+
+        const filterIdP = idp => {
+            let categoryHit = true;
+            const type = idp.data.metaDataFields["coin:institution_type"];
+            if (category !== "all" && !isEmpty(type)) {
+                categoryHit = type === category;
+            }
+            let queryHit = true;
+            if (!isEmpty(query)) {
+                const name = idpName(I18n.locale, idp).toLowerCase();
+                const orgName = idpOrganizationName(I18n.locale, idp).toLowerCase();
+                const queryLower = query.toLowerCase();
+                queryHit = name.includes(queryLower) || orgName.includes(queryLower);
+            }
+            return categoryHit && queryHit;
+        }
 
         if (loading) {
             return <Loader/>
         }
 
+
         return (
             <div className="institutions-container">
-                <div className="institutions-header">
-                    <div className="left">
-                        <h1>{I18n.t("institutions.title")}</h1>
-                        <p>{I18n.t("institutions.subTitle")}</p>
-                    </div>
-                    <div className="right">
+                <div className="institutions-header-container">
+                    <div className="institutions-header">
+                        <div className="left">
+                            <h1 className="large">{I18n.t("institutions.title")}</h1>
+                            <p>{I18n.t("institutions.subTitle")}</p>
+                        </div>
                         <img src={StudentPng} alt="student"/>
                     </div>
                 </div>
-                <div className="institutions">
-                    <code>{JSON.stringify(identityProviders)}</code>
+                <div className="inner-institutions-container">
+                    <div className="institutions">
+                        <div className="institutions-search">
+                            <div className={"sds--text-field sds--text-field--has-icon"}>
+                                <div className="sds--text-field--shape">
+                                    <div className="sds--text-field--input-and-icon">
+                                        <input className={"sds--text-field--input"}
+                                               type="search"
+                                               onChange={e => setQuery(e.target.value)}
+                                               value={query}
+                                               placeholder={I18n.t("institutions.searchPlaceHolder")}/>
+                                        <span className="sds--text-field--icon">
+                                            <SearchIcon/>
+                                        </span>
+                                    </div>
+                                    <SelectField
+                                        value={categoryOptions.find(option => option.value === category)}
+                                        placeholder={I18n.t("institutions.categoryPlaceHolder")}
+                                        options={categoryOptions}
+                                        searchable={false}
+                                        onChange={option => setCategory(option.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="institutions-overview">
+                            <ul>
+                                {filteredIdentityProviders
+                                    .map((idp, index) => {
+                                            const metaData = idp.data.metaDataFields;
+                                            const type = metaData["coin:institution_type"] || I18n.t("institutions.other");
+                                            return (
+                                                <li key={index}>
+                                                    <div className="identity-provider">
+                                                        {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                                                        {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                                                        <div className="idp-info">
+                                                            <span className="idp-type">
+                                                                {type}
+                                                            </span>
+                                                            <span className="idp-name">
+                                                                {idpOrganizationName(I18n.locale, idp)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+
+                                                </li>)
+                                        }
+                                    )}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

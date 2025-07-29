@@ -55,7 +55,8 @@ const Landing = ({refreshUser}) => {
         newOrganization({name: search})
             .then(res => {
                 useAppStore.setState({
-                    organization: res
+                    currentOrganization: res,
+                    menuItems: ["users", "yourApps", "allApps"]
                 });
                 setFlash(I18n.t("welcome.flash", {name: res.name}));
                 refreshUser();

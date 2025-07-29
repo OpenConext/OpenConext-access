@@ -7,8 +7,9 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {deleteOrganizationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
+import {useAppStore} from "../stores/AppStore.js";
 
-export const OrganizationHeader = ({organization, setLoading}) => {
+export const OrganizationHeader = ({organization, setLoading, refreshUser}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -29,8 +30,12 @@ export const OrganizationHeader = ({organization, setLoading}) => {
             setLoading(true);
             deleteOrganizationById(organization.id).then(() => {
                 setConfirmation({});
-                navigate("/home");
-                setLoading(false);
+                useAppStore.setState({
+                    currentOrganization: {name: ""},
+                    menuItems: ["allApps"]
+                });
+                refreshUser();
+                setTimeout(() => navigate("/home"), 350);
             })
         }
     }

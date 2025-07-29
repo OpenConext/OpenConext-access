@@ -20,9 +20,17 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const logoutUser = e => {
         stopEvent(e);
         logout().then(() => {
-            useAppStore.setState(() => ({breadcrumbPaths: [], user: {}}));
-            navigate("/home");
-            setIsAuthenticated(false);
+            useAppStore.setState(() => ({
+                currentOrganization: {name: ""},
+                breadcrumbPaths: [],
+                user: {name: ""}
+            }));
+            navigate("/authentication-switch");
+            setTimeout(() => {
+                setIsAuthenticated(false);
+                navigate("/home");
+            },150)
+
         });
     }
 

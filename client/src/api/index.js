@@ -78,10 +78,6 @@ export function me() {
 }
 
 export function logout() {
-    const fetchOptions = {
-        credentials: "same-origin",
-        redirect: "manual"
-    };
     return fetchJson("/api/v1/users/logout");
 }
 

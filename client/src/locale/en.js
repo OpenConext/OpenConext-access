@@ -627,7 +627,17 @@ const en = {
         title: "Institutions",
         subTitle: "Browse the institutions currently connected to SURF Access, categorized into education, research and affiliated institutions.",
         category: "Category",
-        searchPlaceHolder: "Search"
+        all: "All categories",
+        other: "-",
+        searchPlaceHolder: "Search institutions..."
+    },
+    applications: {
+        title: "Applications",
+        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        category: "Category",
+        all: "All categories",
+        other: "-",
+        searchPlaceHolder: "Search applications..."
     },
     forms: {
         cancel: "Cancel",

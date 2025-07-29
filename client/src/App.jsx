@@ -31,6 +31,7 @@ import {InvitationForm} from "./pages/InvitationForm.jsx";
 import {Invitation} from "./pages/Invitation.jsx";
 import {UserManagement} from "./organization/UserManagement.jsx";
 import {LoginInfo} from "./pages/LoginInfo.jsx";
+import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 
 const App = () => {
 
@@ -120,7 +121,7 @@ const App = () => {
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
-                            <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
+                            <Route path="/organization/:organizationId/:tab?" element={<Organization refreshUser={refreshUser}/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
@@ -128,6 +129,7 @@ const App = () => {
                             <Route path="/accept" element={<Invitation/>}/>
                             <Route path="/system" element={<System/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
+                            <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
@@ -141,6 +143,7 @@ const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         {sharedRoutes()}
+                        <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                         <Route path="/*" element={<LoginRedirect/>}/>
                     </Routes>
                     <Footer/>

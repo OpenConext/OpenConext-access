@@ -1,13 +1,94 @@
 @use "../index";
+@use "../styles/vars.scss" as *;
 
 div.institutions-container {
+    width: 100%;
 
-    @include index.page;
-    background-color: white;
+    $width: 920px;
+
+    .institutions-header-container {
+        width: 100%;
+        background-color: var(--sds--color--gray--background);
+    }
+
+    .institutions-header {
+        max-width: $width;
+        margin: 0 auto;
+        padding: 75px 0;
+        display: flex;
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 200px;
+            height: auto;
+            border-radius: 20px;
+            margin: auto 0 auto auto;
+        }
+    }
+
+    .inner-institutions-container {
+        width: 100%;
+        background-color: white;
+    }
 
     .institutions {
-        @include index.page-content;
-        flex-direction: row;
-        margin-top: 35px;
+        @include index.page;
+        background-color: white;
+        max-width: $width;
+
+        .institutions-search {
+            margin: 20px 0 15px 0;
+        }
+
+        .select-field {
+            width: 35%;
+        }
+    }
+
+    .institutions-overview ul {
+
+        li {
+            padding: 10px 0 10px 0;
+            &:not(:first-child) {
+                border-top: 1px solid var(--sds--color--gray--300);
+            }
+        }
+
+        .identity-provider {
+            display: flex;
+            align-items: center;
+
+            img, svg {
+                width: 90px;
+                height: auto;
+                border-radius: 12px;
+            }
+
+            svg {
+                color: var(--sds--color--gray--300);
+            }
+
+            .idp-info {
+                display: flex;
+                flex-direction: column;
+                margin-left: 25px;
+
+                .idp-type {
+                    color: var(--sds--color--blue--400);
+                }
+
+                .idp-name {
+                    font-size: 22px;
+                    font-weight: 600;
+                }
+
+                .idp-org {
+                    color: var(--sds--color--gray--400)
+                }
+            }
+        }
     }
 }

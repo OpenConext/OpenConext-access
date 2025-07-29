@@ -12,7 +12,7 @@ import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 
-const Organization = () => {
+const Organization = ({refreshUser}) => {
     const {organizationId} = useParams();
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
@@ -118,6 +118,7 @@ const Organization = () => {
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
             {alertInfo()}
             <OrganizationHeader organization={organization}
+                                refreshUser={refreshUser}
                                 setLoading={setLoading}/>
             <div className="organization-container">
                 {renderApplications()}

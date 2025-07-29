@@ -1,13 +1,92 @@
 @use "../index";
+@use "../styles/vars.scss" as *;
 
 div.applications-container {
+    width: 100%;
 
-    @include index.page;
-    background-color: white;
+    $width: 920px;
+
+    .applications-header-container {
+        width: 100%;
+        background-color: var(--sds--color--gray--background);
+    }
+
+    .applications-header {
+        max-width: $width;
+        margin: 0 auto;
+        padding: 75px 0;
+        display: flex;
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 200px;
+            height: auto;
+            border-radius: 20px;
+            margin: auto 0 auto auto;
+        }
+    }
+
+    .inner-applications-container {
+        width: 100%;
+        background-color: white;
+    }
 
     .applications {
-        @include index.page-content;
-        flex-direction: row;
-        margin-top: 35px;
+        @include index.page;
+        background-color: white;
+        max-width: $width;
+
+        .applications-search {
+            margin: 20px 0 15px 0;
+        }
+
+        .select-field {
+            width: 35%;
+        }
+    }
+
+    .applications-overview ul {
+
+        li {
+            padding: 10px 0 10px 0;
+            &:not(:first-child) {
+                border-top: 1px solid var(--sds--color--gray--300);
+            }
+        }
+
+        .service-provider {
+            display: flex;
+            align-items: center;
+
+            img, svg {
+                width: 60px;
+                height: auto;
+                border-radius: 12px;
+            }
+
+            svg {
+                color: var(--sds--color--gray--300);
+            }
+
+            .sp-info {
+                display: flex;
+                margin-left: 25px;
+                align-items: center;
+                width: 100%;
+
+                .sp-name {
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+
+                .sp-org {
+                    margin-left: auto;
+                    color: var(--sds--color--blue--400)
+                }
+            }
+        }
     }
 }
