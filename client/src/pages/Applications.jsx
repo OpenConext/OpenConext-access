@@ -20,6 +20,8 @@ const Applications = () => {
         const [filteredServiceProviders, setFilteredServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
         const [tagOptions, setTagOptions] = useState([]);
+    const [source, setSource] = useState(null);
+    const [sourceOptions, setSourceOptions] = useState([]);
 
         useEffect(() => {
             publicServiceProviders()
@@ -52,6 +54,31 @@ const Applications = () => {
                         })));
                     setTag(defaultTag.value);
                     setTagOptions(newTagOptions);
+                    //Sources
+                    const sourceCounts = res.reduce((acc, sp) => {
+                        const fed = sp.data.metaDataFields["coin:interfed_source"];
+                        if (!isEmpty(fed)) {
+                                if (acc[fed]) {
+                                    acc[fed] = acc[fed] + 1
+                                } else {
+                                    acc[fed] = 1;
+                                }
+                        }
+                        return acc;
+                    }, {});
+                    const defaultSource = {
+                        value: "all",
+                        label: `${I18n.t("applications.allSources")} (${res.length})`
+                    };
+                    let newSourceOptions = [defaultSource];
+                    newSourceOptions = newSourceOptions.concat(Object.entries(sourceCounts)
+                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
+                        .map(entry => ({
+                            value: entry[0],
+                            label: `${entry[0]} (${entry[1]})`
+                        })));
+                    setSource(defaultSource.value);
+                    setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
                 .catch(e => {
@@ -67,8 +94,13 @@ const Applications = () => {
         const filterSP = sp => {
             let tagHit = true;
             const tags = sp.data.metaDataFields.application_tags;
-            if (tag !== "all" && !isEmpty(tags)) {
-                tagHit = tags.includes(tag);
+            if (tag !== "all") {
+                tagHit = !isEmpty(tags) && tags.includes(tag);
+            }
+            let sourceHit = true;
+            const fed = sp.data.metaDataFields["coin:interfed_source"];
+            if (fed !== "all") {
+                sourceHit = !isEmpty(fed) && fed === source;
             }
             let queryHit = true;
             if (!isEmpty(query)) {
@@ -77,7 +109,7 @@ const Applications = () => {
                 const queryLower = query.toLowerCase();
                 queryHit = name.includes(queryLower) || orgName.includes(queryLower);
             }
-            return tagHit && queryHit;
+            return tagHit && queryHit && sourceHit;
         }
 
         if (loading) {
@@ -111,6 +143,12 @@ const Applications = () => {
                                             <SearchIcon/>
                                         </span>
                                     </div>
+                                    <SelectField
+                                        value={sourceOptions.find(option => option.value === source)}
+                                        options={sourceOptions}
+                                        searchable={false}
+                                        onChange={option => setSource(option.value)}
+                                    />
                                     <SelectField
                                         value={tagOptions.find(option => option.value === tag)}
                                         options={tagOptions}

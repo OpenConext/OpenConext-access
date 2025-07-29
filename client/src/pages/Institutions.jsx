@@ -66,7 +66,7 @@ const Institutions = () => {
         const filterIdP = idp => {
             let categoryHit = true;
             const type = idp.data.metaDataFields["coin:institution_type"];
-            if (category !== "all" && !isEmpty(type)) {
+            if (category !== "all") {
                 categoryHit = type === category;
             }
             let queryHit = true;

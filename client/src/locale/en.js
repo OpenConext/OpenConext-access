@@ -636,6 +636,7 @@ const en = {
         subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
         category: "Category",
         all: "All categories",
+        allSources: "All federations",
         other: "-",
         searchPlaceHolder: "Search applications..."
     },
