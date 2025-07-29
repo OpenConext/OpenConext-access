@@ -63,6 +63,6 @@ class PublicControllerTest extends AbstractTest {
                 .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals("education", ((Map)((Map)sp.get("data")).get("metaDataFields")).get("application_tags"));
+        assertEquals(List.of("education"), ((Map)((Map)sp.get("data")).get("metaDataFields")).get("application_tags"));
     }
 }
