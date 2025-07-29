@@ -148,6 +148,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> serviceProvidersLight(Environment environment) {
+        return List.of();
+    }
+
+    @Override
     public Map<String, Integer> stats() {
         return Arrays.stream(EntityType.values())
                 .collect(Collectors.toMap(
