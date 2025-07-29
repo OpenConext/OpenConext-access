@@ -257,6 +257,6 @@ export function publicIdentityProviders() {
 export function publicServiceProviders() {
     return fetchJson("/api/v1/public/service-providers");
 }
-export function publicIdentityProviders(type, identifier) {
+export function publicServiceProviderByDetail(type, identifier) {
     return fetchJson(`/api/v1/public/service-provider-detail/${type}/${identifier}`);
 }
