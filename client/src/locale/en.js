@@ -10,7 +10,7 @@ const en = {
         header: {
             title: "SURF Access",
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
-            login: "Come on in",
+            login: "Sign in / sign up",
             sup: "EduID ServiceDesk is by invitation only.",
             logout: "Logout",
             system: "System"
@@ -639,6 +639,14 @@ const en = {
         allSources: "All federations",
         other: "-",
         searchPlaceHolder: "Search applications..."
+    },
+    connect: {
+        title: "How to connect",
+        subTitle: "Connecting to SURF Access is not complicated. It requires a formal and a technical part.",
+        howTo: "Formal part",
+        formal: "Applications on SURF Access are either provided by commercial entities or by SURF members for the benefit of their peers within the network. Our agreements vary based on the ownership of the application and the intended audience. For instance, if you intend to offer your service to a large number of users, you will need to enter into a formal contract with us.  If your service is developed within your institution and is intended for a smaller research group, a shorter terms of service will do.",
+
+        provisions: "With these provisions, we aim to ensure a smooth and secure integration for all parties involved."
     },
     forms: {
         cancel: "Cancel",

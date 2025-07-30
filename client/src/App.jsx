@@ -19,7 +19,7 @@ import {SharedMenu} from "./components/SharedMenu.jsx";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
 import {Connection} from "./pages/Connection.jsx";
 import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
-import {isEmpty} from "./utils/Utils.js";
+import {isEmpty, stopEvent} from "./utils/Utils.js";
 import Landing from "./pages/Landing.jsx";
 import JoinRequest from "./pages/JoinRequest.jsx";
 import UserHome from "./pages/UserHome.jsx";
@@ -74,21 +74,26 @@ const App = () => {
                             useAppStore.setState(() => ({
                                 user: user
                             }));
-                            if (isEmpty(user.organizationMemberships)) {
-                                useAppStore.setState(() => ({
-                                    menuItems: ["allApps"]
-                                }));
-                                navigate("/landing");
-                            } else {
+                            const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
+                            if (hasOrganizationMemberships) {
                                 useAppStore.setState(() => ({
                                     menuItems: ["users", "yourApps", "allApps"],
                                     currentOrganization: user.organizationMemberships.map(om => om.organization)[0]
                                 }));
+                            } else {
+                                useAppStore.setState(() => ({
+                                    menuItems: ["allApps"]
+                                }));
                             }
                             const storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
+                            debugger;
                             if (!isEmpty(storedLocation)) {
-                                localStorage.removeItem(LOCAL_STORAGE_LOCATION);
-                                navigate(storedLocation);
+                                // Do not remove the LOCAL_STORAGE_LOCATION because in development mode this is called twice
+                                if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
+                                    navigate("/landing")
+                                } else {
+                                    navigate(storedLocation);
+                                }
                             }
                             setLoading(false);
                         })

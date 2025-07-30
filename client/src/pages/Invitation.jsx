@@ -7,6 +7,7 @@ import {getParameterByName} from "../utils/QueryParameters.js";
 import {Loader} from "@surfnet/sds";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import Welcome from "../icons/undraw/welcome.svg";
+import {LOCAL_STORAGE_LOCATION} from "../utils/Login.js";
 
 export const Invitation = () => {
 
@@ -20,12 +21,14 @@ export const Invitation = () => {
         getInvitationByHash(hash)
             .then(res => {
                 setInvitation(res);
+                localStorage.removeItem(LOCAL_STORAGE_LOCATION);
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
                         {path: `/organization/${res.organization.id}`, value: res.organization.name, menuItemName: "yourApps"},
                         {value: I18n.t("breadCrumb.invitations")}
-                    ]
+                    ],
+                    menuItems: ["users", "yourApps", "allApps"],
                 });
                 setLoading(false);
             })

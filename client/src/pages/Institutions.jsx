@@ -16,7 +16,6 @@ const pageCount = 10;
 const Institutions = () => {
 
         const navigate = useNavigate();
-        const searchRef = useRef();
         const [query, setQuery] = useState("");
         const [loading, setLoading] = useState(true);
         const [identityProviders, setIdentityProviders] = useState([]);

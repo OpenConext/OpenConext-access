@@ -10,7 +10,9 @@ export const LoginRedirect = () => {
     const currentLocation = useLocation();
 
     useEffect(() => {
-        localStorage.setItem(LOCAL_STORAGE_LOCATION, currentLocation.pathname + currentLocation.search);
+        const locationUrl = currentLocation.pathname + currentLocation.search;
+        localStorage.setItem(LOCAL_STORAGE_LOCATION, locationUrl);
+        debugger;
         login(config);
     }, []);
 
