@@ -32,6 +32,7 @@ import {Invitation} from "./pages/Invitation.jsx";
 import {UserManagement} from "./organization/UserManagement.jsx";
 import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
+import {flushSync} from "react-dom";
 
 const App = () => {
 
@@ -85,16 +86,20 @@ const App = () => {
                                     menuItems: ["allApps"]
                                 }));
                             }
-                            const storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
+                            let storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
                             if (!isEmpty(storedLocation)) {
                                 // Do not remove the LOCAL_STORAGE_LOCATION because in development mode this is called twice
                                 if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
-                                    navigate("/landing")
-                                } else {
-                                    navigate(storedLocation);
+                                    storedLocation = "/landing";
                                 }
+                                flushSync(() => {
+                                    navigate(storedLocation, {replace: true})
+                                });
+                                setTimeout(() => setLoading(false), 500);
+                            } else {
+                                setLoading(false);
+
                             }
-                            setLoading(false);
                         })
                     } else {
                         setLoading(false);

@@ -67,7 +67,7 @@ export const InvitationForm = () => {
                 .then(() => {
                     setLoading(false);
                     setFlash(I18n.t("invitation.createFlash"));
-                    navigate(`/users/${organizationId}/team`);
+                    navigate(`/users/${organizationId}/invitations`);
                 });
         }
     }
