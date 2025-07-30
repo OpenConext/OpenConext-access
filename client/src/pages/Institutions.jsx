@@ -3,13 +3,15 @@ import React, {useEffect, useRef, useState} from "react";
 import {publicIdentityProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
-import {Loader} from "@surfnet/sds";
+import {Loader, Pagination} from "@surfnet/sds";
 import StudentPng from "../icons/student.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {idpName, idpOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+
+const pageCount = 10;
 
 const Institutions = () => {
 
@@ -21,10 +23,14 @@ const Institutions = () => {
         const [filteredIdentityProviders, setFilteredIdentityProviders] = useState([]);
         const [category, setCategory] = useState(null);
         const [categoryOptions, setCategoryOptions] = useState([]);
+    const [page, setPage] = useState(1);
 
         useEffect(() => {
             publicIdentityProviders()
                 .then(res => {
+                    res = res
+                        .sort((idp1, idp2) => idpOrganizationName(I18n.locale, idp1).toLowerCase()
+                            .localeCompare(idpOrganizationName(I18n.locale, idp2).toLowerCase()))
                     setIdentityProviders(res);
                     setFilteredIdentityProviders(res);
                     const categoryCounts = res.reduce((acc, idp) => {
@@ -59,11 +65,12 @@ const Institutions = () => {
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
         useEffect(() => {
-            setFilteredIdentityProviders((isEmpty(query) && isEmpty(category)) ? identityProviders :
+            setFilteredIdentityProviders((isEmpty(query) && category === "all") ? identityProviders :
                 identityProviders.filter(filterIdP));
         }, [query, category]);
 
         const filterIdP = idp => {
+            setPage(1);
             let categoryHit = true;
             const type = idp.data.metaDataFields["coin:institution_type"];
             if (category !== "all") {
@@ -71,10 +78,9 @@ const Institutions = () => {
             }
             let queryHit = true;
             if (!isEmpty(query)) {
-                const name = idpName(I18n.locale, idp).toLowerCase();
                 const orgName = idpOrganizationName(I18n.locale, idp).toLowerCase();
                 const queryLower = query.toLowerCase();
-                queryHit = name.includes(queryLower) || orgName.includes(queryLower);
+                queryHit = orgName.includes(queryLower);
             }
             return categoryHit && queryHit;
         }
@@ -83,6 +89,7 @@ const Institutions = () => {
             return <Loader/>
         }
 
+    const minimalPage = Math.min(page, Math.ceil(filteredIdentityProviders.length / pageCount));
 
         return (
             <div className="institutions-container">
@@ -123,6 +130,7 @@ const Institutions = () => {
                         <div className="institutions-overview">
                             <ul>
                                 {filteredIdentityProviders
+                                    .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
                                     .map((idp, index) => {
                                             const metaData = idp.data.metaDataFields;
                                             const type = metaData["coin:institution_type"] || I18n.t("institutions.other");
@@ -140,14 +148,16 @@ const Institutions = () => {
                                                             </span>
                                                         </div>
                                                     </div>
-
-
                                                 </li>)
                                         }
                                     )}
                             </ul>
                         </div>
                     </div>
+                    <Pagination currentPage={page}
+                                onChange={nbr => setPage(nbr)}
+                                total={filteredIdentityProviders.length}
+                                pageCount={pageCount}/>
                 </div>
             </div>
         );

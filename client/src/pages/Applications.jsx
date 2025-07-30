@@ -1,9 +1,9 @@
 import "./Applications.scss";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
-import {Loader} from "@surfnet/sds";
+import {Loader, Pagination} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import SelectField from "../components/SelectField.jsx";
@@ -11,6 +11,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {idpName, idpOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 
+const pageCount = 10;
 const Applications = () => {
 
         const navigate = useNavigate();
@@ -20,12 +21,16 @@ const Applications = () => {
         const [filteredServiceProviders, setFilteredServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
         const [tagOptions, setTagOptions] = useState([]);
-    const [source, setSource] = useState(null);
-    const [sourceOptions, setSourceOptions] = useState([]);
+        const [source, setSource] = useState(null);
+        const [sourceOptions, setSourceOptions] = useState([]);
+        const [page, setPage] = useState(1);
 
         useEffect(() => {
             publicServiceProviders()
                 .then(res => {
+                    res = res
+                        .sort((sp1, sp2) => idpName(I18n.locale, sp1).toLowerCase()
+                            .localeCompare(idpName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
                     setFilteredServiceProviders(res);
                     const tagCounts = res.reduce((acc, sp) => {
@@ -58,11 +63,11 @@ const Applications = () => {
                     const sourceCounts = res.reduce((acc, sp) => {
                         const fed = sp.data.metaDataFields["coin:interfed_source"];
                         if (!isEmpty(fed)) {
-                                if (acc[fed]) {
-                                    acc[fed] = acc[fed] + 1
-                                } else {
-                                    acc[fed] = 1;
-                                }
+                            if (acc[fed]) {
+                                acc[fed] = acc[fed] + 1
+                            } else {
+                                acc[fed] = 1;
+                            }
                         }
                         return acc;
                     }, {});
@@ -87,11 +92,12 @@ const Applications = () => {
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
         useEffect(() => {
-            setFilteredServiceProviders((isEmpty(query) && isEmpty(tag)) ? serviceProviders :
+            setFilteredServiceProviders((isEmpty(query) && tag === "all" && source === "all") ? serviceProviders :
                 serviceProviders.filter(filterSP));
-        }, [query, tag]);
+        }, [query, source, tag]);
 
         const filterSP = sp => {
+            setPage(1);
             let tagHit = true;
             const tags = sp.data.metaDataFields.application_tags;
             if (tag !== "all") {
@@ -99,7 +105,7 @@ const Applications = () => {
             }
             let sourceHit = true;
             const fed = sp.data.metaDataFields["coin:interfed_source"];
-            if (fed !== "all") {
+            if (source !== "all") {
                 sourceHit = !isEmpty(fed) && fed === source;
             }
             let queryHit = true;
@@ -116,7 +122,7 @@ const Applications = () => {
             return <Loader/>
         }
 
-
+        const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
         return (
             <div className="applications-container">
                 <div className="applications-header-container">
@@ -161,6 +167,7 @@ const Applications = () => {
                         <div className="applications-overview">
                             <ul>
                                 {filteredServiceProviders
+                                    .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
                                     .map((idp, index) => {
                                             const metaData = idp.data.metaDataFields;
                                             return (
@@ -183,7 +190,12 @@ const Applications = () => {
                             </ul>
                         </div>
                     </div>
+                    <Pagination currentPage={page}
+                                onChange={nbr => setPage(nbr)}
+                                total={filteredServiceProviders.length}
+                                pageCount={pageCount}/>
                 </div>
+
             </div>
         );
     }

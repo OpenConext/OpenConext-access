@@ -1,3 +1,5 @@
+import {isEmpty} from "./Utils.js";
+
 const createIdPOption = (locale, idp) => {
     const metaData = idp.data.metaDataFields;
     const name = locale === "en" ? metaData["name:en"] : metaData["name:nl"] || metaData["name:en"];
@@ -16,8 +18,15 @@ export const identityProviderOptions = (identityProviders, locale) => {
 
 export const idpOrganizationName = (locale, idp) => {
     const metaData = idp.data.metaDataFields;
-    const name = (locale === "en" ? metaData["OrganizationName:en"] : metaData["OrganizationName:nl"] || metaData["OrganizationName:en"]);
-    return name || "";
+    const orgName = (locale === "en" ? metaData["OrganizationName:en"] : metaData["OrganizationName:nl"] || metaData["OrganizationName:en"]);
+    if (!isEmpty(orgName)) {
+        return orgName;
+    }
+    const name = idpName(locale, idp);
+    if (!isEmpty(name)) {
+        return name;
+    }
+    return "";
 }
 
 export const idpName = (locale, idp) => {

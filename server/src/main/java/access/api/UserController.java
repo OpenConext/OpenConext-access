@@ -73,7 +73,6 @@ public class UserController implements UserAccessRights {
         if (user != null) {
             verifyMissingAttributes(user, result);
         }
-
         return ResponseEntity.ok(result);
     }
 

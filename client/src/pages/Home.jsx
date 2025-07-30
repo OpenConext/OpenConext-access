@@ -5,10 +5,12 @@ import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
 import {Link, useNavigate} from "react-router-dom";
 import {Button, ButtonType} from "@surfnet/sds";
+import {useAppStore} from "../stores/AppStore.js";
 
 export const Home = () => {
 
     const navigate = useNavigate();
+    const {config} = useAppStore(state => state);
 
     const contactUs = () => {
         const link = document.createElement("a");
@@ -67,11 +69,13 @@ export const Home = () => {
                         <p className="links">
                             <span>{I18n.t("landing.joining.links.prefix")}</span>
                             <Link to="/institutions">
-                                {I18n.t("landing.joining.links.institutions", {nbr: 210})}
+                                {I18n.t("landing.joining.links.institutions",
+                                    {nbr: config.stats.saml20_idp})}
                             </Link>
                             <span>{I18n.t("landing.joining.links.or")}</span>
                             <Link to="/applications">
-                                {I18n.t("landing.joining.links.applications", {nbr: 3211})}
+                                {I18n.t("landing.joining.links.applications",
+                                    {nbr: config.stats.saml20_sp + config.stats.oidc10_rp})}
                             </Link>
                         </p>
                     </div>
