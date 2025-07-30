@@ -110,7 +110,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @PutMapping({"/accept"})
-    public ResponseEntity<OrganizationMembership> accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
+    public ResponseEntity<Map<String, Integer>> accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
         LOG.debug("/accept invitation by " + user.getEmail());
 
         Invitation invitation = invitationRepository.findByIdAndHash(acceptInvitation.invitationId(), acceptInvitation.hash())
@@ -131,7 +131,7 @@ public class InvitationController implements UserAccessRights {
         organization.addOrganizationMembership(organizationMembership);
         organizationRepository.save(organization);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(organizationMembership);
+        return createResult();
     }
 
     @DeleteMapping({"/{invitationId}"})

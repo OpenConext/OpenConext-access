@@ -86,7 +86,6 @@ const App = () => {
                                 }));
                             }
                             const storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
-                            debugger;
                             if (!isEmpty(storedLocation)) {
                                 // Do not remove the LOCAL_STORAGE_LOCATION because in development mode this is called twice
                                 if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {

@@ -28,7 +28,6 @@ export const Invitation = () => {
                         {path: `/organization/${res.organization.id}`, value: res.organization.name, menuItemName: "yourApps"},
                         {value: I18n.t("breadCrumb.invitations")}
                     ],
-                    menuItems: ["users", "yourApps", "allApps"],
                 });
                 setLoading(false);
             })
@@ -41,6 +40,9 @@ export const Invitation = () => {
         setLoading(true);
         acceptInvitation(invitation).then(() => {
             setFlash(I18n.t("invitation.acceptedFlash", {name: invitation.organization.name}));
+            useAppStore.setState({
+                menuItems: ["users", "yourApps", "allApps"],
+            });
             navigate(`/organization/${invitation.organization.id}/team`);
         })
     }

@@ -997,7 +997,6 @@ export const Testing = ({
             setBusy(true);
             requestConnectionProductionStatus(connection.id)
                 .then(res => {
-                    debugger;
                     setBusy(false);
                     setConfirmation({
                         open: true,
