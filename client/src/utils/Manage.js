@@ -16,23 +16,29 @@ export const identityProviderOptions = (identityProviders, locale) => {
     return identityProviders.map(idp => createIdPOption(locale, idp))
 }
 
-export const idpOrganizationName = (locale, idp) => {
-    const metaData = idp.data.metaDataFields;
+export const providerOrganizationName = (locale, provider) => {
+    const metaData = provider.data.metaDataFields;
     const orgName = (locale === "en" ? metaData["OrganizationName:en"] : metaData["OrganizationName:nl"] || metaData["OrganizationName:en"]);
     if (!isEmpty(orgName)) {
         return orgName;
     }
-    const name = idpName(locale, idp);
+    const name = providerName(locale, provider);
     if (!isEmpty(name)) {
         return name;
     }
     return "";
 }
 
-export const idpName = (locale, idp) => {
-    const metaData = idp.data.metaDataFields;
+export const providerName = (locale, provider) => {
+    const metaData = provider.data.metaDataFields;
     const name = ( locale === "en" ? metaData["name:en"] : metaData["name:nl"] || metaData["name:en"]);
     return name || "";
+}
+
+export const providerDescription = (locale, provider) => {
+    const metaData = provider.data.metaDataFields;
+    const description = ( locale === "en" ? metaData["description:en"] : metaData["description:nl"] || metaData["description:en"]);
+    return description || "";
 }
 
 export const PROTOCOLS = {
@@ -50,3 +56,36 @@ export const APPLICATION_STATUSES = {
 export const ENVIRONMENTS = {
     TEST: "TEST", PROD: "PROD"
 }
+
+export const APPLICATION_LINKS = [
+    {
+        locale: "applicationDetail.website",
+        metaData:"OrganizationURL",
+        languageProperty: true
+    },
+    {
+        locale: "applicationDetail.loginPage",
+        metaData:"coin:application_url",
+        languageProperty: false
+    },
+    {
+        locale: "applicationDetail.support",
+        metaData:"url",
+        languageProperty: true
+    },
+    {
+        locale: "applicationDetail.terms",
+        metaData:"coin:eula",
+        languageProperty: false
+    },
+    {
+        locale: "applicationDetail.registrationPolicy",
+        metaData:"mdrpi:RegistrationPolicy",
+        languageProperty: true
+    },
+    {
+        locale: "applicationDetail.privacyStatement",
+        metaData:"mdui:PrivacyStatementURL",
+        languageProperty: true
+    },
+]

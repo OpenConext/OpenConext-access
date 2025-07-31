@@ -12,12 +12,14 @@ export const Footer = () => {
                 <div className="sds--footer--inner">
                     <nav className="menu sds--text--body--small">
                         <ul>
-                            <li>
-                                <a href={I18n.t("footer.termsLink")} target="_blank"
+                            <li >
+                                <a className="external-link"
+                                   href={I18n.t("footer.termsLink")} target="_blank"
                                    rel="noopener noreferrer"><span>{I18n.t("footer.terms")}</span></a>
                             </li>
-                            <li>
-                                <a href={I18n.t("footer.privacyLink")} target="_blank"
+                            <li >
+                                <a className="external-link"
+                                   href={I18n.t("footer.privacyLink")} target="_blank"
                                    rel="noopener noreferrer"><span>{I18n.t("footer.privacy")}</span></a>
                             </li>
                         </ul>

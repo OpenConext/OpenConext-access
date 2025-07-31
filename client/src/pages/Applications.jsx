@@ -8,7 +8,7 @@ import StudentPng from "../icons/student2.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {idpName, idpOrganizationName} from "../utils/Manage.js";
+import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 
 const pageCount = 10;
@@ -30,8 +30,8 @@ const Applications = () => {
             publicServiceProviders()
                 .then(res => {
                     res = res
-                        .sort((sp1, sp2) => idpName(I18n.locale, sp1).toLowerCase()
-                            .localeCompare(idpName(I18n.locale, sp2).toLowerCase()))
+                        .sort((sp1, sp2) => providerName(I18n.locale, sp1).toLowerCase()
+                            .localeCompare(providerName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
                     setFilteredServiceProviders(res);
                     const tagCounts = res.reduce((acc, sp) => {
@@ -111,8 +111,8 @@ const Applications = () => {
             }
             let queryHit = true;
             if (!isEmpty(query)) {
-                const name = idpName(I18n.locale, sp).toLowerCase();
-                const orgName = idpOrganizationName(I18n.locale, sp).toLowerCase();
+                const name = providerName(I18n.locale, sp).toLowerCase();
+                const orgName = providerOrganizationName(I18n.locale, sp).toLowerCase();
                 const queryLower = query.toLowerCase();
                 queryHit = name.includes(queryLower) || orgName.includes(queryLower);
             }
@@ -179,10 +179,10 @@ const Applications = () => {
                                                         {!metaData["logo:0:url"] && <PlaceHolderImage/>}
                                                         <div className="sp-info">
                                                             <span className="sp-name">
-                                                                {idpName(I18n.locale, idp)}
+                                                                {providerName(I18n.locale, idp)}
                                                             </span>
                                                             <span className="sp-org">
-                                                                {idpOrganizationName(I18n.locale, idp)}
+                                                                {providerOrganizationName(I18n.locale, idp)}
                                                             </span>
                                                         </div>
                                                     </div>

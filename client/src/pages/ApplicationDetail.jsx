@@ -3,11 +3,12 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviderByDetail} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, ButtonType, ButtonIconPlacement, Loader} from "@surfnet/sds";
+import {Button, ButtonIconPlacement, ButtonType, Loader} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
-import {idpName, idpOrganizationName} from "../utils/Manage.js";
+import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
+import {isEmpty} from "../utils/Utils.js";
 
 const ApplicationDetail = () => {
 
@@ -31,6 +32,24 @@ const ApplicationDetail = () => {
             return <Loader/>
         }
 
+        const externalLink = (link, metaData, index) => {
+            const attribute = link.languageProperty ?
+                (I18n.locale === "en" ? metaData[`${link.metaData}:en`] : metaData[`${link.metaData}:nl`] || metaData[`${link.metaData}:en`]) :
+                metaData[link.metaData];
+            if (isEmpty(attribute)) {
+                return null;
+            }
+            if (link.localeAttribute) {
+                let s = `${link.locale}.${attribute}`;
+                console.log(s);
+            }
+            return (
+                <a href={attribute} key={index} target="_blank" rel="noopener noreferrer">
+                    {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale) }
+                </a>
+            );
+        }
+
         const metaData = serviceProvider.data.metaDataFields;
 
         return (
@@ -51,10 +70,10 @@ const ApplicationDetail = () => {
                             {!metaData["logo:0:url"] && <PlaceHolderImage/>}
                             <div className="meta-data-name">
                                 <p className="organization">
-                                    {idpOrganizationName(I18n.locale, serviceProvider)}
+                                    {providerOrganizationName(I18n.locale, serviceProvider)}
                                 </p>
                                 <p className="name">
-                                    {idpName(I18n.locale, serviceProvider)}
+                                    {providerName(I18n.locale, serviceProvider)}
                                 </p>
                             </div>
                             <Button type={ButtonType.Secondary}
@@ -64,11 +83,62 @@ const ApplicationDetail = () => {
                                     txt={I18n.t("applicationDetail.back")}/>
                         </div>
                         <div className="details">
-                            {JSON.stringify(serviceProvider)}
+                            <div className="left">
+                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                                <div className="details-panel">
+
+                                </div>
+                            </div>
+                            <div className="right">
+                                <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
+                                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
+                                <div className="info-block">
+                                    {APPLICATION_LINKS.map((link, index) =>
+                                        externalLink(link, metaData, index)
+                                    )}
+                                </div>
+                                <p className="info">{I18n.t("applicationDetail.contractual")}</p>
+                                <p>
+                                <span>
+                                    {metaData["coin:contractual_base"] ?
+                                    I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
+                                        {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
+                                    : I18n.t("applicationDetail.noInformation")}
+                                </span>
+                                    <span
+                                        dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
+                                </p>
+                                <p>{I18n.t("applicationDetail.contractualInfoOrganization",
+                                    {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
+                                <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
+                                <div className="info-block">
+                                    {[1,2,3,4].map(nbr =>
+                                    externalLink({
+                                        locale: "applicationDetail.entityCategory",
+                                        localeAttribute: true,
+                                        metaData:`coin:entity_categories:${nbr}`,
+                                        languageProperty: false
+                                    }, metaData, nbr)
+                                    )}
+                                    {[1,2,3,4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
+                                        <p >{I18n.t("applicationDetail.none")}</p>
+                                    }
+                                </div>
+                                {metaData["mdrpi:RegistrationInfo"] && (
+                                    <div className="federation-source">
+                                        <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
+                                        <span
+                                            dangerouslySetInnerHTML={{
+                                                __html: I18n.t('applicationDetail.registrationInfo', { url: metaData["mdrpi:RegistrationInfo"] }),
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         );
     }

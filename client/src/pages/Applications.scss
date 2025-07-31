@@ -57,6 +57,7 @@ div.applications-container {
         li {
             padding: 10px 0 10px 0;
             cursor: pointer;
+            height: 70px;
 
             &:hover {
                 background-color: var(--sds--color--gray--200);
@@ -71,14 +72,17 @@ div.applications-container {
             display: flex;
             align-items: center;
 
-            img, svg {
+            img{
                 width: 60px;
                 height: auto;
                 border-radius: 12px;
             }
 
             svg {
+                width: 48px;
                 color: var(--sds--color--gray--300);
+                height: auto;
+                border-radius: 12px;
             }
 
             .sp-info {
@@ -107,4 +111,5 @@ div.applications-container {
             margin: 15px auto 15px auto;
         }
     }
+
 }

@@ -9,12 +9,12 @@ import StudentPng from "../icons/student.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {idpName, idpOrganizationName} from "../utils/Manage.js";
+import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 
 const Connect = () => {
 
-    
+
 
     return (
         <div className="connect-container">

@@ -628,7 +628,7 @@ const en = {
         subTitle: "Browse the institutions currently connected to SURF Access, categorized into education, research and affiliated institutions.",
         category: "Category",
         all: "All categories",
-        other: "-",
+        other: "Other",
         searchPlaceHolder: "Search institutions..."
     },
     applications: {
@@ -645,14 +645,49 @@ const en = {
         subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
         back: "Terug",
         license: {
-            required: "Requires a license",
-            notRequired: "Does not requires a license",
+            license_available_through_surfmarket: "Requires a license through SURFmarket",
+            license_not_required: "Does not requires a license",
+            license_required_by_service_provider: "Requires a license",
         },
         attributes: "Attributes",
         attributesInfo: "The application needs to receive attributes to function correctly.",
         details: "Show details",
         privacy: "Privacy",
-        privacyInfo: "SURF asks suppliers to provide information about their GDPR (AVG) policies. For anything missing, please contact the supplier."
+        privacyInfo: "SURF asks suppliers to provide information about their GDPR (AVG) policies. For anything missing, please contact the supplier.",
+        quickLinks: "Quick links",
+        website: "Website",
+        loginPage: "Login page",
+        support: "Support",
+        terms: "Terms & conditions",
+        registrationPolicy: "Registration policy",
+        privacyStatement: "Privacy statement",
+        contractual: "Contractual Base",
+        wiki: " See the <a href='https://support.surfconext.nl/contract-info-nl' target='_blank' rel='noopener noreferrer'>wiki</a>.",
+        noInformation: "No information supplied",
+        contractualInfoOrganization: "(This application is offered by {{name}}.)",
+        contractualBase: {
+            na: "No info on the contractual base is available: for any questions, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
+            ao: "{{organisation}} has signed the SURFconext connection agreement.",
+            ix: "Application offered by SURFconext member institution.",
+            "r&s+coco": "eduGAIN application that has agreed to the Data Protection Code of Conduct and belongs to the Research & Scholarship entity category.",
+            entree: "Member of the Kennisnet Entree-federation.",
+            clarin: "Member of the Clarin research federation.",
+            none: "{{organisation}} refused to sign the SURFconext connection agreement.",
+            "edugain (community)": "Application offered through the international research and education community via eduGAIN."
+        },
+        supportedEntityCategories: "Supported Entity Categories",
+        entityCategory: {
+            "http://wwwgeantnet/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
+            "https://refedsorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
+            "http://refedsorg/category/research-and-scholarship": "Research and Scholarship",
+            "http://clarineu/category/clarin-member": "Clarin member",
+            "http://refedsorg/category/hide-from-discovery": "Hide from discovery"
+        },
+        none: "None",
+        interfedSource: "Federation source",
+        registrationInfo: "This application provider is available in SURFconext through <a href='https://support.surfconext.nl/edugain' target='_blank' rel='noopener noreferrer'>eduGAIN</a>. " +
+            "The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>."
+
     },
     connect: {
         title: "How to connect",

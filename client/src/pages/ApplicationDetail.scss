@@ -43,6 +43,7 @@ div.application-detail-container {
         background-color: white;
         max-width: $width;
         padding: 25px 0;
+
         .meta-data {
             display: flex;
             align-items: center;
@@ -66,9 +67,10 @@ div.application-detail-container {
                 gap: 12px;
 
                 p.organization {
-                 color: var(--sds--color--blue--400);
+                    color: var(--sds--color--blue--400);
                     font-size: 20px;
                 }
+
                 p.name {
                     font-weight: 600;
                     font-size: 24px;
@@ -77,6 +79,55 @@ div.application-detail-container {
 
             button {
                 margin-left: auto;
+            }
+        }
+    }
+
+    .details {
+        display: flex;
+
+        .left {
+            width: 65%;
+
+            .details-panel {
+             background-color: var(--sds--color--gray--background);
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .right {
+            margin-left: auto;
+            max-width: 35%;
+
+            .license {
+                width: 275px;
+                height: 32px;
+                border-radius: 100px;
+                padding: 2px 12px;
+                font-weight: 600;
+                font-size: 18px;
+                background-color: #FFC100;
+                color: white;
+                text-align: center;
+            }
+
+            .info {
+                margin-top: 25px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .info-block {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                a, a:visited, a:hover {
+                    color: #0077C8;
+                }
             }
         }
     }

@@ -57,6 +57,7 @@ div.institutions-container {
 
         li {
             padding: 10px 0 10px 0;
+            height: 96px;
 
             &:not(:first-child) {
                 border-top: 1px solid var(--sds--color--gray--300);
