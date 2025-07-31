@@ -162,11 +162,11 @@ public class ConnectionController implements UserAccessRights {
                 user.getName(), connection.getName());
         String jiraKey = jiraClient.create(new JiraIssue(
                 entityId,
-                summary,
                 String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
                         summary,
                         lineSeparator,
                         changeRequestURL),
+                summary,
                 connection.getProtocol(),
                 user.getEmail()
         ));
