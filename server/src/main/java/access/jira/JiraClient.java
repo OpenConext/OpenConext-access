@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -19,10 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @EnableConfigurationProperties(JiraConfig.class)
@@ -35,6 +35,7 @@ public class JiraClient {
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
+    private  HttpHeaders defaultHeaders;
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
@@ -49,9 +50,13 @@ public class JiraClient {
             requestFactory.setReadTimeout(config.getConnectionTimeout());
             requestFactory.setConnectTimeout(config.getConnectionTimeout());
 
-            List<ClientHttpRequestInterceptor> interceptors = this.restTemplate.getInterceptors();
-            interceptors.add(new APITokenHeaderInterceptor(config.getApiKey()));
-            interceptors.add(new JSONHeaderInterceptor());
+            this.defaultHeaders = new HttpHeaders();
+            this.defaultHeaders.setContentType(MediaType.APPLICATION_JSON);
+            this.defaultHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + config.getApiKey());
+
+//            List<ClientHttpRequestInterceptor> interceptors = this.restTemplate.getInterceptors();
+//            interceptors.add(new APITokenHeaderInterceptor(config.getApiKey()));
+//            interceptors.add(new JSONHeaderInterceptor());
         }
     }
 
@@ -82,7 +87,10 @@ public class JiraClient {
 
         try {
 //            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
-            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraJson, Map.class);
+            HttpEntity<String> entity = new HttpEntity<>(jiraJson, defaultHeaders);
+            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", entity, Map.class);
+
+//            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraJson, Map.class);
             return result.get("key");
         } catch (HttpClientErrorException e) {
             LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",

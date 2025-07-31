@@ -16,7 +16,7 @@ public class JSONHeaderInterceptor implements ClientHttpRequestInterceptor {
             HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 
         HttpHeaders headers = request.getHeaders();
-        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+//        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         return execution.execute(request, body);
     }
