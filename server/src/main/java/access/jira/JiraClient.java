@@ -81,13 +81,13 @@ public class JiraClient {
         /*
          * Temp to see if Jira API_KEY works
          */
-        String jiraJson = IOUtils.readInputStreamToString(new ClassPathResource("/jira/jira.json").getInputStream());
-//        LOG.info("Sending JSON {} to JIRA", jiraIssue);
-        LOG.info("Sending JSON {} to JIRA", jiraJson);
+//        String jiraJson = IOUtils.readInputStreamToString(new ClassPathResource("/jira/jira.json").getInputStream());
+        LOG.info("Sending JSON {} to JIRA", jiraIssue);
+//        LOG.info("Sending JSON {} to JIRA", jiraJson);
 
         try {
 //            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
-            HttpEntity<String> entity = new HttpEntity<>(jiraJson, defaultHeaders);
+            HttpEntity<Map<String, Map<String, Object>>> entity = new HttpEntity<>(jiraIssue, defaultHeaders);
             Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", entity, Map.class);
 
 //            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraJson, Map.class);
