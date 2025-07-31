@@ -33,6 +33,7 @@ import {UserManagement} from "./organization/UserManagement.jsx";
 import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
+import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 
 const App = () => {
 
@@ -137,6 +138,7 @@ const App = () => {
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation/>}/>
                             <Route path="/system" element={<System/>}/>
+                            <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             {/*{sharedRoutes()}*/}
@@ -152,6 +154,7 @@ const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         {sharedRoutes()}
+                        <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                         <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                         <Route path="/*" element={<LoginRedirect/>}/>
                     </Routes>

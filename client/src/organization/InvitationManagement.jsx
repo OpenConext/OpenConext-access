@@ -105,7 +105,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
 
     const renderOrganizationInvitations = () => {
         if (isEmpty(organization.invitations)) {
-            return <h3>{I18n.t("invitationsManagement.zeroState", {name: organization.name})}</h3>
+            return <p>{I18n.t("invitationsManagement.zeroState", {name: organization.name})}</p>
         }
 
         const columns = [

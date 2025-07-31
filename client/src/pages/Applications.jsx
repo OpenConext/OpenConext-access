@@ -12,6 +12,7 @@ import {idpName, idpOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 
 const pageCount = 10;
+
 const Applications = () => {
 
         const navigate = useNavigate();
@@ -171,7 +172,8 @@ const Applications = () => {
                                     .map((idp, index) => {
                                             const metaData = idp.data.metaDataFields;
                                             return (
-                                                <li key={index}>
+                                                <li key={index}
+                                                    onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>
                                                     <div className="service-provider">
                                                         {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
                                                         {!metaData["logo:0:url"] && <PlaceHolderImage/>}

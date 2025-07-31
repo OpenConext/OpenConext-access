@@ -80,7 +80,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
 
     const renderJoinRequest = () => {
         if (isEmpty(organization.joinRequests)) {
-            return <h3>{I18n.t("joinRequestManagement.zeroState", {name: organization.name})}</h3>
+            return <p>{I18n.t("joinRequestManagement.zeroState", {name: organization.name})}</p>
         }
 
         const columns = [

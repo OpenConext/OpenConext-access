@@ -640,6 +640,20 @@ const en = {
         other: "-",
         searchPlaceHolder: "Search applications..."
     },
+    applicationDetail: {
+        title: "Applications",
+        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        back: "Terug",
+        license: {
+            required: "Requires a license",
+            notRequired: "Does not requires a license",
+        },
+        attributes: "Attributes",
+        attributesInfo: "The application needs to receive attributes to function correctly.",
+        details: "Show details",
+        privacy: "Privacy",
+        privacyInfo: "SURF asks suppliers to provide information about their GDPR (AVG) policies. For anything missing, please contact the supplier."
+    },
     connect: {
         title: "How to connect",
         subTitle: "Connecting to SURF Access is not complicated. It requires a formal and a technical part.",

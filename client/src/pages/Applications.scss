@@ -56,6 +56,11 @@ div.applications-container {
 
         li {
             padding: 10px 0 10px 0;
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--sds--color--gray--200);
+            }
 
             &:not(:first-child) {
                 border-top: 1px solid var(--sds--color--gray--300);
