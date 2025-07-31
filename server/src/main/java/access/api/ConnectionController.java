@@ -162,8 +162,8 @@ public class ConnectionController implements UserAccessRights {
                 entityId,
                 String.format("Production status requested by %s for %s.",
                         user.getName(), connection.getName()),
-                String.format("A change request in manage has been created to merge this user request. See:%s%s",
-                        lineSeparator, changeRequestURL),
+                String.format("A change request in manage has been created to merge this user request. See:%s",
+                        changeRequestURL),
                 connection.getProtocol(),
                 user.getEmail()
         ));
