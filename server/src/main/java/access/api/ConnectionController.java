@@ -158,11 +158,14 @@ public class ConnectionController implements UserAccessRights {
         Map<String, Object> provider = manage.providerById(connection);
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
+        String summary = String.format("Production status requested by %s for %s.",
+                user.getName(), connection.getName());
         String jiraKey = jiraClient.create(new JiraIssue(
                 entityId,
-                String.format("Production status requested by %s for %s.",
-                        user.getName(), connection.getName()),
-                String.format("A change request in manage has been created to merge this user request. See:%s",
+                summary,
+                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
+                        summary,
+                        lineSeparator,
                         changeRequestURL),
                 connection.getProtocol(),
                 user.getEmail()

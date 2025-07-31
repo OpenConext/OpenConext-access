@@ -45,7 +45,6 @@ public class JiraClient {
         });
         this.issueType = this.resolveIssueType();
         if (config.isEnabled()) {
-            //Must do this before adding the interceptors
             SimpleClientHttpRequestFactory requestFactory = (SimpleClientHttpRequestFactory) this.restTemplate.getRequestFactory();
             requestFactory.setReadTimeout(config.getConnectionTimeout());
             requestFactory.setConnectTimeout(config.getConnectionTimeout());
@@ -53,10 +52,6 @@ public class JiraClient {
             this.defaultHeaders = new HttpHeaders();
             this.defaultHeaders.setContentType(MediaType.APPLICATION_JSON);
             this.defaultHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + config.getApiKey());
-
-//            List<ClientHttpRequestInterceptor> interceptors = this.restTemplate.getInterceptors();
-//            interceptors.add(new APITokenHeaderInterceptor(config.getApiKey()));
-//            interceptors.add(new JSONHeaderInterceptor());
         }
     }
 
@@ -78,19 +73,14 @@ public class JiraClient {
 
         Map<String, Map<String, Object>> jiraIssue = Map.of("fields", fields);
 
-        /*
-         * Temp to see if Jira API_KEY works
-         */
-//        String jiraJson = IOUtils.readInputStreamToString(new ClassPathResource("/jira/jira.json").getInputStream());
         LOG.info("Sending JSON {} to JIRA", jiraIssue);
-//        LOG.info("Sending JSON {} to JIRA", jiraJson);
 
         try {
-//            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
             HttpEntity<Map<String, Map<String, Object>>> entity = new HttpEntity<>(jiraIssue, defaultHeaders);
             Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", entity, Map.class);
 
-//            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraJson, Map.class);
+            LOG.info("Response {} from JIRA", result);
+
             return result.get("key");
         } catch (HttpClientErrorException e) {
             LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
