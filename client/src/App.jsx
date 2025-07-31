@@ -110,7 +110,7 @@ const App = () => {
                     navigate("/home");
                 });
         })
-    }, [impersonator]);
+    }, [impersonator, navigate]);
 
     if (loading) {
         return <Loader/>

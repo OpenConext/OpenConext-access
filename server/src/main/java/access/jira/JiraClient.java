@@ -4,6 +4,7 @@ import access.manage.JSONHeaderInterceptor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.jose.util.IOUtils;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ public class JiraClient {
         }
     }
 
+    @SneakyThrows
     @SuppressWarnings("unchecked")
     public String create(JiraIssue issue) {
         if (!config.isEnabled()) {
@@ -71,10 +73,16 @@ public class JiraClient {
 
         Map<String, Map<String, Object>> jiraIssue = Map.of("fields", fields);
 
-        LOG.info("Sending JSON {} to JIRA", jiraIssue);
+        /*
+         * Temp to see if Jira API_KEY works
+         */
+        String jiraJson = IOUtils.readInputStreamToString(new ClassPathResource("/jira/jira.json").getInputStream());
+//        LOG.info("Sending JSON {} to JIRA", jiraIssue);
+        LOG.info("Sending JSON {} to JIRA", jiraJson);
 
         try {
-            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
+//            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
+            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraJson, Map.class);
             return result.get("key");
         } catch (HttpClientErrorException e) {
             LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
