@@ -27,7 +27,7 @@ class PublicControllerTest extends AbstractTest {
                 .get("/api/v1/public/service-providers")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(7, serviceProviders.size());
+        assertEquals(8, serviceProviders.size());
     }
 
     @Test

@@ -44,5 +44,267 @@
         "coin:application_url": "https://default-url-unused.org"
       }
     }
+  },
+  {
+    "_id": "10",
+    "version": 1,
+    "type": "oidc10_rp",
+    "data": {
+      "allowedEntities": [],
+      "allowedResourceServers": [
+        {
+          "name": "test.edubadges.rs.nl"
+        },
+        {
+          "name": "student.mobility.home.institution.mock"
+        },
+        {
+          "name": "myconext.rs"
+        },
+        {
+          "name": "voot.test2.surfconext.nl"
+        },
+        {
+          "name": "resource-server-playground-client"
+        }
+      ],
+      "allowedall": true,
+      "arp": {
+        "enabled": true,
+        "attributes": {
+          "urn:mace:dir:attribute-def:cn": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:displayName": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:surf.nl:attribute-def:eckid": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:eduid.nl:1.1": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonAssurance": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonOrcid": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:givenName": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:mail": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:ou": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:preferredLanguage": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:terena.org:attribute-def:schacHomeOrganizationType": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:uid": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:schac:attribute-def:schacPersonalUniqueCode": [
+            {
+              "value": ".*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:sn": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:surf.nl:attribute-def:surf-crm-id": [
+            {
+              "value": "*",
+              "source": "manage",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:isMemberOf": [
+            {
+              "value": "*",
+              "source": "voot",
+              "motivation": ""
+            }
+          ],
+          "urn:oasis:names:tc:SAML:attribute:subject-id": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:dir:attribute-def:eduPersonEntitlement": [
+            {
+              "value": "*",
+              "source": "idp",
+              "motivation": ""
+            }
+          ],
+          "urn:mace:surf.nl:attribute-def:surf-autorisaties": [
+            {
+              "value": "*",
+              "source": "sabrest",
+              "motivation": "",
+              "release_as": "",
+              "use_as_nameid": false
+            }
+          ]
+        }
+      },
+      "discoveryurl": "https://discovery",
+      "entityid": "playground_client",
+      "manipulation": "if (isset($attributes['urn:mace:terena.org:attribute-def:schacHomeOrganization']) &&\n      in_array('uu.nl', $attributes['urn:mace:terena.org:attribute-def:schacHomeOrganization'])) {\n\n        if (isset($attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'])) {\n            if (in_array('employee', $attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'])) {\n            // If 'employee' is already present, stop further processing\n               return;\n            }\n\n            // Change the value of affiliation from 'affiliate' to 'employee'\n            foreach ($attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'] as &$value) {\n                if ($value === 'affiliate') {\n                    $value = 'employee';\n                }\n            }\n         }\n    }",
+      "metaDataFields": {
+        "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+        "OrganizationName:en": "SURF",
+        "OrganizationURL:en": "https://organization-url.en",
+        "OrganizationURL:nl": "https://organization-url.nl",
+        "accessTokenValidity": 3600,
+        "clientSecretJWT": "very-long-long-long-long-long-secret",
+        "coin:application_url": "https://playground.com",
+        "coin:contractual_base": "AO",
+        "coin:entity_categories:1": "http://refeds.org/category/research-and-scholarship",
+        "coin:entity_categories:2": "http://www.geant.net/uri/dataprotection-code-of-conduct/v1",
+        "coin:entity_categories:3": "https://refeds.org/category/code-of-conduct/v2",
+        "coin:entity_categories:4": "http://refeds.org/category/hide-from-discovery",
+        "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
+        "coin:no_consent_required": true,
+        "coin:policy_enforcement_decision_required": true,
+        "coin:privacy:dpa_type": "dpa_model_surf",
+        "coin:stepup:forceauthn": false,
+        "contacts:0:contactType": "technical",
+        "contacts:0:emailAddress": "okke.harsta@surf.nl",
+        "contacts:0:givenName": "Okke",
+        "contacts:0:surName": "Harsta",
+        "description:en": "Playground client - do not edit please",
+        "displayName:en": "SURFconext Teams",
+        "grants": [
+          "implicit",
+          "client_credentials",
+          "authorization_code",
+          "refresh_token",
+          "urn:ietf:params:oauth:grant-type:device_code"
+        ],
+        "isPublicClient": false,
+        "logo:0:url": "https://static.surfconext.nl/logos/idp/surfconext.png",
+        "mdrpi:RegistrationInfo": "https://www.aai.dfn.de",
+        "mdrpi:RegistrationPolicy:en": "https://registration.en",
+        "mdrpi:RegistrationPolicy:nl": "https://registration.nl",
+        "mdui:PrivacyStatementURL:en": "https://privacy.en",
+        "mdui:PrivacyStatementURL:nl": "https://privacy.nl",
+        "name:en": "OIDC Playground Client",
+        "name:nl": "OIDC Speeltuintje Klant",
+        "oidc:claims_in_id_token": true,
+        "oidc:signingCertificateUrl": "https://oidc-playground.test2.surfconext.nl/oidc/api/certs",
+        "oidc:state_parameter_decoding_disabled": true,
+        "redirectUrls": [
+          "https://oidc-playground.test2.surfconext.nl/oidc/api/redirect",
+          "https://oidctest.vm.openconext.org/test/redirect",
+          "http://localhost:3006/redirect",
+          "http://localhost:3006/oidc/api/redirect",
+          "https://oidc-playground.test2.surfconext.nl/redirect",
+          "https://oidc-playground.test2.surfconext.nl/redirect?123",
+          "http://login.test2.eduid.nl/myconext/api/mobile/swagger-ui/oauth2-redirect.html",
+          "http://localhost:8081/myconext/api/mobile/swagger-ui/oauth2-redirect.html",
+          "http://localhost:8080/login/oauth2/code/oidcng",
+          "http://localhost:8080/ui/swagger-ui/oauth2-redirect.html",
+          "https://manage.test2.surfconext.nl/redirect",
+          "http://localhost:8081/myconext/api/swagger-ui/oauth2-redirect.html",
+          "https://login.test2.eduid.nl/myconext/api/swagger-ui/oauth2-redirect.html",
+          "http://test2.surfaccess.nl/login/oauth2/code/oidcng"
+        ],
+        "secret": "$2a$10$KDkFwwFy72EaSYwB6dfXNunG438w/FTEFXE30H2rHBn.W2mZmadsO",
+        "url:en": "https://support.en",
+        "url:nl": "https://support.nl"
+      },
+      "state": "prodaccepted",
+      "type": "oidc10-rp"
+    }
   }
 ]

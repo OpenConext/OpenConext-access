@@ -9,6 +9,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 
@@ -39,6 +40,11 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void parseURL() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        String xml = IOUtils.readInputStreamToString(new ClassPathResource("/metadata.xml").getInputStream());
+        stubFor(get(urlPathMatching("/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "html/xml")
+                        .withBody(xml)
+                        .withStatus(200)));
 
         List<Map<String, Object>> metaDataList = given()
                 .when()
@@ -46,7 +52,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(Map.of("url", "https://engine.test.surfconext.nl/authentication/sp/metadata"))
+                .body(Map.of("url", "http://localhost:8081/metadata"))
                 .post("/api/v1/manage/parse")
                 .as(new TypeRef<>() {
                 });
@@ -58,8 +64,7 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void parseXML() throws Exception {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        String url = "https://engine.test.surfconext.nl/authentication/sp/metadata";
-        String xml = IOUtils.readInputStreamToString(new UrlResource(url).getInputStream());
+        String xml = IOUtils.readInputStreamToString(new ClassPathResource("/metadata.xml").getInputStream());
         List<Map<String, Object>> metaDataList = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
