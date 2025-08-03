@@ -126,7 +126,7 @@ email:
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
   #  enabled: True
-  enabled: True
+  enabled: False
   test:
     url: "https://manage.test2.surfconext.nl"
     #  url: "http://localhost:8081"

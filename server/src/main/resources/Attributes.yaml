@@ -1,0 +1,30 @@
+Attributes
+The application needs to receive attributes to function correctly.
+
+Affiliation
+If staff, Buddycheck gives users more functionality such as ability to create new evaluations
+surn:mace:dir:attribute-def:eduPersonAffiliation - Source: Your IdP
+
+Common name
+For assessment students need to see name of peer students
+urn:mace:dir:attribute-def:cn - Source: Your IdP
+
+Display name
+For assessment students need to see name of peer students
+urn:mace:dir:attribute-def:displayName - Source: Your IdP
+
+Email
+When evaluation starts, stops or gets released, students receive a notification by email
+urn:mace:dir:attribute-def:mail - Source: Your IdP
+
+Preferred language
+Support multilanguage interface
+urn:mace:dir:attribute-def:preferredLanguage - Source: Your IdP
+
+Unique code
+When exporting the data to use for grading, the teacher needs to have the student number to match the results with the correct students
+urn:schac:attribute-def:schacPersonalUniqueCode - Source: Your IdP
+
+Your IdP abbrevation
+Buddycheck puts user in the matching customer environment
+urn:mace:terena.org:attribute-def:schacHomeOrganization - Source: Your IdP

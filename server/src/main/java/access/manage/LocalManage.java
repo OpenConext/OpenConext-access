@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
-public final class LocalManage implements Manage {
+public final class  LocalManage implements Manage {
 
     private static final Log LOG = LogFactory.getLog(LocalManage.class);
 
@@ -160,7 +160,10 @@ public final class LocalManage implements Manage {
 
     @Override
     public List<Map<String, Object>> serviceProvidersLight(Environment environment) {
-        return List.of();
+        List<Map<String, Object>> providers = new ArrayList<>();
+        providers.addAll( this.allProviders.get(EntityType.saml20_sp));
+        providers.addAll(this.allProviders.get(EntityType.oidc10_rp));
+        return providers;
     }
 
     @Override

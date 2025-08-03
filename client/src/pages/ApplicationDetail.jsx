@@ -8,14 +8,17 @@ import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, stopEvent} from "../utils/Utils.js";
 
 const ApplicationDetail = () => {
 
         const navigate = useNavigate();
         const {manageType, manageId} = useParams();
+
         const [loading, setLoading] = useState(true);
         const [serviceProvider, setServiceProvider] = useState([]);
+        const [showAttributes, setShowAttributes] = useState(false);
+        const [showPrivacy, setShowPrivacy] = useState(false);
 
         useEffect(() => {
             publicServiceProviderByDetail(manageType, manageId)
@@ -45,12 +48,22 @@ const ApplicationDetail = () => {
             }
             return (
                 <a href={attribute} key={index} target="_blank" rel="noopener noreferrer">
-                    {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale) }
+                    {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale)}
                 </a>
             );
         }
 
         const metaData = serviceProvider.data.metaDataFields;
+
+        const toggleShowAttributes = e => {
+            stopEvent(e);
+            setShowAttributes(true);
+        }
+
+        const toggleShowPrivacy = e => {
+            stopEvent(e);
+            setShowPrivacy(true);
+        }
 
         return (
             <div className="application-detail-container">
@@ -86,7 +99,18 @@ const ApplicationDetail = () => {
                             <div className="left">
                                 <p>{providerDescription(I18n.locale, serviceProvider)}</p>
                                 <div className="details-panel">
-
+                                    <p className="title">{I18n.t("applicationDetail.attributes")}</p>
+                                    <p>{I18n.t("applicationDetail.attributesInfo")}</p>
+                                    {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                                        {I18n.t("applicationDetail.details")}
+                                    </a>}
+                                </div>
+                                <div className="details-panel">
+                                    <p className="title">{I18n.t("applicationDetail.privacy")}</p>
+                                    <p>{I18n.t("applicationDetail.privacyInfo")}</p>
+                                    {!showAttributes && <a href="/" onClick={toggleShowPrivacy}>
+                                        {I18n.t("applicationDetail.details")}
+                                    </a>}
                                 </div>
                             </div>
                             <div className="right">
@@ -101,9 +125,9 @@ const ApplicationDetail = () => {
                                 <p>
                                 <span>
                                     {metaData["coin:contractual_base"] ?
-                                    I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
-                                        {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
-                                    : I18n.t("applicationDetail.noInformation")}
+                                        I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
+                                            {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
+                                        : I18n.t("applicationDetail.noInformation")}
                                 </span>
                                     <span
                                         dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
@@ -112,16 +136,16 @@ const ApplicationDetail = () => {
                                     {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
                                 <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
                                 <div className="info-block">
-                                    {[1,2,3,4].map(nbr =>
-                                    externalLink({
-                                        locale: "applicationDetail.entityCategory",
-                                        localeAttribute: true,
-                                        metaData:`coin:entity_categories:${nbr}`,
-                                        languageProperty: false
-                                    }, metaData, nbr)
+                                    {[1, 2, 3, 4].map(nbr =>
+                                        externalLink({
+                                            locale: "applicationDetail.entityCategory",
+                                            localeAttribute: true,
+                                            metaData: `coin:entity_categories:${nbr}`,
+                                            languageProperty: false
+                                        }, metaData, nbr)
                                     )}
-                                    {[1,2,3,4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
-                                        <p >{I18n.t("applicationDetail.none")}</p>
+                                    {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
+                                        <p>{I18n.t("applicationDetail.none")}</p>
                                     }
                                 </div>
                                 {metaData["mdrpi:RegistrationInfo"] && (
@@ -129,7 +153,7 @@ const ApplicationDetail = () => {
                                         <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
                                         <span
                                             dangerouslySetInnerHTML={{
-                                                __html: I18n.t('applicationDetail.registrationInfo', { url: metaData["mdrpi:RegistrationInfo"] }),
+                                                __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
                                             }}
                                         />
                                     </div>

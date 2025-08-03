@@ -72,6 +72,10 @@
         "en": "The organization name of the identity provider",
         "nl": "The organization name of the identity provider"
       },
+      "friendlyNames": {
+        "en": "Your IdP abbrevation",
+        "nl": "Je IdP afkorting"
+      },
       "example": "uvh.nl"
     },
     {
@@ -80,6 +84,10 @@
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
+      },
+      "friendlyNames": {
+        "en": "De Affiliation IdP abbrevation",
+        "nl": "Je IdP afkorting"
       },
       "example": "student@uvh.nl"
     },

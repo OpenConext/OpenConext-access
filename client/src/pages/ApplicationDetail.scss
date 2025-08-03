@@ -88,13 +88,20 @@ div.application-detail-container {
 
         .left {
             width: 65%;
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
 
             .details-panel {
-             background-color: var(--sds--color--gray--background);
+                background-color: var(--sds--color--gray--background);
+                max-width: 560px;
                 padding: 20px;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 2px;
+                p.title {
+                    font-weight: 600;
+                }
             }
         }
 
