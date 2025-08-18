@@ -87,7 +87,7 @@ const Applications = () => {
                     setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
-                .catch(e => {
+                .catch(() => {
                     navigate("/404");
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps

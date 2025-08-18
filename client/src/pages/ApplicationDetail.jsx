@@ -26,7 +26,7 @@ const ApplicationDetail = () => {
                     setServiceProvider(res);
                     setLoading(false);
                 })
-                .catch(e => {
+                .catch(() => {
                     navigate("/404");
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps

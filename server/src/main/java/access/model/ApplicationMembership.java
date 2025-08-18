@@ -31,6 +31,7 @@ public class ApplicationMembership implements NameHolder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_membership_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private OrganizationMembership organizationMembership;
 
     @Enumerated(EnumType.STRING)

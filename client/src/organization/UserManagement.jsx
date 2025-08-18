@@ -51,8 +51,12 @@ export const UserManagement = () => {
         setCurrentTab(name);
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"),menuItemName: "yourApps"},
-                {path: `/organization/${organizationId}`, value: res ? res.name : organization.name, menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {
+                    path: `/organization/${organizationId}`,
+                    value: res ? res.name : organization.name,
+                    menuItemName: "yourApps"
+                },
                 {value: I18n.t(`breadCrumb.${name}`)}
             ]
         });

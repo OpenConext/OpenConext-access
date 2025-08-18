@@ -24,7 +24,7 @@ import Landing from "./pages/Landing.jsx";
 import JoinRequest from "./pages/JoinRequest.jsx";
 import UserHome from "./pages/UserHome.jsx";
 import {LoginRedirect} from "./pages/LoginRedirect.jsx";
-import {LOCAL_STORAGE_LOCATION} from "./utils/Login.js";
+import {SESSION_STORAGE_LOCATION} from "./utils/Login.js";
 import {Impersonating} from "./components/Impersonating.jsx";
 import System from "./pages/System.jsx";
 import {InvitationForm} from "./pages/InvitationForm.jsx";
@@ -87,9 +87,9 @@ const App = () => {
                                     menuItems: ["allApps"]
                                 }));
                             }
-                            let storedLocation = localStorage.getItem(LOCAL_STORAGE_LOCATION);
+                            let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
                             if (!isEmpty(storedLocation)) {
-                                // Do not remove the LOCAL_STORAGE_LOCATION because in development mode this is called twice
+                                // Do not remove the SESSION_STORAGE_LOCATION because in development mode this is called twice
                                 if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
                                     storedLocation = "/landing";
                                 }
@@ -111,7 +111,7 @@ const App = () => {
                     navigate("/home");
                 });
         })
-    }, [impersonator, navigate]);
+    }, [impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return <Loader/>
