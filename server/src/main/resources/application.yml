@@ -84,7 +84,7 @@ jira:
   environment: test
   api-key: secret
   # Timeout in milliseconds
-  connection-timeout: 20
+  connection-timeout: 60_000
 
 institution-admin:
   entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
