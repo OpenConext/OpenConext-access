@@ -3,6 +3,7 @@ import {distinctValues, sanitizeURL} from "../../utils/Utils";
 
 test("Test sanitizeURL", () => {
     expect(sanitizeURL("https://invite.test2.surfconext.nl")).toEqual("https://invite.test2.surfconext.nl");
+    expect(sanitizeURL("ftp://rumble")).toEqual("about:blank");
 });
 
 test("Test distinctValues", () => {
