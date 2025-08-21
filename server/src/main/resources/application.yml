@@ -76,25 +76,15 @@ invite:
   manage-identifier: "9940c56f-b834-4ea8-aceb-74352bb4a390"
   manage-type: oidc10_rp
 
-#jira:
-#  enabled: false
-#  base-url: "http://localhost:8081"
-#  user-name: "test-beheer-rpc"
-#  project-key: CXT
-#  environment: test
-#  api-key: secret
-#  # Timeout in milliseconds
-#  connection-timeout: 60_000
-
 jira:
-  enabled: true
-  base-url: https://sd-jira-staging.surf.nl/jira/rest/api/2
-  user-name: test-beheer-rpc
+  enabled: false
+  base-url: "http://localhost:8081"
+  user-name: "test-beheer-rpc"
   project-key: CXT
   environment: test
-  api-key: ODU1NzA3MDk3ODg5Onogb+ahwgLPgM7CLU0h1oqVSfEb
+  api-key: secret
   # Timeout in milliseconds
-  connection-timeout: 60000
+  connection-timeout: 60_000
 
 institution-admin:
   entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
