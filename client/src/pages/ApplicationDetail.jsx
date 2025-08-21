@@ -104,13 +104,15 @@ const ApplicationDetail = () => {
                                     {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
                                         {I18n.t("applicationDetail.details")}
                                     </a>}
+
                                 </div>
                                 <div className="details-panel">
                                     <p className="title">{I18n.t("applicationDetail.privacy")}</p>
                                     <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-                                    {!showAttributes && <a href="/" onClick={toggleShowPrivacy}>
+                                    {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
                                         {I18n.t("applicationDetail.details")}
                                     </a>}
+
                                 </div>
                             </div>
                             <div className="right">
