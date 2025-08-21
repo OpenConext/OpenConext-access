@@ -28,15 +28,19 @@ export const AppTeamManagement = ({
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
+    const [applicationMemberships, setApplicationMemberships] = useState([]);
 
     useEffect(() => {
         organizationUsersById(currentOrganization.id)
             .then(res => {
                 setOrganization(res);
-                (application.applicationMemberships || [])
-                    .forEach(membership => membership.user = res.organizationMemberships
-                        .find(m => m.id === membership.organizationMembership.id).user
-                    );
+                setApplicationMemberships((application.applicationMemberships || [])
+                    .map(membership => {
+                        membership.user = res.organizationMemberships
+                            .find(m => m.id === membership.organizationMembershipIdentifier).user;
+                        return membership;
+                    }
+                ))
                 const membership = (currentUser.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                 setCurrentUserAuthority(currentUserMembershipAuthority(currentUser, membership));
                 setLoading(false);
@@ -95,7 +99,7 @@ export const AppTeamManagement = ({
             <SelectField
                 value={null}
                 options={organization.organizationMemberships
-                    .filter(member => !application.applicationMemberships.some(appMember => appMember.organizationMembership.id === member.id))
+                    .filter(member => !applicationMemberships.some(appMember => appMember.organizationMembershipIdentifier === member.id))
                     .map(organizationMemberOption)}
                 placeholder={I18n.t("appTeamManagement.addPlaceHolder")}
                 searchable={true}
@@ -110,7 +114,9 @@ export const AppTeamManagement = ({
             {
                 key: "user__name",
                 header: I18n.t("appTeamManagement.name"),
-                mapper: membership => <UserMembership user={membership.user} currentUser={currentUser}/>
+                mapper: membership => {
+                    return  <UserMembership user={membership.user} currentUser={currentUser}/>
+                }
             },
             {
                 key: "createdAt",
@@ -142,7 +148,7 @@ export const AppTeamManagement = ({
 
         return (
             <Entities
-                entities={application.applicationMemberships}
+                entities={applicationMemberships}
                 modelName="appTeamManagement"
                 defaultSort="user__name"
                 hideTitle={true}

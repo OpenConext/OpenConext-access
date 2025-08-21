@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.time.Instant;
 
@@ -51,6 +52,13 @@ public class ApplicationMembership implements NameHolder {
     @JsonIgnore
     public String getName() {
         return getClass().getName().concat(application.getName()).concat(authority.name());
+    }
+
+    @JsonProperty(value = "organizationMembershipIdentifier", access = JsonProperty.Access.READ_ONLY)
+    public Long getOrganizationMembershipInfo() {
+        OrganizationMembership organizationMembership = this.getOrganizationMembership();
+        Hibernate.initialize(organizationMembership);
+        return organizationMembership.getId();
     }
 
 }
