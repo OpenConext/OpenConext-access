@@ -692,10 +692,37 @@ const en = {
     connect: {
         title: "How to connect",
         subTitle: "Connecting to SURF Access is not complicated. It requires a formal and a technical part.",
-        howTo: "Formal part",
-        formal: "Applications on SURF Access are either provided by commercial entities or by SURF members for the benefit of their peers within the network. Our agreements vary based on the ownership of the application and the intended audience. For instance, if you intend to offer your service to a large number of users, you will need to enter into a formal contract with us.  If your service is developed within your institution and is intended for a smaller research group, a shorter terms of service will do.",
-
-        provisions: "With these provisions, we aim to ensure a smooth and secure integration for all parties involved."
+        formal: "Formal part",
+        formalInfo: "Applications on SURF Access are either provided by commercial entities or by SURF members for the benefit of their peers within the network. Our agreements vary based on the ownership of the application and the intended audience. For instance, if you intend to offer your service to a large number of users, you will need to enter into a formal contract with us.  If your service is developed within your institution and is intended for a smaller research group, a shorter terms of service will do.",
+        agreementTypes: "Agreement types",
+        testIdps: "Test IdP’s",
+        collaborations: "Collaborations",
+        enterprises: "Enterprises",
+        accessTestIdps: "access for test IdP’s",
+        accessGroups: "access for diverse groups",
+        accessStudent: "e.g. access for all students",
+        commercial: "Commercial entity",
+        fairUse: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Fair Use Policy</a>",
+        accessTOS: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>SURF Access TOS</a>",
+        connectionAgreement: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Connection agreement</a>",
+        surfMember: "SURF member",
+        notNeeded: "not needed",
+        memberAgreement: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Member agreement</a>",
+        surfMemberInfo: "including affiliated organisations",
+        provisions: "With these provisions, we aim to ensure a smooth and secure integration for all parties involved.",
+        technical: "Technical part",
+        technicalInfo: "Whenever a user logs in through SURF Access, their information flows from their home-institution (Identity provider), via SURF Access, directly to your service.",
+        serviceInfo: "Your service can receive a variety of data, including:",
+        serviceBullets: [
+            "<strong>Authentication Data</strong>: Proof that the user has been authenticated by the Identity Provider.",
+            "<strong>Authorisation Information</strong>: Details necessary for making authorisation decisions within your service.",
+            "<strong>Group Membership Information</strong>: Data about a user’s group memberships.",
+            "<strong>Additional User Data</strong>: Any other data relevant to the service you provide."
+        ],
+        samlOidc: "SAML & OpenID Connect",
+        samlOidcInfo: "We use these open standards as they are used in most countries and many sectors.",
+        attributes: "Attributes and claims",
+        attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors."
     },
     forms: {
         cancel: "Cancel",

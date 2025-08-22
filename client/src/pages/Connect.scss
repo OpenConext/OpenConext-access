@@ -37,20 +37,64 @@ div.connect-container {
         width: 100%;
         height: 100%;
         background-color: white;
+        padding-bottom: 40px;
     }
 
     .connect {
         @include index.page;
         background-color: white;
         max-width: $width;
+        padding-top: 40px;
+
+        .table-container {
+            padding: 8px 15px 20px 15px ;
+            background-color: var(--sds--color--gray--100);
+
+            p.sup-info {
+                font-size: 14px;
+            }
+        }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 8px;
             td {
+                padding: 6px 10px;
+                vertical-align: top;
+                border: 1px solid var(--sds--color--gray--300);
 
+                &.left-top {
+                    border: none;
+                    font-weight: 600;
+                    color: var(--sds--color--blue--400);
+                }
+
+                p {
+                    font-weight: 600;
+                }
+
+                span.sub {
+                    font-style: italic;
+                    font-size: 15px;
+                    color: #3e3e40;
+                }
+
+                a {
+                    color: var(--sds--color--blue--400);
+                    font-weight: 600;
+                }
             }
         }
+        ul {
+            list-style: initial;
+            margin-top: 8px;
+
+            li {
+                margin-left: 15px;
+            }
+        }
+
     }
 
 }
