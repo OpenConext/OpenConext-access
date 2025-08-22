@@ -10,7 +10,7 @@ import NotFound from "./pages/NotFound.jsx";
 import RefreshRoute from "./pages/RefreshRoute.jsx";
 import {Home} from "./pages/Home.jsx";
 import {Footer} from "./components/Footer.jsx";
-import {useLocation} from "react-router";
+import {useLocation} from "react-router-dom";
 import Organization from "./pages/Organization.jsx";
 import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
