@@ -164,8 +164,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Principal name",
+        "nl": "Principal naam"
       },
       "example": "j.doe@harderwijkuniversity"
     },
@@ -177,8 +177,8 @@
         "nl": "Memberships  or teams with which the user is associated."
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Memberships",
+        "nl": "Lidmaatschappen"
       },
       "example": "administrators",
       "overrideSource": "voot"
@@ -191,8 +191,8 @@
         "nl": "SURF Authorities for the user."
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Autorizations",
+        "nl": "Autorisaties"
       },
       "example": "Instellingsbevoegde"
     },
@@ -204,8 +204,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Display name",
+        "nl": "Display naam"
       },
       "example": "John Doe"
     },
@@ -217,8 +217,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "First name",
+        "nl": "Voornaam"
       },
       "example": "John"
     },
@@ -230,8 +230,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Common name",
+        "nl": "Naam"
       },
       "example": "Johnathan Doe"
     },
@@ -243,8 +243,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Last name",
+        "nl": "Achternaam"
       },
       "example": "Doe"
     },
@@ -256,8 +256,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Mail",
+        "nl": "E-mail"
       },
       "example": "j.doe@harderwijkuniversity"
     },
@@ -269,8 +269,8 @@
         "nl": "Departments, teams, or faculties with which the user is associated within the issuing institution."
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "IdP unit name",
+        "nl": "IdP unit naam"
       },
       "example": "teachers"
     },
@@ -282,8 +282,8 @@
         "nl": "The type of organization of the identity provider"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "IdP Organization type",
+        "nl": "IdP Organisatie type"
       },
       "example": "teachers"
     },
@@ -295,8 +295,8 @@
         "nl": "The unique personal code"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "IdP Unique code",
+        "nl": "IdP unieke code"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -308,8 +308,8 @@
         "nl": "Orcid ID"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Orcid ID",
+        "nl": "Orcid ID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -321,8 +321,8 @@
         "nl": "EckID"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "EckID",
+        "nl": "EckID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -334,8 +334,8 @@
         "nl": "eduID"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "eduID",
+        "nl": "eduID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -343,12 +343,12 @@
       "name": "surfCrmID",
       "urn": "urn:mace:surf.nl:attribute-def:surf-crm-id",
       "info": {
-        "en": "eduID",
-        "nl": "eduID"
+        "en": "SURF CRM Id",
+        "nl": "SURF CRM Id"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "SURF CRM Id",
+        "nl": "SURF CRM Id"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -360,8 +360,8 @@
         "nl": "preferredLanguage"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Preferred Language",
+        "nl": "Taal voorkeur"
       },
       "example": "en"
     },
@@ -373,8 +373,8 @@
         "nl": "Subject identifier"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "Subject identifier",
+        "nl": "Subject identifier"
       },
       "example": "admin@example.com"
     },
@@ -386,8 +386,8 @@
         "nl": "UID"
       },
       "friendlyNames": {
-        "en": "Entitlements",
-        "nl": "Entitlements"
+        "en": "UID",
+        "nl": "UID"
       },
       "example": "urn:collab:person:example.com:admin"
     }

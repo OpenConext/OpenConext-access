@@ -9,12 +9,13 @@ import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {useAppStore} from "../stores/AppStore.js";
 
 const ApplicationDetail = () => {
 
         const navigate = useNavigate();
         const {manageType, manageId} = useParams();
-
+        const {arp, privacy} = useAppStore(state => state);
         const [loading, setLoading] = useState(true);
         const [serviceProvider, setServiceProvider] = useState([]);
         const [showAttributes, setShowAttributes] = useState(false);
@@ -65,6 +66,10 @@ const ApplicationDetail = () => {
             setShowPrivacy(true);
         }
 
+        const findArpEntry = urn => {
+            return arp.attributes.find(attr => attr.urn === urn);
+        }
+
         return (
             <div className="application-detail-container">
                 <div className="application-detail-header-container">
@@ -104,7 +109,34 @@ const ApplicationDetail = () => {
                                     {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
                                         {I18n.t("applicationDetail.details")}
                                     </a>}
-
+                                    {showAttributes && <div className="arp-attributes">
+                                        {!serviceProvider.data.arp.enabled &&
+                                            <p>{I18n.t("applicationDetail.noArp")}</p>
+                                        }
+                                        {serviceProvider.data.arp.enabled &&
+                                            <>
+                                                {Object.entries(serviceProvider.data.arp.attributes).map(entry => {
+                                                    const attribute = findArpEntry(entry[0]);
+                                                    //ARP entries only have one value / source
+                                                    const value = entry[1][0];
+                                                    const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
+                                                    return (
+                                                        <div className="attribute">
+                                                            <span
+                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
+                                                            {!isEmpty(value.motivation) &&
+                                                                <span className="attr-motivation">{value.motivation}</span>}
+                                                            {isEmpty(value.motivation) && <span
+                                                                className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
+                                                            <span className="attr-source">
+                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </>
+                                        }
+                                    </div>}
                                 </div>
                                 <div className="details-panel">
                                     <p className="title">{I18n.t("applicationDetail.privacy")}</p>
@@ -112,7 +144,22 @@ const ApplicationDetail = () => {
                                     {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
                                         {I18n.t("applicationDetail.details")}
                                     </a>}
-
+                                    {showPrivacy && <div className="privacy-questions">
+                                        {privacy.map(item => {
+                                                const question = item[`info_${I18n.locale}`];
+                                                const strippedQuestion = question.substring(question.indexOf(" ") + 1);
+                                                const answer = metaData[item.manage]
+                                                return (
+                                                    <div className="privacy-question">
+                                                        <span className="priv-name">{strippedQuestion}</span>
+                                                        {isEmpty(answer) && <span
+                                                            className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
+                                                        {!isEmpty(answer) && <span className="priv-answer">{answer}</span>}
+                                                    </div>
+                                                );
+                                            }
+                                        )}
+                                    </div>}
                                 </div>
                             </div>
                             <div className="right">
@@ -160,7 +207,6 @@ const ApplicationDetail = () => {
                                         />
                                     </div>
                                 )}
-
                             </div>
                         </div>
                     </div>

@@ -686,8 +686,21 @@ const en = {
         none: "None",
         interfedSource: "Federation source",
         registrationInfo: "This application provider is available in SURFconext through <a href='https://support.surfconext.nl/edugain' target='_blank' rel='noopener noreferrer'>eduGAIN</a>. " +
-            "The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>."
-
+            "The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>.",
+        noArp: "This application will receive all attirbutes that are released by the identity provider",
+        noMotivation: "No motivation",
+        noPrivacyInfo: "No information supplied",
+        source: "Source: ",
+        arpSources: {
+            eduid: "EduID Identity Provider",
+            idp: "Your IdP",
+            invite: "SURF Invite",
+            manage: "SURF Manage",
+            orcid: "ORCID organization",
+            sabrest: "SURF SAB",
+            voot: "SURF Memberships",
+            institution: "Your IdP"
+        }
     },
     connect: {
         title: "How to connect",
