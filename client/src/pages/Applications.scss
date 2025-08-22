@@ -42,6 +42,7 @@ div.applications-container {
         @include index.page;
         background-color: white;
         max-width: $width;
+        padding-bottom: 40px;
 
         .applications-search {
             margin: 20px 0 15px 0;
@@ -72,7 +73,7 @@ div.applications-container {
             display: flex;
             align-items: center;
 
-            img{
+            img {
                 width: 50px;
                 height: auto;
                 border-radius: 12px;

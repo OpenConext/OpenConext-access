@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Loader} from "@surfnet/sds";
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
-import {configuration, csrf, me} from "./api/index.js";
+import {arp, configuration, csrf, me, privacy} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
@@ -65,13 +65,15 @@ const App = () => {
     useEffect(() => {
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
-            configuration()
-                .then(config => {
+            Promise.all([configuration(), arp(), privacy()])
+                .then(res => {
                     useAppStore.setState(() => ({
-                        config: config
+                        config: res[0],
+                        arp: res[1],
+                        privacy: res[2]
                     }));
-                    setIsAuthenticated(config.authenticated);
-                    if (config.authenticated) {
+                    setIsAuthenticated(res[0].authenticated);
+                    if (res[0].authenticated) {
                         me().then(user => {
                             useAppStore.setState(() => ({
                                 user: user

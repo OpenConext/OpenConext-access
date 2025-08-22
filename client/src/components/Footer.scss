@@ -1,8 +1,10 @@
 footer.sds--footer {
     margin-top: auto;
+    background-color: white;
 
     .sds--footer--inner nav.menu ul li a.external-link {
         color: var(--sds--color--gray--400);
+
         &:hover {
             color: var(--sds--color--gray--500);
         }

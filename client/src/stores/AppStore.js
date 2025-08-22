@@ -32,5 +32,7 @@ export const useAppStore = create(set => ({
     //[ "home", "applications", "teams"]
     menuItems: [],
     //{name: "ShareWorks"}
-    currentOrganization: {name: ""}
+    currentOrganization: {name: ""},
+    arp: {},
+    privacy: []
 }));

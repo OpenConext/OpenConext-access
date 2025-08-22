@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("unchecked")
 class ManageControllerTest extends AbstractTest {
 
-
     @Test
     void parseForbidden() {
         given()
@@ -123,11 +122,8 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void privacyInfo() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-
         List<Map<String, Object>> privacyInfo = given()
                 .when()
-                .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/manage/privacy")
@@ -138,11 +134,8 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void arpInfo() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-
         Map<String, Object> arpInfo = given()
                 .when()
-                .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/manage/arp")

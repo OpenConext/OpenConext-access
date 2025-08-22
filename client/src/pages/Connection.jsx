@@ -30,11 +30,10 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 
 export const Connection = () => {
     const {applicationId, tab = "overview"} = useParams();
-    const {user, currentOrganization} = useAppStore(state => state);
+    const {user, currentOrganization, arp, privacy} = useAppStore(state => state);
 
     const [application, setApplication] = useState({});
     const [arpInfo, setArpInfo] = useState({profiles: [], attributes: []});
-    const [privacyInfo, setPrivacyInfo] = useState([]);
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
@@ -46,13 +45,10 @@ export const Connection = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        Promise.all([
-            getApplicationById(applicationId),
-            arp(),
-            privacy()])
+            getApplicationById(applicationId)
             .then(res => {
                 //For convenience editing
-                const options = res[1].profiles.map(profile => ({
+                const options = arp.profiles.map(profile => ({
                     value: profile.name,
                     label: (<div>
                         <b>{I18n.t(`connection.informational.profiles.${profile.name}.name`)}</b>
@@ -60,9 +56,7 @@ export const Connection = () => {
                         {I18n.t(`connection.informational.profiles.${profile.name}.title`)}
                     </div>)
                 }));
-                setApplication(convertServerApplicationToClient(res[0], protocolOptions, options, res[1]));
-                setArpInfo(res[1]);
-                setPrivacyInfo(res[2])
+                setApplication(convertServerApplicationToClient(res, protocolOptions, options, arp));
                 setProfileOptions(options);
                 changeTab(currentTab);
                 setLoading(false);
@@ -104,7 +98,7 @@ export const Connection = () => {
                 application.connections
                     .filter(conn => conn.environment === ENVIRONMENTS.PROD)
                     .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
-            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacyInfo, application)
+            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacy, application)
                 && application.status !== APPLICATION_STATUSES.OPEN,
             productionConnectionNeedsActivation: application.signedContract && !isEmpty(application.connections) &&
                 application.connections
@@ -118,7 +112,7 @@ export const Connection = () => {
         setLoading(true);
         getApplicationById(applicationId)
             .then(res => {
-                setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
+                setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arp));
                 setConnection(null);
                 setLoading(false);
                 setRefreshApp(new Date().getTime());
@@ -180,7 +174,7 @@ export const Connection = () => {
                                 initConnection={initConnection}
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
-                                arpInfo={arpInfo}
+                                arpInfo={arp}
                                 setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
@@ -195,7 +189,7 @@ export const Connection = () => {
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
                                 setTab={changeTab}
-                                arpInfo={arpInfo}
+                                arpInfo={arp}
                                 profileOptions={profileOptions}
                                 identityProviders={prodIdentityProviders}
                                 isProduction={true}
@@ -206,10 +200,10 @@ export const Connection = () => {
                                        setApplication={setApplication}
                                        refresh={refresh}
                                        changeTab={changeTab}
-                                       privacyInfo={privacyInfo}
+                                       privacyInfo={privacy}
                                        protocolOptions={protocolOptions}
                                        profileOptions={profileOptions}
-                                       arpInfo={arpInfo}
+                                       arpInfo={arp}
                 />
             }
             case "contract": {
@@ -219,7 +213,7 @@ export const Connection = () => {
                                  refresh={refresh}
                                  protocolOptions={protocolOptions}
                                  profileOptions={profileOptions}
-                                 arpInfo={arpInfo}
+                                 arpInfo={arp}
                 />
             }
             case "appteam": {

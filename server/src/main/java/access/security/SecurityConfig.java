@@ -113,6 +113,8 @@ public class SecurityConfig {
                                 "/api/v1/validations/**",
                                 "/api/v1/test/login",
                                 "/api/v1/public/**",
+                                "/api/v1/manage/arp",
+                                "/api/v1/manage/privacy",
                                 "/ui/**",
                                 "/internal/**")
                         .permitAll()
