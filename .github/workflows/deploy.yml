@@ -20,11 +20,11 @@ jobs:
       version: ${{ steps.versioncheck.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 21
           distribution: "temurin"
@@ -55,7 +55,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch' && steps.versioncheck.outputs.version != github.ref_name
 
       - name: Set up JDK 21 for snapshots
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
@@ -66,7 +66,7 @@ jobs:
         if: ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT'))
 
       - name: Set up JDK 21 for releases
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
@@ -128,10 +128,10 @@ jobs:
             app: server
             architecture: "linux/amd64,linux/arm64v8"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download the previous produced artefacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: accessbuilds
 
