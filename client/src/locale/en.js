@@ -722,7 +722,8 @@ const en = {
         samlOidc: "SAML & OpenID Connect",
         samlOidcInfo: "We use these open standards as they are used in most countries and many sectors.",
         attributes: "Attributes and claims",
-        attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors."
+        attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors.",
+        connect: "Connect your application now"
     },
     forms: {
         cancel: "Cancel",

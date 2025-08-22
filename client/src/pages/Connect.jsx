@@ -3,8 +3,12 @@ import "./Connect.scss";
 import React from "react";
 import I18n from "../locale/I18n.js";
 import StudentPng from "../icons/student.png";
+import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {useNavigate} from "react-router-dom";
 
 const Connect = () => {
+
+    const navigate = useNavigate();
 
     return (
         <div className="connect-container">
@@ -82,6 +86,11 @@ const Connect = () => {
                         <h5>{I18n.t("connect.attributes")}</h5>
                         <p>{I18n.t("connect.attributesInfo")}</p>
                     </div>
+                </div>
+                <div className="button-container">
+                    <Button type={ButtonType.Primary}
+                            onClick={() => navigate("/login-info")}
+                            txt={I18n.t("connect.connect")}/>
                 </div>
             </div>
         </div>

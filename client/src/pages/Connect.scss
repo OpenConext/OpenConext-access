@@ -49,6 +49,7 @@ div.connect-container {
         .table-container {
             padding: 8px 15px 20px 15px ;
             background-color: var(--sds--color--gray--100);
+            border-radius: 8px;
 
             p.sup-info {
                 font-size: 14px;
@@ -94,6 +95,11 @@ div.connect-container {
                 margin-left: 15px;
             }
         }
+
+    }
+    .button-container {
+        max-width: $width;
+        margin: 40px auto 0 auto;
 
     }
 
