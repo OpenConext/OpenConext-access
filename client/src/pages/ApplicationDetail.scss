@@ -99,8 +99,30 @@ div.application-detail-container {
                 display: flex;
                 flex-direction: column;
                 gap: 2px;
+
                 p.title {
                     font-weight: 600;
+                }
+            }
+        }
+
+        .arp-attributes, .privacy-questions {
+            display: flex;
+            flex-direction: column;
+            margin-top: 25px;
+            gap: 25px;
+
+            .attribute, .privacy-question {
+                display: flex;
+                flex-direction: column;
+
+                .attr-name, .priv-name {
+                    font-weight: 600;
+                }
+
+                .attr-source, .priv-answer {
+                    font-style: italic;
+                    color: var(--sds--color--gray--500);
                 }
             }
         }
