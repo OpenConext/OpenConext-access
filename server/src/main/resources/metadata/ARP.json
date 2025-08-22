@@ -86,8 +86,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "De Affiliation IdP abbrevation",
-        "nl": "Je IdP afkorting"
+        "en": "Scoped Affiliation",
+        "nl": "Scoped Affiliation"
       },
       "example": "student@uvh.nl"
     },
@@ -98,6 +98,10 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
+      "friendlyNames": {
+        "en": "Affiliation",
+        "nl": "Affiliation"
+      },
       "example": "student"
     },
     {
@@ -106,6 +110,10 @@
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
+      },
+      "friendlyNames": {
+        "en": "Name ID",
+        "nl": "Name ID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -116,6 +124,10 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
+      "friendlyNames": {
+        "en": "Name ID",
+        "nl": "Name ID"
+      },
       "example": "9d2f6e4a-7b1f-***"
     },
     {
@@ -124,6 +136,10 @@
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
+      },
+      "friendlyNames": {
+        "en": "Assurance",
+        "nl": "Assurance"
       },
       "example": "https://refeds.org/assurance/IAP/low"
     },
@@ -134,6 +150,10 @@
         "en": "URI (URN or URL) that indicates rights to specific resources.",
         "nl": "URI (URN or URL) that indicates rights to specific resources."
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "https://uva.teacher.nl"
     },
     {
@@ -143,6 +163,10 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "j.doe@harderwijkuniversity"
     },
     {
@@ -151,6 +175,10 @@
       "info": {
         "en": "Memberships or teams with which the user is associated.",
         "nl": "Memberships  or teams with which the user is associated."
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "administrators",
       "overrideSource": "voot"
@@ -162,6 +190,10 @@
         "en": "SURF Authorities for the user.",
         "nl": "SURF Authorities for the user."
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "Instellingsbevoegde"
     },
     {
@@ -170,6 +202,10 @@
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "John Doe"
     },
@@ -180,6 +216,10 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "John"
     },
     {
@@ -188,6 +228,10 @@
       "info": {
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "Johnathan Doe"
     },
@@ -198,6 +242,10 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "Doe"
     },
     {
@@ -207,14 +255,9 @@
         "en": "Description of the attribute",
         "nl": "Description of the attribute"
       },
-      "example": "j.doe@harderwijkuniversity"
-    },
-    {
-      "name": "mail",
-      "urn": "urn:mace:dir:attribute-def:mail",
-      "info": {
-        "en": "Description of the attribute",
-        "nl": "Description of the attribute"
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "j.doe@harderwijkuniversity"
     },
@@ -225,6 +268,10 @@
         "en": "Departments, teams, or faculties with which the user is associated within the issuing institution.",
         "nl": "Departments, teams, or faculties with which the user is associated within the issuing institution."
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "teachers"
     },
     {
@@ -233,6 +280,10 @@
       "info": {
         "en": "The type of organization of the identity provider",
         "nl": "The type of organization of the identity provider"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "teachers"
     },
@@ -243,6 +294,10 @@
         "en": "The unique personal code",
         "nl": "The unique personal code"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "9d2f6e4a-7b1f-***"
     },
     {
@@ -251,6 +306,10 @@
       "info": {
         "en": "Orcid ID",
         "nl": "Orcid ID"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -261,6 +320,10 @@
         "en": "EckID",
         "nl": "EckID"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "9d2f6e4a-7b1f-***"
     },
     {
@@ -269,6 +332,10 @@
       "info": {
         "en": "eduID",
         "nl": "eduID"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -279,6 +346,10 @@
         "en": "eduID",
         "nl": "eduID"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "9d2f6e4a-7b1f-***"
     },
     {
@@ -287,6 +358,10 @@
       "info": {
         "en": "preferredLanguage",
         "nl": "preferredLanguage"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "en"
     },
@@ -297,6 +372,10 @@
         "en": "Subject identifier",
         "nl": "Subject identifier"
       },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
+      },
       "example": "admin@example.com"
     },
     {
@@ -305,6 +384,10 @@
       "info": {
         "en": "UID",
         "nl": "UID"
+      },
+      "friendlyNames": {
+        "en": "Entitlements",
+        "nl": "Entitlements"
       },
       "example": "urn:collab:person:example.com:admin"
     }
