@@ -69,12 +69,9 @@ oidcng:
   resource-server-secret: secret
   base-url: http://localhost:8888
 
-invite:
-  user: access
+lifecycle:
+  user: lifecycle
   password: secret
-  base-url: "http://localhost:8099"
-  manage-identifier: "9940c56f-b834-4ea8-aceb-74352bb4a390"
-  manage-type: oidc10_rp
 
 jira:
   enabled: false

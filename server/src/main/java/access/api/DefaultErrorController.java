@@ -51,6 +51,7 @@ public class DefaultErrorController implements ErrorController {
                 webRequest,
                 ErrorAttributeOptions.of(
                         ErrorAttributeOptions.Include.EXCEPTION,
+                        ErrorAttributeOptions.Include.STATUS,
                         ErrorAttributeOptions.Include.MESSAGE,
                         ErrorAttributeOptions.Include.BINDING_ERRORS)
         );

@@ -13,12 +13,16 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
@@ -116,7 +120,8 @@ public class SecurityConfig {
                                 "/api/v1/manage/arp",
                                 "/api/v1/manage/privacy",
                                 "/ui/**",
-                                "/internal/**")
+                                "/internal/health",
+                                "/internal/info")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
@@ -145,6 +150,36 @@ public class SecurityConfig {
                 new RequestAttributeSecurityContextRepository(),
                 new HttpSessionSecurityContextRepository()
         );
+    }
+
+
+    @Bean
+    @Order(2)
+    SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http,
+                                                               @Value("${lifecycle.user}") String lifeCycleUser,
+                                                               @Value("${lifecycle.password}") String lifeCyclePassword) throws Exception {
+        http.csrf(c -> c.disable())
+                .securityMatcher(
+                        "/api/external/v1/deprovision/**",
+                        "/internal/prometheus"
+                ).sessionManagement(c -> c
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                ).authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/internal/prometheus").hasRole("ACTUATOR")
+                        .requestMatchers("/api/external/v1/deprovision/**").hasRole("LIFECYCLE"))
+                .authorizeHttpRequests(c -> c
+                        .anyRequest()
+                        .authenticated()
+                )
+                .userDetailsService(new InMemoryUserDetailsManager(
+                        new org.springframework.security.core.userdetails.User(
+                                lifeCycleUser,
+                                "{noop}".concat(lifeCyclePassword),
+                                List.of(new SimpleGrantedAuthority("ROLE_LIFECYCLE"))
+                        )
+                ))
+                .httpBasic(Customizer.withDefaults());
+        return http.build();
     }
 
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
