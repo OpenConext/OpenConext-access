@@ -15,7 +15,7 @@
     "detect-browser": "^5.3.0",
     "dompurify": "^3.2.7",
     "i18n-js": "^4.5.1",
-    "isomorphic-dompurify": "^2.27.0",
+    "isomorphic-dompurify": "^2.28.0",
     "js-cookie": "^3.0.5",
     "luxon": "^3.7.2",
     "react": "^19.1.0",
