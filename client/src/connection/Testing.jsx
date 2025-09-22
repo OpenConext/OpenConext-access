@@ -146,7 +146,7 @@ export const Testing = ({
         getConnectionById(connectionId).then(res => {
             const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
             const originalName = convertedConnection.name;
-            convertedConnection.name = "";
+            convertedConnection.name = originalName + " COPY";
             //Filter out all unknown entityIDs
             convertedConnection.allowedEntities = convertedConnection.allowedEntities
                 .filter(entityID => identityProviders.some(idp => idp.data.entityid === entityID));
@@ -225,6 +225,17 @@ export const Testing = ({
             newGrantTypes = newGrantTypes.filter(gt => gt !== grantType);
         }
         setConnection({...connection, grantTypes: newGrantTypes});
+    }
+
+    const gotoSLLLabs = () => {
+        const link = document.createElement("a");
+        link.href = "https://www.ssllabs.com/ssltest/";
+        link.target = "_blank";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
     }
 
     const addRedirectURL = e => {
@@ -474,6 +485,7 @@ export const Testing = ({
                                                         onRef={el => redirectUrlRefs.current[index] = el}
                                             />
                                             <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
+                                            <Button txt={I18n.t("connection.testSection")} onClick={() => gotoSLLLabs()}/>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -1036,7 +1048,7 @@ export const Testing = ({
             <>
                 <div className="testing-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
-                    {(!isEmpty(application.connections) &&
+                    {(!isEmpty(application.connections) && !isComplete &&
                             (application.connections.length > 1 ||
                                 (isEmpty(connection.id) && application.connections.length === 1))) &&
                         <div className="copy-connection"
