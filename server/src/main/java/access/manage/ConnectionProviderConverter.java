@@ -120,7 +120,14 @@ public class ConnectionProviderConverter {
         //Merge the two ARP's, ensuring no existing data is overridden
         Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.get("attributes");
         Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.get("attributes");
-        newArpAttributes.putAll(existingArpAttributes);
+        existingArpAttributes.entrySet().stream().forEach(entry -> {
+            if (newArpAttributes.containsKey(entry.getKey())) {
+                Map<String, String> arpEntry = newArpAttributes.get(entry.getKey()).getFirst();
+                Map<String, String> existingArpEntry = entry.getValue().getFirst();
+                existingArpEntry.put("motivation", arpEntry.get("motivation"));
+            }
+            newArpAttributes.put(entry.getKey(), entry.getValue());
+        });
         putIf(data, "arp", newArp);
     }
 
