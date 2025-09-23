@@ -2,6 +2,7 @@ package access.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -14,6 +15,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Base64;
 import java.util.List;
@@ -56,6 +59,7 @@ public class S3Storage {
         this.objectMapper = objectMapper;
     }
 
+    @SneakyThrows
     public String uploadFile(String content) {
         byte[] decodedBytes = Base64.getDecoder().decode(content);
 
@@ -64,6 +68,14 @@ public class S3Storage {
         }
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Thumbnails.of(inputStream)
+                .size(200, 200)
+                .keepAspectRatio(true)
+                .toOutputStream(baos);
+
+        inputStream = new ByteArrayInputStream(baos.toByteArray());
+
         String uuid = UUID.randomUUID().toString();
         s3Client.putObject(PutObjectRequest.builder()
                         .bucket(bucketName)
