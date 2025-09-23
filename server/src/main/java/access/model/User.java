@@ -84,7 +84,6 @@ public class User implements Serializable, NameHolder {
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
     @Transient
-    @JsonProperty
     private Institution institution = null;
 
     public User(Map<String, Object> attributes) {
@@ -215,4 +214,8 @@ public class User implements Serializable, NameHolder {
         return organizationMembership;
     }
 
+    @JsonProperty
+    public Institution getInstitution() {
+        return institution;
+    }
 }

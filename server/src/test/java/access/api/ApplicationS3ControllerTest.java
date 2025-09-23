@@ -3,6 +3,7 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.Application;
+import access.model.Connection;
 import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.http.ContentType;
@@ -44,6 +45,9 @@ class ApplicationS3ControllerTest extends AbstractTest {
         Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
         });
         applicationData.put("organization", Map.of("id", organization.getId()));
+
+        //So we do not have to stub everything from Manage
+        connectionRepository.deleteAll();
 
         Application savedApplication = given()
                 .when()

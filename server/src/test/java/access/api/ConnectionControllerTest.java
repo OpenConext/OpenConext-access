@@ -263,7 +263,13 @@ class ConnectionControllerTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(Map.of("data", Map.of("entityid", "https://mock-rp"))))));
 
-        Map<String, Object> postManageResponse = Map.of("id", UUID.randomUUID().toString(), "version", 1, "data", Map.of("eid", 9L, "state", State.prodaccepted.name()));
+        Map<String, Object> postManageResponse = Map.of(
+                "id", UUID.randomUUID().toString(),
+                "version", 1,
+                "data", Map.of(
+                        "eid", 9L,
+                        "state", State.prodaccepted.name(),
+                        "metaDataFields", Map.of("secret", "secret")));
         stubFor(post(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(postManageResponse))));
