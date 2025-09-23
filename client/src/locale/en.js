@@ -758,6 +758,7 @@ const en = {
         moreLabel: "Show me more",
         lessLabel: "Show me less",
         you: "You",
+        copied: "Copied"
     },
     footer: {
         terms: "Terms of Use",

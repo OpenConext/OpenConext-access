@@ -124,7 +124,7 @@ public class ApplicationController implements UserAccessRights {
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
         //If the metadata has changed, we must propagate this to manage
-        boolean metaDataHasChanged = application.getMetaData().equals(applicationData.getMetaData());
+        boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());
         //However, we first need to merge the data; otherwise the outdated application metadata is used
         application.merge(applicationData);
         //Upload base64 encoded image to s3 storage if the logo has changed
@@ -132,8 +132,9 @@ public class ApplicationController implements UserAccessRights {
         if (StringUtils.hasText(logoUrl) && !logoUrl.startsWith("http")) {
             String url = s3Storage.uploadFile(logoUrl);
             application.setLogoUrl(url);
+            metaDataHasChanged = true;
         }
-        if (!metaDataHasChanged) {
+        if (metaDataHasChanged) {
             application.getConnections().forEach(connection -> {
                 Map<String, Object> provider = manage.saveProvider(connection);
                 connection.updateRemoteManageData(provider);

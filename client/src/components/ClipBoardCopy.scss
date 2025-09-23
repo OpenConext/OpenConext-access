@@ -6,6 +6,7 @@ section.copy-to-clipboard {
     position: absolute;
     right: 10px;
     top: 14px;
+
     svg {
         margin: 0;
         width: 18px;
@@ -15,14 +16,30 @@ section.copy-to-clipboard {
         &:hover {
             color: var(--sds--color--black);
         }
-        transition: width .4s ease, color .4s ease ;
+
+        transition: color .4s ease;
     }
 
     &.copied, svg.copied {
-        width: 22px;
         color: var(--sds--color--green--400);
     }
 
+}
+
+div.copied {
+    position: absolute;
+    background-color: var(--sds--color--gray--300);
+    color: white;
+    font-size: 13px;
+    padding: 4px;
+    border-radius: $br;
+    right: -6px;
+    top: -20px;
+    transition: opacity .4s ease;
+
+    &.hidden {
+        opacity: 0;
+    }
 }
 
 
