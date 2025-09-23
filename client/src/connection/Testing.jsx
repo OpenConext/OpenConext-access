@@ -92,7 +92,8 @@ export const Testing = ({
                             setTab,
                             profileOptions,
                             identityProviders,
-                            isProduction
+                            isProduction,
+                            setDirty
                         }) => {
     const {setFlash, config} = useAppStore(state => state);
 
@@ -980,6 +981,7 @@ export const Testing = ({
                     setFinishedSections([...finishedSections, section]);
                     setLoading(false);
                     setInitial(true);
+                    setDirty(true);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));

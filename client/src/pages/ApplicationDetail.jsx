@@ -144,22 +144,23 @@ const ApplicationDetail = () => {
                                     {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
                                         {I18n.t("applicationDetail.details")}
                                     </a>}
-                                    {showPrivacy && <div className="privacy-questions">
-                                        {privacy.map(item => {
-                                                const question = item[`info_${I18n.locale}`];
-                                                const strippedQuestion = question.substring(question.indexOf(" ") + 1);
-                                                const answer = metaData[item.manage]
-                                                return (
-                                                    <div className="privacy-question">
-                                                        <span className="priv-name">{strippedQuestion}</span>
-                                                        {isEmpty(answer) && <span
-                                                            className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
-                                                        {!isEmpty(answer) && <span className="priv-answer">{answer}</span>}
-                                                    </div>
-                                                );
-                                            }
-                                        )}
-                                    </div>}
+                                    {showPrivacy &&
+                                        <div className="privacy-questions">
+                                            {privacy.map(item => {
+                                                    const question = item[`info_${I18n.locale}`];
+                                                    const strippedQuestion = question.substring(question.indexOf(" ") + 1);
+                                                    const answer = metaData[item.manage]
+                                                    return (
+                                                        <div className="privacy-question">
+                                                            <span className="priv-name">{strippedQuestion}</span>
+                                                            {isEmpty(answer) && <span
+                                                                className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
+                                                            {!isEmpty(answer) && <span className="priv-answer">{answer}</span>}
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
+                                        </div>}
                                 </div>
                             </div>
                             <div className="right">

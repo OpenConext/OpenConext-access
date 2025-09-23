@@ -317,6 +317,10 @@ export const AppInformation = ({
                             <ErrorIndicator msg={I18n.t("connection.privacy.answerIsRequired")}
                             />
                         }
+                        {(p.format && !initial && !isEmpty(application.privacy[p.name]) && !isValidUrl(application.privacy[p.name])) &&
+                            <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: p[`info_${I18n.locale}`]})}
+                            />
+                        }
                     </section>
                 )}
             </section>

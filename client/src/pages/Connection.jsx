@@ -6,7 +6,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Testing} from "../connection/Testing.jsx";
-import {arp, getApplicationById, getIdentityProviders, privacy} from "../api/index.js";
+import {getApplicationById, getIdentityProviders} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
 import {APPLICATION_STATUSES, CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
@@ -30,10 +30,9 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 
 export const Connection = () => {
     const {applicationId, tab = "overview"} = useParams();
-    const {user, currentOrganization, arp, privacy} = useAppStore(state => state);
+    const {user, arp, privacy} = useAppStore(state => state);
 
     const [application, setApplication] = useState({});
-    const [arpInfo, setArpInfo] = useState({profiles: [], attributes: []});
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
@@ -41,11 +40,12 @@ export const Connection = () => {
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshApp, setRefreshApp] = useState(0);
+    const [dirty, setDirty] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-            getApplicationById(applicationId)
+        getApplicationById(applicationId)
             .then(res => {
                 //For convenience editing
                 const options = arp.profiles.map(profile => ({
@@ -64,8 +64,8 @@ export const Connection = () => {
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
                         {
-                            path: `/organization/${currentOrganization.id}`,
-                            value: currentOrganization.name,
+                            path: `/organization/${application.organization.id}`,
+                            value: application.organization.name,
                             menuItemName: "yourApps"
                         },
                         {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
@@ -114,6 +114,7 @@ export const Connection = () => {
             .then(res => {
                 setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arp));
                 setConnection(null);
+                setDirty(false);
                 setLoading(false);
                 setRefreshApp(new Date().getTime());
             })
@@ -146,6 +147,9 @@ export const Connection = () => {
     }
 
     const changeTab = newTab => {
+        if (dirty) {
+            refresh()
+        }
         if (currentTab === "testing" || currentTab === "prod") {
             //force the overview
             setConnection(null);
@@ -179,6 +183,7 @@ export const Connection = () => {
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
                                 isProduction={false}
+                                setDirty={setDirty}
                 />
             }
             case  "prod": {
@@ -193,6 +198,7 @@ export const Connection = () => {
                                 profileOptions={profileOptions}
                                 identityProviders={prodIdentityProviders}
                                 isProduction={true}
+                                setDirty={setDirty}
                 />
             }
             case "application": {
@@ -226,6 +232,7 @@ export const Connection = () => {
                 throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
+
     if (loading) {
         return <Loader/>
     }

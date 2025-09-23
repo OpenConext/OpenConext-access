@@ -19,9 +19,13 @@ export const contactSectionValid = (application) => {
 
 export const privacySectionValid = (privacyInfo, application) => {
     const requiredPrivacyAttributes = privacyInfo.filter(p => p.required);
+    const formatPrivacyAttributes = privacyInfo.filter(p => p.format);
+    const invalidUrls = formatPrivacyAttributes
+        .map(val => val.name)
+        .some(attr => !isValidUrl(application?.privacy?.[attr]));
     return requiredPrivacyAttributes
         .map(val => val.name)
-        .every(attr => !isEmpty(application?.privacy?.[attr]));
+        .every(attr => !isEmpty(application?.privacy?.[attr])) && !invalidUrls;
 };
 
 //Pull the metaData of the application up in the root

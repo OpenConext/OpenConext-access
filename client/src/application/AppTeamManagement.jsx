@@ -20,7 +20,7 @@ export const AppTeamManagement = ({
                                       refreshApp
                                   }) => {
 
-    const {user: currentUser, currentOrganization, setFlash} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(state => state);
     const navigate = useNavigate();
 
     const [confirmation, setConfirmation] = useState({});
@@ -31,23 +31,26 @@ export const AppTeamManagement = ({
     const [applicationMemberships, setApplicationMemberships] = useState([]);
 
     useEffect(() => {
-        organizationUsersById(currentOrganization.id)
+        organizationUsersById(application.organization.id)
             .then(res => {
                 setOrganization(res);
                 setApplicationMemberships((application.applicationMemberships || [])
                     .map(membership => {
-                        membership.user = res.organizationMemberships
-                            .find(m => m.id === membership.organizationMembershipIdentifier).user;
-                        return membership;
-                    }
-                ))
+                            const organizationMembership = res.organizationMemberships
+                                .find(m => m.id === membership.organizationMembershipIdentifier);
+                            if (organizationMembership) {
+                                membership.user = organizationMembership.user;
+                            }
+                            return membership;
+                        }
+                    ))
                 const membership = (currentUser.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                 setCurrentUserAuthority(currentUserMembershipAuthority(currentUser, membership));
                 setLoading(false);
             }).catch(() => {
             navigate("/404")
         });
-    }, [refreshApp, currentOrganization]);
+    }, [refreshApp, application]);
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {
@@ -115,7 +118,7 @@ export const AppTeamManagement = ({
                 key: "user__name",
                 header: I18n.t("appTeamManagement.name"),
                 mapper: membership => {
-                    return  <UserMembership user={membership.user} currentUser={currentUser}/>
+                    return <UserMembership user={membership.user} currentUser={currentUser}/>
                 }
             },
             {
