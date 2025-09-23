@@ -235,7 +235,7 @@ class UserControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
-        User user = given()
+        Map<String, Object> res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
@@ -244,7 +244,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/me")
                 .as(new TypeRef<>() {
                 });
-
+        User user = objectMapper.convertValue(res, User.class);
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         assertEquals(1, user.getOrganizationMemberships().size());
