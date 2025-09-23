@@ -61,6 +61,9 @@ public class Connection implements NameHolder {
     @NotNull
     private ConnectionStatus status = ConnectionStatus.OPEN;
 
+    @Column(name = "secret_set")
+    private boolean secretSet;
+
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 

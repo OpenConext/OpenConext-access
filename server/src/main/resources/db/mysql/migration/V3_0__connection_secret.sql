@@ -1,0 +1,2 @@
+ALTER TABLE connections
+    ADD COLUMN secret_set BOOLEAN NOT NULL DEFAULT 0;

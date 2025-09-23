@@ -32,7 +32,7 @@ export const Connection = () => {
     const {applicationId, tab = "overview"} = useParams();
     const {user, arp, privacy} = useAppStore(state => state);
 
-    const [application, setApplication] = useState({});
+    const [application, setApplication] = useState({organization: {}});
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
@@ -64,8 +64,8 @@ export const Connection = () => {
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
                         {
-                            path: `/organization/${application.organization.id}`,
-                            value: application.organization.name,
+                            path: `/organization/${res.organization.id}`,
+                            value: res.organization.name,
                             menuItemName: "yourApps"
                         },
                         {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},

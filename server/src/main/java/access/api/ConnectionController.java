@@ -43,6 +43,7 @@ import static access.api.Results.deleteResult;
 public class ConnectionController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ConnectionController.class);
+    private static final int SECRET_LENGTH = 36;
 
     private final ConnectionRepository connectionRepository;
     private final ApplicationRepository applicationRepository;
@@ -135,7 +136,7 @@ public class ConnectionController implements UserAccessRights {
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationMembership(user, organization, application, Authority.MEMBER);
 
-        String secret = passwordGenerator.generatePassword(36, rules);
+        String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
         connection.getMetaData().put("secret", secret);
         saveConnection(connection);
 
@@ -217,16 +218,27 @@ public class ConnectionController implements UserAccessRights {
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is not OPEN
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
-            if (connection.getProtocol().equals(EntityType.oidc10_rp) &&
-                    !StringUtils.hasText((String) connection.getMetaData().get("secret")) &&
-                    connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE) {
+            boolean isPublicRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
+                    connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
+            boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret")) ;
+            if (isPublicRelyingParty && !hasSecret) {
                 //generate secret but store the raw-text variant, because Manage encodes it
-                String secret = passwordGenerator.generatePassword(36, rules);
+                String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
                 connection.getMetaData().put("secret", secret);
+                connection.setSecretSet(true);
             }
 
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
+            if (isPublicRelyingParty) {
+                //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
+                Map<String, Object> data = (Map<String, Object>) provider.get("data");
+                Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+                String secretFromManage = (String) metaDataFields.get("secret");
+                if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
+                    connection.getMetaData().put("secret", secretFromManage);
+                }
+            }
 
             List<Map<String, Object>> contactPersons = (List<Map<String, Object>>) connection.getMetaData().get("contactPersons");
             if (!CollectionUtils.isEmpty(contactPersons)) {
