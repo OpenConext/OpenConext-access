@@ -76,6 +76,9 @@ public class Connection implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
     public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol, Environment environment) {
         this.name = name;
         this.application = application;
@@ -83,6 +86,7 @@ public class Connection implements NameHolder {
         this.protocol = protocol;
         this.environment = environment;
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.manageVersion = 0;
     }
 
@@ -196,5 +200,8 @@ public class Connection implements NameHolder {
         this.state = State.valueOf((String) data.get("state"));
     }
 
-
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }

@@ -488,7 +488,8 @@ export const Testing = ({
                                                         onRef={el => redirectUrlRefs.current[index] = el}
                                             />
                                             <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
-                                            <Button txt={I18n.t("connection.testSection")} onClick={() => gotoSLLLabs()}/>
+                                            <Button txt={I18n.t("connection.testSection")}
+                                                    onClick={() => gotoSLLLabs()}/>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -1148,7 +1149,12 @@ export const Testing = ({
             {
                 key: "createdAt",
                 header: I18n.t("connection.connections.created"),
-                mapper: conn => dateFromEpoch(conn.createdAt)
+                mapper: conn => dateFromEpoch(conn.createdAt, true, false)
+            },
+            {
+                key: "updatedAt",
+                header: I18n.t("connection.connections.updatedAt"),
+                mapper: conn => dateFromEpoch(conn.updatedAt, true, false)
             },
             {
                 key: "status",
@@ -1161,7 +1167,7 @@ export const Testing = ({
                         <Chip type={type}
                               label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}
                         />
-                        {toolTip && <Tooltip tip={toolTip} />}
+                        {toolTip && <Tooltip tip={toolTip}/>}
                     </div>
                 }
             },
