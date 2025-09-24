@@ -3,8 +3,14 @@ import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
 import {updateApplication} from "../api/index.js";
-import {convertClientApplicationToServer, convertServerApplicationToClient} from "../utils/Application.js";
-import {Button, Loader, ButtonType} from "@surfnet/sds";
+import {
+    contactSectionValid,
+    convertClientApplicationToServer,
+    convertServerApplicationToClient,
+    logoSectionValid,
+    privacySectionValid
+} from "../utils/Application.js";
+import {Button, ButtonType, Loader} from "@surfnet/sds";
 import ContractSignedIcon from "../icons/undraw/contract_signed.svg";
 
 export const Contract = ({
@@ -14,6 +20,7 @@ export const Contract = ({
                              refresh,
                              protocolOptions,
                              profileOptions,
+                             privacyInfo,
                              arpInfo
                          }) => {
 
@@ -28,7 +35,7 @@ export const Contract = ({
             .then(res => {
                 setLoading(false);
                 setFlash(I18n.t("application.flash", {name: res.name}));
-                setApplication(convertServerApplicationToClient(res,protocolOptions, profileOptions, arpInfo));
+                setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
             })
             .catch(() => {
                 setLoading(false);
@@ -45,6 +52,9 @@ export const Contract = ({
         return <Loader/>
     }
 
+    const maySignContract = logoSectionValid(application) && contactSectionValid(application)
+        && privacySectionValid(privacyInfo, application);
+
     return (
         <div className="contract-container">
             <div className="contract-inner">
@@ -54,6 +64,7 @@ export const Contract = ({
                 <div className="contract-information card">
                     <h4>{I18n.t("connection.contractSection.title")}</h4>
                     <p>{I18n.t("connection.contractSection.info")}</p>
+                    {!maySignContract && <p>{I18n.t("connection.applicationInformationHint")}</p>}
                     <p>{I18n.t(`connection.contractSection.${application.signedContract ? "signed" : "notSigned"}`)}</p>
                     {application.signedContract &&
                         <div className="happy">
@@ -65,6 +76,7 @@ export const Contract = ({
                     {!application.signedContract &&
                         <>
                             <Button txt={I18n.t("connection.contractSection.sign")}
+                                    disabled={!maySignContract}
                                     onClick={() => submit()}/>
                         </>
                     }
