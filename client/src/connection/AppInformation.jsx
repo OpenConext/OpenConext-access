@@ -43,7 +43,6 @@ export const AppInformation = ({
     const {setFlash} = useAppStore(state => state);
 
     const [section, setSection] = useState(sections.logo);
-    const [finishedSections, setFinishedSections] = useState([]);
     const [initial, setInitial] = useState(true);
     const [loading, setLoading] = useState(false);
 
@@ -55,16 +54,15 @@ export const AppInformation = ({
     }, []);
 
     const isPending = sectionName => {
-        const finished = finishedSections.includes(sectionName);
         switch (sectionName) {
             case sections.logo: {
                 return !logoSectionValid(application);
             }
             case sections.contact: {
-                return !finished || !contactSectionValid(application);
+                return !contactSectionValid(application);
             }
             case sections.privacy: {
-                return !finished || !privacySectionValid(privacyInfo, application);
+                return !privacySectionValid(privacyInfo, application);
             }
         }
     }
@@ -113,7 +111,6 @@ export const AppInformation = ({
             const body = convertClientApplicationToServer(application);
             updateApplication(body)
                 .then(res => {
-                    setFinishedSections([...finishedSections, section]);
                     setInitial(true);
                     setLoading(false);
                     setFlash(I18n.t("application.flash", {name: res.name}));
