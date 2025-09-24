@@ -4,12 +4,14 @@ import CaretUp from "../icons/caret_up.svg";
 import CaretDown from "../icons/caret_down.svg";
 import {Checkbox} from "@surfnet/sds";
 
-export const CollapseField = ({title, info, children, checkRequired, name, checkValue}) => {
+export const CollapseField = ({title, info, children, disabledToggle, checkRequired, name, checkValue}) => {
 
     const [collapse, setCollapse] = useState(false)
 
     const onCollapseToggle = () => {
-        setCollapse(!collapse)
+        if (!disabledToggle) {
+            setCollapse(!collapse)
+        }
         checkRequired({target: {checked: !checkValue}});
     }
 
@@ -20,12 +22,13 @@ export const CollapseField = ({title, info, children, checkRequired, name, check
                                             value={checkValue}
                                             onChange={e => checkRequired(e)}
                 />}
-                <div className="collapse-field-switch"
+                <div className={`collapse-field-switch ${disabledToggle ? "disabled" : ""}`}
                      onClick={onCollapseToggle}>
                     <span className={`${collapse ? "collapsed" : "open"}`}>
                         {title}
                     </span>
-                    {collapse ? <CaretUp/> : <CaretDown/>}
+
+                    {disabledToggle ? null : collapse ? <CaretUp/> : <CaretDown/>}
                 </div>
 
             </div>
