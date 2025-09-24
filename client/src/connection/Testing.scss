@@ -247,6 +247,27 @@ $width-percentage: 75%;
                 margin-top: 10px;
             }
 
+            &.refresh-token-validity {
+                background-color: #f3f5f7;
+
+                .sds--text-field {
+                    flex-direction: row;
+                    width: 100%;
+
+                    label {
+                        font-weight: initial;
+                    }
+
+                    .inner-input-field {
+                        margin-left: auto;
+                    }
+
+                    input {
+                        max-width: 100px;
+                    }
+                }
+            }
+
             &:first-child {
                 border-radius: 6px 6px 0 0;
                 border-bottom: none;
@@ -463,9 +484,11 @@ table.table-connections {
 
         td.buttons {
             word-break: keep-all;
+
             button.sds--btn--ghost--dark {
                 color: white;
                 background-color: var(--sds--color--gray--500);
+
                 &:hover {
                     background-color: var(--sds--color--black--navigation);
                 }

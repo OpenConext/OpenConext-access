@@ -255,6 +255,7 @@ const en = {
         pkceTooltip: "PKCE (Proof Key for Code Exchange) enhances the security of the authorization code flow by preventing authorization code interception. It’s especially important for public clients like mobile or single-page apps",
         optional: "Optional",
         required: "Required (public client)",
+        refreshTokenValidity: "Validity in seconds",
         redirectUrl: "Redirect URL",
         redirectUrls: "Redirect URLs",
         addRedirectUrl: "+ Redirect URL",
