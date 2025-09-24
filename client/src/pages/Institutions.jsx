@@ -10,6 +10,7 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+import {pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination.js";
 
 const pageCount = 10;
 
@@ -22,7 +23,7 @@ const Institutions = () => {
         const [filteredIdentityProviders, setFilteredIdentityProviders] = useState([]);
         const [category, setCategory] = useState(null);
         const [categoryOptions, setCategoryOptions] = useState([]);
-    const [page, setPage] = useState(1);
+        const [page, setPage] = useState(pageNumberFromQueryParams());
 
         useEffect(() => {
             publicIdentityProviders()
@@ -154,7 +155,10 @@ const Institutions = () => {
                         </div>
                     </div>
                     <Pagination currentPage={page}
-                                onChange={nbr => setPage(nbr)}
+                                onChange={nbr => {
+                                    setPage(nbr);
+                                    storePageNumber(nbr);
+                                }}
                                 total={filteredIdentityProviders.length}
                                 pageCount={pageCount}/>
                 </div>

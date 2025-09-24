@@ -1,4 +1,5 @@
 import {isEmpty} from "./Utils";
+import {getParameterByName} from "./QueryParameters.js";
 
 export const pageCount = 10;
 
@@ -39,3 +40,15 @@ export const defaultPagination = (sort = "name", sortDirection = "ASC") => {
     };
     return {...dp};
 }
+
+export const storePageNumber = nbr => {
+    const url = new URL(window.location);
+    url.searchParams.set("page", nbr);
+    window.history.pushState({page: nbr}, "", url);
+}
+
+export const pageNumberFromQueryParams = () => {
+    const nbr = getParameterByName("page", window.location.search) || 1;
+    return parseInt(nbr, 10);
+}
+
