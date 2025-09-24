@@ -241,6 +241,7 @@ const en = {
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
+        protocolTooltip: "When a connection is registered within SURFconext, it is no longer possible to change the protocol. If you want, you can delete this connection and create another with a different protocol.",
         clientID: "Client ID",
         clientIDPlaceHolder: "",
         oidc10_rp: "OpenID Connect",
