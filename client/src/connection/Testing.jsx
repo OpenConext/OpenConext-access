@@ -474,6 +474,7 @@ export const Testing = ({
                                                 <InputField name={I18n.t("connection.refreshTokenValidity") }
                                                             value={connection.refreshTokenValidity || 3600}
                                                             isInteger={true}
+                                                            maxLength={3600 * 24}
                                                             customClassName="refresh-token-validity"
                                                             onChange={e => setConnection({...connection, refreshTokenValidity: e.target.value})}/>
                                             </section>

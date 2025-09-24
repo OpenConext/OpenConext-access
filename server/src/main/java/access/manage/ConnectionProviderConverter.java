@@ -71,7 +71,8 @@ public class ConnectionProviderConverter {
             metaDataFields.put("isPublicClient", connectionMetaData.getOrDefault("pkce", false));
             metaDataFields.put("accessTokenValidity", 3600);
             if (grantTypes.contains("refresh_token")) {
-                metaDataFields.put("refreshTokenValidity", 3600);
+                String refreshTokenValidity = (String) connectionMetaData.getOrDefault("refreshTokenValidity", "3600");
+                metaDataFields.put("refreshTokenValidity", Integer.parseInt(refreshTokenValidity));
             }
             putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
         }
