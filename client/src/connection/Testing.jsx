@@ -437,6 +437,8 @@ export const Testing = ({
                 <SelectField name={I18n.t("connection.protocol")}
                              value={connection.protocol}
                              options={protocolOptions}
+                             toolTip={isEmpty(connection.manageIdentifier) ? null : I18n.t("connection.protocolTooltip")}
+                             disabled={!isEmpty(connection.manageIdentifier)}
                              onChange={changeProtocol}
                 />
                 {connection.protocol.value === PROTOCOLS.OIDC10_RP &&
