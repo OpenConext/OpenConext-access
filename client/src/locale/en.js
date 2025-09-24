@@ -293,6 +293,7 @@ const en = {
             titleTest: "Koppelingen met de testomgeving",
             name: "Name",
             created: "Added at",
+            updatedAt: "Updated at",
             status: "Status",
             open: "Open",
             complete: "Completed",

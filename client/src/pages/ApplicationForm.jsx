@@ -129,7 +129,7 @@ export const ApplicationForm = () => {
                             </CollapseField>)}
                     </div>}
                 <section className="actions">
-                    <Button onClick={() => navigate("/home")}
+                    <Button onClick={() => navigate(-1)}
                             type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}/>
                     <Button onClick={() => doSaveApplication()}
