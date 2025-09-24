@@ -59,6 +59,7 @@ export default function InputField({
                            onBlur={onBlur}
                            id={name}
                            maxLength={maxLength}
+                           max={isInteger ? maxLength : null}
                            min={0}
                            ref={onRef}
                            placeholder={placeholder}
