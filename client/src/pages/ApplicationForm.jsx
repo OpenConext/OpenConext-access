@@ -105,17 +105,17 @@ export const ApplicationForm = () => {
                         </div>
                     </div>
                 }
-                <RadioOptions label={I18n.t("application.targetGroup")}
-                              name={"target"}
-                              value={application.target}
-                              onChange={e => setApplication({
-                                  ...application,
-                                  target: e.target.id.replace("target_", "").toUpperCase()
-                              })}
-                              isMultiple={true}
-                              labels={["SURF", "SRAM"]}
-                              labelResolver={targetGroupLabel}
-                              orientation={RadioOptionsOrientation.column}/>
+                {/*<RadioOptions label={I18n.t("application.targetGroup")}*/}
+                {/*              name={"target"}*/}
+                {/*              value={application.target}*/}
+                {/*              onChange={e => setApplication({*/}
+                {/*                  ...application,*/}
+                {/*                  target: e.target.id.replace("target_", "").toUpperCase()*/}
+                {/*              })}*/}
+                {/*              isMultiple={true}*/}
+                {/*              labels={["SURF", "SRAM"]}*/}
+                {/*              labelResolver={targetGroupLabel}*/}
+                {/*              orientation={RadioOptionsOrientation.column}/>*/}
                 {isNew &&
                     <div className="fair-use-terms">
                         <span className="label">{I18n.t("application.terms")}<sup className="required">*</sup></span>
@@ -123,6 +123,7 @@ export const ApplicationForm = () => {
                             <CollapseField title={I18n.t(`application.checks.${check}`)}
                                            name={check}
                                            key={check}
+                                           disabledToggle={true}
                                            checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
                                            checkValue={checks[check]}>
                                 <span>{I18n.t(`application.checksInfo.${check}`)}</span>
