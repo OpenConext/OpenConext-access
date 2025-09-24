@@ -469,6 +469,15 @@ export const Testing = ({
 
                                             </section>
                                         }
+                                        {(grantType === grantTypes.refresh_token && connection.grantTypes.includes(grantTypes[grantType])) &&
+                                            <section key="refresh_token_validity" className="grant-type refresh-token-validity">
+                                                <InputField name={I18n.t("connection.refreshTokenValidity") }
+                                                            value={connection.refreshTokenValidity || 3600}
+                                                            isInteger={true}
+                                                            customClassName="refresh-token-validity"
+                                                            onChange={e => setConnection({...connection, refreshTokenValidity: e.target.value})}/>
+                                            </section>
+                                        }
                                     </Fragment>)}
                                 {(!initial && isEmpty(connection.grantTypes)) &&
                                     <ErrorIndicator
