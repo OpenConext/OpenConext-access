@@ -5,7 +5,7 @@ import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import "./Entities.scss";
 import {Button, ButtonType, Loader, Pagination, Tooltip} from "@surfnet/sds";
-import {pageCount} from "../utils/Pagination";
+import {pageCount, pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination";
 import {useNavigate} from "react-router-dom";
 import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
@@ -42,11 +42,10 @@ export const Entities = ({
                              busy = false
                          }) => {
 
-    const [initial, setInitial] = useState(!isEmpty(customSearch));
     const [query, setQuery] = useState("");
     const [sorted, setSorted] = useState(defaultSort);
     const [reverse, setReverse] = useState(false);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(pageNumberFromQueryParams());
 
     const searchRef = useRef();
     const navigate = useNavigate();
@@ -142,13 +141,11 @@ export const Entities = ({
         if (customSearch) {
             //Adjust page, as serverSide is zero-based
             customSearch(newQuery, newSorted, newReversed, newPage - 1);
-            setInitial(false);
         }
         if (searchCallback) {
             const searchResult = filterEntities(query);
             searchCallback(searchResult);
         }
-
     }
 
     const getEntityValue = (entity, column) => {
@@ -218,6 +215,7 @@ export const Entities = ({
                             onChange={nbr => {
                                 setPage(nbr);
                                 callCustomSearch(query, sorted, reverse, nbr);
+                                storePageNumber(nbr);
                             }}
                             total={totalElements || total}
                             pageCount={pageCount}/>
