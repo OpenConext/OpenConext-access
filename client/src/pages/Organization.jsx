@@ -92,10 +92,6 @@ const Organization = ({refreshUser}) => {
                                                     moreLabel={I18n.t("forms.moreLabel")}
                                                     lessLabel={I18n.t("forms.lessLabel")}/>
                                             }
-                                            {application.information.webSite &&
-                                                <a href={application.information.webSite}
-                                                   className="web-site"
-                                                   target="_blank">{application.information.webSite}</a>}
                                         </div>
                                         <span className="navigation"><ArrowRight/></span>
                                     </div>
