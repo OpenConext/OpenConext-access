@@ -145,6 +145,8 @@ public class Connection implements NameHolder {
         Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
         this.metaData.put("pkce", metaDataFields.get("isPublicClient"));
         this.metaData.put("grantTypes", metaDataFields.get("grants"));
+        this.metaData.put("refreshTokenValidity", metaDataFields.get("refreshTokenValidity"));
+        this.metaData.put("claimsInIdToken", metaDataFields.get("oidc:claims_in_id_token"));
         this.metaData.put("secret", metaDataFields.get("secret"));
         this.metaData.put("redirectUrls", metaDataFields.get("redirectUrls"));
         List<String> acsLocations = new ArrayList<>();

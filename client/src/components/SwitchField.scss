@@ -1,0 +1,34 @@
+.switch-field {
+    display: flex;
+
+    margin-top: 20px;
+    padding-bottom: 10px;
+
+    &:not(.last) {
+        border-bottom: 1px solid var(--sds--color--gray--200);
+    }
+
+    align-items: center;
+
+
+    .sds--tooltip-parent {
+        margin-left: auto;
+    }
+
+    .inner-switch {
+        display: flex;
+        flex-direction: column;
+        margin-right: 20px;
+    }
+
+    .switch-label {
+        font-weight: 600;
+    }
+
+    .switch-info {
+        color: var(--sds--color--gray--500);
+    }
+}
+
+
+

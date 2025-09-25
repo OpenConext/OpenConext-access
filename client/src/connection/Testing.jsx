@@ -55,6 +55,7 @@ import {
 } from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import SwitchField from "../components/SwitchField.jsx";
 
 
 const sections = {
@@ -519,6 +520,13 @@ export const Testing = ({
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
+                        <SwitchField name={"claimsInIdToken"}
+                                     value={connection.claimsInIdToken || false}
+                                     onChange={val => setConnection({...connection, claimsInIdToken: val})}
+                                     label={I18n.t("connection.claimsInIdToken")}
+                                     info={I18n.t("connection.claimsInIdTokenTooltip")}
+                        />
+
                         {connection.status !== CONNECTION_STATUSES.OPEN &&
                             <div className="oidc-authentication">
                                 <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
