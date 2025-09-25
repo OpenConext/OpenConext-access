@@ -99,6 +99,7 @@ export const Testing = ({
     const {setFlash, config} = useAppStore(state => state);
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
+    const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
     const [section, setSection] = useState(sections.technical);
     const [finishedSections, setFinishedSections] = useState([]);
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
@@ -414,6 +415,31 @@ export const Testing = ({
         });
     };
 
+    const checkRefreshTokenValidity = e => {
+        let val = e.target.value;
+        if (isEmpty(val) || isNaN(parseInt(val, 10))) {
+            val = 3600;
+            setConnection({...connection, refreshTokenValidity: val});
+        }
+    }
+
+    const changeRefreshTokenValidity = e => {
+        setIsMaxRefreshValidity(false);
+        let val = e.target.value;
+        if (isEmpty(val)) {
+            val = 0;
+        } else {
+            val = parseInt(val, 10);
+            if (isNaN(val)) {
+                val = 0;
+            } else if (val > 3600 * 24) {
+                val = 3600 * 24;
+                setIsMaxRefreshValidity(true);
+            }
+        }
+        setConnection({...connection, refreshTokenValidity: val});
+    }
+
     const renderTechnicalSection = () => {
         return (
             <section className="inner-right">
@@ -471,14 +497,21 @@ export const Testing = ({
                                             </section>
                                         }
                                         {(grantType === grantTypes.refresh_token && connection.grantTypes.includes(grantTypes[grantType])) &&
-                                            <section key="refresh_token_validity" className="grant-type refresh-token-validity">
-                                                <InputField name={I18n.t("connection.refreshTokenValidity") }
-                                                            value={connection.refreshTokenValidity || 3600}
-                                                            isInteger={true}
-                                                            maxLength={3600 * 24}
-                                                            customClassName="refresh-token-validity"
-                                                            onChange={e => setConnection({...connection, refreshTokenValidity: e.target.value})}/>
-                                            </section>
+                                            <>
+                                                <section key="refresh_token_validity"
+                                                         className="grant-type refresh-token-validity">
+                                                    <InputField name={I18n.t("connection.refreshTokenValidity")}
+                                                                value={isEmpty(connection.refreshTokenValidity) ? 3600 : connection.refreshTokenValidity}
+                                                                isInteger={true}
+                                                                maxLength={3600 * 24}
+                                                                customClassName="refresh-token-validity"
+                                                                onBlur={checkRefreshTokenValidity}
+                                                                onChange={changeRefreshTokenValidity}/>
+                                                </section>
+                                                {isMaxRefreshValidity &&
+                                                    <em className="warning">{I18n.t("connection.refreshTokenMax", {max: 3600 * 24})}</em>}
+                                            </>
+
                                         }
                                     </Fragment>)}
                                 {(!initial && isEmpty(connection.grantTypes)) &&
