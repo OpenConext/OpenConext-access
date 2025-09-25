@@ -288,6 +288,10 @@ $width-percentage: 75%;
         }
     }
 
+    em.warning {
+        font-size: smaller;
+    }
+
     .redirect-urls-container, .acs-locations-container {
         .redirect-urls, .acs-locations {
             display: flex;
