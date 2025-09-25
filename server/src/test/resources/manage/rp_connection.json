@@ -53,6 +53,7 @@
     },
     "entityID": "ACCESS-C4EA112E-C76F-4BF2-8384-99D321F9DCC4",
     "allowedall": false,
+    "claimsInIdToken": true,
     "redirectUrls": [
       "http://localhost:8080/redirect",
       "https://redirect.com"

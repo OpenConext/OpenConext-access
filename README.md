@@ -58,6 +58,15 @@ To become an institution admin in access, add the following values as `eduPerson
 - urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
 - urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke
 
+### [Add attribute](#add-attribute)
+
+If the GUI for maintaining a connection, needs an additional attribute, then the following source files need to be
+altered:
+
+- access.manage.ConnectionProviderConverter#convert
+- access.model.Connection#mergeMetaData
+- utils/Connection.js#convertClientConnectionToServer
+
 
 ### [Upgrade](#upgrade)
 
@@ -72,7 +81,6 @@ cd client
 nvm use
 yarn outdated
 ```
-
 
 ### [Designs](#design)
 

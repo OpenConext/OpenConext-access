@@ -69,10 +69,10 @@ public class ConnectionProviderConverter {
             putIf(metaDataFields, "grants", grantTypes);
             putIf(metaDataFields, "redirectUrls", connectionMetaData.get("redirectUrls"));
             metaDataFields.put("isPublicClient", connectionMetaData.getOrDefault("pkce", false));
+            metaDataFields.put("oidc:claims_in_id_token", connectionMetaData.getOrDefault("claimsInIdToken", false));
             metaDataFields.put("accessTokenValidity", 3600);
             if (grantTypes.contains("refresh_token")) {
-                String refreshTokenValidity = (String) connectionMetaData.getOrDefault("refreshTokenValidity", "3600");
-                metaDataFields.put("refreshTokenValidity", Integer.parseInt(refreshTokenValidity));
+                metaDataFields.put("refreshTokenValidity", connectionMetaData.getOrDefault("refreshTokenValidity", 3600));
             }
             putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
         }

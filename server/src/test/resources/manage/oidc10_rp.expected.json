@@ -19,6 +19,7 @@
       "coin:privacy:country": "NL",
       "coin:privacy:access_data": "Everybody",
       "coin:privacy:what_data": "Every",
+      "oidc:claims_in_id_token": true,
       "description:en": "Beschrijving in het Engels",
       "redirectUrls": [
         "http://localhost:8080/redirect",
