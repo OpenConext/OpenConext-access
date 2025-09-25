@@ -496,6 +496,7 @@ export const Testing = ({
                                                         onChange={e => redirectUrlValueChanged(e, index)}
                                                         onBlur={e => redirectUrlValueBlurred(e, index)}
                                                         onRef={el => redirectUrlRefs.current[index] = el}
+                                                        placeholder={I18n.t("connection.redirectUrlsPlaceholder")}
                                             />
                                             <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
                                             <Button txt={I18n.t("connection.testSection")}
