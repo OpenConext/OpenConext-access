@@ -497,6 +497,11 @@ table.table-connections {
 
         .status-chip {
             display: flex;
+            width: 100%;
+
+            button {
+                margin: 0 auto;
+            }
         }
 
     }

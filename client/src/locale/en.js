@@ -262,6 +262,7 @@ const en = {
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
         sslGradeTooltip: "Ensure the SSL/TLS certificate meets or exceeds grade B",
+
         configuration: "Congifuratiegegevens",
         import: "Metadata importeren",
         entityID: "Entity ID",
