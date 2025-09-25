@@ -28,11 +28,15 @@ section.copy-to-clipboard {
 
 div.copied {
     position: absolute;
-    background-color: var(--sds--color--gray--300);
+    background-color: var(--sds--color--gray--500);
+    opacity: 1;
+    border-radius: 6px;
+    max-width: 280px;
+    word-break: break-word;
+    font-size: .875rem;
+    line-height: calc(18 / 14);
     color: white;
-    font-size: 13px;
     padding: 4px;
-    border-radius: $br;
     right: -6px;
     top: -20px;
     transition: opacity .4s ease;

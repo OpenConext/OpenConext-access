@@ -19,7 +19,7 @@ export default function ClipBoardCopy({txt}) {
                         setTimeout(() => {
                             me.classList.remove("copied");
                             setCopied(false);
-                        }, 1250);
+                        }, 1560);
                     }}>
                     <Duplicate/>
                 </section>
