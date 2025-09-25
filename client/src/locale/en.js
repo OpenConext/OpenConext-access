@@ -258,6 +258,7 @@ const en = {
         refreshTokenValidity: "Validity in seconds",
         redirectUrl: "Redirect URL",
         redirectUrls: "Redirect URLs",
+        redirectUrlsPlaceholder: "Redirect URL, for example https://redirect.com",
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
         sslGradeTooltip: "Ensure the SSL/TLS certificate meets or exceeds grade B",
