@@ -420,18 +420,17 @@ const en = {
             tagPlaceholder: "Maximaal 3 tags",
             tagInfo: "In de appstore kunnen instellingen hierop filteren",
             tagsAvailable: {
-                education: "Education",
-                research: "Research",
-                privacy: "Privacy/security",
-                content: "Content/library",
-                repository: " Repository",
-                company: "Business management",
-                recommended: "Suggested",
+                business_management: "Business management",
+                collaboration: "Collaboration",
+                content_library: "Content/ Library",
+                learn_study: "Learning/ Study",
+                education_logistics: "Education / Logistics",
+                privacy_security: "Privacy / Security",
                 productivity: "Productivity",
-                organization: "Management of education/research",
-                cooperation: "Collaborate",
-                video: "Video platform",
-                surf: "SURF"
+                recommended: "Recommended",
+                repository: "Repository",
+                surf: "SURF",
+                media_video: "Media / Video"
             },
             targetGroup: "Ga door naar de doelgroep"
         },
