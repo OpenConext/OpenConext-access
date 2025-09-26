@@ -50,8 +50,9 @@ public class ConnectionProviderConverter {
         data.put("revisionnote", "SURF Access update with remote API");
 
         mergeAttributeReleasePolicies(connectionMetaData, data);
-        mergeAllowedEntities(data, connectionMetaData);
-
+        if (connection.getEnvironment().equals(Environment.TEST)) {
+            mergeAllowedEntities(data, connectionMetaData );
+        }
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
 
@@ -106,13 +107,8 @@ public class ConnectionProviderConverter {
     }
 
     private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
-        List<String> existingAllowedEntities = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", new ArrayList<>()))
-                .stream().map(m -> m.get("name"))
-                .toList();
-        List<String> newAllowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
-        Set<String> uniqueAllowedEntities = new LinkedHashSet<>(existingAllowedEntities);
-        uniqueAllowedEntities.addAll(newAllowedEntities);
-        data.put("allowedEntities", uniqueAllowedEntities.stream().map(entity -> Map.of("name", entity)).toList());
+        List<String> allowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
+        data.put("allowedEntities", allowedEntities.stream().map(entity -> Map.of("name", entity)).toList());
     }
 
     private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {

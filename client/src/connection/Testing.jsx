@@ -1277,6 +1277,7 @@ export const Testing = ({
                       columns={columns}
                       hideTitle={true}
                       showNew={false}
+                      rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
                       displaySearch={false}
                       searchAttributes={["name", "protocol"]}
                       inputFocus={true}>
