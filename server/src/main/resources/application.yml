@@ -125,14 +125,14 @@ manage:
   enabled: True
 #  enabled: False
   test:
-    url: "https://manage.test2.surfconext.nl"
-    #  url: "http://localhost:8081"
+#    url: "https://manage.test2.surfconext.nl"
+    url: "http://localhost:8081"
     user: openconextaccess
     password: secret
     defaultState: prodaccepted
   prod:
-    url: "https://manage.test2.surfconext.nl"
-    #  url: "http://localhost:8081"
+#    url: "https://manage.test2.surfconext.nl"
+    url: "http://localhost:8081"
     user: openconextaccess
     password: secret
     defaultState: testaccepted

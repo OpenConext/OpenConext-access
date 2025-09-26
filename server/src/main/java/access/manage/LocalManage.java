@@ -138,6 +138,11 @@ public final class  LocalManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection) {
+        return List.of();
+    }
+
+    @Override
     public String changeRequestURL(Environment environment, Connection connection) {
         return String.format("http://localhost:8088/metadata/%s/%s", connection.getProtocol().name(), connection.getManageIdentifier());
     }

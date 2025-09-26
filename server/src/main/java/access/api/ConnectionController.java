@@ -12,6 +12,7 @@ import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.passay.CharacterRule;
@@ -114,27 +115,30 @@ public class ConnectionController implements UserAccessRights {
         if (!connectionData.isValid()) {
             throw new InvalidInputException("Connection is not valid");
         }
-        Connection connection = connectionRepository.findById(connectionData.getId())
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Application application = connection.getApplication();
-        Organization organization = application.getOrganization();
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());
 
+        if (connection.getEnvironment().equals(Environment.PROD) && connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+
+        } else {
+
+        }
         connection.merge(connectionData);
         connection = saveConnection(connection);
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
 
+    @SneakyThrows
+    @GetMapping(value = "/change-requests/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Map<String, Object>>> changeRequests(User user, @PathVariable("connectionId") Long connectionId) {
+        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
+
+        List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection.getEnvironment(), connection);
+        return ResponseEntity.ok(changeRequests);
+    }
+
     @PutMapping(value = "/reset-secret/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, String> secret(User user, @PathVariable("connectionId") Long connectionId) {
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Application application = connection.getApplication();
-        Organization organization = application.getOrganization();
-
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
         String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
         connection.getMetaData().put("secret", secret);
@@ -146,13 +150,7 @@ public class ConnectionController implements UserAccessRights {
     @PutMapping(value = "/request-production-status/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> requestProductionStatus(User user,
                                                                        @PathVariable("connectionId") Long connectionId) {
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Application application = connection.getApplication();
-        Organization organization = application.getOrganization();
-
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
         String changeRequestURL = manage.changeRequestURL(connection.getEnvironment(), connection);
 
@@ -195,18 +193,13 @@ public class ConnectionController implements UserAccessRights {
     public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("connectionId") Long connectionId) {
         LOG.debug("/delete connection by " + user.getEmail());
 
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Application application = connection.getApplication();
-        Organization organization = application.getOrganization();
-
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
         if (StringUtils.hasText(connection.getManageIdentifier())) {
             manage.deleteProvider(connection);
         }
         //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+        Application application = connection.getApplication();
         application.removeConnection(connection);
 
         connectionRepository.deleteById(connectionId);
@@ -251,5 +244,16 @@ public class ConnectionController implements UserAccessRights {
         }
         return connectionRepository.save(connection);
     }
+
+    private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Application application = connection.getApplication();
+        Organization organization = application.getOrganization();
+        user = this.reinitializeUser(user, userRepository);
+        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        return connection;
+    }
+
 
 }

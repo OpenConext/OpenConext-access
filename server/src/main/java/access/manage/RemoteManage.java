@@ -151,6 +151,16 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection) {
+        RestTemplate restTemplate = environmentRestTemplate(environment);
+        String url = String.format("%s/manage/api/internal/change-requests/%s/%s",
+                environmentUrl(environment),
+                connection.getProtocol().name(),
+                connection.getManageIdentifier());
+        return restTemplate.getForEntity(url, List.class).getBody();
+    }
+
+    @Override
     public String changeRequestURL(Environment environment, Connection connection) {
         String url = this.environmentUrl(environment);
         return String.format("%s/metadata/%s/%s/requests",
