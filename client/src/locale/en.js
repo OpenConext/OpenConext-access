@@ -647,7 +647,8 @@ const en = {
         all: "All categories",
         allSources: "All federations",
         other: "-",
-        searchPlaceHolder: "Search applications..."
+        searchPlaceHolder: "Search applications...",
+        recent: "Recently added applications"
     },
     applicationDetail: {
         title: "Applications",

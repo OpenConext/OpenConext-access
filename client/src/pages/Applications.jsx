@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {Loader, Pagination} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
+import ArrowIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
@@ -21,6 +22,7 @@ const Applications = () => {
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
         const [filteredServiceProviders, setFilteredServiceProviders] = useState([]);
+        const [recentServiceProviders, setRecentServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
         const [tagOptions, setTagOptions] = useState([]);
         const [source, setSource] = useState(null);
@@ -35,6 +37,10 @@ const Applications = () => {
                             .localeCompare(providerName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
                     setFilteredServiceProviders(res);
+                    const recent = res
+                        .sort((sp1, sp2) => sp2.revision.created.localeCompare(sp1.revision.created))
+                        .slice(0, 8);
+                    setRecentServiceProviders(recent);
                     const tagCounts = res.reduce((acc, sp) => {
                         const tags = sp.data.metaDataFields.application_tags;
                         if (!isEmpty(tags)) {
@@ -94,7 +100,7 @@ const Applications = () => {
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
         useEffect(() => {
-            setFilteredServiceProviders((isEmpty(query) && tag === "all" && source === "all") ? serviceProviders :
+            setFilteredServiceProviders((isEmpty(query) && tag === "all" && source === "all") ? recentServiceProviders :
                 serviceProviders.filter(filterSP));
         }, [query, source, tag]);
 
@@ -125,6 +131,7 @@ const Applications = () => {
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
+        const showMostRecent = (isEmpty(query) && tag === "all" && source === "all");
         return (
             <div className="applications-container">
                 <div className="applications-header-container">
@@ -166,7 +173,31 @@ const Applications = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="applications-overview">
+                        {showMostRecent && <div className="applications-overview-recent-container">
+                            <h2>{I18n.t("applications.recent")}</h2>
+                            <div className="applications-overview-recent">
+                                {recentServiceProviders.map((sp, index) => {
+                                    const metaData = sp.data.metaDataFields;
+                                    return (
+                                        <div key={index}
+                                             className="application-card"
+                                             onClick={() => navigate(`/application-detail/${sp.type}/${sp['_id']}`)}>
+                                            {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                                            {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                                            <div className="sp-info">
+                                                            <span className="sp-name">
+                                                                {providerName(I18n.locale, sp)}
+                                                            </span>
+                                                <span className="sp-org">
+                                                                {providerOrganizationName(I18n.locale, sp)}
+                                                            </span>
+                                            </div>
+                                            <span className="right"><ArrowIcon/></span>
+                                        </div>)
+                                })}
+                            </div>
+                        </div>}
+                        {!showMostRecent && <div className="applications-overview">
                             <ul>
                                 {filteredServiceProviders
                                     .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
@@ -176,8 +207,6 @@ const Applications = () => {
                                                 <li key={index}
                                                     onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>
                                                     <div className="service-provider">
-                                                        {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                                        {!metaData["logo:0:url"] && <PlaceHolderImage/>}
                                                         <div className="sp-info">
                                                             <span className="sp-name">
                                                                 {providerName(I18n.locale, idp)}
@@ -191,15 +220,15 @@ const Applications = () => {
                                         }
                                     )}
                             </ul>
-                        </div>
+                        </div>}
                     </div>
-                    <Pagination currentPage={page}
+                    {!showMostRecent && <Pagination currentPage={page}
                                 onChange={nbr => {
                                     setPage(nbr);
                                     storePageNumber(nbr);
                                 }}
                                 total={filteredServiceProviders.length}
-                                pageCount={pageCount}/>
+                                pageCount={pageCount}/>}
                 </div>
 
             </div>
