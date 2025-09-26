@@ -13,10 +13,12 @@ import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 
 const Organization = ({refreshUser}) => {
+    const {config, user} = useAppStore(state => state);
     const {organizationId} = useParams();
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [alertClosed, setAlertClosed] = useState(false);
+    const [isExternal, setIsExternal] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,6 +34,7 @@ const Organization = ({refreshUser}) => {
                         {value: I18n.t("breadCrumb.applications")}
                     ]
                 });
+                setIsExternal(user.schacHomeOrganization === config.eduIdSchacHomeOrganization);
                 setLoading(false);
             }).catch(() => {
             navigate("/404")
@@ -63,13 +66,13 @@ const Organization = ({refreshUser}) => {
                         <div className="right">
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>
                             <ul>
-                                <li><p dangerouslySetInnerHTML={{__html: I18n.t("organization.catalog.fairUse")}}/>
+                                <li><p dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`)}}/>
                                 </li>
                                 <li><p
-                                    dangerouslySetInnerHTML={{__html: I18n.t("organization.catalog.agreement")}}/>
+                                    dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`)}}/>
                                 </li>
                             </ul>
-                            <p dangerouslySetInnerHTML={{__html: I18n.t("organization.catalog.disclaimer")}}/>
+                            <p dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`)}}/>
                         </div>
                     </div>}
                 {!isEmpty(organization.applications) &&
@@ -85,13 +88,6 @@ const Organization = ({refreshUser}) => {
                                             <img src={application.logoUrl} alt={application.name}/>}
                                         <div className="application-info">
                                             <h4>{application.name}</h4>
-                                            {application.information.descriptionEN &&
-                                                <MoreLessToggle
-                                                    txt={application.information[`description${I18n.locale.toUpperCase()}`]}
-                                                    cutoffNumber={300}
-                                                    moreLabel={I18n.t("forms.moreLabel")}
-                                                    lessLabel={I18n.t("forms.lessLabel")}/>
-                                            }
                                         </div>
                                         <span className="navigation"><ArrowRight/></span>
                                     </div>
