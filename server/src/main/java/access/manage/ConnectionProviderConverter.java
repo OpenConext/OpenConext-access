@@ -8,12 +8,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class ConnectionProviderConverter {
 
     private final List<Map<String, Object>> privacyInfo;
+    private final List<String> excludedARPAttributes;
 
     private final State defaultTestState;
     private final State defaultProdState;
@@ -24,6 +27,21 @@ public class ConnectionProviderConverter {
         this.defaultProdState = defaultProdState;
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
+        Map<String, List<Map<String, Object>>> arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
+        });
+        Set<String> profileAttributes = arpInfo.get("profiles").stream()
+                .map(m -> {
+                    List<String> attributes = (List) m.get("attributes");
+                    List<String> optionalAttributes = (List) m.get("optionalAttributes");
+                    attributes.addAll(optionalAttributes);
+                    return attributes;
+                })
+                .flatMap(List::stream)
+                .collect(Collectors.toSet());
+        excludedARPAttributes = arpInfo.get("attributes").stream()
+                .filter(m -> !profileAttributes.contains((String) m.get("name")))
+                .map(m -> (String) m.get("urn"))
+                .toList();
     }
 
     public Map<String, Object> convert(Connection connection, Map<String, Object> result) {
@@ -50,6 +68,7 @@ public class ConnectionProviderConverter {
         data.put("revisionnote", "SURF Access update with remote API");
 
         mergeAttributeReleasePolicies(connectionMetaData, data);
+
         if (connection.getEnvironment().equals(Environment.TEST)) {
             mergeAllowedEntities(data, connectionMetaData );
         }
@@ -114,16 +133,15 @@ public class ConnectionProviderConverter {
     private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
         Map<String, Object> newArp = (Map<String, Object>) connectionMetaData.get("arp");
         Map<String, Object> arpFromManage = (Map<String, Object>) data.get("arp");
-        //Merge the two ARP's, ensuring no existing data is overridden
+        //Merge the two ARP's, ensuring no existing attributes are overridden which are in the excludedARPAttributes
         Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.get("attributes");
         Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.get("attributes");
-        existingArpAttributes.entrySet().stream().forEach(entry -> {
-            if (newArpAttributes.containsKey(entry.getKey())) {
-                Map<String, String> arpEntry = newArpAttributes.get(entry.getKey()).getFirst();
-                Map<String, String> existingArpEntry = entry.getValue().getFirst();
-                existingArpEntry.put("motivation", arpEntry.get("motivation"));
+        existingArpAttributes.entrySet().stream()
+                .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
+                .forEach(entry -> {
+            if (!newArpAttributes.containsKey(entry.getKey())) {
+                newArpAttributes.put(entry.getKey(), entry.getValue());
             }
-            newArpAttributes.put(entry.getKey(), entry.getValue());
         });
         putIf(data, "arp", newArp);
     }
