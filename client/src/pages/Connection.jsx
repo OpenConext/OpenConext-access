@@ -29,7 +29,7 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 }));
 
 export const Connection = () => {
-    const {applicationId, tab = "overview"} = useParams();
+    const {applicationId, tab = "overview", connectionId} = useParams();
     const {user, arp, privacy} = useAppStore(state => state);
 
     const [application, setApplication] = useState({organization: {}});
@@ -184,6 +184,7 @@ export const Connection = () => {
                                 identityProviders={identityProviders}
                                 isProduction={false}
                                 setDirty={setDirty}
+                                connectionId={connectionId}
                 />
             }
             case  "prod": {
@@ -199,6 +200,7 @@ export const Connection = () => {
                                 identityProviders={prodIdentityProviders}
                                 isProduction={true}
                                 setDirty={setDirty}
+                                connectionId={connectionId}
                 />
             }
             case "application": {

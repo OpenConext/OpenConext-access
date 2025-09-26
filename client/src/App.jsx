@@ -136,7 +136,7 @@ const App = () => {
                             <Route path="/organization/:organizationId/:tab?" element={<Organization refreshUser={refreshUser}/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
-                            <Route path="/connection/:applicationId/:tab?" element={<Connection/>}/>
+                            <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation/>}/>
                             <Route path="/system" element={<System/>}/>

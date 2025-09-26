@@ -1,5 +1,5 @@
 import "./Testing.scss";
-import React, {Fragment, useMemo, useRef, useState} from "react";
+import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Alert,
@@ -56,6 +56,7 @@ import {
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 const sections = {
@@ -94,9 +95,11 @@ export const Testing = ({
                             profileOptions,
                             identityProviders,
                             isProduction,
-                            setDirty
+                            setDirty,
+                            connectionId
                         }) => {
     const {setFlash, config} = useAppStore(state => state);
+    const navigate = useNavigate();
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
     const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
@@ -121,6 +124,17 @@ export const Testing = ({
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
+
+    useEffect(() => {
+        if (!isEmpty(connectionId)) {
+            const conn = application.connections.find(c => c.id === parseInt(connectionId, 10));
+            if (isEmpty(conn)) {
+                navigate("/404");
+            } else {
+                showConnectionDetails(conn);
+            }
+        }
+    }, [application]);
 
     const isPending = sectionName => {
         const finished = finishedSections.includes(sectionName);
@@ -1177,6 +1191,7 @@ export const Testing = ({
     }
 
     const showConnectionDetails = conn => {
+        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}`);
         if (conn.status !== CONNECTION_STATUSES.OPEN) {
             setLoading(true);
             getConnectionById(conn.id).then(res => {
