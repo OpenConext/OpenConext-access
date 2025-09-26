@@ -178,7 +178,30 @@ class ConnectionControllerTest extends AbstractTest {
         assertEquals("okke.harsta@surf.nl", contactPersons.getFirst().get("email"));
     }
 
+    @SneakyThrows
     @Test
+    void findChangeRequests() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        String body = IOUtils.toString(new ClassPathResource("/manage/change_requests.json").getInputStream(), Charset.defaultCharset());
+        String url = String.format("/manage/api/internal/change-requests/%s/%s", EntityType.oidc10_rp, MANAGE_IDENTIFIER);
+        stubFor(get(urlPathMatching(url)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+
+        List<Map<String, Object>> changeRequests = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_PROD))
+                .get("/api/v1/connections/change-requests/{connectionId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, changeRequests.size());
+    }
+        @Test
     void resetSecret() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Map<String, String> newSecret = given()

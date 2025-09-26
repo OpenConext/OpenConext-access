@@ -1,0 +1,56 @@
+[
+  {
+    "id": "644a1c42c96825027dd31d11",
+    "metaDataId": "204c1c27-98dd-4572-8954-91291cf9b7dd",
+    "type": "saml20_sp",
+    "note": "Connect SP https://test by request of user Jane Roe from IdP test B.V. on 2023-04-27 08:54:58 via dashboard (TASK-2)",
+    "incrementalChange": true,
+    "pathUpdateType": "ADDITION",
+    "pathUpdates": {
+      "allowedEntities": {
+        "name": "https://test.nl"
+      }
+    },
+    "auditData": {
+      "user": "admin",
+      "notes": "Connect SP https://test by request of user Jane Roe from IdP test B.V. on 2023-04-27 08:54:58 via dashboard (TASK-2)",
+      "userName": "dashboard",
+      "apiUser": true
+    },
+    "created": "2023-04-27T06:54:58.651Z",
+    "metaDataSummary": {
+      "organizationName": "Service",
+      "name": "Test SP",
+      "entityid": "https://tes.nl",
+      "state": "prodaccepted"
+    },
+    "externalReferenceData": {}
+  },
+  {
+    "id": "651bdeb0c50891737058b3f9",
+    "metaDataId": "204c1c27-98dd-4572-8954-91291cf9b7dd",
+    "type": "saml20_sp",
+    "note": "Connect SP https://test by request of user Jane Roe from IdP test B.V. on 2023-10-03 11:28:16 via dashboard (CXT-67936)",
+    "incrementalChange": true,
+    "pathUpdateType": "ADDITION",
+    "pathUpdates": {
+      "allowedEntities": {
+        "name": "https://test.nl"
+      }
+    },
+    "auditData": {
+      "notes": "Connect SP https://test.nl by request of user Jane Roe from IdP Test B.V. on 2023-10-03 11:28:16 via dashboard (CXT-67936)",
+      "user": "admin",
+      "userName": "dashboard",
+      "apiUser": true
+    },
+    "created": "2023-10-03T09:28:16.718Z",
+    "metaDataSummary": {
+      "organizationName": "Service",
+      "name": "Test SP",
+      "entityid": "https://test.nl",
+      "state": "prodaccepted"
+    },
+    "externalReferenceData": {}
+  }
+]
