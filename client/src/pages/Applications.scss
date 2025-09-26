@@ -88,7 +88,6 @@ div.applications-container {
 
             .sp-info {
                 display: flex;
-                margin-left: 25px;
                 align-items: center;
                 width: 100%;
 
@@ -101,6 +100,73 @@ div.applications-container {
                     margin-left: auto;
                     color: var(--sds--color--blue--400)
                 }
+            }
+        }
+    }
+
+    .applications-overview-recent-container {
+        h2 {
+            margin-bottom: 25px;
+        }
+    }
+
+    .applications-overview-recent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 1.4rem;
+        column-gap: 1rem;
+
+        /* Mobile: stack in one column */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .application-card {
+            width: 440px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 0 2px #DFE3E8;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            &:hover {
+                background-color: var(--sds--color--gray--100);
+            }
+            .sp-info {
+                display: flex;
+                flex-direction: column;
+                margin-left: 25px;
+
+                .sp-name {
+                    font-size: 20px;
+                    font-weight: 600;
+                }
+
+                .sp-org {
+                    font-size: 20px;
+                }
+            }
+
+            img, svg {
+                width: 80px;
+                padding: 12px;
+                border: 1px solid #B2B6BE;
+                height: auto;
+                border-radius: 4px;
+            }
+
+            span.right {
+                margin-left: auto;
+
+                svg {
+                    width: 14px;
+                    border: none;
+                }
+
+
             }
         }
     }
