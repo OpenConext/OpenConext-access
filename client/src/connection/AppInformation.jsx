@@ -151,7 +151,9 @@ export const AppInformation = ({
     };
 
     const tagOptions = () => {
-        return Object.keys(I18n.translations[I18n.locale].connection.appInfo.tagsAvailable).map(tagOption);
+        return Object.keys(I18n.translations[I18n.locale].connection.appInfo.tagsAvailable)
+            .filter(tag => tag !== "recommended" && tag !== "surf")
+            .map(tagOption);
     };
 
     const renderLogoSection = () => {
