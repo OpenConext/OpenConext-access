@@ -6,6 +6,8 @@
     "tooltip_en": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
     "tooltip_nl": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
     "required": true,
+    "placeholder_en": "Everything",
+    "placeholder_nl": "Everything",
     "manage": "coin:privacy:what_data"
   },
   {
@@ -15,6 +17,8 @@
     "tooltip_en": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
     "tooltip_nl": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
     "required": true,
+    "placeholder_en": "Everybody",
+    "placeholder_nl": "Everybody",
     "manage": "coin:privacy:access_data"
   },
   {
@@ -24,6 +28,8 @@
     "tooltip_en": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
     "tooltip_nl": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
     "required": true,
+    "placeholder_en": "Netherlands",
+    "placeholder_nl": "Netherlands",
     "manage": "coin:privacy:country"
   },
   {
@@ -33,6 +39,8 @@
     "tooltip_en": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
     "tooltip_nl": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
     "required": false,
+    "placeholder_en": "Fort knox",
+    "placeholder_nl": "Fort knox",
     "manage": "coin:privacy:security_measures"
   },
   {
@@ -80,6 +88,8 @@
     "tooltip_en": "",
     "tooltip_nl": "",
     "required": true,
+    "placeholder_en": "For example https://sharelogics.com/privacy/nl",
+    "placeholder_nl": "For example https://sharelogics.com/privacy/nl",
     "manage": "mdui:PrivacyStatementURL:nl"
   },
   {
@@ -90,6 +100,8 @@
     "tooltip_en": "",
     "tooltip_nl": "",
     "required": true,
+    "placeholder_en": "For example https://sharelogics.com/privacy/en",
+    "placeholder_nl": "For example https://sharelogics.com/privacy/en",
     "manage": "mdui:PrivacyStatementURL:en"
   },
   {
