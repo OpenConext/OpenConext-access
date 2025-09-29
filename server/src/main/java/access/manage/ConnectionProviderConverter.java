@@ -16,6 +16,7 @@ public class ConnectionProviderConverter {
 
     private final List<Map<String, Object>> privacyInfo;
     private final List<String> excludedARPAttributes;
+    private final List<String> excludedAttributes = List.of("revisionNote");
     private final List<String> excludedMergeAttributesPaths = List.of("arp.attributes");
 
     private final State defaultTestState;
@@ -190,7 +191,7 @@ public class ConnectionProviderConverter {
                                             Object oldVal,
                                             Object newVal,
                                             Map<String, Object> pathUpdates) {
-        if (Objects.equals(oldVal, newVal)) {
+        if (Objects.equals(oldVal, newVal) || excludedAttributes.contains(path)) {
             return;
         }
 
