@@ -10,21 +10,23 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class ConnectionProviderConverter {
 
     private final List<Map<String, Object>> privacyInfo;
     private final List<String> excludedARPAttributes;
+    private final List<String> excludedMergeAttributesPaths = List.of("arp.attributes");
 
     private final State defaultTestState;
     private final State defaultProdState;
+    private final ObjectMapper objectMapper;
 
     @SneakyThrows
     public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultTestState, State defaultProdState) {
         this.defaultTestState = defaultTestState;
         this.defaultProdState = defaultProdState;
+        this.objectMapper = objectMapper;
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
         Map<String, List<Map<String, Object>>> arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -44,7 +46,7 @@ public class ConnectionProviderConverter {
                 .toList();
     }
 
-    public Map<String, Object> convert(Connection connection, Map<String, Object> result) {
+    public Map<String, Object> convert(Connection connection, Map<String, Object> remoteProvider) {
         Application application = connection.getApplication();
         //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();
@@ -52,26 +54,29 @@ public class ConnectionProviderConverter {
         Map<String, Object> information = (Map<String, Object>) applicationMetaData.getOrDefault("information", Map.of());
 
         //Base structure
-        Map<String, Object> data = (Map<String, Object>) result.get("data");
-        Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+        Map<String, Object> data = getData(remoteProvider);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
 
         //Now copy all information from the connection to the data / metadata
-        putIf(result, "id", connection.getManageIdentifier());
-        putIf(result, "version", connection.getManageVersion());
-        result.put("type", connection.getProtocol().name());
-        putIf(result, "eid", connection.getManageEid());
-
+        putIf(remoteProvider, "id", connection.getManageIdentifier());
+        putIf(remoteProvider, "version", connection.getManageVersion());
+        remoteProvider.put("type", connection.getProtocol().name());
+        putIf(remoteProvider, "eid", connection.getManageEid());
 
         data.put("entityid", connectionMetaData.get("entityID"));
-        data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
+        //Don't override the state, if previously set
+        if (!StringUtils.hasText((String) data.get("state"))) {
+            data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
+        }
         data.put("allowedall", false);
         data.put("revisionnote", "SURF Access update with remote API");
 
         mergeAttributeReleasePolicies(connectionMetaData, data);
 
         if (connection.getEnvironment().equals(Environment.TEST)) {
-            mergeAllowedEntities(data, connectionMetaData );
+            mergeAllowedEntities(data, connectionMetaData);
         }
+
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
 
@@ -122,7 +127,110 @@ public class ConnectionProviderConverter {
         privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));
 
         metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
-        return result;
+        return remoteProvider;
+    }
+
+    private Map<String, Object> getMetaDataFields(Map<String, Object> data) {
+        return (Map<String, Object>) data.get("metaDataFields");
+    }
+
+    private Map<String, Object> getData(Map<String, Object> data) {
+        return (Map<String, Object>) data.get("data");
+    }
+
+    private Map<String, Object> getARP(Map<String, Object> data) {
+        return (Map<String, Object>) data.get("arp");
+    }
+
+    private Map<String, List<Map<String, Object>>> getARPAttributes(Map<String, Object> data) {
+        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
+        return (Map<String, List<Map<String, Object>>>) arp.get("attributes");
+    }
+
+    //For all attributes that have been changed, we create a single ChangeRequest
+    public List<ChangeRequest> deduceChangeRequests(Connection connection, Map<String, Object> currentProvider, Map<String, Object> auditData) {
+        //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
+        //So we need to convert the connection in to the new Map, without modifying the originalMap
+        Map clonedProvider = deepClone(currentProvider);
+        Map<String, Object> newProvider = this.convert(connection, clonedProvider);
+        Map<String, Object> newData = getData(newProvider);
+//        Map<String, Object> newMetaDataFields = getMetaDataFields(newData);
+//        Map<String, Object> newArp = getARP(newData);
+//        Map<String, List<Map<String, Object>>> newARPAttributes = getARPAttributes(newData);
+
+        Map<String, Object> currentData = getData(currentProvider);
+//        Map<String, Object> currentMetaDataFields = getMetaDataFields(currentData);
+//        Map<String, Object> currentArp = getARP(currentData);
+//        Map<String, List<Map<String, Object>>> currentARPAttributes = getARPAttributes(currentData);
+
+        List<ChangeRequest> changeRequests = new ArrayList<>();
+        Map<String, Object> pathUpdates = new LinkedHashMap<>();
+        diffChangeRequestRecursive("", currentData, newData , pathUpdates);
+        if (!pathUpdates.isEmpty()) {
+            ChangeRequest changeRequest = new ChangeRequest(
+                    connection.getManageIdentifier(),
+                    connection.getProtocol(),
+                    pathUpdates,
+                    auditData,
+                    false,
+                    null);
+            changeRequests.add(changeRequest);
+        }
+        return changeRequests;
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private Map deepClone(Map original) {
+        return this.objectMapper.convertValue(original, Map.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void diffChangeRequestRecursive(String path,
+                                            Object oldVal,
+                                            Object newVal,
+                                            Map<String, Object> pathUpdates) {
+        if (Objects.equals(oldVal, newVal)) {
+            return;
+        }
+
+        // both maps - recurse on union of keys if the name is not excluded
+        if (oldVal instanceof Map && newVal instanceof Map) {
+            Map<String, Object> oldMap = (Map<String, Object>) oldVal;
+            Map<String, Object> newMap = (Map<String, Object>) newVal;
+
+            Set<String> allKeys = new HashSet<>();
+            allKeys.addAll(oldMap.keySet());
+            allKeys.addAll(newMap.keySet());
+
+            for (String key : allKeys) {
+                String newPath = path.isEmpty() ? key : path + "." + key;
+                if (excludedMergeAttributesPaths.contains(newPath)) {
+                    pathUpdates.put(path, newVal);
+                    return;
+                }
+                diffChangeRequestRecursive(newPath, oldMap.get(key), newMap.get(key), pathUpdates);
+            }
+            return;
+        }
+
+        // from both lists take the new value
+        if (oldVal instanceof List && newVal instanceof List) {
+            pathUpdates.put(path, newVal);
+            return;
+        }
+
+        // if we get here, either type differs or one side is missing
+        if (oldVal == null && newVal != null) {
+            // added
+            pathUpdates.put(path, newVal);
+        } else if (oldVal != null && newVal == null) {
+            // removed
+            pathUpdates.put(path, null);
+        } else {
+            // changed
+            pathUpdates.put(path, newVal);
+        }
     }
 
     private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
@@ -139,10 +247,10 @@ public class ConnectionProviderConverter {
         existingArpAttributes.entrySet().stream()
                 .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
                 .forEach(entry -> {
-            if (!newArpAttributes.containsKey(entry.getKey())) {
-                newArpAttributes.put(entry.getKey(), entry.getValue());
-            }
-        });
+                    if (!newArpAttributes.containsKey(entry.getKey())) {
+                        newArpAttributes.put(entry.getKey(), entry.getValue());
+                    }
+                });
         putIf(data, "arp", newArp);
     }
 

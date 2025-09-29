@@ -301,6 +301,7 @@ export const AppInformation = ({
                             <InputField value={application.privacy[p.name] || ""}
                                         name={p[`info_${I18n.locale}`]}
                                         onChange={e => updatePrivacy(p.name, e.target.value)}
+                                        placeholder={p[`placeholder_${I18n.locale}`]}
                                         toolTip={isEmpty(p.tooltip_en) ? null : p[`tooltip_${I18n.locale}`]}
                             />}
                         {!isEmpty(p.enum) &&
