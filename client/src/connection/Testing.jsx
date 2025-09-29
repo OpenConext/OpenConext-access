@@ -890,7 +890,7 @@ export const Testing = ({
     }
 
     const changeProfile = option => {
-        setConnection({...connection, profile: option, profileMotivation: ""})
+        setConnection({...connection, additionalAttributes:[],  profile: option, profileMotivation: ""})
     }
 
     const renderInformationProfileSection = () => {
