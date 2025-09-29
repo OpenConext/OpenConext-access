@@ -45,7 +45,7 @@ public interface Manage {
     }
 
     default Map<String, Object> baseStructureProvider() {
-        //Base structure must be mutable
+        //Base structure must be mutable, so using Map.of(...) is a no-go
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> metaDataFields = new HashMap<>();
@@ -54,6 +54,7 @@ public interface Manage {
 
         Map<String, Object> arp = new HashMap<>();
         arp.put("attributes", new HashMap<>());
+        arp.put("enabled", true);
         data.put("arp", arp);
         data.put("allowedEntities", new ArrayList<>());
 

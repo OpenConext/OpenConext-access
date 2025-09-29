@@ -49,7 +49,10 @@ public class RemoteManage implements Manage {
     private final ManageAuthorization testAuthorization;
     private final ManageAuthorization productionAuthorization;
 
-    public RemoteManage(ManageAuthorization testAuthorization, ManageAuthorization productionAuthorization, ConnectionProviderConverter converter, ObjectMapper objectMapper) throws IOException {
+    public RemoteManage(ManageAuthorization testAuthorization,
+                        ManageAuthorization productionAuthorization,
+                        ConnectionProviderConverter converter,
+                        ObjectMapper objectMapper) throws IOException {
         this.testAuthorization = testAuthorization;
         this.productionAuthorization = productionAuthorization;
         this.converter = converter;
@@ -105,7 +108,7 @@ public class RemoteManage implements Manage {
                 providerById(connection) :
                 baseStructureProvider();
         //We must ensure that no data is overridden that was altered in Manage, especially additional metadata and
-        //changed Attribute Release Policies
+        //Attribute Release Policies that are not available in Access
         Map<String, Object> provider = converter.convert(connection, baseStructure);
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());

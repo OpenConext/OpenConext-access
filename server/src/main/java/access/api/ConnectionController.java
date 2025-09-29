@@ -5,6 +5,7 @@ import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.manage.ChangeRequest;
+import access.manage.ConnectionProviderConverter;
 import access.manage.Manage;
 import access.manage.PathUpdateType;
 import access.model.*;
@@ -52,18 +53,23 @@ public class ConnectionController implements UserAccessRights {
     private final Manage manage;
     private final JiraClient jiraClient;
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
+    private final ConnectionProviderConverter converter;
     private final List<CharacterRule> rules = initPasswordGeneratorRules();
+    private final ConnectionProviderConverter connectionProviderConverter;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
                                 UserRepository userRepository,
                                 Manage manage,
-                                JiraClient jiraClient) {
+                                JiraClient jiraClient,
+                                ConnectionProviderConverter converter, ConnectionProviderConverter connectionProviderConverter) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
+        this.converter = converter;
+        this.connectionProviderConverter = connectionProviderConverter;
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -117,13 +123,15 @@ public class ConnectionController implements UserAccessRights {
         }
         Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());
 
-        if (connection.getEnvironment().equals(Environment.PROD) && connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-
-        } else {
-
-        }
         connection.merge(connectionData);
-        connection = saveConnection(connection);
+
+        if (connection.getEnvironment().equals(Environment.PROD) &&
+                connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+            //Not allowed to sync the connection to Manage. Create ChangeRequests
+            connection = this.productionReadyChangeRequests(connection, user);
+        } else {
+            connection = saveConnection(connection);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
 
@@ -208,21 +216,53 @@ public class ConnectionController implements UserAccessRights {
     }
 
     @SuppressWarnings("unchecked")
+    private Connection productionReadyChangeRequests(Connection connection, User user) {
+        Environment environment = connection.getEnvironment();
+        String changeRequestURL = manage.changeRequestURL(environment, connection);
+        Map<String, Object> provider = manage.providerById(connection);
+        connection.updateRemoteManageData(provider);
+        connection = connectionRepository.save(connection);
+
+        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        String summary = String.format("Data change requested by %s for %s with entityID %s",
+                user.getName(),
+                connection.getName(),
+                entityId);
+        String jiraKey = jiraClient.create(new JiraIssue(
+                entityId,
+                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
+                        summary,
+                        System.lineSeparator(),
+                        changeRequestURL),
+                summary,
+                connection.getProtocol(),
+                user.getEmail()
+        ));
+        Map<String, Object> auditData = Map.of("user", user.getEmail(),
+                "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                        user.getName(), connection.getName(), jiraKey));
+        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData);
+        changeRequests.forEach(changeRequest -> manage.createChangeRequest(environment, changeRequest));
+        return connection;
+    }
+
+    @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is not OPEN
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             boolean isPublicRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
-            boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret")) ;
+            boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret"));
             if (isPublicRelyingParty && !hasSecret) {
                 //generate secret but store the raw-text variant, because Manage encodes it
                 String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
                 connection.getMetaData().put("secret", secret);
                 connection.setSecretSet(true);
             }
-
+            //Now sync the Connection to Manage.
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
+
             if (isPublicRelyingParty) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
                 Map<String, Object> data = (Map<String, Object>) provider.get("data");

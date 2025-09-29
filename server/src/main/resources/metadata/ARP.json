@@ -311,7 +311,8 @@
         "en": "Orcid ID",
         "nl": "Orcid ID"
       },
-      "example": "9d2f6e4a-7b1f-***"
+      "example": "9d2f6e4a-7b1f-***",
+      "overrideSource": "orcid"
     },
     {
       "name": "eckid",
