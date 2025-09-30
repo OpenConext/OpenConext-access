@@ -33,7 +33,8 @@ public class DefaultErrorController implements ErrorController {
 
     private static final Log LOG = LogFactory.getLog(DefaultErrorController.class);
 
-    private static final List<Class> suppressStackTraceClasses = List.of(UserRestrictionException.class,
+    private static final List<Class> suppressStackTraceClasses = List.of(
+            UserRestrictionException.class,
             RemoteException.class,
             NotFoundException.class);
 
