@@ -20,6 +20,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
 
     @Autowired
     private ConnectionProviderConverter connectionProviderConverter;
+
     @Autowired
     private Manage manage;
 

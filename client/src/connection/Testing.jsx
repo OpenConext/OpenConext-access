@@ -1015,6 +1015,9 @@ export const Testing = ({
                 return !informationProfileValid();
             }
             case sections.testIdP: {
+                if (isProduction) {
+                    return false;
+                }
                 return !testIdPValid();
             }
         }
@@ -1034,7 +1037,7 @@ export const Testing = ({
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
-            (section === sections.testIdP && testIdPValid());
+            (section === sections.testIdP && (isProduction || testIdPValid()));
         if (proceed) {
             setLoading(true);
             const promise = connection.id ? updateConnection : newConnection

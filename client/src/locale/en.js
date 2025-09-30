@@ -198,6 +198,7 @@ const en = {
         testing: "Testing",
         prod: "Production",
         application: "App information",
+        change_requests: "Change request",
         contract: "Contract",
         appteam: "Appteam",
         welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",

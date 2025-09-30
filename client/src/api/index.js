@@ -185,7 +185,6 @@ export function privacy() {
     return fetchJson("/api/v1/manage/privacy", {}, {}, false);
 }
 
-
 //Connections
 export function newConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "POST");
@@ -210,6 +209,11 @@ export function deleteConnectionById(connectionId) {
 export function requestConnectionProductionStatus(connectionId) {
     return postPutJson(`/api/v1/connections/request-production-status/${connectionId}`, {}, "PUT");
 }
+
+export function getChangeRequests(connection) {
+    return fetchJson(`/api/v1/connections/change-requests/${connection.id}`, {}, {}, false);
+}
+
 
 //OrganizationMemberships
 export function changeOrganizationMembershipById(organizationMembership, authority) {
