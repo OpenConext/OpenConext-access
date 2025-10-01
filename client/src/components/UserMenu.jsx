@@ -7,6 +7,7 @@ import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 import CaretDown from "../icons/caret_down.svg";
+import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
 
 export const UserMenu = ({setIsAuthenticated}) => {
 
@@ -25,6 +26,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
                 breadcrumbPaths: [],
                 user: {name: ""}
             }));
+            sessionStorage.removeItem(SESSION_STORAGE_LOCATION);
             navigate("/authentication-switch");
             setTimeout(() => {
                 setIsAuthenticated(false);
