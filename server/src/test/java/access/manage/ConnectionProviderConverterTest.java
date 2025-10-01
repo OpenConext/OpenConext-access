@@ -44,7 +44,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         application.setOrganization(organization);
         connection.setApplication(application);
 
-        Map<String, Object> converted = connectionProviderConverter.convert(connection, manage.baseStructureProvider());
+        Map<String, Object> converted = connectionProviderConverter.convert(connection, manage.baseStructureProvider(), false);
 
         Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource(expectedPath).getInputStream()), new TypeReference<>() {
