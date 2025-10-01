@@ -47,7 +47,7 @@ public class ConnectionProviderConverter {
                 .toList();
     }
 
-    public Map<String, Object> convert(Connection connection, Map<String, Object> remoteProvider) {
+    public Map<String, Object> convert(Connection connection, Map<String, Object> remoteProvider, boolean changeRequestRequired) {
         Application application = connection.getApplication();
         //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();
@@ -69,14 +69,6 @@ public class ConnectionProviderConverter {
         if (!StringUtils.hasText((String) data.get("state"))) {
             data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
         }
-        data.put("allowedall", false);
-        data.put("revisionnote", "SURF Access update with remote API");
-
-        mergeAttributeReleasePolicies(connectionMetaData, data);
-
-        if (connection.getEnvironment().equals(Environment.TEST)) {
-            mergeAllowedEntities(data, connectionMetaData);
-        }
 
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
@@ -89,6 +81,31 @@ public class ConnectionProviderConverter {
         putIf(metaDataFields, "coin:application_url", information.get("webSite"));
         List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
         putIf(metaDataFields, "application_tags", tags);
+
+        List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
+        IntStream.range(0, contactPersons.size()).forEach(i -> {
+            Map<String, String> contactPerson = contactPersons.get(i);
+            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
+                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
+        });
+        Map<String, String> privacy = (Map<String, String>) applicationMetaData.getOrDefault("privacy", Map.of());
+        privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));
+
+        metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
+
+        data.put("allowedall", false);
+        data.put("revisionnote", "SURF Access update with remote API");
+
+        //We have merged everything from the application now, stop if changeRequestRequired
+        if (changeRequestRequired) {
+            return remoteProvider;
+        }
+        mergeAttributeReleasePolicies(connectionMetaData, data);
+
+        if (connection.getEnvironment().equals(Environment.TEST)) {
+            mergeAllowedEntities(data, connectionMetaData);
+        }
+
 
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");
@@ -118,16 +135,6 @@ public class ConnectionProviderConverter {
         String connectOption = (String) connectionMetaData.getOrDefault("connectOption", ConnectOptions.connect_with_interaction.name());
         metaDataFields.put("coin:dashboard_connect_option", connectOption);
 
-        List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
-        IntStream.range(0, contactPersons.size()).forEach(i -> {
-            Map<String, String> contactPerson = contactPersons.get(i);
-            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
-                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
-        });
-        Map<String, String> privacy = (Map<String, String>) applicationMetaData.getOrDefault("privacy", Map.of());
-        privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));
-
-        metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
         return remoteProvider;
     }
 
@@ -149,20 +156,15 @@ public class ConnectionProviderConverter {
     }
 
     //For all attributes that have been changed, we create a single ChangeRequest
-    public List<ChangeRequest> deduceChangeRequests(Connection connection, Map<String, Object> currentProvider, Map<String, Object> auditData) {
+    public List<ChangeRequest> deduceChangeRequests(Connection connection,
+                                                    Map<String, Object> currentProvider,
+                                                    Map<String, Object> auditData) {
         //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
         //So we need to convert the connection in to the new Map, without modifying the originalMap
         Map clonedProvider = deepClone(currentProvider);
-        Map<String, Object> newProvider = this.convert(connection, clonedProvider);
+        Map<String, Object> newProvider = this.convert(connection, clonedProvider, false);
         Map<String, Object> newData = getData(newProvider);
-//        Map<String, Object> newMetaDataFields = getMetaDataFields(newData);
-//        Map<String, Object> newArp = getARP(newData);
-//        Map<String, List<Map<String, Object>>> newARPAttributes = getARPAttributes(newData);
-
         Map<String, Object> currentData = getData(currentProvider);
-//        Map<String, Object> currentMetaDataFields = getMetaDataFields(currentData);
-//        Map<String, Object> currentArp = getARP(currentData);
-//        Map<String, List<Map<String, Object>>> currentARPAttributes = getARPAttributes(currentData);
 
         List<ChangeRequest> changeRequests = new ArrayList<>();
         Map<String, Object> pathUpdates = new LinkedHashMap<>();

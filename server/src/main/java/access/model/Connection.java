@@ -202,6 +202,12 @@ public class Connection implements NameHolder {
         this.state = State.valueOf((String) data.get("state"));
     }
 
+    @JsonIgnore
+    public boolean changeRequestRequired() {
+        return this.environment.equals(Environment.PROD) &&
+                this.status.equals(ConnectionStatus.PROD_READY);
+    }
+
     @PreUpdate
     public void onPreUpdate() {
         this.updatedAt = Instant.now();

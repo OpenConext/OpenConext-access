@@ -91,7 +91,7 @@ public final class  LocalManage implements Manage {
                 providerById(connection) :
                 baseStructureProvider();
 
-        Map<String, Object> provider = converter.convert(connection, baseStructure);
+        Map<String, Object> provider = converter.convert(connection, baseStructure, false);
         boolean existingProvider = provider.containsKey("id");
         if (existingProvider) {
             provider.put("version", (int) provider.get("version") + 1);

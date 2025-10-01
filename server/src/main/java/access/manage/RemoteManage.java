@@ -109,7 +109,8 @@ public class RemoteManage implements Manage {
                 baseStructureProvider();
         //We must ensure that no data is overridden that was altered in Manage, especially additional metadata and
         //Attribute Release Policies that are not available in Access
-        Map<String, Object> provider = converter.convert(connection, baseStructure);
+        //We can't update everything if the connection is production ready, only the application data
+        Map<String, Object> provider = converter.convert(connection, baseStructure, connection.changeRequestRequired());
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
