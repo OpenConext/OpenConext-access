@@ -91,12 +91,13 @@ const App = () => {
                             }
                             let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
                             if (!isEmpty(storedLocation)) {
-                                // Do not remove the SESSION_STORAGE_LOCATION because in development mode this is called twice
+                                // Do not remove the SESSION_STORAGE_LOCATION directly because in development mode this is called twice
                                 if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
                                     storedLocation = "/landing";
                                 }
                                 flushSync(() => {
-                                    navigate(storedLocation, {replace: true})
+                                    navigate(storedLocation, {replace: true});
+                                    setTimeout(() => sessionStorage.removeItem(SESSION_STORAGE_LOCATION), 1000 * 5);
                                 });
                                 setTimeout(() => setLoading(false), 500);
                             } else {
