@@ -111,6 +111,8 @@
     "tooltip_en": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
     "tooltip_nl": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
     "required": false,
-    "manage": "coin:privacy:other_info"
+    "manage": "coin:privacy:other_info",
+    "placeholder_en": "Any other information that may be of interest for institutions",
+    "placeholder_nl": "Any other information that may be of interest for institutions"
   }
 ]
