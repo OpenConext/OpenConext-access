@@ -15,7 +15,7 @@ updates:
           - "*"
     # We want to manage this ourselves and not receive PR's for this
     ignore:
-      - dependency-name: "eclipse-temurin"
+      - dependency-name: "eclipse-temurin*"
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
