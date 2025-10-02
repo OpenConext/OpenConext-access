@@ -37,7 +37,7 @@ const Organization = ({refreshUser}) => {
                 setIsExternal(user.schacHomeOrganization === config.eduIdSchacHomeOrganization);
                 setLoading(false);
             }).catch(() => {
-            navigate("/404")
+            navigate("/home")
         });
     }, [organizationId]);
 

@@ -101,10 +101,10 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                             <PencilIcon/>
                             <span>{I18n.t("teamManagement.makeGuest")}</span>
                         </li>}
-                    <li onClick={() => doDelete(membership, true)}>
+                    {currentUserAuthority === authorities.ADMIN && <li onClick={() => doDelete(membership, true)}>
                         <TrashIcon/>
                         <span>{I18n.t("forms.delete")}</span>
-                    </li>
+                    </li>}
                 </ul>
             </div>
         )

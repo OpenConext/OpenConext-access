@@ -54,7 +54,7 @@ export const Entities = ({
         if ((displaySearch || inputFocus) && searchRef && searchRef.current) {
             searchRef.current.focus();
         }
-    }, [displaySearch, inputFocus])
+    }, [displaySearch, inputFocus, loading])
 
     const newEntity = () => {
         if (newEntityFunc) {

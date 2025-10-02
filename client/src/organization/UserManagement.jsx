@@ -39,11 +39,12 @@ export const UserManagement = () => {
                     ]
                 });
                 const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
-                setCurrentUserAuthority(currentUserMembershipAuthority(user, membership));
+                const authority = currentUserMembershipAuthority(user, membership);
+                setCurrentUserAuthority(authority);
                 tabChanged(currentTab, res);
                 setLoading(false);
             }).catch(() => {
-            navigate("/404")
+            navigate("/home")
         });
     }, [organizationId, refresh]);
 
