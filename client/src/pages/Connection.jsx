@@ -37,6 +37,7 @@ export const Connection = () => {
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
+    const [changeRequests, setChangeRequests] = useState([]);
     const [identityProviders, setIdentityProviders] = useState([]);
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -180,6 +181,7 @@ export const Connection = () => {
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
                                 arpInfo={arp}
+                                setChangeRequests={setChangeRequests}
                                 setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
@@ -197,6 +199,7 @@ export const Connection = () => {
                                 protocolOptions={protocolOptions}
                                 setTab={changeTab}
                                 arpInfo={arp}
+                                setChangeRequests={setChangeRequests}
                                 profileOptions={profileOptions}
                                 identityProviders={prodIdentityProviders}
                                 isProduction={true}

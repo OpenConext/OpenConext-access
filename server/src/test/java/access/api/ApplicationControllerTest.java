@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.manage.Contact;
 import access.manage.MetaData;
 import access.model.Application;
+import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -112,7 +113,7 @@ class ApplicationControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(provider)));
-
+        stubForGetChangeRequests(getChangeRequests());
         Application application = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -125,6 +126,9 @@ class ApplicationControllerTest extends AbstractTest {
 
         assertEquals(BUDDY_CHECK, application.getName());
         assertEquals(2, application.getConnections().size());
+        assertEquals(2, application.getConnections().stream()
+                .filter(connection -> connection.getStatus().equals(ConnectionStatus.PROD_READY))
+                .findFirst().get().getChangeRequests().size());
     }
 
     @Test

@@ -23,7 +23,7 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
-    deleteConnectionById,
+    deleteConnectionById, getChangeRequests,
     getConnectionById,
     newConnection,
     parseMedaData,
@@ -96,7 +96,8 @@ export const Testing = ({
                             identityProviders,
                             isProduction,
                             setDirty,
-                            connectionId
+                            connectionId,
+                            setChangeRequests
                         }) => {
     const {setFlash, config} = useAppStore(state => state);
     const navigate = useNavigate();
@@ -1051,13 +1052,18 @@ export const Testing = ({
             promise(body)
                 .then(res => {
                     setFinishedSections([...finishedSections, section]);
-                    setLoading(false);
+                    const requiresChangeRequest = connection.status == CONNECTION_STATUSES.PROD_READY && isProduction;
+                    if (requiresChangeRequest) {
+                        getChangeRequests(connection)
+                            .then(changeRequests => setChangeRequests(changeRequests))
+                    }
                     setInitial(true);
                     setDirty(true);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
                     setConnection(convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo));
+                    setLoading(false);
                     changeSection(nextSection);
                 })
                 .catch(() => {
@@ -1116,8 +1122,9 @@ export const Testing = ({
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
+        const requiresChangeRequest = connection.status == CONNECTION_STATUSES.PROD_READY && isProduction;
         const showOverviewButton = section === sections.overview;
-        const submitTxt = isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+        const submitTxt = requiresChangeRequest ? I18n.t("connection.requiresChangeRequest") : isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
                 <div className="testing-header">
@@ -1162,18 +1169,20 @@ export const Testing = ({
                                     type={ButtonType.Secondary}
                                     onClick={() => callSurf()}/>
                         </div>
-                        <div className="delete-connection">
-                            <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
-                        </div>
                     </section>
                     <section className="right">
                         {renderSection()}
                         <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
                             {!showOverviewButton &&
                                 <>
+                                    <div className="sub-actions">
                                     <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
                                             type={ButtonType.Secondary}
                                             onClick={backToConnections}/>
+                                    <div className="delete-connection">
+                                        <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
+                                    </div>
+                                    </div>
                                     <Button txt={submitTxt}
                                             disabled={!valid}
                                             onClick={() => storeAndNext(lastSection)}/>

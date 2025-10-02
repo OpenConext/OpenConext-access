@@ -49,14 +49,6 @@ $width-percentage: 75%;
             display: flex;
             flex-direction: column;
 
-            .delete-connection {
-                display: flex;
-                margin: auto 20px 25px 0;
-
-                button {
-                    margin-left: 0;
-                }
-            }
         }
 
         .right {
@@ -393,6 +385,18 @@ $width-percentage: 75%;
     .visibility-options {
         p.question {
             font-weight: 600;
+        }
+    }
+
+}
+
+.sub-actions {
+    display: flex;
+
+    .delete-connection {
+        margin-left: 20px;
+        svg {
+            width: 22px;
         }
     }
 

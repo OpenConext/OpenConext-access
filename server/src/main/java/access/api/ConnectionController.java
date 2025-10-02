@@ -87,8 +87,11 @@ public class ConnectionController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         if (StringUtils.hasText(connection.getManageIdentifier())) {
             Map<String, Object> provider = manage.providerById(connection);
-            if (connection.mergeMetaData(provider)) {
+            if (connection.mergeMetaData(provider, false)) {
                 connectionRepository.save(connection);
+            }
+            if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+                connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
             }
         }
         return ResponseEntity.ok(connection);
@@ -128,6 +131,9 @@ public class ConnectionController implements UserAccessRights {
         if (connection.changeRequestRequired()) {
             //Not allowed to sync the connection to Manage. Create ChangeRequests
             connection = this.productionReadyChangeRequests(connection, user);
+            if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+                connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+            }
         } else {
             connection = saveConnection(connection);
         }
@@ -209,7 +215,7 @@ public class ConnectionController implements UserAccessRights {
         Application application = connection.getApplication();
         application.removeConnection(connection);
 
-        connectionRepository.deleteById(connectionId);
+        connectionRepository.deleteConnectionById(connectionId);
 
         return deleteResult();
     }
@@ -220,7 +226,6 @@ public class ConnectionController implements UserAccessRights {
         String changeRequestURL = manage.changeRequestURL(environment, connection);
         Map<String, Object> provider = manage.providerById(connection);
         connection.updateRemoteManageData(provider);
-        connection = connectionRepository.save(connection);
 
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String summary = String.format("Data change requested by %s for %s with entityID %s",
@@ -242,6 +247,10 @@ public class ConnectionController implements UserAccessRights {
                         user.getName(), connection.getName(), jiraKey));
         List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData);
         changeRequests.forEach(changeRequest -> manage.createChangeRequest(environment, changeRequest));
+        //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
+        connection.mergeMetaData(provider, true);
+        connection = connectionRepository.save(connection);
+        connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
         return connection;
     }
 

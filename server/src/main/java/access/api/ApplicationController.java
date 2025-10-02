@@ -83,8 +83,11 @@ public class ApplicationController implements UserAccessRights {
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
                 .forEach(connection -> {
                     Map<String, Object> provider = manage.providerById(connection);
-                    if (connection.mergeMetaData(provider)) {
+                    if (connection.mergeMetaData(provider, false)) {
                         connectionRepository.save(connection);
+                    }
+                    if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+                        connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
                     }
                 });
         return ResponseEntity.ok(application);
