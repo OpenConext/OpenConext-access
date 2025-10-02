@@ -128,6 +128,7 @@ export const Users = () => {
                       defaultSort="name"
                       columns={columns}
                       showNew={false}
+                      inputFocus={true}
                       hideTitle={true}
                       customNoEntities={I18n.t(`users.noResults`)}
                       searchAttributes={["name", "email", "schacHomeOrganization"]}
