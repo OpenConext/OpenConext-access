@@ -3,6 +3,7 @@ $min-width-pixels: 620px;
 :root {
     --sds--color--gray--background: #F4F6F8;
     --sl-color-warning-50: #FEFBE6;
+    --sl-color-warning-100: #FFD03A;
 }
 
 
@@ -61,6 +62,13 @@ $min-width-pixels: 620px;
         text-decoration: underline;
         color: white;
 
+    }
+}
+
+.sds--chips.status-error {
+    background-color: var(--sl-color-warning-100);
+    &:hover {
+        background-color: var(--sl-color-warning-100);
     }
 }
 

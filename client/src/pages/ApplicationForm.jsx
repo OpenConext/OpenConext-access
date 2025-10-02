@@ -123,7 +123,7 @@ export const ApplicationForm = () => {
                             <CollapseField title={I18n.t(`application.checks.${check}`)}
                                            name={check}
                                            key={check}
-                                           disabledToggle={true}
+                                           disabledToggle={isEmpty(I18n.translations[I18n.locale].application.checksInfo[check])}
                                            checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
                                            checkValue={checks[check]}>
                                 <span>{I18n.t(`application.checksInfo.${check}`)}</span>

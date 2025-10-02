@@ -42,3 +42,7 @@ export const distinctValues = (arr, attribute) => {
         return true;
     })
 }
+
+export const splitListSemantically = (arr, lastSeparator) => {
+    return [arr.slice(0, -1).join(", "), arr.slice(-1)[0]].join(arr.length < 2 ? "" : ` ${lastSeparator} `);
+}

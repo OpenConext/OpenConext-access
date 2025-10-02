@@ -27,6 +27,11 @@
         margin-left:auto;
         fill: white;
         color: var(--sds--color--gray--400);
+
+        &.alert-triangle {
+            fill: black;
+            color: white;
+        }
     }
 
 }

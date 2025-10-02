@@ -37,7 +37,6 @@ export const Connection = () => {
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
-    const [changeRequests, setChangeRequests] = useState([]);
     const [identityProviders, setIdentityProviders] = useState([]);
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -105,7 +104,7 @@ export const Connection = () => {
             productionConnectionNeedsActivation: application.signedContract && !isEmpty(application.connections) &&
                 application.connections
                     .filter(conn => conn.environment === ENVIRONMENTS.PROD)
-                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
         }
     }, [application]);
 
@@ -176,12 +175,16 @@ export const Connection = () => {
             case  "testing": {
                 return <Testing application={application}
                                 connection={connection}
+                                user={user}
+                                testConnectionComplete={testConnectionComplete}
+                                productionConnectionComplete={productionConnectionComplete}
+                                appInformationComplete={appInformationComplete}
+                                productionConnectionNeedsActivation={productionConnectionNeedsActivation}
                                 setConnection={setConnection}
                                 initConnection={initConnection}
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
                                 arpInfo={arp}
-                                setChangeRequests={setChangeRequests}
                                 setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
@@ -193,13 +196,17 @@ export const Connection = () => {
             case  "prod": {
                 return <Testing application={application}
                                 connection={connection}
+                                user={user}
+                                testConnectionComplete={testConnectionComplete}
+                                productionConnectionComplete={productionConnectionComplete}
+                                appInformationComplete={appInformationComplete}
+                                productionConnectionNeedsActivation={productionConnectionNeedsActivation}
                                 setConnection={setConnection}
                                 initConnection={initConnection}
                                 refresh={refresh}
                                 protocolOptions={protocolOptions}
                                 setTab={changeTab}
                                 arpInfo={arp}
-                                setChangeRequests={setChangeRequests}
                                 profileOptions={profileOptions}
                                 identityProviders={prodIdentityProviders}
                                 isProduction={true}

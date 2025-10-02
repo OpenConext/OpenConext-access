@@ -15,6 +15,15 @@ $width-percentage: 75%;
         width: $width-percentage;
         @include index.page-media;
 
+        .action-button {
+            margin-left: auto;
+            position: relative;
+            button {
+                background-color: var(--sl-color-warning-100);
+                color: black;
+            }
+        }
+
         .copy-connection {
             margin-left: auto;
             position: relative;
@@ -451,32 +460,24 @@ $width-percentage: 75%;
 table.table-connections {
     thead {
         th.name {
-            width: 18%;
-        }
-
-        th.createdAt {
-            width: 16%;
+            width: 45%;
         }
 
         th.status {
-            width: 15%;
+            width: 20%;
             text-align: center;
         }
 
         th.protocol {
-            width: 10%;
-        }
-
-        th.buttons {
-            width: 26%;
+            width: 15%;
         }
 
         th.updatedAt {
-            width: 16%;
+            width: 15%;
         }
 
         th.details {
-            width: 15%;
+            width: 5%;
         }
     }
 

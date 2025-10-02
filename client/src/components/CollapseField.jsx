@@ -12,7 +12,6 @@ export const CollapseField = ({title, info, children, disabledToggle, checkRequi
         if (!disabledToggle) {
             setCollapse(!collapse)
         }
-        checkRequired({target: {checked: !checkValue}});
     }
 
     return (

@@ -2,9 +2,10 @@ import "./Overview.scss";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, splitListSemantically} from "../utils/Utils.js";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
-import {ENVIRONMENTS} from "../utils/Manage.js";
+import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import {ConnectionAlert} from "./ConnectionAlert.jsx";
 
 
 export const Overview = ({
@@ -13,50 +14,16 @@ export const Overview = ({
                              productionConnectionNeedsActivation
                          }) => {
 
-    const [alertClosed, setAlertClosed] = useState(false);
-
-    const alertInfo = () => {
-        if (alertClosed) {
-            return null;
-        }
-        if (isEmpty(application.connections)) {
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Info}
-                       asChild={true}
-                       message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
-            )
-        }
-        if (testConnectionComplete && !productionConnectionComplete) {
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Info}
-                       asChild={true}
-                       message={I18n.t("connection.productionConnectionHint")}/>
-            )
-        }
-        if (productionConnectionComplete && !appInformationComplete) {
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Warning}
-                       asChild={true}
-                       message={I18n.t("connection.applicationInformationHint")}/>
-            )
-        }
-        if (productionConnectionComplete && productionConnectionNeedsActivation)
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Warning}
-                       asChild={true}
-                       message={I18n.t("connection.productionActivationHint")}
-                       action={() => setTab("prod")}
-                       actionLabel={I18n.t("connection.productionActivationAction")}/>
-            )
-    }
-
     return (
         <div className="application-connection-form">
-            {alertInfo()}
+            <ConnectionAlert application={application}
+                             user={user}
+                             productionOnly={false}
+                             setTab={setTab}
+                             testConnectionComplete={testConnectionComplete}
+                             productionConnectionComplete={productionConnectionComplete}
+                             appInformationComplete={appInformationComplete}
+                             productionConnectionNeedsActivation={productionConnectionNeedsActivation}/>
             <div className="application-connection">
                 <section className="sub-part">
                     <h2>{I18n.t("connection.test.name")}</h2>

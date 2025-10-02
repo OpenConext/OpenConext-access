@@ -28,6 +28,9 @@ export function valueForSort(attribute, obj) {
     if (DateTime.isDateTime(val)) {
         return val.toUnixInteger();
     }
+    if (attribute === "protocol") {
+        return attribute.label;
+    }
     if (!isEmpty(val)) {
         return val;
     }
