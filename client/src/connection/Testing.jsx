@@ -16,6 +16,7 @@ import {
     Tooltip
 } from "@surfnet/sds";
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
+import ArrowRightIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
@@ -23,7 +24,7 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
-    deleteConnectionById, getChangeRequests,
+    deleteConnectionById,
     getConnectionById,
     newConnection,
     parseMedaData,
@@ -57,9 +58,11 @@ import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router-dom";
+import {ConnectionAlert} from "./ConnectionAlert.jsx";
 
 
 const sections = {
+    pendingChanges: "pendingChanges",
     technical: "technical",
     informationProfile: "informationProfile",
     testIdP: "testIdP",
@@ -89,6 +92,11 @@ export const Testing = ({
                             setConnection,
                             initConnection,
                             refresh,
+                            user,
+                            testConnectionComplete,
+                            productionConnectionComplete,
+                            appInformationComplete,
+                            productionConnectionNeedsActivation,
                             protocolOptions,
                             arpInfo,
                             setTab,
@@ -96,12 +104,12 @@ export const Testing = ({
                             identityProviders,
                             isProduction,
                             setDirty,
-                            connectionId,
-                            setChangeRequests
+                            connectionId
                         }) => {
     const {setFlash, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
+    const [alertClosed, setAlertClosed] = useState(false);
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
     const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
     const [section, setSection] = useState(sections.technical);
@@ -149,11 +157,14 @@ export const Testing = ({
             case sections.testIdP: {
                 return !connection.id || (!finished || !testIdPValid());
             }
+            case sections.pendingChanges: {
+                return false;
+            }
         }
     }
 
     const isDisabled = sectionName => {
-        const validCurrentSection = section === sections.technical ? technicalValid() :
+        const validCurrentSection = section === sections.pendingChanges ? true : section === sections.technical ? technicalValid() :
             section === sections.informationProfile ? informationProfileValid() : testIdPValid();
         const sectionIsCurrent = sectionName === section;
         return !validCurrentSection && !sectionIsCurrent
@@ -211,7 +222,7 @@ export const Testing = ({
     }
 
     const testIdPValid = () => {
-        return !isEmpty(connection.allowedEntities);
+        return connection.environment === ENVIRONMENTS.PROD || !isEmpty(connection.allowedEntities);
     }
 
     const changeSection = sectionName => {
@@ -574,7 +585,6 @@ export const Testing = ({
                                      label={I18n.t("connection.claimsInIdToken")}
                                      info={I18n.t("connection.claimsInIdTokenTooltip")}
                         />
-
                         {connection.status !== CONNECTION_STATUSES.OPEN &&
                             <div className="oidc-authentication">
                                 <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
@@ -594,7 +604,6 @@ export const Testing = ({
                                             {I18n.t("connection.connectionOverview.secretResetLink")}
                                         </a>
                                     </div>
-
                                 </div>
                             </div>
                         }
@@ -891,7 +900,16 @@ export const Testing = ({
     }
 
     const changeProfile = option => {
-        setConnection({...connection, additionalAttributes:[],  profile: option, profileMotivation: ""})
+        setConnection({...connection, additionalAttributes: [], profile: option, profileMotivation: ""})
+    }
+
+    const renderPendingChanges = () => {
+        return (
+            <section className="inner-right-informational">
+                <h3>{I18n.t("connection.informationProfile")}</h3>
+                {JSON.stringify(connection.changeRequests)}
+            </section>
+        );
     }
 
     const renderInformationProfileSection = () => {
@@ -1001,6 +1019,9 @@ export const Testing = ({
             case sections.overview: {
                 return isOidc ? renderOIDCOverview() : renderSAMLOverview();
             }
+            case sections.pendingChanges: {
+                return renderPendingChanges();
+            }
         }
     }
 
@@ -1020,6 +1041,9 @@ export const Testing = ({
                     return false;
                 }
                 return !testIdPValid();
+            }
+            case sections.pendingChanges: {
+                return false;
             }
         }
 
@@ -1047,16 +1071,11 @@ export const Testing = ({
                 if (isOidc) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
-                body.status = CONNECTION_STATUSES.COMPLETE;
+                body.status = isProduction ? CONNECTION_STATUSES.IN_PROGRESS : CONNECTION_STATUSES.COMPLETE;
             }
             promise(body)
                 .then(res => {
                     setFinishedSections([...finishedSections, section]);
-                    const requiresChangeRequest = connection.status == CONNECTION_STATUSES.PROD_READY && isProduction;
-                    if (requiresChangeRequest) {
-                        getChangeRequests(connection)
-                            .then(changeRequests => setChangeRequests(changeRequests))
-                    }
                     setInitial(true);
                     setDirty(true);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
@@ -1129,8 +1148,22 @@ export const Testing = ({
             <>
                 <div className="testing-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
-                    {(!isEmpty(application.connections) && !isComplete &&
-                            (application.connections.length > 1 ||
+                    {(connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS) &&
+                        <div className="action-button">
+                            <Button txt={I18n.t("connection.connections.requestProductionStatus")}
+                                    onClick={() => doRequestProduction(true, connection)}
+                            />
+                        </div>
+                    }
+                    {!isEmpty(connection.changeRequests) &&
+                        <div className="action-button">
+                            <Button txt={I18n.t("connection.pendingChanges")}
+                                    onClick={() => setSection(sections.pendingChanges)}
+                            />
+                        </div>
+                    }
+                    {(!isComplete &&
+                            (application.connections?.length > 1 ||
                                 (isEmpty(connection.id) && application.connections.length === 1))) &&
                         <div className="copy-connection"
                              tabIndex={1}
@@ -1154,11 +1187,13 @@ export const Testing = ({
                         <div className="status-menu">
                             {Object.values(sections)
                                 .filter(s => s !== sections.overview)
+                                .filter(s => s !== sections.pendingChanges || !isEmpty(connection.changeRequests))
                                 .map(sectionValue =>
                                     <StatusMenuItem key={sectionValue}
                                                     pending={isPending(sectionValue)}
-                                                    hideIcon={connection.status !== CONNECTION_STATUSES.OPEN}
+                                                    hideIcon={connection.status !== CONNECTION_STATUSES.OPEN && sectionValue !== sections.pendingChanges}
                                                     disabled={isDisabled(sectionValue)}
+                                                    isAlert={sectionValue === sections.pendingChanges}
                                                     action={() => changeSection(sectionValue)}
                                                     info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
                                                     active={section === sectionValue}/>)}
@@ -1176,12 +1211,12 @@ export const Testing = ({
                             {!showOverviewButton &&
                                 <>
                                     <div className="sub-actions">
-                                    <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
-                                            type={ButtonType.Secondary}
-                                            onClick={backToConnections}/>
-                                    <div className="delete-connection">
-                                        <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
-                                    </div>
+                                        <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
+                                                type={ButtonType.Secondary}
+                                                onClick={backToConnections}/>
+                                        <div className="delete-connection">
+                                            <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
+                                        </div>
                                     </div>
                                     <Button txt={submitTxt}
                                             disabled={!valid}
@@ -1223,50 +1258,8 @@ export const Testing = ({
             {
                 key: "name",
                 header: I18n.t("connection.connections.name"),
+                className: "cut-of-line",
                 mapper: conn => conn.name
-            },
-            {
-                key: "createdAt",
-                header: I18n.t("connection.connections.created"),
-                mapper: conn => dateFromEpoch(conn.createdAt, true, false)
-            },
-            {
-                key: "updatedAt",
-                header: I18n.t("connection.connections.updatedAt"),
-                mapper: conn => dateFromEpoch(conn.updatedAt, true, false)
-            },
-            {
-                key: "status",
-                header: I18n.t("connection.connections.status"),
-                mapper: conn => {
-                    const type = conn.status === CONNECTION_STATUSES.PROD_READY ? ChipType.Support_400 :
-                        ChipType.Status_warning;
-                    const toolTip = I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
-                    return <div className="status-chip">
-                        <Chip type={type}
-                              label={I18n.t(`connection.connections.${conn.status.toLowerCase()}`)}
-                        />
-                        {toolTip && <Tooltip tip={toolTip}/>}
-                    </div>
-                }
-            },
-            {
-                key: "buttons",
-                header: "",
-                mapper: conn => {
-                    if (!isProduction) {
-                        return null;
-                    }
-                    const productionConnectionNeedsActivation = application.signedContract && conn.status === CONNECTION_STATUSES.COMPLETE;
-                    if (productionConnectionNeedsActivation) {
-                        return <Button txt={I18n.t("connection.connections.requestProductionStatus")}
-                                       type={ButtonType.GhostDark}
-                                       onClick={() => doRequestProduction(true, conn)}
-                                       className="sds--button-blue-mode"
-                        />
-                    }
-
-                }
             },
             {
                 key: "protocol",
@@ -1274,34 +1267,69 @@ export const Testing = ({
                 mapper: conn => I18n.t(`connection.${conn.protocol.value.toLowerCase()}`)
             },
             {
+                key: "status",
+                header: I18n.t("connection.connections.status"),
+                mapper: conn => {
+                    const productionConnectionNeedsActivation = isProduction && application.signedContract && conn.status === CONNECTION_STATUSES.COMPLETE;
+                    const type = conn.status === CONNECTION_STATUSES.PROD_READY ? ChipType.Support_400 :
+                        productionConnectionNeedsActivation ? ChipType.Status_error : ChipType.Status_warning;
+                    const toolTip = null;//I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
+                    const status = productionConnectionNeedsActivation ? "in_progress" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
+                    return (
+                        <div className="status-chip">
+                            <Chip type={type}
+                                  label={I18n.t(`connection.connections.${status}`)}
+                            />
+                            {toolTip && <Tooltip tip={toolTip}/>}
+                        </div>
+                    );
+                }
+            },
+            {
+                key: "updatedAt",
+                header: I18n.t("connection.connections.updatedAt"),
+                mapper: conn => dateFromEpoch(conn.updatedAt, true, false)
+            },
+            {
                 key: "details",
                 header: "",
                 nonSortable: true,
-                mapper: conn => <Button txt={I18n.t("connection.connections.details")}
-                                        onClick={() => showConnectionDetails(conn)}/>
+                mapper: () => <ArrowRightIcon/>
             },
         ]
 
         return (
-            <Entities entities={connections}
-                      modelName="table-connections"
-                      defaultSort="name"
-                      columns={columns}
-                      hideTitle={true}
-                      showNew={false}
-                      rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
-                      displaySearch={false}
-                      searchAttributes={["name", "protocol"]}
-                      inputFocus={true}>
-            </Entities>)
+                <Entities entities={connections}
+                          modelName="table-connections"
+                          defaultSort="name"
+                          columns={columns}
+                          hideTitle={true}
+                          showNew={false}
+                          rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
+                          displaySearch={false}
+                          searchAttributes={["name", "protocol"]}
+                          inputFocus={true}>
+                </Entities>
+        )
 
     };
 
     const renderConnections = () => {
         return (
             <div className="connections">
+                {isProduction && <ConnectionAlert application={application}
+                                                  user={user}
+                                                  productionOnly={true}
+                                                  setTab={setTab}
+                                                  fullWidth={true}
+                                                  customProdTabAction={() => showConnectionDetails(connections
+                                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))}
+                                                  testConnectionComplete={testConnectionComplete}
+                                                  productionConnectionComplete={productionConnectionComplete}
+                                                  appInformationComplete={appInformationComplete}
+                                                  productionConnectionNeedsActivation={productionConnectionNeedsActivation}/>}
                 <div className="header">
-                    <h3>{I18n.t("connection.test.connections")}</h3>
+                    <h3>{I18n.t(`connection.${isProduction ? "production" : "test"}.connections`)}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
                             onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST, true)}/>

@@ -5,17 +5,6 @@
     background-color: white;
     padding: 25px 50px;
 
-    .sds--alert {
-        margin-bottom: 30px;
-        width: 75%;
-        @include index.page-media;
-
-        .sds--alert--inner {
-            max-width: none;
-            width: 100%;
-        }
-    }
-
     .application-connection {
         @include form;
         width: 75%;

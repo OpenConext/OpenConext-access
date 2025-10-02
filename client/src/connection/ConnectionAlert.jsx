@@ -1,0 +1,71 @@
+import "./ConnectionAlert.scss";
+import React, {useState} from "react";
+import I18n from "../locale/I18n";
+import {Alert, AlertType} from "@surfnet/sds";
+import {isEmpty, splitListSemantically} from "../utils/Utils.js";
+import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+
+
+export const ConnectionAlert = ({
+                                    user, application, setTab, testConnectionComplete,
+                                    productionConnectionComplete, appInformationComplete,
+                                    productionConnectionNeedsActivation,
+                                    productionOnly,
+                                    customProdTabAction = null, fullWidth = false
+                                }) => {
+
+    const [alertClosed, setAlertClosed] = useState(false);
+
+    const alertInfo = () => {
+        if (alertClosed) {
+            return null;
+        }
+        let connectionsNeedActivationNames = [];
+        if (application.signedContract && !isEmpty(application.connections)) {
+            const names = application.connections
+                .filter(conn => conn.environment === ENVIRONMENTS.PROD &&
+                    (conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))
+                .map(conn => conn.name);
+            connectionsNeedActivationNames = splitListSemantically(names, I18n.t("forms.and"));
+        }
+        if (isEmpty(application.connections) && !productionOnly) {
+            return (
+                <Alert close={() => setAlertClosed(true)}
+                       alertType={AlertType.Info}
+                       asChild={true}
+                       message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
+            )
+        }
+        if (testConnectionComplete && !productionConnectionComplete && !productionOnly) {
+            return (
+                <Alert close={() => setAlertClosed(true)}
+                       alertType={AlertType.Info}
+                       asChild={true}
+                       message={I18n.t("connection.productionConnectionHint")}/>
+            )
+        }
+        if (productionConnectionComplete && !appInformationComplete) {
+            return (
+                <Alert close={() => setAlertClosed(true)}
+                       alertType={AlertType.Warning}
+                       asChild={true}
+                       message={I18n.t("connection.applicationInformationHint")}/>
+            )
+        }
+        if (productionConnectionComplete && productionConnectionNeedsActivation)
+            return (
+                <Alert close={() => setAlertClosed(true)}
+                       alertType={AlertType.Warning}
+                       asChild={true}
+                       message={I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames})}
+                       action={() => customProdTabAction ? customProdTabAction() : setTab("prod")}
+                       actionLabel={I18n.t("connection.productionActivationAction")}/>
+            )
+    }
+
+    return (
+        <div className={`alert-container ${fullWidth ? "full-width" : ""}`}>
+            {alertInfo()}
+        </div>
+    )
+}
