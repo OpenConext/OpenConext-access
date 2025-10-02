@@ -79,6 +79,9 @@ public class Connection implements NameHolder {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Transient
+    private List<Map<String, Object>> changeRequests = new ArrayList<>();
+
     public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol, Environment environment) {
         this.name = name;
         this.application = application;
@@ -119,11 +122,11 @@ public class Connection implements NameHolder {
         this.status = connectionData.status;
     }
 
-    public boolean mergeMetaData(Map<String, Object> provider) {
+    public boolean mergeMetaData(Map<String, Object> provider, boolean force) {
         // For new Connections
         boolean changed = true;
         Integer newManageVersion = (Integer) provider.get("version");
-        if (newManageVersion.equals(this.manageVersion)) {
+        if (newManageVersion.equals(this.manageVersion) && !force) {
             //Two-way synchronization and optimistic locking
             return false;
         }
@@ -212,4 +215,10 @@ public class Connection implements NameHolder {
     public void onPreUpdate() {
         this.updatedAt = Instant.now();
     }
+
+    @JsonProperty
+    public List<Map<String, Object>> getChangeRequests() {
+        return this.changeRequests;
+    }
+
 }

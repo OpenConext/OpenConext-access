@@ -279,6 +279,7 @@ const en = {
         addACSLocation: "+ Add ASC location",
         save: "Opslaan",
         saveAndNext: "Opslaan en volgende",
+        requiresChangeRequest: "Request change",
         deleteConfirmation: "Are you sure you want to delete this connection?",
         metadata: {
             how: "Hoe wil je de metadata importeren?",

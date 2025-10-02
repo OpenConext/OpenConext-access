@@ -160,6 +160,7 @@ class ConnectionControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(provider)));
+        stubForGetChangeRequests(getChangeRequests());
 
         Connection connection = given()
                 .when()
@@ -174,6 +175,8 @@ class ConnectionControllerTest extends AbstractTest {
         //See /manage/playground_rp.json
         assertEquals(244, connection.getManageVersion());
         assertEquals(ConnectionStatus.PROD_READY, connection.getStatus());
+        assertEquals(2, connection.getChangeRequests().size());
+
         List<Map<String, String>> contactPersons = (List<Map<String, String>>) connection.getMetaData().get("contactPersons");
         assertEquals("okke.harsta@surf.nl", contactPersons.getFirst().get("email"));
     }
