@@ -102,7 +102,6 @@ const App = () => {
                                 setTimeout(() => setLoading(false), 500);
                             } else {
                                 setLoading(false);
-
                             }
                         })
                     } else {

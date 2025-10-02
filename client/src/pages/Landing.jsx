@@ -67,7 +67,7 @@ const Landing = ({refreshUser}) => {
     return (
         <div className="landing-container">
             <div className="search">
-                <h2>{I18n.t("welcome.greeting", {name: user.name})}</h2>
+                <h2>{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
                 <p>{I18n.t("welcome.info")}</p>
                 <div className="inner-search">
                     <InputField value={search}
@@ -77,6 +77,7 @@ const Landing = ({refreshUser}) => {
                     />
                     <SearchIcon/>
                 </div>
+                <p className="sub-info">{I18n.t("welcome.subInfo")}</p>
                 <div className="organizations-container">
                     {(isEmpty(organizations) && !isEmpty(search) && !loading) && <>
                         <p>{I18n.t("welcome.zeroState")}</p>

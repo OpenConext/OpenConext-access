@@ -94,8 +94,9 @@ const en = {
         home: "Home"
     },
     welcome: {
-        greeting: "Welcome {{name}}",
+        greeting: "Welcome {{name}},",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
+        subInfo: "Preferable use the name of the organization as registered at the KvK",
         searchPlaceholder: "Search for organizations...",
         organizationMembers: "{{memberCount}} {{user}} and {{applicationCount}} {{application}}. Request access.",
         user: "user",
