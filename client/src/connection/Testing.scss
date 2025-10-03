@@ -18,6 +18,7 @@ $width-percentage: 75%;
         .action-button {
             margin-left: auto;
             position: relative;
+
             button {
                 background-color: var(--sl-color-warning-100);
                 color: black;
@@ -214,6 +215,12 @@ $width-percentage: 75%;
 
     }
 
+    .change-request {
+        border-color: var(--sds--color--gray--500);
+        width: 100%;
+        max-width: 100%;
+    }
+
     .status-menu {
         @include card(15px);
     }
@@ -404,6 +411,7 @@ $width-percentage: 75%;
 
     .delete-connection {
         margin-left: 20px;
+
         svg {
             width: 22px;
         }
@@ -491,25 +499,45 @@ table.table-connections {
             text-align: center;
         }
 
-        td.buttons {
-            word-break: keep-all;
-
-            button.sds--btn--ghost--dark {
-                color: white;
-                background-color: var(--sds--color--gray--500);
-
-                &:hover {
-                    background-color: var(--sds--color--black--navigation);
-                }
-            }
-        }
-
         .status-chip {
             display: flex;
             width: 100%;
 
             button {
                 margin: 0 auto;
+
+                &.sds--chips {
+                    &.open {
+                        background-color: var(--sds--color--gray--300);
+                    }
+
+                    &.in_progress {
+                        background-color: var(--sds--color--gray--300);
+                    }
+
+                    &.complete {
+                        background-color: var(--sds--color--green--400);
+                        color: white;
+                    }
+
+                    &.prod_ready {
+                        background-color: var(--sds--color--green--400);
+                        color: white;
+                    }
+
+                    &.ready_for_prod {
+                        background-color: black;
+                        color: white;
+                    }
+
+                    &.pending_prod {
+                        background-color: var(--sl-color-warning-100);
+                    }
+
+                    &.open_change_requests {
+                        background-color: var(--sl-color-warning-100);
+                    }
+                }
             }
         }
 

@@ -22,6 +22,8 @@ public interface Manage {
 
     Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest);
 
+    void rejectChangeRequest(Environment environment, ChangeRequest changeRequest);
+
     List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection);
 
     String changeRequestURL(Environment environment, Connection connection);

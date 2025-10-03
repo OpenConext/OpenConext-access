@@ -4,6 +4,7 @@ package access.manage;
 import access.model.EntityType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -12,7 +13,11 @@ import java.util.Map;
 @Getter
 public class ChangeRequest implements Serializable {
 
+    @Setter
+    private String id;
+    @Setter
     private String metaDataId;
+    @Setter
     private String type;
     private String note;
     private Map<String, Object> pathUpdates;

@@ -210,8 +210,8 @@ export function requestConnectionProductionStatus(connectionId) {
     return postPutJson(`/api/v1/connections/request-production-status/${connectionId}`, {}, "PUT");
 }
 
-export function getChangeRequests(connection) {
-    return fetchJson(`/api/v1/connections/change-requests/${connection.id}`, {}, {}, false);
+export function revokeChangeRequest(changeRequest) {
+    return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
 }
 
 

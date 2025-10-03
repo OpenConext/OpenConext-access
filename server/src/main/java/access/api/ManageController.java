@@ -2,6 +2,7 @@ package access.api;
 
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.manage.ChangeRequest;
 import access.manage.Manage;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
@@ -94,5 +95,12 @@ public class ManageController {
         //It does not matter which entityType we use, all services will be queried
         List<Map<String, Object>> providers = manage.providersByEntityID(environment, EntityType.saml20_sp, entityID);
         return ResponseEntity.ok(providers);
+    }
+
+    @SneakyThrows
+    @PutMapping("/reject-change-request")
+    public ResponseEntity<Map<String, Integer>> rejectChangeRequest(@RequestBody ChangeRequest changeRequest) {
+        manage.rejectChangeRequest(Environment.PROD, changeRequest);
+        return Results.okResult();
     }
 }

@@ -138,6 +138,11 @@ public final class  LocalManage implements Manage {
     }
 
     @Override
+    public void rejectChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        //noop
+    }
+
+    @Override
     public List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection) {
         return List.of();
     }

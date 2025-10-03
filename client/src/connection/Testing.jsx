@@ -22,6 +22,7 @@ import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
+import AlertIcon from "../icons/alert-triangle.svg";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
@@ -31,7 +32,7 @@ import {
     parseMedaDataUrl,
     providersByEntityId,
     requestConnectionProductionStatus,
-    resetConnectionSecret,
+    resetConnectionSecret, revokeChangeRequest,
     updateConnection
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
@@ -39,7 +40,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
-import {dateFromEpoch} from "../utils/Date.js";
+import {dateFromEpoch, formatShortDate} from "../utils/Date.js";
 import {
     connectOptions,
     convertClientConnectionToServer,
@@ -242,6 +243,10 @@ export const Testing = ({
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    const supportTicket = () => {
+        alert("TODO")
     }
 
     const resetMetaData = () => {
@@ -909,11 +914,51 @@ export const Testing = ({
         setConnection({...connection, additionalAttributes: [], profile: option, profileMotivation: ""})
     }
 
+    const doRevokeChangeRequest = (confirmationRequired, changeRequest) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                header: I18n.t("connection.changeRequests.revoke"),
+                question: I18n.t("connection.changeRequests.revokeConfirmation"),
+                action: () => doRevokeChangeRequest(false, changeRequest),
+                modal: null,
+                okButton: I18n.t("connection.changeRequests.revoke")
+            });
+        } else {
+            setLoading(true);
+            revokeChangeRequest(changeRequest).then(() => {
+                refresh();
+                setConfirmation({open: false});
+                setLoading(false);
+                setFlash(I18n.t("connection.changeRequests.revoked", {
+                    name: connection.name
+                }));
+            })
+        }
+    }
+
     const renderPendingChanges = () => {
         return (
-            <section className="inner-right-informational">
-                <h3>{I18n.t("connection.informationProfile")}</h3>
-                {JSON.stringify(connection.changeRequests)}
+            <section className="inner-right">
+                <h3>{I18n.t("connection.pendingChanges")}</h3>
+                <div className="info">
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info1"))}}/>
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info2"))}}/>
+                </div>
+                {connection.changeRequests.map(changeRequest => <div className="card change-request" key={changeRequest.id}>
+                    <div className="changes"></div>
+                    <div className="actions">
+                        <Chip type={ChipType.Status_info} className={"open"} label={I18n.t("connection.changeRequests.open")}/>
+                        <Button type={ButtonType.DestructiveSecondary}
+                                onClick={() => doRevokeChangeRequest(true, changeRequest)}
+                                txt={I18n.t("connection.changeRequests.revoke")}/>
+                    </div>
+                    <em>{I18n.t("connection.changeRequests.createdAtBy", {
+                        name: changeRequest.auditData.user,
+                        date: formatShortDate(changeRequest.created)
+                    })}</em>
+                </div>)}
             </section>
         );
     }
@@ -1209,6 +1254,9 @@ export const Testing = ({
                             <Button txt={I18n.t("connection.callSurf")}
                                     type={ButtonType.Secondary}
                                     onClick={() => callSurf()}/>
+                            <Button txt={I18n.t("connection.supportTicket")}
+                                    type={ButtonType.Secondary}
+                                    onClick={() => supportTicket()}/>
                         </div>
                     </section>
                     <section className="right">
@@ -1250,6 +1298,7 @@ export const Testing = ({
             getConnectionById(conn.id).then(res => {
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
                 setConnection(convertedConnection);
+                setSection(sections.technical);
                 setLoading(false);
             })
         } else {
@@ -1276,16 +1325,18 @@ export const Testing = ({
                 key: "status",
                 header: I18n.t("connection.connections.status"),
                 mapper: conn => {
-                    const productionConnectionNeedsActivation = isProduction && application.signedContract && conn.status === CONNECTION_STATUSES.COMPLETE;
-                    const type = conn.status === CONNECTION_STATUSES.PROD_READY ? ChipType.Support_400 :
-                        productionConnectionNeedsActivation ? ChipType.Status_error : ChipType.Status_warning;
+                    const productionConnectionNeedsActivation = isProduction && application.signedContract && (
+                        conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS);
                     const toolTip = null;//I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
-                    const status = productionConnectionNeedsActivation ? "in_progress" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
+                    const status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
                     return (
                         <div className="status-chip">
-                            <Chip type={type}
+                            <Chip type={ChipType.Status_error}
+                                  className={status}
                                   label={I18n.t(`connection.connections.${status}`)}
-                            />
+                            >
+                                {!isEmpty(conn.changeRequests) ? <AlertIcon/> : null}
+                            </Chip>
                             {toolTip && <Tooltip tip={toolTip}/>}
                         </div>
                     );

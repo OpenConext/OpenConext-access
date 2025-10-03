@@ -136,6 +136,14 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public void rejectChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        RestTemplate restTemplate = environmentRestTemplate(environment);
+        String url = String.format("%s/manage/api/internal/change-requests/reject",
+                environmentUrl(environment));
+        restTemplate.put(URI.create(url), changeRequest);
+    }
+
+    @Override
     public List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID) {
         RestTemplate restTemplate = environmentRestTemplate(environment);
         String url = environmentUrl(environment);
@@ -192,7 +200,7 @@ public class RemoteManage implements Manage {
         LOG.debug("identityProvidersLight for environment: " + environment);
 
         Map<String, Object> baseQuery = getBaseQuery(false);
-        ((List)baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
+        ((List) baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
 
         String url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
@@ -214,14 +222,14 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
                 EntityType.saml20_sp.name());
-        List<Map<String, Object>>  serviceProviders = environmentRestTemplate(environment).postForObject(
+        List<Map<String, Object>> serviceProviders = environmentRestTemplate(environment).postForObject(
                 url,
                 baseQuery,
                 List.class);
         url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
                 EntityType.oidc10_rp.name());
-        List<Map<String, Object>>  relyingParties = environmentRestTemplate(environment).postForObject(
+        List<Map<String, Object>> relyingParties = environmentRestTemplate(environment).postForObject(
                 url,
                 baseQuery,
                 List.class);
