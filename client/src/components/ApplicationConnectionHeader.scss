@@ -12,5 +12,14 @@
 
     @include index.menu-header;
 
+    .menu-container {
+        margin-left: auto;
+
+        button.sds--chips.application-type {
+            margin-right: 18px;
+            background-color: #dff3ff;
+        }
+
+    }
 }
 

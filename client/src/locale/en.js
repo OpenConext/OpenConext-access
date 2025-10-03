@@ -149,6 +149,7 @@ const en = {
         type: "Type",
         app: "Een Applicatie (tools, clouddiensten, utitilities etc...)",
         content: "Content dienst (streaming media, educatieve content, e-books)",
+        contentAbbreviation: "Content",
         contentInfoPre: "Content diensten ontvangen de ",
         contentInfoLink: "minimale set",
         contentInfoPost: " aan attributen.",
