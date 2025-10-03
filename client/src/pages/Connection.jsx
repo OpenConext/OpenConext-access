@@ -108,11 +108,14 @@ export const Connection = () => {
     }, [application]);
 
 
-    const refresh = () => {
+    const refresh = (newTab = null) => {
         setLoading(true);
         getApplicationById(applicationId)
             .then(res => {
                 setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arp));
+                if (!isEmpty(newTab)) {
+                    navigate(`/connection/${applicationId}/${newTab}`)
+                }
                 setConnection(null);
                 setDirty(false);
                 setLoading(false);
@@ -146,7 +149,7 @@ export const Connection = () => {
         navigate(`/connection/${applicationId}/${newTab}`);
     }
 
-    const changeTab = newTab => {
+    const changeTab = (newTab, action = null) => {
         if (dirty) {
             refresh()
         }
@@ -155,7 +158,8 @@ export const Connection = () => {
             setConnection(null);
         }
         setCurrentTab(newTab);
-        navigate(`/connection/${applicationId}/${newTab}`);
+        const queryPart = action !== null ? `?action=${action}` : "";
+        navigate(`/connection/${applicationId}/${newTab}${queryPart}`);
     }
 
     const renderCurrentTab = () => {

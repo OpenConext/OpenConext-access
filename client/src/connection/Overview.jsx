@@ -1,10 +1,8 @@
 import "./Overview.scss";
-import React, {useState} from "react";
+import React from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertType} from "@surfnet/sds";
-import {isEmpty, splitListSemantically} from "../utils/Utils.js";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
-import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import {ENVIRONMENTS} from "../utils/Manage.js";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 
 
