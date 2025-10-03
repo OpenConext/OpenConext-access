@@ -240,7 +240,7 @@ const en = {
         copyConnection: "Kopieer info van andere koppeling",
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",
-        pendingChanges: "Pending changes",
+        pendingChanges: "Pending change requests",
         testIdP: "Test-IdP's",
         visibility: "Zichtbaarheid in de SURF app catalogus",
         help: "Hulp nodig?",
@@ -310,12 +310,13 @@ const en = {
             created: "Added at",
             updatedAt: "Updated at",
             status: "Status",
-            open: "Open",
+            open: "In progress",
             complete: "Completed",
-            in_progress: "Ready for prod",
-            pending_prod: "Pending production",
-            prod_ready: "Production ready",
-            open_change_requests: "Pending change(s)",
+            in_progress: "In progress",
+            pending_prod: "Pending approval",
+            prod_ready: "Live",
+            ready_for_prod: "Ready for prod",
+            open_change_requests: "Pending changes",
             tooltips: {
                 //A null tooltip won't show
                 open: "Your connection has unfinished sections. Please fill in all the required fields.",
@@ -489,6 +490,17 @@ const en = {
             notSigned: "Er is nog geen overeenkomst getekend.",
             signed: "Er is een overeenkomst getekend.",
             sign: "Teken de overeenkomst"
+        },
+        changeRequests: {
+            title: "Pending change request(s)",
+            info1: "De volgende change requests staan open. Je kunt nog steeds wijzigingen aanbrengen.",
+            info2: "<strong>Let op!</strong> In de andere tabs zie je dus de oude informatie staan, informatie waar een change request voor actief is, is herkenbaar aan het waarschuwings icoon",
+            changes: "Changes",
+            open: "Pending approval",
+            revoke: "Revoke",
+            revokeConfirmation: "Are you sure you want to revoke this change request?",
+            revoked: "Change request has been revoked",
+            createdAtBy: "Change request made by {{name}} on {{date}}"
         }
     },
     testing: {
