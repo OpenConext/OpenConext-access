@@ -20,9 +20,8 @@ import {Contract} from "../connection/Contract.jsx";
 import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 import {connectOptions, visibilities} from "../utils/Connection.js";
 import {isEmpty} from "../utils/Utils.js";
-import {ChangeRequests} from "../connection/ChangeRequests.jsx";
 
-const tabNames = ["overview", "testing", "prod", "application", "change_requests", "contract", "appteam"]
+const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
 const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,
@@ -223,10 +222,6 @@ export const Connection = () => {
                                        protocolOptions={protocolOptions}
                                        profileOptions={profileOptions}
                                        arpInfo={arp}
-                />
-            }
-            case "change_requests": {
-                return <ChangeRequests application={application}
                 />
             }
             case "contract": {

@@ -8,6 +8,7 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {deleteApplicationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
+import {Chip, ChipType} from "@surfnet/sds";
 
 export const ApplicationConnectionHeader = ({tabs, application, currentTab, setTab, setLoading}) => {
 
@@ -83,11 +84,16 @@ export const ApplicationConnectionHeader = ({tabs, application, currentTab, setT
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 475)}>
                 <h1>{application.name}</h1>
-                <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
-                      onClick={() => setDropDownActive(!dropDownActive)}>
+                <div className="menu-container">
+                    {application.type === "CONTENT" &&
+                        <Chip type={ChipType.Status_info} label={I18n.t("application.contentAbbreviation")}
+                              className="application-type"/>}
+                    <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
+                          onClick={() => setDropDownActive(!dropDownActive)}>
                     <MenuIcon/>
-                    {dropDownActive && renderMenu()}
+                        {dropDownActive && renderMenu()}
                 </span>
+                </div>
             </div>
 
             <div className="tabs-menu">
