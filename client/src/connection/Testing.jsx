@@ -109,7 +109,6 @@ export const Testing = ({
     const {setFlash, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
-    const [alertClosed, setAlertClosed] = useState(false);
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);
     const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
     const [section, setSection] = useState(sections.technical);
@@ -138,9 +137,16 @@ export const Testing = ({
         if (!isEmpty(connectionId)) {
             const conn = application.connections.find(c => c.id === parseInt(connectionId, 10));
             if (isEmpty(conn)) {
-                navigate("/404");
+                navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
             } else {
                 showConnectionDetails(conn);
+            }
+        } else {
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const action = urlSearchParams.get("action");
+            if (action === "activate") {
+                showConnectionDetails(connections
+                    .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))
             }
         }
     }, [application]);
@@ -393,7 +399,7 @@ export const Testing = ({
         } else {
             setLoading(true);
             deleteConnectionById(connection.id).then(() => {
-                refresh();
+                refresh(isProduction ? "prod" : "testing");
                 setConfirmation({open: false});
                 setLoading(false);
                 setFlash(I18n.t("connection.flash.deleted", {
@@ -1299,17 +1305,17 @@ export const Testing = ({
         ]
 
         return (
-                <Entities entities={connections}
-                          modelName="table-connections"
-                          defaultSort="name"
-                          columns={columns}
-                          hideTitle={true}
-                          showNew={false}
-                          rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
-                          displaySearch={false}
-                          searchAttributes={["name", "protocol"]}
-                          inputFocus={true}>
-                </Entities>
+            <Entities entities={connections}
+                      modelName="table-connections"
+                      defaultSort="name"
+                      columns={columns}
+                      hideTitle={true}
+                      showNew={false}
+                      rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
+                      displaySearch={false}
+                      searchAttributes={["name", "protocol"]}
+                      inputFocus={true}>
+            </Entities>
         )
 
     };

@@ -58,7 +58,7 @@ export const ConnectionAlert = ({
                        alertType={AlertType.Warning}
                        asChild={true}
                        message={I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames})}
-                       action={() => customProdTabAction ? customProdTabAction() : setTab("prod")}
+                       action={() => customProdTabAction ? customProdTabAction() : setTab("prod", "activate")}
                        actionLabel={I18n.t("connection.productionActivationAction")}/>
             )
     }

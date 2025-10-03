@@ -20,7 +20,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     Optional<Organization> findBySchacHomeOrganization(String schacHomeOrganization);
 
     @EntityGraph(attributePaths = {
-            "applications", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
+            "applications.connections", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
 
     @EntityGraph(attributePaths = {"organizationMemberships.user"})
