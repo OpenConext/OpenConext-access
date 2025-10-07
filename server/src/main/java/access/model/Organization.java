@@ -33,6 +33,11 @@ public class Organization implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private OrganizationStatus status = OrganizationStatus.PENDING_APPROVAL;
+
     @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Application> applications = new HashSet<>();
 

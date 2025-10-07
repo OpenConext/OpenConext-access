@@ -33,13 +33,18 @@ export const Users = () => {
                         setTotalElements(page.totalElements);
                         setSearching(false);
                     });
+            } else {
+                setSearching(false);
             }
         },
         [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const search = (query, sorted, reverse, page) => {
-        if (isEmpty(query) || query.trim().length > 2) {
+        if (!isEmpty(query) || query.trim().length > 2) {
             delayedAutocomplete(query, sorted, reverse, page);
+        } else {
+            setUsers([]);
+            setTotalElements(0);
         }
     };
 
@@ -130,11 +135,11 @@ export const Users = () => {
                       showNew={false}
                       inputFocus={true}
                       hideTitle={true}
-                      customNoEntities={I18n.t(`users.noResults`)}
                       searchAttributes={["name", "email", "schacHomeOrganization"]}
                       customSearch={search}
                       totalElements={totalElements}
                       loading={searching}/>
+
         </div>
     );
 

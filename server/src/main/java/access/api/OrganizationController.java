@@ -2,19 +2,21 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
-import access.model.Authority;
-import access.model.Organization;
-import access.model.OrganizationMembership;
-import access.model.User;
+import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +69,22 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
+    @GetMapping("/search/paginated")
+    public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
+        LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
+
+        confirmSuperUser(user);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> usersPage = organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable);
+        return ResponseEntity.ok(usersPage);
+    }
+
+
     @GetMapping("/users/{id}")
     public ResponseEntity<Organization> light(User user, @PathVariable("id") Long id) {
         LOG.debug("/find Organization light by " + user.getEmail());
@@ -118,6 +136,18 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 
+    @PutMapping("/approve/{organizationId}")
+    public ResponseEntity<Organization> approve(User user, @PathVariable("organizationId") Long organizationId) {
+        confirmSuperUser(user);
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        organization.setStatus(OrganizationStatus.APPROVED);
+
+        Organization savedOrganization = organizationRepository.save(organization);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+    }
+
     @DeleteMapping({"", "/{organizationId}"})
     public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete organization by " + user.getEmail());
@@ -134,6 +164,11 @@ public class OrganizationController implements UserAccessRights {
     }
 
     private Organization createOrganization(User user, String name) {
+        String orgSchacHomeOrganization = getOrgSchacHomeOrganization(user, name);
+        return new Organization(name, orgSchacHomeOrganization);
+    }
+
+    private String getOrgSchacHomeOrganization(User user, String name) {
         String schacHomeOrganization = user.getSchacHomeOrganization().toLowerCase();
         String orgSchacHomeOrganization;
         if (config.getEduIdSchacHomeOrganization().equals(schacHomeOrganization)) {
@@ -146,7 +181,7 @@ public class OrganizationController implements UserAccessRights {
         } else {
             orgSchacHomeOrganization = schacHomeOrganization;
         }
-        return new Organization(name, orgSchacHomeOrganization);
+        return orgSchacHomeOrganization;
     }
 
 }

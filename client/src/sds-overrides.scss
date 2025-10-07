@@ -67,6 +67,7 @@ $min-width-pixels: 620px;
 
 .sds--chips.status-error {
     background-color: var(--sl-color-warning-100);
+    text-align: center;
 
     &:hover {
         background-color: var(--sl-color-warning-100);

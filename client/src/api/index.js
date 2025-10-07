@@ -95,6 +95,11 @@ export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
+export function searchOrganizationPaginated(pagination = {}) {
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/organizations/search/paginated?${queryPart}`);
+}
+
 export function organizationUsersById(id) {
     return fetchJson(`/api/v1/organizations/users/${id}`);
 }
