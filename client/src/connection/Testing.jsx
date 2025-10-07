@@ -148,7 +148,8 @@ export const Testing = ({
             const action = urlSearchParams.get("action");
             if (action === "activate") {
                 showConnectionDetails(connections
-                    .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))
+                    .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS),
+                    "?action=activate");
             }
         }
     }, [application]);
@@ -198,6 +199,7 @@ export const Testing = ({
                 convertedConnection.secretSet = false;
             }
             convertedConnection.new = true;
+            convertedConnection.changeRequests = [];
             setConnection(convertedConnection);
             //Need to some time, otherwise the view goed back to the overview
             setTimeout(() => setLoading(false), 275);
@@ -1293,8 +1295,8 @@ export const Testing = ({
             </>);
     }
 
-    const showConnectionDetails = conn => {
-        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}`);
+    const showConnectionDetails = (conn, queryParameters="") => {
+        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
         if (conn.status !== CONNECTION_STATUSES.OPEN) {
             setLoading(true);
             getConnectionById(conn.id).then(res => {
