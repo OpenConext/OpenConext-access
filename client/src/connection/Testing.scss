@@ -506,38 +506,6 @@ table.table-connections {
             button {
                 margin: 0 auto;
 
-                &.sds--chips {
-                    &.open {
-                        background-color: var(--sds--color--gray--300);
-                    }
-
-                    &.in_progress {
-                        background-color: var(--sds--color--gray--300);
-                    }
-
-                    &.complete {
-                        background-color: var(--sds--color--green--400);
-                        color: white;
-                    }
-
-                    &.prod_ready {
-                        background-color: var(--sds--color--green--400);
-                        color: white;
-                    }
-
-                    &.ready_for_prod {
-                        background-color: black;
-                        color: white;
-                    }
-
-                    &.pending_prod {
-                        background-color: var(--sl-color-warning-100);
-                    }
-
-                    &.open_change_requests {
-                        background-color: var(--sl-color-warning-100);
-                    }
-                }
             }
         }
 

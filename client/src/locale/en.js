@@ -317,6 +317,8 @@ const en = {
             prod_ready: "Live",
             ready_for_prod: "Ready for prod",
             open_change_requests: "Pending changes",
+            multiple_connections: "Multiple connections",
+            no_connections: "No production connections",
             tooltips: {
                 //A null tooltip won't show
                 open: "Your connection has unfinished sections. Please fill in all the required fields.",
