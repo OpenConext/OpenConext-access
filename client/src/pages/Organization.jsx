@@ -2,7 +2,7 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertType, Button, Loader, MoreLessToggle} from "@surfnet/sds";
+import {Alert, AlertType, Button, Loader, Chip, ChipType} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {organizationById} from "../api/index.js";
@@ -11,6 +11,7 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
+import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 
 const Organization = ({refreshUser}) => {
     const {config, user} = useAppStore(state => state);
@@ -53,6 +54,26 @@ const Organization = ({refreshUser}) => {
         )
     }
 
+    const renderApplicationStatus = application => {
+        const prodConnections = (application.connections || []).filter(conn => conn.environment === ENVIRONMENTS.PROD);
+        let status = "";
+        if (prodConnections.length === 0) {
+            status = "no_connections";
+        } else if (prodConnections.length > 1) {
+            status = "multiple_connections"
+        } else {
+            const connection = prodConnections[0];
+            const productionConnectionNeedsActivation = application.signedContract && (
+                connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS);
+            status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(connection.changeRequests) ? "open_change_requests" : connection.status.toLowerCase();
+        }
+        return (
+            <Chip type={ChipType.Status_error}
+                  className={status}
+                  label={I18n.t(`connection.connections.${status}`)}/>
+        );
+    }
+
     const renderApplications = () => {
         return (
             <>
@@ -66,7 +87,8 @@ const Organization = ({refreshUser}) => {
                         <div className="right">
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>
                             <ul>
-                                <li><p dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`)}}/>
+                                <li><p
+                                    dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`)}}/>
                                 </li>
                                 <li><p
                                     dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`)}}/>
@@ -89,6 +111,7 @@ const Organization = ({refreshUser}) => {
                                         <div className="application-info">
                                             <h4>{application.name}</h4>
                                         </div>
+                                        {renderApplicationStatus(application)}
                                         <span className="navigation"><ArrowRight/></span>
                                     </div>
                                     {index === 0 && <Button onClick={() => navigate("/application/new")}

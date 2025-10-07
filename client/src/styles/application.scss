@@ -3,7 +3,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    width: 500px;
+    width: 625px;
     padding: 22px;
     border-radius: 8px;
     box-shadow: 0 1px 0 2px var(--sds--color--gray--200);
@@ -15,6 +15,7 @@
     .application-info {
         display: flex;
         flex-direction: column;
+        align-items: center;
         margin-left: 25px;
         gap: 5px;
         a.web-site, a.web-site:visited, a.web-site:hover {
@@ -28,7 +29,10 @@
         background-color: white;
         border: 1px solid var(--sds--color--gray--250);
     }
-    span.navigation {
+    .sds--chips.status-error {
         margin: 0 15px 0 auto;
+    }
+    span.navigation {
+        margin: 6px 15px 0 0;
     }
 }
