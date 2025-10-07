@@ -12,6 +12,7 @@ import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import SpinIcon from "../icons/spin.svg";
 
 const Organization = ({refreshUser}) => {
     const {config, user} = useAppStore(state => state);
@@ -55,6 +56,13 @@ const Organization = ({refreshUser}) => {
     }
 
     const renderApplicationStatus = application => {
+        // if (true) {
+        //     return (
+        //       <div className="awaiting-change-requests">
+        //           <SpinIcon/>
+        //       </div>
+        //     );
+        // }
         const prodConnections = (application.connections || []).filter(conn => conn.environment === ENVIRONMENTS.PROD);
         let status = "";
         if (prodConnections.length === 0) {

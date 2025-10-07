@@ -18,10 +18,12 @@
         align-items: center;
         margin-left: 25px;
         gap: 5px;
+
         a.web-site, a.web-site:visited, a.web-site:hover {
             color: var(--sds--color--blue--400);
         }
     }
+
     svg.image-not-found, img {
         height: 80px;
         padding: 12px;
@@ -29,9 +31,11 @@
         background-color: white;
         border: 1px solid var(--sds--color--gray--250);
     }
+
     .sds--chips.status-error {
         margin: 0 15px 0 auto;
     }
+
     span.navigation {
         margin: 6px 15px 0 0;
     }
