@@ -32,7 +32,8 @@ import {
     parseMedaDataUrl,
     providersByEntityId,
     requestConnectionProductionStatus,
-    resetConnectionSecret, revokeChangeRequest,
+    resetConnectionSecret,
+    revokeChangeRequest,
     updateConnection
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
@@ -186,19 +187,20 @@ export const Testing = ({
             //Filter out all unknown entityIDs
             convertedConnection.allowedEntities = convertedConnection.allowedEntities
                 .filter(entityID => identityProviders.some(idp => idp.data.entityid === entityID));
-            //This must also work for already persisted connections
-            convertedConnection.id = connection.id;
-            //To prevent optimistic locking failures later on
-            ["manageEid", "manageIdentifier", "manageVersion"]
-                .forEach(attr => convertedConnection[attr] = connection[attr]);
+            //To prevent update instead of create
+            ["id", "manageEid", "manageIdentifier", "manageVersion", "createdAt", "updatedAt"]
+                .forEach(attr => delete convertedConnection[attr]);
             convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
-            if (convertedConnection.protocol === PROTOCOLS.OIDC10_RP) {
-                convertedConnection.entityID = "";
+            convertedConnection.entityID = "";
+            if (convertedConnection.protocol.value === PROTOCOLS.OIDC10_RP) {
                 convertedConnection.secret = null;
+                convertedConnection.secretSet = false;
             }
+            convertedConnection.new = true;
             setConnection(convertedConnection);
-            setLoading(false);
+            //Need to some time, otherwise the view goed back to the overview
+            setTimeout(() => setLoading(false), 275);
             setFlash(I18n.t("connection.flash.copied", {name: originalName}))
         })
     }
@@ -1199,7 +1201,7 @@ export const Testing = ({
             <>
                 <div className="testing-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
-                    {(connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS) &&
+                    {(isProduction && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}
                                     onClick={() => doRequestProduction(true, connection)}
