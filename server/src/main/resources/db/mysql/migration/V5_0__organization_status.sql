@@ -1,0 +1,9 @@
+ALTER TABLE organizations
+    ADD COLUMN status VARCHAR(50) DEFAULT NULL;
+
+UPDATE organizations
+SET status = 'PENDING_APPROVAL'
+WHERE status IS NULL;
+
+ALTER TABLE organizations
+    MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'PENDING_APPROVAL';

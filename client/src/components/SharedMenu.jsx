@@ -3,22 +3,25 @@ import "./SharedMenu.scss"
 import {useNavigate} from "react-router";
 import {NavigationMenu} from "@surfnet/sds";
 import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
+import CheckIcon from "@surfnet/sds/icons/check.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {useEffect, useState} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
+import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 
-const allMenuGroups = [{
-    label: "organizationMaintenance",
-    items: [{
-        name: "users",
-        path: "/users/organizationId",
-        relative: true,
-        Logo: TeamIcon
-    }]
-},
+const allMenuGroups = [
+    {
+        label: "organizationMaintenance",
+        items: [{
+            name: "users",
+            path: "/users/organizationId",
+            relative: true,
+            Logo: TeamIcon
+        }]
+    },
     {
         label: "catalogue",
         items: [{
@@ -77,13 +80,16 @@ export const SharedMenu = () => {
         }));
     }
 
+    const isPendingApproval = currentOrganization.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;
     return (
         <NavigationMenu
             groups={filteredMenuGroups}
             logoLabel={"Access"}
             setActiveMenuItem={setActiveMenuItem}
             title={currentOrganization?.name || ""}
-            settingToolTip={I18n.t("organizations.tooltip")}
+            settingToolTip={isPendingApproval ? I18n.t("organizations.tooltip") :
+                I18n.t("organizations.tooltipApproved")}
+            SettingLogo={isPendingApproval ? null : CheckIcon}
             children={<SharedMenuFooter/>}
         />
     );

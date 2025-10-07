@@ -136,7 +136,8 @@ const en = {
         }
     },
     organizations: {
-        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn.",
+        tooltipApproved: "SURF heeft je organisastie registratie goedgekeurd. Je kunt apps registreren op onze productie omgevingn en productie status aanvragen."
     },
     userMenu: {
         switchOrganization: "Switch organization"

@@ -29,8 +29,8 @@ public class FullSearchQueryParser {
         if (!StringUtils.hasText(query)) {
             throw new InvalidInputException("Full text query parameter has @NotNull @NotBlank requirement");
         }
-        String parsedQuery = Stream.of(query.split("[ @.,+*]"))
-                .filter(part -> !(part.isEmpty() || stopWords.contains(part.toLowerCase())))
+        String parsedQuery = Stream.of(query.split("[ @.,+*-]"))
+                .filter(part -> !(part.isEmpty() || part.length() < 3 || stopWords.contains(part.toLowerCase()) ))
                 .map(part -> "+" + part)
                 .collect(Collectors.joining(" "));
         return parsedQuery + "*";

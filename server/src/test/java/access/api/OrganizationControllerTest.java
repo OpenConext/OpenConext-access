@@ -3,9 +3,11 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.Organization;
+import access.model.OrganizationStatus;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -178,6 +180,27 @@ class OrganizationControllerTest extends AbstractTest {
 
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationId);
         assertFalse(optionalOrganization.isPresent());
+    }
+
+    @Test
+    void approve() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .put("/api/v1/organizations/approve/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        Organization organization = organizationRepository.findById(organizationId).get();
+        assertEquals(OrganizationStatus.APPROVED, organization.getStatus());
     }
 
 }
