@@ -105,6 +105,9 @@ const en = {
         applications: "applications",
         zeroState: "No organizations found",
         register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
+        confirmation: "Are you sure you want to register a new organization called {{name}}?",
+        confirmationAfter: "Your organization is created and is pending approval, but you can continue to create applications.You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
+        newOrganization: "New organization creaated",
         flash: "Created organization {{name}}."
     },
     userHome: {

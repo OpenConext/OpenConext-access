@@ -74,12 +74,20 @@ lifecycle:
   password: secret
 
 jira:
-  enabled: false
-  base-url: "http://localhost:8081"
-  user-name: "test-beheer-rpc"
+#  enabled: false
+#  base-url: "http://localhost:8081"
+#  user-name: "test-beheer-rpc"
+#  project-key: CXT
+#  environment: test
+#  api-key: secret
+#  # Timeout in milliseconds
+#  connection-timeout: 60_000
+  enabled: true
+  base-url: https://sd-jira-staging.surf.nl/jira/rest/api/2
+  user-name: test-beheer-rpc
   project-key: CXT
   environment: test
-  api-key: secret
+  api-key: ODU1NzA3MDk3ODg5Onogb+ahwgLPgM7CLU0h1oqVSfEb
   # Timeout in milliseconds
   connection-timeout: 60_000
 
