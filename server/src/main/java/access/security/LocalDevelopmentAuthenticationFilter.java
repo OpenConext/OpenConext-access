@@ -19,9 +19,9 @@ import java.util.UUID;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
-    private static final String sub = "urn:collab:person:eduid.nl:mos";
+    private static final String sub = "urn:collab:person:eduid.nl:mos6";
     //    private final String sub = "urn:collab:person:example.com:admin";
-    private static final String schacHomeOrganization = "example.com";
+    private static final String schacHomeOrganization = "example6.com";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -36,7 +36,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
         Map<String, Object> defaultClaims = Map.of(
                 "eduperson_principal_name", "urn:collab:person:example.com:super",
-                "email", "email",
+                "email", "jdoe@example.com",
                 "family_name", "Doe",
                 "given_name", "John",
                 "name", "John Doe",

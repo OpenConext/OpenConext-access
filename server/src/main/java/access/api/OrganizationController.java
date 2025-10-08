@@ -2,6 +2,8 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
+import access.jira.JiraClient;
+import access.jira.JiraIssue;
 import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
@@ -45,16 +47,20 @@ public class OrganizationController implements UserAccessRights {
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final Config config;
     private final UserRepository userRepository;
+    private final JiraClient jiraClient;
+
 
     @Autowired
     public OrganizationController(OrganizationRepository organizationRepository,
                                   OrganizationMembershipRepository organizationMembershipRepository,
                                   UserRepository userRepository,
-                                  Config config) {
+                                  Config config,
+                                  JiraClient jiraClient) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
         this.config = config;
         this.userRepository = userRepository;
+        this.jiraClient = jiraClient;
     }
 
     @GetMapping("/find/{id}")
@@ -128,11 +134,29 @@ public class OrganizationController implements UserAccessRights {
     public ResponseEntity<Organization> create(User user, @RequestBody @Validated Organization organization) {
         String name = organization.getName();
         Organization newOrganization = createOrganization(user, name);
+        String orgName = newOrganization.getName();
+        LOG.info(String.format("Creating new Organisation %s for %s" , name, user.getEmail()));
+        // Now create a Jira ticket
+        String summary = String.format("User %s created a new Organisation %s in Access.",
+                user.getName(),
+                orgName);
+        String jiraKey = jiraClient.create(new JiraIssue(
+                orgName,
+                String.format("%s The new organisation is pending approval. Visit to evaluate:%s%s",
+                        summary,
+                        System.lineSeparator(),
+                        String.format("%s/system/organizationPendingApproval", config.getClientUrl())),
+                summary,
+                EntityType.oidc10_rp,
+                user.getEmail()
+        ));
+        LOG.info("Created Jira issue for new Organization: " + jiraKey);
+        newOrganization.setTicketKey(jiraKey);
+
         Organization savedOrganization = organizationRepository.save(newOrganization);
         // User becomes admin
         OrganizationMembership organizationMembership = new OrganizationMembership(user, savedOrganization, Authority.ADMIN);
         organizationMembershipRepository.save(organizationMembership);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 
