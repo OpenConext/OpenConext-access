@@ -46,3 +46,4 @@ pom.xml.versionsBackup
 dependency.tree
 jira.yml
 application.local.yml
+jira.yml
