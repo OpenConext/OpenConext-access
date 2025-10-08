@@ -147,7 +147,8 @@ public class UserController implements UserAccessRights {
 
         confirmSuperUser(user);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable);
+        String parsedQuery = FullSearchQueryParser.parse(query);
+        Page<Map<String, Object>> usersPage = userRepository.searchByPageWithKeyword(parsedQuery, pageable);
         return ResponseEntity.ok(usersPage);
     }
 

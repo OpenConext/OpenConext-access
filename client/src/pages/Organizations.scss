@@ -1,0 +1,75 @@
+@use "../index";
+
+.mod-organizations {
+    position: relative;
+    max-width: 75%;
+
+    .menu.drop-down {
+        position: relative;
+    }
+
+    @include index.menu-header;
+
+    ul li {
+        padding: 12px 0 12px 0;
+    }
+
+    table.organizations {
+
+        thead {
+            th {
+                &.name {
+                    width: 20%;
+                }
+
+                &.schac_home_organization, &.schacHomeOrganization {
+                    width: 15%;
+                }
+
+                &.createdAt {
+                    width: 15%;
+                }
+
+                &.applicationCount {
+                    text-align: center;
+                    width: 12%;
+                }
+
+                &.memberCount {
+                    text-align: center;
+                    width: 12%;
+                }
+
+                &.status {
+                    width: 15%;
+                }
+
+                th.buttons {
+                    width: 10%;
+                }
+            }
+        }
+
+        tbody {
+            td {
+                &.applicationCount {
+                   text-align: center;
+                }
+
+                &.memberCount {
+                    text-align: center;
+                }
+
+            }
+        }
+
+        tbody {
+            td.buttons {
+                text-align: right;
+            }
+
+        }
+
+    }
+
+}

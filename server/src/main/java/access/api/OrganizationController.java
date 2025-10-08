@@ -69,16 +69,15 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
-    @GetMapping("/search/paginated")
+    @GetMapping("/search")
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                             @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
                                                             @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
                                                             @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
-        LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("/search/paginated for user %s", user.getEduPersonPrincipalName()));
 
-        confirmSuperUser(user);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> usersPage = organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable);
         return ResponseEntity.ok(usersPage);
@@ -116,12 +115,13 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(organization);
     }
 
+    @GetMapping("/status/pending")
+    public ResponseEntity<List<Organization>> pendingApproval(User user) {
+        LOG.debug("/pendingApproval Organizations by " + user.getEmail());
+        confirmSuperUser(user);
+        List<Organization> organizations = organizationRepository.findByStatus(OrganizationStatus.PENDING_APPROVAL);
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Organization>> search(@RequestParam(value = "query") String query) {
-        LOG.debug("/search");
-
-        return ResponseEntity.ok(organizationRepository.findByNameContainingIgnoreCase(query));
+        return ResponseEntity.ok(organizations);
     }
 
     @PostMapping({"", "/"})
@@ -136,12 +136,13 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 
-    @PutMapping("/approve/{organizationId}")
-    public ResponseEntity<Organization> approve(User user, @PathVariable("organizationId") Long organizationId) {
+    @PutMapping("/status/{organizationId}/{status}")
+    public ResponseEntity<Organization> approve(User user, @PathVariable("organizationId") Long organizationId,
+                                                @PathVariable("status") OrganizationStatus status) {
         confirmSuperUser(user);
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
-        organization.setStatus(OrganizationStatus.APPROVED);
+        organization.setStatus(status);
 
         Organization savedOrganization = organizationRepository.save(organization);
 

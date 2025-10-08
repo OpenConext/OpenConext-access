@@ -7,6 +7,7 @@ import access.model.OrganizationStatus;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -36,6 +37,23 @@ class OrganizationControllerTest extends AbstractTest {
         assertEquals(1, organization.getApplications().size());
         assertEquals(2, organization.getJoinRequests().size());
         assertEquals(1L, organization.getApplicationCount());
+    }
+
+    @Test
+    void pendingApproval() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        List<Organization> organizations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/organizations/status/pending")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(3, organizations.size());
     }
 
     @Test
@@ -112,18 +130,25 @@ class OrganizationControllerTest extends AbstractTest {
     void search() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
 
-        List<Organization> organizations = given()
+        Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("query", "logi")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .queryParam("sort", "name")
+                .queryParam("sortDirection", Sort.Direction.ASC)
                 .get("/api/v1/organizations/search")
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(2, organizations.size());
+        List content = (List) results.get("content");
+        assertEquals(1, content.size());
+        Map<String, Object> organization = (Map<String, Object>) content.getFirst();
+        assertEquals(1, organization.get("memberCount"));
+        assertEquals(0, organization.get("applicationCount"));
     }
 
     @Test
@@ -195,12 +220,13 @@ class OrganizationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("organizationId", organizationId)
-                .put("/api/v1/organizations/approve/{organizationId}")
+                .pathParam("status", OrganizationStatus.DISAPPROVED)
+                .put("/api/v1/organizations/status/{organizationId}/{status}")
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         Organization organization = organizationRepository.findById(organizationId).get();
-        assertEquals(OrganizationStatus.APPROVED, organization.getStatus());
+        assertEquals(OrganizationStatus.DISAPPROVED, organization.getStatus());
     }
 
 }

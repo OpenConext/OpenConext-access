@@ -139,7 +139,7 @@ const App = () => {
                             <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation/>}/>
-                            <Route path="/system" element={<System/>}/>
+                            <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>

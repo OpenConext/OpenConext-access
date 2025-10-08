@@ -4,8 +4,10 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Users} from "./Users.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import I18n from "../locale/I18n.js";
+import {Organizations} from "./Organizations.jsx";
+import {OrganizationsPendingApproval} from "./OrganizationsPendingApproval.jsx";
 
-const tabNames = ["users"]
+const tabNames = ["users", "organizations", "organizationPendingApproval"]
 
 const System = () => {
     const {tab = "users"} = useParams();
@@ -14,13 +16,19 @@ const System = () => {
 
     const tabChanged = (name) => {
         setCurrentTab(name);
-        navigate(`/organization/${organizationId}/${name}`);
+        navigate(`/system/${name}`);
     }
 
     const renderCurrentTab = () => {
         switch (currentTab) {
             case "users": {
                 return <Users/>
+            }
+            case "organizations": {
+                return <Organizations/>
+            }
+            case  "organizationPendingApproval":{
+                return <OrganizationsPendingApproval/>
             }
             default:
                 throw new Error(`Unknown tab; ${currentTab}`)

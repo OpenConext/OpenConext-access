@@ -117,6 +117,8 @@ const en = {
     },
     tabs: {
         users: "Users",
+        organizations: "Organizations",
+        organizationPendingApproval: "Pending approval organizations",
         team: "My Team",
         joins: "Join Requests",
         invitations: "Invitations",
@@ -137,7 +139,26 @@ const en = {
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn.",
-        tooltipApproved: "SURF heeft je organisastie registratie goedgekeurd. Je kunt apps registreren op onze productie omgevingn en productie status aanvragen."
+        tooltipApproved: "SURF heeft je organisastie registratie goedgekeurd. Je kunt apps registreren op onze productie omgevingn en productie status aanvragen.",
+        pendingApprovalTitle: "Organizations pending approval",
+        pending_approval: "Pending approval",
+        approved: "Approved",
+        disapproved: "Disapproved",
+        pending_approval_action: "Back to pending",
+        approved_action: "Approve",
+        disapproved_action: "Disapprove",
+        name: "Name",
+        schacHomeOrganization: "Schac home",
+        createdAt: "Created",
+        memberCount: "# Members",
+        applicationCount: "# Apps",
+        status: "Status",
+        searchPlaceHolder: "Search for organizations...",
+        confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organization {{name}}?",
+        flash: {
+            updated: "Organization {{name}} now has the status {{status}}",
+            deleted: "Organization {{name}} has been deleted",
+        }
     },
     userMenu: {
         switchOrganization: "Switch organization"
@@ -794,6 +815,10 @@ const en = {
         lessLabel: "Show me less",
         you: "You",
         copied: "Copied"
+    },
+    tooltips: {
+        userIcon: "User {[name}} is created on {{createdAt}} and was last seen at {{lastActivity}}",
+        organizationsIcon: "Organization {{name}} is created on {{createdAt}} and has the status {{status}}",
     },
     footer: {
         terms: "Terms of Use",
