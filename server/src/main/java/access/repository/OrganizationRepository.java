@@ -1,6 +1,8 @@
 package access.repository;
 
 import access.model.Organization;
+import access.model.OrganizationStatus;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -22,6 +24,8 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     Optional<Organization> findBySchacHomeOrganization(String schacHomeOrganization);
 
+    List<Organization> findByStatus(OrganizationStatus status);
+
     @EntityGraph(attributePaths = {
             "applications.connections", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
@@ -34,8 +38,11 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     @Transactional(isolation = Isolation.SERIALIZABLE)
     void deleteOrganizationById(Long id);
 
+
     @Query(value = """
-             SELECT org.id, org.name, org.schac_home_organization, org.status, org.created_at
+             SELECT org.id, org.name, org.schac_home_organization, org.status, org.created_at,
+                (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
+                (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount                        
               FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
             """,
             countQuery = "SELECT count(*) FROM organizations WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)",

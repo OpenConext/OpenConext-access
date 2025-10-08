@@ -87,17 +87,17 @@ export function searchUsers(pagination = {}) {
 }
 
 //Organization
-export function searchOrganization(query) {
-    return fetchJson(`/api/v1/organizations/search?query=${query}`);
-}
-
 export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
 }
 
-export function searchOrganizationPaginated(pagination = {}) {
+export function searchOrganizations(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/organizations/search/paginated?${queryPart}`);
+    return fetchJson(`/api/v1/organizations/search?${queryPart}`);
+}
+
+export function pendingApprovalOrganizations() {
+    return fetchJson("/api/v1/organizations/status/pending");
 }
 
 export function organizationUsersById(id) {
@@ -118,6 +118,10 @@ export function organizationForInvitationById(id) {
 
 export function newOrganization(organization) {
     return postPutJson("/api/v1/organizations", organization, "POST");
+}
+
+export function updateOrganizationStatus(organizationId, newStatus) {
+    return postPutJson(`/api/v1/organizations/status/${organizationId}/${newStatus}`, {}, "PUT");
 }
 
 //JoinRequest

@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate} from "react-router-dom";
-import {newOrganization, searchOrganization} from "../api/index.js";
+import {newOrganization, searchOrganizations} from "../api/index.js";
 import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
@@ -22,9 +22,9 @@ const Landing = ({refreshUser}) => {
     const navigate = useNavigate();
 
     const debouncedFetch = useDebouncedCallback(val => {
-        searchOrganization(val)
-            .then(data => {
-                setOrganizations(data);
+        searchOrganizations({query: val, pageSize: 100_000, sort: "name"})
+            .then(page => {
+                setOrganizations(page.content);
                 setLoading(false);
             })
     }, 850);

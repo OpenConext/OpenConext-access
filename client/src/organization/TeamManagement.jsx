@@ -138,7 +138,8 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                     return (
                         <div className="top-header"
                              tabIndex={1}
-                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
+                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
+                            >
                             <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
                                 <MenuIcon/>

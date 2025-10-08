@@ -20,7 +20,8 @@ import java.util.UUID;
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
     private static final String sub = "urn:collab:person:eduid.nl:mos";
-//    private final String sub = "urn:collab:person:example.com:admin";
+    //    private final String sub = "urn:collab:person:example.com:admin";
+    private static final String schacHomeOrganization = "example.com";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -39,7 +40,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "family_name", "Doe",
                 "given_name", "John",
                 "name", "John Doe",
-                "schac_home_organization", "example.com",
+                "schac_home_organization", schacHomeOrganization,
                 "scope", "openid",
                 "sub", body.getOrDefault("sub", LocalDevelopmentAuthenticationFilter.sub),
                 "uids", List.of("super"));
