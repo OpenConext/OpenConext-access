@@ -91,7 +91,7 @@ public class ConnectionController implements UserAccessRights {
                 connectionRepository.save(connection);
             }
             if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+                connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
             }
         }
         return ResponseEntity.ok(connection);
@@ -132,7 +132,7 @@ public class ConnectionController implements UserAccessRights {
             //Not allowed to sync the connection to Manage. Create ChangeRequests
             connection = this.productionReadyChangeRequests(connection, user);
             if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+                connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
             }
         } else {
             connection = saveConnection(connection);
@@ -250,7 +250,7 @@ public class ConnectionController implements UserAccessRights {
         //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
         connection.mergeMetaData(provider, true);
         connection = connectionRepository.save(connection);
-        connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
         return connection;
     }
 

@@ -216,12 +216,12 @@ public class Connection implements NameHolder {
         this.updatedAt = Instant.now();
     }
 
-    @JsonProperty
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<Map<String, Object>> getChangeRequests() {
         return this.changeRequests;
     }
 
-    public void setChangeRequests(List<Map<String, Object>> changeRequests) {
+    public void convertChangeRequests(List<Map<String, Object>> changeRequests) {
         //We need to convert the changeRequests to the same data as the metaData of a Connection
         this.changeRequests = changeRequests.stream().map(changeRequest -> {
             Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
@@ -245,10 +245,12 @@ public class Connection implements NameHolder {
                     data.put(key, value);
                 }
             });
-            Connection connection  = new Connection();
+            Connection connection = new Connection();
             connection.mergeMetaData(provider, true);
-            //copy some of the auditData
             Map<String, Object> connectionMetaData = connection.getMetaData();
+            //Now clean up all keys where the value is empty
+            connectionMetaData.entrySet().removeIf(entry -> this.isEmpty(entry.getValue()));
+            //copy some of the auditData
             connectionMetaData.put("created", changeRequest.get("created"));
             connectionMetaData.put("auditData", changeRequest.get("auditData"));
             return connectionMetaData;
@@ -256,7 +258,14 @@ public class Connection implements NameHolder {
     }
 
     @JsonIgnore
+    @SuppressWarnings("rawtypes")
     private boolean isEmpty(Object object) {
-        if (instanceo)
+        return switch (object) {
+            case List l -> l.isEmpty();
+            case String s -> !StringUtils.hasText(s);
+            case Map m -> !m.isEmpty();
+            case null -> true;
+            default -> false;
+        };
     }
 }

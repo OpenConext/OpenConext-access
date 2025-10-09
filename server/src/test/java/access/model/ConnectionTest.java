@@ -47,12 +47,17 @@ class ConnectionTest {
 
     @SneakyThrows
     @Test
-    void setChangeRequests() {
+    @SuppressWarnings("unchecked")
+    void convertChangeRequests() {
         String json = IOUtils.toString(new ClassPathResource("/manage/change_request_large.json").getInputStream(), Charset.defaultCharset());
-        Connection connection = new Connection();
         Map<String,Object> manageChangeRequest = objectMapper.readValue(json, Map.class);
-        connection.setChangeRequests(List.of(manageChangeRequest));
+        Connection connection = new Connection();
+        connection.convertChangeRequests(List.of(manageChangeRequest));
         Map<String, Object> changeRequest = connection.getChangeRequests().getFirst();
-        System.out.println(changeRequest);
+
+        json = IOUtils.toString(new ClassPathResource("/manage/converted_change_request.json").getInputStream(), Charset.defaultCharset());
+        Map<String,Object> convertedChangeRequest = objectMapper.readValue(json, Map.class);
+
+        assertEquals(changeRequest, convertedChangeRequest);
     }
 }
