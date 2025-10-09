@@ -19,9 +19,9 @@ import java.util.UUID;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
-    private static final String sub = "urn:collab:person:eduid.nl:mos6";
+    private static final String sub = "urn:collab:person:eduid.nl:mos";
     //    private final String sub = "urn:collab:person:example.com:admin";
-    private static final String schacHomeOrganization = "example6.com";
+    private static final String schacHomeOrganization = "example.com";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
