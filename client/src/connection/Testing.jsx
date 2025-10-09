@@ -958,6 +958,7 @@ export const Testing = ({
                                 onClick={() => doRevokeChangeRequest(true, changeRequest)}
                                 txt={I18n.t("connection.changeRequests.revoke")}/>
                     </div>
+                    <code>{JSON.stringify(changeRequest)}</code>
                     <em>{I18n.t("connection.changeRequests.createdAtBy", {
                         name: changeRequest.auditData.user,
                         date: formatShortDate(changeRequest.created)

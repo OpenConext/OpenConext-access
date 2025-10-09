@@ -1,0 +1,128 @@
+{
+  "id": "68e77a7812911912cdda0f91",
+  "metaDataId": "b3541475-d0dd-44b8-b166-61226dfc0727",
+  "type": "oidc10_rp",
+  "note": "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
+  "incrementalChange": false,
+  "pathUpdates": {
+    "metaDataFields.coin:ss:hidden": true,
+    "metaDataFields.redirectUrls": [
+      "https://red.com",
+      "https://redirect-extra.com"
+    ],
+    "metaDataFields.refreshTokenValidity": 86400,
+    "metaDataFields.grants": [
+      "authorization_code",
+      "urn:ietf:params:oauth:grant-type:device_code",
+      "refresh_token"
+    ],
+    "metaDataFields.oidc:claims_in_id_token": true,
+    "metaDataFields.coin:dashboard_connect_option": "connect_without_interaction_with_email",
+    "arp": {
+      "attributes": {
+        "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonAssurance": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonEntitlement": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Need this"
+          }
+        ],
+        "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:displayName": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:givenName": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:cn": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:sn": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:mail": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Default for profile"
+          }
+        ],
+        "urn:mace:dir:attribute-def:ou": [
+          {
+            "source": "idp",
+            "value": "*",
+            "motivation": "Also need this"
+          }
+        ]
+      },
+      "profile": "personalized",
+      "motivation": "Please",
+      "enabled": true
+    },
+    "revisionnote": "SURF Access update with remote API"
+  },
+  "auditData": {
+    "notes": "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
+    "user": "mos.doe@example.com",
+    "userName": "openconextaccess",
+    "apiUser": true
+  },
+  "created": "2025-10-09T09:03:52.048Z",
+  "metaDataSummary": {
+    "organizationName": "Logistics",
+    "name": "AppTest2 - prod",
+    "entityid": "SURFACCESS-7bec7fef-6c38-433c-bc75-e4222401e545",
+    "state": "prodaccepted"
+  },
+  "externalReferenceData": {}
+}

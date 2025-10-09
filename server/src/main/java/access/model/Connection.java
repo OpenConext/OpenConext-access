@@ -187,7 +187,7 @@ public class Connection implements NameHolder {
          * Business logic. If a status for a production connection is pending production and the state has changed
          * to prodaccepted, then we set the status to production ready
          */
-        this.state = State.valueOf((String) data.get("state"));
+        this.state = State.valueOf((String) data.getOrDefault("state", "testaccepted"));
         if (this.environment.equals(Environment.PROD) &&
                 ConnectionStatus.PENDING_PROD.equals(this.status) &&
                 this.state.equals(State.prodaccepted)) {
@@ -221,4 +221,42 @@ public class Connection implements NameHolder {
         return this.changeRequests;
     }
 
+    public void setChangeRequests(List<Map<String, Object>> changeRequests) {
+        //We need to convert the changeRequests to the same data as the metaData of a Connection
+        this.changeRequests = changeRequests.stream().map(changeRequest -> {
+            Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
+            Map<String, Object> provider = new HashMap<>();
+            //To prevent NullPointerException
+            provider.put("version", -1);
+
+            Map<String, Object> data = new HashMap<>();
+            provider.put("data", data);
+
+            Map<String, Object> metaDataFields = new HashMap<>();
+            data.put("metaDataFields", metaDataFields);
+
+            pathUpdates.forEach((key, value) -> {
+                if (key.startsWith("metaDataFields")) {
+                    //See src/test/resources/manage/change_request_large.json
+                    key = key.substring("metaDataFields.".length());
+                    metaDataFields.put(key, value);
+                } else {
+                    //For pathUpdates to the ARP
+                    data.put(key, value);
+                }
+            });
+            Connection connection  = new Connection();
+            connection.mergeMetaData(provider, true);
+            //copy some of the auditData
+            Map<String, Object> connectionMetaData = connection.getMetaData();
+            connectionMetaData.put("created", changeRequest.get("created"));
+            connectionMetaData.put("auditData", changeRequest.get("auditData"));
+            return connectionMetaData;
+        }).toList();
+    }
+
+    @JsonIgnore
+    private boolean isEmpty(Object object) {
+        if (instanceo)
+    }
 }

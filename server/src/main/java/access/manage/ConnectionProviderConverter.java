@@ -106,7 +106,6 @@ public class ConnectionProviderConverter {
             mergeAllowedEntities(data, connectionMetaData);
         }
 
-
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");
             putIf(metaDataFields, "grants", grantTypes);
