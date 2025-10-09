@@ -87,7 +87,7 @@ public class ApplicationController implements UserAccessRights {
                         connectionRepository.save(connection);
                     }
                     if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                        connection.setChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+                        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
                     }
                 });
         return ResponseEntity.ok(application);

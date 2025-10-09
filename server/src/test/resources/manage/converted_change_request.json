@@ -1,0 +1,22 @@
+{
+  "connectOption": "connect_without_interaction_with_email",
+  "visibility": "visible_to_none",
+  "created": "2025-10-09T09:03:52.048Z",
+  "claimsInIdToken": true,
+  "redirectUrls": [
+    "https://red.com",
+    "https://redirect-extra.com"
+  ],
+  "grantTypes": [
+    "authorization_code",
+    "urn:ietf:params:oauth:grant-type:device_code",
+    "refresh_token"
+  ],
+  "auditData": {
+    "notes": "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
+    "user": "mos.doe@example.com",
+    "userName": "openconextaccess",
+    "apiUser": true
+  },
+  "refreshTokenValidity": 86400
+}
