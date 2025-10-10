@@ -263,7 +263,7 @@ public class Connection implements NameHolder {
         return switch (object) {
             case List l -> l.isEmpty();
             case String s -> !StringUtils.hasText(s);
-            case Map m -> !m.isEmpty();
+            case Map m -> m.isEmpty();
             case null -> true;
             default -> false;
         };

@@ -15,6 +15,9 @@ import {
     Switch,
     Tooltip
 } from "@surfnet/sds";
+import {create} from 'jsondiffpatch';
+import {format} from 'jsondiffpatch/formatters/html';
+import 'jsondiffpatch/formatters/styles/html.css';
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import ArrowRightIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
@@ -134,6 +137,10 @@ export const Testing = ({
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
+    const diffPatcher = create({
+        // https://github.com/benjamine/jsondiffpatch/blob/HEAD/docs/arrays.md
+        objectHash: (obj, index) => obj.name || obj.level || obj.type || obj.source || obj.value || '$$index:' + index
+    });
 
     useEffect(() => {
         if (!isEmpty(connectionId)) {
@@ -148,7 +155,7 @@ export const Testing = ({
             const action = urlSearchParams.get("action");
             if (action === "activate") {
                 showConnectionDetails(connections
-                    .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS),
+                        .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS),
                     "?action=activate");
             }
         }
@@ -841,7 +848,11 @@ export const Testing = ({
                                       connectOption: e.target.id.replace("connectOption_", "")
                                   })}
                                   isMultiple={true}
-                                  labels={[connectOptions.connect_with_interaction, connectOptions.connect_without_interaction_with_email]}
+                                  labels={[
+                                      connectOptions.connect_without_interaction_without_email,
+                                      connectOptions.connect_without_interaction_with_email,
+                                      connectOptions.connect_with_interaction
+                                  ]}
                                   labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
                                   orientation={RadioOptionsOrientation.column}/>
                 </div>
@@ -942,6 +953,36 @@ export const Testing = ({
         }
     }
 
+    const renderChangeRequest = (changeRequest, index) => {
+        const auditData = changeRequest.auditData;
+        const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
+        const created = changeRequest.created;
+        const changeRequestMerged = {...connection.metaData, ...changeRequest};
+        ["auditData", "created"].forEach(attr => delete changeRequestMerged[attr])
+        const delta = diffPatcher.diff(connection.metaData, changeRequestMerged)
+        const htmlDiff = format(delta, connection.metaData);
+        return (
+            <div className="card change-request" key={index}>
+                <div className="top-container">
+                    <div className="audit-data">
+                        <p className="ticket-number">{jiraIssue[0]}</p>
+                        <p className="user">{auditData.user}</p>
+                        <p className="created">{formatShortDate(created)}</p>
+                    </div>
+                    <div className="meta">
+                        <Chip type={ChipType.Status_info} className={"open"}
+                              label={I18n.t("connection.changeRequests.open")}/>
+                        <Button type={ButtonType.DestructiveSecondary}
+                                onClick={() => doRevokeChangeRequest(true, changeRequest)}
+                                txt={I18n.t("connection.changeRequests.revoke")}/>
+                    </div>
+                </div>
+                <p className="jsondiffpatch-unchanged-hidden" dangerouslySetInnerHTML={{__html: htmlDiff}}/>
+            </div>
+        );
+
+    }
+
     const renderPendingChanges = () => {
         return (
             <section className="inner-right">
@@ -950,20 +991,9 @@ export const Testing = ({
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info1"))}}/>
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info2"))}}/>
                 </div>
-                {connection.changeRequests.map(changeRequest => <div className="card change-request" key={changeRequest.id}>
-                    <div className="changes"></div>
-                    <div className="actions">
-                        <Chip type={ChipType.Status_info} className={"open"} label={I18n.t("connection.changeRequests.open")}/>
-                        <Button type={ButtonType.DestructiveSecondary}
-                                onClick={() => doRevokeChangeRequest(true, changeRequest)}
-                                txt={I18n.t("connection.changeRequests.revoke")}/>
-                    </div>
-                    <pre>{JSON.stringify(changeRequest, undefined, 2)}</pre>
-                    <em>{I18n.t("connection.changeRequests.createdAtBy", {
-                        name: changeRequest.auditData.user,
-                        date: formatShortDate(changeRequest.created)
-                    })}</em>
-                </div>)}
+                {connection.changeRequests.map((changeRequest, index) =>
+                    renderChangeRequest(changeRequest, index)
+                )}
             </section>
         );
     }
@@ -1296,7 +1326,7 @@ export const Testing = ({
             </>);
     }
 
-    const showConnectionDetails = (conn, queryParameters="") => {
+    const showConnectionDetails = (conn, queryParameters = "") => {
         navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
         if (conn.status !== CONNECTION_STATUSES.OPEN) {
             setLoading(true);

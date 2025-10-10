@@ -418,8 +418,9 @@ const en = {
             visible_to_all: "Alle organisaties",
             visible_to_none: "Nog niemand (app is nog niet zichtbaar in de Appstore)",
             connect: "2. Kan men direct met de applicatie koppelen?",
-            connect_with_interaction: "Yes",
-            connect_without_interaction_with_email: "Nee, een koppeling moet worden aangevraagd",
+            connect_with_interaction: "Nee, een koppeling moet worden aangevraagd",
+            connect_without_interaction_with_email: "Yes, but with a notification email",
+            connect_without_interaction_without_email: "Yes, without notification email",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },

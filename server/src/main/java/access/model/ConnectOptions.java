@@ -6,5 +6,4 @@ public enum ConnectOptions {
     connect_without_interaction_with_email,
     connect_without_interaction_without_email;
 
-
 }
