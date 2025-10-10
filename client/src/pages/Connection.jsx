@@ -194,6 +194,7 @@ export const Connection = () => {
                                 isProduction={false}
                                 setDirty={setDirty}
                                 connectionId={connectionId}
+
                 />
             }
             case  "prod": {
@@ -215,6 +216,7 @@ export const Connection = () => {
                                 isProduction={true}
                                 setDirty={setDirty}
                                 connectionId={connectionId}
+
                 />
             }
             case "application": {

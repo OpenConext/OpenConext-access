@@ -44,7 +44,7 @@ export const Organizations = () => {
         [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const search = (query, sorted, reverse, page) => {
-        if (!isEmpty(query) || query.trim().length > 2) {
+        if (!isEmpty(query) && query.trim().length > 2) {
             delayedAutocomplete(query, sorted, reverse, page);
         } else {
             setOrganizations([]);

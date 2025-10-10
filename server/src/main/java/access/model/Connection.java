@@ -264,8 +264,8 @@ public class Connection implements NameHolder {
                                 }
                             });
                     //copy some of the auditData
-                    connectionMetaData.put("created", changeRequest.get("created"));
-                    connectionMetaData.put("auditData", changeRequest.get("auditData"));
+                    List.of("id", "metaDataId", "type", "auditData", "created")
+                                    .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
                     return connectionMetaData;
                 })
                 .toList();

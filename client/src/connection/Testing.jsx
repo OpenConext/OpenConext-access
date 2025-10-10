@@ -64,6 +64,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router-dom";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
+import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
 
 
 const sections = {
@@ -966,7 +967,8 @@ export const Testing = ({
 
     const diffChangeRequest = changeRequest => {
         const changeRequestMerged = {...connection.metaData, ...changeRequest};
-        ["auditData", "created"].forEach(attr => delete changeRequestMerged[attr])
+        //avoid false negatives about what has been changed
+        ["auditData", "created", "id", "type", "metaDataId"].forEach(attr => delete changeRequestMerged[attr])
         return diffPatcher.diff(connection.metaData, changeRequestMerged)
     }
 
@@ -975,7 +977,8 @@ export const Testing = ({
         const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
         const created = changeRequest.created;
         const delta = diffChangeRequest(changeRequest);
-        const htmlDiff = format(delta, connection.metaData);
+        //We need to sanitize the html to avoid XSS
+        const htmlDiff = DOMPurify.sanitize(format(delta, connection.metaData));
         return (
             <div className="card change-request" key={index}>
                 <div className="top-container">
@@ -1183,7 +1186,9 @@ export const Testing = ({
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
-                    setConnection(convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo));
+                    const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
+                    setConnection(convertedConnection);
+                    updateChangeRequestKeys(convertedConnection);
                     setLoading(false);
                     changeSection(nextSection);
                 })
@@ -1243,14 +1248,14 @@ export const Testing = ({
         const lastSection = section === sections.testIdP;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
-        const requiresChangeRequest = connection.status == CONNECTION_STATUSES.PROD_READY && isProduction;
+        const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY && isProduction;
         const showOverviewButton = section === sections.overview;
         const submitTxt = requiresChangeRequest ? I18n.t("connection.requiresChangeRequest") : isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
                 <div className="testing-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
-                    {(isProduction && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
+                    {(isProduction && application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}
                                     onClick={() => doRequestProduction(true, connection)}
@@ -1342,17 +1347,22 @@ export const Testing = ({
             </>);
     }
 
+    const updateChangeRequestKeys = (convertedConnection) => {
+        if (!isEmpty(convertedConnection.changeRequests)) {
+            const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
+                .flatMap(changeRequest => Object.keys(changeRequest)))];
+            setChangeRequestsKeys(newChangeRequestKeys);
+            setSection(sections.pendingChanges);
+        }
+    }
+
     const showConnectionDetails = (conn, queryParameters = "") => {
         navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
         if (conn.status !== CONNECTION_STATUSES.OPEN) {
             setLoading(true);
             getConnectionById(conn.id).then(res => {
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
-                if (!isEmpty(convertedConnection.changeRequests)) {
-                    const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
-                        .flatMap(changeRequest => Object.keys(changeRequest)))];
-                    setChangeRequestsKeys(newChangeRequestKeys);
-                }
+                updateChangeRequestKeys(convertedConnection);
                 setConnection(convertedConnection);
                 setSection(sections.technical);
                 setLoading(false);
