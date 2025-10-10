@@ -4,18 +4,20 @@ import "./SelectField.scss";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import {Tooltip} from "@surfnet/sds";
+import AlertIcon from "../icons/alert-triangle.svg";
 
 export default function SelectField({
                                         onChange, name, value, options, placeholder = "", disabled = false,
                                         toolTip = null, searchable = false, small = false,
                                         clearable = false, isMulti = false, creatable = false,
                                         onInputChange = null, required = false, info = null,
-    className=""
+    className="", isAlert=false
                                     }) {
     return (
         <div className={`select-field ${className}`}>
             {name && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
                 {toolTip && <Tooltip tip={toolTip}/>}
+                {isAlert && <AlertIcon/>}
             </label>}
             {creatable &&
                 <CreatableSelect

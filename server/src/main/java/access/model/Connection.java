@@ -146,6 +146,8 @@ public class Connection implements NameHolder {
         this.metaData.put("arp", data.get("arp"));
 
         Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+        this.name = (String) metaDataFields.getOrDefault("name:en", this.name);
+        this.metaData.put("name", name);
         this.metaData.put("pkce", metaDataFields.get("isPublicClient"));
         this.metaData.put("grantTypes", metaDataFields.get("grants"));
         this.metaData.put("refreshTokenValidity", metaDataFields.get("refreshTokenValidity"));
@@ -223,38 +225,50 @@ public class Connection implements NameHolder {
 
     public void convertChangeRequests(List<Map<String, Object>> changeRequests) {
         //We need to convert the changeRequests to the same data as the metaData of a Connection
-        this.changeRequests = changeRequests.stream().map(changeRequest -> {
-            Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
-            Map<String, Object> provider = new HashMap<>();
-            //To prevent NullPointerException
-            provider.put("version", -1);
+        this.changeRequests = changeRequests.stream()
+                .map(changeRequest -> {
+                    Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
+                    Map<String, Object> provider = new HashMap<>();
+                    //To prevent NullPointerException
+                    provider.put("version", -1);
 
-            Map<String, Object> data = new HashMap<>();
-            provider.put("data", data);
+                    Map<String, Object> data = new HashMap<>();
+                    provider.put("data", data);
 
-            Map<String, Object> metaDataFields = new HashMap<>();
-            data.put("metaDataFields", metaDataFields);
+                    Map<String, Object> metaDataFields = new HashMap<>();
+                    data.put("metaDataFields", metaDataFields);
 
-            pathUpdates.forEach((key, value) -> {
-                if (key.startsWith("metaDataFields")) {
-                    //See src/test/resources/manage/change_request_large.json
-                    key = key.substring("metaDataFields.".length());
-                    metaDataFields.put(key, value);
-                } else {
-                    //For pathUpdates to the ARP
-                    data.put(key, value);
-                }
-            });
-            Connection connection = new Connection();
-            connection.mergeMetaData(provider, true);
-            Map<String, Object> connectionMetaData = connection.getMetaData();
-            //Now clean up all keys where the value is empty
-            connectionMetaData.entrySet().removeIf(entry -> this.isEmpty(entry.getValue()));
-            //copy some of the auditData
-            connectionMetaData.put("created", changeRequest.get("created"));
-            connectionMetaData.put("auditData", changeRequest.get("auditData"));
-            return connectionMetaData;
-        }).toList();
+                    pathUpdates.forEach((key, value) -> {
+                        if (key.startsWith("metaDataFields")) {
+                            //See src/test/resources/manage/change_request_large.json
+                            key = key.substring("metaDataFields.".length());
+                            metaDataFields.put(key, value);
+                        } else {
+                            //For pathUpdates to the ARP
+                            data.put(key, value);
+                        }
+                    });
+                    Connection connection = new Connection();
+                    connection.mergeMetaData(provider, true);
+                    Map<String, Object> connectionMetaData = connection.getMetaData();
+                    //Now clean up all keys where the value is empty
+                    connectionMetaData.entrySet().removeIf(entry -> this.isEmpty(entry.getValue()));
+                    //Bugfix for lazy initialization of boolean values
+                    Map.of("visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
+                                    "pkce", List.of("isPublicClient"),
+                                    "oidc:claims_in_id_token", List.of("claimsInIdToken"),
+                                    "connectOption", List.of("coin:dashboard_connect_option"))
+                            .forEach((connectionKey, manageValues) -> {
+                                if (manageValues.stream().noneMatch(val -> metaDataFields.containsKey(val))) {
+                                    connectionMetaData.remove(connectionKey);
+                                }
+                            });
+                    //copy some of the auditData
+                    connectionMetaData.put("created", changeRequest.get("created"));
+                    connectionMetaData.put("auditData", changeRequest.get("auditData"));
+                    return connectionMetaData;
+                })
+                .toList();
     }
 
     @JsonIgnore

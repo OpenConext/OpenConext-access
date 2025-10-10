@@ -415,6 +415,17 @@ $width-percentage: 75%;
     .visibility-options {
         p.question {
             font-weight: 600;
+
+            position: relative;
+
+            svg.alert-triangle {
+                fill: black;
+                color: white;
+                position: absolute;
+                top: -2px;
+                margin-left: 6px;
+            }
+
         }
     }
 

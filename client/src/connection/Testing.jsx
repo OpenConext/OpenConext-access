@@ -44,7 +44,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
-import {dateFromEpoch, formatShortDate} from "../utils/Date.js";
+import {dateFromEpoch, formatLongDate} from "../utils/Date.js";
 import {
     connectOptions,
     convertClientConnectionToServer,
@@ -131,6 +131,7 @@ export const Testing = ({
     const [loading, setLoading] = useState(false);
     const [confirmation, setConfirmation] = useState({});
     const [busy, setBusy] = useState(false);
+    const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const connections = useMemo(() => application.connections
             .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
         [application, isProduction]);
@@ -227,6 +228,7 @@ export const Testing = ({
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
             (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
     }
+
 
     const informationProfileValid = () => {
         const requiresMotivation = arpInfo.profiles.find(p => p.name === connection.profile.value).requiresMotivation
@@ -496,6 +498,7 @@ export const Testing = ({
                             onChange={e => setConnection({...connection, name: e.target.value})}
                             name={I18n.t("connection.connectionName")}
                             required={true}
+                            isAlert={changeRequestsKeys.includes("name")}
                             placeholder={I18n.t("connection.connectionPlaceholder",
                                 {
                                     application: application.name,
@@ -519,7 +522,9 @@ export const Testing = ({
                 {connection.protocol.value === PROTOCOLS.OIDC10_RP &&
                     <>
                         <div>
-                            <span className="label">{I18n.t("connection.grantTypes")}</span>
+                            <span className="label">{I18n.t("connection.grantTypes")}
+                                {changeRequestsKeys.includes("grantTypes") && <AlertIcon/>}
+                            </span>
                             <div className="grant-types">
                                 {Object.keys(grantTypes).map(grantType =>
                                     <Fragment key={grantType}>
@@ -569,7 +574,8 @@ export const Testing = ({
                             </div>
                         </div>
                         <div className="redirect-urls-container">
-                            <span className="label">{I18n.t("connection.redirectUrls")}</span>
+                            <span className="label">{I18n.t("connection.redirectUrls")}
+                                {changeRequestsKeys.includes("redirectUrls") && <AlertIcon/>}</span>
                             <div className="redirect-urls">
                                 {connection.redirectUrls.map((value, index) =>
                                     <div className="redirect-url" key={index}>
@@ -602,6 +608,7 @@ export const Testing = ({
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
                         <SwitchField name={"claimsInIdToken"}
+                                     isAlert={changeRequestsKeys.includes("claimsInIdToken")}
                                      value={connection.claimsInIdToken || false}
                                      onChange={val => setConnection({...connection, claimsInIdToken: val})}
                                      label={I18n.t("connection.claimsInIdToken")}
@@ -827,7 +834,9 @@ export const Testing = ({
                 <p>{I18n.t("connection.visibilities.info")}</p>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                 <div className="visibility-options">
-                    <p className="question">{I18n.t("connection.visibilities.who")}</p>
+                    <p className="question">{I18n.t("connection.visibilities.who")}
+                        {changeRequestsKeys.includes("visibility") && <AlertIcon/>}
+                    </p>
                     <RadioOptions name={"visibility"}
                                   value={connection.visibility}
                                   onChange={e => setConnection({
@@ -840,7 +849,9 @@ export const Testing = ({
                                   orientation={RadioOptionsOrientation.column}/>
                 </div>
                 <div className="visibility-options">
-                    <p className="question">{I18n.t("connection.visibilities.connect")}</p>
+                    <p className="question">{I18n.t("connection.visibilities.connect")}
+                        {changeRequestsKeys.includes("connectOption") && <AlertIcon/>}
+                    </p>
                     <RadioOptions name={"connectOption"}
                                   value={connection.connectOption}
                                   onChange={e => setConnection({
@@ -953,13 +964,17 @@ export const Testing = ({
         }
     }
 
+    const diffChangeRequest = changeRequest => {
+        const changeRequestMerged = {...connection.metaData, ...changeRequest};
+        ["auditData", "created"].forEach(attr => delete changeRequestMerged[attr])
+        return diffPatcher.diff(connection.metaData, changeRequestMerged)
+    }
+
     const renderChangeRequest = (changeRequest, index) => {
         const auditData = changeRequest.auditData;
         const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
         const created = changeRequest.created;
-        const changeRequestMerged = {...connection.metaData, ...changeRequest};
-        ["auditData", "created"].forEach(attr => delete changeRequestMerged[attr])
-        const delta = diffPatcher.diff(connection.metaData, changeRequestMerged)
+        const delta = diffChangeRequest(changeRequest);
         const htmlDiff = format(delta, connection.metaData);
         return (
             <div className="card change-request" key={index}>
@@ -967,7 +982,7 @@ export const Testing = ({
                     <div className="audit-data">
                         <p className="ticket-number">{jiraIssue[0]}</p>
                         <p className="user">{auditData.user}</p>
-                        <p className="created">{formatShortDate(created)}</p>
+                        <p className="created">{formatLongDate(created)}</p>
                     </div>
                     <div className="meta">
                         <Chip type={ChipType.Status_info} className={"open"}
@@ -991,9 +1006,9 @@ export const Testing = ({
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info1"))}}/>
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info2"))}}/>
                 </div>
-                {connection.changeRequests.map((changeRequest, index) =>
-                    renderChangeRequest(changeRequest, index)
-                )}
+                {connection.changeRequests
+                    .sort((cr1, cr2) => new Date(cr2.created) - new Date(cr1.created))
+                    .map((changeRequest, index) => renderChangeRequest(changeRequest, index))}
             </section>
         );
     }
@@ -1015,6 +1030,7 @@ export const Testing = ({
                 <SelectField
                     name={I18n.t("connection.informationProfile")}
                     options={profileOptions}
+                    isAlert={changeRequestsKeys.includes("arp")}
                     disabled={isContentApp}
                     value={connection.profile}
                     onChange={changeProfile}
@@ -1332,6 +1348,11 @@ export const Testing = ({
             setLoading(true);
             getConnectionById(conn.id).then(res => {
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
+                if (!isEmpty(convertedConnection.changeRequests)) {
+                    const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
+                        .flatMap(changeRequest => Object.keys(changeRequest)))];
+                    setChangeRequestsKeys(newChangeRequestKeys);
+                }
                 setConnection(convertedConnection);
                 setSection(sections.technical);
                 setLoading(false);
