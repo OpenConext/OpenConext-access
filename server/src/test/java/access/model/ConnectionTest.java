@@ -57,6 +57,7 @@ class ConnectionTest {
 
         json = IOUtils.toString(new ClassPathResource("/manage/converted_change_request.json").getInputStream(), Charset.defaultCharset());
         Map<String,Object> convertedChangeRequest = objectMapper.readValue(json, Map.class);
+        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(changeRequest));
 
         assertEquals(changeRequest, convertedChangeRequest);
     }

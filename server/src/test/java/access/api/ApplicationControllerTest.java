@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +115,7 @@ class ApplicationControllerTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(provider)));
         stubForGetChangeRequests(getChangeRequests());
-        Application application = given()
+        Map<String, Object> application = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
@@ -122,13 +123,16 @@ class ApplicationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("applicationId", seedIdentifiers.get(BUDDY_CHECK))
                 .get("/api/v1/applications/{applicationId}")
-                .as(Application.class);
+                .as(new TypeRef<>() {
+                });
 
-        assertEquals(BUDDY_CHECK, application.getName());
-        assertEquals(2, application.getConnections().size());
-        assertEquals(2, application.getConnections().stream()
-                .filter(connection -> connection.getStatus().equals(ConnectionStatus.PROD_READY))
-                .findFirst().get().getChangeRequests().size());
+        assertEquals(BUDDY_CHECK, application.get("name"));
+        List connections = (List) application.get("connections");
+        assertEquals(2, connections.size());
+        Map<String, Object> o = (Map<String, Object>) connections.stream()
+                .filter(connection -> ((Map<String, Object>) connection).get("status").equals(ConnectionStatus.PROD_READY.name()))
+                .findFirst().get();
+        assertEquals(2, ((List)o.get("changeRequests")).size());
     }
 
     @Test
