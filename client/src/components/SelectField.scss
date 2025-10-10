@@ -12,6 +12,15 @@
         color: black;
         position: relative;
         font-weight: 600;
+
+        svg.alert-triangle {
+            fill: black;
+            color: white;
+            position: absolute;
+            top: -2px;
+            margin-left: 6px;
+        }
+
     }
 
     .input-select-inner {

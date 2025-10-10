@@ -41,4 +41,14 @@ span.label {
     display: block;
     font-weight: 600;
     margin-bottom: var(--sds--space--1);
+    position: relative;
+
+    svg.alert-triangle {
+        fill: black;
+        color: white;
+        position: absolute;
+        top: -2px;
+        margin-left: 6px;
+    }
+
 }

@@ -7,6 +7,7 @@ import {isEmpty} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
 import {useNavigate} from "react-router-dom";
+import AlertIcon from "../icons/alert-triangle.svg";
 
 export default function InputField({
                                        onChange,
@@ -34,7 +35,8 @@ export default function InputField({
                                        isUrl = false,
                                        customClassName = "",
                                        required = false,
-                                       info = null
+                                       info = null,
+                                        isAlert = false
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
@@ -48,6 +50,7 @@ export default function InputField({
     return (
         <div className={topClassName}>
             {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+                {isAlert && <AlertIcon/>}
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>}
             <div className="inner-input-field">

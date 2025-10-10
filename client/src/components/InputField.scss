@@ -8,6 +8,10 @@
     position: relative;
     flex-direction: column;
 
+    label {
+        position: relative;
+    }
+
     textarea {
         display: block;
         width: 100%;
@@ -114,5 +118,13 @@
         margin-top: 6px;
         display: block;
         color: var(--sds--color--gray--500)
+    }
+
+    svg.alert-triangle {
+        fill: black;
+        color: white;
+        position: absolute;
+        top: -2px;
+        margin-left: 6px;
     }
 }

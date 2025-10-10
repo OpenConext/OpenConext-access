@@ -131,9 +131,7 @@ public class ConnectionController implements UserAccessRights {
         if (connection.changeRequestRequired()) {
             //Not allowed to sync the connection to Manage. Create ChangeRequests
             connection = this.productionReadyChangeRequests(connection, user);
-            if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
-            }
+            connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
         } else {
             connection = saveConnection(connection);
         }
