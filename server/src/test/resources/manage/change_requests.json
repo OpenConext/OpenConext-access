@@ -7,9 +7,12 @@
     "incrementalChange": true,
     "pathUpdateType": "ADDITION",
     "pathUpdates": {
-      "allowedEntities": {
-        "name": "https://test.nl"
-      }
+      "metaDataFields.redirectUrls": [
+        "https://red.com"
+      ],
+      "metaDataFields.grants": [
+        "authorization_code"
+      ]
     },
     "auditData": {
       "user": "admin",
@@ -34,9 +37,12 @@
     "incrementalChange": true,
     "pathUpdateType": "ADDITION",
     "pathUpdates": {
-      "allowedEntities": {
-        "name": "https://test.nl"
-      }
+      "metaDataFields.redirectUrls": [
+        "https://red.com"
+      ],
+      "metaDataFields.grants": [
+        "authorization_code"
+      ]
     },
     "auditData": {
       "notes": "Connect SP https://test.nl by request of user Jane Roe from IdP Test B.V. on 2023-10-03 11:28:16 via dashboard (CXT-67936)",
