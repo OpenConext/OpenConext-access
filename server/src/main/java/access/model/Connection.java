@@ -254,7 +254,8 @@ public class Connection implements NameHolder {
                     //Now clean up all keys where the value is empty
                     connectionMetaData.entrySet().removeIf(entry -> this.isEmpty(entry.getValue()));
                     //Bugfix for lazy initialization of boolean values
-                    Map.of("visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
+                    Map.of(
+                                    "visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
                                     "pkce", List.of("isPublicClient"),
                                     "oidc:claims_in_id_token", List.of("claimsInIdToken"),
                                     "connectOption", List.of("coin:dashboard_connect_option"))
@@ -263,9 +264,9 @@ public class Connection implements NameHolder {
                                     connectionMetaData.remove(connectionKey);
                                 }
                             });
-                    //copy some of the auditData
+                    //copy some of the auditData for display purposes and revoke functionality
                     List.of("id", "metaDataId", "type", "auditData", "created")
-                                    .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
+                            .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
                     return connectionMetaData;
                 })
                 .toList();
