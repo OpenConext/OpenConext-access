@@ -65,6 +65,7 @@ import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router-dom";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
+import {deltaToText} from "../utils/ChangeRequests.js";
 
 
 const sections = {
@@ -250,15 +251,6 @@ export const Testing = ({
         setSection(sectionName);
     }
 
-    const callSurf = () => {
-        const link = document.createElement("a");
-        link.href = I18n.t("connection.mailToSurf");
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
     const supportTicket = () => {
         alert("TODO")
     }
@@ -279,17 +271,6 @@ export const Testing = ({
             newGrantTypes = newGrantTypes.filter(gt => gt !== grantType);
         }
         setConnection({...connection, grantTypes: newGrantTypes});
-    }
-
-    const gotoSLLLabs = () => {
-        const link = document.createElement("a");
-        link.href = "https://www.ssllabs.com/ssltest/";
-        link.target = "_blank";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
     }
 
     const addRedirectURL = e => {
@@ -589,7 +570,7 @@ export const Testing = ({
                                             />
                                             <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
                                             <Button txt={I18n.t("connection.testSection")}
-                                                    onClick={() => gotoSLLLabs()}/>
+                                                    onClick={() => createAndClickLink("https://www.ssllabs.com/ssltest/")}/>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -977,6 +958,7 @@ export const Testing = ({
         const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
         const created = changeRequest.created;
         const delta = diffChangeRequest(changeRequest);
+        const changes = deltaToText(delta);
         //We need to sanitize the html to avoid XSS
         const htmlDiff = DOMPurify.sanitize(format(delta, connection.metaData));
         return (
@@ -994,6 +976,11 @@ export const Testing = ({
                                 onClick={() => doRevokeChangeRequest(true, changeRequest)}
                                 txt={I18n.t("connection.changeRequests.revoke")}/>
                     </div>
+                </div>
+                <div className="changes">
+                    {changes.map((change, index) =>
+                        <p key={index}>{change}</p>
+                    )}
                 </div>
                 <p className="jsondiffpatch-unchanged-hidden" dangerouslySetInnerHTML={{__html: htmlDiff}}/>
             </div>
@@ -1309,7 +1296,7 @@ export const Testing = ({
                             <p>{I18n.t("connection.help")}</p>
                             <Button txt={I18n.t("connection.callSurf")}
                                     type={ButtonType.Secondary}
-                                    onClick={() => callSurf()}/>
+                                    onClick={() => createAndClickLink(I18n.t("connection.mailToSurf"))}/>
                             <Button txt={I18n.t("connection.supportTicket")}
                                     type={ButtonType.Secondary}
                                     onClick={() => supportTicket()}/>
