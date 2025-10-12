@@ -1,82 +1,116 @@
 {
-  "connectOption" : "connect_without_interaction_with_email",
-  "visibility" : "visible_to_none",
-  "created" : "2025-10-09T09:03:52.048Z",
-  "claimsInIdToken" : true,
-  "redirectUrls" : [ "https://red.com", "https://redirect-extra.com" ],
-  "grantTypes" : [ "authorization_code", "urn:ietf:params:oauth:grant-type:device_code", "refresh_token" ],
-  "auditData" : {
-    "notes" : "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
-    "user" : "mos.doe@example.com",
-    "userName" : "openconextaccess",
-    "apiUser" : true
+  "connectOption": "connect_without_interaction_with_email",
+  "visibility": "visible_to_none",
+  "created": "2025-10-09T09:03:52.048Z",
+  "metaDataId": "b3541475-d0dd-44b8-b166-61226dfc0727",
+  "type": "oidc10_rp",
+  "claimsInIdToken": true,
+  "redirectUrls": [
+    "https://red.com",
+    "https://redirect-extra.com"
+  ],
+  "grantTypes": [
+    "authorization_code",
+    "urn:ietf:params:oauth:grant-type:device_code",
+    "refresh_token"
+  ],
+  "auditData": {
+    "notes": "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
+    "user": "mos.doe@example.com",
+    "userName": "openconextaccess",
+    "apiUser": true
   },
-  "refreshTokenValidity" : 86400,
-  "arp" : {
-    "attributes" : {
-      "urn:mace:terena.org:attribute-def:schacHomeOrganization" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:eduPersonScopedAffiliation" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:eduPersonAffiliation" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:eduPersonAssurance" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:eduPersonEntitlement" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Need this"
-      } ],
-      "urn:mace:dir:attribute-def:eduPersonPrincipalName" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:displayName" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:givenName" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:cn" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:sn" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:mail" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Default for profile"
-      } ],
-      "urn:mace:dir:attribute-def:ou" : [ {
-        "source" : "idp",
-        "value" : "*",
-        "motivation" : "Also need this"
-      } ]
+  "refreshTokenValidity": 86400,
+  "id": "68e77a7812911912cdda0f91",
+  "arp": {
+    "attributes": {
+      "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAssurance": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonEntitlement": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Need this"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:displayName": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:givenName": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:cn": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:sn": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:mail": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:ou": [
+        {
+          "source": "idp",
+          "value": "*",
+          "motivation": "Also need this"
+        }
+      ]
     },
-    "profile" : "personalized",
-    "motivation" : "Please",
-    "enabled" : true
+    "profile": "personalized",
+    "motivation": "Please",
+    "enabled": true
   }
 }
