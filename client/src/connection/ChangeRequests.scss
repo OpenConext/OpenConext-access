@@ -1,0 +1,42 @@
+.change-requests {
+    .change-request {
+        border-color: var(--sds--color--gray--500);
+        width: 100%;
+        max-width: 100%;
+        gap: 0;
+
+        .top-container {
+            display: flex;
+            align-content: space-between;
+            padding-bottom: 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--sds--color--gray--500);
+
+            .audit-data {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .ticket-number {
+                font-weight: 600;
+                font-size: 18px;
+            }
+
+            .meta {
+                display: flex;
+                margin-left: auto;
+                gap: 12px;
+                flex-direction: column;
+            }
+        }
+
+        .change-request-toggle {
+            display: flex;
+
+            a {
+                margin-left: auto;
+            }
+        }
+    }
+}

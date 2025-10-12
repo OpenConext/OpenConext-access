@@ -1,4 +1,4 @@
-const createAndClickLink = href => {
+export const createAndClickLink = href => {
     const link = document.createElement("a");
     link.href = href;
     //Also works for mailto:

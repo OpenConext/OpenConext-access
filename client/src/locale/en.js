@@ -518,17 +518,6 @@ const en = {
             notSigned: "Er is nog geen overeenkomst getekend.",
             signed: "Er is een overeenkomst getekend.",
             sign: "Teken de overeenkomst"
-        },
-        changeRequests: {
-            title: "Pending change request(s)",
-            info1: "De volgende change requests staan open. Je kunt nog steeds wijzigingen aanbrengen.",
-            info2: "<strong>Let op!</strong> In de andere tabs zie je dus de oude informatie staan, informatie waar een change request voor actief is, is herkenbaar aan het waarschuwings icoon",
-            changes: "Changes",
-            open: "Pending approval",
-            revoke: "Revoke",
-            revokeConfirmation: "Are you sure you want to revoke this change request?",
-            revoked: "Change request has been revoked",
-            createdAtBy: "Change request made by {{name}} on {{date}}"
         }
     },
     testing: {
@@ -750,6 +739,8 @@ const en = {
         noMotivation: "No motivation",
         noPrivacyInfo: "No information supplied",
         source: "Source: ",
+        arp: "Informatieprofiel",
+        profile: "Profile",
         arpSources: {
             eduid: "EduID Identity Provider",
             idp: "Your IdP",
@@ -796,6 +787,29 @@ const en = {
         attributes: "Attributes and claims",
         attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors.",
         connect: "Connect your application now"
+    },
+    changeRequests: {
+        title: "Pending change request(s)",
+        info1: "De volgende change requests staan open. Je kunt nog steeds wijzigingen aanbrengen.",
+        info2: "<strong>Let op!</strong> In de andere tabs zie je dus de oude informatie staan, informatie waar een change request voor actief is, is herkenbaar aan het waarschuwings icoon",
+        changes: "Changes",
+        open: "Pending approval",
+        revoke: "Revoke",
+        revokeConfirmation: "Are you sure you want to revoke this change request?",
+        revoked: "Change request has been revoked",
+        createdAtBy: "Change request made by {{name}} on {{date}}",
+        show: "Show JSON visual diff",
+        hide: "Hide JSON visual diff",
+        visibility: "Zichtbaarheid in de SURF app catalogus",
+        connectOption: "Applicatie koppeling",
+        claimsInIdToken: "Claims in ID token",
+        redirectUrls: "Redirect URLs",
+        grantTypes: "OAuth Grant types",
+        name: "Connection name",
+        arp: "Information profile",
+        profile: "Type profile",
+        attributes: "Attributes",
+        refreshTokenValidity: "Refresh token validity in seconds",
     },
     forms: {
         cancel: "Cancel",

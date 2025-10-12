@@ -15,8 +15,6 @@ import {
     Switch,
     Tooltip
 } from "@surfnet/sds";
-import {create} from 'jsondiffpatch';
-import {format} from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import ArrowRightIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
@@ -36,7 +34,6 @@ import {
     providersByEntityId,
     requestConnectionProductionStatus,
     resetConnectionSecret,
-    revokeChangeRequest,
     updateConnection
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
@@ -44,7 +41,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
-import {dateFromEpoch, formatLongDate} from "../utils/Date.js";
+import {dateFromEpoch} from "../utils/Date.js";
 import {
     connectOptions,
     convertClientConnectionToServer,
@@ -64,9 +61,8 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router-dom";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
-import {contactSectionValid, logoSectionValid, privacySectionValid} from "../utils/Application.js";
-import {deltaToText} from "../utils/ChangeRequests.js";
-
+import {createAndClickLink} from "../utils/Forms.js";
+import {ChangeRequests} from "./ChangeRequests.jsx";
 
 const sections = {
     pendingChanges: "pendingChanges",
@@ -140,10 +136,6 @@ export const Testing = ({
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
-    const diffPatcher = create({
-        // https://github.com/benjamine/jsondiffpatch/blob/HEAD/docs/arrays.md
-        objectHash: (obj, index) => obj.name || obj.level || obj.type || obj.source || obj.value || '$$index:' + index
-    });
 
     useEffect(() => {
         if (!isEmpty(connectionId)) {
@@ -922,87 +914,6 @@ export const Testing = ({
         setConnection({...connection, additionalAttributes: [], profile: option, profileMotivation: ""})
     }
 
-    const doRevokeChangeRequest = (confirmationRequired, changeRequest) => {
-        if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                header: I18n.t("connection.changeRequests.revoke"),
-                question: I18n.t("connection.changeRequests.revokeConfirmation"),
-                action: () => doRevokeChangeRequest(false, changeRequest),
-                modal: null,
-                okButton: I18n.t("connection.changeRequests.revoke")
-            });
-        } else {
-            setLoading(true);
-            revokeChangeRequest(changeRequest).then(() => {
-                refresh();
-                setConfirmation({open: false});
-                setLoading(false);
-                setFlash(I18n.t("connection.changeRequests.revoked", {
-                    name: connection.name
-                }));
-            })
-        }
-    }
-
-    const diffChangeRequest = changeRequest => {
-        const changeRequestMerged = {...connection.metaData, ...changeRequest};
-        //avoid false negatives about what has been changed
-        ["auditData", "created", "id", "type", "metaDataId"].forEach(attr => delete changeRequestMerged[attr])
-        return diffPatcher.diff(connection.metaData, changeRequestMerged)
-    }
-
-    const renderChangeRequest = (changeRequest, index) => {
-        const auditData = changeRequest.auditData;
-        const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
-        const created = changeRequest.created;
-        const delta = diffChangeRequest(changeRequest);
-        const changes = deltaToText(delta);
-        //We need to sanitize the html to avoid XSS
-        const htmlDiff = DOMPurify.sanitize(format(delta, connection.metaData));
-        return (
-            <div className="card change-request" key={index}>
-                <div className="top-container">
-                    <div className="audit-data">
-                        <p className="ticket-number">{jiraIssue[0]}</p>
-                        <p className="user">{auditData.user}</p>
-                        <p className="created">{formatLongDate(created)}</p>
-                    </div>
-                    <div className="meta">
-                        <Chip type={ChipType.Status_info} className={"open"}
-                              label={I18n.t("connection.changeRequests.open")}/>
-                        <Button type={ButtonType.DestructiveSecondary}
-                                onClick={() => doRevokeChangeRequest(true, changeRequest)}
-                                txt={I18n.t("connection.changeRequests.revoke")}/>
-                    </div>
-                </div>
-                <div className="changes">
-                    {changes.map((change, index) =>
-                        <p key={index}>{change}</p>
-                    )}
-                </div>
-                <p className="jsondiffpatch-unchanged-hidden" dangerouslySetInnerHTML={{__html: htmlDiff}}/>
-            </div>
-        );
-
-    }
-
-    const renderPendingChanges = () => {
-        return (
-            <section className="inner-right">
-                <h3>{I18n.t("connection.pendingChanges")}</h3>
-                <div className="info">
-                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info1"))}}/>
-                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.changeRequests.info2"))}}/>
-                </div>
-                {connection.changeRequests
-                    .sort((cr1, cr2) => new Date(cr2.created) - new Date(cr1.created))
-                    .map((changeRequest, index) => renderChangeRequest(changeRequest, index))}
-            </section>
-        );
-    }
-
     const renderInformationProfileSection = () => {
         const profileName = connection.profile?.value || arpInfo.profiles[0].name;
         const profileInfo = I18n.translations[I18n.locale].connection.informational.profiles[profileName].info;
@@ -1112,7 +1023,12 @@ export const Testing = ({
                 return isOidc ? renderOIDCOverview() : renderSAMLOverview();
             }
             case sections.pendingChanges: {
-                return renderPendingChanges();
+                return <ChangeRequests changeRequests={connection.changeRequests}
+                                       metaData={connection.metaData}
+                                       setConfirmation={setConfirmation}
+                                       setLoading={setLoading}
+                                       refresh={refresh}
+                />
             }
         }
     }
