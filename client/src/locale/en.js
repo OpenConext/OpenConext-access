@@ -79,13 +79,13 @@ const en = {
         catalogue: "SURF app catalogue",
         yourApps: "Your apps",
         allApps: "All apps",
-        users: "User management",
+        users: "Team management",
         home: "Home",
         applications: "Applications",
         teams: "Teams"
     },
     breadCrumb: {
-        access: "SURF Access",
+        access: "Home",
         landing: "Search for your organization",
         applications: "Application maintenance",
         team: "Team management",
