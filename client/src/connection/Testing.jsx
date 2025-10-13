@@ -1023,11 +1023,13 @@ export const Testing = ({
                 return isOidc ? renderOIDCOverview() : renderSAMLOverview();
             }
             case sections.pendingChanges: {
-                return <ChangeRequests changeRequests={connection.changeRequests}
+                return <ChangeRequests connectionName={connection.name}
+                                       changeRequests={connection.changeRequests}
                                        metaData={connection.metaData}
                                        setConfirmation={setConfirmation}
                                        setLoading={setLoading}
                                        refresh={refresh}
+                                       arpInfo={arpInfo}
                 />
             }
         }
@@ -1139,7 +1141,7 @@ export const Testing = ({
 
     const backToConnections = () => {
         refresh();
-        setSection(sections.technical);
+        changeSection(sections.technical);
     }
 
     const backToMainOverview = () => {
@@ -1168,7 +1170,7 @@ export const Testing = ({
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.pendingChanges")}
-                                    onClick={() => setSection(sections.pendingChanges)}
+                                    onClick={() => changeSection(sections.pendingChanges)}
                             />
                         </div>
                     }
@@ -1255,7 +1257,7 @@ export const Testing = ({
             const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
                 .flatMap(changeRequest => Object.keys(changeRequest)))];
             setChangeRequestsKeys(newChangeRequestKeys);
-            setSection(sections.pendingChanges);
+            changeSection(sections.pendingChanges);
         }
     }
 
@@ -1267,7 +1269,7 @@ export const Testing = ({
                 const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
                 updateChangeRequestKeys(convertedConnection);
                 setConnection(convertedConnection);
-                setSection(sections.technical);
+                changeSection(sections.technical);
                 setLoading(false);
             })
         } else {
