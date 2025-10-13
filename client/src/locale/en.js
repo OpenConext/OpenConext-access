@@ -87,7 +87,7 @@ const en = {
     breadCrumb: {
         access: "Home",
         landing: "Search for your organization",
-        applications: "Application maintenance",
+        applications: "Your apps",
         team: "Team management",
         joins: "Join Requests",
         invitations: "Invitation",
@@ -206,7 +206,7 @@ const en = {
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
-        applicationManagement: "Application management",
+        applicationManagement: "Your apps",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
         deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
