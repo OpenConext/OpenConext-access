@@ -17,7 +17,7 @@ import {
 } from "@surfnet/sds";
 import 'jsondiffpatch/formatters/styles/html.css';
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
-import ArrowRightIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import ArrowRightIcon from "../icons/details-right.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
