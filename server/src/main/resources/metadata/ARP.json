@@ -112,8 +112,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Name ID",
-        "nl": "Name ID"
+        "en": "Transient name ID",
+        "nl": "Transient name ID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },
@@ -125,8 +125,8 @@
         "nl": "Description of the attribute"
       },
       "friendlyNames": {
-        "en": "Name ID",
-        "nl": "Name ID"
+        "en": "Persistent name ID",
+        "nl": "Persistent name ID"
       },
       "example": "9d2f6e4a-7b1f-***"
     },

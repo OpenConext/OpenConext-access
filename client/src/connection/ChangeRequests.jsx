@@ -1,12 +1,11 @@
 import "./ChangeRequests.scss";
-import React, {useState} from "react";
+import React, {Fragment, useState} from "react";
 import I18n from "../locale/I18n";
 import {Button, ButtonType, Chip, ChipType} from "@surfnet/sds";
 import {format} from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
 import DOMPurify from "dompurify";
 import {formatLongDate} from "../utils/Date.js";
-import {deltaToText} from "../utils/ChangeRequests.js";
 import {create} from "jsondiffpatch";
 import {stopEvent} from "../utils/Utils.js";
 import {revokeChangeRequest} from "../api/index.js";
@@ -14,17 +13,20 @@ import {useAppStore} from "../stores/AppStore.js";
 
 
 export const ChangeRequests = ({
+                                   connectionName,
                                    metaData,
                                    changeRequests,
                                    setConfirmation,
                                    setLoading,
-                                   refresh
+                                   refresh,
+                                   arpInfo
                                }) => {
     const {setFlash} = useAppStore(state => state);
 
-    const [isJsonDiffOpen, setIsJsonDiffOpen] = useState(false);
+    const [isJsonDiffOpen, setIsJsonDiffOpen] = useState({});
 
     const diffPatcher = create({
+        arrays: {detectMove: true, includeValueOnMove: false},
         // https://github.com/benjamine/jsondiffpatch/blob/HEAD/docs/arrays.md
         objectHash: (obj, index) => obj.name || obj.level || obj.type || obj.source || obj.value || '$$index:' + index
     });
@@ -36,9 +38,10 @@ export const ChangeRequests = ({
         return diffPatcher.diff(metaData, changeRequestMerged)
     }
 
-    const toggleIsJsonDiffOpen = e => {
+    const toggleIsJsonDiffOpen = (e, changeRequest) => {
         stopEvent(e);
-        setIsJsonDiffOpen(!isJsonDiffOpen);
+        const currentDisplay = isJsonDiffOpen[changeRequest.id] || false;
+        setIsJsonDiffOpen({...isJsonDiffOpen,  [changeRequest.id]: !currentDisplay});
     }
 
     const doRevokeChangeRequest = (confirmationRequired, changeRequest) => {
@@ -59,7 +62,7 @@ export const ChangeRequests = ({
                 setConfirmation({open: false});
                 setLoading(false);
                 setFlash(I18n.t("changeRequests.revoked", {
-                    name: connection.name
+                    name: connectionName
                 }));
             })
         }
@@ -70,8 +73,7 @@ export const ChangeRequests = ({
         const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
         const created = changeRequest.created;
         const delta = diffChangeRequest(changeRequest);
-        const changes = deltaToText(delta);
-        //We need to sanitize the html to avoid XSS
+        //We need to sanitize the HTML to avoid XSS
         const htmlDiff = DOMPurify.sanitize(format(delta, metaData));
         return (
             <div className="card change-request" key={index}>
@@ -90,20 +92,174 @@ export const ChangeRequests = ({
                     </div>
                 </div>
                 <div className="changes">
-                    {changes.map((change, index) =>
-                        <p key={index}>{change}</p>
-                    )}
+                    {deltaToText(delta)}
                 </div>
                 <div className="change-request-toggle">
-                    <a href="/" onClick={e => toggleIsJsonDiffOpen(e)}>
-                        {I18n.t(`changeRequests.${isJsonDiffOpen ? "hide" : "show"}`)}
+                    <a href="/" onClick={e => toggleIsJsonDiffOpen(e, changeRequest )}>
+                        {I18n.t(`changeRequests.${isJsonDiffOpen[changeRequest.id] ? "hide" : "show"}`)}
                     </a>
                 </div>
-                {isJsonDiffOpen &&
+                {isJsonDiffOpen[changeRequest.id] &&
                     <div className="jsondiffpatch-unchanged-hidden" dangerouslySetInnerHTML={{__html: htmlDiff}}/>}
             </div>
         );
+    }
 
+    const translateARPKey = arpKey => {
+        return arpInfo.attributes.find(attr => attr.urn === arpKey).friendlyNames[I18n.locale];
+    }
+
+    const actions = {
+        added: "added",
+        removed: "removed",
+        changed: "changed",
+        array_added: "array_added",
+        array_removed: "array_removed",
+        array_changed: "array_changed"
+    }
+
+    const enumerations = ["visibility", "connectOption", "grantTypes"]
+
+    const formatLogicalValue = (attribute, change, value) => {
+        if (attribute === "arp") {
+            return change.path[1] === "attributes" ? translateARPKey(change.path[2]) : value;
+        }
+        if (enumerations.includes(attribute)) {
+            return I18n.t(`changeRequests.${value}`);
+        }
+        return value.toString();
+    }
+
+    const formatValue = (attribute, change, isOld) => {
+        switch (change.type) {
+            case actions.added:
+            case actions.array_added:
+                return formatLogicalValue(attribute, change, change.newValue);
+            case actions.removed:
+            case actions.array_removed:
+                return formatLogicalValue(attribute, change, change.oldValue);
+            case actions.changed:
+            case actions.array_changed:
+                return formatLogicalValue(attribute, change, isOld ? change.oldValue : change.newValue);
+            default:
+                throw new Error(`Unknown action ${action}`)
+        }
+    }
+
+    const translateAttribute = attribute => {
+        return I18n.t(`changeRequests.${attribute}`);
+    }
+
+    const translateAction = (change, isOldValue) => {
+        let actionLabel;
+        if (change.type === actions.changed || change.type === actions.array_changed) {
+            actionLabel = I18n.t(`changeRequests.actions.${isOldValue ? "oldValue" : "newValue"}`);
+        }
+        actionLabel = I18n.t(`changeRequests.actions.${change.type}`);
+        if (change.path[0] === "arp") {
+            actionLabel += " " + I18n.t(`changeRequests.${change.path[1]}`)
+        }
+        return actionLabel;
+    }
+
+    const formatChange = (attribute, changes) => {
+        return (
+            <div className="change-request-key">
+                <h5>{translateAttribute(attribute)}</h5>
+                {changes.map((change, index) => {
+                    const displayBothNewOld = change.type === actions.changed || change.type === actions.array_changed;
+                    return (
+                        <Fragment key={index}>
+                            <span>
+                            {`→ ${translateAction(change, true)} `}
+                                <span className="attribute-value">{formatValue(attribute, change, true)}</span>
+                            </span>
+                            {displayBothNewOld &&
+                                <span>
+                            {`→ ${translateAction(change, false)} `}
+                                    <span className="attribute-value">{formatValue(attribute, change, false)}</span>
+                            </span>
+                            }
+                        </Fragment>
+                    );
+                })}
+            </div>
+        );
+    }
+
+
+    const extractChanges = (delta, path = [], changes = []) => {
+        if (typeof delta !== "object" || delta === null) {
+            return changes;
+        }
+
+        const isArrayDiff = delta._t === "a";
+
+        for (const key in delta) {
+            if (key === "_t") {
+                continue;
+            }
+
+            const currentPath = [...path, key];
+            const value = delta[key];
+
+            if (isArrayDiff) {
+                // key starting with '_' = removal
+                if (key.startsWith("_")) {
+                    const idx = key.substring(1);
+                    changes.push({
+                        path: [...path, idx],
+                        type: actions.array_removed,
+                        oldValue: value[0],
+                    });
+                } else if (Array.isArray(value)) {
+                    if (value.length === 1) {
+                        // added
+                        changes.push({
+                            path: [...path, key],
+                            type: actions.array_added,
+                            newValue: value[0],
+                        });
+                    } else if (value.length === 2) {
+                        // changed element
+                        changes.push({
+                            path: [...path, key],
+                            type: actions.array_changed,
+                            oldValue: value[0],
+                            newValue: value[1],
+                        });
+                    }
+                }
+                continue;
+            }
+
+            // Handle normal value diffs
+            if (Array.isArray(value)) {
+                if (value.length === 1) {
+                    changes.push({path: currentPath, type: actions.added, newValue: value[0]});
+                } else if (value.length === 2) {
+                    changes.push({
+                        path: currentPath,
+                        type: actions.changed,
+                        oldValue: value[0],
+                        newValue: value[1],
+                    });
+                } else if (value.length === 3 && value[2] === 0) {
+                    changes.push({path: currentPath, type: actions.removed, oldValue: value[0]});
+                }
+            } else if (typeof value === "object") {
+                extractChanges(value, currentPath, changes);
+            }
+        }
+
+        return changes;
+    }
+
+    const deltaToText = delta => {
+        const changes = extractChanges(delta);
+        const grouped = Object.groupBy(changes, change => change.path[0]);
+        const keys = Object.keys(grouped).sort();
+        return keys.map(key => formatChange(key, grouped[key]))
     }
 
     return (
