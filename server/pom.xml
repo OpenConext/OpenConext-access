@@ -256,7 +256,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+      <dir>target</dir>
+    </properties>
     <build>
+        <directory>${dir}</directory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
