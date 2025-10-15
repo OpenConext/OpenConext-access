@@ -154,8 +154,9 @@ export const ChangeRequests = ({
         let actionLabel;
         if (change.type === actions.changed || change.type === actions.array_changed) {
             actionLabel = I18n.t(`changeRequests.actions.${isOldValue ? "oldValue" : "newValue"}`);
+        } else {
+            actionLabel = I18n.t(`changeRequests.actions.${change.type}`);
         }
-        actionLabel = I18n.t(`changeRequests.actions.${change.type}`);
         if (change.path[0] === "arp") {
             actionLabel += " " + I18n.t(`changeRequests.${change.path[1]}`)
         }
