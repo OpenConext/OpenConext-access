@@ -8,10 +8,10 @@ const nl = {
     },
     landing: {
         header: {
-            title: "OpenConext Access",
+            title: "SURF Access",
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Come on in",
-            sup: "MyConext ServiceDesk is by invitation only.",
+            sup: "EduID ServiceDesk is by invitation only.",
             logout: "Logout"
         },
         tabs: {
@@ -24,9 +24,9 @@ const nl = {
         applicationProviders: {
             title: "For application providers",
             info: [
-                "Has an educational or research institution asked you to join OpenConext Access?",
-                "OpenConext Access centrally manages authentication, authorization, group management, and privacy/security agreements.",
-                "Connecting to our OpenConext Access is free and you wil start in a sandbox."
+                "Has an educational or research institution asked you to join SURF Access?",
+                "SURF Access centrally manages authentication, authorization, group management, and privacy/security agreements.",
+                "Connecting to our SURF Access is free and you wil start in a sandbox."
             ],
             connect: "How to connect"
         },
@@ -34,16 +34,16 @@ const nl = {
             title: "For institutions",
             info: [
                 "Do you want your students, staff and researchers to easily access multiple cloud services?",
-                "OpenConext Access offers 'Single Sign On'-access to a large and increasing number of them.",
+                "SURF Access offers 'Single Sign On'-access to a large and increasing number of them.",
                 "It simplifies your work with a single integration instead of separate connections for each service."
             ],
             contact: "Contact us",
-            contactMail: "mailto:info@OpenConextconext.nl"
+            contactMail: "mailto:info@surfconext.nl"
         },
         joining: {
             title: "Joining many to many",
             info: [
-                "OpenConext Access securily connects 1M+ users to over 3000 (web)applications. OpenConext Access is a service from <a target='_blank' href='https://OpenConextnet.nl'>OpenConext</a>.",
+                "SURF Access securily connects 1M+ users to over 3000 (web)applications. SURF Access is a service from <a target='_blank' href='https://surfnet.nl'>SURF</a>.",
                 "Interested which institutions and applications are connected?"
             ],
             links: {
@@ -60,7 +60,7 @@ const nl = {
         teams: "Teams"
     },
     breadCrumb: {
-        access: "OpenConext Access",
+        access: "SURF Access",
         landing: "Search for your organization",
         applications: "Application maintenance",
         home: "Home"
@@ -96,7 +96,7 @@ const nl = {
         }
     },
     organizations: {
-        tooltip: "OpenConext beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
     },
     userMenu: {
         switchOrganization: "Switch organization"
@@ -134,14 +134,14 @@ const nl = {
         deleteConfirmation: "Are you sure you want to delete the Application {{name}}?"
     },
     organization: {
-        alertInfo: "Welkom op OpenConext Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
+        alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
         deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
         catalog: {
-            terms: "Voorwaarden voor apps in de OpenConext catalogus",
-            fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://OpenConext.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
-            agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://OpenConext.nl/fair-use' target='_blank'>OpenConext-aansluitovereenkomst</a>.",
+            terms: "Voorwaarden voor apps in de SURF catalogus",
+            fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
+            agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
             disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
         },
         applications: "Applications",
@@ -154,7 +154,7 @@ const nl = {
         prod: "Production",
         application: "App information",
         contract: "Contract",
-        welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met OpenConext Access. Begin met een koppeling aan onze testomgeving.",
+        welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
         testSection: "Test",
         teamSection: "Team",
         duplicatedName: "A connection with name {{name}} already exists for this Application.",
@@ -173,16 +173,16 @@ const nl = {
         production: {
             name: "Production",
             connections: "Koppelingen met onze productieomgeving",
-            catalogue: "App informatie voor de OpenConext App catalogus",
+            catalogue: "App informatie voor de SURF App catalogus",
             access: "Toegang en zichtbaarheid",
             contract: "Contract",
-            disclaimer: "Een koppeling aan de productieomgeving van OpenConext Access heeft goedkeuring nodig van team OpenConext Access. Alle boventaande informatie is verplicht.",
+            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",
         productionActivationHint: "Vraag activatie van de propductiekoppeling aan.",
         productionActivationAction: "Doe het direct",
-        productActivationPending: "De aanvraag voor activatie van uw productiekoppeling is ontvangen. OpenConext neemt binnen drie werkdagen contact met u op.",
+        productActivationPending: "De aanvraag voor activatie van uw productiekoppeling is ontvangen. SURF neemt binnen drie werkdagen contact met u op.",
         newConnection: "Nieuwe koppeling met de testomgeving",
         existingConnection: "Testkoppeling bewerken",
         newConnectionProd: "Nieuwe koppeling met de productieomgeving",
@@ -193,8 +193,8 @@ const nl = {
         testIdP: "Test-IdP's",
         visibility: "Visibility",
         help: "Hulp nodig?",
-        callOpenConext: "Plan een call met OpenConext",
-        mailToOpenConext: "mailto:OpenConext@info.nl",
+        callOpenConext: "Plan een call met SURF",
+        mailToOpenConext: "mailto:surf@info.nl",
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
@@ -292,17 +292,17 @@ const nl = {
         },
         testIdPs: {
             info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",
-            subTitle: "Test-IdP’s van OpenConext",
+            subTitle: "Test-IdP’s van SURF",
             identityProviders: [
                 {
                     name: "SXS IdP",
                     entityid: "http://mock-idp",
-                    description: "Een test-IdP met <a href='https://idp.diy.OpenConextconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.OpenConextconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
+                    description: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
                 },
                 {
                     name: "SXS Dummy",
-                    entityid: "https://idp.diy.OpenConextconext.nl/saml2/idp/metadata.php",
-                    description: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.OpenConextconext.nl/metadata' target='_blank'>hier</a>"
+                    entityid: "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
+                    description: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
                 }
             ],
             institutionIdPs: "Test-IdP’s van instellingen",
@@ -311,7 +311,7 @@ const nl = {
             institution: "test IdP or institution IdP"
         },
         visibilities: {
-            info: "Kies hoe je wilt dat deze koppeling zichtbaar is in de OpenConext App catalogus",
+            info: "Kies hoe je wilt dat deze koppeling zichtbaar is in de SURF App catalogus",
             disclaimer: "<strong>Let op</strong>: je kan de zichtbaarheid altijd later nog aanpassen",
             options: {
                 "visible_to_all": "Visible for all users and institutions",
@@ -324,7 +324,7 @@ const nl = {
         connectionOverview: {
             copy: "Kopieer de inloggegevens",
             disclaimer: "Het client secret wordt hieronder éénmaal weergegeven. Zorg ervoor dat je het nu kopieert, anders moet er een nieuw seceret aangevraagd worden.",
-            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.OpenConext.nl/wiki/spaces/IAM/pages/128909810/OpenConextconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
+            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
             secret: "Client secret",
@@ -338,7 +338,7 @@ const nl = {
             resetContinue: "I’ve copied the secret. Continue"
         },
         appInfo: {
-            title: "App informatie voor de OpenConext App catalogus",
+            title: "App informatie voor de SURF App catalogus",
             label: "App informatie",
             sections: {
                 logo: "Logo en beschrijving",
@@ -365,7 +365,7 @@ const nl = {
                 organization: "Organisatie van onderwijs/onderzoek",
                 cooperation: "Samenwerken",
                 video: "Videoplatform",
-                OpenConext: "OpenConext"
+                surf: "SURF"
             },
             targetGroup: "Ga door naar de doelgroep"
         },
@@ -399,16 +399,16 @@ const nl = {
         },
         privacy: {
             label: "Privacy & Security",
-            info: "Please fill out the questions below. We will share the answers with institutions connected to OpenConextconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
+            info: "Please fill out the questions below. We will share the answers with institutions connected to SURFconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
             answerIsRequired: "Answer to this privacy question is required"
         },
         appOverview: {
             label: "De App informatie zijn compleet.",
-            info: "Zo verschijnt je app in de OpenConext App catalogus.",
+            info: "Zo verschijnt je app in de SURF App catalogus.",
         },
         contractSection: {
             title: "Contract",
-            info: "Voor apps op OpenConext Access moet je een OpenConext-aansluitovereenkomst tekenen.",
+            info: "Voor apps op SURF Access moet je een SURF-aansluitovereenkomst tekenen.",
             notSigned: "Er is nog geen overeenkomst getekend.",
             signed: "Er is een overeenkomst getekend.",
             sign: "Teken de overeenkomst"
@@ -452,10 +452,10 @@ const nl = {
     },
     footer: {
         terms: "Terms of Use",
-        termsLink: "https://support.OpenConextconext.nl/terms-en",
+        termsLink: "https://support.surfconext.nl/terms-en",
         privacy: "Privacy policy",
-        privacyLink: "https://support.OpenConextconext.nl/privacy-en",
-        OpenConextLink: "https://OpenConext.nl",
+        privacyLink: "https://support.surfconext.nl/privacy-en",
+        OpenConextLink: "https://openconext.org",
         select_locale: "Select your preferred language"
     },
 

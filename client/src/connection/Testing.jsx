@@ -1212,9 +1212,9 @@ export const Testing = ({
                         </div>
                         <div className="call-for-action">
                             <p>{I18n.t("connection.help")}</p>
-                            <Button txt={I18n.t("connection.callSurf")}
+                            <Button txt={I18n.t("connection.callOpenConext")}
                                     type={ButtonType.Secondary}
-                                    onClick={() => createAndClickLink(I18n.t("connection.mailToSurf"))}/>
+                                  onClick={() => createAndClickLink(I18n.t("connection.mailToOpenConext"))}/>
                             <Button txt={I18n.t("connection.supportTicket")}
                                     type={ButtonType.Secondary}
                                     onClick={() => supportTicket()}/>

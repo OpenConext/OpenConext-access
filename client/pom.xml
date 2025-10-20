@@ -10,7 +10,11 @@
     <artifactId>client</artifactId>
     <packaging>pom</packaging>
     <name>client</name>
+    <properties>
+      <dir>target</dir>
+    </properties>
     <build>
+        <directory>${dir}</directory>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
