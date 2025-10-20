@@ -181,10 +181,6 @@ const en = {
         contentInfoTip: "Attributenset voor content providers:<ul><li>Persistent or Transient NameID</li><li>schacHomeOrganization</li>" +
             "<li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
         targetGroup: "Target group",
-        targetSURF: "Verschillende gebruikers die beheerd worden in een (onderzoeks)groep",
-        targetSURFInfo: "De gebruikers worden individueel uitgenodigd bij de groep.",
-        targetSRAM: "Studenten, medewerkers en externen uit één instellings IdP",
-        targetSRAMInfo: "Zij krijgen toegang omdat ze een kenmerk of rol hebben.",
         terms: "Fair Use terms",
         checks: {
             personal: "Mijn applicatie slaat persoonsgegevens veilig op",
