@@ -193,8 +193,8 @@ const nl = {
         testIdP: "Test-IdP's",
         visibility: "Visibility",
         help: "Hulp nodig?",
-        callSurf: "Plan een call met SURF",
-        mailToSurf: "mailto:surf@info.nl",
+        callOpenConext: "Plan een call met SURF",
+        mailToOpenConext: "mailto:surf@info.nl",
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
@@ -455,7 +455,7 @@ const nl = {
         termsLink: "https://support.surfconext.nl/terms-en",
         privacy: "Privacy policy",
         privacyLink: "https://support.surfconext.nl/privacy-en",
-        surfLink: "https://surf.nl",
+        OpenConextLink: "https://openconext.org",
         select_locale: "Select your preferred language"
     },
 

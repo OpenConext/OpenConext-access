@@ -26,7 +26,7 @@ export const Footer = () => {
                     </nav>
                     <LanguageSelector/>
                     <div className="sds--branding">
-                        <a href={I18n.t("footer.surfLink")} target="_blank"
+                        <a href={I18n.t("footer.OpenConextLink")} target="_blank"
                            rel="noopener noreferrer">{<Logo label={""} position={LogoType.Bottom}/>}</a>
                     </div>
                 </div>
