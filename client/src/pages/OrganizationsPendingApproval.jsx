@@ -9,6 +9,8 @@ import {dateFromEpoch} from "../utils/Date";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
+import ApproveIcon from "@surfnet/sds/icons/functional-icons/success.svg";
+import DisapproveIcon from "@surfnet/sds/icons/functional-icons/alarm-bell-off.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import MenuIcon from "../icons/menu.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -21,6 +23,7 @@ export const OrganizationsPendingApproval = () => {
     const [organizations, setOrganizations] = useState([]);
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
+    const [openOrganizationId, setOpenOrganizationId] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -75,6 +78,18 @@ export const OrganizationsPendingApproval = () => {
         }
     }
 
+    const iconFromStatus = status => {
+        switch (status) {
+            case ORGANIZATION_STATUSES.APPROVED:
+                return <ApproveIcon/>;
+            case ORGANIZATION_STATUSES.PENDING_APPROVAL:
+                return <ApproveIcon/>;
+            case ORGANIZATION_STATUSES.DISAPPROVED:
+                return <DisapproveIcon/>;
+        }
+
+    }
+
     const renderMenu = organization => {
         const availableStatuses = Object.keys(ORGANIZATION_STATUSES)
             .filter(status => status !== organization.status)
@@ -85,10 +100,14 @@ export const OrganizationsPendingApproval = () => {
                     {availableStatuses.map((status, index) =>
                         <li key={index}
                             onClick={() => doUpdateOrganizationStatus(organization, status, true)}>
-                            <PencilIcon/>
+                            {iconFromStatus(status)}
                             <span>{I18n.t(`organizations.${status.toLowerCase()}_action`)}</span>
                         </li>
                     )}
+                    {<li onClick={() => setOpenOrganizationId(organization.id)}>
+                        <PencilIcon/>
+                        <span>{I18n.t("forms.edit")}</span>
+                    </li>}
                     {<li onClick={() => doDelete(true, organization)}>
                         <TrashIcon/>
                         <span>{I18n.t("forms.delete")}</span>
@@ -151,7 +170,8 @@ export const OrganizationsPendingApproval = () => {
             mapper: org =>
                 <div className="top-header"
                      tabIndex={1}
-                     onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
+                     // onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
+                >
                             <span className={`menu ${dropDownActive === org.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? org.id : -1)}>
                                 <MenuIcon/>

@@ -135,7 +135,7 @@ public class OrganizationController implements UserAccessRights {
         String name = organization.getName();
         Organization newOrganization = createOrganization(user, name);
         String orgName = newOrganization.getName();
-        LOG.info(String.format("Creating new Organisation %s for %s" , name, user.getEmail()));
+        LOG.info(String.format("Creating new Organisation %s for %s", name, user.getEmail()));
         // Now create a Jira ticket
         String summary = String.format("User %s created a new Organisation %s in Access.",
                 user.getName(),
@@ -157,6 +157,18 @@ public class OrganizationController implements UserAccessRights {
         // User becomes admin
         OrganizationMembership organizationMembership = new OrganizationMembership(user, savedOrganization, Authority.ADMIN);
         organizationMembershipRepository.save(organizationMembership);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+    }
+
+    @PutMapping({"", "/"})
+    public ResponseEntity<Organization> update(User user, @RequestBody @Validated OrganizationForm organizationForm) {
+        confirmSuperUser(user);
+        Organization organization = organizationRepository.findById(organizationForm.getId())
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        organization.setName(organizationForm.getName());
+
+        Organization savedOrganization = organizationRepository.save(organization);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 

@@ -41,6 +41,7 @@ const System = () => {
             <TabHeader tab={currentTab}
                        setTab={tabChanged}
                        tabNames={tabNames}
+                       fullWidth={true}
             >
                 <h3>{I18n.t("landing.header.system")}</h3>
             </TabHeader>

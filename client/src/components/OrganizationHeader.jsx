@@ -31,8 +31,7 @@ export const OrganizationHeader = ({organization, setLoading, refreshUser}) => {
             deleteOrganizationById(organization.id).then(() => {
                 setConfirmation({});
                 useAppStore.setState({
-                    currentOrganization: {name: ""},
-                    menuItems: ["allApps"]
+                    currentOrganization: {name: ""}
                 });
                 refreshUser();
                 setTimeout(() => navigate("/home"), 350);

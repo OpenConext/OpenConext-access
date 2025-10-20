@@ -10,6 +10,9 @@
     background-color: var(--sds--color--gray--background);
     @include index.page-media;
 
+    &.full-width {
+        width: 100%;
+    }
 
 }
 

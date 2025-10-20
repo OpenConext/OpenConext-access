@@ -3,7 +3,7 @@ import "./TabHeader.scss"
 import {stopEvent} from "../utils/Utils.js";
 import React from "react";
 
-export const TabHeader = ({tabNames, tab, setTab, children}) => {
+export const TabHeader = ({tabNames, tab, setTab, children, fullWidth = false}) => {
 
     const doNavigate = (e, tabName) => {
         stopEvent(e);
@@ -11,7 +11,7 @@ export const TabHeader = ({tabNames, tab, setTab, children}) => {
     }
 
     return (
-        <div className="tab-header-container">
+        <div className={`tab-header-container ${fullWidth ? "full-width" : ""}`}>
             {children}
             <div className="tabs-menu">
 

@@ -75,14 +75,20 @@ const en = {
         }
     },
     navigation: {
-        organizationMaintenance: "Organization maintenance",
-        catalogue: "SURF app catalogue",
-        yourApps: "Your apps",
+        organizationMaintenance: "Beheer organisatie",
+        catalogue: "Access catalogue",
+        apps: "Apps",
+        accessibleApps: "Apps met toegang",
+        yourApps: "Eigen apps",
         allApps: "All apps",
-        users: "Team management",
+        externalMaintenance: "Beheer toegangsopties",
+        roles: "Rollen",
+        collaborations: "Samenwerkgroepen",
+        users: "Access gebruikers",
         home: "Home",
         applications: "Applications",
-        teams: "Teams"
+        teams: "Teams",
+        idp: "IdP"
     },
     breadCrumb: {
         access: "Home",

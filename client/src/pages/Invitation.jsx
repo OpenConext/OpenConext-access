@@ -8,8 +8,9 @@ import {Loader} from "@surfnet/sds";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import Welcome from "../icons/undraw/welcome.svg";
 import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
-export const Invitation = () => {
+export const Invitation = ({refreshUser}) => {
 
     const navigate = useNavigate();
     const {setFlash} = useAppStore(state => state);
@@ -40,9 +41,7 @@ export const Invitation = () => {
         setLoading(true);
         acceptInvitation(invitation).then(() => {
             setFlash(I18n.t("invitation.acceptedFlash", {name: invitation.organization.name}));
-            useAppStore.setState({
-                menuItems: ["users", "yourApps", "allApps"],
-            });
+            refreshUser();
             navigate(`/organization/${invitation.organization.id}/team`);
         })
     }

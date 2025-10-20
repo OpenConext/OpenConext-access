@@ -11,6 +11,7 @@ import InputField from "../components/InputField.jsx";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const Landing = ({refreshUser}) => {
 
@@ -56,8 +57,7 @@ const Landing = ({refreshUser}) => {
 
     const afterOrgCreate = organization => {
         useAppStore.setState({
-            currentOrganization: organization,
-            menuItems: ["users", "yourApps", "allApps"]
+            currentOrganization: organization
         });
         refreshUser();
         navigate(`/organization/${organization.id}`);

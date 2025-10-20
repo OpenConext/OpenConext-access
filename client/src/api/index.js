@@ -124,6 +124,10 @@ export function updateOrganizationStatus(organizationId, newStatus) {
     return postPutJson(`/api/v1/organizations/status/${organizationId}/${newStatus}`, {}, "PUT");
 }
 
+export function updateOrganizationName(organizationId, newName) {
+    return postPutJson("/api/v1/organizations", {id: organizationId, name: newName}, "PUT");
+}
+
 //JoinRequest
 export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");
