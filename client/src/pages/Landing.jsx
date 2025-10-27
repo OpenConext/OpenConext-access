@@ -14,8 +14,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
 const Landing = ({refreshUser}) => {
-
-    const {user, setFlash} = useAppStore(state => state);
+    const {user, currentOrganization, setFlash} = useAppStore(state => state);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [organizations, setOrganizations] = useState([]);
@@ -34,6 +33,9 @@ const Landing = ({refreshUser}) => {
     }, 850);
 
     useEffect(() => {
+        if (!isEmpty(currentOrganization?.id)) {
+            navigate(`/organization/${currentOrganization.id}`);
+        }
         useAppStore.setState({
             breadcrumbPaths: [
                 {path: "/home", value: I18n.t("breadCrumb.access")},

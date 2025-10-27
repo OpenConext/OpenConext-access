@@ -15,9 +15,7 @@ const UserHome = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isEmpty(currentOrganization?.id)) {
-            navigate(`/organization/${currentOrganization.id}`);
-        } else if (isEmpty(user.joinRequests)) {
+        if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
             navigate("/landing");
         } else {
             useAppStore.setState({
@@ -36,7 +34,6 @@ const UserHome = () => {
 
     return (
         <div className="home-container">
-
             <h2>{I18n.t("welcome.greeting", {name: user.name})}</h2>
             {(isEmpty(user.joinRequests)) &&
                 <div className="nudge-landing">
@@ -45,7 +42,7 @@ const UserHome = () => {
                         <span>{I18n.t("userHome.nudgeLandingLink")}</span>
                     </Link>
                 </div>}
-            {!isEmpty(user.joinRequests) && <div>
+            {(!isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) && <div>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
                         {name: user.joinRequests[0].organization.name}))

@@ -256,10 +256,10 @@ public class ConnectionController implements UserAccessRights {
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is not OPEN
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
-            boolean isPublicRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
+            boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
             boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret"));
-            if (isPublicRelyingParty && !hasSecret) {
+            if (isPrivateRelyingParty && !hasSecret) {
                 //generate secret but store the raw-text variant, because Manage encodes it
                 String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
                 connection.getMetaData().put("secret", secret);
@@ -269,13 +269,17 @@ public class ConnectionController implements UserAccessRights {
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
 
-            if (isPublicRelyingParty) {
+            if (isPrivateRelyingParty) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
                 Map<String, Object> data = (Map<String, Object>) provider.get("data");
                 Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
                 String secretFromManage = (String) metaDataFields.get("secret");
                 if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
+                    String originalSecret = (String) connection.getMetaData().get("secret");
                     connection.getMetaData().put("secret", secretFromManage);
+                    if (originalSecret.length() == SECRET_LENGTH) {
+                        connection.getMetaData().put("originalSecret", originalSecret);
+                    }
                 }
             }
 

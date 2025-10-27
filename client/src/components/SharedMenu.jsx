@@ -17,6 +17,7 @@ import {useEffect, useState} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {isEmpty} from "../utils/Utils.js";
 
 const allMenuGroups = [
     {
@@ -98,6 +99,7 @@ export const SharedMenu = () => {
                         Logo: menuItem.Logo,
                         label: I18n.t(`navigation.${menuItem.name}`),
                         name: menuItem.name,
+                        tooltip: isEmpty(I18n.translations[I18n.locale].navigation.tooltips[name]) ? null : I18n.t(`navigation.tooltips.${name}`),
                         active: menuItem.name === activeMenuItem,
                         href: menuItem.path.replace("organizationId", currentOrganization.id)
                     }))

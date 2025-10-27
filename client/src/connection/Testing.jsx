@@ -879,7 +879,7 @@ export const Testing = ({
                             disabled={true}
                             copyClipBoard={true}/>
                 <InputField name={I18n.t("connection.connectionOverview.secret")}
-                            value={connection.secret}
+                            value={connection.originalSecret}
                             disabled={true}
                             copyClipBoard={true}/>
             </section>

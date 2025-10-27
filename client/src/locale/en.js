@@ -88,7 +88,16 @@ const en = {
         home: "Home",
         applications: "Applications",
         teams: "Teams",
-        idp: "IdP"
+        idp: "IdP",
+        tooltips: {
+            users: "users",
+            idp: "idp",
+            yourApps: "yourApps",
+            catalogue: "catalogue",
+            accessibleApps: "accessibleApps",
+            roles: "roles",
+            collaborations: "collaborations"
+        }
     },
     breadCrumb: {
         access: "Home",
