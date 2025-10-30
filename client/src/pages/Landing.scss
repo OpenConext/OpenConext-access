@@ -11,6 +11,10 @@
         display: flex;
         flex-direction: column;
         gap: 25px;
+
+        .sds-loading {
+            top: 41%;
+        }
     }
 
     .sub-info {

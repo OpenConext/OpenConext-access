@@ -944,7 +944,8 @@ export const Testing = ({
                 <div className="attributes">
                     {currentProfile.attributes.map((attribute, index) =>
                         <Fragment key={index}>
-                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span></Fragment>
+                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span>
+                        </Fragment>
                     )}
                 </div>
                 {currentProfile.requiresMotivation &&

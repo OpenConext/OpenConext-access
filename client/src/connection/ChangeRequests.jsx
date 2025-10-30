@@ -260,7 +260,7 @@ export const ChangeRequests = ({
         const changes = extractChanges(delta);
         const grouped = Object.groupBy(changes, change => change.path[0]);
         const keys = Object.keys(grouped).sort();
-        return keys.map(key => formatChange(key, grouped[key]))
+        return keys.filter(key => key !== "secret").map(key => formatChange(key, grouped[key]))
     }
 
     return (

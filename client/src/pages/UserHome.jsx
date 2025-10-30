@@ -7,6 +7,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {Link, useNavigate} from "react-router-dom";
 import Relax from "../icons/undraw/relax.svg";
 import DOMPurify from "dompurify";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const UserHome = () => {
 
@@ -20,8 +21,7 @@ const UserHome = () => {
         } else {
             useAppStore.setState({
                 breadcrumbPaths: [
-                    {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                    {value: I18n.t("breadCrumb.home")}
+                    {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
                 ]
             });
         }

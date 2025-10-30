@@ -45,5 +45,5 @@ queries
 pom.xml.versionsBackup
 dependency.tree
 jira.yml
-application.local.yml
+application-local.yml
 jira.yml

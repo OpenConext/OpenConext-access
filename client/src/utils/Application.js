@@ -2,6 +2,18 @@ import {isEmpty} from "./Utils.js";
 import {isValidUrl} from "../validations/regExps.js";
 import {convertServerConnectionToClient} from "./Connection.js";
 
+const parseContactPersonIdentifier = input => {
+    if (input.startsWith("http")) {
+        const {hostname} = new URL(input);
+        return hostname.replace(/^www\./, '');
+    }
+    return input.split('@')[0];
+}
+
+export const contactPersonTypes = {
+    administrative: "administrative", technical: "technical", support: "support"
+}
+
 export const logoSectionValid = (application) => {
     return !isEmpty(application?.logoUrl) &&
         ["descriptionEN", "descriptionNL", "webSite"]
@@ -10,10 +22,10 @@ export const logoSectionValid = (application) => {
 };
 
 export const contactSectionValid = (application) => {
-    return ["technical", "support", "administrative"]
+    return Object.values(contactPersonTypes)
         .every(contactType => {
             const contactPerson = (application?.contactPersons || []).find(c => c.type === contactType);
-            return !isEmpty(contactPerson?.name) && !isEmpty(contactPerson?.email);
+            return !isEmpty(contactPerson?.email);
         })
 };
 
@@ -31,12 +43,21 @@ export const privacySectionValid = (privacyInfo, application) => {
 //Pull the metaData of the application up in the root
 export const convertServerApplicationToClient = (application, protocolOptions, profileOptions, arpInfo) => {
     application.metaData.contactPersons = (application.metaData.contactPersons || [])
-        .map(person => ({
-            type: person.type,
-            email: person.email,
-            name: `${person.givenName} ${person.surName}`
+        .map(person => {
+            return {
+                type: person.type,
+                email: person.email,
+                id: crypto.randomUUID()
+            }
+        });
+    if (isEmpty(application.metaData.contactPersons)) {
+        application.metaData.contactPersons = Object.keys(contactPersonTypes).map(typeContact => ({
+            type: typeContact,
+            id: crypto.randomUUID(),
+            email: "",
         }));
-    const clientApplication = {
+    }
+    const newApplication = {
         ...application,
         connections: isEmpty(protocolOptions) ? (application.connections || []) : (application.connections || [])
             .map(con => convertServerConnectionToClient(con, protocolOptions, profileOptions, arpInfo)),
@@ -46,19 +67,19 @@ export const convertServerApplicationToClient = (application, protocolOptions, p
         //Sensible defaults for first rendering, but override for applications already catalogized
         ...application.metaData
     };
-    return clientApplication
+    return newApplication;
 }
 //Push the metaData of the application to the actual JSON metaData version
 export const convertClientApplicationToServer = (application) => {
     const serverContactPersons = application.contactPersons
         .map(person => {
-            const parts = person.name.split(" ");
             //Not trivial, but SAML and Manage dictates givenName and surName
+            const givenName = parseContactPersonIdentifier(person.email);
             return {
                 type: person.type,
                 email: person.email,
-                givenName: parts[0],
-                surName: parts.slice(1).join(" ")
+                givenName: givenName,
+                surName: person.type
             }
         })
     return {

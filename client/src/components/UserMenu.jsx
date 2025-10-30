@@ -40,7 +40,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
         useAppStore.setState(() => ({
             currentOrganization: organization
         }));
-        navigate("/home");
+        navigate(`/organization/${organization.id}`);
     }
 
     const renderOrganizationSwitch = () => {

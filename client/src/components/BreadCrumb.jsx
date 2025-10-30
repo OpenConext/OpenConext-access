@@ -36,14 +36,14 @@ export const BreadCrumb = () => {
                     .map((p, i) =>
                         <li key={i}>
                             {i !== 0 && <ArrowRight/>}
-                            {((i + 1) !== breadcrumbPaths.length && p.path) &&
+                            {(((i + 1) !== breadcrumbPaths.length || breadcrumbPaths.length === 1) && p.path) &&
                                 <a href={p.path} onClick={e => doNavigate(e, p)}>
                                     {<span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
                                 </a>}
                             {((i + 1) !== breadcrumbPaths.length && !p.path) &&
                                 <span className={"last"}
                                       dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                            {(i + 1) === breadcrumbPaths.length &&
+                            {((i + 1) === breadcrumbPaths.length && breadcrumbPaths.length !== 1) &&
                                 <span className={"last"}
                                       dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
                         </li>)}

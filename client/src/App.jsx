@@ -56,12 +56,14 @@ const App = () => {
     }
 
     const refreshUser = () => {
-        const {config} = useAppStore(state => state);
-        me().then(user =>
+        me().then(user => {
+            const { config } = useAppStore.getState();
+            const newMenuItems = menuItemsForUser(user, config);
             useAppStore.setState(() => ({
                 user: user,
-                menuItems: menuItemsForUser(user, config)
-            })))
+                menuItems: newMenuItems
+            }))
+        })
     }
 
     useEffect(() => {

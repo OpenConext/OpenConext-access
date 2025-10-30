@@ -11,7 +11,6 @@ import InputField from "../components/InputField.jsx";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {mainMenuItems} from "../utils/MenuItems.js";
 
 const Landing = ({refreshUser}) => {
     const {user, currentOrganization, setFlash} = useAppStore(state => state);
@@ -120,7 +119,7 @@ const Landing = ({refreshUser}) => {
                             </section>
                         )}
                     {(!isEmpty(search) && !exactMatch && !loading && search.trim().length > 2) && <>
-                    {isEmpty(organizations) && <p>{I18n.t("welcome.zeroState")}</p>}
+                        {isEmpty(organizations) && <p>{I18n.t("welcome.zeroState")}</p>}
                         <section className="organization register"
                                  onClick={() => createOrganization()}>
                             <p dangerouslySetInnerHTML={{__html: I18n.t("welcome.register", {name: search})}}/>

@@ -9,3 +9,48 @@ export const createAndClickLink = href => {
     document.body.removeChild(link);
 
 }
+
+const sanitizeOrganizationName = orgName => {
+    return orgName
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+        .replace(/\b(bv|b\.v\.|n\.v\.|holding|group|inc|ltd)\b/g, "") // remove suffixes
+        .replace(/[^a-z0-9-]+/g, "-") // replace invalid chars with dash
+        .replace(/-+/g, "-") // collapse multiple dashes
+        .replace(/^-|-$/g, "") // trim leading/trailing dashes
+        .trim();
+}
+
+export const emailPlaceholder = (prefix, orgName) => {
+    const domain = sanitizeOrganizationName(orgName);
+    return `${prefix}@${domain || "example"}.nl`;
+}
+
+export const addArrayItem = (arr, index, value) => {
+    return [
+        ...arr.slice(0, index),
+        value,
+        ...arr.slice(index)
+    ];
+}
+
+export const replaceArrayItem = (arr, index, value) => {
+    if (index < 0 || index >= arr.length) {
+        return arr.slice();
+    }
+    return [
+        ...arr.slice(0, index),
+        value,
+        ...arr.slice(index + 1)
+    ];
+}
+
+export const removeArrayItem = (arr, index, value) => {
+    if (index < 0 || index >= arr.length) {
+        return arr.slice();
+    }
+    return [
+        ...arr.slice(0, index),
+        ...arr.slice(index + 1)
+    ];
+}

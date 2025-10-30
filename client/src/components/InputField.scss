@@ -74,6 +74,10 @@
         button.sds--btn {
             min-width: 120px;
             margin-left: 10px;
+
+            &.sds--btn--delete {
+                min-width: inherit;
+            }
         }
     }
 
