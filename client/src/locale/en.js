@@ -176,6 +176,7 @@ const en = {
         flash: {
             updated: "Organization {{name}} now has the status {{status}}",
             deleted: "Organization {{name}} has been deleted",
+            nameChange: "Updated organization {{name}}"
         }
     },
     userMenu: {
@@ -849,6 +850,7 @@ const en = {
     forms: {
         cancel: "Cancel",
         submit: "Submit",
+        save: "Save",
         sure: "I'm sure",
         edit: "Edit",
         accept: "Accept",

@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EnvironmentControllerTest extends AbstractTest {
 
+    @Override
+    protected boolean seedDatabase() {
+        return false;
+    }
+
     @Test
     void disclaimer() throws IOException {
         InputStream inputStream = given()

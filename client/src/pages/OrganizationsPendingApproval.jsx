@@ -1,10 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "./Organizations.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
-import {deleteOrganizationById, pendingApprovalOrganizations, updateOrganizationStatus} from "../api";
+import {
+    deleteOrganizationById,
+    pendingApprovalOrganizations,
+    updateOrganizationName,
+    updateOrganizationStatus
+} from "../api";
 import {dateFromEpoch} from "../utils/Date";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
@@ -15,6 +20,7 @@ import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import MenuIcon from "../icons/menu.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {useAppStore} from "../stores/AppStore.js";
+import InputField from "../components/InputField.jsx";
 
 export const OrganizationsPendingApproval = () => {
 
@@ -24,7 +30,9 @@ export const OrganizationsPendingApproval = () => {
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
     const [openOrganizationId, setOpenOrganizationId] = useState(null);
+    const [newOrganizationName, setNewOrganizationName] = useState(null);
     const [loading, setLoading] = useState(false);
+    const inputRef = useRef(null);
 
     useEffect(() => {
             pendingApprovalOrganizations().then(res => {
@@ -33,6 +41,12 @@ export const OrganizationsPendingApproval = () => {
             })
         },
         [refresh]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [openOrganizationId]);
 
     const doUpdateOrganizationStatus = (organization, status, confirmationRequired) => {
         if (confirmationRequired) {
@@ -104,7 +118,11 @@ export const OrganizationsPendingApproval = () => {
                             <span>{I18n.t(`organizations.${status.toLowerCase()}_action`)}</span>
                         </li>
                     )}
-                    {<li onClick={() => setOpenOrganizationId(organization.id)}>
+                    {<li onClick={() => {
+                        setOpenOrganizationId(organization.id);
+                        setNewOrganizationName(organization.name);
+                    }
+                    }>
                         <PencilIcon/>
                         <span>{I18n.t("forms.edit")}</span>
                     </li>}
@@ -115,6 +133,41 @@ export const OrganizationsPendingApproval = () => {
                 </ul>
             </div>
         )
+    }
+
+    const saveNewOrganizationName = () => {
+        setLoading(true);
+        setOpenOrganizationId(null);
+        updateOrganizationName(openOrganizationId, newOrganizationName).then(() => {
+            setFlash(I18n.t("organizations.flash.nameChange", {name: newOrganizationName}));
+            setRefresh(new Date());
+        })
+    }
+
+    const organizationNameRow = organization => {
+        if (openOrganizationId === null || openOrganizationId !== organization.id) {
+            return (
+                <span>{organization.name}</span>
+            );
+        }
+        return (
+            <div className="name-container">
+                <InputField value={newOrganizationName}
+                            onChange={e => setNewOrganizationName(e.target.value)}
+                            onEnter={() => saveNewOrganizationName()}
+                            onEscape={() => setOpenOrganizationId(null)}
+                            onRef={el => inputRef.current = el}
+                />
+                <span className="action-icons">
+                    <Tooltip standalone={true}
+                             children={<span onClick={() => setOpenOrganizationId(null)}>❌</span>}
+                             tip={I18n.t("forms.cancel")}/>
+                    <Tooltip standalone={true}
+                             children={<span onClick={() => saveNewOrganizationName()}>🔁</span>}
+                             tip={I18n.t("forms.save")}/>
+                </span>
+            </div>
+        );
     }
 
     const columns = [
@@ -136,7 +189,7 @@ export const OrganizationsPendingApproval = () => {
         {
             key: "name",
             header: I18n.t("organizations.name"),
-            mapper: org => <span>{org.name}</span>
+            mapper: organizationNameRow
         },
         {
             key: "schacHomeOrganization",
@@ -170,7 +223,7 @@ export const OrganizationsPendingApproval = () => {
             mapper: org =>
                 <div className="top-header"
                      tabIndex={1}
-                     // onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
+                     onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
                 >
                             <span className={`menu ${dropDownActive === org.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? org.id : -1)}>
@@ -202,7 +255,7 @@ export const OrganizationsPendingApproval = () => {
                       showNew={false}
                       inputFocus={true}
                       hideTitle={true}
-                      // title={I18n.t("organizations.pendingApprovalTitle")}
+                // title={I18n.t("organizations.pendingApprovalTitle")}
                       searchAttributes={["name", "schacHomeOrganization"]}
                       totalElements={organizations.length}/>
 

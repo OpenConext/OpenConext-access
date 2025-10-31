@@ -18,6 +18,7 @@ export default function InputField({
                                        toolTip = null,
                                        onBlur = () => true,
                                        onEnter = null,
+                                       onEscape = null,
                                        multiline = false,
                                        copyClipBoard = false,
                                        link = null,
@@ -68,8 +69,10 @@ export default function InputField({
                            placeholder={placeholder}
                            className={`${className} sds--text-field--input`}
                            onKeyDown={e => {
-                               if (onEnter && e.keyCode === 13) {//enter
+                               if (onEnter && e.key === "Enter") {//enter
                                    onEnter(e);
+                               } else if (onEscape && e.key === "Escape") {//escape
+                                   onEscape(e);
                                }
                            }}/>}
                 {(multiline && !noInput) &&

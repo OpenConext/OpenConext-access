@@ -14,12 +14,30 @@
         padding: 12px 0 12px 0;
     }
 
+    .name-container {
+        display: flex;
+        position: relative;
+        width: 100%;
+        .input-field {
+            width: 100%;
+        }
+        .action-icons {
+            display: flex;
+            gap: 5px;
+            position: absolute;
+            right: 8px;
+            top: 12px;
+            span {
+                cursor: pointer;
+            }
+        }
+    }
     table.organizations {
 
         thead {
             th {
                 &.name {
-                    width: 20%;
+                    width: 30%;
                 }
 
                 &.schac_home_organization, &.schacHomeOrganization {
@@ -27,21 +45,21 @@
                 }
 
                 &.createdAt {
-                    width: 15%;
+                    width: 12%;
                 }
 
                 &.applicationCount {
                     text-align: center;
-                    width: 12%;
+                    width: 8%;
                 }
 
                 &.memberCount {
                     text-align: center;
-                    width: 12%;
+                    width: 8%;
                 }
 
                 &.status {
-                    width: 15%;
+                    width: 14%;
                 }
 
                 th.buttons {
