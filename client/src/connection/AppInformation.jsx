@@ -133,7 +133,6 @@ export const AppInformation = ({
                     setLoading(false);
                     setFlash(I18n.t("forms.error"), "error")
                 });
-
         }
     };
 
@@ -262,7 +261,7 @@ export const AppInformation = ({
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.contacts.label")}</h3>
-                <p>{I18n.t("connection.contacts.info", {example: emailPlaceholder("support", application.organization.name)})}</p>
+                <p>{I18n.t("connection.contacts.info", {example: emailPlaceholder("support", application.organization.name, I18n.t("forms.or"))})}</p>
                 {Object.keys(contactPersonsGrouped).map((contactType, index) =>
                     <section key={index} className="contact-person-section">
                         <h4>{I18n.t(`connection.contacts.${contactType}`)}</h4>
@@ -274,7 +273,8 @@ export const AppInformation = ({
                                 <InputField value={contactPerson.email}
                                             name={I18n.t("connection.contacts.emailOrWebsite")}
                                             placeholder={emailPlaceholder(
-                                                I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application.organization.name
+                                                I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application.organization.name,
+                                                I18n.t("forms.or")
                                             )}
                                             onChange={e => updateContactPerson(contactPerson.id, e)}
                                             onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
@@ -290,7 +290,8 @@ export const AppInformation = ({
                                     <ErrorIndicator
                                         msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
                                     />}
-                                {(innerIndex === (contactPersonsGrouped[contactType].length - 1) && contactPerson.type === contactPersonTypes.technical) &&
+                                {(innerIndex === (contactPersonsGrouped[contactType].length - 1) && contactPerson.type === contactPersonTypes.technical
+                                    && contactPersonsGrouped[contactType].length < 2) &&
                                     <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                         {I18n.t("connection.contacts.addTechnicalContact")}
                                     </a>}

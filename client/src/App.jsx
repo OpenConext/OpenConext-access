@@ -33,7 +33,7 @@ import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
-import {menuItemsForUser} from "./utils/MenuItems.js";
+import {mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
 
 const App = () => {
 
@@ -82,6 +82,7 @@ const App = () => {
                             useAppStore.setState(() => ({
                                 user: user,
                                 menuItems: menuItemsForUser(user, res[0]),
+                                activeMenuItem: mainMenuItems.home,
                                 currentOrganization: user.organizationMemberships.map(om => om.organization)[0] || {name: ""}
                             }));
                             const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);

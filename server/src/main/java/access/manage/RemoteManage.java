@@ -107,7 +107,7 @@ public class RemoteManage implements Manage {
         Map<String, Object> baseStructure = StringUtils.hasText(connection.getManageIdentifier()) ?
                 providerById(connection) :
                 baseStructureProvider();
-        //We must ensure that no data is overridden that was altered in Manage, especially additional metadata and
+        //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
         //Attribute Release Policies that are not available in Access
         //We can't update everything if the connection is production ready, only the application data
         Map<String, Object> provider = converter.convert(connection, baseStructure, connection.changeRequestRequired());

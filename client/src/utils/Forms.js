@@ -14,16 +14,16 @@ const sanitizeOrganizationName = orgName => {
     return orgName
         .toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/\b(bv|b\.v\.|n\.v\.|holding|group|inc|ltd)\b/g, "") // remove suffixes
+        .replace(/\b(bv|b\.v\.|n\.v\.|inc|ltd)\b/g, "") // remove suffixes
         .replace(/[^a-z0-9-]+/g, "-") // replace invalid chars with dash
         .replace(/-+/g, "-") // collapse multiple dashes
         .replace(/^-|-$/g, "") // trim leading/trailing dashes
         .trim();
 }
 
-export const emailPlaceholder = (prefix, orgName) => {
+export const emailPlaceholder = (prefix, orgName, separator) => {
     const domain = sanitizeOrganizationName(orgName);
-    return `${prefix}@${domain || "example"}.nl`;
+    return `${prefix}@${domain || "example"}.nl ${separator} https://${domain}.nl/${prefix}`;
 }
 
 export const addArrayItem = (arr, index, value) => {
