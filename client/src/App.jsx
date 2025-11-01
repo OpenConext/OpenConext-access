@@ -34,6 +34,7 @@ import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 import {mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
+import Relax from "./pages/Relax.jsx";
 
 const App = () => {
 
@@ -128,7 +129,9 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
-                            <Route path="/home" element={<UserHome/>}/>
+                            <Route path="/home" element={<Relax/>}/>
+                            {/*<Route path="/home" element={<UserHome/>}/>*/}
+                            <Route path="/relax" element={<Relax/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
                             <Route path="/organization/:organizationId/:tab?"
                                    element={<Organization refreshUser={refreshUser}/>}/>
