@@ -1,0 +1,52 @@
+@use "../styles/vars" as *;
+@use "../index";
+
+.extern-application-container {
+    padding: 35px 50px 0 50px;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+
+    @include index.page-media;
+
+    .external-alert-container {
+
+        .sds--alert {
+            width: 75%;
+            @include index.page-media;
+
+            .sds--alert--inner {
+                max-width: none;
+                width: 100%;
+            }
+        }
+    }
+
+    .external-link {
+        width: 40%;
+        display: flex;
+        align-items: center;
+        align-content: center;
+        border-radius: 4px;
+        padding: 10px 20px 10px 10px;
+        background-color: white;
+        border: 1px solid var(--sds--color--gray--200);
+        cursor: pointer;
+
+        svg {
+            margin-right: 20px;
+        }
+
+        .caret {
+            margin-left: auto;
+            display: flex;
+            svg {
+                width: 10px;
+                height: auto;
+                margin: auto;
+            }
+        }
+    }
+
+}

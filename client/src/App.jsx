@@ -35,6 +35,7 @@ import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 import {mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
 import Relax from "./pages/Relax.jsx";
+import ExternalApplication from "./pages/ExternalApplication.jsx";
 
 const App = () => {
 
@@ -129,8 +130,7 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
-                            <Route path="/home" element={<Relax/>}/>
-                            {/*<Route path="/home" element={<UserHome/>}/>*/}
+                            <Route path="/home" element={<UserHome/>}/>
                             <Route path="/relax" element={<Relax/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
                             <Route path="/organization/:organizationId/:tab?"
@@ -141,6 +141,7 @@ const App = () => {
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation refreshUser={refreshUser}/>}/>
                             <Route path="/system/:tab?" element={<System/>}/>
+                            <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>

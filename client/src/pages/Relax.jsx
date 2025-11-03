@@ -13,7 +13,6 @@ const Relax = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        debugger;
         if (!isEmpty(currentOrganization?.id)) {
             navigate(`/organization/${currentOrganization.id}`);
         } else if (isEmpty(user.joinRequests)) {

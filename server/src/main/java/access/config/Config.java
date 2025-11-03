@@ -18,6 +18,8 @@ public class Config {
     private String baseUrl;
     private String eduIdSchacHomeOrganization;
     private String name;
+    private String sram;
+    private String invite;
     private String discovery;
     private boolean authenticated;
     private List<String> missingAttributes;
@@ -28,6 +30,8 @@ public class Config {
         this.baseUrl = base.baseUrl;
         this.discovery = base.discovery;
         this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;
+        this.invite = base.invite;
+        this.sram = base.sram;
     }
 
     public Config withAuthenticated(boolean authenticated) {

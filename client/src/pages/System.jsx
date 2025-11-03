@@ -25,10 +25,10 @@ const System = () => {
                 return <Users/>
             }
             case "organizations": {
-                return <Organizations pendingApproval={false}/>
+                return <Organizations pendingApproval={false} tab={currentTab}/>
             }
             case  "organizationPendingApproval":{
-                return <Organizations pendingApproval={true}/>
+                return <Organizations pendingApproval={true} tab={currentTab}/>
             }
             default:
                 throw new Error(`Unknown tab; ${currentTab}`)

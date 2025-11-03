@@ -4,6 +4,9 @@ import PendingIcon from "../icons/pending.svg";
 import TeamIcon from "../icons/teams.svg";
 import CompletedIcon from "../icons/completed.svg";
 import AlertIcon from "../icons/alert-triangle.svg";
+import I18n from "../locale/I18n.js";
+import React from "react";
+import DOMPurify from "dompurify";
 
 
 export const STATUS_LINK_TYPE = {
@@ -13,9 +16,12 @@ export const STATUS_LINK_TYPE = {
     TEAM: "TEAM"
 }
 
-export const StatusLink = ({status, info, action, disabled}) => {
+export const StatusLink = ({status, info, action, disabled, CustomIcon}) => {
 
     const getIcon = () => {
+        if (CustomIcon) {
+            return <CustomIcon/>
+        }
         switch (status) {
             case STATUS_LINK_TYPE.ACTIVE:
                 return <CompletedIcon/>
@@ -32,7 +38,8 @@ export const StatusLink = ({status, info, action, disabled}) => {
         <div className={`status-link ${disabled ? "disabled" : "enabled"}`}
              onClick={() => !disabled && action()}>
             {getIcon()}
-            <span className="info">{info}</span>
+            <span className="info"
+                dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
             <CaretRight/>
         </div>
     );

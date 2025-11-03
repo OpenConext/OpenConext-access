@@ -2,12 +2,73 @@
 @use "../index";
 
 .home-container {
-    padding: 60px 50px 0 50px;
-    width: 50%;
+    padding: 40px 50px 0 50px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 35px;
 
     @include index.page-media;
+
+    .info-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        width: 75%;
+        @media (max-width: $medium) {
+            grid-template-columns: 1fr;
+            width: 100%;
+        }
+
+        .info-block {
+            border-radius: 10px;
+            border: 1px solid var(--sds--color--gray--300);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            background-color: var(--sl-color-green-100);
+
+            h3 {
+                margin-bottom: 15px;
+            }
+
+            h5 {
+                margin-top: 8px;
+            }
+
+            p.strong {
+                font-weight: 600;
+            }
+
+            .sds--divider {
+                margin: auto 0 10px 0;
+
+                &.largest {
+                    margin-top: 20px;
+                }
+            }
+
+            .sds--btn.sds--btn--ghost--light {
+                background-color: black;
+                color: white;
+
+                &:hover {
+                    background-color: white;
+                    color: black;
+                }
+            }
+
+            &.grey {
+                background-color: var(--sl-color-grey-100);
+            }
+        }
+
+        .full-row {
+            grid-column: 1 / -1;
+            background: white;
+        }
+    }
+
 
 }

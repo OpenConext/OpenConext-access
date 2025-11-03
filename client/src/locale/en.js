@@ -76,7 +76,7 @@ const en = {
     },
     navigation: {
         organizationMaintenance: "Beheer organisatie",
-        catalogue: "Access catalogue",
+        catalogue: "Browse overige apps",
         apps: "Apps",
         accessibleApps: "Apps met toegang",
         yourApps: "Eigen apps",
@@ -88,7 +88,7 @@ const en = {
         home: "Home",
         applications: "Applications",
         teams: "Teams",
-        idp: "IdP",
+        idp: "Mijn organisatie",
         tooltips: {
             users: "users",
             idp: "idp",
@@ -109,7 +109,7 @@ const en = {
         home: "Home"
     },
     welcome: {
-        greeting: "Welcome {{name}},",
+        greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
         subInfo: "Preferable use the name of the organization as registered at the KvK",
         searchPlaceholder: "Search for organizations...",
@@ -132,6 +132,42 @@ const en = {
         infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending.",
         backToLanding: "Go back to ",
         backToLandingLink: " create your own organization.",
+        central: {
+            title: "Centraal toegangsbeheer",
+            subTitle: "Regel toegang tot veelgebruikte apps",
+            connectedApps: "Gekoppelde apps",
+            connectedAppsInfo: "De apps die aan onze IdP gekoppeld zijn",
+            maintainAccess: "Beheer toegang",
+            roles: "Toegangsrollen",
+            maintainRoles: "Beheer rollen",
+            teamCentral: "Team Centraal",
+            you: "You",
+            responsible: "Verantwoordelijk: <a href='mailto:{{mail}}'>{{name}}</a>",
+            maintainTeam: "Beheer Team Centraal",
+        },
+        catalogue: {
+            title: "SURF App catalogus",
+            subTitle: "Beheer eigen apps en vind nieuwe",
+            ourApps: "Eigen apps",
+            ourAppsInfo: "De apps die wij zelf aanbieden op SURF Access",
+            maintainOurApps: "Beheer onze apps",
+            allApps: "Alle apps",
+            openCatalogue: "Open de SURF app catalogus"
+        },
+        decentral: {
+            title: "Decentraal toegangsbeheer",
+            subTitle: "Delegeer beheer van leden en applicatietoegang aan samenwerkgroepen.",
+            collaborations: "Samenwerkgroepen",
+            maintainCollaborations: "Beheer samenwerkgroepen",
+            teamDecentral: "Team Decentraal",
+            responsible: "Verantwoordelijk: <a href='mailto:{{email}}'>{{name}}</a>",
+            maintainTeamDecentral: "Beheer Team Decentraal"
+        },
+        tip: {
+            info: "Tips van SURF bij instellen van toegang",
+            //Leave empty for no tips
+            tips: []
+        }
     },
     tabs: {
         users: "Users",
@@ -846,6 +882,19 @@ const en = {
             oldValue: "Old value",
             newValue: "New value"
         }
+    },
+    external: {
+        invite: {
+            title: "Applicatie toegangsrollen",
+            alert: "Toegangsrollen worden vooralsnog beheerd in SURF Concext Invite en op termijn hierheen verplaatst.",
+            link: "Open SURF Conext <strong>Invite</strong>"
+        },
+        sram: {
+            title: "Samenwerkgroepen",
+            alert: "Samenwerkgroepen worden vooralsnog beheerd in SURF Research Access Management en op termijn hierheen verplaatst.",
+            link: "Open <strong>SRAM</strong>"
+        }
+
     },
     forms: {
         cancel: "Cancel",

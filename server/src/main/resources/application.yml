@@ -92,6 +92,8 @@ config:
   base-url: "test2.surfconext.nl"
   edu_id_schac_home_organization: "eduid.nl"
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
+  invite: "https://invite.test2.surfconext.nl"
+  sram: "https://test.sram.surf.nl/"
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl"
 

@@ -54,12 +54,12 @@ const allMenuGroups = [
         items: [
             {
                 name: mainMenuItems.roles,
-                path: "/users/organizationId",
+                path: "/external/invite",
                 Logo: TeamIcon
             },
             {
                 name: mainMenuItems.collaborations,
-                path: "/users/idp",
+                path: "/external/sram",
                 Logo: HierarchyIcon
             }
         ]
@@ -68,15 +68,15 @@ const allMenuGroups = [
         label: "organizationMaintenance",
         items: [
             {
+                name: mainMenuItems.idp,
+                path: "/idp",
+                Logo: LaptopFloatIcon
+            },
+            {
                 name: mainMenuItems.users,
                 path: "/users/organizationId",
                 Logo: UserIcon
             },
-            {
-                name: mainMenuItems.idp,
-                path: "/users/idp",
-                Logo: LaptopFloatIcon
-            }
         ]
     },
 ]

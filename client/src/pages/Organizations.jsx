@@ -26,7 +26,7 @@ import {
     updateOrganizationStatus
 } from "../api";
 
-export const Organizations = ({pendingApproval}) => {
+export const Organizations = ({pendingApproval, tab}) => {
 
     const {setFlash} = useAppStore(state => state);
 
@@ -58,11 +58,12 @@ export const Organizations = ({pendingApproval}) => {
                             setSearching(false);
                         });
                 } else {
+                    setOrganizations([]);
                     setSearching(false);
                 }
             }
         },
-        pendingApproval ? [refresh] : [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+        [refresh, paginationQueryParams, tab]);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inputRef.current) {
