@@ -27,7 +27,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     List<Organization> findByStatus(OrganizationStatus status);
 
     @EntityGraph(attributePaths = {
-            "applications.connections", "organizationMemberships.user", "joinRequests.user"})
+            "applications.connections", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
     Optional<Organization> findDetailsById(Long id);
 
     @EntityGraph(attributePaths = {"organizationMemberships.user"})
