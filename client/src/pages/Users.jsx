@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import "./Users.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Tooltip} from "@surfnet/sds";
+import {Chip, ChipType, Tooltip, Loader} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
@@ -20,6 +20,7 @@ export const Users = () => {
     const {user: currentUser, startImpersonation, setFlash} = useAppStore(state => state);
 
     const [searching, setSearching] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [totalElements, setTotalElements] = useState(0);
     const [users, setUsers] = useState([]);
@@ -104,9 +105,10 @@ export const Users = () => {
     const showImpersonation = currentUser && currentUser.superUser;
 
     const impersonate = user => {
+        setLoading(true);
         startImpersonation(user);
         setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: user.name}));
-        navigate("/", {replace: true});
+        setTimeout(() => navigate("/", {replace: true}), 375);
     }
 
     if (showImpersonation) {
@@ -126,6 +128,11 @@ export const Users = () => {
                 : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
         })
     }
+
+    if (loading) {
+        return <Loader/>
+    }
+
     return (
         <div className="mod-users">
             <Entities entities={users}

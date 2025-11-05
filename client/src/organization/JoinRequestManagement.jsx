@@ -132,7 +132,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
                 title={I18n.t("joinRequestManagement.maintain", {name: organization.name})}
                 columns={columns}
                 newEntityFunc={() => doApproveAll(true)}
-                showNew={true}
+                showNew={currentUserAuthority !== authorities.GUEST}
                 newLabel={I18n.t("joinRequestManagement.approveAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}

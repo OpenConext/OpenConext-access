@@ -12,6 +12,15 @@ export const Impersonating = () => {
 
     const {user: currentUser, setFlash, impersonator, stopImpersonation} = useAppStore(state => state);
     const navigate = useNavigate();
+
+    const endImpersonation = () => {
+        stopImpersonation();
+        setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
+        navigate("/");
+        setTimeout(() => navigate("/", {replace: true}), 375);
+    }
+
+
     return (
         <div className="impersonator ">
             <Tooltip children={<ImpersonateIcon/>}
@@ -27,11 +36,7 @@ export const Impersonating = () => {
                 }))
             }}/>
             <Button type={ButtonType.Secondary}
-                    onClick={() => {
-                        stopImpersonation();
-                        setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
-                        navigate("/");
-                    }}
+                    onClick={() => endImpersonation()}
                     txt={I18n.t("impersonate.exit")}/>
         </div>)
 }

@@ -172,7 +172,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                 title={I18n.t("teamManagement.maintain", {name: organization.name})}
                 columns={columns}
                 filters={filters()}
-                showNew={true}
+                showNew={currentUserAuthority !== authorities.GUEST}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
                 newEntityFunc={() => navigate(`/invitation/${organization.id}`)}

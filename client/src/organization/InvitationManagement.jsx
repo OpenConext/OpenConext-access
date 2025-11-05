@@ -174,13 +174,14 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
         return (
             <Entities
                 entities={organization.invitations
+                    .filter(invitation => invitation.status !== "ACCEPTED")
                     .filter(invitation => authority === "ALL" || invitation.intendedAuthority === authority)}
                 modelName="invitationsManagement"
                 defaultSort="email"
                 title={I18n.t("invitationsManagement.maintain", {name: organization.name})}
                 columns={columns}
                 filters={filters()}
-                showNew={true}
+                showNew={currentUserAuthority !== authorities.GUEST}
                 newLabel={I18n.t("invitationsManagement.deleteAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}

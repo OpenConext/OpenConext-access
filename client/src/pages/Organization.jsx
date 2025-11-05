@@ -2,7 +2,7 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertType, Button, Loader, Chip, ChipType} from "@surfnet/sds";
+import {Alert, AlertType, Button, Chip, ChipType, Loader} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {organizationById} from "../api/index.js";
@@ -12,35 +12,45 @@ import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
-import SpinIcon from "../icons/spin.svg";
+import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 
 const Organization = ({refreshUser}) => {
     const {config, user} = useAppStore(state => state);
     const {organizationId} = useParams();
+
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [alertClosed, setAlertClosed] = useState(false);
     const [isExternal, setIsExternal] = useState(true);
+    const [currentUserAuthority, setCurrentUserAuthority] = useState({});
+
     const navigate = useNavigate();
 
     useEffect(() => {
-        organizationById(organizationId)
-            .then(res => {
-                res.applications = res.applications.map(application => convertServerApplicationToClient(application))
-                setOrganization(res);
-                useAppStore.setState({
-                    currentOrganization: res,
-                    breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                        {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
-                        {value: I18n.t("breadCrumb.applications")}
-                    ]
-                });
-                setIsExternal(user.schacHomeOrganization === config.eduIdSchacHomeOrganization);
-                setLoading(false);
-            }).catch(() => {
-            navigate("/home")
-        });
+        if (isEmpty(organizationId)) {
+            navigate("/home");
+        } else {
+            organizationById(organizationId)
+                .then(res => {
+                    res.applications = res.applications.map(application => convertServerApplicationToClient(application))
+                    setOrganization(res);
+                    useAppStore.setState({
+                        currentOrganization: res,
+                        breadcrumbPaths: [
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                            {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
+                            {value: I18n.t("breadCrumb.applications")}
+                        ]
+                    });
+                    const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
+                    const authority = currentUserMembershipAuthority(user, membership);
+                    setCurrentUserAuthority(authority);
+                    setIsExternal(user.schacHomeOrganization === config.eduIdSchacHomeOrganization);
+                    setLoading(false);
+                }).catch(() => {
+                navigate("/home")
+            });
+        }
     }, [organizationId]);
 
     const alertInfo = () => {
@@ -122,8 +132,9 @@ const Organization = ({refreshUser}) => {
                                         {renderApplicationStatus(application)}
                                         <span className="navigation"><ArrowRight/></span>
                                     </div>
-                                    {index === 0 && <Button onClick={() => navigate("/application/new")}
-                                                            txt={I18n.t("organization.addApplication")}/>}
+                                    {(index === 0 && currentUserAuthority !== authorities.GUEST) &&
+                                        <Button onClick={() => navigate("/application/new")}
+                                                txt={I18n.t("organization.addApplication")}/>}
                                 </div>
                             )}
                     </div>

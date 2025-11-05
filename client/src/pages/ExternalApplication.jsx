@@ -8,6 +8,12 @@ import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import {createAndClickLink} from "../utils/Forms.js";
 import DOMPurify from "dompurify";
 import CaretRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import HierarchyIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
+
+const icons = {
+    invite: <TeamIcon/>,
+    sram: <HierarchyIcon/>
+}
 
 const ExternalApplication = () => {
     const {app} = useParams();
@@ -26,7 +32,7 @@ const ExternalApplication = () => {
             </div>}
             <div className="external-link"
                  onClick={() => createAndClickLink(config[app])}>
-                <TeamIcon/>
+                {icons[app]}
                 <span className="info"
                       dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`external.${app}.link`))}}/>
                 <div className="caret">

@@ -1,16 +1,17 @@
 import "./UserHome.scss";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
 import {useNavigate} from "react-router-dom";
 import {mainMenuItems} from "../utils/MenuItems.js";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button, ButtonType, Loader} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 
 const UserHome = () => {
 
     const {user, currentOrganization} = useAppStore(state => state);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,14 +30,19 @@ const UserHome = () => {
                     {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
                 ]
             });
+            setLoading(false);
         }
     }, []);
 
-    const navigateInner = menuItem => {
-        navigate(menuItem);
+    const navigateInner = (menuItem, path) => {
+        navigate(path);
         useAppStore.setState(() => ({
             activeMenuItem: menuItem
         }));
+    }
+
+    if (loading) {
+        return <Loader/>
     }
 
     return (
@@ -48,11 +54,11 @@ const UserHome = () => {
                     <p>{I18n.t("userHome.central.subTitle")}</p>
                     <h5>{I18n.t("userHome.central.connectedApps")}</h5>
                     <p>{I18n.t("userHome.central.connectedAppsInfo")}</p>
-                    <Button onClick={() => navigateInner(mainMenuItems.yourApps)}
+                    <Button onClick={() => navigateInner(mainMenuItems.accessibleApps, "/accessible-apps")}
                             txt={I18n.t("userHome.central.maintainAccess")}
                             type={ButtonType.GhostLight}/>
                     <h5>{I18n.t("userHome.central.roles")}</h5>
-                    <Button onClick={() => navigateInner(mainMenuItems.yourApps)}
+                    <Button onClick={() => navigateInner(mainMenuItems.roles,"/external/invite")}
                             txt={I18n.t("userHome.central.maintainRoles")}
                             type={ButtonType.GhostLight}/>
                     <div className="sds--divider largest"/>
@@ -63,7 +69,7 @@ const UserHome = () => {
                             name: "todo-name",
                         }))
                     }}/>
-                    <Button onClick={() => navigateInner(mainMenuItems.users)}
+                    <Button onClick={() => navigateInner(mainMenuItems.users, `/users/${currentOrganization.id}`)}
                             txt={I18n.t("userHome.central.maintainTeam")}
                             type={ButtonType.GhostLight}/>
                 </section>
@@ -72,11 +78,11 @@ const UserHome = () => {
                     <p>{I18n.t("userHome.catalogue.subTitle")}</p>
                     <h5>{I18n.t("userHome.catalogue.ourApps")}</h5>
                     <p>{I18n.t("userHome.catalogue.ourAppsInfo")}</p>
-                    <Button onClick={() => navigateInner()}
+                    <Button onClick={() => navigateInner(mainMenuItems.yourApps, `/organization/${currentOrganization.id}`)}
                             txt={I18n.t("userHome.catalogue.maintainOurApps")}
                             type={ButtonType.GhostLight}/>
                     <h5>{I18n.t("userHome.catalogue.allApps")}</h5>
-                    <Button onClick={() => navigateInner()}
+                    <Button onClick={() => navigateInner(mainMenuItems.catalogue, "/catalogue")}
                             txt={I18n.t("userHome.catalogue.openCatalogue")}
                             type={ButtonType.GhostLight}/>
                 </section>
@@ -84,7 +90,7 @@ const UserHome = () => {
                     <h3>{I18n.t("userHome.decentral.title")}</h3>
                     <p>{I18n.t("userHome.decentral.subTitle")}</p>
                     <h5>{I18n.t("userHome.decentral.collaborations")}</h5>
-                    <Button onClick={() => navigateInner(mainMenuItems.collaborations)}
+                    <Button onClick={() => navigateInner(mainMenuItems.collaborations, "/external/sram")}
                             txt={I18n.t("userHome.decentral.maintainCollaborations")}
                             type={ButtonType.GhostLight}/>
                     <div className="sds--divider"/>
@@ -95,7 +101,7 @@ const UserHome = () => {
                             name: "todo-name",
                         }))
                     }}/>
-                    <Button onClick={() => navigateInner(mainMenuItems.collaborations)}
+                    <Button onClick={() => navigateInner(mainMenuItems.collaborations, "/external/sram")}
                             txt={I18n.t("userHome.decentral.maintainTeamDecentral")}
                             type={ButtonType.GhostLight}/>
                 </section>

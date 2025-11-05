@@ -11,13 +11,16 @@ import {currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {JoinRequestManagement} from "./JoinRequestManagement.jsx";
 import {InvitationManagement} from "./InvitationManagement.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
+import {isEmpty} from "../utils/Utils.js";
 
 const tabNames = ["team", "invitations", "joins"]
 
 export const UserManagement = () => {
     const {user} = useAppStore(state => state);
+
     const {tab = "team"} = useParams();
     const {organizationId} = useParams();
+
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
@@ -26,26 +29,31 @@ export const UserManagement = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        organizationById(organizationId)
-            .then(res => {
-                res.applications = res.applications.map(application => convertServerApplicationToClient(application))
-                setOrganization(res);
-                useAppStore.setState({
-                    currentOrganization: res,
-                    breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                        {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
-                        {value: I18n.t("breadCrumb.applications")}
-                    ]
-                });
-                const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
-                const authority = currentUserMembershipAuthority(user, membership);
-                setCurrentUserAuthority(authority);
-                tabChanged(currentTab, res);
-                setLoading(false);
-            }).catch(() => {
-            navigate("/home")
-        });
+        if (isEmpty(organizationId)) {
+            navigate("/home");
+        } else {
+            organizationById(organizationId)
+                .then(res => {
+                    res.applications = res.applications.map(application => convertServerApplicationToClient(application))
+                    setOrganization(res);
+                    useAppStore.setState({
+                        currentOrganization: res,
+                        breadcrumbPaths: [
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                            {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
+                            {value: I18n.t("breadCrumb.applications")}
+                        ]
+                    });
+                    const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
+                    const authority = currentUserMembershipAuthority(user, membership);
+                    setCurrentUserAuthority(authority);
+                    tabChanged(currentTab, res);
+                    setLoading(false);
+                }).catch(() => {
+                navigate("/home")
+            });
+
+        }
     }, [organizationId, refresh]);
 
     const tabChanged = (name, res) => {

@@ -10,16 +10,36 @@ const nl = {
         header: {
             title: "SURF Access",
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
-            login: "Come on in",
+            login: "Sign in / sign up",
             sup: "EduID ServiceDesk is by invitation only.",
-            logout: "Logout"
+            logout: "Logout",
+            system: "System"
+        },
+        loginInfo: {
+            title: "Inloggen / aanmelden",
+            subTitle: "je kunt op SURF Access inloggen met een bestaand instellingsaccount, of als je deze niet met een eduID. Kies hieronder je situatie",
+            commercial: {
+                title: "Je werkt bij een (commercieel) bedrijf",
+                info: [
+                    "Maken jullie zelf software die je wilt aanbieden in het onderwijsveld?",
+                    "Dan moet je inloggen met eduID. Heb je nog geen account, geen zorgen, het aanmaken van een nieuwe account kan binnen 30 seconden"
+                ],
+                login: "Login met eduID"
+            },
+            education: {
+                title: "Je werkt bij een instelling",
+                info: [
+                    "Ben je medewerker, student of onderzoeker bij een instelling die al is aangesloten op SURF, dan kan je direct inloggen met je instellingsaccount."
+                ],
+                login: "Login met je instellingsaccount"
+            }
+
         },
         tabs: {
             home: "Home",
             connect: "How to connect",
             institutions: "All institutions",
             applications: "All applications",
-
         },
         applicationProviders: {
             title: "For application providers",
@@ -55,19 +75,43 @@ const nl = {
         }
     },
     navigation: {
+        organizationMaintenance: "Beheer organisatie",
+        catalogue: "Browse overige apps",
+        apps: "Apps",
+        accessibleApps: "Apps met toegang",
+        yourApps: "Eigen apps",
+        allApps: "All apps",
+        externalMaintenance: "Beheer toegangsopties",
+        roles: "Rollen",
+        collaborations: "Samenwerkgroepen",
+        users: "Access gebruikers",
         home: "Home",
         applications: "Applications",
-        teams: "Teams"
+        teams: "Teams",
+        idp: "Mijn organisatie",
+        tooltips: {
+            users: "users",
+            idp: "idp",
+            yourApps: "yourApps",
+            catalogue: "catalogue",
+            accessibleApps: "accessibleApps",
+            roles: "roles",
+            collaborations: "collaborations"
+        }
     },
     breadCrumb: {
-        access: "SURF Access",
+        access: "Home",
         landing: "Search for your organization",
-        applications: "Application maintenance",
+        applications: "Your apps",
+        team: "Team management",
+        joins: "Join Requests",
+        invitations: "Invitation",
         home: "Home"
     },
     welcome: {
         greeting: "Welcome {{name}}",
         info: "Kies hieronder of jouw organisatie al bestaat of voeg een nieuwe organisatie toe. Dit helpt ons om je aan de juiste omgeving te koppelen.",
+        subInfo: "Preferable use the name of the organization as registered at the KvK",
         searchPlaceholder: "Search for organizations...",
         organizationMembers: "{{memberCount}} {{user}} and {{applicationCount}} {{application}}. Request access.",
         user: "user",
@@ -76,16 +120,68 @@ const nl = {
         applications: "applications",
         zeroState: "No organizations found",
         register: "‘<strong>{{name}}</strong>’ registreren en doorgaan",
+        confirmation: "Are you sure you want to register a new organization called {{name}}?",
+        confirmationAfter: "Your organization is created and is pending approval, but you can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
+        newOrganization: "New organization creaated",
         flash: "Created organization {{name}}."
     },
     userHome: {
         greeting: "{{name}}",
         nudgeLanding: "You are not a member of any organization.",
-        nudgeLandingLink: " You can request to join one.",
-        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending."
+        nudgeLandingLink: " You can request to join one or create your own.",
+        infoJoinRequest: "Just relax, your request to join the organization <strong>{{name}}</strong> is pending.",
+        backToLanding: "Go back to ",
+        backToLandingLink: " create your own organization.",
+        central: {
+            title: "Centraal toegangsbeheer",
+            subTitle: "Regel toegang tot veelgebruikte apps",
+            connectedApps: "Gekoppelde apps",
+            connectedAppsInfo: "De apps die aan onze IdP gekoppeld zijn",
+            maintainAccess: "Beheer toegang",
+            roles: "Toegangsrollen",
+            maintainRoles: "Beheer rollen",
+            teamCentral: "Team Centraal",
+            you: "You",
+            responsible: "Verantwoordelijk: <a href='mailto:{{mail}}'>{{name}}</a>",
+            maintainTeam: "Beheer Team Centraal",
+        },
+        catalogue: {
+            title: "SURF App catalogus",
+            subTitle: "Beheer eigen apps en vind nieuwe",
+            ourApps: "Eigen apps",
+            ourAppsInfo: "De apps die wij zelf aanbieden op SURF Access",
+            maintainOurApps: "Beheer onze apps",
+            allApps: "Alle apps",
+            openCatalogue: "Open de SURF app catalogus"
+        },
+        decentral: {
+            title: "Decentraal toegangsbeheer",
+            subTitle: "Delegeer beheer van leden en applicatietoegang aan samenwerkgroepen.",
+            collaborations: "Samenwerkgroepen",
+            maintainCollaborations: "Beheer samenwerkgroepen",
+            teamDecentral: "Team Decentraal",
+            responsible: "Verantwoordelijk: <a href='mailto:{{email}}'>{{name}}</a>",
+            maintainTeamDecentral: "Beheer Team Decentraal"
+        },
+        tip: {
+            info: "Tips van SURF bij instellen van toegang",
+            //Leave empty for no tips
+            tips: []
+        }
+    },
+    tabs: {
+        users: "Users",
+        organizations: "Organizations",
+        organizationPendingApproval: "Pending approval organizations",
+        team: "My Team",
+        joins: "Join Requests",
+        invitations: "Invitations",
     },
     joinRequest: {
         info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
+        optionalMessage: "Message (optional)",
+        optionalMessageInfo: "Message included in the join request send to the administrators",
+        optionalMessagePlaceHolder: "Please, please...",
         requestAccess: "Request access",
         duplicate: "There is already an outstanding request for you to join <strong>{{name}}</strong>.",
         flash: "Your join request is sent to the admins of <strong>{{name}}</strong>.",
@@ -96,7 +192,28 @@ const nl = {
         }
     },
     organizations: {
-        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn."
+        tooltip: "SURF beoordeelt je organisastie registratie. Je kunt apps registreren op onze testomgeving, voor toegang naar productie moet je ‘bevestigd’ zijn.",
+        tooltipApproved: "SURF heeft je organisastie registratie goedgekeurd. Je kunt apps registreren op onze productie omgevingn en productie status aanvragen.",
+        pendingApprovalTitle: "Organizations pending approval",
+        pending_approval: "Pending approval",
+        approved: "Approved",
+        disapproved: "Disapproved",
+        pending_approval_action: "Back to pending",
+        approved_action: "Approve",
+        disapproved_action: "Disapprove",
+        name: "Name",
+        schacHomeOrganization: "Schac home",
+        createdAt: "Created",
+        memberCount: "# Members",
+        applicationCount: "# Apps",
+        status: "Status",
+        searchPlaceHolder: "Search for organizations...",
+        confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organization {{name}}?",
+        flash: {
+            updated: "Organization {{name}} now has the status {{status}}",
+            deleted: "Organization {{name}} has been deleted",
+            nameChange: "Updated organization {{name}}"
+        }
     },
     userMenu: {
         switchOrganization: "Switch organization"
@@ -109,6 +226,7 @@ const nl = {
         type: "Type",
         app: "Een Applicatie (tools, clouddiensten, utitilities etc...)",
         content: "Content dienst (streaming media, educatieve content, e-books)",
+        contentAbbreviation: "Content",
         contentInfoPre: "Content diensten ontvangen de ",
         contentInfoLink: "minimale set",
         contentInfoPost: " aan attributen.",
@@ -128,10 +246,11 @@ const nl = {
             support: "Ik ben bereikbaar bij vragen en problemen"
         },
         checksInfo: {
-            personal: "De persoonsgegevens worden op een beveiligde manier opgeslagen.",
-            duration: "De persoonsgegevens worden echt niet langer dan nodig opgeslagen",
+            //If the check translation is empty, then the toggle is not shown
+            personal: "",
+            duration: "",
             privacy: "De persoonsgegevens worden niet aan derden verstrekt",
-            safe: "De applicatie is uitermate veilig en bijna altijd beschikbaar",
+            safe: "",
             support: "Als er vragen of problemen zijn, dan zoek je het maar uit"
         },
         flash: "Application {{name}} saved.",
@@ -139,6 +258,7 @@ const nl = {
     },
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
+        applicationManagement: "Your apps",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
         deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",
@@ -146,18 +266,21 @@ const nl = {
             terms: "Voorwaarden voor apps in de SURF catalogus",
             fairUse: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
             agreement: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
-            disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
+            disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen.",
+            fairUseExternal: "Is je app voor een specifieke groep gebruikers (zoals één onderzoeksgroep)? Dan valt deze onder de <a href='https://surf.nl/fair-use' target='_blank'>Fair use gebruiksvoorwaarden</a>.",
+            agreementExternal: "Is je app bedoeld voor gebruik door hele onderwijsinstellingen? Dan teken je een <a href='https://surf.nl/fair-use' target='_blank'>SURF-aansluitovereenkomst</a>.",
+            disclaimerExternal: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
         },
         applications: "Applications",
-        team: "My Team",
-        joins: "Join Requests"
     },
     connection: {
         overview: "Overview",
         testing: "Testing",
         prod: "Production",
         application: "App information",
+        change_requests: "Change request",
         contract: "Contract",
+        appteam: "Appteam",
         welcome: "Welkom {{user}}. {{name}} is nog niet gekoppeld met SURF Access. Begin met een koppeling aan onze testomgeving.",
         testSection: "Test",
         teamSection: "Team",
@@ -180,11 +303,11 @@ const nl = {
             catalogue: "App informatie voor de SURF App catalogus",
             access: "Toegang en zichtbaarheid",
             contract: "Contract",
-            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle boventaande informatie is verplicht.",
+            disclaimer: "Een koppeling aan de productieomgeving van SURF Access heeft goedkeuring nodig van team SURF Access. Alle bovenstaande informatie is verplicht.",
         },
         productionConnectionHint: "Maak een productiekoppeling aan. Om de applicatie te kunnen activeren, moet ook alle informatie over de dienst worden toegevoegd.",
         applicationInformationHint: "Voordat een productiekoppeling geactiveerd kan worden, moet alle informatie over de dienst zijn toegevoegd én het contract getekend.",
-        productionActivationHint: "Vraag activatie van de propductiekoppeling aan.",
+        productionActivationHint: "Vraag activatie van de propductiekoppeling aan voor {{name}}.",
         productionActivationAction: "Doe het direct",
         productActivationPending: "De aanvraag voor activatie van uw productiekoppeling is ontvangen. SURF neemt binnen drie werkdagen contact met u op.",
         newConnection: "Nieuwe koppeling met de testomgeving",
@@ -194,18 +317,21 @@ const nl = {
         copyConnection: "Kopieer info van andere koppeling",
         technical: "Technische gegevens",
         informationProfile: "Informatieprofiel",
+        pendingChanges: "Pending change requests",
         testIdP: "Test-IdP's",
-        visibility: "Visibility",
+        visibility: "Zichtbaarheid in de SURF app catalogus",
         help: "Hulp nodig?",
         callSurf: "Plan een call met SURF",
+        supportTicket: "Maak een support ticket",
         mailToSurf: "mailto:surf@info.nl",
         connectionName: "Naam koppeling",
         connectionPlaceholder: "e.g. {{application}}-{{environment}}",
         protocol: "Protocol",
+        protocolTooltip: "When a connection is registered within SURFconext, it is no longer possible to change the protocol. If you want, you can delete this connection and create another with a different protocol.",
         clientID: "Client ID",
         clientIDPlaceHolder: "",
-        oidc10_rp: "OpenID Connect",
-        saml20_sp: "SAML 2.0",
+        oidc10_rp: "OIDC",
+        saml20_sp: "SAML",
         grantType: "OAuth Grant type",
         grantTypes: "OAuth Grant types",
         authorization_code: "Authorization Code",
@@ -215,11 +341,16 @@ const nl = {
         pkceTooltip: "PKCE (Proof Key for Code Exchange) enhances the security of the authorization code flow by preventing authorization code interception. It’s especially important for public clients like mobile or single-page apps",
         optional: "Optional",
         required: "Required (public client)",
+        refreshTokenValidity: "Refresh token validity in seconds",
+        refreshTokenMax: "Maximum validity is {{max}} seconds",
         redirectUrl: "Redirect URL",
         redirectUrls: "Redirect URLs",
+        redirectUrlsPlaceholder: "Redirect URL, for example https://redirect.com",
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL Grade (min. B)",
         sslGradeTooltip: "Ensure the SSL/TLS certificate meets or exceeds grade B",
+        claimsInIdToken: "Claims",
+        claimsInIdTokenTooltip: "Receive all claims directly in the ID Token",
         configuration: "Congifuratiegegevens",
         import: "Metadata importeren",
         entityID: "Entity ID",
@@ -229,6 +360,7 @@ const nl = {
         addACSLocation: "+ Add ASC location",
         save: "Opslaan",
         saveAndNext: "Opslaan en volgende",
+        requiresChangeRequest: "Request change",
         deleteConfirmation: "Are you sure you want to delete this connection?",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
@@ -253,12 +385,29 @@ const nl = {
             titleTest: "Koppelingen met de testomgeving",
             name: "Name",
             created: "Added at",
+            updatedAt: "Updated at",
             status: "Status",
-            open: "Open",
+            open: "In progress",
             complete: "Completed",
+            in_progress: "In progress",
+            pending_prod: "Pending approval",
+            prod_ready: "Live",
+            ready_for_prod: "Ready for prod",
+            open_change_requests: "Pending changes",
+            multiple_connections: "Multiple connections",
+            no_connections: "No production connections",
+            tooltips: {
+                //A null tooltip won't show
+                open: "Your connection has unfinished sections. Please fill in all the required fields.",
+                complete: null,
+                pending_prod: "Je productieverzoek ligt ter inzage bij <strong>SURF Access</strong>. Eén van onze medewerkers beoordeelt nu de configuratie en laat zo snel mogelijk weten of deze akkoord is.<br><br> Na publicatie kunnen instellingen aan je applicatie koppelen.",
+                prod_ready: "Je applicatie is klaar voor productie en instellingen kunnen aan je applicatie koppelen.",
+            },
             protocol: "Protocol",
             details: "Details",
-            requestProductionStatus: "Vraag productiestatus aan"
+            requestProductionStatus: "Vraag productiestatus aan",
+            requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
+            requestProductionStatusPostInfo: "Your request is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>"
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
@@ -315,13 +464,15 @@ const nl = {
             institution: "test IdP or institution IdP"
         },
         visibilities: {
-            info: "Kies hoe je wilt dat deze koppeling zichtbaar is in de SURF App catalogus",
+            info: "Jouw app is straks zichtbaar in de SURF app catalogus. Instellingen of groepen die jouw applicatie willen gebruiken, kunnen deze zelf activeren of een koppeling aanvragen.",
             disclaimer: "<strong>Let op</strong>: je kan de zichtbaarheid altijd later nog aanpassen",
-            options: {
-                "visible_to_all": "Visible for all users and institutions",
-                "visible_to_idp_only": "Only visible for users from institutions that are granted access to this connection",
-                "visible_to_none": "Not visible for any users or institutions (e.g. hidden in the catalogus)",
-            },
+            who: "1. Wie mogen jouw applicatie zien?",
+            visible_to_all: "Alle organisaties",
+            visible_to_none: "Nog niemand (app is nog niet zichtbaar in de Appstore)",
+            connect: "2. Kan men direct met de applicatie koppelen?",
+            connect_with_interaction: "Nee, een koppeling moet worden aangevraagd",
+            connect_without_interaction_with_email: "Yes, but with a notification email",
+            connect_without_interaction_without_email: "Yes, without notification email",
             placeholder: "Selecteer één of meerdere instellingen",
             institution: "Institution IdP"
         },
@@ -341,6 +492,10 @@ const nl = {
             reset: "Reset my secret",
             resetContinue: "I’ve copied the secret. Continue"
         },
+        connectionOverviewSAML: {
+            title: "De SAML koppeling is gereed",
+            link: "Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>testinstructies</a> om te kijken of alles werkt."
+        },
         appInfo: {
             title: "App informatie voor de SURF App catalogus",
             label: "App informatie",
@@ -358,18 +513,17 @@ const nl = {
             tagPlaceholder: "Maximaal 3 tags",
             tagInfo: "In de appstore kunnen instellingen hierop filteren",
             tagsAvailable: {
-                education: "Onderwijs",
-                research: "Onderzoek",
-                privacy: "Privacy/beveiliging",
-                content: "Content/bibliotheek",
+                business_management: "Business management",
+                collaboration: "Collaboration",
+                content_library: "Content/ Library",
+                learn_study: "Learning/ Study",
+                education_logistics: "Education / Logistics",
+                privacy_security: "Privacy / Security",
+                productivity: "Productivity",
+                recommended: "Recommended",
                 repository: "Repository",
-                company: "Bedrijfsvoering",
-                recommended: "Aangeraden",
-                productivity: "Productiviteit",
-                organization: "Organisatie van onderwijs/onderzoek",
-                cooperation: "Samenwerken",
-                video: "Videoplatform",
-                surf: "SURF"
+                surf: "SURF",
+                media_video: "Media / Video"
             },
             targetGroup: "Ga door naar de doelgroep"
         },
@@ -388,18 +542,19 @@ const nl = {
         },
         contacts: {
             label: "Contactgegevens",
-            info: "Gebruik zoveel mogelijk functionele adressen in plaats van persoonlijke.",
+            info: "Gebruik functionele e-mailadressen (zoals {{example}}) in plaats van persoonlijke. Zo blijft contact mogelijk ook als iemand vertrekt of van functie verandert. Je kunt ook een URL naar contactformulier gebruiken.",
             name: "name",
             administrative: "Administratief contact",
-            administrativeTooltip: "Administratief contact Tooltip",
-            administrativePlaceholder: "e.g. admin@{{name}}",
-            emailOrWebsite: "Email-adres of website",
-            technical: "Technisch contact (anders dan administratief)",
-            technicalTooltip: "Technical contact Tooltip",
-            technicalPlaceholder: "e.g. technical@{{name}}",
-            support: "Support contact (eindgebruikers zien dit)",
-            supportTooltip: "Support contact Tooltip",
-            supportPlaceholder: "e.g. support@{{name}}",
+            administrativeDisclaimer: "",
+            administrativePlaceholder: "admin",
+            emailOrWebsite: "Email-adres of url",
+            technical: "Technisch contact",
+            technicalDisclaimer: "Gebruik een andere adres dan het administratieve contactadres.",
+            technicalPlaceholder: "technical",
+            support: "Support contact",
+            supportDisclaimer: "Dit wordt getoondd aan eindgebruikers.",
+            supportPlaceholder: "support",
+            addTechnicalContact: "+ voeg nog een technisch contact toe"
         },
         privacy: {
             label: "Privacy & Security",
@@ -437,12 +592,322 @@ const nl = {
         ok: "Ok",
         cancel: "Cancel",
     },
+    userManagement: {
+        title: "Gebruikersbeheer"
+    },
+    teamManagement: {
+        nameEmail: "Name & Email",
+        applicationMemberships: "Member of ApplicationTeams",
+        active: "Active since",
+        role: "Role",
+        maintain: "Maintain the {{name}} team",
+        searchPlaceHolder: "Search for members",
+        new: "Invite team member",
+        deleteConfirmation: "Are you sure you want to remove the organization membership of {{name}}?",
+        deleteDemotion: "Are you sure you don't want to be admin anymore? This can not be reverted",
+        flash: {
+            deleted: "The organization membership of {{name}} has been removed",
+            updated: "The organization membership of {{name}} has been updated"
+        },
+        makeAdmin: "Make admin",
+        makeMember: "Make member",
+        makeGuest: "Make guest",
+        explanations: {
+            title: "Toelichting SXS rollen",
+            admin: "Admin",
+            adminRights: "Admins kunnen alle functies van SXS bedienen en members en guests beheren.",
+            member: "Member",
+            memberRights: "Members horen bij de organsatie en mogen applicatie beheren en applicatie gebruikers uitnodigen.",
+            guest: "Guest",
+            guestRights: "Gasten zijn gebruikers die niet bij de organisatie horen maar externen die betrokken zijn om bepaalde applicaties te beheren."
+        }
+    },
+    joinRequestManagement: {
+        nameEmail: "Name & Email",
+        message: "Personal message",
+        createdAt: "Created at",
+        maintain: "Maintain the {{name}} join requests",
+        zeroState: "There are no outstanding join requests for {{name}}",
+        searchPlaceHolder: "Search for join requests",
+        approveConfirmation: "Are you sure you want to approve the organization join request of {{name}}?",
+        denialConfirmation: "Are you sure you want to deny the organization join request of {{name}}?",
+        flash: {
+            approved: "The organization membership of {{name}} has been created.",
+            approveAll: "The organization memberships habe been created.",
+            denied: "The join request of {{name}} has been denied."
+        },
+        deny: "Deny",
+        approve: "Approve",
+        approveAll: "Approve all",
+        approveAllConfirmation: "Are you sure you want to approve all the organization join requests?"
+    },
+    invitationsManagement: {
+        email: "Email",
+        active: "Active since",
+        role: "Role",
+        createdAt: "Send at",
+        expiryDate: "Expires on",
+        inviter: "Inviter",
+        maintain: "Open invitations",
+        searchPlaceHolder: "Search for members",
+        zeroState: "There are no outstanding invitations for {{name}}",
+        new: "Invite team member",
+        deleteAll: "Delete all",
+        deleteConfirmation: "Are you sure you want to revoke the invitation for {{email}}?",
+        deleteAllConfirmation: "Are you sure you want to revoke all of the invitations of {{name}}?",
+        flashDeleteAll: "All invitations have been deleted",
+        flashDelete: "Invitations have been revoked",
+        resend: "Resend",
+        revoke: "Revoke",
+        resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
+        flashReminderSent: "Reminder mail has been sent"
+    },
+    appTeamManagement: {
+        name: "Name",
+        role: "Role",
+        createdAt: "Member since",
+        maintain: "Applicatieteam",
+        searchPlaceHolder: "Search for members",
+        zeroState: "There are no application memberships for {{name}} yet",
+        new: "Invite new user",
+        addPlaceHolder: "Add existing user",
+        remove: "Remove from appteam",
+        deleteConfirmation: "Are you sure you want to delete the application role for {{name}}?",
+        organizationMembersPre: "Je kunt ",
+        organizationMembersLink: "organisatiegebruikers",
+        organizationMembersPost: " toevoegen aan dit applicatieteam. ",
+        flashCreated: "Created application membership for {{name}}",
+        createdBy: "Created by {{name}} on {{date}}"
+    },
+    roles: {
+        admin: "Admin",
+        member: "Member",
+        guest: "Guest",
+        all: "Roles - all"
+    },
+    impersonate: {
+        exit: "Stop impersonating",
+        impersonator: "You are impersonating <strong>{{name}}</strong>",
+        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>.",
+        flash: {
+            startedImpersonation: "You now impersonate {{name}}.",
+            clearedImpersonation: "Cleared your impersonation. You are you again."
+        },
+    },
+    users: {
+        name_email: "Name & Email",
+        schacHomeOrganization: "Organization",
+        createdAt: "Active since",
+        lastActivity: "Last activity",
+        searchPlaceHolder: "Search users...",
+        impersonate: "Impersonate user {{name}}",
+        you: "You"
+    },
+    invitation: {
+        title: "New invitation for {{name}} membership",
+        invitees: "Invitees",
+        intendedAuthority: "Rol",
+        message: "Personal note",
+        messagePlaceholder: "Add an optional personal note to your invitation",
+        inviteesPlaceholder: "Invitee email addresses",
+        invite: "Invite",
+        invalidEmails: "Invalid email addresses removed: {{emails}}.",
+        requiredEmail: "At least one email is required for an invitation",
+        intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted on accepting the invitation",
+        inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or on seperate lines. You can also paste a csv file with line-separated email addresses.",
+        applications: "Applications",
+        applicationsPlaceHolder: "Find and add application access for this invitation",
+        applicationsTooltip: "You can already add applications to this invitation. The invitees will be granted read and write access to the applications",
+        languageTooltip: "Choose the language of the invitation mail",
+        createFlash: "Invitations are created and sent to the invitees",
+        acceptedFlash: "Invitation is accepted and you are now a member of the {{name}} organization",
+        accept: "{{inviter}} has invited you to join organization {{name}}. Press proceed to accept the invitation and checkout the organization",
+    },
+    institutions: {
+        title: "Institutions",
+        subTitle: "Browse the institutions currently connected to SURF Access, categorized into education, research and affiliated institutions.",
+        category: "Category",
+        all: "All categories",
+        other: "Other",
+        searchPlaceHolder: "Search institutions..."
+    },
+    applications: {
+        title: "Applications",
+        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        category: "Category",
+        all: "All categories",
+        allSources: "All federations",
+        other: "-",
+        searchPlaceHolder: "Search applications...",
+        recent: "Recently added applications"
+    },
+    applicationDetail: {
+        title: "Applications",
+        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        back: "Terug",
+        license: {
+            license_available_through_surfmarket: "Requires a license through SURFmarket",
+            license_not_required: "Does not requires a license",
+            license_required_by_service_provider: "Requires a license",
+        },
+        attributes: "Attributes",
+        attributesInfo: "The application needs to receive attributes to function correctly.",
+        details: "Show details",
+        privacy: "Privacy",
+        privacyInfo: "SURF asks suppliers to provide information about their GDPR (AVG) policies. For anything missing, please contact the supplier.",
+        quickLinks: "Quick links",
+        website: "Website",
+        loginPage: "Login page",
+        support: "Support",
+        terms: "Terms & conditions",
+        registrationPolicy: "Registration policy",
+        privacyStatement: "Privacy statement",
+        contractual: "Contractual Base",
+        wiki: " See the <a href='https://support.surfconext.nl/contract-info-nl' target='_blank' rel='noopener noreferrer'>wiki</a>.",
+        noInformation: "No information supplied",
+        contractualInfoOrganization: "(This application is offered by {{name}}.)",
+        contractualBase: {
+            na: "No info on the contractual base is available: for any questions, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
+            ao: "{{organisation}} has signed the SURFconext connection agreement.",
+            ix: "Application offered by SURFconext member institution.",
+            "r&s+coco": "eduGAIN application that has agreed to the Data Protection Code of Conduct and belongs to the Research & Scholarship entity category.",
+            entree: "Member of the Kennisnet Entree-federation.",
+            clarin: "Member of the Clarin research federation.",
+            none: "{{organisation}} refused to sign the SURFconext connection agreement.",
+            "edugain (community)": "Application offered through the international research and education community via eduGAIN."
+        },
+        supportedEntityCategories: "Supported Entity Categories",
+        entityCategory: {
+            "http://wwwgeantnet/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
+            "https://refedsorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
+            "http://refedsorg/category/research-and-scholarship": "Research and Scholarship",
+            "http://clarineu/category/clarin-member": "Clarin member",
+            "http://refedsorg/category/hide-from-discovery": "Hide from discovery"
+        },
+        none: "None",
+        interfedSource: "Federation source",
+        registrationInfo: "This application provider is available in SURFconext through <a href='https://support.surfconext.nl/edugain' target='_blank' rel='noopener noreferrer'>eduGAIN</a>. " +
+            "The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>.",
+        noArp: "This application will receive all attirbutes that are released by the identity provider",
+        noMotivation: "No motivation",
+        noPrivacyInfo: "No information supplied",
+        source: "Source: ",
+        arp: "Informatieprofiel",
+        profile: "Profile",
+        arpSources: {
+            eduid: "EduID Identity Provider",
+            idp: "Your IdP",
+            invite: "SURF Invite",
+            manage: "SURF Manage",
+            orcid: "ORCID organization",
+            sabrest: "SURF SAB",
+            voot: "SURF Memberships",
+            institution: "Your IdP"
+        }
+    },
+    connect: {
+        title: "How to connect",
+        subTitle: "Connecting to SURF Access is not complicated. It requires a formal and a technical part.",
+        formal: "Formal part",
+        formalInfo: "Applications on SURF Access are either provided by commercial entities or by SURF members for the benefit of their peers within the network. Our agreements vary based on the ownership of the application and the intended audience. For instance, if you intend to offer your service to a large number of users, you will need to enter into a formal contract with us.  If your service is developed within your institution and is intended for a smaller research group, a shorter terms of service will do.",
+        agreementTypes: "Agreement types",
+        testIdps: "Test IdP’s",
+        collaborations: "Collaborations",
+        enterprises: "Enterprises",
+        accessTestIdps: "access for test IdP’s",
+        accessGroups: "access for diverse groups",
+        accessStudent: "e.g. access for all students",
+        commercial: "Commercial entity",
+        fairUse: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Fair Use Policy</a>",
+        accessTOS: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>SURF Access TOS</a>",
+        connectionAgreement: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Connection agreement</a>",
+        surfMember: "SURF member",
+        notNeeded: "not needed",
+        memberAgreement: "<a href='https://www.surf.nl/en/services/identity-access-management/surfconext' target='_blank'>Member agreement</a>",
+        surfMemberInfo: "including affiliated organisations",
+        provisions: "With these provisions, we aim to ensure a smooth and secure integration for all parties involved.",
+        technical: "Technical part",
+        technicalInfo: "Whenever a user logs in through SURF Access, their information flows from their home-institution (Identity provider), via SURF Access, directly to your service.",
+        serviceInfo: "Your service can receive a variety of data, including:",
+        serviceBullets: [
+            "<strong>Authentication Data</strong>: Proof that the user has been authenticated by the Identity Provider.",
+            "<strong>Authorisation Information</strong>: Details necessary for making authorisation decisions within your service.",
+            "<strong>Group Membership Information</strong>: Data about a user’s group memberships.",
+            "<strong>Additional User Data</strong>: Any other data relevant to the service you provide."
+        ],
+        samlOidc: "SAML & OpenID Connect",
+        samlOidcInfo: "We use these open standards as they are used in most countries and many sectors.",
+        attributes: "Attributes and claims",
+        attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors.",
+        connect: "Connect your application now"
+    },
+    changeRequests: {
+        title: "Pending change request(s)",
+        info1: "De volgende change requests staan open. Je kunt nog steeds wijzigingen aanbrengen.",
+        info2: "<strong>Let op!</strong> In de andere tabs zie je dus de oude informatie staan, informatie waar een change request voor actief is, is herkenbaar aan het waarschuwings icoon",
+        changes: "Changes",
+        open: "Pending approval",
+        revoke: "Revoke",
+        revokeConfirmation: "Are you sure you want to revoke this change request?",
+        revoked: "Change request has been revoked",
+        createdAtBy: "Change request made by {{name}} on {{date}}",
+        show: "Show JSON visual diff",
+        hide: "Hide JSON visual diff",
+        visibility: "Zichtbaarheid in de SURF app catalogus",
+        connectOption: "Applicatie koppeling",
+        claimsInIdToken: "Claims in ID token",
+        redirectUrls: "Redirect URLs",
+        grantTypes: "OAuth Grant types",
+        name: "Connection name",
+        arp: "Information profile",
+        profile: "profile",
+        attributes: "attribute",
+        motivation: "motivation",
+        refreshTokenValidity: "Refresh token validity in seconds",
+        visible_to_all: "Alle organisaties",
+        visible_to_none: "Nog niemand (app is nog niet zichtbaar in de Appstore)",
+        connect_with_interaction: "Nee, een koppeling moet worden aangevraagd",
+        connect_without_interaction_with_email: "Yes, but with a notification email",
+        connect_without_interaction_without_email: "Yes, without notification email",
+        refresh_token: "Refresh token",
+        "urn:ietf:params:oauth:grant-type:device_code": "Device code",
+        authorization_code: "Authorization code",
+        actions: {
+            added: "Added",
+            removed: "Removed",
+            changed: "Changed",
+            array_added: "Added",
+            array_removed: "Removed",
+            array_changed: "Changed",
+            oldValue: "Old value",
+            newValue: "New value"
+        }
+    },
+    external: {
+        invite: {
+            title: "Applicatie toegangsrollen",
+            alert: "Toegangsrollen worden vooralsnog beheerd in SURF Concext Invite en op termijn hierheen verplaatst.",
+            link: "Open SURF Conext <strong>Invite</strong>"
+        },
+        sram: {
+            title: "Samenwerkgroepen",
+            alert: "Samenwerkgroepen worden vooralsnog beheerd in SURF Research Access Management en op termijn hierheen verplaatst.",
+            link: "Open <strong>SRAM</strong>"
+        }
+
+    },
     forms: {
         cancel: "Cancel",
         submit: "Submit",
+        save: "Save",
+        sure: "I'm sure",
         edit: "Edit",
+        accept: "Accept",
+        proceed: "Proceed",
         delete: "Delete",
         back: "Back",
+        and: "and",
+        or: "or",
         required: "{{name}} is required",
         requiredOne: "At least one {{name}} is required",
         error: "An unexpected error occurred",
@@ -453,6 +918,12 @@ const nl = {
         invalidEmailURL: "{{name}} is not a valid URL or valid email",
         moreLabel: "Show me more",
         lessLabel: "Show me less",
+        you: "You",
+        copied: "Copied"
+    },
+    tooltips: {
+        userIcon: "User {[name}} is created on {{createdAt}} and was last seen at {{lastActivity}}",
+        organizationsIcon: "Organization {{name}} is created on {{createdAt}} and has the status {{status}}",
     },
     footer: {
         terms: "Terms of Use",
