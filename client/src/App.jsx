@@ -59,8 +59,7 @@ const App = () => {
 
     const refreshUser = () => {
         me().then(user => {
-            const { config } = useAppStore.getState();
-            const newMenuItems = menuItemsForUser(user, config);
+            const newMenuItems = menuItemsForUser(user);
             useAppStore.setState(() => ({
                 user: user,
                 menuItems: newMenuItems
@@ -83,7 +82,7 @@ const App = () => {
                         me().then(user => {
                             useAppStore.setState(() => ({
                                 user: user,
-                                menuItems: menuItemsForUser(user, res[0]),
+                                menuItems: menuItemsForUser(user),
                                 activeMenuItem: mainMenuItems.home,
                                 currentOrganization: user.organizationMemberships.map(om => om.organization)[0] || {name: ""}
                             }));

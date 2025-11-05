@@ -7,13 +7,13 @@
     flex-direction: column;
     gap: 35px;
 
-    @include index.page-media;
 
     .info-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         width: 75%;
+        @include index.page-media;
         @media (max-width: $medium) {
             grid-template-columns: 1fr;
             width: 100%;

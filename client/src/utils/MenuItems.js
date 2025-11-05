@@ -11,14 +11,13 @@ export const mainMenuItems = {
     collaborations: "collaborations"
 }
 
-export const menuItemsForUser = (user, config) => {
+export const menuItemsForUser = user => {
     const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-    const externalUser = user.schacHomeOrganization === config.eduIdSchacHomeOrganization;
     const newMenuItems = [mainMenuItems.home, mainMenuItems.yourApps, mainMenuItems.catalogue]
     if (hasOrganizationMemberships) {
         newMenuItems.push(mainMenuItems.users);
     }
-    if (!externalUser) {
+    if (!user.externalUser) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.roles, mainMenuItems.collaborations);
     }
     return newMenuItems;

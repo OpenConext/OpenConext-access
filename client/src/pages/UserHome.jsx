@@ -49,7 +49,7 @@ const UserHome = () => {
         <div className="home-container">
             <h2>{I18n.t("welcome.greeting", {name: user.firstName || user.name})}</h2>
             <div className="info-container">
-                <section className="info-block">
+                {!user.externalUser && <section className="info-block">
                     <h3>{I18n.t("userHome.central.title")}</h3>
                     <p>{I18n.t("userHome.central.subTitle")}</p>
                     <h5>{I18n.t("userHome.central.connectedApps")}</h5>
@@ -72,7 +72,7 @@ const UserHome = () => {
                     <Button onClick={() => navigateInner(mainMenuItems.users, `/users/${currentOrganization.id}`)}
                             txt={I18n.t("userHome.central.maintainTeam")}
                             type={ButtonType.GhostLight}/>
-                </section>
+                </section>}
                 <section className="info-block">
                     <h3>{I18n.t("userHome.catalogue.title")}</h3>
                     <p>{I18n.t("userHome.catalogue.subTitle")}</p>
@@ -86,7 +86,7 @@ const UserHome = () => {
                             txt={I18n.t("userHome.catalogue.openCatalogue")}
                             type={ButtonType.GhostLight}/>
                 </section>
-                <section className="info-block grey">
+                {!user.externalUser && <section className="info-block grey">
                     <h3>{I18n.t("userHome.decentral.title")}</h3>
                     <p>{I18n.t("userHome.decentral.subTitle")}</p>
                     <h5>{I18n.t("userHome.decentral.collaborations")}</h5>
@@ -104,13 +104,13 @@ const UserHome = () => {
                     <Button onClick={() => navigateInner(mainMenuItems.collaborations, "/external/sram")}
                             txt={I18n.t("userHome.decentral.maintainTeamDecentral")}
                             type={ButtonType.GhostLight}/>
-                </section>
-                <section className="info-block full-row">
+                </section>}
+                {!user.externalUser && <section className="info-block full-row">
                     <p className="strong">{I18n.t("userHome.tip.info")}</p>
                     {I18n.translations[I18n.locale].userHome.tip.tips.map((tip, index) =>
                         <p key={index}>{tip}</p>
                     )}
-                </section>
+                </section>}
             </div>
         </div>
     )

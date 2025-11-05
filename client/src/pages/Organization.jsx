@@ -45,7 +45,7 @@ const Organization = ({refreshUser}) => {
                     const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                     const authority = currentUserMembershipAuthority(user, membership);
                     setCurrentUserAuthority(authority);
-                    setIsExternal(user.schacHomeOrganization === config.eduIdSchacHomeOrganization);
+                    setIsExternal(user.externalUser);
                     setLoading(false);
                 }).catch(() => {
                 navigate("/home")
