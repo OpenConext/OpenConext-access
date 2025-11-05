@@ -10,6 +10,10 @@
 
 - Java 21
 - Maven 3
+- Node (nvm)
+- Yarn
+- Mailpit
+- Mariadb / MySql
 
 First install Java 21 with a package manager
 and then export the correct the `JAVA_HOME`. For example, on macOS:
@@ -23,8 +27,8 @@ Then create the MySQL database:
 ```sql
 DROP DATABASE IF EXISTS access;
 CREATE DATABASE access CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';
-GRANT ALL privileges ON `access`.* TO 'access'@'localhost';
+CREATE USER 'access'@'%' IDENTIFIED BY 'secret';
+GRANT ALL privileges ON `access`.* TO 'access'@'%';
 ```
 
 ### [Building and running](#building-and-running)
