@@ -110,7 +110,7 @@ public class UserController implements UserAccessRights {
                 }
             }
         }
-
+        userFromDB.setExternalUser(config.getEduIdSchacHomeOrganization().equalsIgnoreCase(userFromDB.getSchacHomeOrganization()));
         return ResponseEntity.ok(userFromDB);
     }
 

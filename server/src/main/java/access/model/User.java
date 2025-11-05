@@ -86,6 +86,9 @@ public class User implements Serializable, NameHolder {
     @Transient
     private Institution institution = null;
 
+    @Transient
+    private boolean externalUser;
+
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }
@@ -217,5 +220,10 @@ public class User implements Serializable, NameHolder {
     @JsonProperty
     public Institution getInstitution() {
         return institution;
+    }
+
+    @JsonProperty
+    public boolean isExternalUser() {
+        return externalUser;
     }
 }
