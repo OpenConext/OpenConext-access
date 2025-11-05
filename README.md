@@ -22,6 +22,16 @@ and then export the correct the `JAVA_HOME`. For example, on macOS:
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 ```
 
+### [Building and running](#building-and-running)
+
+### Database and Maipit
+
+The `docker-compose.yaml` file in this project is meant for local development and contains a MariaDB and Mailpit instance
+
+```shell
+docker compose up -d
+```
+
 Then create the MySQL database:
 
 ```sql
@@ -31,7 +41,9 @@ CREATE USER 'access'@'%' IDENTIFIED BY 'secret';
 GRANT ALL privileges ON `access`.* TO 'access'@'%';
 ```
 
-### [Building and running](#building-and-running)
+Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_0900_ai_ci` from script above
+
+### Access Server
 
 The access server uses Spring Boot and Maven. To run locally, type:
 
@@ -40,11 +52,14 @@ cd server
 mvn spring-boot:run
 ```
 
+### Access Client
+
 The access client uses ReactJS. To run locally, type:
 
 ```bash
 cd client
 nvm use
+yarn install
 yarn dev
 ```
 

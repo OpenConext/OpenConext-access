@@ -10,7 +10,6 @@ services:
     restart: unless-stopped
   mailpit:
     image: axllent/mailpit:v1.27
-    container_name: mailpit
     ports:
       - "8025:8025"
       - "1025:1025"
