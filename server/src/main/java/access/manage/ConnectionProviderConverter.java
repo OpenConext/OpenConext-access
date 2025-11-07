@@ -82,7 +82,12 @@ public class ConnectionProviderConverter {
         List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
         putIf(metaDataFields, "application_tags", tags);
 
-        List<Map<String, String>> contactPersons = (List<Map<String, String>>) applicationMetaData.getOrDefault("contactPersons", Collections.emptyList());
+        List<Map<String, String>> contactPersons = ((List<Map<String, String>>) applicationMetaData
+                .getOrDefault("contactPersons", Collections.emptyList()))
+                .stream()
+                .filter(m -> StringUtils.hasText(m.get("email")))
+                .toList();
+
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);
             Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
@@ -167,7 +172,7 @@ public class ConnectionProviderConverter {
 
         List<ChangeRequest> changeRequests = new ArrayList<>();
         Map<String, Object> pathUpdates = new LinkedHashMap<>();
-        diffChangeRequestRecursive("", currentData, newData , pathUpdates);
+        diffChangeRequestRecursive("", currentData, newData, pathUpdates);
         if (!pathUpdates.isEmpty()) {
             ChangeRequest changeRequest = new ChangeRequest(
                     connection.getManageIdentifier(),
