@@ -21,7 +21,7 @@
 
         .info-block {
             border-radius: 10px;
-            border: 1px solid var(--sds--color--gray--300);
+            border: 1px solid var(--sl-color-green-200);
             padding: 24px;
             display: flex;
             flex-direction: column;
@@ -61,12 +61,14 @@
 
             &.grey {
                 background-color: var(--sl-color-grey-100);
+                border: 1px solid var(--sds--color--gray--300);
             }
         }
 
         .full-row {
             grid-column: 1 / -1;
             background: white;
+            border: 1px solid var(--sds--color--gray--200);
         }
     }
 
