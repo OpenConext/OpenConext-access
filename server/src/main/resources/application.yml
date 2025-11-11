@@ -94,6 +94,7 @@ config:
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   invite: "https://invite.test2.surfconext.nl"
   sram: "https://test.sram.surf.nl/"
+  serviceDesk: "https://servicedesk.surf.nl/"
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl"
 

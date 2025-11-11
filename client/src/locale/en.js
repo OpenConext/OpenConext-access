@@ -78,7 +78,7 @@ const en = {
         organizationMaintenance: "Beheer organisatie",
         catalogue: "Browse overige apps",
         apps: "Apps",
-        accessibleApps: "Apps met toegang",
+        accessibleApps: "Gekoppelde apps",
         yourApps: "Eigen apps",
         allApps: "All apps",
         externalMaintenance: "Beheer toegangsopties",
@@ -89,6 +89,9 @@ const en = {
         applications: "Applications",
         teams: "Teams",
         idp: "Mijn organisatie",
+        support: "Support",
+        servicedesk: "SURF servicedesk",
+        feedback:"Help ons verbeteren",
         tooltips: {
             users: "users",
             idp: "idp",
@@ -468,6 +471,7 @@ const en = {
             disclaimer: "<strong>Let op</strong>: je kan de zichtbaarheid altijd later nog aanpassen",
             who: "1. Wie mogen jouw applicatie zien?",
             visible_to_all: "Alle organisaties",
+            visible_to_idp_only: "Alleen medewerkers van gekoppelde instellingen",
             visible_to_none: "Nog niemand (app is nog niet zichtbaar in de Appstore)",
             connect: "2. Kan men direct met de applicatie koppelen?",
             connect_with_interaction: "Nee, een koppeling moet worden aangevraagd",
@@ -887,14 +891,18 @@ const en = {
         invite: {
             title: "Applicatie toegangsrollen",
             alert: "Toegangsrollen worden vooralsnog beheerd in SURF Concext Invite en op termijn hierheen verplaatst.",
-            link: "Open SURF Conext <strong>Invite</strong>"
+            link: "Open SURFConext <strong>Invite</strong>"
         },
         sram: {
             title: "Samenwerkgroepen",
             alert: "Samenwerkgroepen worden vooralsnog beheerd in SURF Research Access Management en op termijn hierheen verplaatst.",
             link: "Open <strong>SRAM</strong>"
+        },
+        serviceDesk: {
+            title: "SURF Servicedesk",
+            alert: "The service desk portal is the main customer support website of SURF.",
+            link: "Open <strong>SURF Servicedesk</strong>"
         }
-
     },
     forms: {
         cancel: "Cancel",

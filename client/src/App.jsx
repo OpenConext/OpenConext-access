@@ -80,9 +80,10 @@ const App = () => {
                     setIsAuthenticated(res[0].authenticated);
                     if (res[0].authenticated) {
                         me().then(user => {
+                            const newMenuItems = menuItemsForUser(user);
                             useAppStore.setState(() => ({
                                 user: user,
-                                menuItems: menuItemsForUser(user),
+                                menuItems: newMenuItems,
                                 activeMenuItem: mainMenuItems.home,
                                 currentOrganization: user.organizationMemberships.map(om => om.organization)[0] || {name: ""}
                             }));

@@ -20,6 +20,7 @@ public class Config {
     private String name;
     private String sram;
     private String invite;
+    private String serviceDesk;
     private String discovery;
     private boolean authenticated;
     private List<String> missingAttributes;
@@ -32,6 +33,7 @@ public class Config {
         this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;
         this.invite = base.invite;
         this.sram = base.sram;
+        this.serviceDesk = base.serviceDesk;
     }
 
     public Config withAuthenticated(boolean authenticated) {

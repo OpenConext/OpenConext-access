@@ -9,8 +9,10 @@ import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import CheckIcon from "@surfnet/sds/icons/check.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
-import AlarmBell from "@surfnet/sds/icons/functional-icons/alarm-bell.svg";
+import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
+import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
+import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {useEffect, useState} from "react";
@@ -36,7 +38,7 @@ const allMenuGroups = [
             {
                 name: mainMenuItems.accessibleApps,
                 path: "/accessible-apps",
-                Logo: AlarmBell
+                Logo: ConnectedIcon
             },
             {
                 name: mainMenuItems.yourApps,
@@ -79,6 +81,22 @@ const allMenuGroups = [
             },
         ]
     },
+    {
+        label: "support",
+        className: "custom-group",
+        items: [
+            {
+                name: mainMenuItems.serviceDesk,
+                path: "/external/serviceDesk",
+                Logo: HeadPhonesIcon
+            },
+            {
+                name: mainMenuItems.feedback,
+                path: "/feedback",
+                Logo: FeedbackIcon
+            },
+        ]
+    },
 ]
 
 export const SharedMenu = () => {
@@ -93,6 +111,7 @@ export const SharedMenu = () => {
         const newMenuGroups = allMenuGroups
             .map(menuGroup => ({
                 label: menuGroup.label ? I18n.t(`navigation.${menuGroup.label}`) : null,
+                className: menuGroup.className,
                 items: menuGroup.items
                     .filter(menuItem => menuItems.includes(menuItem.name))
                     .map(menuItem => ({

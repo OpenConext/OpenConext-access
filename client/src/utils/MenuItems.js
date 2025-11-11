@@ -8,7 +8,9 @@ export const mainMenuItems = {
     catalogue: "catalogue",
     accessibleApps: "accessibleApps",
     roles: "roles",
-    collaborations: "collaborations"
+    collaborations: "collaborations",
+    serviceDesk: "servicedesk",
+    feedback: "feedback"
 }
 
 export const menuItemsForUser = user => {
@@ -20,5 +22,6 @@ export const menuItemsForUser = user => {
     if (!user.externalUser) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.roles, mainMenuItems.collaborations);
     }
+    newMenuItems.push(mainMenuItems.serviceDesk, mainMenuItems.feedback);
     return newMenuItems;
 }

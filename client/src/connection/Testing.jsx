@@ -818,7 +818,7 @@ export const Testing = ({
                                       visibility: e.target.id.replace("visibility_", "")
                                   })}
                                   isMultiple={true}
-                                  labels={[visibilities.visible_to_all, visibilities.visible_to_none]}
+                                  labels={[visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none]}
                                   labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
                                   orientation={RadioOptionsOrientation.column}/>
                 </div>
