@@ -95,11 +95,13 @@ const en = {
         tooltips: {
             users: "users",
             idp: "idp",
-            yourApps: "yourApps",
-            catalogue: "catalogue",
-            accessibleApps: "accessibleApps",
-            roles: "roles",
-            collaborations: "collaborations"
+            yourApps: "Beheer hier de technische koppeling, metadata en beschrijving van jouw applicaties.",
+            catalogue: "Ontdek andere apps uit de catalogus die nog niet gekoppeld zijn.",
+            accessibleApps: "Beheer hier wie toegang heeft tot applicaties (inclusief eigen apps)",
+            roles: "Beheer de externe gebruikers rollen",
+            collaborations: "",
+            serviceDesk: "",
+            feedback: ""
         }
     },
     breadCrumb: {
