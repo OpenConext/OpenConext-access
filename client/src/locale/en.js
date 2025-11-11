@@ -109,7 +109,8 @@ const en = {
         team: "Team management",
         joins: "Join Requests",
         invitations: "Invitation",
-        home: "Home"
+        home: "Home",
+        feedback: "Feedback"
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -929,6 +930,19 @@ const en = {
         you: "You",
         copied: "Copied"
     },
+    feedback: {
+        title: "Provide Feedback",
+        info: "Like what you see? Have a suggestion? Let us know what you think here",
+        disclaimer: "We will use this information to fix problems, improve our products and help you. " +
+            "We may follow up with you regarding your feedback. " +
+            "Please make sure the feedback does not contain any confidential, sensitive, or personal information. " +
+            "For more information, please review our <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
+        help: "Need help?",
+        helpInfo: "For questions or issues, please reach out to us at <a href='mailto:support@surf.nl'>support@surf.nl</a>",
+        send: "Provide feedback",
+        flash: "Your feedback has been sent. Thanks!"
+    },
+
     tooltips: {
         userIcon: "User {[name}} is created on {{createdAt}} and was last seen at {{lastActivity}}",
         organizationsIcon: "Organization {{name}} is created on {{createdAt}} and has the status {{status}}",

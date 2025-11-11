@@ -1,5 +1,5 @@
 import "./ExternalAppication.scss";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
@@ -19,6 +19,17 @@ const ExternalApplication = () => {
     const {app} = useParams();
     const [alertClosed, setAlertClosed] = useState(false);
     const {config} = useAppStore.getState();
+
+
+    useEffect(() => {
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {value: I18n.t(`external.${app}.title`)}
+            ]
+        });
+    }, [app]);
+
 
     return (
         <div className="extern-application-container">

@@ -1,0 +1,8 @@
+Hi,
+User {{ user.name }} has provided the following feedback for {{ environment }} at {{ date }}:
+
+{{ message }}
+
+Follow-up questions can be sent to {{ user.email }}
+
+{{> footer_en.txt}}

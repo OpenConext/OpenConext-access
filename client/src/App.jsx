@@ -36,6 +36,7 @@ import ApplicationDetail from "./pages/ApplicationDetail.jsx";
 import {mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
 import Relax from "./pages/Relax.jsx";
 import ExternalApplication from "./pages/ExternalApplication.jsx";
+import Feedback from "./pages/Feedback.jsx";
 
 const App = () => {
 
@@ -144,6 +145,7 @@ const App = () => {
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
+                            <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

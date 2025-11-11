@@ -16,6 +16,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class MailBox {
     private final JavaMailSender mailSender;
     private final String clientUrl;
     private final String emailFrom;
-    private final String contactEmail;
+    private final String serviceDeskEmail;
     private final String environment;
 
     private final Map<String, Map<String, String>> subjects;
@@ -36,12 +38,12 @@ public class MailBox {
     public MailBox(
             JavaMailSender mailSender,
             String emailFrom,
-            String contactEmail,
+            String serviceDeskEmail,
             String clientUrl,
             String environment, ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
-        this.contactEmail = contactEmail;
+        this.serviceDeskEmail = serviceDeskEmail;
         this.clientUrl = clientUrl;
         this.environment = environment;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
@@ -128,7 +130,24 @@ public class MailBox {
                 title,
                 variables,
                 joinRequest.getUser().getEmail());
+    }
 
+    @SneakyThrows
+    public void sendFeedbackMail(User user, String message) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("user", user);
+        variables.put("title", "Feedback");
+        String now =  LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        variables.put("date", now);
+        variables.put("message", message.replaceAll("\n", "<br/>"));
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        variables.put("env", environment);
+        sendMail("feedback_en",
+                "Feedback",
+                variables,
+                serviceDeskEmail);
     }
 
     private String preferredLanguage() {

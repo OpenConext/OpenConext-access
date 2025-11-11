@@ -17,11 +17,11 @@ public class MailConf {
     @Bean
     public MailBox mailBox(Config config,
                            @Value("${email.from}") String emailFrom,
-                           @Value("${email.contactEmail}") String contactEmail,
+                           @Value("${email.serviceDeskEmail}") String serviceDeskEmail,
                            @Value("${email.environment}") String env,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return new MailBox(mailSender, emailFrom, contactEmail, config.getClientUrl(), env, objectMapper);
+        return new MailBox(mailSender, emailFrom, serviceDeskEmail, config.getClientUrl(), env, objectMapper);
     }
 
 

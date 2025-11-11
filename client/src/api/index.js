@@ -86,6 +86,10 @@ export function searchUsers(pagination = {}) {
     return fetchJson(`/api/v1/users/search?${queryPart}`);
 }
 
+export function feedback(message) {
+    return postPutJson("/api/v1/users/feedback", {message: message}, "POST");
+}
+
 //Organization
 export function organizationById(id) {
     return fetchJson(`/api/v1/organizations/find/${id}`);
@@ -168,8 +172,8 @@ export function deleteApplicationMembershipById(applicationMembership) {
     return fetchDelete(`/api/v1/application_memberships/${applicationMembership.id}`);
 }
 
-export function createApplicationMembership(organizationMembershipId,applicationId,organizationId) {
-    const body = {organizationMembershipId,applicationId,organizationId}
+export function createApplicationMembership(organizationMembershipId, applicationId, organizationId) {
+    const body = {organizationMembershipId, applicationId, organizationId}
     return postPutJson("/api/v1/application_memberships", body, "POST");
 }
 
@@ -263,13 +267,16 @@ export function deleteInvitation(invitation) {
 export function deleteAllInvitations(organization) {
     return fetchDelete(`/api/v1/invitations/delete/all/${organization.id}`)
 }
+
 //Public
 export function publicIdentityProviders() {
     return fetchJson("/api/v1/public/identity-providers");
 }
+
 export function publicServiceProviders() {
     return fetchJson("/api/v1/public/service-providers");
 }
+
 export function publicServiceProviderByDetail(type, identifier) {
     return fetchJson(`/api/v1/public/service-provider-detail/${type}/${identifier}`);
 }

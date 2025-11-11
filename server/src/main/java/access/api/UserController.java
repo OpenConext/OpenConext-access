@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.OrganizationRepository;
@@ -51,15 +52,17 @@ public class UserController implements UserAccessRights {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final Manage manage;
+    private final MailBox mailBox;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository, Manage manage) throws IOException {
+                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox) throws IOException {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.manage = manage;
+        this.mailBox = mailBox;
     }
 
     @GetMapping("/config")
@@ -135,6 +138,17 @@ public class UserController implements UserAccessRights {
         }
         return Results.okResult();
     }
+
+    @PostMapping("/feedback")
+    public ResponseEntity<Map<String, Integer>> feedback(User user, @RequestBody Map<String, String> body) {
+        LOG.debug("/feedback from " + user.getEmail());
+        String message = body.get("message");
+        if (StringUtils.hasText(message)) {
+            mailBox.sendFeedbackMail(user, message);
+        }
+        return Results.okResult();
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
