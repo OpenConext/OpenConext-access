@@ -66,24 +66,25 @@ const Organization = ({refreshUser}) => {
     }
 
     const renderApplicationStatus = application => {
-        // if (true) {
-        //     return (
-        //       <div className="awaiting-change-requests">
-        //           <SpinIcon/>
-        //       </div>
-        //     );
-        // }
         const prodConnections = (application.connections || []).filter(conn => conn.environment === ENVIRONMENTS.PROD);
         let status = "";
         if (prodConnections.length === 0) {
-            status = "no_connections";
+            status = "in_progress";
         } else if (prodConnections.length > 1) {
             status = "multiple_connections"
         } else {
             const connection = prodConnections[0];
-            const productionConnectionNeedsActivation = application.signedContract && (
-                connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS);
-            status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(connection.changeRequests) ? "open_change_requests" : connection.status.toLowerCase();
+            if (!application.signedContract) {
+                status = "in_progress";
+            }
+            if (application.signedContract && (
+                connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) {
+                status = "ready_for_prod"
+            } else if (!isEmpty(connection.changeRequests)) {
+                status = "open_change_requests";
+            } else {
+                status = connection.status.toLowerCase();
+            }
         }
         return (
             <Chip type={ChipType.Status_error}
