@@ -82,8 +82,8 @@ To become an institution admin in access, add the following values as `eduPerson
 If the GUI for maintaining a connection, needs an additional attribute, then the following source files need to be
 altered:
 
-- `access.manage.ConnectionProviderConverter#convert`
-- `access.model.Connection#mergeMetaData`
+- `access.manage.ConnectionProviderConverter.java#convert`
+- `access.model.Connection.java#mergeMetaData`
 - `utils/Connection.js#convertClientConnectionToServer`
 
 

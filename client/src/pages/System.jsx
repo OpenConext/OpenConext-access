@@ -5,7 +5,6 @@ import {Users} from "./Users.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import I18n from "../locale/I18n.js";
 import {Organizations} from "./Organizations.jsx";
-import {OrganizationsPendingApproval} from "./OrganizationsPendingApproval.jsx";
 
 const tabNames = ["users", "organizations", "organizationPendingApproval"]
 
@@ -16,7 +15,8 @@ const System = () => {
 
     const tabChanged = (name) => {
         setCurrentTab(name);
-        navigate(`/system/${name}`);
+        const path = encodeURIComponent(`/system/${name}`);
+        navigate(`/refresh-route/${path}`);
     }
 
     const renderCurrentTab = () => {
@@ -27,7 +27,7 @@ const System = () => {
             case "organizations": {
                 return <Organizations pendingApproval={false} tab={currentTab}/>
             }
-            case  "organizationPendingApproval":{
+            case  "organizationPendingApproval": {
                 return <Organizations pendingApproval={true} tab={currentTab}/>
             }
             default:

@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,7 +86,9 @@ public class OrganizationController implements UserAccessRights {
         LOG.debug(String.format("/search/paginated for user %s", user.getEduPersonPrincipalName()));
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable);
+
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                organizationRepository.searchByPage(pageable);
         return ResponseEntity.ok(usersPage);
     }
 

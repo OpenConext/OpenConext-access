@@ -32,7 +32,7 @@ export const Organizations = ({pendingApproval, tab}) => {
 
     const [refresh, setRefresh] = useState(new Date());
     const [searching, setSearching] = useState(false);
-    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination("createdAt", "DESC"));
     const [totalElements, setTotalElements] = useState(0);
     const [organizations, setOrganizations] = useState([]);
     const [confirmation, setConfirmation] = useState({});
@@ -50,17 +50,12 @@ export const Organizations = ({pendingApproval, tab}) => {
                     setLoading(false);
                 })
             } else {
-                if (!isEmpty(paginationQueryParams.query)) {
-                    searchOrganizations(paginationQueryParams)
-                        .then(page => {
-                            setOrganizations(page.content);
-                            setTotalElements(page.totalElements);
-                            setSearching(false);
-                        });
-                } else {
-                    setOrganizations([]);
-                    setSearching(false);
-                }
+                searchOrganizations(paginationQueryParams)
+                    .then(page => {
+                        setOrganizations(page.content);
+                        setTotalElements(page.totalElements);
+                        setSearching(false);
+                    });
             }
         },
         [refresh, paginationQueryParams, tab]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -72,11 +67,10 @@ export const Organizations = ({pendingApproval, tab}) => {
     }, [openOrganizationId]);
 
     const search = (query, sorted, reverse, page) => {
-        if (!isEmpty(query) && query.trim().length > 2) {
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== paginationQueryParams.sortDirection ||
+            page !== paginationQueryParams.pageNumber;
+        if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
-        } else {
-            setOrganizations([]);
-            setTotalElements(0);
         }
     };
 
@@ -244,9 +238,9 @@ export const Organizations = ({pendingApproval, tab}) => {
             mapper: organizationNameRow
         },
         {
-            key: "schac_home_organization",
+            key: "schacHomeOrganization",
             header: I18n.t("organizations.schacHomeOrganization"),
-            mapper: org => <span>{org.schac_home_organization}</span>
+            mapper: org => <span>{org.schacHomeOrganization}</span>
         },
         {
             key: "applicationCount",
@@ -261,7 +255,7 @@ export const Organizations = ({pendingApproval, tab}) => {
         {
             key: "createdAt",
             header: I18n.t("organizations.createdAt"),
-            mapper: org => dateFromEpoch(org.created_at, false)
+            mapper: org => dateFromEpoch(org.createdAt, pendingApproval)
         },
         {
             key: "status",
@@ -302,12 +296,12 @@ export const Organizations = ({pendingApproval, tab}) => {
 
             <Entities entities={organizations}
                       modelName="organizations"
-                      defaultSort="name"
+                      defaultSort="createdAt"
                       columns={columns}
                       showNew={false}
                       inputFocus={true}
                       hideTitle={true}
-                      searchAttributes={pendingApproval ? ["name", "schac_home_organization"] : null}
+                      searchAttributes={pendingApproval ? ["name", "schacHomeOrganization"] : null}
                       customSearch={pendingApproval ? null : search}
                       totalElements={pendingApproval ? organizations.length : totalElements}
                       loading={pendingApproval ? loading : searching}/>

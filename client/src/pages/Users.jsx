@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import "./Users.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Tooltip, Loader} from "@surfnet/sds";
+import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
@@ -21,31 +21,26 @@ export const Users = () => {
 
     const [searching, setSearching] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination("createdAt", "DESC"));
     const [totalElements, setTotalElements] = useState(0);
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-            if (!isEmpty(paginationQueryParams.query)) {
-                searchUsers(paginationQueryParams)
-                    .then(page => {
-                        setUsers(page.content);
-                        setTotalElements(page.totalElements);
-                        setSearching(false);
-                    });
-            } else {
-                setSearching(false);
-            }
+            searchUsers(paginationQueryParams)
+                .then(page => {
+                    setUsers(page.content);
+                    setTotalElements(page.totalElements);
+                    setSearching(false);
+                });
         },
         [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const search = (query, sorted, reverse, page) => {
-        if (!isEmpty(query) && query.trim().length > 2) {
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== paginationQueryParams.sortDirection ||
+            page !== paginationQueryParams.pageNumber;
+        if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
-        } else {
-            setUsers([]);
-            setTotalElements(0);
         }
     };
 
@@ -137,12 +132,11 @@ export const Users = () => {
         <div className="mod-users">
             <Entities entities={users}
                       modelName="users"
-                      defaultSort="name"
+                      defaultSort="createdAt"
                       columns={columns}
                       showNew={false}
                       inputFocus={true}
                       hideTitle={true}
-                      searchAttributes={["name", "email", "schacHomeOrganization"]}
                       customSearch={search}
                       totalElements={totalElements}
                       loading={searching}/>

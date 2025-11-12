@@ -5,10 +5,8 @@ import access.model.OrganizationStatus;
 import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public interface OrganizationRepository extends JpaRepository<Organization, Long> {//, QueryRewriter {
+public interface OrganizationRepository extends JpaRepository<Organization, Long> , QueryRewriter {
 
     List<Organization> findByNameContainingIgnoreCase(String name);
 
@@ -40,13 +38,40 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
 
     @Query(value = """
-             SELECT org.id, org.name, org.schac_home_organization, org.status, org.created_at,
+             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
                 (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
                 (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount                        
               FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
             """,
             countQuery = "SELECT count(*) FROM organizations WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)",
+            queryRewriter = OrganizationRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
+
+    @Query(value = """
+             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+                (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
+                (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount                        
+              FROM organizations org
+            """,
+            countQuery = "SELECT count(*) FROM organizations",
+            queryRewriter = OrganizationRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPage(Pageable pageable);
+
+    @Override
+    default String rewrite(String query, Sort sort) {
+        Sort.Order applicationCountSort = sort.getOrderFor("applicationCount");
+        if (applicationCountSort != null) {
+            //Spring cannot sort on aggregated columns
+            return query.replace("order by org.applicationCount", "order by applicationCount");
+        }
+        Sort.Order memberCountSort = sort.getOrderFor("memberCount");
+        if (memberCountSort != null) {
+            //Spring cannot sort on aggregated columns
+            return query.replace("order by org.memberCount", "order by memberCount");
+        }
+        return query;
+    }
 
 }

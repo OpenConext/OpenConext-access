@@ -20,10 +20,6 @@ export const dateFromEpoch = (epoch, needsMultiplier = true, longMonth = true) =
     return formatDate(date, longMonth);
 }
 
-export const formatShortDate = (isoString) => {
-    return formatDate(new Date(isoString));
-}
-
 export const formatLongDate = (isoString) => {
     return formatDate(new Date(isoString), true, true);
 }

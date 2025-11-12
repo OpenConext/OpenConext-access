@@ -31,4 +31,12 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
 
+    @Query(value = """
+             SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
+                u.created_at as createdAt, u.last_activity as lastActivity
+              FROM users u
+            """,
+            countQuery = "SELECT count(*) FROM users",
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPage(Pageable pageable);
 }

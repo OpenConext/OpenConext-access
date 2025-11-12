@@ -160,9 +160,10 @@ public class UserController implements UserAccessRights {
         LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
 
         confirmSuperUser(user);
+
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        String parsedQuery = FullSearchQueryParser.parse(query);
-        Page<Map<String, Object>> usersPage = userRepository.searchByPageWithKeyword(parsedQuery, pageable);
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable):
+                userRepository.searchByPage(pageable);
         return ResponseEntity.ok(usersPage);
     }
 
