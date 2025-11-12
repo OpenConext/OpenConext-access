@@ -15,13 +15,14 @@ export const mainMenuItems = {
 
 export const menuItemsForUser = user => {
     const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-    const newMenuItems = [mainMenuItems.home, mainMenuItems.yourApps, mainMenuItems.catalogue]
+    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue]
     if (hasOrganizationMemberships) {
-        newMenuItems.push(mainMenuItems.users);
+        newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.idp);
     }
     if (!user.externalUser) {
-        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.roles, mainMenuItems.collaborations);
+        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.roles, mainMenuItems.collaborations);
     }
+    //Every user has access to the help menu items
     newMenuItems.push(mainMenuItems.serviceDesk, mainMenuItems.feedback);
     return newMenuItems;
 }
