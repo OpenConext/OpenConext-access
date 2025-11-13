@@ -1,5 +1,6 @@
 package access.manage;
 
+import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
@@ -48,14 +49,17 @@ public class RemoteManage implements Manage {
     private final ConnectionProviderConverter converter;
     private final ManageAuthorization testAuthorization;
     private final ManageAuthorization productionAuthorization;
+    private final Environment activeEnvironment;
 
     public RemoteManage(ManageAuthorization testAuthorization,
                         ManageAuthorization productionAuthorization,
                         ConnectionProviderConverter converter,
+                        Environment activeEnvironment,
                         ObjectMapper objectMapper) throws IOException {
         this.testAuthorization = testAuthorization;
         this.productionAuthorization = productionAuthorization;
         this.converter = converter;
+        this.activeEnvironment = activeEnvironment;
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
@@ -144,7 +148,7 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID) {
+    public List<Map<String, Object>> uniqueEntityId(Environment environment, EntityType entityType, String entityID) {
         RestTemplate restTemplate = environmentRestTemplate(environment);
         String url = environmentUrl(environment);
         String queryUrl = String.format("%s/manage/api/internal/uniqueEntityId/%s", url, entityType.name());
@@ -177,6 +181,43 @@ public class RemoteManage implements Manage {
         String url = this.environmentUrl(environment);
         return String.format("%s/metadata/%s/%s/requests",
                 url, connection.getProtocol().name(), connection.getManageIdentifier());
+    }
+
+    @Override
+    public Map<String, Object> identityProviderByEntityID(String entityID) {
+        LOG.debug("identityProvidersByEntityID for : " + entityID);
+
+        Map<String, Object> baseQuery = getBaseQuery(true);
+        baseQuery.put("entityid", entityID);
+
+        String url = String.format("%s/manage/api/internal/search/%s",
+                environmentUrl(activeEnvironment),
+                EntityType.saml20_idp.name());
+        List<Map<String, Object>> identityProviders = environmentRestTemplate(activeEnvironment).postForObject(
+                url,
+                baseQuery, List.class);
+        if (identityProviders.isEmpty()) {
+            throw new NotFoundException("No identityProviders found for entityID: "+entityID);
+        }
+        return identityProviders.getFirst();
+    }
+
+    @Override
+    public List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers) {
+        LOG.debug("serviceProvidersByEntityID for : " + entityIdentifiers);
+
+        Map<String, Object> baseQuery = getBaseQuery(true);
+        baseQuery.put("entityid", entityIdentifiers);
+        return Stream.of(EntityType.oidc10_rp, EntityType.saml20_sp)
+                .flatMap( entityType -> {
+                    String url = String.format("%s/manage/api/internal/search/%s",
+                            environmentUrl(activeEnvironment),
+                            entityType.name());
+                    List<Map<String, Object>> identityProviders = environmentRestTemplate(activeEnvironment).postForObject(
+                            url,
+                            baseQuery, List.class);
+                    return identityProviders.stream();
+                }).toList();
     }
 
     @Override

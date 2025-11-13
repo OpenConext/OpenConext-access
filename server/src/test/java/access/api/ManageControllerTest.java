@@ -10,7 +10,6 @@ import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -97,10 +96,10 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
-    void providersByEntityId() {
+    void uniqueEntityId() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         String entityID = "https://network";
-        List<Map<String, Object>> providers = localManage.providersByEntityID(Environment.TEST, EntityType.saml20_idp, entityID);
+        List<Map<String, Object>> providers = localManage.uniqueEntityId(Environment.TEST, EntityType.saml20_idp, entityID);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/uniqueEntityId/saml20_sp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -114,7 +113,7 @@ class ManageControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("environment", Environment.TEST)
                 .body(Map.of("entityID", entityID))
-                .post("/api/v1/manage/providers-by-entityid/{environment}")
+                .post("/api/v1/manage/unique-entity-id/{environment}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, serviceProviders.size());

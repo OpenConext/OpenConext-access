@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
-public final class  LocalManage implements Manage {
+public final class LocalManage implements Manage {
 
     private static final Log LOG = LogFactory.getLog(LocalManage.class);
 
@@ -124,12 +124,30 @@ public final class  LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID) {
+    public Map<String, Object> identityProviderByEntityID(String entityID) {
+        return this.allProviders.get(EntityType.saml20_idp).stream()
+                .filter(provider -> {
+                    Map<String, Object> data = (Map<String, Object>) provider.get("data");
+                    return entityID.equalsIgnoreCase((String) data.get("entityid"));
+                })
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("No identityProviders found for entityID: " + entityID));
+    }
+
+    @Override
+    public List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers) {
+        return Stream.of(EntityType.saml20_sp, EntityType.oidc10_rp)
+                .flatMap(type -> this.allProviders.get(type).stream())
+                .filter(provider -> entityIdentifiers.contains((String) ((Map) provider.get("data")).get("entityid")))
+                .toList();
+    }
+
+    @Override
+    public List<Map<String, Object>> uniqueEntityId(Environment environment, EntityType entityType, String entityID) {
         return Stream.of(EntityType.values())
                 .flatMap(type -> this.allProviders.get(type).stream())
                 .filter(provider -> ((Map) provider.get("data")).get("entityid").equals(entityID))
                 .toList();
-
     }
 
     @Override
@@ -171,7 +189,7 @@ public final class  LocalManage implements Manage {
     @Override
     public List<Map<String, Object>> serviceProvidersLight(Environment environment) {
         List<Map<String, Object>> providers = new ArrayList<>();
-        providers.addAll( this.allProviders.get(EntityType.saml20_sp));
+        providers.addAll(this.allProviders.get(EntityType.saml20_sp));
         providers.addAll(this.allProviders.get(EntityType.oidc10_rp));
         return providers;
     }

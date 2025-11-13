@@ -265,6 +265,7 @@ const en = {
     organization: {
         alertInfo: "Welkom op SURF Access. Via deze Self Service Portal kun je jouw Applicatie beschikbaar maken voor instellingen binnen het hoger onderwijs in Nederland.",
         applicationManagement: "Your apps",
+        info: "Hieronder staan applicaties die {{name}} zelf beheert / heeft gepubliceerd.",
         addFirstApplication: "Voeg je eerste Applicatie toe",
         addApplication: "Nieuwe Applicatie toevoegen",
         deleteConfirmation: "Are you sure you want to delete the Organization {{name}}?",

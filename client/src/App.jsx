@@ -33,7 +33,7 @@ import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
-import {mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
+import {activeMenuItem, mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
 import Relax from "./pages/Relax.jsx";
 import ExternalApplication from "./pages/ExternalApplication.jsx";
 import Feedback from "./pages/Feedback.jsx";
@@ -85,7 +85,7 @@ const App = () => {
                             useAppStore.setState(() => ({
                                 user: user,
                                 menuItems: newMenuItems,
-                                activeMenuItem: mainMenuItems.home,
+                                activeMenuItem: activeMenuItem(currentLocation),
                                 currentOrganization: user.organizationMemberships.map(om => om.organization)[0] || {name: ""}
                             }));
                             const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);

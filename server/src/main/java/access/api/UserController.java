@@ -22,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -87,7 +89,7 @@ public class UserController implements UserAccessRights {
 
     @GetMapping("/me")
     @SuppressWarnings("unchecked")
-    public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
+    public ResponseEntity<User> me(@Parameter(hidden = true) User user, Authentication authentication) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())
@@ -114,6 +116,15 @@ public class UserController implements UserAccessRights {
             }
         }
         userFromDB.setExternalUser(config.getEduIdSchacHomeOrganization().equalsIgnoreCase(userFromDB.getSchacHomeOrganization()));
+        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
+        Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
+        userFromDB.setIdentityProvider(identityProvider);
+
+        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) ((Map) identityProvider.get("data")).get("allowedEntities");
+        List<String> entityIdentifiers = allowedEntities.stream().map(allowedEntity -> allowedEntity.get("name")).toList();
+        List<Map<String, Object>> providers = manage.serviceProvidersByEntityID(entityIdentifiers);
+
         return ResponseEntity.ok(userFromDB);
     }
 

@@ -80,6 +80,7 @@ export const OrganizationHeader = ({organization, setLoading, refreshUser}) => {
                     {dropDownActive && renderMenu()}
                 </span>
             </div>
+            <p>{I18n.t("organization.info", {name: organization.name})}</p>
         </div>
     );
 }

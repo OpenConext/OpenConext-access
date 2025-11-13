@@ -22,11 +22,12 @@ public class ManageConf {
                          @Value("${manage.prod.password}") String prodPassword,
                          @Value("${manage.enabled}") boolean enabled,
                          @Value("${manage.staticManageDirectory}") String staticManageDirectory,
+                         @Value("${manage.activeManage}") Environment activeEnvironment,
                          ConnectionProviderConverter converter,
                          ObjectMapper objectMapper) throws IOException {
         ManageAuthorization testAuthorization = new ManageAuthorization(testUrl, testUser, testPassword, Environment.TEST);
         ManageAuthorization prodAuthorization = new ManageAuthorization(prodUrl, prodUser, prodPassword, Environment.PROD);
-        return enabled ? new RemoteManage(testAuthorization, prodAuthorization, converter, objectMapper) :
+        return enabled ? new RemoteManage(testAuthorization, prodAuthorization, converter, activeEnvironment, objectMapper) :
                 new LocalManage(converter, objectMapper, staticManageDirectory);
     }
 

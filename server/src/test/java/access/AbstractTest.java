@@ -102,7 +102,7 @@ public abstract class AbstractTest {
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
-    public static final String MULTIPLE_ORG_SUB = "urn:collab:person:eduid.nl:mos";
+    public static final String MULTIPLE_ORG_SUB = "urn:collab:person:example.com:mos";
     //Organisation GUD of the mock-idp
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     //Organizations

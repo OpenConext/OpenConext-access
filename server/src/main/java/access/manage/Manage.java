@@ -18,7 +18,11 @@ public interface Manage {
 
     void deleteProvider(Connection connection);
 
-    List<Map<String, Object>> providersByEntityID(Environment environment, EntityType entityType, String entityID);
+    Map<String, Object> identityProviderByEntityID(String entityID);
+
+    List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers);
+
+    List<Map<String, Object>> uniqueEntityId(Environment environment, EntityType entityType, String entityID);
 
     Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest);
 

@@ -18,86 +18,8 @@ import {useAppStore} from "../stores/AppStore.js";
 import {useEffect, useState} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
-import {mainMenuItems} from "../utils/MenuItems.js";
+import {allMenuGroups, mainMenuItems} from "../utils/MenuItems.js";
 import {isEmpty} from "../utils/Utils.js";
-
-const allMenuGroups = [
-    {
-        label: null,
-        items: [
-            {
-            name: mainMenuItems.home,
-            path: "/home",
-            Logo: HomeIcon
-        }
-        ]
-    },
-    {
-        label: "apps",
-        items: [
-            {
-                name: mainMenuItems.accessibleApps,
-                path: "/accessible-apps",
-                Logo: ConnectedIcon
-            },
-            {
-                name: mainMenuItems.yourApps,
-                path: "/organization/organizationId",
-                Logo: ScreenIcon
-            },
-            {
-                name: mainMenuItems.catalogue,
-                path: "/catalogue",
-                Logo: LaptopIcon
-            }]
-    },
-    {
-        label: "externalMaintenance",
-        items: [
-            {
-                name: mainMenuItems.roles,
-                path: "/external/invite",
-                Logo: TeamIcon
-            },
-            {
-                name: mainMenuItems.collaborations,
-                path: "/external/sram",
-                Logo: HierarchyIcon
-            }
-        ]
-    },
-    {
-        label: "organizationMaintenance",
-        items: [
-            {
-                name: mainMenuItems.idp,
-                path: "/idp",
-                Logo: LaptopFloatIcon
-            },
-            {
-                name: mainMenuItems.users,
-                path: "/users/organizationId",
-                Logo: UserIcon
-            },
-        ]
-    },
-    {
-        label: "support",
-        className: "custom-group",
-        items: [
-            {
-                name: mainMenuItems.serviceDesk,
-                path: "/external/serviceDesk",
-                Logo: HeadPhonesIcon
-            },
-            {
-                name: mainMenuItems.feedback,
-                path: "/feedback",
-                Logo: FeedbackIcon
-            },
-        ]
-    },
-]
 
 export const SharedMenu = () => {
 

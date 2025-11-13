@@ -128,6 +128,8 @@ email:
 manage:
   enabled: True
 #  enabled: False
+  # which manage environment do we use the fetch the identity provider of the user, either TEST or PROD
+  activeManage: TEST
   test:
     url: "https://manage.test2.surfconext.nl"
 #    url: "http://localhost:8081"

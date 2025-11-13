@@ -31,7 +31,7 @@ import {
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
-    providersByEntityId,
+    uniqueEntityID,
     requestConnectionProductionStatus,
     resetConnectionSecret,
     updateConnection
@@ -432,7 +432,7 @@ export const Testing = ({
     }
 
     const onBlurEntityID = (e) => {
-        providersByEntityId(connection.environment, e.target.value).then(res => {
+        uniqueEntityID(connection.environment, e.target.value).then(res => {
             const duplicated = (connection.status === !CONNECTION_STATUSES.OPEN && res.length > 1) ||
                 (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);

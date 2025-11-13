@@ -1,7 +1,6 @@
 package access.api;
 
 import access.exception.InvalidInputException;
-import access.exception.NotFoundException;
 import access.manage.ChangeRequest;
 import access.manage.Manage;
 import access.manage.MetaData;
@@ -88,12 +87,12 @@ public class ManageController {
     }
 
     @SneakyThrows
-    @PostMapping("/providers-by-entityid/{environment}")
+    @PostMapping("/unique-entity-id/{environment}")
     public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@PathVariable("environment") Environment environment,
                                                                          @RequestBody Map<String, String> data) {
         String entityID = data.get("entityID");
         //It does not matter which entityType we use, all services will be queried
-        List<Map<String, Object>> providers = manage.providersByEntityID(environment, EntityType.saml20_sp, entityID);
+        List<Map<String, Object>> providers = manage.uniqueEntityId(environment, EntityType.saml20_sp, entityID);
         return ResponseEntity.ok(providers);
     }
 
