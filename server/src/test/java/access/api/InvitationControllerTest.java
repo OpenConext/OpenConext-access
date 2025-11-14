@@ -107,6 +107,7 @@ class InvitationControllerTest extends AbstractMailTest {
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
+        stubForIdentityProviderByEntityId("http://mock-idp");
         User user = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

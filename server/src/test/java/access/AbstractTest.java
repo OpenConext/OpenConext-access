@@ -459,6 +459,17 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForIdentityProviderByEntityId(String entityId) {
+        Map<String, Object> provider = localManage.identityProviderByEntityID(entityId);
+        String body = objectMapper.writeValueAsString(List.of(provider));
+        stubFor(post("/manage/api/internal/search/saml20_idp")
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForIdentityProviders() {
         List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(providers);

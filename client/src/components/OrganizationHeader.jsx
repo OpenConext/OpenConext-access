@@ -69,7 +69,6 @@ export const OrganizationHeader = ({organization, setLoading, refreshUser}) => {
                                          confirmationTxt={okButton}
                                          question={question}
             />}
-
             <div className="top-header"
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 475)}>

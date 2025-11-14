@@ -38,6 +38,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "eduperson_principal_name", "urn:collab:person:example.com:super",
                 "email", "jdoe@example.com",
                 "family_name", "Doe",
+                "authenticating_authority", "http://mock-idp",
                 "given_name", "John",
                 "name", "John Doe",
                 "schac_home_organization", schacHomeOrganization,

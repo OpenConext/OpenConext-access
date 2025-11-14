@@ -120,11 +120,6 @@ public class UserController implements UserAccessRights {
         String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
         Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
         userFromDB.setIdentityProvider(identityProvider);
-
-        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) ((Map) identityProvider.get("data")).get("allowedEntities");
-        List<String> entityIdentifiers = allowedEntities.stream().map(allowedEntity -> allowedEntity.get("name")).toList();
-        List<Map<String, Object>> providers = manage.serviceProvidersByEntityID(entityIdentifiers);
-
         return ResponseEntity.ok(userFromDB);
     }
 
