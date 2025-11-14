@@ -39,6 +39,9 @@ div.external-organization-outer-container {
             background-color: white;
             cursor: pointer;
 
+            &:hover:not(.active) {
+                background-color: var(--sds--color--green--100);
+            }
             &.active {
                 cursor: initial;
                 background-color: var(--sds--color--gray--100);
