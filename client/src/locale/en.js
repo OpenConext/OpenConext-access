@@ -945,7 +945,16 @@ const en = {
         send: "Provide feedback",
         flash: "Your feedback has been sent. Thanks!"
     },
-
+    externalOrganization: {
+        title: "Mine organization",
+        info: "Voor het inzien van andere information over je organisatie, bezoek <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
+        maintenance: "Beheer",
+        contactPersons: "Contact personen",
+        general:"Algemene gegevens",
+        delete: "Organisatie verwijderen",
+        deleteWarning: "If you delete your organization, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
+        deleteButton: "Delete my organization"
+    },
     tooltips: {
         userIcon: "User {[name}} is created on {{createdAt}} and was last seen at {{lastActivity}}",
         organizationsIcon: "Organization {{name}} is created on {{createdAt}} and has the status {{status}}",

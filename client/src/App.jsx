@@ -33,10 +33,11 @@ import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
-import {activeMenuItem, mainMenuItems, menuItemsForUser} from "./utils/MenuItems.js";
+import {activeMenuItem, menuItemsForUser} from "./utils/MenuItems.js";
 import Relax from "./pages/Relax.jsx";
 import ExternalApplication from "./pages/ExternalApplication.jsx";
 import Feedback from "./pages/Feedback.jsx";
+import MyOrganization from "./pages/MyOrganization.jsx";
 
 const App = () => {
 
@@ -134,8 +135,7 @@ const App = () => {
                             <Route path="/home" element={<UserHome/>}/>
                             <Route path="/relax" element={<Relax/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
-                            <Route path="/organization/:organizationId/:tab?"
-                                   element={<Organization refreshUser={refreshUser}/>}/>
+                            <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>
@@ -146,6 +146,7 @@ const App = () => {
                             <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
+                            <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>

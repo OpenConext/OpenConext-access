@@ -9,13 +9,12 @@ import {organizationById} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
-import {OrganizationHeader} from "../components/OrganizationHeader.jsx";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 
-const Organization = ({refreshUser}) => {
-    const {config, user} = useAppStore(state => state);
+const Organization = () => {
+    const {user} = useAppStore(state => state);
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
@@ -152,9 +151,13 @@ const Organization = ({refreshUser}) => {
         <div
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
             {alertInfo()}
-            <OrganizationHeader organization={organization}
-                                refreshUser={refreshUser}
-                                setLoading={setLoading}/>
+            <div className="application-connection-header-container">
+                <div className="top-header">
+                    <h1>{I18n.t("organization.applicationManagement")}</h1>
+                </div>
+                {!isEmpty(organization.applications) &&
+                    <p>{I18n.t("organization.info", {name: organization.name})}</p>}
+            </div>
             <div className="organization-container">
                 {renderApplications()}
             </div>

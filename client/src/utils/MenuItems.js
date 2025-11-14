@@ -87,7 +87,7 @@ export const allMenuGroups = [
         items: [
             {
                 name: mainMenuItems.idp,
-                path: "/idp",
+                path: "/idp/organizationId",
                 Logo: LaptopFloatIcon
             },
             {

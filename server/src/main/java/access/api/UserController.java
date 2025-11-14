@@ -95,8 +95,8 @@ public class UserController implements UserAccessRights {
         User userFromDB = userRepository.findDetailsById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
-        if (userFromDB.getOrganizationMemberships().isEmpty() &&
-                !schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization())) {
+        boolean isExternalUser = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
+        if (userFromDB.getOrganizationMemberships().isEmpty() && !isExternalUser) {
             Optional<Organization> organizationOptional = organizationRepository.findBySchacHomeOrganization(schacHomeOrganization);
             organizationOptional.ifPresent(organization -> {
                 userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.MEMBER));
@@ -115,11 +115,13 @@ public class UserController implements UserAccessRights {
                 }
             }
         }
-        userFromDB.setExternalUser(config.getEduIdSchacHomeOrganization().equalsIgnoreCase(userFromDB.getSchacHomeOrganization()));
-        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-        String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
-        Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
-        userFromDB.setIdentityProvider(identityProvider);
+        userFromDB.setExternalUser(isExternalUser);
+        if (!userFromDB.isExternalUser()) {
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
+            Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
+            userFromDB.setIdentityProvider(identityProvider);
+        }
         return ResponseEntity.ok(userFromDB);
     }
 
