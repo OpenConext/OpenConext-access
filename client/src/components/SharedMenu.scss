@@ -23,6 +23,11 @@
 
 .container .sds--navigation-menu .sds--navigation-menu-items {
     gap: 0;
+
+    .sds--navigation-group-item .react-tooltip {
+        background-color: #cdd0d6;
+        color: black;
+    }
 }
 
 .sds--navigation-menu .sds--navigation-menu-items p.group-label {

@@ -93,12 +93,12 @@ const en = {
         servicedesk: "SURF servicedesk",
         feedback:"Help ons verbeteren",
         tooltips: {
-            users: "users",
-            idp: "idp",
+            users: "",
+            idp: "",
             yourApps: "Beheer hier de technische koppeling, metadata en beschrijving van jouw applicaties.",
             catalogue: "Ontdek andere apps uit de catalogus die nog niet gekoppeld zijn.",
             accessibleApps: "Beheer hier wie toegang heeft tot applicaties (inclusief eigen apps)",
-            roles: "Beheer de externe gebruikers rollen",
+            roles: "",
             collaborations: "",
             serviceDesk: "",
             feedback: ""
