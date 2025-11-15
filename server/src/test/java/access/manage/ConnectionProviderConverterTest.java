@@ -36,10 +36,13 @@ class ConnectionProviderConverterTest extends AbstractTest {
 
     @Test
     void deduceChangeRequests() {
-       //TODO
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connection.setManageIdentifier("5");
+        Map<String, Object> provider = localManage.providerById(connection);
+        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, Map.of());
+        assertEquals(1, changeRequests.size());
+        assertEquals(18, changeRequests.getFirst().getPathUpdates().size());
     }
-
-
 
     @SneakyThrows
     private void doConvertConnection(String connectionPath, String expectedPath) {
@@ -67,11 +70,6 @@ class ConnectionProviderConverterTest extends AbstractTest {
     private <T> T readJson(String path, Class<T> clazz) {
         return objectMapper.readValue(IOUtils.readInputStreamToString(
                 new ClassPathResource(path).getInputStream()), clazz);
-    }
-
-    @Override
-    protected boolean seedDatabase() {
-        return false;
     }
 
     private Map<String, Object> toSortedTreeMap(Map<String, Object> input) {

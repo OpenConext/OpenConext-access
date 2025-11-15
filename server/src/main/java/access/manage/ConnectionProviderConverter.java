@@ -150,15 +150,6 @@ public class ConnectionProviderConverter {
         return (Map<String, Object>) data.get("data");
     }
 
-    private Map<String, Object> getARP(Map<String, Object> data) {
-        return (Map<String, Object>) data.get("arp");
-    }
-
-    private Map<String, List<Map<String, Object>>> getARPAttributes(Map<String, Object> data) {
-        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
-        return (Map<String, List<Map<String, Object>>>) arp.get("attributes");
-    }
-
     //For all attributes that have been changed, we create a single ChangeRequest
     public List<ChangeRequest> deduceChangeRequests(Connection connection,
                                                     Map<String, Object> currentProvider,
