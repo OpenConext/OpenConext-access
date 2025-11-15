@@ -2,7 +2,6 @@ package access.api;
 
 
 import access.exception.NotFoundException;
-import access.exception.RemoteException;
 import access.exception.UserRestrictionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +34,6 @@ public class DefaultErrorController implements ErrorController {
 
     private static final List<Class> suppressStackTraceClasses = List.of(
             UserRestrictionException.class,
-            RemoteException.class,
             NotFoundException.class);
 
     private final ErrorAttributes errorAttributes;

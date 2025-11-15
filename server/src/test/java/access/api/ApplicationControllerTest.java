@@ -114,7 +114,7 @@ class ApplicationControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(provider)));
-        stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetChangeRequests(getChangeRequests());
         Map<String, Object> application = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

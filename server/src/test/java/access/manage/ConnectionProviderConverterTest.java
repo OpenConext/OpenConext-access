@@ -31,10 +31,15 @@ class ConnectionProviderConverterTest extends AbstractTest {
                 "/manage/oidc10_rp.expected.json",
                 "/manage/sp_connection.json",
                 "/manage/saml20_sp.expected.json"
-        ).forEach((connectionPath, expectedPath) -> {
-            doConvertConnection(connectionPath, expectedPath);
-        });
+        ).forEach(this::doConvertConnection);
     }
+
+    @Test
+    void deduceChangeRequests() {
+       //TODO
+    }
+
+
 
     @SneakyThrows
     private void doConvertConnection(String connectionPath, String expectedPath) {
@@ -51,8 +56,8 @@ class ConnectionProviderConverterTest extends AbstractTest {
         });
         List<String> differences = differences(toSortedTreeMap(expected), toSortedTreeMap(converted));
         if (!differences.isEmpty()) {
-            //Easy to compare sorted maps / lists
-            System.out.println(differences);
+            //Easy to compare sorted maps / lists in case of failures
+            //System.out.println(differences);
         }
         assertEquals(expected, converted);
     }

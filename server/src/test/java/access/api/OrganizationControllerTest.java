@@ -89,7 +89,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/users/{id}")
                 .as(new TypeRef<>() {
                 });
-        System.out.println(res);
+        assertEquals(2, List.class.cast(res.get("organizationMemberships")).size());
     }
 
     @Test
@@ -149,6 +149,48 @@ class OrganizationControllerTest extends AbstractTest {
         Map<String, Object> organization = (Map<String, Object>) content.getFirst();
         assertEquals(1, organization.get("memberCount"));
         assertEquals(0, organization.get("applicationCount"));
+    }
+
+    @Test
+    void searchWithoutQuery() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .queryParam("sort", "applicationCount")
+                .queryParam("sortDirection", Sort.Direction.ASC)
+                .get("/api/v1/organizations/search")
+                .as(new TypeRef<>() {
+                });
+
+        List content = (List) results.get("content");
+        assertEquals(3, content.size());
+    }
+
+    @Test
+    void searchWithoutQuerySortMemberCount() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("pageNumber", 2)
+                .queryParam("pageSize", 1)
+                .queryParam("sort", "memberCount")
+                .queryParam("sortDirection", Sort.Direction.DESC)
+                .get("/api/v1/organizations/search")
+                .as(new TypeRef<>() {
+                });
+
+        List content = (List) results.get("content");
+        assertEquals(1, content.size());
     }
 
     @Test

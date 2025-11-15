@@ -5,6 +5,7 @@
     "type": "oidc10_rp",
     "data": {
       "entityid": "https://calendar",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Calendar EN",
         "name:nl": "Calendar NL",
@@ -21,6 +22,7 @@
     "type": "oidc10_rp",
     "data": {
       "entityid": "https://cloud",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Cloud EN",
         "name:nl": "Cloud NL",
@@ -36,6 +38,7 @@
     "type": "oidc10_rp",
     "data": {
       "entityid": "https://unused",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Unused EN",
         "name:nl": "Unused NL",
@@ -239,6 +242,7 @@
       },
       "discoveryurl": "https://discovery",
       "entityid": "playground_client",
+      "state": "prodaccepted",
       "manipulation": "if (isset($attributes['urn:mace:terena.org:attribute-def:schacHomeOrganization']) &&\n      in_array('uu.nl', $attributes['urn:mace:terena.org:attribute-def:schacHomeOrganization'])) {\n\n        if (isset($attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'])) {\n            if (in_array('employee', $attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'])) {\n            // If 'employee' is already present, stop further processing\n               return;\n            }\n\n            // Change the value of affiliation from 'affiliate' to 'employee'\n            foreach ($attributes['urn:mace:dir:attribute-def:eduPersonAffiliation'] as &$value) {\n                if ($value === 'affiliate') {\n                    $value = 'employee';\n                }\n            }\n         }\n    }",
       "metaDataFields": {
         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
@@ -303,7 +307,6 @@
         "url:en": "https://support.en",
         "url:nl": "https://support.nl"
       },
-      "state": "prodaccepted",
       "type": "oidc10-rp"
     }
   }

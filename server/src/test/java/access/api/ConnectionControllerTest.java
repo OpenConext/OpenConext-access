@@ -153,6 +153,56 @@ class ConnectionControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void updateAndCreateChangeRequest() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        //See server/src/main/resources/manage/oidc10_rp.json
+        connection.setManageIdentifier("5");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connectionRepository.save(connection);
+
+        Map<String, Object> metaData = connection.getMetaData();
+        List<String> grantTypes = (List<String>) metaData.get("grantTypes");
+        grantTypes.add(GrantType.DEVICE_CODE.name().toLowerCase());
+        List<String> redirectUrls = (List<String>) metaData.get("redirectUrls");
+        redirectUrls.add("https://redirect.nl");
+        metaData.put("claimsInIdToken", true);
+
+        //Otherwise rest-assured does not deserialize the Application
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+
+        //Now stub all interaction with Manage (getProvider, saveChangeRequests, getChangeRequests)
+        super.stubForGetProvider(connection);
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(manageResponse))));
+        super.stubForGetChangeRequests(getChangeRequests());
+
+        Map<String, Object> savedConnection = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(connectionData)
+                .put("/api/v1/connections")
+                .as(new TypeRef<>() {
+                });
+        String manageIdentifier = (String) savedConnection.get("manageIdentifier");
+        assertNotNull(manageIdentifier);
+        assertEquals(1, savedConnection.get("manageVersion"));
+        assertEquals(ConnectionStatus.PROD_READY.name(), savedConnection.get("status"));
+
+        //Assert the changeRequests
+        List<Map<String, Object>> changeRequests = (List<Map<String, Object>>) savedConnection.get("changeRequests");
+        assertEquals(2, changeRequests.size());
+    }
+
+    @SneakyThrows
+    @Test
     void findAndSyncWithManage() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 

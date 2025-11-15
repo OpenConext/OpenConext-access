@@ -1,7 +1,7 @@
 package access.api;
 
-import access.exception.ExtendedErrorAttributes;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DefaultErrorControllerTest {
 
-    private final DefaultErrorController errorController = new DefaultErrorController(new ExtendedErrorAttributes());
+    private final DefaultErrorController errorController = new DefaultErrorController(new DefaultErrorAttributes());
 
     @Test
     void error() {

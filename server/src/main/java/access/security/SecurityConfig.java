@@ -1,12 +1,10 @@
 package access.security;
 
-import access.exception.ExtendedErrorAttributes;
 import access.manage.Manage;
 import access.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -197,11 +195,6 @@ public class SecurityConfig {
         AcceptHeaderLocaleResolver slr = new AcceptHeaderLocaleResolver();
         slr.setDefaultLocale(Locale.ENGLISH);
         return slr;
-    }
-
-    @Bean
-    ErrorAttributes errorAttributes() {
-        return new ExtendedErrorAttributes();
     }
 
 }

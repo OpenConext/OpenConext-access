@@ -5,6 +5,7 @@
     "type": "saml20_sp",
     "data": {
       "entityid": "https://wiki",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Wiki EN",
         "name:nl": "Wiki NL",
@@ -22,6 +23,7 @@
     "type": "saml20_sp",
     "data": {
       "entityid": "https://network",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Network EN",
         "name:nl": "Network NL",
@@ -38,6 +40,7 @@
     "type": "saml20_sp",
     "data": {
       "entityid": "https://storage",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Storage EN",
         "name:nl": "Storage NL",
@@ -53,6 +56,7 @@
     "type": "saml20_sp",
     "data": {
       "entityid": "https://research",
+      "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "Research EN",
         "name:nl": "Research NL",

@@ -247,10 +247,10 @@ public class ConnectionProviderConverter {
 
     private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
         Map<String, Object> newArp = (Map<String, Object>) connectionMetaData.get("arp");
-        Map<String, Object> arpFromManage = (Map<String, Object>) data.get("arp");
+        Map<String, Object> arpFromManage = (Map<String, Object>) data.getOrDefault("arp", Map.of());
         //Merge the two ARP's, ensuring no existing attributes are overridden which are in the excludedARPAttributes
-        Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.get("attributes");
-        Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.get("attributes");
+        Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.getOrDefault("attributes", Map.of());
+        Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.getOrDefault("attributes", Map.of());
         existingArpAttributes.entrySet().stream()
                 .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
                 .forEach(entry -> {

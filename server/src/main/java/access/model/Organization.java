@@ -30,6 +30,9 @@ public class Organization implements NameHolder {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
+    @Column(name = "manage_identifier")
+    private String manageIdentifier;
+
     @Column(name = "ticket_key")
     private String ticketKey;
 

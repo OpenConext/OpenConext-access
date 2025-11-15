@@ -177,6 +177,16 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> getChangeRequestsIdentityProvider(Map<String, Object> identityProvider) {
+        RestTemplate restTemplate = environmentRestTemplate(activeEnvironment);
+        String url = String.format("%s/manage/api/internal/change-requests/%s/%s",
+                environmentUrl(activeEnvironment),
+                EntityType.saml20_idp.name(),
+                identityProvider.get("id"));
+        return restTemplate.getForEntity(url, List.class).getBody();
+    }
+
+    @Override
     public String changeRequestURL(Environment environment, Connection connection) {
         String url = this.environmentUrl(environment);
         return String.format("%s/metadata/%s/%s/requests",

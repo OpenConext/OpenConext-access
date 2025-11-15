@@ -30,6 +30,8 @@ public interface Manage {
 
     List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection);
 
+    List<Map<String, Object>> getChangeRequestsIdentityProvider(Map<String, Object> identityProvider);
+
     String changeRequestURL(Environment environment, Connection connection);
 
     Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID);

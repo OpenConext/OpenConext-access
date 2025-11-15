@@ -5,6 +5,7 @@
     "type": "saml20_idp",
     "data": {
       "entityid": "http://mock-idp",
+      "state": "prodaccepted",
       "allowedall": false,
       "allowedEntities": [
         {
@@ -35,6 +36,7 @@
     "type": "saml20_idp",
     "data": {
       "entityid": "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
+      "state": "prodaccepted",
       "allowedall": false,
       "allowedEntities": [
         {
@@ -61,6 +63,7 @@
     "type": "saml20_idp",
     "data": {
       "entityid": "https://idp-uu",
+      "state": "prodaccepted",
       "allowedall": true,
       "allowedEntities": [],
       "metaDataFields": {
