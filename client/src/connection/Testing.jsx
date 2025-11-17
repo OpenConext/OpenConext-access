@@ -31,9 +31,9 @@ import {
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
-    uniqueEntityID,
     requestConnectionProductionStatus,
     resetConnectionSecret,
+    uniqueEntityID,
     updateConnection
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
@@ -969,38 +969,39 @@ export const Testing = ({
                                     value={showAdditionalAttributes || !isEmpty(connection.additionalAttributes)}
                                     onChange={toggleAdditionalAttributes}/>
                         </section>
-                        {(showAdditionalAttributes || !isEmpty(connection.additionalAttributes)) && <>
-                            <p className="available-attributes">{I18n.t("connection.informational.availableAttributes")}</p>
-                            {currentProfile.optionalAttributes.map((optionalAttribute, index) => {
-                                const selected = connection.additionalAttributes.includes(optionalAttribute);
-                                return (
-                                    <div key={index}
-                                         className={`additional-attributes optional ${!selected ? "dormant" : ""}`}>
-                                        <section className="optional-attribute">
-                                            <div className="additional-attribute-info">
-                                                <span>{optionalAttribute}</span>
-                                                <span>{arpInfo.attributes.find(attr => attr.name === optionalAttribute).info[I18n.locale]}</span>
-                                            </div>
-                                            <Switch name={`extraAttribute_${index}`}
-                                                    value={selected}
-                                                    onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
-                                        </section>
-                                        {selected &&
-                                            <InputField value={connection.motivations[optionalAttribute]}
-                                                        name={I18n.t("connection.informational.motivation")}
-                                                        placeholder={I18n.t("connection.informational.motivationPlaceholder")}
-                                                        onChange={e => changeMotivation(e, optionalAttribute)}
-                                                        multiline={true}/>
-                                        }
-                                        {(!initial && selected && isEmpty(connection.motivations[optionalAttribute])) &&
-                                            <ErrorIndicator
-                                                msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
-                                            />}
+                        {(showAdditionalAttributes || !isEmpty(connection.additionalAttributes)) &&
+                            <>
+                                <p className="available-attributes">{I18n.t("connection.informational.availableAttributes")}</p>
+                                {currentProfile.optionalAttributes.map((optionalAttribute, index) => {
+                                    const selected = connection.additionalAttributes.includes(optionalAttribute);
+                                    return (
+                                        <div key={index}
+                                             className={`additional-attributes optional ${!selected ? "dormant" : ""}`}>
+                                            <section className="optional-attribute">
+                                                <div className="additional-attribute-info">
+                                                    <span>{optionalAttribute}</span>
+                                                    <span>{arpInfo.attributes.find(attr => attr.name === optionalAttribute).info[I18n.locale]}</span>
+                                                </div>
+                                                <Switch name={`extraAttribute_${index}`}
+                                                        value={selected}
+                                                        onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
+                                            </section>
+                                            {selected &&
+                                                <InputField value={connection.motivations[optionalAttribute]}
+                                                            name={I18n.t("connection.informational.motivation")}
+                                                            placeholder={I18n.t("connection.informational.motivationPlaceholder")}
+                                                            onChange={e => changeMotivation(e, optionalAttribute)}
+                                                            multiline={true}/>
+                                            }
+                                            {(!initial && selected && isEmpty(connection.motivations[optionalAttribute])) &&
+                                                <ErrorIndicator
+                                                    msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
+                                                />}
 
-                                    </div>
-                                )
-                            })}
-                        </>}
+                                        </div>
+                                    )
+                                })}
+                            </>}
 
                     </>}
 
