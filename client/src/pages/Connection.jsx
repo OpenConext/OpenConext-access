@@ -20,6 +20,7 @@ import {Contract} from "../connection/Contract.jsx";
 import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 import {connectOptions, visibilities} from "../utils/Connection.js";
 import {isEmpty} from "../utils/Utils.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
@@ -62,11 +63,11 @@ export const Connection = () => {
                 setLoading(false);
                 useAppStore.setState({
                     breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                         {
                             path: `/organization/${res.organization.id}`,
                             value: res.organization.name,
-                            menuItemName: "yourApps"
+                            menuItemName: mainMenuItems.yourApps
                         },
                         {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
                         {value: res.name}

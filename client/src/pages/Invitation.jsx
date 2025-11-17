@@ -25,8 +25,8 @@ export const Invitation = ({refreshUser}) => {
                 sessionStorage.removeItem(SESSION_STORAGE_LOCATION);
                 useAppStore.setState({
                     breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                        {path: `/organization/${res.organization.id}`, value: res.organization.name, menuItemName: "yourApps"},
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                        {path: `/organization/${res.organization.id}`, value: res.organization.name, menuItemName: mainMenuItems.yourApps},
                         {value: I18n.t("breadCrumb.invitations")}
                     ],
                 });

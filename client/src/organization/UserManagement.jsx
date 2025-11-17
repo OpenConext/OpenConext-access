@@ -12,6 +12,7 @@ import {JoinRequestManagement} from "./JoinRequestManagement.jsx";
 import {InvitationManagement} from "./InvitationManagement.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {isEmpty} from "../utils/Utils.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const tabNames = ["team", "invitations", "joins"]
 
@@ -39,8 +40,8 @@ export const UserManagement = () => {
                     useAppStore.setState({
                         currentOrganization: res,
                         breadcrumbPaths: [
-                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                            {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                            {path: `/organization/${res.id}`, value: res.name, menuItemName: mainMenuItems.yourApps},
                             {value: I18n.t("breadCrumb.applications")}
                         ]
                     });
@@ -60,7 +61,7 @@ export const UserManagement = () => {
         setCurrentTab(name);
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.yourApps},
                 {
                     path: `/organization/${organizationId}`,
                     value: res ? res.name : organization.name,

@@ -7,6 +7,7 @@ import DOMPurify from "dompurify";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 export default function Feedback() {
     const {setFlash} = useAppStore(state => state);
@@ -19,7 +20,7 @@ export default function Feedback() {
         inputRef.current && inputRef.current.focus();
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                 {value: I18n.t("breadCrumb.feedback")}
             ]
         });

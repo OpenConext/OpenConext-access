@@ -17,6 +17,7 @@ import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {authorities, currentUserMembershipAuthority, isOrganizationAdmin} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const views = {
     card: "card",
@@ -47,8 +48,8 @@ const Organization = () => {
                     useAppStore.setState({
                         currentOrganization: res,
                         breadcrumbPaths: [
-                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                            {path: `/organization/${res.id}`, value: res.name, menuItemName: "yourApps"},
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                            {path: `/organization/${res.id}`, value: res.name, menuItemName: mainMenuItems.yourApps},
                             {value: I18n.t("breadCrumb.applications")}
                         ]
                     });

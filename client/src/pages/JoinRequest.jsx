@@ -7,6 +7,7 @@ import {newJoinRequest, organizationLightById} from "../api/index.js";
 import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 import InputField from "../components/InputField.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const JoinRequest = ({refreshUser}) => {
 
@@ -24,7 +25,7 @@ const JoinRequest = ({refreshUser}) => {
     useEffect(() => {
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });

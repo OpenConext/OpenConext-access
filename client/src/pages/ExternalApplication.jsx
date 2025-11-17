@@ -9,6 +9,7 @@ import {createAndClickLink} from "../utils/Forms.js";
 import DOMPurify from "dompurify";
 import CaretRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import HierarchyIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const icons = {
     invite: <TeamIcon/>,
@@ -24,7 +25,7 @@ const ExternalApplication = () => {
     useEffect(() => {
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                 {value: I18n.t(`external.${app}.title`)}
             ]
         });

@@ -12,6 +12,7 @@ import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
 import {allAuthorities, authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 export const InvitationForm = () => {
     const navigate = useNavigate();
@@ -39,8 +40,8 @@ export const InvitationForm = () => {
                 setOrganization(res);
                 useAppStore.setState({
                     breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                        {path: `/organization/${organizationId}`, value: res.name, menuItemName: "yourApps"},
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                        {path: `/organization/${organizationId}`, value: res.name, menuItemName: mainMenuItems.yourApps},
                         {value: I18n.t("breadCrumb.invitations")}
                     ]
                 });

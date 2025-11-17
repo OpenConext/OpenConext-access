@@ -9,6 +9,7 @@ import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";
 import {CollapseField} from "../components/CollapseField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {getApplicationById, newApplication, updateApplication} from "../api/index.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 export const ApplicationForm = () => {
 
@@ -31,8 +32,8 @@ export const ApplicationForm = () => {
         setChecks(newChecks);
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: "yourApps"},
-                {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name, menuItemName: "yourApps"},
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                {path: `/organization/${currentOrganization.id}`, value: currentOrganization.name, menuItemName: mainMenuItems.yourApps},
                 {value: I18n.t("breadCrumb.applications")}
             ]
         });
