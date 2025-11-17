@@ -202,7 +202,6 @@ const Applications = () => {
                                 {filteredServiceProviders
                                     .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
                                     .map((idp, index) => {
-                                            const metaData = idp.data.metaDataFields;
                                             return (
                                                 <li key={index}
                                                     onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>

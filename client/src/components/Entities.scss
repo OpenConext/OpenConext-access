@@ -274,6 +274,21 @@
                     }
                 }
 
+                &.icon {
+                    img {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 9px;
+                    }
+
+                    svg {
+                        width: 48px;
+                        height: auto;
+                        color: var(--sds--color--gray--300);
+                        border-radius: 12px;
+                    }
+                }
+
                 .sds--chips span {
                     white-space: nowrap;
                 }

@@ -2,7 +2,7 @@
 @use "../index";
 @use "../styles/application";
 
-div.organization-outer-container {
+div.identity-provider-outer-container {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -12,11 +12,11 @@ div.organization-outer-container {
         background-color: transparent;
     }
 
-    div.organization-container {
+    div.identity-provider-container {
         height: 100%;
         padding: 25px 50px;
 
-        .organization {
+        .identity-provider {
             @include form;
             width: 75%;
             @include index.page-media;
@@ -62,38 +62,5 @@ div.organization-outer-container {
             }
         }
 
-        .applications {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-
-            .first-application {
-                display: flex;
-                align-items: flex-start;
-                gap: 35px;
-            }
-
-            .awaiting-change-requests {
-                margin: 0 15px 0 auto;
-                @keyframes gh-rotate {
-                    0% {
-                        transform: rotate(0deg) scale(1);
-                    }
-                    50% {
-                        transform: rotate(180deg) scale(1.02);
-                    }
-                    100% {
-                        transform: rotate(360deg) scale(1);
-                    }
-                }
-
-                svg {
-                    transform-origin: center;
-                    width: 16px;
-                    height: 16px;
-                    animation: gh-rotate 0.6s linear infinite;
-                }
-            }
-        }
     }
 }

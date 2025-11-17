@@ -12,13 +12,81 @@ div.organization-outer-container {
         background-color: transparent;
     }
 
+    .organization-header-container {
+        padding: 25px 50px 0 50px;
+        display: flex;
+        width: 1010px;
+
+        &.card-view {
+            padding-bottom: 25px;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        .view-switcher {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+            color: var(--sds--color--gray--300);
+
+            svg:not(.divider) {
+                cursor: pointer;
+
+                &:hover {
+                    color: var(--sds--color--gray--500);
+                }
+
+                &.active {
+                    color: var(--sds--color--gray--500);
+                    cursor: default;
+                }
+            }
+        }
+    }
+
     div.organization-container {
         height: 100%;
-        padding: 25px 50px;
+        background-color: white;
+
+        .mod-entities {
+            background-color: white;
+
+            .entities-search {
+                padding: 25px 50px;
+                background-color: var(--sds--color--gray--background);
+                justify-content: normal;
+
+                button {
+                    margin-left: 305px;
+                }
+            }
+
+            .entities-list {
+                padding: 0 50px 0 50px;
+            }
+        }
+
+        table.application-list-view {
+            th {
+                &.name {
+                    width: 45%;
+                }
+
+                &.createdAt {
+                    width: 25%;
+                }
+
+                &.white-space {
+                    width: 30%;
+                }
+            }
+        }
 
         .organization {
             @include form;
-            width: 75%;
+            width: 1010px;
             @include index.page-media;
 
             .left {
@@ -63,6 +131,7 @@ div.organization-outer-container {
         }
 
         .applications {
+            padding: 25px 50px 0 50px;
             display: flex;
             flex-direction: column;
             gap: 25px;

@@ -8,6 +8,7 @@ export default function ConfirmationDialog({
                                                confirm,
                                                question = "",
                                                isError = false,
+                                               isDeleteAction = false,
                                                disabledConfirm = false,
                                                children = null,
                                                confirmationTxt = null,
@@ -26,6 +27,7 @@ export default function ConfirmationDialog({
             alertType={null}
             question={question}
             isError={isError}
+            isWarning={isDeleteAction}
             children={children}
             title={confirmationHeader}
             cancelButtonLabel={I18n.t("confirmationDialog.cancel")}

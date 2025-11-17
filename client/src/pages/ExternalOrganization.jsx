@@ -88,6 +88,7 @@ const ExternalOrganization = ({organization, user, refreshUser}) => {
                                          cancel={cancel}
                                          confirmationHeader={I18n.t("forms.delete")}
                                          confirmationTxt={okButton}
+                                         isDeleteAction={true}
                                          question={question}
             />}
             <div className="external-organization-header-container">

@@ -91,7 +91,7 @@ const en = {
         idp: "Mijn organisatie",
         support: "Support",
         servicedesk: "SURF servicedesk",
-        feedback:"Help ons verbeteren",
+        feedback: "Help ons verbeteren",
         tooltips: {
             users: "",
             idp: "",
@@ -279,6 +279,9 @@ const en = {
             disclaimerExternal: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor de productieomgeving, je kunt direct met de testomgeving koppelen."
         },
         applications: "Applications",
+    },
+    "application-list-view" : {
+        searchPlaceHolder: "Search..."
     },
     connection: {
         overview: "Overview",
@@ -950,10 +953,22 @@ const en = {
         info: "Voor het inzien van andere information over je organisatie, bezoek <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
         maintenance: "Beheer",
         contactPersons: "Contact personen",
-        general:"Algemene gegevens",
+        general: "Algemene gegevens",
         delete: "Organisatie verwijderen",
         deleteWarning: "If you delete your organization, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
         deleteButton: "Delete my organization"
+    },
+    accessibleApps: {
+        title: "Gekoppelde apps",
+        subTitle: "Hieronder staan de apps waaraan de {{name}} gekoppeld is.",
+        new: "Nieuwe applicatie toevoegen",
+        name: "App",
+        vendor: "Vendor",
+        created: "Date connected",
+        searchPlaceHolder: "Search...",
+        all: "All categories",
+        allSources: "All federations",
+        other: "-",
     },
     tooltips: {
         userIcon: "User {[name}} is created on {{createdAt}} and was last seen at {{lastActivity}}",
@@ -971,3 +986,4 @@ const en = {
 }
 
 export default en;
+

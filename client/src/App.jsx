@@ -38,6 +38,7 @@ import Relax from "./pages/Relax.jsx";
 import ExternalApplication from "./pages/ExternalApplication.jsx";
 import Feedback from "./pages/Feedback.jsx";
 import MyOrganization from "./pages/MyOrganization.jsx";
+import ApplicationOverview from "./pages/ApplicationOverview.jsx";
 
 const App = () => {
 
@@ -148,6 +149,8 @@ const App = () => {
                             <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
+                            <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
+                            <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
                             {/*{sharedRoutes()}*/}
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>

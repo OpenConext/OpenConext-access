@@ -263,8 +263,8 @@ export const Connection = () => {
                     name: name,
                     disabled:
                         (name === "prod" && !testConnectionComplete) ||
-                        (name === "application" && !testConnectionComplete) ||
-                        (name === "contract" && !productionConnectionComplete)
+                        (name === "application" && false) || //!testConnectionComplete) ||
+                        (name === "contract" && false)//!productionConnectionComplete)
                 }
             })}
                                          application={application}

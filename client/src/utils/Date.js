@@ -1,7 +1,7 @@
 import I18n from "../locale/I18n";
 import {isEmpty} from "./Utils";
 
-const formatDate = (date, longMonth = true, includeTime = false) => {
+export const formatDate = (date, longMonth = true, includeTime = false) => {
     const options = {month: longMonth ? "long" : "short", day: "numeric", year: "numeric"};
     if (includeTime) {
         options.hour = "2-digit";
@@ -20,6 +20,6 @@ export const dateFromEpoch = (epoch, needsMultiplier = true, longMonth = true) =
     return formatDate(date, longMonth);
 }
 
-export const formatLongDate = (isoString) => {
-    return formatDate(new Date(isoString), true, true);
+export const formatLongDate = (isoString, longMonth = true, includeTime = true) => {
+    return formatDate(new Date(isoString), longMonth, includeTime);
 }

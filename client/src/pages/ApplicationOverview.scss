@@ -1,0 +1,63 @@
+@use "../index";
+@use "../styles/vars.scss" as *;
+
+div.accessible-apps-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .accessible-apps-header {
+        h2 {
+            margin-bottom: 18px;
+        }
+    }
+
+    .mod-entities {
+        .entities-search {
+            padding: 0 50px 25px 50px;
+            background-color: var(--sds--color--gray--background);
+        }
+
+        .entities-list {
+            padding: 0 50px 0 50px;
+        }
+    }
+
+    .accessible-apps-header-container {
+        background-color: var(--sds--color--gray--background);
+        padding: 25px 50px 25px 50px;
+    }
+
+    div.accessible-apps {
+        background-color: white;
+    }
+
+    .accessibleApps-search-filters {
+        display: flex;
+        gap: 25px;
+    }
+
+    table.accessibleApps {
+        thead {
+            th {
+                &.icon {
+                    width: 48px;
+                }
+
+                &.name {
+                    width: 33%;
+                }
+
+                &.vendor {
+                    width: 33%;
+                }
+
+                &.created {
+                    width: 33%;
+                }
+            }
+        }
+    }
+
+}
