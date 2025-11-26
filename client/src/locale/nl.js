@@ -531,7 +531,7 @@ const nl = {
             name: "logo",
             add: "Add a logo",
             edit: "Change logo",
-            imageToLarge: "Image is larger then 2MB.",
+            imageToLarge: "Image is larger than 2MB.",
             confirm: "Set new logo image",
             header: "Crop your new logo image",
             disclaimers: [
@@ -549,10 +549,10 @@ const nl = {
             administrativePlaceholder: "admin",
             emailOrWebsite: "Email-adres of url",
             technical: "Technisch contact",
-            technicalDisclaimer: "Gebruik een andere adres dan het administratieve contactadres.",
+            technicalDisclaimer: "Gebruik een ander adres dan het administratieve contactadres.",
             technicalPlaceholder: "technical",
             support: "Support contact",
-            supportDisclaimer: "Dit wordt getoondd aan eindgebruikers.",
+            supportDisclaimer: "Dit wordt getoond aan eindgebruikers.",
             supportPlaceholder: "support",
             addTechnicalContact: "+ voeg nog een technisch contact toe"
         },
