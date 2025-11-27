@@ -2443,10 +2443,10 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-isomorphic-dompurify@^2.31.0:
-  version "2.32.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-dompurify/-/isomorphic-dompurify-2.32.0.tgz#736a2d71ca1f924485d67ef2c49e013bf750f951"
-  integrity sha512-4i6G4ICY57wQpiaNd6WcwhHUAqGDAJGWRlfWKLunBchJjtF2HV4eUeJtUupoEddbnnxYUiRhqfd9e4aDYR7ROA==
+isomorphic-dompurify@^2.33.0:
+  version "2.33.0"
+  resolved "https://registry.yarnpkg.com/isomorphic-dompurify/-/isomorphic-dompurify-2.33.0.tgz#b801c9a7a52e5b1cfc94b3d0765fa109c97cab84"
+  integrity sha512-pXGR3rAHAXb5Bvr56pc5aV0Lh8laubLo7/60F+soOzDFmwks6MtgDhL7p46VoxLnwgIsjgmVhQpUt4mUlL/XEw==
   dependencies:
     dompurify "^3.3.0"
     jsdom "^27.2.0"
@@ -2893,10 +2893,10 @@ react-copy-to-clipboard@^5.1.0:
     copy-to-clipboard "^3.3.1"
     prop-types "^15.8.1"
 
-react-datepicker@^8.9.0:
-  version "8.9.0"
-  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-8.9.0.tgz#4cae5ca4e4fc14d806a4a5610b4d24db6de90810"
-  integrity sha512-yoRsGxjqVRjk8iUBssrW9jcinTeyP9mAfTpuzdKvlESOUjdrY0sfDTzIZWJAn38jvNcxW1dnDmW1CinjiFdxYQ==
+react-datepicker@^8.10.0:
+  version "8.10.0"
+  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-8.10.0.tgz#dfc4534afde70b491883085d8df959b25689d10f"
+  integrity sha512-JIXuA+g+qP3c4MVJpx24o7n1gnv3WV/8A/D6964HucY1FlSEc30+ITPNUfbKZXYHl5rruCtxYCwi2lzn7gaz7g==
   dependencies:
     "@floating-ui/react" "^0.27.15"
     clsx "^2.1.1"
