@@ -7,7 +7,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {Button} from "@surfnet/sds"
 import DOMPurify from "dompurify";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import ReactCrop, {centerCrop, convertToPixelCrop, makeAspectCrop} from "react-image-crop";
+import ReactCrop, {centerCrop, makeAspectCrop} from "react-image-crop";
 import 'react-image-crop/dist/ReactCrop.css'
 import {detect} from "detect-browser";
 import ErrorIndicator from "./ErrorIndicator.jsx";

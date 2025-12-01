@@ -918,7 +918,9 @@ export const Testing = ({
         const profileName = connection.profile?.value || arpInfo.profiles[0].name;
         const profileInfo = I18n.translations[I18n.locale].connection.informational.profiles[profileName].info;
         const currentProfile = arpInfo.profiles.find(profile => profile.name === profileName);
-        const isContentApp = application.type === "CONTENT"
+        const isContentApp = application.type === "CONTENT";
+        //These are the attributes added in Manage. We will show them as regular attributes
+        const extraAttributesOutsideBundle = connection.additionalAttributes.filter(attr => !currentProfile.optionalAttributes.includes(attr));
         return (
             <section className="inner-right-informational">
                 <h3>{I18n.t("connection.informationProfile")}</h3>
@@ -942,7 +944,8 @@ export const Testing = ({
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.attributes"))}}/>
 
                 <div className="attributes">
-                    {currentProfile.attributes.map((attribute, index) =>
+
+                    {currentProfile.attributes.concat(extraAttributesOutsideBundle).map((attribute, index) =>
                         <Fragment key={index}>
                             <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span>
                         </Fragment>

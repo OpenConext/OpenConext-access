@@ -1,6 +1,5 @@
-import {Link, useNavigate} from "react-router";
+import {Link} from "react-router";
 import Logo from "@surfnet/sds/icons/logo-surf.svg";
-import {stopEvent} from "../utils/Utils.js";
 import "./Header.scss";
 import {Navigation} from "./Navigation.jsx";
 import {useEffect} from "react";

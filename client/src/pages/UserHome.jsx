@@ -11,7 +11,6 @@ import DOMPurify from "dompurify";
 const UserHome = () => {
 
     const {user, currentOrganization} = useAppStore(state => state);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,19 +29,14 @@ const UserHome = () => {
                     {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
                 ]
             });
-            setLoading(false);
         }
-    }, []);
+    }, [user.joinRequests, currentOrganization?.id, navigate]);
 
     const navigateInner = (menuItem, path) => {
         navigate(path);
         useAppStore.setState(() => ({
             activeMenuItem: menuItem
         }));
-    }
-
-    if (loading) {
-        return <Loader/>
     }
 
     return (

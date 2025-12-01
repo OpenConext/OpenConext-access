@@ -4,7 +4,6 @@ import PendingIcon from "../icons/pending.svg";
 import TeamIcon from "../icons/teams.svg";
 import CompletedIcon from "../icons/completed.svg";
 import AlertIcon from "../icons/alert-triangle.svg";
-import I18n from "../locale/I18n.js";
 import React from "react";
 import DOMPurify from "dompurify";
 

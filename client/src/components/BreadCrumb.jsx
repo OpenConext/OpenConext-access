@@ -1,7 +1,6 @@
 import React from "react";
 import "./BreadCrumb.scss";
 import {useAppStore} from "../stores/AppStore";
-import {Link} from "react-router-dom";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import DOMPurify from "dompurify";
 import ArrowRight from "../icons/arrow-right.svg";

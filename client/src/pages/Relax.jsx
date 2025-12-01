@@ -1,5 +1,5 @@
 import "./Relax.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";

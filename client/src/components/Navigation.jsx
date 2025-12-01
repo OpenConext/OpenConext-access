@@ -1,11 +1,9 @@
 import {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Navigation.scss"
-import {isEmpty, sanitizeURL, stopEvent} from "../utils/Utils.js";
+import {stopEvent} from "../utils/Utils.js";
 import {useNavigate} from "react-router";
 import {Button} from "@surfnet/sds";
-import {useAppStore} from "../stores/AppStore.js";
-import {login} from "../utils/Login.js";
 
 const tabNames = ["home", "connect", "institutions", "applications"];
 

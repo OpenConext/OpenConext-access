@@ -8,8 +8,7 @@ import {stopEvent} from "../utils/Utils.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
-import {Loader} from "@surfnet/sds";
+import {Button, ButtonType, Loader} from "@surfnet/sds";
 
 const sections = {
     contactPersons: "contactPersons",

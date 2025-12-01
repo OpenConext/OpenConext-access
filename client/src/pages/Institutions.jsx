@@ -1,5 +1,5 @@
 import "./Institutions.scss";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {publicIdentityProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
@@ -8,7 +8,7 @@ import StudentPng from "../icons/student.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {providerName, providerOrganizationName} from "../utils/Manage.js";
+import {providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import {pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination.js";
 

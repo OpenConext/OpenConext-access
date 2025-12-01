@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import {Loader} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
-import {SESSION_STORAGE_LOCATION, login} from "../utils/Login.js";
+import {login, SESSION_STORAGE_LOCATION} from "../utils/Login.js";
 import {useLocation} from "react-router";
 
 export const LoginRedirect = () => {

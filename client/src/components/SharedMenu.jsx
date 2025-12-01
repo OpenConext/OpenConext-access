@@ -2,35 +2,22 @@ import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useNavigate} from "react-router";
 import {NavigationMenu} from "@surfnet/sds";
-import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
-import HierarchyIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
-import LaptopFloatIcon from "@surfnet/sds/icons/illustrative-icons/laptop-1.svg";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import CheckIcon from "@surfnet/sds/icons/check.svg";
-import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
-import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
-import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
-import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
-import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
-import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
 
 import {useAppStore} from "../stores/AppStore.js";
-import {useEffect, useState} from "react";
+import {useMemo} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
-import {allMenuGroups, mainMenuItems} from "../utils/MenuItems.js";
+import {allMenuGroups} from "../utils/MenuItems.js";
 import {isEmpty} from "../utils/Utils.js";
 
 export const SharedMenu = () => {
 
     const {menuItems, currentOrganization, activeMenuItem} = useAppStore(state => state);
-
-    const [filteredMenuGroups, setFilteredMenuGroups] = useState([]);
-
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const newMenuGroups = allMenuGroups
+    const filteredMenuGroups = useMemo(() => {
+        return allMenuGroups
             .map(menuGroup => ({
                 label: menuGroup.label ? I18n.t(`navigation.${menuGroup.label}`) : null,
                 className: menuGroup.className,
@@ -47,7 +34,6 @@ export const SharedMenu = () => {
                     }))
             }))
             .filter(menuGroup => menuGroup.items.length > 0);
-        setFilteredMenuGroups(newMenuGroups);
     }, [activeMenuItem, menuItems, currentOrganization]);
 
 

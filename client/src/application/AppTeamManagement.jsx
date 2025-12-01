@@ -50,7 +50,7 @@ export const AppTeamManagement = ({
             }).catch(() => {
             navigate("/404")
         });
-    }, [refreshApp, application]);
+    }, [refreshApp, application, currentUser, navigate]);
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {

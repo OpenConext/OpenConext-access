@@ -3,7 +3,7 @@ import "./Connect.scss";
 import React from "react";
 import I18n from "../locale/I18n.js";
 import StudentPng from "../icons/student.png";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 
 const Connect = () => {

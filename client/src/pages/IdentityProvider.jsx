@@ -1,11 +1,7 @@
 import "./IdentityProvider.scss";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Loader} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
-import {organizationById} from "../api/index.js";
-import {isEmpty} from "../utils/Utils.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 const IdentityProvider = ({organization, user}) => {
