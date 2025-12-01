@@ -9,6 +9,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
 import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Loader} from "@surfnet/sds";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -19,6 +20,7 @@ const sections = {
 const ExternalOrganization = ({organization, user, refreshUser}) => {
     const [confirmation, setConfirmation] = useState({});
     const [section, setSection] = useState(sections.contactPersons);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -33,6 +35,7 @@ const ExternalOrganization = ({organization, user, refreshUser}) => {
                 okButton: I18n.t("forms.delete")
             });
         } else {
+            setLoading(true);
             deleteOrganizationById(organization.id).then(() => {
                 setConfirmation({});
                 useAppStore.setState({
@@ -80,6 +83,10 @@ const ExternalOrganization = ({organization, user, refreshUser}) => {
         }
     }
 
+    if (loading) {
+        return <Loader/>
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
     return (
         <div
@@ -102,7 +109,7 @@ const ExternalOrganization = ({organization, user, refreshUser}) => {
                 <div className="menu-container">
                     <div className="left-menu">
                         {Object.values(sections)
-                            .filter(s => s !== sections.delete || user.superUser || isOrganizationAdmin(user))
+                            .filter(s => s !== sections.delete || user.superUser || isOrganizationAdmin(user, organization))
                             .map((s, index) =>
                                 <div key={index} className={`menu-item ${s === section ? "active" : ""}`}>
                                     <span onClick={() => setSection(s)}>{I18n.t(`externalOrganization.${s}`)}</span>

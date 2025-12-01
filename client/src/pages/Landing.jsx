@@ -63,6 +63,9 @@ const Landing = ({refreshUser}) => {
         });
         refreshUser();
         navigate(`/organization/${organization.id}`);
+        useAppStore.setState(() => ({
+            activeMenuItem: mainMenuItems.yourApps
+        }));
     }
 
     const createOrganization = () => {

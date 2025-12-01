@@ -18,6 +18,9 @@ class FullSearchQueryParserTest {
 
         String strippedWhiteSpace = FullSearchQueryParser.parse(" Leitndhireedisvea@example.com  ");
         assertEquals("+Leitndhireedisvea +example*", strippedWhiteSpace);
+
+        String withReservedChars = FullSearchQueryParser.parse("<>()~\"test");
+        assertEquals("+test*", withReservedChars);
     }
 
     @Test
