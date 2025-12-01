@@ -23,6 +23,8 @@ class OrganizationControllerTest extends AbstractTest {
     void find() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
+        stubForGetChangeRequests(getChangeRequests());
+
         Organization organization = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

@@ -60,7 +60,6 @@ public class ConnectionProviderConverter {
 
         //Now copy all information from the connection to the data / metadata
         putIf(remoteProvider, "id", connection.getManageIdentifier());
-        putIf(remoteProvider, "version", connection.getManageVersion());
         remoteProvider.put("type", connection.getProtocol().name());
         putIf(remoteProvider, "eid", connection.getManageEid());
 
@@ -87,6 +86,8 @@ public class ConnectionProviderConverter {
                 .stream()
                 .filter(m -> StringUtils.hasText(m.get("email")))
                 .toList();
+        //First, delete all contact persons before adding them again
+        metaDataFields.keySet().removeIf(key -> key.startsWith("contacts:"));
 
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);

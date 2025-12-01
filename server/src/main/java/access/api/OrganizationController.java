@@ -4,6 +4,7 @@ import access.config.Config;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -47,6 +49,7 @@ public class OrganizationController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final Config config;
+    private final Manage manage;
     private final UserRepository userRepository;
     private final JiraClient jiraClient;
 
@@ -54,11 +57,13 @@ public class OrganizationController implements UserAccessRights {
     @Autowired
     public OrganizationController(OrganizationRepository organizationRepository,
                                   OrganizationMembershipRepository organizationMembershipRepository,
+                                  Manage manage,
                                   UserRepository userRepository,
                                   Config config,
                                   JiraClient jiraClient) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.manage = manage;
         this.config = config;
         this.userRepository = userRepository;
         this.jiraClient = jiraClient;
@@ -72,6 +77,17 @@ public class OrganizationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
+
+        organization.getApplications().forEach(application -> {
+            //We only fetch change-requests for applications with one production status
+            List<Connection> prodConnections = application.getConnections().stream()
+                    .filter(conn -> conn.getEnvironment().equals(Environment.PROD))
+                    .toList();
+            if (prodConnections.size() == 1) {
+                prodConnections.forEach(connection ->
+                        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection)));
+            }
+        });
 
         return ResponseEntity.ok(organization);
     }
