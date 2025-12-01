@@ -1,7 +1,6 @@
 {
   "id": "49a117bb-f384-48d8-85d2-71d458b85ac8",
   "type": "saml20_sp",
-  "version": 12,
   "data": {
     "entityid": "https://engine.test.surfconext.nl/authentication/sp/metadata",
     "state": "prodaccepted",

@@ -1,7 +1,6 @@
 {
   "id": "49a117bb-f384-48d8-85d2-71d458b85ac8",
   "type": "oidc10_rp",
-  "version": 12,
   "data": {
     "entityid": "ACCESS-C4EA112E-C76F-4BF2-8384-99D321F9DCC4",
     "state": "prodaccepted",
