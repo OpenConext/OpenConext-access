@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -15,24 +16,32 @@ public class ChangeRequest implements Serializable {
 
     @Setter
     private String id;
+
     @Setter
     private String metaDataId;
+
     @Setter
     private String type;
+
     private String note;
+
     private Map<String, Object> pathUpdates;
+
     private Map<String, Object> auditData;
 
     private boolean incrementalChange;
 
     private PathUpdateType pathUpdateType;
 
+    private RequestType requestType;
+
     public ChangeRequest(String metaDataId,
                          EntityType entityType,
                          Map<String, Object> pathUpdates,
                          Map<String, Object> auditData,
                          boolean incrementalChange,
-                         PathUpdateType pathUpdateType) {
+                         PathUpdateType pathUpdateType,
+                         RequestType requestType) {
         this.metaDataId = metaDataId;
         this.type = entityType.name();
         this.note = auditData != null ? (String) auditData.get("notes") : null;
@@ -40,6 +49,7 @@ public class ChangeRequest implements Serializable {
         this.auditData = auditData;
         this.incrementalChange = incrementalChange;
         this.pathUpdateType = pathUpdateType;
+        this.requestType = requestType;
     }
 
 }

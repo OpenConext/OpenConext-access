@@ -4,10 +4,7 @@ import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
-import access.manage.ChangeRequest;
-import access.manage.ConnectionProviderConverter;
-import access.manage.Manage;
-import access.manage.PathUpdateType;
+import access.manage.*;
 import access.model.*;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -188,7 +185,8 @@ public class ConnectionController implements UserAccessRights {
                         "notes", String.format("Production status requested by %s for %s. See Jira %s",
                                 user.getName(), connection.getName(), jiraKey)),
                 false,
-                PathUpdateType.ADDITION);
+                PathUpdateType.ADDITION,
+                RequestType.ProductionStatusRequest);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);

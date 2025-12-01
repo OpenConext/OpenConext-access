@@ -172,7 +172,8 @@ public class ConnectionProviderConverter {
                     pathUpdates,
                     auditData,
                     false,
-                    null);
+                    null,
+                    RequestType.Change);
             changeRequests.add(changeRequest);
         }
         return changeRequests;
