@@ -131,7 +131,7 @@ const Applications = () => {
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
-        const showMostRecent = (isEmpty(query) && tag === "all" && source === "all");
+        const showMostRecent = (isEmpty(query) && tag === "all" && source === "all" && page === 1);
         return (
             <div className="applications-container">
                 <div className="applications-header-container">
