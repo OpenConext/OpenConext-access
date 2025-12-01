@@ -114,6 +114,7 @@ email:
   from: "no-reply@surf.nl"
   contactEmail: "access@surf.nl"
   serviceDeskEmail: "help@surfconext.nl"
+  supportEmail: "support@surfconext.nl,"
   environment: "local"
 
 # The manage section determines if an external Manage is used to integrate with, or that a predefined, static list

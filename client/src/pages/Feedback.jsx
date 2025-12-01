@@ -29,7 +29,7 @@ export default function Feedback() {
     const sendFeedBack = () => {
         feedback(message).then(() => {
             setFlash(I18n.t("feedback.flash"));
-            navigate("/home");
+            navigate(-1);
         });
     }
 

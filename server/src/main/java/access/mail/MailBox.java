@@ -29,6 +29,7 @@ public class MailBox {
     private final String clientUrl;
     private final String emailFrom;
     private final String serviceDeskEmail;
+    private final String supportEmail;
     private final String environment;
 
     private final Map<String, Map<String, String>> subjects;
@@ -39,11 +40,13 @@ public class MailBox {
             JavaMailSender mailSender,
             String emailFrom,
             String serviceDeskEmail,
+            String supportEmail,
             String clientUrl,
             String environment, ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
         this.serviceDeskEmail = serviceDeskEmail;
+        this.supportEmail = supportEmail;
         this.clientUrl = clientUrl;
         this.environment = environment;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
@@ -136,7 +139,7 @@ public class MailBox {
     public void sendFeedbackMail(User user, String message) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
-        variables.put("title", "Feedback");
+        variables.put("title", "SURF Access feedback form");
         String now =  LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
         variables.put("message", message.replaceAll("\n", "<br/>"));
@@ -147,7 +150,7 @@ public class MailBox {
         sendMail("feedback_en",
                 "Feedback",
                 variables,
-                serviceDeskEmail);
+                supportEmail);
     }
 
     private String preferredLanguage() {
