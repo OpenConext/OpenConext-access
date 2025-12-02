@@ -185,6 +185,7 @@ public class Connection implements NameHolder {
         String connectOption = (String) metaDataFields
                 .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction.name());
         this.metaData.put("connectOption", connectOption);
+        List<String> tags = (List<String>) metaDataFields.getOrDefault("application_tags", List.of());
         /*
          * Business logic. If a status for a production connection is pending production and the state has changed
          * to prodaccepted, then we set the status to production ready

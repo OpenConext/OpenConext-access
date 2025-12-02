@@ -89,7 +89,8 @@
         "en": "Scoped Affiliation",
         "nl": "Scoped Affiliation"
       },
-      "example": "student@uvh.nl"
+      "example": "student@uvh.nl",
+      "scopedValue": true
     },
     {
       "name": "eduPersonAffiliation",
@@ -102,7 +103,8 @@
         "en": "Affiliation",
         "nl": "Affiliation"
       },
-      "example": "student"
+      "example": "student",
+      "scopedValue": true
     },
     {
       "name": "transientNameID",
@@ -154,7 +156,8 @@
         "en": "Entitlements",
         "nl": "Entitlements"
       },
-      "example": "https://uva.teacher.nl"
+      "example": "https://uva.teacher.nl",
+      "scopedValue": true
     },
     {
       "name": "eduPersonPrincipalName",
@@ -181,7 +184,8 @@
         "nl": "Lidmaatschappen"
       },
       "example": "administrators",
-      "overrideSource": "voot"
+      "overrideSource": "voot",
+      "scopedValue": true
     },
     {
       "name": "autorisaties",
@@ -194,7 +198,8 @@
         "en": "Autorizations",
         "nl": "Autorisaties"
       },
-      "example": "Instellingsbevoegde"
+      "example": "Instellingsbevoegde",
+      "scopedValue": true
     },
     {
       "name": "displayName",
@@ -298,7 +303,8 @@
         "en": "IdP Unique code",
         "nl": "IdP unieke code"
       },
-      "example": "9d2f6e4a-7b1f-***"
+      "example": "9d2f6e4a-7b1f-***",
+      "scopedValue": true
     },
     {
       "name": "eduPersonOrcid",

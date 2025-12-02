@@ -422,6 +422,7 @@ const en = {
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
             contentAppAlert: "Een content application ontvangt de volgend informatie",
+            scopedValueAttributeDisclaimer: "Let op. Dit attribuut vereist afstemming tussen SURF, IdP en jullie zelf. We nemen hierover contact met je op.",
             profiles: {
                 anonymous: {
                     name: "Anoniem",
@@ -451,7 +452,8 @@ const en = {
             profileMotivationPlaceholder: "Beschrijf waarom je dit informatieprofiel nodig hebt",
             profileMotivationDisclaimer: "Deze tekst wordt getoond aan eindgebruikers die willen aansluiten bij je dienst",
             motivation: "Motivation",
-            motivationPlaceholder: "Attribute is used to ..."
+            motivationPlaceholder: "Attribute is used to ...",
+            value: "Value"
         },
         testIdPs: {
             info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",

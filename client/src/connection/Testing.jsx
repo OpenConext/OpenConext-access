@@ -921,6 +921,8 @@ export const Testing = ({
         const isContentApp = application.type === "CONTENT";
         //These are the attributes added in Manage. We will show them as regular attributes
         const extraAttributesOutsideBundle = connection.additionalAttributes.filter(attr => !currentProfile.optionalAttributes.includes(attr));
+        const allAttributes = currentProfile.attributes.concat(extraAttributesOutsideBundle);
+        const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)
         return (
             <section className="inner-right-informational">
                 <h3>{I18n.t("connection.informationProfile")}</h3>
@@ -944,13 +946,20 @@ export const Testing = ({
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.attributes"))}}/>
 
                 <div className="attributes">
-
-                    {currentProfile.attributes.concat(extraAttributesOutsideBundle).map((attribute, index) =>
-                        <Fragment key={index}>
-                            <span>{attribute}</span><span>{arpInfo.attributes.find(attr => attr.name === attribute).example}</span>
-                        </Fragment>
+                    {allAttributes.map((attribute, index) => {
+                        const arpAttribute = arpInfo.attributes.find(attr => attr.name === attribute);
+                        return (
+                                <Fragment key={index}>
+                                    <span>{attribute}{arpAttribute.scopedValue && <sup>*</sup>}</span>
+                                    <span>{arpAttribute.example}</span>
+                                </Fragment>
+                            );
+                        }
                     )}
                 </div>
+                {scopeValuesPresent &&
+                    <p className="scoped-value-disclaimer"><sup>* </sup>{I18n.t("connection.informational.scopedValueAttributeDisclaimer")}</p>}
+
                 {currentProfile.requiresMotivation &&
                     <div className="profile=motivation">
                         <InputField value={connection.profileMotivation}
@@ -977,6 +986,9 @@ export const Testing = ({
                                 <p className="available-attributes">{I18n.t("connection.informational.availableAttributes")}</p>
                                 {currentProfile.optionalAttributes.map((optionalAttribute, index) => {
                                     const selected = connection.additionalAttributes.includes(optionalAttribute);
+                                    const arpAttribute = arpInfo.attributes.find(attr => attr.name === optionalAttribute);
+                                    const arpSource = connection.arp.attributes[arpAttribute.urn]?.[0];
+                                    const defaultArpValue = arpSource?.value === "*";
                                     return (
                                         <div key={index}
                                              className={`additional-attributes optional ${!selected ? "dormant" : ""}`}>
@@ -989,7 +1001,13 @@ export const Testing = ({
                                                         value={selected}
                                                         onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
                                             </section>
-                                            {selected &&
+                                            {(selected && !defaultArpValue) &&
+                                                <InputField value={arpSource.value}
+                                                            name={I18n.t("connection.informational.value")}
+                                                            copyClipBoard={true}
+                                                            disabled={true}/>
+                                            }
+                                            {(selected && defaultArpValue) &&
                                                 <InputField value={connection.motivations[optionalAttribute]}
                                                             name={I18n.t("connection.informational.motivation")}
                                                             placeholder={I18n.t("connection.informational.motivationPlaceholder")}
@@ -1000,7 +1018,11 @@ export const Testing = ({
                                                 <ErrorIndicator
                                                     msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
                                                 />}
-
+                                            {(selected && arpAttribute.scopedValue) &&
+                                                    <Alert alertType={AlertType.Warning}
+                                                            asChild={false}
+                                                            message={I18n.t("connection.informational.scopedValueAttributeDisclaimer")}/>
+                                            }
                                         </div>
                                     )
                                 })}

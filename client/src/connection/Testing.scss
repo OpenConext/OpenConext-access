@@ -105,6 +105,11 @@ $width-percentage: 75%;
                 margin: 18px 0 8px 0;
             }
 
+            p.scoped-value-disclaimer {
+                margin: 8px 0;
+                font-size: 14px;
+            }
+
             div.attributes {
                 background-color: var(--sds--color--gray--background);
                 padding: 8px 15px;
@@ -138,6 +143,10 @@ $width-percentage: 75%;
                 &.optional {
                     flex-direction: column;
                     align-items: flex-start;
+
+                    .sds--alert.sds--alert--status-warning {
+                        margin: 10px 0 10px 0;
+                    }
                 }
 
                 .optional-attribute {
@@ -161,10 +170,12 @@ $width-percentage: 75%;
                 }
 
                 .input-field {
-                    width: 75%;
+                    width: 100%;
                     @include index.page-media;
 
                 }
+
+
             }
 
             p.available-attributes {
