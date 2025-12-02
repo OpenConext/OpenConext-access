@@ -66,3 +66,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # We want to manage this ourselves and not receive PR's for this
+    ignore:
+      - dependency-name: "org.springframework.security*"
