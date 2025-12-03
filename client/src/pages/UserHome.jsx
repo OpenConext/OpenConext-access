@@ -52,7 +52,7 @@ const UserHome = () => {
                             txt={I18n.t("userHome.central.maintainAccess")}
                             type={ButtonType.GhostLight}/>
                     <h5>{I18n.t("userHome.central.roles")}</h5>
-                    <Button onClick={() => navigateInner(mainMenuItems.roles, "/external/invite")}
+                    <Button onClick={() => navigateInner(mainMenuItems.invite, "/external/invite")}
                             txt={I18n.t("userHome.central.maintainRoles")}
                             type={ButtonType.GhostLight}/>
                     <div className="sds--divider largest"/>
@@ -85,7 +85,7 @@ const UserHome = () => {
                     <h3>{I18n.t("userHome.decentral.title")}</h3>
                     <p>{I18n.t("userHome.decentral.subTitle")}</p>
                     <h5>{I18n.t("userHome.decentral.collaborations")}</h5>
-                    <Button onClick={() => navigateInner(mainMenuItems.collaborations, "/external/sram")}
+                    <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
                             txt={I18n.t("userHome.decentral.maintainCollaborations")}
                             type={ButtonType.GhostLight}/>
                     <div className="sds--divider"/>
@@ -96,7 +96,7 @@ const UserHome = () => {
                             name: "todo-name",
                         }))
                     }}/>
-                    <Button onClick={() => navigateInner(mainMenuItems.collaborations, "/external/sram")}
+                    <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
                             txt={I18n.t("userHome.decentral.maintainTeamDecentral")}
                             type={ButtonType.GhostLight}/>
                 </section>}

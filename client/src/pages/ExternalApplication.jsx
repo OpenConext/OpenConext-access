@@ -27,7 +27,8 @@ const ExternalApplication = () => {
             breadcrumbPaths: [
                 {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                 {value: I18n.t(`external.${app}.title`)}
-            ]
+            ],
+            activeMenuItem: mainMenuItems[app]
         });
     }, [app]);
 

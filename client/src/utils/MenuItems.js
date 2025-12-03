@@ -17,9 +17,9 @@ export const mainMenuItems = {
     yourApps: "yourApps",
     catalogue: "catalogue",
     accessibleApps: "accessibleApps",
-    roles: "roles",
-    collaborations: "collaborations",
-    serviceDesk: "servicedesk",
+    invite: "invite",
+    sram: "sram",
+    serviceDesk: "serviceDesk",
     feedback: "feedback"
 }
 
@@ -30,7 +30,7 @@ export const menuItemsForUser = user => {
         newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.idp);
     }
     if (!user.externalUser) {
-        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.roles, mainMenuItems.collaborations);
+        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.invite, mainMenuItems.sram);
     }
     //Every user has access to the help menu items
     newMenuItems.push(mainMenuItems.serviceDesk, mainMenuItems.feedback);
@@ -71,12 +71,12 @@ export const allMenuGroups = [
         label: "externalMaintenance",
         items: [
             {
-                name: mainMenuItems.roles,
+                name: mainMenuItems.invite,
                 path: "/external/invite",
                 Logo: TeamIcon
             },
             {
-                name: mainMenuItems.collaborations,
+                name: mainMenuItems.sram,
                 path: "/external/sram",
                 Logo: HierarchyIcon
             }
