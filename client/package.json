@@ -20,7 +20,6 @@
     "jsondiffpatch": "^0.7.3",
     "luxon": "^3.7.2",
     "react": "^19.1.0",
-    "react-copy-to-clipboard": "^5.1.0",
     "react-datepicker": "^8.9.0",
     "react-dom": "^19.1.0",
     "react-image-crop": "^11.0.10",
