@@ -154,7 +154,7 @@ export const Testing = ({
                     "?action=activate");
             }
         }
-    }, [application]);
+    }, [application]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const isPending = sectionName => {
         const finished = finishedSections.includes(sectionName);

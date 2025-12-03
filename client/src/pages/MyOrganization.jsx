@@ -29,7 +29,7 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
-    }, [organizationId]);
+    }, [navigate, organizationId]);
 
     if (loading) {
         return <Loader/>

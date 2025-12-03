@@ -1,5 +1,5 @@
 import "./Applications.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
@@ -12,6 +12,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import {pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination.js";
+import {getParameterByName} from "../utils/QueryParameters.js";
 
 const pageCount = 10;
 
@@ -21,7 +22,6 @@ const Applications = () => {
         const [query, setQuery] = useState("");
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
-        const [filteredServiceProviders, setFilteredServiceProviders] = useState([]);
         const [recentServiceProviders, setRecentServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
         const [tagOptions, setTagOptions] = useState([]);
@@ -36,7 +36,6 @@ const Applications = () => {
                         .sort((sp1, sp2) => providerName(I18n.locale, sp1).toLowerCase()
                             .localeCompare(providerName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
-                    setFilteredServiceProviders(res);
                     const recent = res
                         .sort((sp1, sp2) => sp2.revision.created.localeCompare(sp1.revision.created))
                         .slice(0, 8);
@@ -99,32 +98,36 @@ const Applications = () => {
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-        useEffect(() => {
-            setFilteredServiceProviders((isEmpty(query) && tag === "all" && source === "all") ? recentServiceProviders :
-                serviceProviders.filter(filterSP));
-        }, [query, source, tag]);
 
-        const filterSP = sp => {
-            setPage(1);
-            let tagHit = true;
-            const tags = sp.data.metaDataFields.application_tags;
-            if (tag !== "all") {
-                tagHit = !isEmpty(tags) && tags.includes(tag);
+        const filteredServiceProviders = useMemo(() => {
+            const filterSP = sp => {
+                const nbr = getParameterByName("page", window.location.search) || 1;
+                setPage(nbr);
+                let tagHit = true;
+                const tags = sp.data.metaDataFields.application_tags;
+                if (tag !== "all") {
+                    tagHit = !isEmpty(tags) && tags.includes(tag);
+                }
+                let sourceHit = true;
+                const fed = sp.data.metaDataFields["coin:interfed_source"];
+                if (source !== "all") {
+                    sourceHit = !isEmpty(fed) && fed === source;
+                }
+                let queryHit = true;
+                if (!isEmpty(query)) {
+                    const name = providerName(I18n.locale, sp).toLowerCase();
+                    const orgName = providerOrganizationName(I18n.locale, sp).toLowerCase();
+                    const queryLower = query.toLowerCase();
+                    queryHit = name.includes(queryLower) || orgName.includes(queryLower);
+                }
+                return tagHit && queryHit && sourceHit;
             }
-            let sourceHit = true;
-            const fed = sp.data.metaDataFields["coin:interfed_source"];
-            if (source !== "all") {
-                sourceHit = !isEmpty(fed) && fed === source;
-            }
-            let queryHit = true;
-            if (!isEmpty(query)) {
-                const name = providerName(I18n.locale, sp).toLowerCase();
-                const orgName = providerOrganizationName(I18n.locale, sp).toLowerCase();
-                const queryLower = query.toLowerCase();
-                queryHit = name.includes(queryLower) || orgName.includes(queryLower);
-            }
-            return tagHit && queryHit && sourceHit;
-        }
+            const p = page;
+            debugger;
+            return (isEmpty(query) && tag === "all" && source === "all") ? recentServiceProviders :
+                serviceProviders.filter(sp => filterSP(sp));
+        }, [query, recentServiceProviders, serviceProviders, source, tag]);
+
 
         if (loading) {
             return <Loader/>
@@ -222,12 +225,12 @@ const Applications = () => {
                         </div>}
                     </div>
                     {!showMostRecent && <Pagination currentPage={page}
-                                onChange={nbr => {
-                                    setPage(nbr);
-                                    storePageNumber(nbr);
-                                }}
-                                total={filteredServiceProviders.length}
-                                pageCount={pageCount}/>}
+                                                    onChange={nbr => {
+                                                        setPage(nbr);
+                                                        storePageNumber(nbr);
+                                                    }}
+                                                    total={filteredServiceProviders.length}
+                                                    pageCount={pageCount}/>}
                 </div>
 
             </div>

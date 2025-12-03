@@ -142,7 +142,7 @@ export const ChangeRequests = ({
             case actions.array_changed:
                 return formatLogicalValue(attribute, change, isOld ? change.oldValue : change.newValue);
             default:
-                throw new Error(`Unknown action ${action}`)
+                throw new Error(`Unknown action ${change.type}`)
         }
     }
 

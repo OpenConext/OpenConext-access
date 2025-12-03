@@ -18,5 +18,5 @@ test("Test distinctValues", () => {
             val: "val3"
         }],
         "id");
-    expect(res.length).toEqual(3);
+    expect(resId.length).toEqual(3);
 });

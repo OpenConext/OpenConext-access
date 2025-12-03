@@ -46,13 +46,13 @@ export const ApplicationForm = () => {
         } else {
             setLoading(false);
         }
-    }, [applicationId]);
+    }, [applicationId, currentOrganization]);
 
-    const targetGroupLabel = label => {
-        const upperText = I18n.t(`application.target${label.toUpperCase()}`);
-        const bottomText = I18n.t(`application.target${label.toUpperCase()}Info`);
-        return `<div><p class="primary-label-radio-option">${upperText}</p><p>${bottomText}</p></div>`
-    }
+    // const targetGroupLabel = label => {
+    //     const upperText = I18n.t(`application.target${label.toUpperCase()}`);
+    //     const bottomText = I18n.t(`application.target${label.toUpperCase()}Info`);
+    //     return `<div><p class="primary-label-radio-option">${upperText}</p><p>${bottomText}</p></div>`
+    // }
 
     if (loading) {
         return <Loader/>

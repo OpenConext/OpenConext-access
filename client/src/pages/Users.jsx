@@ -34,7 +34,7 @@ export const Users = () => {
                     setSearching(false);
                 });
         },
-        [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+        [paginationQueryParams]);
 
     const search = (query, sorted, reverse, page) => {
         const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== paginationQueryParams.sortDirection ||

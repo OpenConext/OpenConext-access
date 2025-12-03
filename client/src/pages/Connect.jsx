@@ -75,7 +75,7 @@ const Connect = () => {
                         <p>{I18n.t("connect.serviceInfo")}</p>
                         <ul>
                             {I18n.translations[I18n.locale].connect.serviceBullets
-                                .map(s => <li dangerouslySetInnerHTML={{__html: s}}/>)}
+                                .map((s,index) => <li key={index} dangerouslySetInnerHTML={{__html: s}}/>)}
                         </ul>
                     </div>
                     <div>

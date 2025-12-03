@@ -59,7 +59,7 @@ export const Connection = () => {
                 }));
                 setApplication(convertServerApplicationToClient(res, protocolOptions, options, arp));
                 setProfileOptions(options);
-                changeTab(currentTab);
+                // changeTab(currentTab);
                 setLoading(false);
                 useAppStore.setState({
                     breadcrumbPaths: [
@@ -82,7 +82,7 @@ export const Connection = () => {
 
                 })
             })
-    }, []);
+    }, [applicationId, arp]);
 
     const {
         testConnectionComplete,
@@ -106,7 +106,7 @@ export const Connection = () => {
                     .filter(conn => conn.environment === ENVIRONMENTS.PROD)
                     .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
         }
-    }, [application]);
+    }, [application, privacy]);
 
 
     const refresh = (newTab = null) => {

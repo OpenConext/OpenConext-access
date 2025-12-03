@@ -24,7 +24,7 @@ const Relax = () => {
                 ]
             });
         }
-    }, []);
+    }, [currentOrganization.id, navigate, user.joinRequests]);
 
     return (
         <div className="relax-container">

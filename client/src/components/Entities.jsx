@@ -38,8 +38,7 @@ export const Entities = ({
                              newEntityFunc,
                              defaultSort,
                              rowClassNameResolver,
-                             inputFocus = false,
-                             busy = false
+                             inputFocus = false
                          }) => {
 
     const [query, setQuery] = useState("");
@@ -178,7 +177,6 @@ export const Entities = ({
 
     const renderEntities = sortedEntities => {
         const hasEntities = !isEmpty(sortedEntities);
-        const customEmptySearch = customSearch && (isEmpty(query) || query.trim().length < 3);
         const total = sortedEntities.length;
         const minimalPage = Math.min(page, Math.ceil(sortedEntities.length / pageCount));
         sortedEntities = sortedEntities.slice((minimalPage - 1) * pageCount, minimalPage * pageCount);

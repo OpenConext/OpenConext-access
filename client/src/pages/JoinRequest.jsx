@@ -33,7 +33,7 @@ const JoinRequest = ({refreshUser}) => {
             setOrganization(res);
             setLoading(false);
         })
-    }, []);
+    }, [organisationId]);
 
     if (loading) {
         return <Loader/>

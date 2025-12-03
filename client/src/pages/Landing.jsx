@@ -43,7 +43,7 @@ const Landing = ({refreshUser}) => {
             ]
         });
         ref.current?.focus();
-    }, []);
+    }, [currentOrganization.id, navigate]);
 
     const onChangeSearch = e => {
         const val = e.target.value;

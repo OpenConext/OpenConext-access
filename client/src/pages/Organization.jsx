@@ -62,7 +62,7 @@ const Organization = () => {
                 navigate("/home")
             });
         }
-    }, [organizationId]);
+    }, [navigate, organizationId, user]);
 
     const alertInfo = () => {
         if (alertClosed || organization.applicationCount > 0) {

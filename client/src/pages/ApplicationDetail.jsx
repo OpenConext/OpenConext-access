@@ -115,13 +115,13 @@ const ApplicationDetail = () => {
                                         }
                                         {serviceProvider.data.arp.enabled &&
                                             <>
-                                                {Object.entries(serviceProvider.data.arp.attributes).map(entry => {
+                                                {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
                                                     const attribute = findArpEntry(entry[0]);
                                                     //ARP entries only have one value / source
                                                     const value = entry[1][0];
                                                     const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
                                                     return (
-                                                        <div className="attribute">
+                                                        <div className="attribute" key={index}>
                                                             <span
                                                                 className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
                                                             {!isEmpty(value.motivation) &&
@@ -146,12 +146,12 @@ const ApplicationDetail = () => {
                                     </a>}
                                     {showPrivacy &&
                                         <div className="privacy-questions">
-                                            {privacy.map(item => {
+                                            {privacy.map((item,index) => {
                                                     const question = item[`info_${I18n.locale}`];
                                                     const strippedQuestion = question.substring(question.indexOf(" ") + 1);
                                                     const answer = metaData[item.manage]
                                                     return (
-                                                        <div className="privacy-question">
+                                                        <div className="privacy-question" key={index}>
                                                             <span className="priv-name">{strippedQuestion}</span>
                                                             {isEmpty(answer) && <span
                                                                 className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}

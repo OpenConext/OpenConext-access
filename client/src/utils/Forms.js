@@ -45,7 +45,7 @@ export const replaceArrayItem = (arr, index, value) => {
     ];
 }
 
-export const removeArrayItem = (arr, index, value) => {
+export const removeArrayItem = (arr, index) => {
     if (index < 0 || index >= arr.length) {
         return arr.slice();
     }

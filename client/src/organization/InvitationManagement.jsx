@@ -190,23 +190,6 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
         )
     };
 
-    const renderExplanations = () => {
-        return (
-            <div className="explanations">
-                <h2>{I18n.t("teamManagement.explanations.title")}</h2>
-                {["admin", "member", "guest"].map((role, index) => <
-                        div key={role}>
-                        <p className="role">{index + 1}. {I18n.t(`teamManagement.explanations.${role}`)}</p>
-                        <p className="paragraph">
-                            {I18n.t(`teamManagement.explanations.${role}Rights`)}
-                        </p>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-
     const {open, cancel, action, question, okButton} = confirmation;
     return (
         <div className="organization-invitations">

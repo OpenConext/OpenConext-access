@@ -50,12 +50,10 @@ export const AppInformation = ({
     const [focusedId, setFocusedId] = useState(null);
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        if (isEmpty(application.privacy.dpa_type)) {
-            application.privacy.dpa_type = "dpa_supplied_by_service";
-            setApplication({...application});
-        }
-    }, []);
+    if (isEmpty(application.privacy.dpa_type)) {
+        application.privacy.dpa_type = "dpa_supplied_by_service";
+        setApplication({...application});
+    }
 
     useEffect(() => {
         if (inputRef.current) {
@@ -129,7 +127,7 @@ export const AppInformation = ({
                         changeSection(nextSection);
                     }
                 })
-                .catch(e => {
+                .catch(() => {
                     setLoading(false);
                     setFlash(I18n.t("forms.error"), "error")
                 });
@@ -291,7 +289,7 @@ export const AppInformation = ({
                                         msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
                                     />}
                                 {(innerIndex === (contactPersonsGrouped[contactType].length - 1) && contactPerson.type === contactPersonTypes.technical
-                                    && contactPersonsGrouped[contactType].length < 2) &&
+                                        && contactPersonsGrouped[contactType].length < 2) &&
                                     <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                         {I18n.t("connection.contacts.addTechnicalContact")}
                                     </a>}
@@ -366,7 +364,9 @@ export const AppInformation = ({
                             cutoffNumber={300}
                             moreLabel={I18n.t("forms.moreLabel")}
                             lessLabel={I18n.t("forms.lessLabel")}/>
-                        <a href={application.information.webSite} target="_blank">{application.information.webSite}</a>
+                        <a href={application.information.webSite}
+                           rel="noreferrer"
+                           target="_blank">{application.information.webSite}</a>
                     </div>
                 </div>
             </section>

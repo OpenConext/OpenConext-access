@@ -55,7 +55,7 @@ export const UserManagement = () => {
             });
 
         }
-    }, [organizationId, refresh]);
+    }, [organizationId, refresh]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const tabChanged = (name, res) => {
         setCurrentTab(name);
