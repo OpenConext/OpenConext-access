@@ -97,7 +97,7 @@ const ApplicationDetail = () => {
                             <Button type={ButtonType.Secondary}
                                     icon={<ArrowLeftIcon/>}
                                     iconPlacement={ButtonIconPlacement.Left}
-                                    onClick={() => navigate("/applications")}
+                                    onClick={() => navigate(-1)}
                                     txt={I18n.t("applicationDetail.back")}/>
                         </div>
                         <div className="details">

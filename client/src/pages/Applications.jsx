@@ -122,8 +122,6 @@ const Applications = () => {
                 }
                 return tagHit && queryHit && sourceHit;
             }
-            const p = page;
-            debugger;
             return (isEmpty(query) && tag === "all" && source === "all") ? recentServiceProviders :
                 serviceProviders.filter(sp => filterSP(sp));
         }, [query, recentServiceProviders, serviceProviders, source, tag]);
