@@ -13,8 +13,9 @@ expect.extend({
 });
 
 test("All translations exists in all bundles", () => {
+    const disabledTest = true;
     //For now disable this, enable again when translations are more final
-    if (1 == 1) {
+    if (disabledTest) {
         return;
     }
     const contains = (translation, translationToVerify, keyCollection, parents) => {

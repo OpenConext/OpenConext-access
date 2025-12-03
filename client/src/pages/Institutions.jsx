@@ -1,5 +1,5 @@
 import "./Institutions.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {publicIdentityProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
@@ -20,7 +20,6 @@ const Institutions = () => {
         const [query, setQuery] = useState("");
         const [loading, setLoading] = useState(true);
         const [identityProviders, setIdentityProviders] = useState([]);
-        const [filteredIdentityProviders, setFilteredIdentityProviders] = useState([]);
         const [category, setCategory] = useState(null);
         const [categoryOptions, setCategoryOptions] = useState([]);
         const [page, setPage] = useState(pageNumberFromQueryParams());
@@ -32,7 +31,6 @@ const Institutions = () => {
                         .sort((idp1, idp2) => providerOrganizationName(I18n.locale, idp1).toLowerCase()
                             .localeCompare(providerOrganizationName(I18n.locale, idp2).toLowerCase()))
                     setIdentityProviders(res);
-                    setFilteredIdentityProviders(res);
                     const categoryCounts = res.reduce((acc, idp) => {
                         const type = idp.data.metaDataFields["coin:institution_type"];
                         if (!isEmpty(type)) {
@@ -64,32 +62,32 @@ const Institutions = () => {
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-        useEffect(() => {
-            setFilteredIdentityProviders((isEmpty(query) && category === "all") ? identityProviders :
-                identityProviders.filter(filterIdP));
-        }, [query, category]);
+        const filteredIdentityProviders = useMemo(() => {
+            const filterIdP = idp => {
+                setPage(1);
+                let categoryHit = true;
+                const type = idp.data.metaDataFields["coin:institution_type"];
+                if (category !== "all") {
+                    categoryHit = type === category;
+                }
+                let queryHit = true;
+                if (!isEmpty(query)) {
+                    const orgName = providerOrganizationName(I18n.locale, idp).toLowerCase();
+                    const queryLower = query.toLowerCase();
+                    queryHit = orgName.includes(queryLower);
+                }
+                return categoryHit && queryHit;
+            }
+            return (isEmpty(query) && category === "all") ? identityProviders :
+                identityProviders.filter(filterIdP);
+        }, [query, category, identityProviders]);
 
-        const filterIdP = idp => {
-            setPage(1);
-            let categoryHit = true;
-            const type = idp.data.metaDataFields["coin:institution_type"];
-            if (category !== "all") {
-                categoryHit = type === category;
-            }
-            let queryHit = true;
-            if (!isEmpty(query)) {
-                const orgName = providerOrganizationName(I18n.locale, idp).toLowerCase();
-                const queryLower = query.toLowerCase();
-                queryHit = orgName.includes(queryLower);
-            }
-            return categoryHit && queryHit;
-        }
 
         if (loading) {
             return <Loader/>
         }
 
-    const minimalPage = Math.min(page, Math.ceil(filteredIdentityProviders.length / pageCount));
+        const minimalPage = Math.min(page, Math.ceil(filteredIdentityProviders.length / pageCount));
 
         return (
             <div className="institutions-container">
