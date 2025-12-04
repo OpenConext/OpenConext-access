@@ -47,8 +47,18 @@ export const storePageNumber = nbr => {
     window.history.pushState({page: nbr}, "", url);
 }
 
+export const storeQueryParameter = (name, value) => {
+    const url = new URL(window.location);
+    url.searchParams.set(name, value);
+    window.history.pushState({[name]: value}, "", url);
+}
+
 export const pageNumberFromQueryParams = () => {
     const nbr = getParameterByName("page", window.location.search) || 1;
     return parseInt(nbr, 10);
 }
 
+export const valueFromQueryParams = (name, defaultValue) => {
+    const val = getParameterByName(name, window.location.search) || defaultValue;
+    return val;
+}

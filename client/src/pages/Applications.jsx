@@ -11,7 +11,12 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
-import {pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination.js";
+import {
+    pageNumberFromQueryParams,
+    storePageNumber,
+    storeQueryParameter,
+    valueFromQueryParams
+} from "../utils/Pagination.js";
 import {getParameterByName} from "../utils/QueryParameters.js";
 
 const pageCount = 10;
@@ -19,13 +24,13 @@ const pageCount = 10;
 const Applications = () => {
 
         const navigate = useNavigate();
-        const [query, setQuery] = useState("");
+        const [query, setQuery] = useState(valueFromQueryParams("query", ""));
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
         const [recentServiceProviders, setRecentServiceProviders] = useState([]);
-        const [tag, setTag] = useState(null);
+        const [tag, setTag] = useState(valueFromQueryParams("tag", "all"));
         const [tagOptions, setTagOptions] = useState([]);
-        const [source, setSource] = useState(null);
+        const [source, setSource] = useState(valueFromQueryParams("source", "all"));
         const [sourceOptions, setSourceOptions] = useState([]);
         const [page, setPage] = useState(pageNumberFromQueryParams());
 
@@ -64,7 +69,6 @@ const Applications = () => {
                             value: entry[0],
                             label: `${entry[0]} (${entry[1]})`
                         })));
-                    setTag(defaultTag.value);
                     setTagOptions(newTagOptions);
                     //Sources
                     const sourceCounts = res.reduce((acc, sp) => {
@@ -89,7 +93,6 @@ const Applications = () => {
                             value: entry[0],
                             label: `${entry[0]} (${entry[1]})`
                         })));
-                    setSource(defaultSource.value);
                     setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
@@ -102,7 +105,7 @@ const Applications = () => {
         const filteredServiceProviders = useMemo(() => {
             const filterSP = sp => {
                 const nbr = getParameterByName("page", window.location.search) || 1;
-                setPage(nbr);
+                setPage(parseInt(nbr, 10));
                 let tagHit = true;
                 const tags = sp.data.metaDataFields.application_tags;
                 if (tag !== "all") {
@@ -122,9 +125,9 @@ const Applications = () => {
                 }
                 return tagHit && queryHit && sourceHit;
             }
-            return (isEmpty(query) && tag === "all" && source === "all") ? recentServiceProviders :
+            return (isEmpty(query) && tag === "all" && source === "all" && page === 1) ? recentServiceProviders :
                 serviceProviders.filter(sp => filterSP(sp));
-        }, [query, recentServiceProviders, serviceProviders, source, tag]);
+        }, [query, recentServiceProviders, serviceProviders, source, tag, page]);
 
 
         if (loading) {
@@ -132,7 +135,7 @@ const Applications = () => {
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
-        const showMostRecent = (isEmpty(query) && tag === "all" && source === "all" && page === 1);
+        const showMostRecent = isEmpty(query) && tag === "all" && source === "all" && page === 1;
         return (
             <div className="applications-container">
                 <div className="applications-header-container">
@@ -152,7 +155,10 @@ const Applications = () => {
                                     <div className="sds--text-field--input-and-icon">
                                         <input className={"sds--text-field--input"}
                                                type="search"
-                                               onChange={e => setQuery(e.target.value)}
+                                               onChange={e => {
+                                                   setQuery(e.target.value);
+                                                   storeQueryParameter("query", e.target.value);
+                                               }}
                                                value={query}
                                                placeholder={I18n.t("applications.searchPlaceHolder")}/>
                                         <span className="sds--text-field--icon">
@@ -163,64 +169,72 @@ const Applications = () => {
                                         value={sourceOptions.find(option => option.value === source)}
                                         options={sourceOptions}
                                         searchable={false}
-                                        onChange={option => setSource(option.value)}
+                                        onChange={option => {
+                                            setSource(option.value);
+                                            storeQueryParameter("source", option.value);
+                                        }}
                                     />
                                     <SelectField
                                         value={tagOptions.find(option => option.value === tag)}
                                         options={tagOptions}
                                         searchable={false}
-                                        onChange={option => setTag(option.value)}
+                                        onChange={option => {
+                                            setTag(option.value)
+                                            storeQueryParameter("tag", option.value);
+                                        }}
                                     />
                                 </div>
                             </div>
                         </div>
-                        {showMostRecent && <div className="applications-overview-recent-container">
-                            <h2>{I18n.t("applications.recent")}</h2>
-                            <div className="applications-overview-recent">
-                                {recentServiceProviders.map((sp, index) => {
-                                    const metaData = sp.data.metaDataFields;
-                                    return (
-                                        <div key={index}
-                                             className="application-card"
-                                             onClick={() => navigate(`/application-detail/${sp.type}/${sp['_id']}`)}>
-                                            {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                            {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                            <div className="sp-info">
+                        {showMostRecent &&
+                            <div className="applications-overview-recent-container">
+                                <h2>{I18n.t("applications.recent")}</h2>
+                                <div className="applications-overview-recent">
+                                    {recentServiceProviders.map((sp, index) => {
+                                        const metaData = sp.data.metaDataFields;
+                                        return (
+                                            <div key={index}
+                                                 className="application-card"
+                                                 onClick={() => navigate(`/application-detail/${sp.type}/${sp['_id']}`)}>
+                                                {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                                                {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                                                <div className="sp-info">
                                                             <span className="sp-name">
                                                                 {providerName(I18n.locale, sp)}
                                                             </span>
-                                                <span className="sp-org">
+                                                    <span className="sp-org">
                                                                 {providerOrganizationName(I18n.locale, sp)}
                                                             </span>
-                                            </div>
-                                            <span className="right"><ArrowIcon/></span>
-                                        </div>)
-                                })}
-                            </div>
-                        </div>}
-                        {!showMostRecent && <div className="applications-overview">
-                            <ul>
-                                {filteredServiceProviders
-                                    .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
-                                    .map((idp, index) => {
-                                            return (
-                                                <li key={index}
-                                                    onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>
-                                                    <div className="service-provider">
-                                                        <div className="sp-info">
+                                                </div>
+                                                <span className="right"><ArrowIcon/></span>
+                                            </div>)
+                                    })}
+                                </div>
+                            </div>}
+                        {!showMostRecent &&
+                            <div className="applications-overview">
+                                <ul>
+                                    {filteredServiceProviders
+                                        .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
+                                        .map((idp, index) => {
+                                                return (
+                                                    <li key={index}
+                                                        onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>
+                                                        <div className="service-provider">
+                                                            <div className="sp-info">
                                                             <span className="sp-name">
                                                                 {providerName(I18n.locale, idp)}
                                                             </span>
-                                                            <span className="sp-org">
+                                                                <span className="sp-org">
                                                                 {providerOrganizationName(I18n.locale, idp)}
                                                             </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </li>)
-                                        }
-                                    )}
-                            </ul>
-                        </div>}
+                                                    </li>)
+                                            }
+                                        )}
+                                </ul>
+                            </div>}
                     </div>
                     {!showMostRecent && <Pagination currentPage={page}
                                                     onChange={nbr => {
