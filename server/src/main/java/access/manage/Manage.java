@@ -34,7 +34,7 @@ public interface Manage {
 
     String changeRequestURL(Environment environment, Connection connection);
 
-    Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID);
+    List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID);
 
     Map<String, Integer> stats();
 

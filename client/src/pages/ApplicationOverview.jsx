@@ -28,7 +28,7 @@ const ApplicationOverview = ({accessible}) => {
             publicServiceProviders()
                 .then(res => {
                     //If the IdP of the user
-                    const allowedAll = user.identityProvider.data.allowedall;
+                    const allowedAll = user.identityProvider?.data?.allowedall || true;
                     if (!allowedAll && accessible) {
                         const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
                         res = res.filter(entity => allowedEntities.includes(entity.data.entityid))

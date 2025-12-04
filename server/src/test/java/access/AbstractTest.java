@@ -28,7 +28,6 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,9 +48,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -449,8 +446,8 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForIdentityProviderByInstitutionalGUID(String organisationGuid) {
-        Map<String, Object> provider = localManage.identityProviderByInstitutionalGUID(Environment.PROD, organisationGuid).get();
-        String body = objectMapper.writeValueAsString(List.of(provider));
+        List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID(Environment.PROD, organisationGuid);
+        String body = objectMapper.writeValueAsString(providers);
         stubFor(post("/manage/api/internal/search/saml20_idp")
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")

@@ -87,10 +87,12 @@ div.organization-outer-container {
         .organization {
             @include form;
             width: 1010px;
+            margin-top: 25px;
             @include index.page-media;
 
             .left {
                 padding: 25px;
+                margin-left: 25px;
                 display: flex;
                 flex-direction: column;
                 gap: 35px;

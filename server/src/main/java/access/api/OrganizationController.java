@@ -204,6 +204,24 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 
+    @PutMapping("/metadata/{organizationId}")
+    public ResponseEntity<Organization> updateMetaData(User user,
+                                                       @PathVariable("organizationId") Long organizationId,
+                                                       @RequestBody Map<String, Object> metaData) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+
+        organization.setMetaData(metaData);
+        if (StringUtils.hasText(organization.getManageIdentifier())) {
+
+        }
+        Organization savedOrganization = organizationRepository.save(organization);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+    }
+
     @DeleteMapping({"", "/{organizationId}"})
     public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete organization by " + user.getEmail());

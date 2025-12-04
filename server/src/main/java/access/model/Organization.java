@@ -1,15 +1,19 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Type;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,10 @@ public class Organization implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Type(JsonType.class)
+    @Column(name = "meta_data", columnDefinition = "jsonb")
+    private Map<String, Object> metaData = new HashMap<>();
+
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
@@ -65,6 +73,13 @@ public class Organization implements NameHolder {
     public Organization(String name, String schacHomeOrganization) {
         this.name = name;
         this.schacHomeOrganization = schacHomeOrganization;
+        this.createdAt = Instant.now();
+    }
+
+    public Organization(String name, String schacHomeOrganization, String manageIdentifier) {
+        this.name = name;
+        this.schacHomeOrganization = schacHomeOrganization;
+        this.manageIdentifier = manageIdentifier;
         this.createdAt = Instant.now();
     }
 

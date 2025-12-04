@@ -8,6 +8,7 @@ import access.manage.Manage;
 import access.model.*;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import access.security.InstitutionAdmin;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,10 +33,7 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -94,34 +92,36 @@ public class UserController implements UserAccessRights {
 
         User userFromDB = userRepository.findDetailsById(user.getId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
         boolean isExternalUser = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
-        if (userFromDB.getOrganizationMemberships().isEmpty() && !isExternalUser) {
-            Optional<Organization> organizationOptional = organizationRepository.findBySchacHomeOrganization(schacHomeOrganization);
-            organizationOptional.ifPresent(organization -> {
-                userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.MEMBER));
-                userRepository.save(userFromDB);
-            });
-            Institution institution = user.getInstitution();
-            if (userFromDB.isInstitutionAdmin() && institution != null) {
-                userFromDB.setInstitution(institution);
-                //Check if we need to create an Organization on the fly
-                if (organizationOptional.isEmpty()) {
-                    String name = institution.getOrganizationName();
-                    Organization organization = new Organization(name, schacHomeOrganization);
-                    organizationRepository.save(organization);
-                    userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, Authority.ADMIN));
-                    userRepository.save(userFromDB);
-                }
-            }
-        }
         userFromDB.setExternalUser(isExternalUser);
-        if (!userFromDB.isExternalUser()) {
+        if (!isExternalUser) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
             String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
             Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
             userFromDB.setIdentityProvider(identityProvider);
+            // Provision the user into the organization, if no organization is created yet, create it on the fly
+            if (userFromDB.getOrganizationMemberships().isEmpty()) {
+                Optional<Organization> organizationOptional = organizationRepository.findBySchacHomeOrganization(schacHomeOrganization);
+                Institution institution = (Institution) oidcUser.getUserInfo().getClaims().getOrDefault(InstitutionAdmin.INSTITUTION, null);
+                userFromDB.setInstitution(institution);
+                Authority authority = userFromDB.isInstitutionAdmin() && institution != null ? Authority.ADMIN : Authority.MEMBER;
+                organizationOptional.ifPresentOrElse(
+                        organization -> {
+                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
+                        }, () -> {
+                            Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;
+                            String organizationName = String.format("%s (%s)", institutionForOrg.getName(), institutionForOrg.getOrganizationName());
+                            String manageIdentifier = (String) identityProvider.get("_id");
+                            Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier);
+                            organizationRepository.save(organization);
+                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
+                        }
+                );
+            }
         }
+        userRepository.save(userFromDB);
         return ResponseEntity.ok(userFromDB);
     }
 

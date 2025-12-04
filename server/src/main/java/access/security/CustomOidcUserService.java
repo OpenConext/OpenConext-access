@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -65,7 +66,10 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
-            Optional<Map<String, Object>> optionalIdentityProvider = manage.identityProviderByInstitutionalGUID(Environment.PROD, organizationGuid);
+            String authenticatingAuthority = (String) claims.get("authenticating_authority");
+            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(Environment.PROD, organizationGuid);
+            Optional<Map<String, Object>> optionalIdentityProvider = identityProviders.stream()
+                    .filter(idp -> entityID(idp).equals(authenticatingAuthority)).findFirst();
             optionalIdentityProvider.ifPresent(provider -> newClaims.put(INSTITUTION, new Institution(provider)));
         }
 
@@ -81,4 +85,10 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         return oidcUser;
 
     }
+
+    private String entityID(Map<String, Object> provider) {
+        Map<String, Object> data = (Map<String, Object>) provider.get("data");
+        return (String) data.get("entityid");
+    }
+
 }

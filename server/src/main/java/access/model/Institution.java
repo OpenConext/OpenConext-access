@@ -23,6 +23,5 @@ public class Institution implements Serializable {
         this.entityID = (String) data.get("entityid");
         this.name = (String) metaDataFields.get("name:en");
         this.organizationName = (String) metaDataFields.get("OrganizationName:en");
-
     }
 }

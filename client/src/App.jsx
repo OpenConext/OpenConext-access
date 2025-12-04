@@ -162,7 +162,8 @@ const App = () => {
                 <>
                     <Header currentLocation={currentLocation}/>
                     <Routes>
-                        <Route path="/" element={<Navigate replace to="home"/>}/>
+                        <Route path="/" element={<Navigate replace to="/home"/>}/>
+                        <Route path="/landing" element={<Navigate replace to="/home"/>}/>
                         {sharedRoutes()}
                         <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                         <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>

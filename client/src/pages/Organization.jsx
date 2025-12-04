@@ -163,20 +163,20 @@ const Organization = () => {
 
         ];
         return (
-                <Entities
-                    entities={organization.applications
-                        .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))}
-                    modelName="application-list-view"
-                    newLabel={I18n.t("organization.addApplication")}
-                    defaultSort="name"
-                    columns={columns}
-                    hideTitle={true}
-                    showNew={user.superUser || isOrganizationAdmin(user, organization)}
-                    displaySearch={true}
-                    searchAttributes={["name"]}
-                    rowLinkMapper={(e, application) => navigate(`/connection/${application.id}`)}
-                    newEntityFunc={() => navigate("/application/new")}
-                    inputFocus={true}/>
+            <Entities
+                entities={organization.applications
+                    .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))}
+                modelName="application-list-view"
+                newLabel={I18n.t("organization.addApplication")}
+                defaultSort="name"
+                columns={columns}
+                hideTitle={true}
+                showNew={user.superUser || isOrganizationAdmin(user, organization)}
+                displaySearch={true}
+                searchAttributes={["name"]}
+                rowLinkMapper={(e, application) => navigate(`/connection/${application.id}`)}
+                newEntityFunc={() => navigate("/application/new")}
+                inputFocus={true}/>
         );
     }
 
@@ -190,11 +190,14 @@ const Organization = () => {
                     {!isEmpty(organization.applications) &&
                         <p>{I18n.t("organization.info", {name: organization.name})}</p>}
                 </div>
-                <div className="view-switcher">
-                    <CardView className={`${view === views.card ? "active": ""}`} onClick={() => setView(views.card)}/>
-                    <Divider/>
-                    <ListView className={`${view === views.list ? "active": ""}`} onClick={() => setView(views.list)} v/>
-                </div>
+                {!isEmpty(organization.applications) &&
+                    <div className="view-switcher">
+                        <CardView className={`${view === views.card ? "active" : ""}`}
+                                  onClick={() => setView(views.card)}/>
+                        <Divider/>
+                        <ListView className={`${view === views.list ? "active" : ""}`}
+                                  onClick={() => setView(views.list)} v/>
+                    </div>}
             </div>
             <div className="organization-container">
                 {isEmpty(organization.applications) &&
@@ -217,7 +220,9 @@ const Organization = () => {
                             <p dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`)}}/>
                         </div>
                     </div>}
-                {!isEmpty(organization.applications) && view === views.card ? renderCardViewApplications() : renderListViewApplications()}
+                {!isEmpty(organization.applications) &&
+                    <div>{view === views.card ? renderCardViewApplications() : renderListViewApplications()}</div>
+                }
             </div>
         </div>
 

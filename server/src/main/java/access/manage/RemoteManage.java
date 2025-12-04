@@ -193,10 +193,15 @@ public class RemoteManage implements Manage {
                 url, connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
+    /**
+     * Equivalent of
+     * curl -H 'Content-Type: application/json' -u user:password  -X POST -d \
+     * '{"entityid":"http://mock-idp","ALL_ATTRIBUTES":true}' \
+     * 'https://manage.test.surfconext.nl/manage/api/internal/search/saml20_idp' | jq .
+     */
     @Override
     public Map<String, Object> identityProviderByEntityID(String entityID) {
         LOG.debug("identityProvidersByEntityID for : " + entityID);
-
         Map<String, Object> baseQuery = getBaseQuery(true);
         baseQuery.put("entityid", entityID);
 
@@ -231,7 +236,7 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(Environment environment, String organisationGUID) {
+    public List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID) {
         LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
 
         Map<String, Object> baseQuery = getBaseQuery(false);
@@ -240,10 +245,9 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/search/%s",
                 environmentUrl(environment),
                 EntityType.saml20_idp.name());
-        List<Map<String, Object>> identityProviders = environmentRestTemplate(environment).postForObject(
+        return environmentRestTemplate(environment).postForObject(
                 url,
                 baseQuery, List.class);
-        return identityProviders.isEmpty() ? Optional.empty() : Optional.of(identityProviders.get(0));
     }
 
     @Override
@@ -307,11 +311,11 @@ public class RemoteManage implements Manage {
 
     private Map<String, Object> getBaseQuery(boolean allAttributes) {
         HashMap<String, Object> baseQuery = new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
-        if (!allAttributes) {
-            baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
-        } else {
+        if (allAttributes) {
             baseQuery.remove("REQUESTED_ATTRIBUTES");
             baseQuery.put("ALL_ATTRIBUTES", true);
+        } else {
+            baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
         }
         return baseQuery;
     }

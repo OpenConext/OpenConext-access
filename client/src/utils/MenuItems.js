@@ -25,7 +25,7 @@ export const mainMenuItems = {
 
 export const menuItemsForUser = user => {
     const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue]
+    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue];
     if (hasOrganizationMemberships) {
         newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.idp);
     }
