@@ -16,6 +16,7 @@ import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 const ApplicationOverview = ({accessible}) => {
 
         const navigate = useNavigate();
+
         const {user, currentOrganization} = useAppStore(state => state);
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);

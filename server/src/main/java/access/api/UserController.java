@@ -114,7 +114,8 @@ public class UserController implements UserAccessRights {
                             Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;
                             String organizationName = String.format("%s (%s)", institutionForOrg.getName(), institutionForOrg.getOrganizationName());
                             String manageIdentifier = (String) identityProvider.get("_id");
-                            Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier);
+                            Integer manageVersion = (Integer) identityProvider.get("version");
+                            Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
                             organizationRepository.save(organization);
                             userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
                         }

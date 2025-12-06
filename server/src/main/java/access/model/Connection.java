@@ -17,6 +17,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static access.manage.ManageData.*;
+
 @Entity(name = "connections")
 @NoArgsConstructor
 @Getter
@@ -122,6 +124,8 @@ public class Connection implements NameHolder {
         this.status = connectionData.status;
     }
 
+
+    @JsonIgnore
     public boolean mergeMetaData(Map<String, Object> provider, boolean force) {
         // For new Connections
         boolean changed = true;
@@ -134,7 +138,7 @@ public class Connection implements NameHolder {
         this.manageVersion = newManageVersion;
         this.metaData = new HashMap<>();
 
-        Map<String, Object> data = (Map<String, Object>) provider.get("data");
+        Map<String, Object> data = getData(provider);
         this.manageEid = (Integer) data.get("eid");
 
         String entityID = (String) data.get("entityid");
@@ -145,7 +149,7 @@ public class Connection implements NameHolder {
         this.metaData.put("allowedEntities", allowedEntitiesMapped);
         this.metaData.put("arp", data.get("arp"));
 
-        Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+        Map<String, Object> metaDataFields = getMetaDataFields (data);
         this.name = (String) metaDataFields.getOrDefault("name:en", this.name);
         this.metaData.put("name", name);
         this.metaData.put("pkce", metaDataFields.get("isPublicClient"));
@@ -162,20 +166,6 @@ public class Connection implements NameHolder {
         });
         this.metaData.put("acsLocations", acsLocations);
         this.metaData.put("logoUrl", metaDataFields.get("logo:0:url"));
-        List<Contact> contactPersons = new ArrayList<>();
-        IntStream.of(0, 1, 2, 3, 4, 5).forEach(index -> {
-            if (metaDataFields.containsKey("contacts:" + index + ":emailAddress")) {
-                Contact contact = new Contact(
-                        (String) metaDataFields.get("contacts:" + index + ":contactType"),
-                        (String) metaDataFields.get("contacts:" + index + ":givenName"),
-                        (String) metaDataFields.get("contacts:" + index + ":surName"),
-                        (String) metaDataFields.get("contacts:" + index + ":emailAddress")
-                );
-                contactPersons.add(contact);
-            }
-        });
-        this.metaData.put("contactPersons", contactPersons);
-
         boolean ssHidden = (boolean) metaDataFields.getOrDefault("coin:ss:hidden", false);
         boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault("coin:ss:idp_visible_only", false);
         String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?
@@ -185,7 +175,6 @@ public class Connection implements NameHolder {
         String connectOption = (String) metaDataFields
                 .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction.name());
         this.metaData.put("connectOption", connectOption);
-        List<String> tags = (List<String>) metaDataFields.getOrDefault("application_tags", List.of());
         /*
          * Business logic. If a status for a production connection is pending production and the state has changed
          * to prodaccepted, then we set the status to production ready
@@ -253,7 +242,7 @@ public class Connection implements NameHolder {
                     connection.mergeMetaData(provider, true);
                     Map<String, Object> connectionMetaData = connection.getMetaData();
                     //Now clean up all keys where the value is empty
-                    connectionMetaData.entrySet().removeIf(entry -> this.isEmpty(entry.getValue()));
+                    connectionMetaData.entrySet().removeIf(entry -> isEmpty(entry.getValue()));
                     //Bugfix for lazy initialization of boolean values
                     Map.of(
                                     "visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
@@ -273,15 +262,4 @@ public class Connection implements NameHolder {
                 .toList();
     }
 
-    @JsonIgnore
-    @SuppressWarnings("rawtypes")
-    private boolean isEmpty(Object object) {
-        return switch (object) {
-            case List l -> l.isEmpty();
-            case String s -> !StringUtils.hasText(s);
-            case Map m -> m.isEmpty();
-            case null -> true;
-            default -> false;
-        };
-    }
 }

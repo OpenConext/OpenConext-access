@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -70,13 +70,26 @@ public class OrganizationController implements UserAccessRights {
     }
 
     @GetMapping("/find/{id}")
-    public ResponseEntity<Organization> find(User user, @PathVariable("id") Long id) {
+    public ResponseEntity<Organization> find(User user,
+                                             @PathVariable("id") Long id,
+                                             @RequestParam(value = "withIdp", required = false, defaultValue = "false") boolean withIdp) {
         LOG.debug("/find Organization by " + user.getEmail());
 
         Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+
+        if (StringUtils.hasText(organization.getManageIdentifier()) && withIdp) {
+            Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            if (organization.mergeMetaData(provider, false)) {
+                organizationRepository.save(organization);
+            }
+            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(provider);
+            organization.convertChangeRequests(changeRequests);
+
+        }
 
         organization.getApplications().forEach(application -> {
             //We only fetch change-requests for applications with one production status
@@ -213,13 +226,13 @@ public class OrganizationController implements UserAccessRights {
         User userFromDB = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
-        organization.setMetaData(metaData);
-        if (StringUtils.hasText(organization.getManageIdentifier())) {
-
+        if (!StringUtils.hasText(organization.getManageIdentifier())) {
+            throw new InvalidInputException("Organization has no manage identifier: " + organization.getName());
         }
-        Organization savedOrganization = organizationRepository.save(organization);
+        organization.setMetaData(metaData);
+        manage.saveIdentityProvider(organization);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
+        return ResponseEntity.status(HttpStatus.CREATED).body(organization);
     }
 
     @DeleteMapping({"", "/{organizationId}"})

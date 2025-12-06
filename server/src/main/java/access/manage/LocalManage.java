@@ -4,6 +4,7 @@ import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -17,6 +18,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
 
 @SuppressWarnings("unchecked")
 public final class LocalManage implements Manage {
@@ -82,6 +86,15 @@ public final class LocalManage implements Manage {
                 .filter(provider -> provider.get("id").equals(manageIdentifier))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Provider not found"));
+    }
+
+    @Override
+    public Map<String, Object> saveIdentityProvider(Organization organization) {
+        Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> data = getData(provider);
+        Map<String, Object> metaDataFields = getMetaDataFields (data);
+        converter.convertContactPersons(organization.getMetaData(), metaDataFields);
+        return provider;
     }
 
     @SneakyThrows
@@ -179,8 +192,8 @@ public final class LocalManage implements Manage {
     public List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID) {
         return this.allProviders.get(EntityType.saml20_idp).stream()
                 .filter(provider -> {
-                    Map<String, Object> data = (Map<String, Object>) provider.get("data");
-                    Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+                    Map<String, Object> data = getData(provider);
+                    Map<String, Object> metaDataFields = getMetaDataFields (data);
                     return organisationGUID.equalsIgnoreCase((String) metaDataFields.get("coin:institution_guid"));
                 })
                 .toList();

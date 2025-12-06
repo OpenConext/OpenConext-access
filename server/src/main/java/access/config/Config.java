@@ -25,6 +25,7 @@ public class Config {
     private boolean authenticated;
     private List<String> missingAttributes;
     private Map<String, Integer> stats;
+    private List<Map<String, String>> identityProviders;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -34,6 +35,7 @@ public class Config {
         this.invite = base.invite;
         this.sram = base.sram;
         this.serviceDesk = base.serviceDesk;
+        this.identityProviders = base.identityProviders;
     }
 
     public Config withAuthenticated(boolean authenticated) {

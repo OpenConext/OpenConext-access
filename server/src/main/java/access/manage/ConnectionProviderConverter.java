@@ -11,6 +11,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
 @SuppressWarnings("unchecked")
 public class ConnectionProviderConverter {
 
@@ -78,22 +81,12 @@ public class ConnectionProviderConverter {
         putIf(metaDataFields, "description:en", information.get("descriptionEN"));
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
         putIf(metaDataFields, "coin:application_url", information.get("webSite"));
+
         List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
         putIf(metaDataFields, "application_tags", tags);
 
-        List<Map<String, String>> contactPersons = ((List<Map<String, String>>) applicationMetaData
-                .getOrDefault("contactPersons", Collections.emptyList()))
-                .stream()
-                .filter(m -> StringUtils.hasText(m.get("email")))
-                .toList();
-        //First, delete all contact persons before adding them again
-        metaDataFields.keySet().removeIf(key -> key.startsWith("contacts:"));
+        convertContactPersons(applicationMetaData, metaDataFields);
 
-        IntStream.range(0, contactPersons.size()).forEach(i -> {
-            Map<String, String> contactPerson = contactPersons.get(i);
-            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
-                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
-        });
         Map<String, String> privacy = (Map<String, String>) applicationMetaData.getOrDefault("privacy", Map.of());
         privacyInfo.forEach(item -> putIf(metaDataFields, (String) item.get("manage"), privacy.get(item.get("name"))));
 
@@ -143,12 +136,20 @@ public class ConnectionProviderConverter {
         return remoteProvider;
     }
 
-    private Map<String, Object> getMetaDataFields(Map<String, Object> data) {
-        return (Map<String, Object>) data.get("metaDataFields");
-    }
+    public void convertContactPersons(Map<String, Object> applicationMetaData, Map<String, Object> metaDataFields) {
+        List<Map<String, String>> contactPersons = ((List<Map<String, String>>) applicationMetaData
+                .getOrDefault("contactPersons", Collections.emptyList()))
+                .stream()
+                .filter(m -> StringUtils.hasText(m.get("email")))
+                .toList();
+        //First, delete all contact persons before adding them again
+        metaDataFields.keySet().removeIf(key -> key.startsWith("contacts:"));
 
-    private Map<String, Object> getData(Map<String, Object> data) {
-        return (Map<String, Object>) data.get("data");
+        IntStream.range(0, contactPersons.size()).forEach(i -> {
+            Map<String, String> contactPerson = contactPersons.get(i);
+            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
+                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
+        });
     }
 
     //For all attributes that have been changed, we create a single ChangeRequest

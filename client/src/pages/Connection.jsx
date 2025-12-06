@@ -31,7 +31,7 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 
 export const Connection = () => {
     const {applicationId, tab = "overview", connectionId} = useParams();
-    const {user, arp, privacy} = useAppStore(state => state);
+    const {user, config, arp, privacy} = useAppStore(state => state);
 
     const [application, setApplication] = useState({organization: {}});
     const [profileOptions, setProfileOptions] = useState([]);
@@ -40,7 +40,6 @@ export const Connection = () => {
     const [identityProviders, setIdentityProviders] = useState([]);
     const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshApp, setRefreshApp] = useState(0);
     const [dirty, setDirty] = useState(false);
 
     const navigate = useNavigate();
@@ -120,12 +119,11 @@ export const Connection = () => {
                 setConnection(null);
                 setDirty(false);
                 setLoading(false);
-                setRefreshApp(new Date().getTime());
             })
     }
 
     const initConnection = (environment = ENVIRONMENTS.TEST, forceNew = false) => {
-        const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
+        const iDps = config.identityProviders;
         setConnection({
             new: forceNew,
             environment: environment,
@@ -245,7 +243,6 @@ export const Connection = () => {
             case "appteam": {
                 return <AppTeamManagement application={application}
                                           refresh={refresh}
-                                          refreshApp={refreshApp}
                 />
             }
             default:

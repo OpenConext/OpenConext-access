@@ -91,8 +91,9 @@ export function feedback(message) {
 }
 
 //Organization
-export function organizationById(id) {
-    return fetchJson(`/api/v1/organizations/find/${id}`);
+export function organizationById(id, withIdp = false) {
+    const queryPart = withIdp ? "?withIdp=true" : "";
+    return fetchJson(`/api/v1/organizations/find/${id}${queryPart}`);
 }
 
 export function searchOrganizations(pagination = {}) {

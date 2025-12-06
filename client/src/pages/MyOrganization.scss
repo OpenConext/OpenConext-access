@@ -1,19 +1,19 @@
 @use "../styles/mixins" as *;
 @use "../index";
 
-div.external-organization-outer-container {
+div.my-organization-outer-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     height: 100%;
 
-    .external-organization-header-container {
+    .my-organization-header-container {
         background-color: var(--sds--color--gray--background);
         padding: 25px 50px 25px 50px;
 
     }
 
-    div.external-organization {
+    div.my-organization {
         padding: 25px 50px;
         background-color: white;
     }
@@ -60,12 +60,18 @@ div.external-organization-outer-container {
             margin: 0 0 25px 0;
         }
 
-        .actions {
-            padding-right: 40px;
+    }
 
-            button {
-                margin-left: auto;
-            }
+    .actions {
+        padding-right: 40px;
+
+        &.proceed {
+            width: 75%;
+            padding-right: 0;
+        }
+        button {
+            margin-left: auto;
         }
     }
+
 }

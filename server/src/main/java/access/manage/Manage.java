@@ -3,6 +3,8 @@ package access.manage;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -13,6 +15,8 @@ public interface Manage {
     Map<String, Object> providerById(Connection connection);
 
     Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment);
+
+    Map<String, Object> saveIdentityProvider(Organization organization);
 
     Map<String, Object> saveProvider(Connection connection);
 

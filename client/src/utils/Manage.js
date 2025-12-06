@@ -9,7 +9,7 @@ const createIdPOption = (locale, idp) => {
 
 export const identityProviderOption = (identityProviders, entityId, locale) => {
     const idp = identityProviders.find(entity => entity.data.entityid === entityId);
-    return createIdPOption(locale, idp);
+    return isEmpty(idp) ? null : createIdPOption(locale, idp);
 }
 
 export const identityProviderOptions = (identityProviders, locale) => {

@@ -4,6 +4,7 @@ import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -27,8 +28,10 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
+
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -103,6 +106,27 @@ public class RemoteManage implements Manage {
         LOG.debug("providerById: " + entityType);
 
         return providerDetails(environment, entityType, manageIdentifier);
+    }
+
+    @SneakyThrows
+    @Override
+    public Map<String, Object> saveIdentityProvider(Organization organization) {
+        Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> metaData = organization.getMetaData();
+        Map<String, Object> data = getData(provider);
+        Map<String, Object> metaDataFields = getMetaDataFields (data);
+        converter.convertContactPersons(metaData, metaDataFields);
+
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = environmentUrl(Environment.PROD);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+                HttpMethod.PUT, new HttpEntity<>(provider), Map.class);
+        Map body = responseEntity.getBody();
+        if (ResilientErrorHandler.ignoreError(body)) {
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
+            return provider;
+        }
+        return body;
     }
 
     @SneakyThrows

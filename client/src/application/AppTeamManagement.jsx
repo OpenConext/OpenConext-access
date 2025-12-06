@@ -16,8 +16,7 @@ import SelectField from "../components/SelectField.jsx";
 
 export const AppTeamManagement = ({
                                       application,
-                                      refresh,
-                                      refreshApp
+                                      refresh
                                   }) => {
 
     const {user: currentUser, setFlash} = useAppStore(state => state);
@@ -50,7 +49,7 @@ export const AppTeamManagement = ({
             }).catch(() => {
             navigate("/404")
         });
-    }, [refreshApp, application, currentUser, navigate]);
+    }, [application, currentUser, navigate]);
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {

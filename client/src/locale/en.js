@@ -458,18 +458,6 @@ const en = {
         testIdPs: {
             info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",
             subTitle: "Test-IdP’s van SURF",
-            identityProviders: [
-                {
-                    name: "SXS IdP",
-                    entityid: "http://mock-idp",
-                    description: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
-                },
-                {
-                    name: "SXS Dummy",
-                    entityid: "https://idp.diy.surfconext.nl/saml2/idp/metadata.php",
-                    description: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
-                }
-            ],
             institutionIdPs: "Test-IdP’s van instellingen",
             institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",
             placeholder: "Selecteer één of meerdere instellingen",
@@ -950,7 +938,7 @@ const en = {
         send: "Provide feedback",
         flash: "Your feedback has been sent. Thanks!"
     },
-    externalOrganization: {
+    myOrganization: {
         title: "Mine organization",
         info: "Voor het inzien van andere information over je organisatie, bezoek <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
         maintenance: "Beheer",
@@ -958,7 +946,9 @@ const en = {
         general: "Algemene gegevens",
         delete: "Organisatie verwijderen",
         deleteWarning: "If you delete your organization, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
-        deleteButton: "Delete my organization"
+        deleteButton: "Delete my organization",
+        proceedButton: "Save",
+
     },
     accessibleApps: {
         title: "Gekoppelde apps",
@@ -984,7 +974,9 @@ const en = {
         surfLink: "https://surf.nl",
         select_locale: "Select your preferred language"
     },
-
+    appAccess: {
+        roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol"
+    }
 }
 
 export default en;

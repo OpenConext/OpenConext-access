@@ -181,9 +181,9 @@ export const Testing = ({
         return !validCurrentSection && !sectionIsCurrent
     }
 
-    const copyConnectionData = connectionId => {
+    const copyConnectionData = otherConnectionId => {
         setLoading(true);
-        getConnectionById(connectionId).then(res => {
+        getConnectionById(otherConnectionId).then(res => {
             const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
             const originalName = convertedConnection.name;
             convertedConnection.name = originalName + " COPY";
@@ -241,10 +241,6 @@ export const Testing = ({
 
     const changeSection = sectionName => {
         setSection(sectionName);
-    }
-
-    const supportTicket = () => {
-        alert("TODO")
     }
 
     const resetMetaData = () => {
@@ -747,7 +743,7 @@ export const Testing = ({
     };
 
     const changeAllowedEntity = options => {
-        const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
+        const iDps = config.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
         const testEntityIdentifiers = iDps.map(idp => idp.entityid)
             .filter(entityID => allowedEntities.includes(entityID));
@@ -759,7 +755,7 @@ export const Testing = ({
     };
 
     const renderTestIdPSection = () => {
-        const iDps = I18n.translations[I18n.locale].connection.testIdPs.identityProviders;
+        const iDps = config.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
         const testEntityIdentifiers = iDps.map(idp => idp.entityid);
         return (
@@ -775,7 +771,7 @@ export const Testing = ({
                                       onChange={e => changeAllowedTestEntity(idp, e)}/>
                             <div className="idp-info">
                                 <p dangerouslySetInnerHTML={{__html: idp.name}}/>
-                                <p dangerouslySetInnerHTML={{__html: idp.description}}/>
+                                <p dangerouslySetInnerHTML={{__html: idp[`description${I18n.locale.toUpperCase()}`]}}/>
                             </div>
                         </div>
                     )}
@@ -786,7 +782,8 @@ export const Testing = ({
                     options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
                     value={allowedEntities
                         .filter(entityID => !testEntityIdentifiers.includes(entityID))
-                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))}
+                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))
+                        .filter(option => !isEmpty(option))}
                     isMulti={true}
                     searchable={true}
                     placeholder={I18n.t("connection.testIdPs.placeholder")}
@@ -1083,7 +1080,6 @@ export const Testing = ({
                 return false;
             }
         }
-
     }
 
     const storeAndNext = (finished = false) => {
@@ -1242,9 +1238,6 @@ export const Testing = ({
                             <Button txt={I18n.t("connection.callSurf")}
                                     type={ButtonType.Secondary}
                                     onClick={() => createAndClickLink(I18n.t("connection.mailToSurf"))}/>
-                            <Button txt={I18n.t("connection.supportTicket")}
-                                    type={ButtonType.Secondary}
-                                    onClick={() => supportTicket()}/>
                         </div>
                     </section>
                     <section className="right">
@@ -1284,26 +1277,16 @@ export const Testing = ({
             const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
                 .flatMap(changeRequest => Object.keys(changeRequest)))];
             setChangeRequestsKeys(newChangeRequestKeys);
-            changeSection(sections.pendingChanges);
+            return sections.pendingChanges;
         }
+        return sections.technical;
     }
 
     const showConnectionDetails = (conn, queryParameters = "") => {
         navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
-        if (conn.status !== CONNECTION_STATUSES.OPEN) {
-            setLoading(true);
-            getConnectionById(conn.id).then(res => {
-                const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
-                updateChangeRequestKeys(convertedConnection);
-                setConnection(convertedConnection);
-                changeSection(sections.technical);
-                setLoading(false);
-            })
-        } else {
-            //Not yet persisted to Manage
-            setConnection(conn);
-        }
-
+        const section = updateChangeRequestKeys(conn);
+        setConnection(conn);
+        changeSection(section);
     }
 
     const renderConnectionsTable = (connections) => {

@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.Map;
 
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
 @Getter
 @Setter
 @SuppressWarnings("unchecked")
@@ -18,8 +21,8 @@ public class Institution implements Serializable {
     private String organizationName;
 
     public Institution(Map<String, Object> provider) {
-        Map<String, Object> data = (Map<String, Object>) provider.get("data");
-        Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+        Map<String, Object> data = getData(provider);
+        Map<String, Object> metaDataFields = getMetaDataFields (data);
         this.entityID = (String) data.get("entityid");
         this.name = (String) metaDataFields.get("name:en");
         this.organizationName = (String) metaDataFields.get("OrganizationName:en");

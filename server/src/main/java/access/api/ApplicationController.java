@@ -20,10 +20,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -74,22 +74,36 @@ public class ApplicationController implements UserAccessRights {
     }
 
     @GetMapping({"/{applicationId}"})
+    @SuppressWarnings("unchecked")
     public ResponseEntity<Application> find(User user, @PathVariable("applicationId") Long applicationId) {
         LOG.debug("/find application for " + user.getEmail());
 
         Application application = applicationRepository.findDetailsById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
+        AtomicReference<Map<String, Object>> latestChangedProvider = new AtomicReference<>();
+        AtomicReference<Instant> latestRevision = new AtomicReference<>();
         application.getConnections().stream()
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
                 .forEach(connection -> {
                     Map<String, Object> provider = manage.providerById(connection);
                     if (connection.mergeMetaData(provider, false)) {
+                        Map<String, Object> revision = (Map<String, Object>) provider.get("revision");
+                        Instant revisionCreated = Instant.parse(revision.get("created").toString());
+                        if (latestRevision.get() == null || revisionCreated.isAfter(latestRevision.get())) {
+                            latestRevision.set(revisionCreated);
+                            latestChangedProvider.set(provider);
+                        }
                         connectionRepository.save(connection);
                     }
                     if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
                         connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
                     }
                 });
+        if (latestChangedProvider.get() != null) {
+            //Take the last updated provider and merge / save the application metaData
+            application.mergeUpdatedMetaData(latestChangedProvider.get());
+            applicationRepository.save(application);
+        }
         return ResponseEntity.ok(application);
     }
 

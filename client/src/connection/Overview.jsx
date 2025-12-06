@@ -48,7 +48,8 @@ export const Overview = ({
                                 status={appInformationComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                     <StatusLink info={I18n.t("connection.production.contract")}
                                 action={() => setTab("contract")}
-                                disabled={!appInformationComplete}
+                                // disabled={!appInformationComplete || !testConnectionComplete}
+                                disabled={!testConnectionComplete}
                                 status={application.signedContract ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                     <p className={`${productionConnectionComplete} ? "":"pending`}>
                         {I18n.t("connection.production.disclaimer")}

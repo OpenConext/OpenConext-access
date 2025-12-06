@@ -33,6 +33,8 @@ import java.util.Map;
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.api.Results.deleteResult;
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
 
 @RestController
 @RequestMapping(value = {"/api/v1/connections"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -269,8 +271,8 @@ public class ConnectionController implements UserAccessRights {
 
             if (isPrivateRelyingParty) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
-                Map<String, Object> data = (Map<String, Object>) provider.get("data");
-                Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
+                Map<String, Object> data = getData(provider);
+                Map<String, Object> metaDataFields = getMetaDataFields (data);
                 String secretFromManage = (String) metaDataFields.get("secret");
                 if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
                     String originalSecret = (String) connection.getMetaData().get("secret");
