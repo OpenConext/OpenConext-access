@@ -11,6 +11,9 @@ div.my-organization-outer-container {
         background-color: var(--sds--color--gray--background);
         padding: 25px 50px 25px 50px;
 
+        .top-header {
+            margin-bottom: 15px;
+        }
     }
 
     div.my-organization {

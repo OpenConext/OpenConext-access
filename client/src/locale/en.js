@@ -480,18 +480,20 @@ const en = {
         connectionOverview: {
             copy: "Kopieer de inloggegevens",
             disclaimer: "Het client secret wordt hieronder éénmaal weergegeven. Zorg ervoor dat je het nu kopieert, anders moet er een nieuw seceret aangevraagd worden.",
-            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank'>testinstructies</a> om te kijken of alles werkt.",
+            test: "Gebruik de volgende inloggegevens om verbinding te maken met de productieomgeving. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructies</a> om te kijken of alles werkt.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
             secret: "Client secret",
             authentication: "Authenticatie",
+            samlConfig: "SAML Configuration",
             secretReset: "For security reasons your current secret can not be displayed.",
             secretResetLink: "Reset your secret when needed.",
             secretResetDisclaimer: "Let op. Regenerating the secret will break your current connection.",
             secretResetTitle: "Reset your secret",
             secretResetNew: "New secret",
             reset: "Reset my secret",
-            resetContinue: "I’ve copied the secret. Continue"
+            resetContinue: "I’ve copied the secret. Continue",
+            idpProxyMetaData: "Public SAML metadata of the SURFconext IdP proxy",
         },
         connectionOverviewSAML: {
             title: "De SAML koppeling is gereed",

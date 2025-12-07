@@ -1,6 +1,7 @@
 package access.api;
 
 import access.exception.NotFoundException;
+import access.manage.ConnectionProviderConverter;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.ApplicationMembershipRepository;
@@ -28,6 +29,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.api.Results.deleteResult;
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
 
 @RestController
 @RequestMapping(value = {"/api/v1/applications"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,19 +47,22 @@ public class ApplicationController implements UserAccessRights {
     private final Manage manage;
     private final UserRepository userRepository;
     private final S3Storage s3Storage;
+    private final ConnectionProviderConverter connectionProviderConverter;
 
     public ApplicationController(ApplicationRepository applicationRepository,
                                  ApplicationMembershipRepository applicationMembershipRepository,
                                  ConnectionRepository connectionRepository,
                                  Manage manage,
                                  UserRepository userRepository,
-                                 S3Storage s3Storage) {
+                                 S3Storage s3Storage,
+                                 ConnectionProviderConverter connectionProviderConverter) {
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
         this.manage = manage;
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
+        this.connectionProviderConverter = connectionProviderConverter;
     }
 
     @GetMapping("/all/{organizationId}")
@@ -99,9 +105,15 @@ public class ApplicationController implements UserAccessRights {
                         connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
                     }
                 });
-        if (latestChangedProvider.get() != null) {
+        Map<String, Object> provider = latestChangedProvider.get();
+        if (provider != null) {
             //Take the last updated provider and merge / save the application metaData
-            application.mergeUpdatedMetaData(latestChangedProvider.get());
+            Map<String, Object> updatedMetaData = connectionProviderConverter.convertProviderToApplicationMetaData(provider);
+            application.setMetaData(updatedMetaData);
+
+            Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+            application.setLogoUrl((String) metaDataFields.getOrDefault("logo:0:url", application.getLogoUrl()));
+            application.setName((String) metaDataFields.getOrDefault("coin:application_name", application.getName()));
             applicationRepository.save(application);
         }
         return ResponseEntity.ok(application);

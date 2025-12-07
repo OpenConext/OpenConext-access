@@ -722,6 +722,22 @@ export const Testing = ({
                         {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
                                             adjustMargin={true}/>}
+                        {connection.status !== CONNECTION_STATUSES.OPEN &&
+                            <div className="oidc-authentication">
+                                <h3>{I18n.t("connection.connectionOverview.samlConfig")}</h3>
+                                <div className="oidc-authentication-inner">
+                                    <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
+                                                value={config.idpProxyMetaData}
+                                                disabled={true}
+                                                copyClipBoard={true}/>
+                                    <p className="saml-test"
+                                       dangerouslySetInnerHTML={{
+                                           __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
+                                               ,{ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
+                                       }}/>
+                                </div>
+                            </div>
+                        }
 
                     </>
                 }
@@ -864,8 +880,8 @@ export const Testing = ({
                        message={I18n.t("connection.connectionOverview.disclaimer")}/>
                 <p className="test"
                    dangerouslySetInnerHTML={{
-                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test",
-                           {ADD_ATTR: ["target"]}))
+                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
+                           ,{ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
                    }}/>
                 <InputField name={I18n.t("connection.connectionOverview.discovery")}
                             value={config.discovery}
@@ -1164,6 +1180,9 @@ export const Testing = ({
 
     const backToConnections = () => {
         refresh();
+        setConnection(null);
+        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         changeSection(sections.technical);
     }
 

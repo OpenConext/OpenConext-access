@@ -26,6 +26,7 @@ public class Config {
     private List<String> missingAttributes;
     private Map<String, Integer> stats;
     private List<Map<String, String>> identityProviders;
+    private String idpProxyMetaData;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -36,6 +37,7 @@ public class Config {
         this.sram = base.sram;
         this.serviceDesk = base.serviceDesk;
         this.identityProviders = base.identityProviders;
+        this.idpProxyMetaData = base.idpProxyMetaData;
     }
 
     public Config withAuthenticated(boolean authenticated) {

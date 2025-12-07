@@ -94,8 +94,8 @@ config:
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   invite: "https://invite.test2.surfconext.nl"
   sram: "https://test.sram.surf.nl/"
-  serviceDesk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
-  identityProviders:
+  service_desk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
+  identity_providers:
       - name: "SXS IdP"
         entityid: "http://mock-idp"
         descriptionEN: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
@@ -104,7 +104,7 @@ config:
         entityid: "https://idp.diy.surfconext.nl"
         descriptionEN: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
         descriptionNL: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
-
+  idp_proxy_meta_data:  https://metadata.test2.surfconext.nl/idp-metadata.xml
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl"
 

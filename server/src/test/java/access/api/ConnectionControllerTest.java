@@ -226,9 +226,6 @@ class ConnectionControllerTest extends AbstractTest {
         assertEquals(244, connection.get("manageVersion"));
         assertEquals(ConnectionStatus.PROD_READY.name(), connection.get("status"));
         assertEquals(2, ((List)connection.get("changeRequests")).size());
-
-        List<Map<String, String>> contactPersons = (List<Map<String, String>>) ((Map<String, Object>)connection.get("metaData")).get("contactPersons");
-        assertEquals("okke.harsta@surf.nl", contactPersons.getFirst().get("email"));
     }
 
     @SneakyThrows

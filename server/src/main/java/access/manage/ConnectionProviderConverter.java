@@ -147,7 +147,10 @@ public class ConnectionProviderConverter {
 
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);
-            Map.of("type", "contactType", "email", "emailAddress", "givenName", "givenName", "surName", "surName")
+            Map.of("type", "contactType",
+                            "email", "emailAddress",
+                            "givenName", "givenName",
+                            "surName", "surName")
                     .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
         });
     }
@@ -178,6 +181,45 @@ public class ConnectionProviderConverter {
             changeRequests.add(changeRequest);
         }
         return changeRequests;
+    }
+
+    public Map<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {
+        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+        Map<String, Object> updatedMetaData = new HashMap<>();
+
+        updatedMetaData.put("privacy", this.privacyInfo.stream().collect(Collectors.toMap(
+                m -> m.get("name"),
+                m -> metaDataFields.getOrDefault(m.get("manage"), "")
+        )));
+
+        Map<String, Object> information = new HashMap<>();
+        information.put("tags", metaDataFields.getOrDefault("application_tags", new ArrayList<>()));
+        information.put("webSite", metaDataFields.get("coin:application_url"));
+        information.put("descriptionEN", metaDataFields.get("description:en"));
+        information.put("descriptionNL", metaDataFields.get("description:nl"));
+        updatedMetaData.put("information", information);
+
+        List<String> contactTypes = List.of("administrative", "technical", "support");
+        List<Map<String, Object>> contactPersons = metaDataFields
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().endsWith(":contactType") &&
+                        contactTypes.contains((String) entry.getValue()))
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().split(":")[1],
+                        entry -> (String) entry.getValue()
+                ))
+                .entrySet().stream()
+                .map(entry -> Map.of(
+                        "type", entry.getValue(),
+                        "email", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":emailAddress", ""),
+                        "surName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":surName", ""),
+                        "givenName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":givenName", "")
+                ))
+                .toList();
+        updatedMetaData.put("contactPersons", contactPersons);
+
+        return updatedMetaData;
     }
 
     @SneakyThrows

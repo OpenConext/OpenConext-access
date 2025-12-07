@@ -115,8 +115,4 @@ public class Application implements NameHolder {
         this.status = applicationData.status;
     }
 
-    public void mergeUpdatedMetaData(Map<String, Object> provider) {
-        //TODO: set all application specific data, the reverse of ConnectionProviderConverter#convert
-        //But now for all application data
-    }
 }

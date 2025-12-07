@@ -97,7 +97,7 @@ const MyOrganization = ({refreshUser}) => {
     }
 
     const renderGeneralSection = () => {
-        return <span>renderGeneralSection</span>
+        return <span>renderGeneralSection-TODO</span>
     }
 
     const renderDeleteSection = () => {

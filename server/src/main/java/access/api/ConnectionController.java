@@ -52,7 +52,6 @@ public class ConnectionController implements UserAccessRights {
     private final Manage manage;
     private final JiraClient jiraClient;
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
-    private final ConnectionProviderConverter converter;
     private final List<CharacterRule> rules = initPasswordGeneratorRules();
     private final ConnectionProviderConverter connectionProviderConverter;
 
@@ -61,13 +60,12 @@ public class ConnectionController implements UserAccessRights {
                                 UserRepository userRepository,
                                 Manage manage,
                                 JiraClient jiraClient,
-                                ConnectionProviderConverter converter, ConnectionProviderConverter connectionProviderConverter) {
+                                ConnectionProviderConverter connectionProviderConverter) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
-        this.converter = converter;
         this.connectionProviderConverter = connectionProviderConverter;
     }
 
