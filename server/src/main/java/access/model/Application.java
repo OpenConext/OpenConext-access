@@ -70,6 +70,11 @@ public class Application implements NameHolder {
     @NotNull
     private ApplicationTarget target = ApplicationTarget.SURF;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private User owner;
+
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
