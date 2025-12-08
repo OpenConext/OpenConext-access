@@ -116,20 +116,13 @@ export const allMenuGroups = [
 ]
 
 export const activeMenuItem = currentLocation => {
-    let path = currentLocation.pathname;
-    if (path === "/") {
-        path = "/home"
-    } else if (path.startsWith("/users/")) {
-        path = path.substring(0, 7)
-    } else if (path.startsWith("/organization/")) {
-        path = path.substring(0, 13)
-    } else if (path.startsWith("/idp/")) {
-        path = path.substring(0, 5)
-    }
+    const path = currentLocation.pathname;
+    const secondSlash = path.indexOf('/', 1);
+    const strippedPath = secondSlash === -1 ? path : path.substring(0, secondSlash);
     const activeItem = allMenuGroups
         .map(group => group.items)
         .flat()
-        .find(item => item.path.startsWith(path));
+        .find(item => item.path.startsWith(strippedPath));
     return activeItem?.name || mainMenuItems.home;
 }
 

@@ -113,7 +113,8 @@ const en = {
         joins: "Join Requests",
         invitations: "Invitations",
         home: "Home",
-        feedback: "Feedback"
+        feedback: "Feedback",
+        profile: "Profile"
     },
     welcome: {
         greeting: "Welcome {{name}}",
