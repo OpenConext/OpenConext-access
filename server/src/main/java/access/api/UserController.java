@@ -137,6 +137,18 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(other);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Map<String, Integer>> deleteMe(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/delete for user %s", user.getEduPersonPrincipalName()));
+
+        User userFromDB = userRepository.findDetailsById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        userRepository.delete(userFromDB);
+
+        return Results.deleteResult();
+    }
+
     @GetMapping("/logout")
     public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request) {
         LOG.debug("/logout");
@@ -157,7 +169,6 @@ public class UserController implements UserAccessRights {
         }
         return Results.okResult();
     }
-
 
     @GetMapping("/search")
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,

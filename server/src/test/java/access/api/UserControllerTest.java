@@ -10,10 +10,10 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -66,6 +66,25 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals("ShareLogics", organization.getName());
+    }
+
+    @Test
+    void deleteUser() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+        stubForIdentityProviderByEntityId("http://mock-idp");
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .delete("/api/v1/users")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(GUEST_SUB);
+        assertTrue(optionalUser.isEmpty());
     }
 
     @Test
@@ -272,7 +291,7 @@ class UserControllerTest extends AbstractTest {
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query","doe")
+                .queryParam("query", "doe")
                 .queryParam("pageNumber", 0)
                 .queryParam("pageSize", 10)
                 .queryParam("sort", "name")
@@ -280,7 +299,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, ((List)results.get("content")).size());
+        assertEquals(4, ((List) results.get("content")).size());
     }
 
     @SneakyThrows

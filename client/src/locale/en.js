@@ -12,6 +12,7 @@ const en = {
             subTitle: "Enabling users in secondary vocational-, higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Sign in / sign up",
             sup: "EduID ServiceDesk is by invitation only.",
+            profile: "Profile",
             logout: "Logout",
             system: "System"
         },
@@ -978,6 +979,21 @@ const en = {
     },
     appAccess: {
         roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol"
+    },
+    profile : {
+        title: "Profile",
+        info: "Your account was created on {{createdAt}}",
+        name: "Name",
+        email: "Mail",
+        eduPersonPrincipalName: "EPPN",
+        schacHomeOrganization: "Institution identifier",
+        superUser: "Congrats🥳, your are a super user",
+        institutionAdmin: "Congrats🥳, your are an institution admin of {{orgName}}",
+        delete: "Delete",
+        deleteConfirmation: "Are you sure you want to remove your account? This action is not reversible.",
+        attributes: "Attributes",
+        organization: "Organization(s)",
+
     }
 }
 

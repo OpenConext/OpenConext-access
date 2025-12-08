@@ -77,6 +77,11 @@ export function me() {
     return fetchJson("/api/v1/users/me");
 }
 
+export function deleteUser() {
+    return fetchDelete("/api/v1/users");
+}
+
+
 export function logout() {
     return fetchJson("/api/v1/users/logout");
 }

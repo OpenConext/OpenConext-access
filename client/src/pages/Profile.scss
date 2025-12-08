@@ -1,0 +1,49 @@
+@use "../styles/mixins" as *;
+@use "../index";
+
+div.profile-outer-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: white;
+
+    .profile-header-container {
+        background-color: var(--sds--color--gray--background);
+        padding: 25px 50px 25px 50px;
+
+        .top-header {
+            margin-bottom: 15px;
+        }
+    }
+
+    div.profile {
+        padding: 25px 50px;
+        width: 75%;
+
+    }
+
+    div.user-container {
+        background-color: white;
+        display: grid;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid var(--sds--color--gray--background);
+        grid-template-columns: [first] 1fr [second] 1fr;
+
+        h5 {
+                grid-column: 1 / -1;
+        }
+    }
+
+
+    .delete-container {
+        display: flex;
+        margin-top: 25px;
+
+        button {
+            margin-left: auto;
+        }
+    }
+
+}

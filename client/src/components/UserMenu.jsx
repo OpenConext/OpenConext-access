@@ -69,6 +69,13 @@ export const UserMenu = ({setIsAuthenticated}) => {
         return (<>
                 <ul>
                     <li>
+                        <Link to="/profile">
+                            {I18n.t("landing.header.profile")}
+                        </Link>
+                    </li>
+                </ul>
+                <ul>
+                    <li>
                         <a href="/logout" onClick={logoutUser}>{I18n.t(`landing.header.logout`)}</a>
                     </li>
                 </ul>

@@ -39,6 +39,7 @@ import ExternalApplication from "./pages/ExternalApplication.jsx";
 import Feedback from "./pages/Feedback.jsx";
 import MyOrganization from "./pages/MyOrganization.jsx";
 import ApplicationOverview from "./pages/ApplicationOverview.jsx";
+import Profile from "./pages/Profile.jsx";
 
 const App = () => {
 
@@ -143,6 +144,7 @@ const App = () => {
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation refreshUser={refreshUser}/>}/>
                             <Route path="/system/:tab?" element={<System/>}/>
+                            <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
