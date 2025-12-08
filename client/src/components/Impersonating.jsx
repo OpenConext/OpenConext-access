@@ -7,10 +7,17 @@ import "./Impersonating.scss";
 import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore";
+import {useShallow} from "zustand/react/shallow";
 
 export const Impersonating = () => {
 
-    const {user: currentUser, setFlash, impersonator, stopImpersonation} = useAppStore(state => state);
+    const {user: currentUser, setFlash, impersonator, stopImpersonation} = useAppStore(useShallow(state => ({
+        user: state.user,
+        setFlash: state.setFlash,
+        impersonator: state.impersonator,
+        stopImpersonation: state.stopImpersonation
+    })));
+
     const navigate = useNavigate();
 
     const endImpersonation = () => {

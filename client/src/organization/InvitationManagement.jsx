@@ -13,6 +13,7 @@ import MenuIcon from "../icons/menu.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import {isEmpty} from "../utils/Utils.js";
+import {useShallow} from "zustand/react/shallow";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -22,7 +23,10 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
 
 export const InvitationManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
-    const {user: currentUser, setFlash} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
+        user: state.user,
+        setFlash: state.setFlash
+    })));
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);

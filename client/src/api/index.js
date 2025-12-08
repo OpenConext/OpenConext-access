@@ -138,6 +138,10 @@ export function updateOrganizationName(organizationId, newName) {
     return postPutJson("/api/v1/organizations", {id: organizationId, name: newName}, "PUT");
 }
 
+export function updateOrganizationMetaData(organizationId, metaData) {
+    return postPutJson(`/api/v1/organizations/metadata/${organizationId}`, metaData, "PUT");
+}
+
 //JoinRequest
 export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");

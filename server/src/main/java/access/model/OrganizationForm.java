@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.S3Error;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,4 +27,5 @@ public class OrganizationForm implements Serializable {
     @NotNull
     private String name;
 
+    private Map<String, Object> metaData;
 }

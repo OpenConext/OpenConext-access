@@ -77,9 +77,10 @@ public class OrganizationController implements UserAccessRights {
 
         Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
-
-        User userFromDB = reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+        if (!user.isSuperUser()) {
+            User userFromDB = reinitializeUser(user, userRepository);
+            confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+        }
 
         if (StringUtils.hasText(organization.getManageIdentifier()) && withIdp) {
             Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
@@ -129,7 +130,10 @@ public class OrganizationController implements UserAccessRights {
         Organization organization = organizationRepository.findUsersById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        confirmOrganizationMembership(user, organization, Authority.GUEST);
+        if (!user.isSuperUser()) {
+            User userFromDB = reinitializeUser(user, userRepository);
+            confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
+        }
 
         return ResponseEntity.ok(organization);
     }
@@ -194,15 +198,22 @@ public class OrganizationController implements UserAccessRights {
 
     @PutMapping({"", "/"})
     public ResponseEntity<Organization> update(User user, @RequestBody @Validated OrganizationForm organizationForm) {
-        confirmSuperUser(user);
         Organization organization = organizationRepository.findById(organizationForm.getId())
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
+        //IdP can't change the name of the IdP in Manage
+        if (StringUtils.hasText(organization.getManageIdentifier())) {
+            throw new InvalidInputException("Can not update name, Organization has manage identifier. " + organization.getName());
+        }
+
+        if (!user.isSuperUser()) {
+            User userFromDB = reinitializeUser(user, userRepository);
+            confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+        }
         organization.setName(organizationForm.getName());
-
         Organization savedOrganization = organizationRepository.save(organization);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
+
 
     @PutMapping("/status/{organizationId}/{status}")
     public ResponseEntity<Organization> approve(User user, @PathVariable("organizationId") Long organizationId,
@@ -223,12 +234,16 @@ public class OrganizationController implements UserAccessRights {
                                                        @RequestBody Map<String, Object> metaData) {
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
-        User userFromDB = reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
         if (!StringUtils.hasText(organization.getManageIdentifier())) {
-            throw new InvalidInputException("Organization has no manage identifier: " + organization.getName());
+            throw new InvalidInputException("Can not update metadata. Organization has no manage identifier: " + organization.getName());
         }
+
+        if (!user.isSuperUser()) {
+            User userFromDB = reinitializeUser(user, userRepository);
+            confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+        }
+
         organization.setMetaData(metaData);
         manage.saveIdentityProvider(organization);
 
@@ -241,9 +256,10 @@ public class OrganizationController implements UserAccessRights {
 
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
-
-        user = this.reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        if (!user.isSuperUser()) {
+            user = this.reinitializeUser(user, userRepository);
+            confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        }
 
         organizationRepository.deleteOrganizationById(organizationId);
 

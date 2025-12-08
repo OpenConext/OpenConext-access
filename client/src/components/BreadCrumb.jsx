@@ -5,10 +5,15 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import DOMPurify from "dompurify";
 import ArrowRight from "../icons/arrow-right.svg";
 import {useNavigate} from "react-router";
+import {useShallow} from "zustand/react/shallow";
 
 export const BreadCrumb = () => {
 
-    const {breadcrumbPaths, clearFlash} = useAppStore(state => state);
+    const {breadcrumbPaths, clearFlash} = useAppStore(useShallow(state => ({
+        breadcrumbPaths: state.breadcrumbPaths,
+        clearFlash: state.clearFlash
+    })));
+
     const navigate = useNavigate();
 
 

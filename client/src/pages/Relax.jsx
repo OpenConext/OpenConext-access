@@ -9,7 +9,9 @@ import DOMPurify from "dompurify";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
 const Relax = () => {
-    const {user, currentOrganization} = useAppStore(state => state);
+    const user = useAppStore(state => state.user);
+    const currentOrganization = useAppStore(state => state.currentOrganization);
+
     const navigate = useNavigate();
 
     useEffect(() => {

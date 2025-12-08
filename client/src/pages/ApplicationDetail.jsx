@@ -10,12 +10,18 @@ import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg"
 import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
+import {useShallow} from "zustand/react/shallow";
 
 const ApplicationDetail = () => {
 
+        const {arp, privacy} = useAppStore(useShallow(state => ({
+            arp: state.arp,
+            privacy: state.privacy
+        })));
+
         const navigate = useNavigate();
         const {manageType, manageId} = useParams();
-        const {arp, privacy} = useAppStore(state => state);
+
         const [loading, setLoading] = useState(true);
         const [serviceProvider, setServiceProvider] = useState([]);
         const [showAttributes, setShowAttributes] = useState(false);
@@ -146,7 +152,7 @@ const ApplicationDetail = () => {
                                     </a>}
                                     {showPrivacy &&
                                         <div className="privacy-questions">
-                                            {privacy.map((item,index) => {
+                                            {privacy.map((item, index) => {
                                                     const question = item[`info_${I18n.locale}`];
                                                     const strippedQuestion = question.substring(question.indexOf(" ") + 1);
                                                     const answer = metaData[item.manage]

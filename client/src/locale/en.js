@@ -111,7 +111,7 @@ const en = {
         applications: "Your apps",
         team: "Team management",
         joins: "Join Requests",
-        invitations: "Invitation",
+        invitations: "Invitations",
         home: "Home",
         feedback: "Feedback"
     },
@@ -281,7 +281,7 @@ const en = {
         },
         applications: "Applications",
     },
-    "application-list-view" : {
+    "application-list-view": {
         searchPlaceHolder: "Search..."
     },
     connection: {
@@ -951,7 +951,7 @@ const en = {
         deleteWarning: "If you delete your organization, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
         deleteButton: "Delete my organization",
         proceedButton: "Save",
-
+        flash: "Organization {{name}} is updated"
     },
     accessibleApps: {
         title: "Gekoppelde apps",
@@ -980,7 +980,7 @@ const en = {
     appAccess: {
         roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol"
     },
-    profile : {
+    profile: {
         title: "Profile",
         info: "Your account was created on {{createdAt}}",
         name: "Name",

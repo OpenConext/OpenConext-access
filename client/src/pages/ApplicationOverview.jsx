@@ -12,12 +12,15 @@ import {Entities} from "../components/Entities.jsx";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
 import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const ApplicationOverview = ({accessible}) => {
 
         const navigate = useNavigate();
 
-        const {user, currentOrganization} = useAppStore(state => state);
+        const user = useAppStore(state => state.user);
+        const currentOrganization = useAppStore(state => state.currentOrganization);
+
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
@@ -26,6 +29,14 @@ const ApplicationOverview = ({accessible}) => {
         const [sourceOptions, setSourceOptions] = useState([]);
 
         useEffect(() => {
+            useAppStore.setState({
+                breadcrumbPaths: [
+                    {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                    {value: I18n.t(`navigation.${accessible ? "accessibleApps" : "catalogue"}`)}
+                ],
+                activeMenuItem: accessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
+            });
+
             publicServiceProviders()
                 .then(res => {
                     //If the IdP of the user

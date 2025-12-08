@@ -13,13 +13,18 @@ import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import SelectField from "../components/SelectField.jsx";
+import {useShallow} from "zustand/react/shallow";
 
 export const AppTeamManagement = ({
                                       application,
                                       refresh
                                   }) => {
 
-    const {user: currentUser, setFlash} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
+            user: state.user,
+            setFlash: state.setFlash
+        })));
+
     const navigate = useNavigate();
 
     const [confirmation, setConfirmation] = useState({});

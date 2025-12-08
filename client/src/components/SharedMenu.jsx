@@ -10,10 +10,16 @@ import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import {isEmpty} from "../utils/Utils.js";
+import {useShallow} from "zustand/react/shallow";
 
 export const SharedMenu = () => {
 
-    const {menuItems, currentOrganization, activeMenuItem} = useAppStore(state => state);
+    const {menuItems, currentOrganization, activeMenuItem} = useAppStore(useShallow(state => ({
+        menuItems: state.menuItems,
+        currentOrganization: state.currentOrganization,
+        activeMenuItem: state.activeMenuItem
+    })));
+
     const navigate = useNavigate();
 
     const filteredMenuGroups = useMemo(() => {

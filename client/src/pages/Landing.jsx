@@ -12,9 +12,16 @@ import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {useShallow} from "zustand/react/shallow";
 
 const Landing = ({refreshUser}) => {
-    const {user, currentOrganization, setFlash} = useAppStore(state => state);
+
+    const {user, currentOrganization, setFlash} = useAppStore(useShallow(state => ({
+        user: state.user,
+        currentOrganization: state.currentOrganization,
+        setFlash: state.setFlash
+    })));
+
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [organizations, setOrganizations] = useState([]);

@@ -21,7 +21,7 @@ export const ChangeRequests = ({
                                    refresh,
                                    arpInfo
                                }) => {
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
 
     const [isJsonDiffOpen, setIsJsonDiffOpen] = useState({});
 

@@ -25,7 +25,8 @@ const views = {
 }
 
 const Organization = () => {
-    const {user} = useAppStore(state => state);
+    const user = useAppStore(state => state.user);
+
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
@@ -49,8 +50,7 @@ const Organization = () => {
                         currentOrganization: res,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                            {path: `/organization/${res.id}`, value: res.name, menuItemName: mainMenuItems.yourApps},
-                            {value: I18n.t("breadCrumb.applications")}
+                            {value: I18n.t("navigation.yourApps")}
                         ]
                     });
                     const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);

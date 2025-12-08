@@ -10,13 +10,17 @@ import {CollapseField} from "../components/CollapseField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {getApplicationById, newApplication, updateApplication} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {useShallow} from "zustand/react/shallow";
 
 export const ApplicationForm = () => {
 
+    const {currentOrganization, setFlash} = useAppStore(useShallow(state => ({
+        currentOrganization: state.currentOrganization,
+        setFlash: state.setFlash
+    })));
+
     const {applicationId} = useParams();
     const navigate = useNavigate();
-
-    const {currentOrganization, setFlash} = useAppStore(state => state);
 
     const [isNew, setIsNew] = useState(true);
     const [loading, setLoading] = useState(true);

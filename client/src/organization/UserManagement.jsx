@@ -17,7 +17,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 const tabNames = ["team", "invitations", "joins"]
 
 export const UserManagement = () => {
-    const {user} = useAppStore(state => state);
+    const user = useAppStore(state => state.user);
 
     const {tab = "team"} = useParams();
     const {organizationId} = useParams();
@@ -41,14 +41,13 @@ export const UserManagement = () => {
                         currentOrganization: res,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                            {path: `/organization/${res.id}`, value: res.name, menuItemName: mainMenuItems.yourApps},
-                            {value: I18n.t("breadCrumb.applications")}
+                            {value: I18n.t("navigation.users")}
                         ]
                     });
                     const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
                     const authority = currentUserMembershipAuthority(user, membership);
                     setCurrentUserAuthority(authority);
-                    tabChanged(currentTab, res);
+                    tabChanged(currentTab);
                     setLoading(false);
                 }).catch(() => {
                 navigate("/home")
@@ -57,15 +56,15 @@ export const UserManagement = () => {
         }
     }, [organizationId, refresh]);// eslint-disable-line react-hooks/exhaustive-deps
 
-    const tabChanged = (name, res) => {
+    const tabChanged = name => {
         setCurrentTab(name);
         useAppStore.setState({
             breadcrumbPaths: [
                 {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.yourApps},
                 {
-                    path: `/organization/${organizationId}`,
-                    value: res ? res.name : organization.name,
-                    menuItemName: "yourApps"
+                    path: `/users/${organizationId}`,
+                    value: I18n.t("navigation.users"),
+                    menuItemName: mainMenuItems.users
                 },
                 {value: I18n.t(`breadCrumb.${name}`)}
             ]

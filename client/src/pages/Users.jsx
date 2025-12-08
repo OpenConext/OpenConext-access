@@ -13,11 +13,16 @@ import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import {useDebouncedCallback} from "use-debounce";
+import {useShallow} from "zustand/react/shallow";
 
 
 export const Users = () => {
 
-    const {user: currentUser, startImpersonation, setFlash} = useAppStore(state => state);
+    const {user: currentUser, startImpersonation, setFlash} = useAppStore(useShallow(state => ({
+        user: state.user,
+        startImpersonation: state.startImpersonation,
+        setFlash: state.setFlash
+    })));
 
     const [searching, setSearching] = useState(false);
     const [loading, setLoading] = useState(false);

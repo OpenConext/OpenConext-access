@@ -45,7 +45,7 @@ const App = () => {
 
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const {impersonator} = useAppStore(state => state);
+    const impersonator= useAppStore(state => state.impersonator);
     const navigate = useNavigate();
     const currentLocation = useLocation();
 

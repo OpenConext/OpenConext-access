@@ -20,7 +20,10 @@ export const InvitationForm = () => {
     const {organizationId, applicationId} = useParams();
 
     const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
-    const {user, setFlash} = useAppStore(state => state);
+
+    const user = useAppStore(state => state.user);
+    const setFlash = useAppStore(state => state.setFlash);
+
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [organization, setOrganization] = useState({});
     const [loading, setLoading] = useState(true);

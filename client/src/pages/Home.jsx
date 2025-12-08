@@ -10,7 +10,7 @@ import {useAppStore} from "../stores/AppStore.js";
 export const Home = () => {
 
     const navigate = useNavigate();
-    const {config} = useAppStore(state => state);
+    const config = useAppStore(state => state.config);
 
     const contactUs = () => {
         const link = document.createElement("a");

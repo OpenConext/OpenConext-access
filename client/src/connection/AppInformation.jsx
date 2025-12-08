@@ -41,7 +41,7 @@ export const AppInformation = ({
                                    arpInfo
                                }) => {
 
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
 
     const [section, setSection] = useState(sections.logo);
     const [initial, setInitial] = useState(true);

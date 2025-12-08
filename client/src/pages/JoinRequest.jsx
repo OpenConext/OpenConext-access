@@ -11,7 +11,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 
 const JoinRequest = ({refreshUser}) => {
 
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});

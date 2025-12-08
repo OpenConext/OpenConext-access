@@ -2,6 +2,7 @@ import {create} from 'zustand'
 
 export const useAppStore = create(set => ({
     user: {},
+    impersonator: null,
     csrfToken: null,
     startImpersonation: otherUser => {
         set(state => ({impersonator: state.user, user: otherUser}));

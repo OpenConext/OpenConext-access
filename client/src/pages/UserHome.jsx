@@ -10,7 +10,9 @@ import DOMPurify from "dompurify";
 
 const UserHome = () => {
 
-    const {user, currentOrganization} = useAppStore(state => state);
+    const user = useAppStore(state => state.user);
+    const currentOrganization = useAppStore(state => state.currentOrganization);
+
     const navigate = useNavigate();
 
     useEffect(() => {

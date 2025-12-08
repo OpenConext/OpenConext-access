@@ -28,7 +28,7 @@ import {
 
 export const Organizations = ({pendingApproval, tab}) => {
 
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
 
     const [refresh, setRefresh] = useState(new Date());
     const [searching, setSearching] = useState(false);

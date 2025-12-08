@@ -10,7 +10,8 @@ import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
 export default function Feedback() {
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
+
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
 

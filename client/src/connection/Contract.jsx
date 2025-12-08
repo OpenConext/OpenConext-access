@@ -24,7 +24,7 @@ export const Contract = ({
                              arpInfo
                          }) => {
 
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
     const [loading, setLoading] = useState(false);
 
     const submit = () => {

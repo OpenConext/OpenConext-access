@@ -14,7 +14,8 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 
 const Profile = ({setIsAuthenticated}) => {
-    const {user} = useAppStore(state => state);
+
+    const user = useAppStore(state => state.user);
 
     const [confirmation, setConfirmation] = useState({});
     const navigate = useNavigate();

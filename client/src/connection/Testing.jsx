@@ -63,6 +63,7 @@ import {useNavigate} from "react-router-dom";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 import {createAndClickLink} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";
+import {useShallow} from "zustand/react/shallow";
 
 const sections = {
     pendingChanges: "pendingChanges",
@@ -109,7 +110,12 @@ export const Testing = ({
                             setDirty,
                             connectionId
                         }) => {
-    const {setFlash, config} = useAppStore(state => state);
+
+    const {config, setFlash} = useAppStore(useShallow(state => ({
+        config: state.config,
+        setFlash: state.setFlash
+    })));
+
     const navigate = useNavigate();
 
     const [isCopyConnectionOpen, setIsCopyConnectionOpen] = useState(false);

@@ -112,10 +112,10 @@ public class RemoteManage implements Manage {
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
         Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
-        Map<String, Object> metaData = organization.getMetaData();
-        Map<String, Object> data = getData(provider);
-        Map<String, Object> metaDataFields = getMetaDataFields (data);
-        converter.convertContactPersons(metaData, metaDataFields);
+        Map<String, Object> metaDataFields = getMetaDataFields (getData(provider));
+
+        Map<String, Object> metaDataOrganization = organization.getMetaData();
+        converter.convertContactPersons(metaDataOrganization, metaDataFields);
 
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = environmentUrl(Environment.PROD);

@@ -13,7 +13,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 export const Invitation = ({refreshUser}) => {
 
     const navigate = useNavigate();
-    const {setFlash} = useAppStore(state => state);
+    const setFlash = useAppStore(state => state.setFlash);
     const [invitation, setInvitation] = useState({});
     const [loading, setLoading] = useState(true);
 

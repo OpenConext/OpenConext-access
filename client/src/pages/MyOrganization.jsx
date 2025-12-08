@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router-dom";
-import {deleteOrganizationById, organizationById} from "../api/index.js";
+import {deleteOrganizationById, organizationById, updateOrganizationMetaData} from "../api/index.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import "./MyOrganization.scss";
 import I18n from "../locale/I18n";
@@ -10,7 +10,8 @@ import DOMPurify from "dompurify";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import {ContactPersons} from "../components/ContactPersons.jsx";
-import {convertServerApplicationToClient} from "../utils/Application.js";
+import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -19,7 +20,9 @@ const sections = {
 }
 
 const MyOrganization = ({refreshUser}) => {
-    const {user} = useAppStore(state => state);
+    const user = useAppStore(state => state.user);
+    const setFlash = useAppStore(state => state.setFlash);
+
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
@@ -46,6 +49,13 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                {value: I18n.t("navigation.idp")}
+            ],
+            activeMenuItem: mainMenuItems.idp
+        });
     }, [navigate, organizationId]);
 
     useEffect(() => {
@@ -117,7 +127,22 @@ const MyOrganization = ({refreshUser}) => {
 
     const saveOrganization = () => {
         setInitial(false);
-        alert("Implement saveOrganization")
+        if (contactSectionValid(organization)) {
+            setLoading(true);
+            updateOrganizationMetaData(organization.id, {contactPersons: organization.contactPersons})
+                .then(() => {
+                    //Re-fetch everything so there can be no mismatch is data
+                    organizationById(organizationId, true)
+                        .then(res => {
+                            const convertedOrganization = convertServerApplicationToClient(res);
+                            setOrganization(convertedOrganization);
+                            setLoading(false);
+                            setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
+                        })
+                });
+
+        }
+
     }
 
     const renderCurrentSection = () => {
@@ -169,6 +194,7 @@ const MyOrganization = ({refreshUser}) => {
                 {section !== sections.delete &&
                     <div className="actions proceed">
                         <Button onClick={saveOrganization}
+                                disabled={!initial && !contactSectionValid(organization)}
                                 txt={I18n.t("myOrganization.proceedButton")}
                         />
 

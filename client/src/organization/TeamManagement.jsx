@@ -13,6 +13,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {useShallow} from "zustand/react/shallow";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -22,8 +23,12 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
 
 export const TeamManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
+    const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
+        user: state.user,
+        setFlash: state.setFlash
+    })));
+
     const navigate = useNavigate();
-    const {user: currentUser, setFlash} = useAppStore(state => state);
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);

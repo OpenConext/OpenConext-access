@@ -123,6 +123,8 @@ export const activeMenuItem = currentLocation => {
         path = path.substring(0, 7)
     } else if (path.startsWith("/organization/")) {
         path = path.substring(0, 13)
+    } else if (path.startsWith("/idp/")) {
+        path = path.substring(0, 5)
     }
     const activeItem = allMenuGroups
         .map(group => group.items)

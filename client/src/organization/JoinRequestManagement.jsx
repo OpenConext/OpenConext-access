@@ -11,10 +11,14 @@ import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
 import {MoreLessToggle} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
+import {useShallow} from "zustand/react/shallow";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
-    const {user: currentUser, setFlash} = useAppStore(state => state);
+    const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
+        user: state.user,
+        setFlash: state.setFlash
+    })));
 
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
