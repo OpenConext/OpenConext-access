@@ -1,7 +1,12 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router-dom";
-import {deleteOrganizationById, organizationById, updateOrganizationMetaData} from "../api/index.js";
+import {
+    deleteOrganizationById,
+    organizationById,
+    updateOrganizationMetaData,
+    updateOrganizationName
+} from "../api/index.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import "./MyOrganization.scss";
 import I18n from "../locale/I18n";
@@ -12,6 +17,8 @@ import {Button, ButtonType, Loader} from "@surfnet/sds";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import InputField from "../components/InputField.jsx";
+import SelectField from "../components/SelectField.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -23,14 +30,17 @@ const MyOrganization = ({refreshUser}) => {
     const user = useAppStore(state => state.user);
     const setFlash = useAppStore(state => state.setFlash);
 
+    const externalUser = user.externalUser;
+
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [confirmation, setConfirmation] = useState({});
-    const [section, setSection] = useState(user.externalUser ? sections.general : sections.contactPersons);
+    const [section, setSection] = useState(externalUser ? sections.general : sections.contactPersons);
     const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
+    const [dirty, setDirty] = useState(new Date());
 
     const inputRef = useRef(null);
 
@@ -56,7 +66,7 @@ const MyOrganization = ({refreshUser}) => {
             ],
             activeMenuItem: mainMenuItems.idp
         });
-    }, [navigate, organizationId]);
+    }, [navigate, organizationId, dirty]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -65,9 +75,10 @@ const MyOrganization = ({refreshUser}) => {
     }, [focusedId]);
 
     const availableSections = useMemo(() => {
+        const isExternalUser = externalUser;
         return Object.values(sections)
-            .filter(s => s !== sections.delete || (user.externalUser && (user.superUser || isOrganizationAdmin(user, organization))))
-            .filter(s => s !== sections.contactPersons || !user.externalUser)
+            .filter(s => s !== sections.delete || (isExternalUser && (user.superUser || isOrganizationAdmin(user, organization))))
+            .filter(s => s !== sections.contactPersons || !isExternalUser)
     }, [organization, user])
 
     if (loading) {
@@ -106,8 +117,46 @@ const MyOrganization = ({refreshUser}) => {
                                initial={initial}/>
     }
 
-    const renderGeneralSection = () => {
-        return <span>renderGeneralSection-TODO</span>
+    const changeKeyWords = options => {
+        const newMetaData = {...organization.metaData, keyWords: (options || []).map(option => option.value)}
+        setOrganization({...organization, metaData: newMetaData});
+    }
+
+    const renderInternalGeneralSection = () => {
+        return (
+            <section className="inner-right">
+                <h3>{I18n.t("myOrganization.generalInformation")}</h3>
+                <InputField name={I18n.t("myOrganization.name")}
+                            value={organization.name}
+                            disabled={true}/>
+
+                <InputField name={I18n.t("myOrganization.entityID")}
+                            value={organization.metaData.entityID}
+                            disabled={true}/>
+
+                <SelectField name={I18n.t("myOrganization.keyWords")}
+                             value={(organization.metaData.keyWords || []).map(word => ({
+                                 label: word,
+                                 value: word
+                             }))}
+                             onChange={changeKeyWords}
+                             isMulti={true}
+                             creatable={true}
+                />
+                <p className="info">{I18n.t("myOrganization.keyWordsInfo")}</p>
+            </section>
+        )
+    }
+
+    const renderExternalGeneralSection = () => {
+        return (
+            <section className="inner-right">
+                <h3>{I18n.t("myOrganization.generalInformation")}</h3>
+                <InputField name={I18n.t("myOrganization.name")}
+                            value={organization.name}
+                            onChange={e => setOrganization({...organization, name: e.target.value})}/>
+            </section>
+        )
     }
 
     const renderDeleteSection = () => {
@@ -125,25 +174,38 @@ const MyOrganization = ({refreshUser}) => {
         );
     }
 
-    const saveOrganization = () => {
+    const saveInternalOrganization = () => {
         setInitial(false);
         if (contactSectionValid(organization)) {
             setLoading(true);
-            updateOrganizationMetaData(organization.id, {contactPersons: organization.contactPersons})
+            updateOrganizationMetaData(organization.id, {
+                contactPersons: organization.contactPersons,
+                keyWords: organization.metaData.keyWords
+            })
                 .then(() => {
-                    //Re-fetch everything so there can be no mismatch is data
-                    organizationById(organizationId, true)
-                        .then(res => {
-                            const convertedOrganization = convertServerApplicationToClient(res);
-                            setOrganization(convertedOrganization);
-                            setLoading(false);
-                            setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
-                        })
+                    setDirty(new Date());
+                    setLoading(false);
+                    setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
+                });
+
+        }
+    }
+
+    const saveExternalOrganization = () => {
+        setInitial(false);
+        if (!isEmpty(organization.name)) {
+            setLoading(true);
+            updateOrganizationName(organization.id, organization.name)
+                .then(() => {
+                    setDirty(new Date());
+                    setLoading(false);
+                    setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
                 });
 
         }
 
     }
+
 
     const renderCurrentSection = () => {
         switch (section) {
@@ -151,7 +213,7 @@ const MyOrganization = ({refreshUser}) => {
                 return renderContactPersonsSection();
             }
             case sections.general: {
-                return renderGeneralSection();
+                return externalUser ? renderExternalGeneralSection() : renderInternalGeneralSection();
             }
             case sections.delete: {
                 return renderDeleteSection();
@@ -193,11 +255,10 @@ const MyOrganization = ({refreshUser}) => {
                 </div>
                 {section !== sections.delete &&
                     <div className="actions proceed">
-                        <Button onClick={saveOrganization}
-                                disabled={!initial && !contactSectionValid(organization)}
+                        <Button onClick={() => externalUser ? saveExternalOrganization() : saveInternalOrganization()}
+                                disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
                                 txt={I18n.t("myOrganization.proceedButton")}
                         />
-
                     </div>}
 
             </div>

@@ -211,12 +211,14 @@ const en = {
         disapproved_action: "Disapprove",
         name: "Name",
         schacHomeOrganization: "Schac home",
+        isInternal: "Internal",
         createdAt: "Created",
         memberCount: "# Members",
         applicationCount: "# Apps",
         status: "Status",
         searchPlaceHolder: "Search for organizations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organization {{name}}?",
+        manageOrganizationInMutable: "Internal organizations (e.g. IdP's from Manage) are immutable in SURF Access. Only external organizations from external (commercial) service providers are mutable.",
         flash: {
             updated: "Organization {{name}} now has the status {{status}}",
             deleted: "Organization {{name}} has been deleted",
@@ -952,7 +954,12 @@ const en = {
         deleteWarning: "If you delete your organization, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
         deleteButton: "Delete my organization",
         proceedButton: "Save",
-        flash: "Organization {{name}} is updated"
+        flash: "Organization {{name}} is updated",
+        generalInformation: "Algemene gegevens",
+        entityID: "Entity ID",
+        name: "name",
+        keyWords: "Keywords",
+        keyWordsInfo: "Keywords zijn shortcuts waarmee gebruikers in de WAYF snel deze organisatie terug kan vinden",
     },
     accessibleApps: {
         title: "Gekoppelde apps",

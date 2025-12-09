@@ -39,6 +39,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     @Query(value = """
              SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+                                org.manage_identifier as manageIdentifier,
                 (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
                 (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount                        
               FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
@@ -50,6 +51,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     @Query(value = """
              SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+                                org.manage_identifier as manageIdentifier,
                 (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
                 (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount                        
               FROM organizations org

@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import "./Organizations.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Loader, Tooltip} from "@surfnet/sds";
+import {Loader, Tooltip, Checkbox} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {isEmpty} from "../utils/Utils";
 import {useAppStore} from "../stores/AppStore";
@@ -243,6 +243,11 @@ export const Organizations = ({pendingApproval, tab}) => {
             mapper: org => <span>{org.schacHomeOrganization}</span>
         },
         {
+            key: "manageIdentifier",
+            header: I18n.t("organizations.isInternal"),
+            mapper: org => <div className="wrapper"><Checkbox value={!isEmpty(org.manageIdentifier)} disabled={true}/></div>
+        },
+        {
             key: "applicationCount",
             header: I18n.t("organizations.applicationCount"),
             mapper: org => org.applicationCount
@@ -266,7 +271,7 @@ export const Organizations = ({pendingApproval, tab}) => {
             key: "buttons",
             header: "",
             nonSortable: true,
-            mapper: org =>
+            mapper: org => isEmpty(org.manageIdentifier) ?
                 <div className="top-header"
                      tabIndex={1}
                      onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
@@ -275,7 +280,7 @@ export const Organizations = ({pendingApproval, tab}) => {
                                 <MenuIcon/>
                                 {dropDownActive === org.id && renderMenu(org)}
                             </span>
-                </div>
+                </div> : <Tooltip standalone={true} tip={I18n.t("organizations.manageOrganizationInMutable")}/>
         }
     ];
 

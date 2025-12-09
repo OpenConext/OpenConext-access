@@ -18,48 +18,57 @@
         display: flex;
         position: relative;
         width: 100%;
+
         .input-field {
             width: 100%;
         }
+
         .action-icons {
             display: flex;
             gap: 5px;
             position: absolute;
             right: 8px;
             top: 12px;
+
             span {
                 cursor: pointer;
             }
         }
     }
+
     table.organizations {
 
         thead {
             th {
                 &.name {
-                    width: 22%;
+                    width: 20%;
                 }
 
                 &.schac_home_organization, &.schacHomeOrganization {
-                    width: 16%;
+                    width: 14%;
                 }
 
                 &.createdAt {
                     width: 12%;
                 }
 
+                &.manageIdentifier {
+                    text-align: center;
+                    width: 8%;
+                }
+
                 &.applicationCount {
                     text-align: center;
-                    width: 12%;
+                    width: 11%;
                 }
 
                 &.memberCount {
                     text-align: center;
-                    width: 12%;
+                    width: 11%;
                 }
 
                 &.status {
-                    width: 14%;
+                    width: 12%;
                 }
 
                 th.buttons {
@@ -70,8 +79,20 @@
 
         tbody {
             td {
+                &.manageIdentifier {
+                    text-align: center;
+
+                    .wrapper {
+                        display: flex;
+
+                        .sds--checkbox-container {
+                            margin: auto;
+                        }
+                    }
+                }
+
                 &.applicationCount {
-                   text-align: center;
+                    text-align: center;
                 }
 
                 &.memberCount {

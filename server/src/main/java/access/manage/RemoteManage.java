@@ -28,6 +28,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static access.manage.ManageData.getData;
@@ -112,10 +113,13 @@ public class RemoteManage implements Manage {
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
         Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
-        Map<String, Object> metaDataFields = getMetaDataFields (getData(provider));
+        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
 
         Map<String, Object> metaDataOrganization = organization.getMetaData();
         converter.convertContactPersons(metaDataOrganization, metaDataFields);
+        String keyWords = String.join(" ", ((List<String>) metaDataOrganization.getOrDefault("keyWords", List.of())));
+        metaDataFields.put("keywords:0:nl", keyWords);
+        metaDataFields.put("keywords:0:en", keyWords);
 
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = environmentUrl(Environment.PROD);
@@ -236,7 +240,7 @@ public class RemoteManage implements Manage {
                 url,
                 baseQuery, List.class);
         if (identityProviders.isEmpty()) {
-            throw new NotFoundException("No identityProviders found for entityID: "+entityID);
+            throw new NotFoundException("No identityProviders found for entityID: " + entityID);
         }
         return identityProviders.getFirst();
     }
@@ -248,7 +252,7 @@ public class RemoteManage implements Manage {
         Map<String, Object> baseQuery = getBaseQuery(true);
         baseQuery.put("entityid", entityIdentifiers);
         return Stream.of(EntityType.oidc10_rp, EntityType.saml20_sp)
-                .flatMap( entityType -> {
+                .flatMap(entityType -> {
                     String url = String.format("%s/manage/api/internal/search/%s",
                             environmentUrl(activeEnvironment),
                             entityType.name());
