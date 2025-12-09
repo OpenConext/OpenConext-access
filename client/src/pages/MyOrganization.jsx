@@ -75,7 +75,7 @@ const MyOrganization = ({refreshUser}) => {
     }, [focusedId]);
 
     const availableSections = useMemo(() => {
-        const isExternalUser = externalUser;
+        const isExternalUser = user.externalUser;
         return Object.values(sections)
             .filter(s => s !== sections.delete || (isExternalUser && (user.superUser || isOrganizationAdmin(user, organization))))
             .filter(s => s !== sections.contactPersons || !isExternalUser)

@@ -751,18 +751,18 @@ export const Testing = ({
         );
     }
 
-    const changeAllowedTestEntity = (idp, e) => {
-        const checked = e.target.checked;
-        const allowedEntities = connection.allowedEntities || [];
-        if (checked) {
-            setConnection({...connection, allowedEntities: [...allowedEntities, idp.entityid]})
-        } else {
-            setConnection({
-                ...connection,
-                allowedEntities: [...allowedEntities.filter(entityid => entityid !== idp.entityid)]
-            })
-        }
-    };
+    // const changeAllowedTestEntity = (idp, e) => {
+    //     const checked = e.target.checked;
+    //     const allowedEntities = connection.allowedEntities || [];
+    //     if (checked) {
+    //         setConnection({...connection, allowedEntities: [...allowedEntities, idp.entityid]})
+    //     } else {
+    //         setConnection({
+    //             ...connection,
+    //             allowedEntities: [...allowedEntities.filter(entityid => entityid !== idp.entityid)]
+    //         })
+    //     }
+    // };
 
     const changeAllowedEntity = options => {
         const iDps = config.identityProviders;
