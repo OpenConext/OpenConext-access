@@ -7,6 +7,28 @@ export const authorities = {
     GUEST: "GUEST"
 }
 
+export const authorityWeights = {
+    [authorities.SUPER_USER]: 4,
+    [authorities.ADMIN]: 3,
+    [authorities.MEMBER]: 2,
+    [authorities.GUEST]: 1
+}
+
+export const isAllowed = (user, requiredAuthority) => {
+    if (user.superUser) {
+        return true;
+    }
+    if (isEmpty(user.organizationMemberships)) {
+        return false;
+    }
+    const mostImportantAuthority = user.organizationMemberships.reduce((max, membership) => {
+        return authorityWeights[membership.authority] > authorityWeights[max.authority]
+            ? membership : max;
+    }, {authority: authorities.GUEST})
+    return mostImportantAuthority.authority >= authorityWeights[requiredAuthority]
+}
+
+
 export const allAuthorities = [authorities.GUEST, authorities.MEMBER, authorities.ADMIN];
 
 export const getOrganizationMembership = (currentUser, organization, authority) => {

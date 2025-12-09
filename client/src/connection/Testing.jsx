@@ -789,8 +789,10 @@ export const Testing = ({
                     {iDps.map((idp, index) =>
                         <div key={index} className="idp">
                             <Checkbox name={idp.name}
+                                      readOnly={true}
                                       value={allowedEntities.includes(idp.entityid)}
-                                      onChange={e => changeAllowedTestEntity(idp, e)}/>
+                                      //onChange={e => changeAllowedTestEntity(idp, e)}
+                                 />
                             <div className="idp-info">
                                 <p dangerouslySetInnerHTML={{__html: idp.name}}/>
                                 <p dangerouslySetInnerHTML={{__html: idp[`description${I18n.locale.toUpperCase()}`]}}/>

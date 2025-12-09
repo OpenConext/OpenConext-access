@@ -77,10 +77,8 @@ public class OrganizationController implements UserAccessRights {
 
         Organization organization = organizationRepository.findDetailsById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
-        if (!user.isSuperUser()) {
-            User userFromDB = reinitializeUser(user, userRepository);
-            confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
-        }
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
 
         if (StringUtils.hasText(organization.getManageIdentifier()) && withIdp) {
             Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
@@ -130,10 +128,8 @@ public class OrganizationController implements UserAccessRights {
         Organization organization = organizationRepository.findUsersById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        if (!user.isSuperUser()) {
-            User userFromDB = reinitializeUser(user, userRepository);
-            confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
-        }
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
 
         return ResponseEntity.ok(organization);
     }
@@ -205,10 +201,9 @@ public class OrganizationController implements UserAccessRights {
             throw new InvalidInputException("Can not update name, Organization has manage identifier. " + organization.getName());
         }
 
-        if (!user.isSuperUser()) {
-            User userFromDB = reinitializeUser(user, userRepository);
-            confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
-        }
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+
         organization.setName(organizationForm.getName());
         Organization savedOrganization = organizationRepository.save(organization);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
@@ -238,11 +233,8 @@ public class OrganizationController implements UserAccessRights {
         if (!StringUtils.hasText(organization.getManageIdentifier())) {
             throw new InvalidInputException("Can not update metadata. Organization has no manage identifier: " + organization.getName());
         }
-
-        if (!user.isSuperUser()) {
-            User userFromDB = reinitializeUser(user, userRepository);
-            confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
-        }
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
         organization.setMetaData(metaData);
         manage.saveIdentityProvider(organization);
@@ -256,10 +248,9 @@ public class OrganizationController implements UserAccessRights {
 
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
-        if (!user.isSuperUser()) {
-            user = this.reinitializeUser(user, userRepository);
-            confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        }
+
+        user = this.reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
         organizationRepository.deleteOrganizationById(organizationId);
 

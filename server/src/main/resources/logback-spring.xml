@@ -9,7 +9,7 @@
     <logger name="access" level="DEBUG"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
     <logger name="org.springframework.security.web.csrf" level="DEBUG"/>
-    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.security" level="TRACE"/>
     <logger name="org.mariadb.jdbc.message.server" level="ERROR"/>
     <logger name="com.zaxxer.hikari" level="ERROR"/>
     <logger name="ch.qos.logback" level="ERROR"/>

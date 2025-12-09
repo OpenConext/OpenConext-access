@@ -227,7 +227,7 @@ export const Organizations = ({pendingApproval, tab}) => {
                          tip={I18n.t("tooltips.organizationsIcon",
                              {
                                  name: org.name,
-                                 createdAt: dateFromEpoch(org.created_at, false),
+                                 createdAt: dateFromEpoch(org.created_at || org.createdAt, false),
                                  status: I18n.t(`organizations.${org.status.toLowerCase()}`)
                              })}/>
             </div>

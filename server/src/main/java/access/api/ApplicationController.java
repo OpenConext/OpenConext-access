@@ -127,6 +127,7 @@ public class ApplicationController implements UserAccessRights {
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
         application.setCreatedAt(Instant.now());
         application.setCreatedBy(user.getName());
+        application.setOwner(user);
         Application applicationSaved = applicationRepository.save(application);
 
         Optional<OrganizationMembership> optionalOrganizationMembership = user.getOrganizationMemberships().stream()

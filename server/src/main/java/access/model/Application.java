@@ -72,7 +72,7 @@ public class Application implements NameHolder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User owner;
 
     @Enumerated(EnumType.STRING)
@@ -99,6 +99,16 @@ public class Application implements NameHolder {
             organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
         }
         return organizationInfo;
+    }
+
+    //We need info, about the owner
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "ownerIdentifier")
+    public Long getOwnerInfo() {
+        User appOwner = getOwner();
+        if (appOwner != null && Hibernate.isInitialized(appOwner)) {
+            return appOwner.getId();
+        }
+        return null;
     }
 
     @JsonIgnore

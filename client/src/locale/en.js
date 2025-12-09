@@ -460,7 +460,7 @@ const en = {
             value: "Value"
         },
         testIdPs: {
-            info: "Kies met welke IdP’s je wilt testen of het federatief inloggen werkt.",
+            info: "Met de volgende IdP’s kan je testen of het federatief inloggen werkt.",
             subTitle: "Test-IdP’s van SURF",
             institutionIdPs: "Test-IdP’s van instellingen",
             institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let wel op<strong/>: Je moet zelf contact opnemen voor de test-inloggegevens voor hun test-IdP’s.",

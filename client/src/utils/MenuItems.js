@@ -9,6 +9,7 @@ import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
 import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
+import {authorities} from "./Permissions.js";
 
 export const mainMenuItems = {
     home: "home",
@@ -24,16 +25,22 @@ export const mainMenuItems = {
 }
 
 export const menuItemsForUser = user => {
-    const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue];
-    if (hasOrganizationMemberships) {
-        newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.idp);
-    }
-    if (!user.externalUser) {
-        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.invite, mainMenuItems.sram);
-    }
     //Every user has access to the help menu items
-    newMenuItems.push(mainMenuItems.serviceDesk, mainMenuItems.feedback);
+    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk, mainMenuItems.feedback];
+    const noOrganizationMemberships = isEmpty(user.organizationMemberships);
+    if (noOrganizationMemberships) {
+        return newMenuItems;
+    }
+    //Guest with no application membership
+    newMenuItems.push(mainMenuItems.idp);
+    const emptyGuests = user.organizationMemberships.every(m => m.autority === authorities.GUEST && isEmpty(m.applicationMemberships));
+    if (emptyGuests) {
+        return newMenuItems;
+    }
+    newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.accessibleApps, );
+    if (!user.externalUser) {
+        newMenuItems.push(mainMenuItems.invite, mainMenuItems.sram);
+    }
     return newMenuItems;
 }
 

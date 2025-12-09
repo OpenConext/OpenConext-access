@@ -8,6 +8,7 @@ import access.model.*;
 import access.repository.ApplicationRepository;
 import access.repository.InvitationRepository;
 import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,15 +44,17 @@ public class InvitationController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final MailBox mailBox;
+    private final UserRepository userRepository;
 
     public InvitationController(InvitationRepository invitationRepository,
                                 OrganizationRepository organizationRepository,
                                 ApplicationRepository applicationRepository,
-                                MailBox mailBox) {
+                                MailBox mailBox, UserRepository userRepository) {
         this.invitationRepository = invitationRepository;
         this.organizationRepository = organizationRepository;
         this.applicationRepository = applicationRepository;
         this.mailBox = mailBox;
+        this.userRepository = userRepository;
     }
 
     @GetMapping({"/all/{organizationId}"})
@@ -117,18 +121,23 @@ public class InvitationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Invitation not found"));
         invitation.accept();
 
+        user = reinitializeUser(user, userRepository);
         invitationRepository.save(invitation);
-        //Now create organization_membership and - if any - applicationMemberships
         Organization organization = invitation.getOrganization();
-        OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, invitation.getIntendedAuthority());
+        //Internal users are already provisioned in their organization
+        Optional<OrganizationMembership> organizationMembershipOptional = user.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
+                .findFirst();
+        if (organizationMembershipOptional.isEmpty()) {
+            //Now create organization_membership and - if any - applicationMemberships
+            OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, invitation.getIntendedAuthority());
+            List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
+                    .map(application -> new ApplicationMembership(application, organizationMembership, Authority.ADMIN))
+                    .toList();
+            applicationMemberships.forEach(organizationMembership::addApplicationMembership);
+            organization.addOrganizationMembership(organizationMembership);
+        }
 
-
-        List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
-                .map(application -> new ApplicationMembership(application, organizationMembership, Authority.ADMIN))
-                .toList();
-        applicationMemberships.forEach(applicationMembership -> organizationMembership.addApplicationMembership(applicationMembership));
-
-        organization.addOrganizationMembership(organizationMembership);
         organizationRepository.save(organization);
 
         return createResult();

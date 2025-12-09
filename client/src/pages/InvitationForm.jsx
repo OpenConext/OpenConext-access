@@ -10,7 +10,7 @@ import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
-import {allAuthorities, authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
+import {allAuthorities, authorities, authorityWeights, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
@@ -44,7 +44,7 @@ export const InvitationForm = () => {
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                        {path: `/organization/${organizationId}`, value: res.name, menuItemName: mainMenuItems.yourApps},
+                        {path: `/users/${organizationId}/team`, value: I18n.t("navigation.users"), menuItemName: mainMenuItems.users},
                         {value: I18n.t("breadCrumb.invitations")}
                     ]
                 });
@@ -126,7 +126,7 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitation.requiredEmail")}/>}
 
-                {authorityOptions.length > 1 &&
+                {authorityOptions.length > 0 &&
                     <SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                             || authorityOptions[authorityOptions.length - 1]}
@@ -182,8 +182,9 @@ export const InvitationForm = () => {
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allAuthorities
-            .filter(authority => currentUserAuthority === authorities.ADMIN || authority !== authorities.ADMIN)
-            .map(authority => ({value: authority, label: I18n.t(`roles.${authority.toLowerCase()}`)}))
+            .filter(authority => currentUserAuthority === authorities.ADMIN ||
+                authorityWeights[currentUserAuthority] > authorityWeights[authority])
+            .map(authority => ({value: authority, label: I18n.t(`roles.${authority.toLowerCase()}`)}));
         return (
             <>
                 {renderFormElements(authorityOptions)}
