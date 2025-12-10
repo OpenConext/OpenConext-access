@@ -429,6 +429,18 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForGetProvider(EntityType entityType, String manageIdentifier, Environment environment) {
+        Map<String, Object> provider = localManage.providerById(entityType, manageIdentifier, environment);
+        String body = objectMapper.writeValueAsString(provider);
+        stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
+                entityType.name(),
+                manageIdentifier))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForGetChangeRequests(List<Map<String, Object>> changeProviders) {
         String body = objectMapper.writeValueAsString(changeProviders);
         stubFor(get(urlPathMatching("/manage/api/internal/change-requests/.*/.*"))

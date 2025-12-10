@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.manage.Manage;
@@ -10,6 +11,8 @@ import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -51,6 +55,7 @@ public class OrganizationController implements UserAccessRights {
     private final Config config;
     private final Manage manage;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper ;
     private final JiraClient jiraClient;
 
 
@@ -60,35 +65,27 @@ public class OrganizationController implements UserAccessRights {
                                   Manage manage,
                                   UserRepository userRepository,
                                   Config config,
+                                  ObjectMapper objectMapper,
                                   JiraClient jiraClient) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
         this.manage = manage;
         this.config = config;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
         this.jiraClient = jiraClient;
     }
 
-    @GetMapping("/find/{id}")
-    public ResponseEntity<Organization> find(User user,
+    @GetMapping("/applications/{id}")
+    public ResponseEntity<Map<String, Object>> findOrganizationDetailById(User user,
                                              @PathVariable("id") Long id,
                                              @RequestParam(value = "withIdp", required = false, defaultValue = "false") boolean withIdp) {
         LOG.debug("/find Organization by " + user.getEmail());
 
-        Organization organization = organizationRepository.findDetailsById(id)
-                .orElseThrow(() -> new NotFoundException("Organisation not found"));
         User userFromDB = reinitializeUser(user, userRepository);
-        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
 
-        if (StringUtils.hasText(organization.getManageIdentifier()) && withIdp) {
-            Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
-            if (organization.mergeMetaData(provider, false)) {
-                organizationRepository.save(organization);
-            }
-            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(provider);
-            organization.convertChangeRequests(changeRequests);
-
-        }
+        Organization organization = organizationRepository.findApplicationsDetailsOrganizationById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
         organization.getApplications().forEach(application -> {
             //We only fetch change-requests for applications with one production status
@@ -101,6 +98,60 @@ public class OrganizationController implements UserAccessRights {
             }
         });
 
+        OrganizationMembership organizationMembership= userFromDB.getOrganizationMemberships()
+                .stream()
+                .filter(membership -> membership.getOrganization().getId().equals(organization.getId()))
+                .findFirst()
+                //little hack to avoid multiple logic branches
+                .or(() -> userFromDB.isSuperUser() ? Optional.of(new OrganizationMembership(Authority.ADMIN)) : Optional.empty())
+                .orElseThrow(() -> new UserRestrictionException(
+                        String.format("User %s is not a member of organization %s", user.getEmail(), id)));
+
+        Map<String, Object> organizationMap = objectMapper.convertValue(organization, new TypeReference<>() {
+        });
+
+        if (organizationMembership.getAuthority().equals(Authority.GUEST)) {
+            //we short - cut the flow and return only what the user is allowed to see
+            //TODO
+        }
+
+        return ResponseEntity.ok(organizationMap);
+    }
+
+    @GetMapping("/details/{id}")
+    public ResponseEntity<Organization> findUserManagementDetails(User user,
+                                             @PathVariable("id") Long id) {
+        LOG.debug("/find Organization user-management by " + user.getEmail());
+
+        User userFromDB = reinitializeUser(user, userRepository);
+        Organization organization = organizationRepository.findUserManagementOrganizationById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+
+        return ResponseEntity.ok(organization);
+    }
+
+    @GetMapping("/mine/{id}")
+    public ResponseEntity<Organization> findMyOrganization(User user,
+                                                           @PathVariable("id") Long id) {
+        LOG.debug("/find Organization mine by " + user.getEmail());
+
+        User userFromDB = reinitializeUser(user, userRepository);
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+
+        if (StringUtils.hasText(organization.getManageIdentifier())) {
+            Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            if (organization.mergeMetaData(provider, false)) {
+                organizationRepository.save(organization);
+            }
+            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(provider);
+            organization.convertChangeRequests(changeRequests);
+
+        }
         return ResponseEntity.ok(organization);
     }
 
@@ -122,10 +173,10 @@ public class OrganizationController implements UserAccessRights {
 
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<Organization> light(User user, @PathVariable("id") Long id) {
+    public ResponseEntity<Organization> usersOfOrganization(User user, @PathVariable("id") Long id) {
         LOG.debug("/find Organization light by " + user.getEmail());
 
-        Organization organization = organizationRepository.findUsersById(id)
+        Organization organization = organizationRepository.findUsersOfOrganizationById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
         User userFromDB = reinitializeUser(user, userRepository);

@@ -48,6 +48,10 @@ public class OrganizationMembership implements NameHolder {
     @Transient
     private String transientName;
 
+    public OrganizationMembership(Authority authority) {
+        this.authority = authority;
+    }
+
     public OrganizationMembership(User user, Organization organization, Authority authority) {
         this.user = user;
         this.organization = organization;

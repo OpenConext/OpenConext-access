@@ -2,6 +2,8 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.model.EntityType;
+import access.model.Environment;
 import access.model.Organization;
 import access.model.OrganizationStatus;
 import io.restassured.common.mapper.TypeRef;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,10 +20,11 @@ import java.util.Optional;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings({"unchecked", "unsafe"})
 class OrganizationControllerTest extends AbstractTest {
 
     @Test
-    void find() {
+    void details() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         stubForGetChangeRequests(getChangeRequests());
@@ -32,13 +36,13 @@ class OrganizationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
-                .get("/api/v1/organizations/find/{id}")
+                .get("/api/v1/organizations/details/{id}")
                 .as(Organization.class);
 
-        assertEquals(2L, organization.getMemberCount());
-        assertEquals(1, organization.getApplications().size());
-        assertEquals(2, organization.getJoinRequests().size());
         assertEquals(1L, organization.getApplicationCount());
+        assertEquals(2L, organization.getMemberCount());
+        assertEquals(2, organization.getJoinRequests().size());
+        assertEquals(1, organization.getInvitations().size());
     }
 
     @Test
@@ -113,7 +117,7 @@ class OrganizationControllerTest extends AbstractTest {
     }
 
     @Test
-    void findForbidden() {
+    void detailsForbidden() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
 
         given()
@@ -123,7 +127,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
-                .get("/api/v1/organizations/find/{id}")
+                .get("/api/v1/organizations/details/{id}")
                 .then()
                 .statusCode(403);
     }
@@ -271,6 +275,59 @@ class OrganizationControllerTest extends AbstractTest {
 
         Organization organization = organizationRepository.findById(organizationId).get();
         assertEquals(OrganizationStatus.DISAPPROVED, organization.getStatus());
+    }
+
+    @Test
+    void mineOrganizationWithIdentityProvider() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        //See seed for SHARE_LOGICS, which has a manage identifier of "7"
+        stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        stubForGetChangeRequests(getChangeRequests());
+
+        Map<String, Object> organization = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/mine/{id}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, ((List)organization.get("changeRequests")).size());
+        assertEquals(11, ((Map)organization.get("metaData")).size());
+        assertNull(organization.get("applications"));
+        assertNull(organization.get("invitations"));
+        assertNull(organization.get("joinRequests"));
+        assertNull(organization.get("organizationMemberships"));
+    }
+
+    @Test
+    void organizationWithApplications() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        //See seed for SHARE_LOGICS, which has a production connection
+        stubForGetChangeRequests(getChangeRequests());
+
+        Map<String, Object> organization = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/applications/{id}")
+                .as(new TypeRef<>() {
+                });
+        System.out.println(organization);
+        //Assert that there is 1 application, 2 connections and the PROD connection has changerequests
+//        assertEquals(2, ((List)organization.get("changeRequests")).size());
+//        assertEquals(11, ((Map)organization.get("metaData")).size());
+//        assertNull(organization.get("applications"));
+//        assertNull(organization.get("invitations"));
+//        assertNull(organization.get("joinRequests"));
+//        assertNull(organization.get("organizationMemberships"));
     }
 
 }

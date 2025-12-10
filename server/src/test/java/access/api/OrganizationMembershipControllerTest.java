@@ -40,7 +40,7 @@ class OrganizationMembershipControllerTest extends AbstractTest {
     @Test
     void delete() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        Organization organization = organizationRepository.findDetailsById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        Organization organization = organizationRepository.findUserManagementOrganizationById(seedIdentifiers.get(SHARE_LOGICS)).get();
         OrganizationMembership organizationMembership = organization.getOrganizationMemberships().stream()
                 .filter(membership -> membership.getAuthority().equals(Authority.MEMBER))
                 .findFirst()

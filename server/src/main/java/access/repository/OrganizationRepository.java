@@ -2,7 +2,6 @@ package access.repository;
 
 import access.model.Organization;
 import access.model.OrganizationStatus;
-import org.hibernate.annotations.Formula;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public interface OrganizationRepository extends JpaRepository<Organization, Long> , QueryRewriter {
+public interface OrganizationRepository extends JpaRepository<Organization, Long>, QueryRewriter {
 
     List<Organization> findByNameContainingIgnoreCase(String name);
 
@@ -24,12 +23,14 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     List<Organization> findByStatus(OrganizationStatus status);
 
-    @EntityGraph(attributePaths = {
-            "applications.connections", "organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
-    Optional<Organization> findDetailsById(Long id);
+    @EntityGraph(attributePaths = {"organizationMemberships.user", "invitations.invitee", "joinRequests.user"})
+    Optional<Organization> findUserManagementOrganizationById(Long id);
+
+    @EntityGraph(attributePaths = {"applications.connections"})
+    Optional<Organization> findApplicationsDetailsOrganizationById(Long id);
 
     @EntityGraph(attributePaths = {"organizationMemberships.user"})
-    Optional<Organization> findUsersById(Long id);
+    Optional<Organization> findUsersOfOrganizationById(Long id);
 
     @Modifying
     @Query(value = "DELETE FROM organizations WHERE id = ?1", nativeQuery = true)

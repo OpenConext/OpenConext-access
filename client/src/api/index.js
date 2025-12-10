@@ -96,6 +96,29 @@ export function feedback(message) {
 }
 
 //Organization
+//TODO - refactor - add endpoints
+/*
+multiple organizations
+guest membership with eduID -> externalUser false, use identityProvider of organization
+read-only view (no cursor, no on-click for app card)
+read only view of organization
+
+Organization.jsx
+@GetMapping("/applications/{id}")
+
+UserManagement.jsx
+@GetMapping("/details/{id}")
+
+MyOrganization.jsx
+@GetMapping("/mine/{id}")
+
+AppTeamManagement.jsx
+@GetMapping("/users/{id}"
+
+JoinRequest.jsx
+@GetMapping("/light/{id}")
+
+ */
 export function organizationById(id, withIdp = false) {
     const queryPart = withIdp ? "?withIdp=true" : "";
     return fetchJson(`/api/v1/organizations/find/${id}${queryPart}`);

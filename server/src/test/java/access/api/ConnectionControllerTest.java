@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings({"unchecked", "unsafe"})
 class ConnectionControllerTest extends AbstractTest {
 
     @Test

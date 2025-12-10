@@ -192,10 +192,10 @@ const Organization = () => {
                 </div>
                 {!isEmpty(organization.applications) &&
                     <div className="view-switcher">
-                        <CardView className={`${view === views.card ? "active" : ""}`}
+                        <CardView className={`${view === views.card ? "active" : "nope"}`}
                                   onClick={() => setView(views.card)}/>
                         <Divider/>
-                        <ListView className={`${view === views.list ? "active" : ""}`}
+                        <ListView className={`${view === views.list ? "active" : "nope"}`}
                                   onClick={() => setView(views.list)} v/>
                     </div>}
             </div>

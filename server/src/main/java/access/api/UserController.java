@@ -95,6 +95,7 @@ public class UserController implements UserAccessRights {
 
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
         boolean isExternalUser = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
+        //TODO check if there organization memberships for internal IdP's - this means the user is not external????
         userFromDB.setExternalUser(isExternalUser);
         if (!isExternalUser) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();

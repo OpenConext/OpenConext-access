@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static access.security.InstitutionAdmin.*;
 
+@SuppressWarnings({"unchecked", "unsafe"})
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     private static final Log LOG = LogFactory.getLog(CustomOidcUserService.class);
