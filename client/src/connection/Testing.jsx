@@ -1022,14 +1022,14 @@ export const Testing = ({
                                                         value={selected}
                                                         onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
                                             </section>
-                                            {(selected && !defaultArpValue) &&
+                                            {(selected && !defaultArpValue && arpSource) &&
                                                 <InputField value={arpSource.value}
                                                             name={I18n.t("connection.informational.value")}
                                                             copyClipBoard={true}
                                                             disabled={true}/>
                                             }
-                                            {(selected && defaultArpValue) &&
-                                                <InputField value={connection.motivations[optionalAttribute]}
+                                            {(selected) &&
+                                                <InputField value={connection.motivations[optionalAttribute] || ""}
                                                             name={I18n.t("connection.informational.motivation")}
                                                             placeholder={I18n.t("connection.informational.motivationPlaceholder")}
                                                             onChange={e => changeMotivation(e, optionalAttribute)}
