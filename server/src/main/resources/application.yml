@@ -172,8 +172,10 @@ springdoc:
   pathsToMatch: "/access/api/v1/**"
   api-docs:
     path: "/ui/api-docs"
+    enabled: true
   swagger-ui:
     path: "/ui/api-ui.html"
+    enabled: true
     operationsSorter: method
     oauth:
       client-id: ${spring.security.oauth2.client.registration.oidcng.client-id}
@@ -208,3 +210,4 @@ info:
   build:
     artifact: "@project.artifactId@"
     version: "@project.version@"
+

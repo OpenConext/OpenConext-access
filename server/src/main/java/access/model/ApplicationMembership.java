@@ -40,9 +40,8 @@ public class ApplicationMembership implements NameHolder {
     @NotNull
     private Authority authority = Authority.MEMBER;
 
-    public ApplicationMembership(Application application, OrganizationMembership organizationMembership, Authority authority) {
+    public ApplicationMembership(Application application, OrganizationMembership organizationMembership) {
         this.application = application;
-        this.authority = authority;
         this.organizationMembership = organizationMembership;
         this.createdAt = Instant.now();
     }
@@ -56,7 +55,7 @@ public class ApplicationMembership implements NameHolder {
 
     //We need info, about the application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "applicationIdentifier")
-    public Long getApplicatinIndentifier() {
+    public Long getApplicationIndentifier() {
         Application application = getApplication();
         if (application != null && Hibernate.isInitialized(application)) {
             return application.getId();

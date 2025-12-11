@@ -43,10 +43,9 @@ class ApplicationControllerTest extends AbstractTest {
                 .get("/api/v1/applications/all/{organizationId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, applications.size());
+        assertEquals(2, applications.size());
 
-        Application application = applications.getFirst();
-        assertEquals(BUDDY_CHECK, application.getName());
+        Application application = applications.stream().filter(app -> app.getName().equals(BUDDY_CHECK)).findFirst().get();
         assertNotNull(application.getOrganization());
     }
 

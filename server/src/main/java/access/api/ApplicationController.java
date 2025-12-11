@@ -86,6 +86,9 @@ public class ApplicationController implements UserAccessRights {
 
         Application application = applicationRepository.findDetailsById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
+        user = reinitializeUser(user, userRepository);
+        confirmApplicationWriteAccess(user, application);
+
         AtomicReference<Map<String, Object>> latestChangedProvider = new AtomicReference<>();
         AtomicReference<Instant> latestRevision = new AtomicReference<>();
         application.getConnections().stream()
@@ -125,6 +128,7 @@ public class ApplicationController implements UserAccessRights {
 
         Organization organization = application.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
+
         application.setCreatedAt(Instant.now());
         application.setCreatedBy(user.getName());
         application.setOwner(user);
@@ -136,7 +140,7 @@ public class ApplicationController implements UserAccessRights {
         //Super User's may not have organization memberships
         optionalOrganizationMembership.ifPresent(organizationMembership -> {
             ApplicationMembership applicationMembership =
-                    new ApplicationMembership(applicationSaved, organizationMembership, Authority.MEMBER);
+                    new ApplicationMembership(applicationSaved, organizationMembership);
             applicationMembershipRepository.save(applicationMembership);
         });
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationSaved);
@@ -148,10 +152,9 @@ public class ApplicationController implements UserAccessRights {
 
         Application application = applicationRepository.findById(applicationData.getId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
-        Organization organization = application.getOrganization();
 
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application);
 
         //If the metadata has changed, we must propagate this to manage
         boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());
@@ -187,7 +190,8 @@ public class ApplicationController implements UserAccessRights {
         Organization organization = application.getOrganization();
 
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.ADMIN);
+        user = reinitializeUser(user, userRepository);
+        confirmApplicationDeleteAccess(user, application);
 
         //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
         organization.removeApplication(application);

@@ -14,21 +14,6 @@ export const authorityWeights = {
     [authorities.GUEST]: 1
 }
 
-export const isAllowed = (user, requiredAuthority) => {
-    if (user.superUser) {
-        return true;
-    }
-    if (isEmpty(user.organizationMemberships)) {
-        return false;
-    }
-    const mostImportantAuthority = user.organizationMemberships.reduce((max, membership) => {
-        return authorityWeights[membership.authority] > authorityWeights[max.authority]
-            ? membership : max;
-    }, {authority: authorities.GUEST})
-    return mostImportantAuthority.authority >= authorityWeights[requiredAuthority]
-}
-
-
 export const allAuthorities = [authorities.GUEST, authorities.MEMBER, authorities.ADMIN];
 
 export const getOrganizationMembership = (currentUser, organization, authority) => {
@@ -55,4 +40,39 @@ export const currentUserMembershipAuthority = (user, organizationMembership) => 
         return authorities.GUEST;
     }
 
+}
+
+export const hasApplicationWriteAccess = (user, application) => {
+    if (user.superUser) {
+        return true;
+    }
+    const currentOrgMembership = user.organizationMemberships
+        .find(orgMembership => orgMembership.organization.id === application.organization.id);
+    if (isEmpty(!currentOrgMembership)) {
+        return false;
+    }
+    if (currentOrgMembership.authority === authorities.ADMIN) {
+        return true;
+    }
+    const applicationMembership = (currentOrgMembership.applicationMemberships || [])
+        .find(appMembership => appMembership.applicationIdentifier === application.id);
+    if (application.ownerIdentifier === user.id || !isEmpty(applicationMembership)) {
+        return true
+    }
+    return false;
+}
+
+export const hasApplicationDeleteAccess = (user, application) => {
+    if (user.superUser) {
+        return true;
+    }
+    const currentOrgMembership = user.organizationMemberships
+        .find(orgMembership => orgMembership.organization.id === application.organization.id);
+    if (isEmpty(!currentOrgMembership)) {
+        return false;
+    }
+    if (currentOrgMembership.authority === authorities.ADMIN) {
+        return true;
+    }
+    return application.ownerIdentifier === user.id;
 }

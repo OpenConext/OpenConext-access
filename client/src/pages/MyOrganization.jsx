@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router-dom";
 import {
     deleteOrganizationById,
-    organizationById,
+    organizationMineById,
     updateOrganizationMetaData,
     updateOrganizationName
 } from "../api/index.js";
@@ -50,7 +50,7 @@ const MyOrganization = ({refreshUser}) => {
         if (isEmpty(organizationId)) {
             navigate("/home");
         } else {
-            organizationById(organizationId, true)
+            organizationMineById(organizationId, true)
                 .then(res => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);

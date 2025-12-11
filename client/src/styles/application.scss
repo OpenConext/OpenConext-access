@@ -12,6 +12,13 @@
         background-color: var(--sds--color--gray--background);
     }
 
+    &.read-only {
+        cursor: not-allowed;
+        &:hover {
+            background-color: white;
+        }
+    }
+
     .application-info {
         display: flex;
         flex-direction: column;

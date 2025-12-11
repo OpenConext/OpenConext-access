@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
-import {organizationById} from "../api/index.js";
+import {organizationUserManagementById} from "../api/index.js";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {TeamManagement} from "./TeamManagement.jsx";
 import {currentUserMembershipAuthority} from "../utils/Permissions.js";
@@ -33,7 +33,7 @@ export const UserManagement = () => {
         if (isEmpty(organizationId)) {
             navigate("/home");
         } else {
-            organizationById(organizationId)
+            organizationUserManagementById(organizationId)
                 .then(res => {
                     res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                     setOrganization(res);

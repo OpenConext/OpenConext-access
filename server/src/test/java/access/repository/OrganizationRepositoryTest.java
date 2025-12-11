@@ -16,7 +16,7 @@ class OrganizationRepositoryTest extends AbstractTest {
         List<Organization> organizations = super.organizationRepository.findByNameContainingIgnoreCase("LOGIC");
         assertEquals(1, organizations.size());
         Organization organization = organizations.getFirst();
-        assertEquals(2, organization.getMemberCount());
+        assertEquals(3, organization.getMemberCount());
     }
 
     @Test

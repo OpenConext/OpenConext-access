@@ -106,7 +106,7 @@ public class ConnectionController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, application.getOrganization(), application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application);
 
         connection.setCreatedAt(Instant.now());
         connection.setApplication(application);
@@ -297,9 +297,8 @@ public class ConnectionController implements UserAccessRights {
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
-        Organization organization = application.getOrganization();
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationMembership(user, organization, application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application);
         return connection;
     }
 

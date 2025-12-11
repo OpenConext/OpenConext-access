@@ -99,6 +99,7 @@ public abstract class AbstractTest {
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String EXTERNAL_USER_SUB = "urn:collab:person:example.com:external_user";
     public static final String MULTIPLE_ORG_SUB = "urn:collab:person:example.com:mos";
     //Organisation GUD of the mock-idp
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
@@ -109,6 +110,7 @@ public abstract class AbstractTest {
     //Applications
     public static final String NITRO_MAP = "NitroMap";
     public static final String BUDDY_CHECK = "BuddyCheck";
+    public static final String TECHNO = "Techno";
     //Connections
     public static final String BUDDY_CHECK_TEST = "BuddyCheck-Test";
     public static final String BUDDY_CHECK_PROD = "BuddyCheck-Prod";
@@ -457,6 +459,16 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForStats() {
+        Map<String, Long> stats = Map.of();
+        String body = objectMapper.writeValueAsString(stats);
+        stubFor(get("/manage/api/internal/stats")
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForIdentityProviderByInstitutionalGUID(String organisationGuid) {
         List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID(Environment.PROD, organisationGuid);
         String body = objectMapper.writeValueAsString(providers);
@@ -518,9 +530,11 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com");
+        User externalUser =
+                new User(false, EXTERNAL_USER_SUB, EXTERNAL_USER_SUB, "eduid.nl", "Ex", "Doe", "ex.doe@eduid.nl");
         User multipleOrganizationUser =
                 new User(true, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
-        doSave(this.userRepository, superUser, manager, guest, multipleOrganizationUser);
+        doSave(this.userRepository, superUser, manager, guest, externalUser, multipleOrganizationUser);
 
         Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org", "7", 1);
         Organization logistics = new Organization(LOGISTICS, "logistics.org", "8", 1);
@@ -530,17 +544,20 @@ public abstract class AbstractTest {
 
         OrganizationMembership adminOfShareLogics = new OrganizationMembership(manager, shareLogics, Authority.ADMIN);
         OrganizationMembership memberOfShareLogics = new OrganizationMembership(multipleOrganizationUser, shareLogics, Authority.MEMBER);
+        OrganizationMembership guestOfShareLogics = new OrganizationMembership(externalUser, shareLogics, Authority.GUEST);
         OrganizationMembership memberOfFarWind = new OrganizationMembership(guest, farWind, Authority.MEMBER);
         OrganizationMembership memberLogics = new OrganizationMembership(multipleOrganizationUser, logistics, Authority.MEMBER);
-        doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, memberOfShareLogics, memberLogics);
+        doSave(this.organizationMembershipRepository, adminOfShareLogics, memberOfFarWind, guestOfShareLogics, memberOfShareLogics, memberLogics);
 
         Application buddyCheck = new Application(BUDDY_CHECK, shareLogics, "System", Map.of());
+        Application techno = new Application(TECHNO, shareLogics, "System", Map.of());
 
         Application nitroMap = new Application(NITRO_MAP, farWind, "System", Map.of());
-        doSave(this.applicationRepository, buddyCheck, nitroMap);
+        doSave(this.applicationRepository, buddyCheck, techno, nitroMap);
 
-        ApplicationMembership applicationMembership = new ApplicationMembership(buddyCheck, adminOfShareLogics, Authority.MEMBER);
-        doSave(this.applicationMembershipRepository, applicationMembership);
+        ApplicationMembership applicationMembershipBuddyCheck = new ApplicationMembership(buddyCheck, adminOfShareLogics);
+        ApplicationMembership applicationMembershipGuest = new ApplicationMembership(buddyCheck, guestOfShareLogics);
+        doSave(this.applicationMembershipRepository, applicationMembershipBuddyCheck, applicationMembershipGuest);
 
         Connection buddyCheckConnectionTest = new Connection(BUDDY_CHECK_TEST, buddyCheck, Map.of(
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
@@ -577,7 +594,7 @@ public abstract class AbstractTest {
         buddyCheckConnectionProd.setState(State.prodaccepted);
         doSave(connectionRepository, buddyCheckConnectionTest, buddyCheckConnectionProd);
 
-        Invitation invitationFarWind = new Invitation(
+        Invitation invitationShareLogics = new Invitation(
                 Language.en,
                 SHARE_LOGICS_INVITATION_HASH,
                 "jdoe@invitation.org",
@@ -585,9 +602,9 @@ public abstract class AbstractTest {
                 Authority.MEMBER,
                 shareLogics,
                 manager,
-                Set.of(nitroMap)
+                Set.of(techno)
         );
-        doSave(this.invitationRepository, invitationFarWind);
+        doSave(this.invitationRepository, invitationShareLogics);
 
         JoinRequest joinRequest = new JoinRequest(guest, shareLogics, "Please", Language.en);
         JoinRequest joinRequestSuperUser = new JoinRequest(superUser, shareLogics, "Please", Language.en);

@@ -55,7 +55,7 @@ public class ApplicationMembershipController implements UserAccessRights {
         if (!application.getOrganization().getId().equals(organizationMembership.getOrganization().getId())) {
             throw new NotFoundException("Organization not found");
         }
-        ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership, Authority.MEMBER);
+        ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationMembership);

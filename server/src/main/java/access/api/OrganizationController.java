@@ -77,6 +77,7 @@ public class OrganizationController implements UserAccessRights {
     }
 
     @GetMapping("/applications/{id}")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<Map<String, Object>> findOrganizationDetailById(User user,
                                              @PathVariable("id") Long id,
                                              @RequestParam(value = "withIdp", required = false, defaultValue = "false") boolean withIdp) {
@@ -86,6 +87,15 @@ public class OrganizationController implements UserAccessRights {
 
         Organization organization = organizationRepository.findApplicationsDetailsOrganizationById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        OrganizationMembership organizationMembership= userFromDB.getOrganizationMemberships()
+                .stream()
+                .filter(membership -> membership.getOrganization().getId().equals(organization.getId()))
+                .findFirst()
+                //little hack to avoid multiple logic branches
+                .or(() -> userFromDB.isSuperUser() ? Optional.of(new OrganizationMembership(Authority.ADMIN)) : Optional.empty())
+                .orElseThrow(() -> new UserRestrictionException(
+                        String.format("User %s is not a member of organization %s", user.getEmail(), id)));
 
         organization.getApplications().forEach(application -> {
             //We only fetch change-requests for applications with one production status
@@ -98,21 +108,16 @@ public class OrganizationController implements UserAccessRights {
             }
         });
 
-        OrganizationMembership organizationMembership= userFromDB.getOrganizationMemberships()
-                .stream()
-                .filter(membership -> membership.getOrganization().getId().equals(organization.getId()))
-                .findFirst()
-                //little hack to avoid multiple logic branches
-                .or(() -> userFromDB.isSuperUser() ? Optional.of(new OrganizationMembership(Authority.ADMIN)) : Optional.empty())
-                .orElseThrow(() -> new UserRestrictionException(
-                        String.format("User %s is not a member of organization %s", user.getEmail(), id)));
-
         Map<String, Object> organizationMap = objectMapper.convertValue(organization, new TypeReference<>() {
         });
 
         if (organizationMembership.getAuthority().equals(Authority.GUEST)) {
-            //we short - cut the flow and return only what the user is allowed to see
-            //TODO
+            //we filter out applications where there is no app membership for the GUEST user
+            List<Long> applicationIdentifiers = organizationMembership.getApplicationMemberships().stream()
+                    .map(applicationMembership -> applicationMembership.getApplication().getId())
+                    .toList();
+            List<Map<String, Object>> applications = (List<Map<String, Object>>) organizationMap.getOrDefault("applications", List.of());
+            applications.removeIf(application -> !applicationIdentifiers.contains((Long)application.get("id")));
         }
 
         return ResponseEntity.ok(organizationMap);
@@ -245,8 +250,7 @@ public class OrganizationController implements UserAccessRights {
 
     @PutMapping({"", "/"})
     public ResponseEntity<Organization> update(User user, @RequestBody @Validated OrganizationForm organizationForm) {
-        Organization organization = organizationRepository.findById(organizationForm.getId())
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization = findOrganizationById(organizationForm.getId());
         //IdP can't change the name of the IdP in Manage
         if (StringUtils.hasText(organization.getManageIdentifier())) {
             throw new InvalidInputException("Can not update name, Organization has manage identifier. " + organization.getName());
@@ -265,8 +269,7 @@ public class OrganizationController implements UserAccessRights {
     public ResponseEntity<Organization> approve(User user, @PathVariable("organizationId") Long organizationId,
                                                 @PathVariable("status") OrganizationStatus status) {
         confirmSuperUser(user);
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization = findOrganizationById(organizationId);
         organization.setStatus(status);
 
         Organization savedOrganization = organizationRepository.save(organization);
@@ -278,8 +281,7 @@ public class OrganizationController implements UserAccessRights {
     public ResponseEntity<Organization> updateMetaData(User user,
                                                        @PathVariable("organizationId") Long organizationId,
                                                        @RequestBody Map<String, Object> metaData) {
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization = findOrganizationById(organizationId);
 
         if (!StringUtils.hasText(organization.getManageIdentifier())) {
             throw new InvalidInputException("Can not update metadata. Organization has no manage identifier: " + organization.getName());
@@ -293,12 +295,16 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(organization);
     }
 
+    private Organization findOrganizationById(Long organizationId) {
+        return organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+    }
+
     @DeleteMapping({"", "/{organizationId}"})
     public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete organization by " + user.getEmail());
 
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization = findOrganizationById(organizationId);
 
         user = this.reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.ADMIN);

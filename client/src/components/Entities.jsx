@@ -22,6 +22,7 @@ export const Entities = ({
                              title,
                              filters,
                              rowLinkMapper,
+                             rowOverrideClickable = null,
                              tableClassName,
                              className = "",
                              hideTitle,
@@ -162,8 +163,10 @@ export const Entities = ({
 
     const entityRow = (entity, index) => {
         const additionalClassName = isEmpty(rowClassNameResolver) ? "" : rowClassNameResolver(entity);
+        const overrideClickable = typeof rowOverrideClickable === "function" && rowOverrideClickable(entity);
+        const clickAble = (!overrideClickable && typeof rowLinkMapper === "function") ? "clickable" : "";
         return <tr key={`tr_${entity.id}_${index}`}
-                   className={`${typeof rowLinkMapper === "function" ? "clickable" : ""} ${onHover ? "hoverable" : ""} ${additionalClassName}`}>
+                   className={`${clickAble} ${onHover ? "hoverable" : ""} ${additionalClassName} ${overrideClickable ? "not-allowed" : ""}`}>
             {columns.map((column, i) =>
                 <td key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?

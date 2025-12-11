@@ -5,10 +5,7 @@ import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
 import access.model.*;
-import access.repository.ApplicationRepository;
-import access.repository.InvitationRepository;
-import access.repository.OrganizationRepository;
-import access.repository.UserRepository;
+import access.repository.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,16 +42,18 @@ public class InvitationController implements UserAccessRights {
     private final ApplicationRepository applicationRepository;
     private final MailBox mailBox;
     private final UserRepository userRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
 
     public InvitationController(InvitationRepository invitationRepository,
                                 OrganizationRepository organizationRepository,
                                 ApplicationRepository applicationRepository,
-                                MailBox mailBox, UserRepository userRepository) {
+                                MailBox mailBox, UserRepository userRepository, OrganizationMembershipRepository organizationMembershipRepository) {
         this.invitationRepository = invitationRepository;
         this.organizationRepository = organizationRepository;
         this.applicationRepository = applicationRepository;
         this.mailBox = mailBox;
         this.userRepository = userRepository;
+        this.organizationMembershipRepository = organizationMembershipRepository;
     }
 
     @GetMapping({"/all/{organizationId}"})
@@ -94,7 +93,7 @@ public class InvitationController implements UserAccessRights {
                         .orElseThrow(() -> new NotFoundException("Application not found")))
                 .collect(Collectors.toSet());
         if (!applications.stream().allMatch(application -> application.getOrganization().getId().equals(organizationID))) {
-            throw new NotAllowedException("Not allowed to add application");
+            throw new NotAllowedException("Not allowed to add applications outside the organization");
         }
         invitationForm.getInvites().forEach(invitee -> {
             Invitation invitation = new Invitation(
@@ -132,13 +131,24 @@ public class InvitationController implements UserAccessRights {
             //Now create organization_membership and - if any - applicationMemberships
             OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, invitation.getIntendedAuthority());
             List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
-                    .map(application -> new ApplicationMembership(application, organizationMembership, Authority.ADMIN))
+                    .map(application -> new ApplicationMembership(application, organizationMembership))
                     .toList();
             applicationMemberships.forEach(organizationMembership::addApplicationMembership);
             organization.addOrganizationMembership(organizationMembership);
+            organizationRepository.save(organization);
+        } else {
+            //Add missing applicationMemberships
+            OrganizationMembership organizationMembership = organizationMembershipOptional.get();
+            List<Long> applicationIdentifiers = organizationMembership.getApplicationMemberships().stream()
+                    .map(applicationMembership -> applicationMembership.getApplication().getId())
+                    .toList();
+            List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
+                    .filter(application -> !applicationIdentifiers.contains(application.getId()))
+                    .map(application -> new ApplicationMembership(application, organizationMembership))
+                    .toList();
+            applicationMemberships.forEach(organizationMembership::addApplicationMembership);
+            organizationMembershipRepository.save(organizationMembership);
         }
-
-        organizationRepository.save(organization);
 
         return createResult();
     }

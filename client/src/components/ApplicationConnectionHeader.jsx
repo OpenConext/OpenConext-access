@@ -9,8 +9,9 @@ import {useNavigate} from "react-router-dom";
 import {deleteApplicationById} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import {Chip, ChipType} from "@surfnet/sds";
+import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
 
-export const ApplicationConnectionHeader = ({tabs, application, currentTab, setTab, setLoading}) => {
+export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab, setLoading}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -50,6 +51,7 @@ export const ApplicationConnectionHeader = ({tabs, application, currentTab, setT
     }
 
     const renderMenu = () => {
+        const mayDelete = hasApplicationDeleteAccess(user, application);
         return (
             <div className="sds--user-info--dropdown">
                 <ul>
@@ -59,13 +61,12 @@ export const ApplicationConnectionHeader = ({tabs, application, currentTab, setT
                             {I18n.t(`forms.edit`)}
                         </a>
                     </li>
-                    <li onClick={e => doDelete(e, true)}>
+                    {mayDelete && <li onClick={e => doDelete(e, true)}>
                         <TrashIcon/>
                         <a href="/delete" onClick={e => doDelete(e, true)}>
                             {I18n.t(`forms.delete`)}
                         </a>
-
-                    </li>
+                    </li>}
                 </ul>
             </div>
         )

@@ -194,6 +194,10 @@
                     cursor: pointer;
                 }
 
+                &.not-allowed {
+                    cursor: not-allowed;
+                }
+
                 &.multi-role {
                     color: var(--sds--color--green--500)
                 }

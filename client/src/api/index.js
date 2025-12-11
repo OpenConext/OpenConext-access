@@ -95,33 +95,25 @@ export function feedback(message) {
     return postPutJson("/api/v1/users/feedback", {message: message}, "POST");
 }
 
-//Organization
-//TODO - refactor - add endpoints
-/*
-multiple organizations
-guest membership with eduID -> externalUser false, use identityProvider of organization
-read-only view (no cursor, no on-click for app card)
-read only view of organization
-
-Organization.jsx
-@GetMapping("/applications/{id}")
-
-UserManagement.jsx
-@GetMapping("/details/{id}")
-
-MyOrganization.jsx
-@GetMapping("/mine/{id}")
-
-AppTeamManagement.jsx
-@GetMapping("/users/{id}"
-
-JoinRequest.jsx
-@GetMapping("/light/{id}")
-
- */
-export function organizationById(id, withIdp = false) {
-    const queryPart = withIdp ? "?withIdp=true" : "";
-    return fetchJson(`/api/v1/organizations/find/${id}${queryPart}`);
+//attributePaths = {"organizationMemberships.user", "invitations.invitee", "joinRequests.user"}
+export function organizationUserManagementById(id) {
+    return fetchJson(`/api/v1/organizations/details/${id}`);
+}
+//attributePaths = {"applications.connections"}
+export function organizationApplicationsById(id) {
+    return fetchJson(`/api/v1/organizations/applications/${id}`);
+}
+//no extra attributes, but with the metadata from manage (if internal organization)
+export function organizationMineById(id) {
+    return fetchJson(`/api/v1/organizations/mine/${id}`);
+}
+//attributePaths = {"organizationMemberships.user"}
+export function organizationUsersById(id) {
+    return fetchJson(`/api/v1/organizations/users/${id}`);
+}
+//no extra relations fetched, just plain attributes
+export function organizationLightById(id) {
+    return fetchJson(`/api/v1/organizations/light/${id}`);
 }
 
 export function searchOrganizations(pagination = {}) {
@@ -133,16 +125,8 @@ export function pendingApprovalOrganizations() {
     return fetchJson("/api/v1/organizations/status/pending");
 }
 
-export function organizationUsersById(id) {
-    return fetchJson(`/api/v1/organizations/users/${id}`);
-}
-
 export function deleteOrganizationById(organizationId) {
     return fetchDelete(`/api/v1/organizations/${organizationId}`);
-}
-
-export function organizationLightById(id) {
-    return fetchJson(`/api/v1/organizations/light/${id}`);
 }
 
 export function organizationForInvitationById(id) {

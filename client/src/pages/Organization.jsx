@@ -5,7 +5,7 @@ import I18n from "../locale/I18n";
 import {Alert, AlertType, Button, Chip, ChipType, Loader} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router-dom";
-import {organizationById} from "../api/index.js";
+import {organizationApplicationsById} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import Divider from "../icons/divider.svg";
@@ -14,7 +14,12 @@ import CardView from "@surfnet/sds/icons/functional-icons/card-view.svg";
 import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
-import {authorities, currentUserMembershipAuthority, isOrganizationAdmin} from "../utils/Permissions.js";
+import {
+    authorities,
+    currentUserMembershipAuthority,
+    hasApplicationWriteAccess,
+    isOrganizationMember
+} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -42,7 +47,7 @@ const Organization = () => {
         if (isEmpty(organizationId)) {
             navigate("/home");
         } else {
-            organizationById(organizationId)
+            organizationApplicationsById(organizationId)
                 .then(res => {
                     res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                     setOrganization(res);
@@ -113,24 +118,28 @@ const Organization = () => {
             <div className="applications">
                 {organization.applications
                     .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))
-                    .map((application, index) =>
-                        <div key={index} className="first-application">
-                            <div
-                                className="application"
-                                onClick={() => navigate(`/connection/${application.id}`)}>
-                                {isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                                    <img src={application.logoUrl} alt={application.name}/>}
-                                <div className="application-info">
-                                    <h4>{application.name}</h4>
+                    .map((application, index) => {
+                        const readOnly = !hasApplicationWriteAccess(user, application);
+                        return (
+                            <div key={index} className="first-application">
+                                <div
+                                    className={`application ${readOnly ? "read-only" : ""}`}
+                                    onClick={() => !readOnly && navigate(`/connection/${application.id}`)}>
+                                    {isEmpty(application.logoUrl) ? <ImageNotFound/> :
+                                        <img src={application.logoUrl} alt={application.name}/>}
+                                    <div className="application-info">
+                                        <h4>{application.name}</h4>
+                                    </div>
+                                    {renderApplicationStatus(application)}
+                                    {!readOnly && <span className="navigation"><ArrowRight/></span>}
                                 </div>
-                                {renderApplicationStatus(application)}
-                                <span className="navigation"><ArrowRight/></span>
+                                {(index === 0 && currentUserAuthority !== authorities.GUEST) &&
+                                    <Button onClick={() => navigate("/application/new")}
+                                            txt={I18n.t("organization.addApplication")}/>}
                             </div>
-                            {(index === 0 && currentUserAuthority !== authorities.GUEST) &&
-                                <Button onClick={() => navigate("/application/new")}
-                                        txt={I18n.t("organization.addApplication")}/>}
-                        </div>
-                    )}
+                        )
+                    })
+                }
             </div>
         );
     }
@@ -140,6 +149,7 @@ const Organization = () => {
             {
                 nonSortable: true,
                 key: "icon",
+
                 header: "",
                 mapper: application => isEmpty(application.logoUrl) ? <ImageNotFound/> :
                     <img src={application.logoUrl} alt={application.name}/>
@@ -171,10 +181,11 @@ const Organization = () => {
                 defaultSort="name"
                 columns={columns}
                 hideTitle={true}
-                showNew={user.superUser || isOrganizationAdmin(user, organization)}
+                showNew={user.superUser || isOrganizationMember(user, organization)}
                 displaySearch={true}
                 searchAttributes={["name"]}
-                rowLinkMapper={(e, application) => navigate(`/connection/${application.id}`)}
+                rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(`/connection/${application.id}`)}
+                rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 newEntityFunc={() => navigate("/application/new")}
                 inputFocus={true}/>
         );

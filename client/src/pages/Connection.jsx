@@ -63,12 +63,8 @@ export const Connection = () => {
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                        {
-                            path: `/organization/${res.organization.id}`,
-                            value: res.organization.name,
-                            menuItemName: mainMenuItems.yourApps
-                        },
-                        {path: `/application/${applicationId}`, value: I18n.t("breadCrumb.applications")},
+                        {path: `/organization/${res.organization.id}`, value: I18n.t(`navigation.${mainMenuItems.yourApps}`),
+                            menuItemName: mainMenuItems.yourApps},
                         {value: res.name}
                     ]
                 });
@@ -256,18 +252,17 @@ export const Connection = () => {
 
     return (
         <div className="application-connection-container">
-            <ApplicationConnectionHeader tabs={tabNames.map(name => {
-                return {
+            <ApplicationConnectionHeader tabs={tabNames.map(name => ({
                     name: name,
                     disabled:
                         (name === "prod" && !testConnectionComplete) ||
                         (name === "application" && false) || //!testConnectionComplete) ||
                         (name === "contract" && false)//!productionConnectionComplete)
-                }
-            })}
+            }))}
                                          application={application}
                                          currentTab={currentTab}
                                          setLoading={setLoading}
+                                         user={user}
                                          setTab={changeTab}/>
             {renderCurrentTab()}
         </div>

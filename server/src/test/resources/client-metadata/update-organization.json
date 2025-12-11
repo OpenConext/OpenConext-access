@@ -1,0 +1,28 @@
+{
+  "contactPersons": [
+    {
+      "type": "support",
+      "email": "support@mock.org",
+      "id": "60b663db-1ce0-4921-830b-5cf1af763313"
+    },
+    {
+      "type": "technical",
+      "email": "technical@mock.org",
+      "id": "12ffc65b-c9ee-4789-8a47-d10528f63ae5"
+    },
+    {
+      "type": "administrative",
+      "email": "admin@mock.org",
+      "id": "300cef04-a917-4a99-b789-191c34d9be17"
+    },
+    {
+      "type": "technical",
+      "email": "weirdo@mock.org",
+      "id": "d69ae192-e77f-45aa-bff6-5bc72a2e484e"
+    }
+  ],
+  "keyWords": [
+    "dummy",
+    "mock"
+  ]
+}

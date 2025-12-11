@@ -5,13 +5,11 @@ import access.AccessCookieFilter;
 import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,6 +121,80 @@ class InvitationControllerTest extends AbstractMailTest {
         assertNotNull(invitationFromDB.getAcceptedAt());
     }
 
+    @SneakyThrows
+    @Test
+    void acceptWithInternalUser() {
+        this.stubForStats();
+        String sub = "urn:collab:person:idp-uu:internal_user";
+        //There will be an organization created JIT for this login
+        String authenticatingAuthority = "https://idp-uu";
+        String schacHomeOrganization = "idp.uu";
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", sub,
+                m -> {
+                    m.put("authenticating_authority", authenticatingAuthority);
+                    m.put("schac_home_organization", schacHomeOrganization);
+                    return m;
+                });
+        //Looku for identity provider by authenticating authority
+        stubForIdentityProviderByEntityId(authenticatingAuthority);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(User.class);
+        //User has been provisioned to organization authenticatingAuthority
+        assertEquals(1, user.getOrganizationMemberships().size());
+        Organization organization = user.getOrganizationMemberships().iterator().next().getOrganization();
+        assertEquals(schacHomeOrganization, organization.getSchacHomeOrganization());
+
+        //Now create an Application  for the new invitation
+        Application application = new Application("JIT", organization, "me", Map.of());
+        application = applicationRepository.save(application);
+
+        //Now create an invitation with this organization, and application memberships
+        String hash = UUID.randomUUID().toString();
+        Invitation invitation = new Invitation(
+                Language.en,
+                hash,
+                "some@new.ocm",
+                "Please",
+                Authority.GUEST,
+                organization,
+                userRepository.findBySubIgnoreCase(SUPER_SUB).get(),
+                Set.of(application)
+        );
+        invitation = invitationRepository.save(invitation);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new AcceptInvitation(invitation.getHash(), invitation.getId()))
+                .put("/api/v1/invitations/accept")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+        //Now call me endpoint to see if the application membership is added to this user's organization membership
+        Map<String, Object> userFromMe = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(new TypeRef<>() {
+                });
+        List<Map<String, Object>> organizationMemberships = (List<Map<String, Object>>) userFromMe.get("organizationMemberships");
+        assertEquals(1, organizationMemberships.size());
+        Map<String, Object> organizationMembership = organizationMemberships.getFirst();
+        List<Map<String, Object>> applicationMemberships = (List<Map<String, Object>>) organizationMembership.get("applicationMemberships");
+        assertEquals(1, applicationMemberships.size());
+        Map<String, Object> applicationMap = applicationMemberships.getFirst();
+        assertEquals(application.getId().intValue(), applicationMap.get("applicationIdentifier"));
+    }
+
     @Test
     void findByHash() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
@@ -182,7 +254,6 @@ class InvitationControllerTest extends AbstractMailTest {
         List<Invitation> invitations = invitationRepository.findByOrganization(organization);
         assertTrue(invitations.isEmpty());
     }
-
 
     @Test
     void resendInvitation() {

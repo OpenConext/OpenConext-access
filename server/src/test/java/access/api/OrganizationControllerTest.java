@@ -2,21 +2,21 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.model.EntityType;
-import access.model.Environment;
-import access.model.Organization;
-import access.model.OrganizationStatus;
+import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,8 +39,8 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/details/{id}")
                 .as(Organization.class);
 
-        assertEquals(1L, organization.getApplicationCount());
-        assertEquals(2L, organization.getMemberCount());
+        assertEquals(2L, organization.getApplicationCount());
+        assertEquals(3L, organization.getMemberCount());
         assertEquals(2, organization.getJoinRequests().size());
         assertEquals(1, organization.getInvitations().size());
     }
@@ -76,8 +76,8 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/light/{id}")
                 .as(Organization.class);
 
-        assertEquals(2, organization.getMemberCount());
-        assertEquals(1L, organization.getApplicationCount());
+        assertEquals(3, organization.getMemberCount());
+        assertEquals(2L, organization.getApplicationCount());
         assertNull(organization.getApplications());
     }
 
@@ -85,7 +85,7 @@ class OrganizationControllerTest extends AbstractTest {
     void users() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
-        Map<String, Object> res = given()
+        Map<String, Object> organization = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
@@ -95,7 +95,10 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/users/{id}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, List.class.cast(res.get("organizationMemberships")).size());
+        assertEquals(3, List.class.cast(organization.get("organizationMemberships")).size());
+        assertNull(organization.get("applications"));
+        assertNull(organization.get("invitations"));
+        assertNull(organization.get("joinRequests"));
     }
 
     @Test
@@ -112,7 +115,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/invitation/{id}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, ((List) map.get("applications")).size());
+        assertEquals(2, ((List) map.get("applications")).size());
         assertEquals(SHARE_LOGICS, map.get("name"));
     }
 
@@ -295,8 +298,8 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/mine/{id}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, ((List)organization.get("changeRequests")).size());
-        assertEquals(11, ((Map)organization.get("metaData")).size());
+        assertEquals(2, ((List) organization.get("changeRequests")).size());
+        assertEquals(11, ((Map) organization.get("metaData")).size());
         assertNull(organization.get("applications"));
         assertNull(organization.get("invitations"));
         assertNull(organization.get("joinRequests"));
@@ -320,14 +323,162 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/applications/{id}")
                 .as(new TypeRef<>() {
                 });
-        System.out.println(organization);
-        //Assert that there is 1 application, 2 connections and the PROD connection has changerequests
-//        assertEquals(2, ((List)organization.get("changeRequests")).size());
-//        assertEquals(11, ((Map)organization.get("metaData")).size());
-//        assertNull(organization.get("applications"));
-//        assertNull(organization.get("invitations"));
-//        assertNull(organization.get("joinRequests"));
-//        assertNull(organization.get("organizationMemberships"));
+        //Assert that there are 2 applications, BuddyCheck has 2 connections and the PROD connection has change requests
+        List<Map<String, Object>> applications = (List) organization.get("applications");
+        assertEquals(2, applications.size());
+        assertEquals(0, ((Map) organization.get("metaData")).size());
+
+        Map<String, Object> buddyCheckApp = applications.stream().filter(app -> app.get("name").equals(BUDDY_CHECK))
+                .findFirst().get();
+        List<Map<String, Object>> connections = (List<Map<String, Object>>) buddyCheckApp.get("connections");
+        Map<String, Object> buddyCheckProd = connections.stream().filter(conn -> conn.get("environment").equals(Environment.PROD.name()))
+                .findFirst().get();
+        List<Map<String, Object>> changeRequests = (List<Map<String, Object>>) buddyCheckProd.get("changeRequests");
+        assertEquals(2, changeRequests.size());
     }
 
+    @Test
+    void organizationWithApplicationsScopedForGuest() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+
+        //See seed for SHARE_LOGICS, which has a production connection
+        stubForGetChangeRequests(getChangeRequests());
+
+        Map<String, Object> organization = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/applications/{id}")
+                .as(new TypeRef<>() {
+                });
+        //Assert that there are 2 applications, BuddyCheck has 2 connections and the PROD connection has change requests
+        List<Map<String, Object>> applications = (List) organization.get("applications");
+        //The application Techno has been removed because of Guest status
+        assertEquals(1, applications.size());
+    }
+
+    @Test
+    void organizationWithApplicationsNotFound() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", -1)
+                .get("/api/v1/organizations/applications/{id}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void organizationWithApplicationsForBidden() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+        Long farWindIdentifier = seedIdentifiers.get(FAR_WIND);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", farWindIdentifier)
+                .get("/api/v1/organizations/applications/{id}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateExternalOrganization() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Long organizationId = seedIdentifiers.get(FAR_WIND);
+
+        OrganizationForm organizationForm = new OrganizationForm(organizationId, "Changed", Map.of());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(organizationForm)
+                .put("/api/v1/organizations/")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        Organization organization = organizationRepository.findById(organizationId).get();
+        assertEquals(organizationForm.getName(), organization.getName());
+    }
+
+    @Test
+    void updateInternalOrganizationNotAllow() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Long organizationId = seedIdentifiers.get(LOGISTICS);
+
+        OrganizationForm organizationForm = new OrganizationForm(organizationId, "Changed", Map.of());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(organizationForm)
+                .put("/api/v1/organizations/")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @SneakyThrows
+    @Test
+    void updateInternalOrganizationMetaData() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Long organizationId = seedIdentifiers.get(LOGISTICS);
+        Map<String, Object> metaData = objectMapper.readValue(new ClassPathResource("/client-metadata/update-organization.json").getInputStream(), Map.class);
+
+        stubForGetProvider(EntityType.saml20_idp, "8", Environment.PROD);
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody("{}")
+                        .withStatus(200)));
+
+
+        Map<String, Object> organization = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(metaData)
+                .pathParam("organizationId", organizationId)
+                .put("/api/v1/organizations/metadata/{organizationId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(metaData, organization.get("metaData"));
+    }
+
+    @Test
+    void updateExternalOrganizationMetaDataNotAllow() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Long organizationId = seedIdentifiers.get(FAR_WIND);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of())
+                .pathParam("organizationId", organizationId)
+                .put("/api/v1/organizations/metadata/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
 }

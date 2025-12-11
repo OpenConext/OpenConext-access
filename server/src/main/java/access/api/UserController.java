@@ -94,17 +94,19 @@ public class UserController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
-        boolean isExternalUser = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
-        //TODO check if there organization memberships for internal IdP's - this means the user is not external????
-        userFromDB.setExternalUser(isExternalUser);
-        if (!isExternalUser) {
+        boolean isExternalUserFromSchacHome = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
+        userFromDB.setExternalUser(isExternalUserFromSchacHome);
+        if (!isExternalUserFromSchacHome) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
             String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
             Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
+            String manageIdentifier = (String) identityProvider.get("_id");
             userFromDB.setIdentityProvider(identityProvider);
             // Provision the user into the organization, if no organization is created yet, create it on the fly
-            if (userFromDB.getOrganizationMemberships().isEmpty()) {
-                Optional<Organization> organizationOptional = organizationRepository.findBySchacHomeOrganization(schacHomeOrganization);
+            if (userFromDB.getOrganizationMemberships().stream()
+                    .noneMatch(organizationMembership -> organizationMembership.getOrganization()
+                            .getManageIdentifier().equals(manageIdentifier))) {
+                Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
                 Institution institution = (Institution) oidcUser.getUserInfo().getClaims().getOrDefault(InstitutionAdmin.INSTITUTION, null);
                 userFromDB.setInstitution(institution);
                 Authority authority = userFromDB.isInstitutionAdmin() && institution != null ? Authority.ADMIN : Authority.MEMBER;
@@ -114,7 +116,6 @@ public class UserController implements UserAccessRights {
                         }, () -> {
                             Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;
                             String organizationName = String.format("%s (%s)", institutionForOrg.getName(), institutionForOrg.getOrganizationName());
-                            String manageIdentifier = (String) identityProvider.get("_id");
                             Integer manageVersion = (Integer) identityProvider.get("version");
                             Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
                             //Organizations created based on the IdP's in Manage are approved automatically

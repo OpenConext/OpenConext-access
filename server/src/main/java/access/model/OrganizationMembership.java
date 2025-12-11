@@ -42,7 +42,7 @@ public class OrganizationMembership implements NameHolder {
     @NotNull
     private Authority authority = Authority.MEMBER;
 
-    @OneToMany(mappedBy = "organizationMembership", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "organizationMembership", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<ApplicationMembership> applicationMemberships = new HashSet<>();
 
     @Transient

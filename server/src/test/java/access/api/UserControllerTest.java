@@ -273,7 +273,7 @@ class UserControllerTest extends AbstractTest {
         assertEquals(1, user.getOrganizationMemberships().size());
 
         OrganizationMembership organizationMembership = user.getOrganizationMemberships().iterator().next();
-        assertEquals("Mock IdP EN (SURF bv)", organizationMembership.getOrganization().getName());
+        assertEquals("ShareLogics", organizationMembership.getOrganization().getName());
         assertEquals(Authority.ADMIN, organizationMembership.getAuthority());
 
         Institution institution = user.getInstitution();
@@ -299,17 +299,8 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, ((List) results.get("content")).size());
+        assertEquals(5, ((List) results.get("content")).size());
     }
 
-    @SneakyThrows
-    protected void stubForStats() {
-        Map<String, Long> stats = Map.of();
-        String body = objectMapper.writeValueAsString(stats);
-        stubFor(get("/manage/api/internal/stats")
-                .willReturn(aResponse().withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                        .withStatus(200)));
-    }
 
 }
