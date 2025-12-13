@@ -1,4 +1,6 @@
 //Deliberate design choice to have a different format on the server to have all complex data in the metaData attribute
+import {isEmpty} from "./Utils.js";
+
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
 
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
@@ -58,7 +60,8 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
     const motivations = additionalAttributesUrns
         .reduce((acc, urn) => {
             const attribute = additionalAttributes.find(attr => attr.urn === urn);
-            acc[attribute.name] = attributes[urn][0].motivation;
+            const attrMotivation = attributes[urn][0].motivation;
+            acc[attribute.name] = isEmpty(attrMotivation) ? `Need ${attribute.name}` : attrMotivation;
             return acc;
         }, {})
     const profileOption = profileOptions.find(option => option.value === profile);

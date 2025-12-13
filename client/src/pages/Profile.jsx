@@ -4,7 +4,7 @@ import "./Profile.scss";
 import I18n from "../locale/I18n";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button, ButtonType, Checkbox, Tooltip} from "@surfnet/sds";
 import {dateFromEpoch} from "../utils/Date.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {deleteUser, logout} from "../api/index.js";
@@ -61,6 +61,10 @@ const Profile = ({setIsAuthenticated}) => {
     }
 
     const {open, cancel, action, question, okButton} = confirmation;
+    const applicationMemberships = (user.organizationMemberships || [])
+        .map(orgMembership => orgMembership.applicationMemberships)
+        .flat();
+    const externalUser = user.externalUser;
     return (
         <div
             className="profile-outer-container">
@@ -104,10 +108,49 @@ const Profile = ({setIsAuthenticated}) => {
                         )}
 
                     {!isEmpty(user.organizationMemberships) &&
-                        <InputField name={I18n.t("profile.organization")}
-                                    value={user.organizationMemberships.map(m => m.organization.name).join(", ")}
-                                    noInput={true}
-                        />}
+                        <div className="multi-list">
+                            <p>{I18n.t(`profile.organization${user.organizationMemberships.length > 1 ? "Multiple" : ""}`)}</p>
+                            <ul>
+                                {user.organizationMemberships.map((orgMembership, index) =>
+                                    <li key={index}>
+                                        <span> {`${orgMembership.organization.name}`}
+                                            <em> {" - " + I18n.t(`roles.${orgMembership.authority.toLowerCase()}`)}</em>
+                                        </span>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>}
+                    {!isEmpty(applicationMemberships) &&
+                        <div className="multi-list">
+                            <p>{I18n.t(`profile.application${applicationMemberships.length > 1 ? "Multiple" : ""}`)}</p>
+                            <ul>
+                                {applicationMemberships.map((appMembership, index) =>
+                                    <li key={index}>
+                                        <span> {`${appMembership.applicationName}`}
+                                            <em> {" - " + I18n.t(`roles.${appMembership.authority.toLowerCase()}`)}</em>
+                                        </span>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>}
+                    {externalUser &&
+                        <div className="multi-list">
+                        <div className="external-user-container">
+                            <p>{I18n.t("profile.externalUser")}</p>
+                            <Tooltip tip={I18n.t("profile.externalUserTooltip")}/>
+                        </div>
+                        <Checkbox value={externalUser}
+                                  readOnly={true}/>
+                    </div>}
+                    {!externalUser &&
+                        <div className="multi-list">
+                            <div className="external-user-container">
+                                <p>{I18n.t("profile.internalUser")}</p>
+                                <Tooltip tip={I18n.t("profile.internalUserTooltip")}/>
+                            </div>
+                            <Checkbox value={!externalUser}
+                                      readOnly={true}/>
+                        </div>}
                 </div>
                 <div className="delete-container">
                     <Button onClick={e => doDelete(e, true)}

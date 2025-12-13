@@ -25,21 +25,24 @@ export const mainMenuItems = {
 }
 
 export const menuItemsForUser = user => {
-    //Every user has access to the help menu items
+    //Every user has access to the home, catalogue and help menu items
     const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk, mainMenuItems.feedback];
     const noOrganizationMemberships = isEmpty(user.organizationMemberships);
     if (noOrganizationMemberships) {
         return newMenuItems;
     }
-    //Guest with no application membership
-    newMenuItems.push(mainMenuItems.idp);
-    const emptyGuests = user.organizationMemberships.every(m => m.autority === authorities.GUEST && isEmpty(m.applicationMemberships));
-    if (emptyGuests) {
+    //If there is at least one organizationMembership, then we show yourApps
+    newMenuItems.push(mainMenuItems.yourApps);
+    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST);
+    if (onlyGuest) {
         return newMenuItems;
     }
-    newMenuItems.push(mainMenuItems.yourApps, mainMenuItems.users, mainMenuItems.accessibleApps, );
+    const isMember = user.organizationMemberships.some(m => m.authority === authorities.MEMBER);
+    if (isMember) {
+        newMenuItems.push(mainMenuItems.users);
+    }
     if (!user.externalUser) {
-        newMenuItems.push(mainMenuItems.invite, mainMenuItems.sram);
+        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
     return newMenuItems;
 }

@@ -5,7 +5,6 @@ import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {organizationUserManagementById} from "../api/index.js";
-import {convertServerApplicationToClient} from "../utils/Application.js";
 import {TeamManagement} from "./TeamManagement.jsx";
 import {currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {JoinRequestManagement} from "./JoinRequestManagement.jsx";
@@ -35,7 +34,6 @@ export const UserManagement = () => {
         } else {
             organizationUserManagementById(organizationId)
                 .then(res => {
-                    res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                     setOrganization(res);
                     useAppStore.setState({
                         currentOrganization: res,

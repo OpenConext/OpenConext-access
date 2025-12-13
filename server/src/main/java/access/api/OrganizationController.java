@@ -203,9 +203,8 @@ public class OrganizationController implements UserAccessRights {
     @GetMapping("/invitation/{id}")
     public ResponseEntity<Organization> name(@PathVariable("id") Long id) {
         LOG.debug("/name");
-        Organization organization = organizationRepository.findById(id)
+        Organization organization = organizationRepository.findApplicationsOrganizationById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
-        Hibernate.initialize(organization.getApplications());
         return ResponseEntity.ok(organization);
     }
 

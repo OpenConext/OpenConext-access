@@ -41,14 +41,11 @@ public class InstitutionAdmin {
         if (attributes.containsKey("eduperson_entitlement")) {
             List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
             final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();
-            Optional<String> optionalOrganizationGuid = entitlements.stream()
+            return entitlements.stream()
                     .filter(entitlement -> entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))
                     .map(entitlement -> entitlement.substring(organizationGuidPrefix.length()))
                     .filter(StringUtils::hasText)
                     .findFirst();
-            if (optionalOrganizationGuid.isPresent()) {
-                return optionalOrganizationGuid.filter(StringUtils::hasText);
-            }
         }
         return optionalUser.map(User::getOrganizationGUID)
                 .filter(StringUtils::hasText);

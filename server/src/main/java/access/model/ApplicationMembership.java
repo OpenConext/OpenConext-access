@@ -63,6 +63,16 @@ public class ApplicationMembership implements NameHolder {
         return null;
     }
 
+    //We need info, about the application
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "applicationName")
+    public String getApplicationName() {
+        Application application = getApplication();
+        if (application != null && Hibernate.isInitialized(application)) {
+            return application.getName();
+        }
+        return null;
+    }
+
     @JsonProperty(value = "organizationMembershipIdentifier", access = JsonProperty.Access.READ_ONLY)
     public Long getOrganizationMembershipInfo() {
         OrganizationMembership organizationMembership = this.getOrganizationMembership();

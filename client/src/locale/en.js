@@ -1000,8 +1000,14 @@ const en = {
         delete: "Delete",
         deleteConfirmation: "Are you sure you want to remove your account? This action is not reversible.",
         attributes: "Attributes",
-        organization: "Organization(s)",
-
+        organization: "Organization membership",
+        application: "Application membership",
+        organizationMultiple: "Organization memberships",
+        applicationMultiple: "Application memberships",
+        externalUser: "External user",
+        externalUserTooltip: "An external user - as opposed to an internal user - is a user who only has an eduID account and not an institutional account.",
+        internalUser: "Internal user",
+        internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account."
     }
 }
 

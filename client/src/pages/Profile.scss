@@ -23,6 +23,25 @@ div.profile-outer-container {
 
     }
 
+    div.multi-list {
+        p {
+            font-weight: 600;
+            margin: 12px 0 var(--sds--space--1);
+        }
+        ul {
+            list-style: initial;
+            li {
+                margin-left: 15px;
+            }
+        }
+        .external-user-container {
+            display: flex;
+        }
+        .sds--checkbox-container {
+            margin-left: 4px;
+        }
+    }
+
     div.user-container {
         background-color: white;
         display: grid;
@@ -32,7 +51,7 @@ div.profile-outer-container {
         grid-template-columns: [first] 1fr [second] 1fr;
 
         h5 {
-                grid-column: 1 / -1;
+            grid-column: 1 / -1;
         }
     }
 

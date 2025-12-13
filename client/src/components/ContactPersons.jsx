@@ -17,6 +17,7 @@ export const ContactPersons = ({
                                    setFocusedId,
                                    inputRef,
                                    initial,
+                                   readOnly = false
                                }) => {
 
 
@@ -53,7 +54,8 @@ export const ContactPersons = ({
         <section className="inner-right">
             <h3>{I18n.t("connection.contacts.label")}</h3>
             <p>{I18n.t("connection.contacts.info", {
-                example: emailPlaceholder("support", application?.organization?.name || application.name, I18n.t("forms.or"))})}</p>
+                example: emailPlaceholder("support", application?.organization?.name || application.name, I18n.t("forms.or"))
+            })}</p>
             {Object.keys(contactPersonsGrouped).map((contactType, index) =>
                 <section key={index} className="contact-person-section">
                     <h4>{I18n.t(`connection.contacts.${contactType}`)}</h4>
@@ -68,9 +70,10 @@ export const ContactPersons = ({
                                             I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
                                             I18n.t("forms.or")
                                         )}
+                                        disabled={readOnly}
                                         onChange={e => updateContactPerson(contactPerson.id, e)}
                                         onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
-                                        button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0) ?
+                                        button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0 && !readOnly) ?
                                             <Button onClick={() => removeContactPerson(contactPerson.id)}
                                                     type={ButtonType.Delete}/> : null}
                             />

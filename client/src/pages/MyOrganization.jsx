@@ -12,7 +12,7 @@ import "./MyOrganization.scss";
 import I18n from "../locale/I18n";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
-import {isOrganizationAdmin} from "../utils/Permissions.js";
+import {authorities, isOrganizationAdmin} from "../utils/Permissions.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
@@ -45,6 +45,11 @@ const MyOrganization = ({refreshUser}) => {
     const inputRef = useRef(null);
 
     const navigate = useNavigate();
+
+    const adminUser = useMemo(() => {
+        return user.superUser || user.organizationMemberships
+            .some(om => om.authority === authorities.ADMIN && om.organization.id === organizationId);
+    }, [user, organizationId]);
 
     useEffect(() => {
         if (isEmpty(organizationId)) {
@@ -114,7 +119,8 @@ const MyOrganization = ({refreshUser}) => {
                                setFocusedId={setFocusedId}
                                focusedId={focusedId}
                                inputRef={inputRef}
-                               initial={initial}/>
+                               initial={initial}
+                               readOnly={!adminUser}/>
     }
 
     const changeKeyWords = options => {
@@ -141,6 +147,7 @@ const MyOrganization = ({refreshUser}) => {
                              }))}
                              onChange={changeKeyWords}
                              isMulti={true}
+                             disabled={!adminUser}
                              creatable={true}
                 />
                 <p className="info">{I18n.t("myOrganization.keyWordsInfo")}</p>
@@ -154,6 +161,7 @@ const MyOrganization = ({refreshUser}) => {
                 <h3>{I18n.t("myOrganization.generalInformation")}</h3>
                 <InputField name={I18n.t("myOrganization.name")}
                             value={organization.name}
+                            disabled={!adminUser}
                             onChange={e => setOrganization({...organization, name: e.target.value})}/>
             </section>
         )
@@ -203,9 +211,7 @@ const MyOrganization = ({refreshUser}) => {
                 });
 
         }
-
     }
-
 
     const renderCurrentSection = () => {
         switch (section) {
@@ -253,7 +259,7 @@ const MyOrganization = ({refreshUser}) => {
                         {renderCurrentSection()}
                     </div>
                 </div>
-                {section !== sections.delete &&
+                {(section !== sections.delete && adminUser) &&
                     <div className="actions proceed">
                         <Button onClick={() => externalUser ? saveExternalOrganization() : saveInternalOrganization()}
                                 disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}

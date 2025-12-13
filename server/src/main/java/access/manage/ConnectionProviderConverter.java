@@ -11,8 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.*;
 
 @SuppressWarnings("unchecked")
 public class ConnectionProviderConverter {
@@ -298,7 +297,7 @@ public class ConnectionProviderConverter {
     }
 
     private void putIf(Map<String, Object> result, String key, Object value) {
-        if ((value instanceof String && StringUtils.hasText((String) value)) || value != null) {
+        if (!isEmpty(value)) {
             result.put(key, value);
         }
     }
