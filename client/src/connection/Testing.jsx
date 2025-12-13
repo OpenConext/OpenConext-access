@@ -1039,7 +1039,7 @@ export const Testing = ({
                                                 <ErrorIndicator
                                                     msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
                                                 />}
-                                            {(selected && arpAttribute.scopedValue) &&
+                                            {(selected && arpAttribute.scopedValue && defaultArpValue) &&
                                                     <Alert alertType={AlertType.Warning}
                                                             asChild={false}
                                                             message={I18n.t("connection.informational.scopedValueAttributeDisclaimer")}/>
