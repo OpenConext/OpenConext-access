@@ -35,7 +35,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/details/{id}")
                 .as(Organization.class);
 
@@ -72,7 +72,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/light/{id}")
                 .as(Organization.class);
 
@@ -91,7 +91,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/users/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -111,7 +111,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/invitation/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -129,7 +129,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/details/{id}")
                 .then()
                 .statusCode(403);
@@ -294,7 +294,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/mine/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -319,7 +319,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/applications/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -350,7 +350,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", seedIdentifiers.get(SHARE_LOGICS))
+                .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/applications/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -370,7 +370,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", -1)
+                .pathParam("id", -1)
                 .get("/api/v1/organizations/applications/{id}")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
@@ -386,7 +386,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParams("id", farWindIdentifier)
+                .pathParam("id", farWindIdentifier)
                 .get("/api/v1/organizations/applications/{id}")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
