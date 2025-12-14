@@ -4,6 +4,7 @@ import access.AbstractTest;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.State;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,11 +85,27 @@ class RemoteManageTest extends AbstractTest {
         assertEquals(3, remoteIdentityProviders.size());
     }
 
+    @Test
+    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+        List<Connection> connections = List.of(
+                connection(EntityType.saml20_sp, "4"),
+                connection(EntityType.oidc10_rp, "5")
+        );
+        List<Map<String, Object>> identityProviders = localManage.identityProvidersByAllowedConnections(connections);
+        String body = objectMapper.writeValueAsString(identityProviders);
+        stubFor(post(urlPathMatching("/manage/api/internal/delete-consequences")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        List<Map<String, Object>> remoteIdentityProviders = manage.identityProvidersByAllowedConnections(connections);
+        assertEquals(identityProviders, remoteIdentityProviders);
+    }
 
     private Connection connection(EntityType entityType, String manageIdentifier) {
         Connection connection = new Connection();
         connection.setManageIdentifier(manageIdentifier);
         connection.setProtocol(entityType);
+        connection.setEnvironment(Environment.PROD);
+        connection.setState(State.prodaccepted);
         return connection;
     }
 }

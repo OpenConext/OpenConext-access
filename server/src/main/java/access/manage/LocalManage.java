@@ -92,7 +92,7 @@ public final class LocalManage implements Manage {
     public Map<String, Object> saveIdentityProvider(Organization organization) {
         Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
         Map<String, Object> data = getData(provider);
-        Map<String, Object> metaDataFields = getMetaDataFields (data);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
         converter.convertContactPersons(organization.getMetaData(), metaDataFields);
         return provider;
     }
@@ -193,7 +193,7 @@ public final class LocalManage implements Manage {
         return this.allProviders.get(EntityType.saml20_idp).stream()
                 .filter(provider -> {
                     Map<String, Object> data = getData(provider);
-                    Map<String, Object> metaDataFields = getMetaDataFields (data);
+                    Map<String, Object> metaDataFields = getMetaDataFields(data);
                     return organisationGUID.equalsIgnoreCase((String) metaDataFields.get("coin:institution_guid"));
                 })
                 .toList();
@@ -219,5 +219,27 @@ public final class LocalManage implements Manage {
                         entityType -> entityType.name(),
                         entityType -> this.allProviders.get(entityType).size()));
 
+    }
+
+    @Override
+    public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
+        List<String> entityIdentifiers = connections.stream()
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
+                        connection.getEnvironment().equals(Environment.PROD))
+                .map(connection -> {
+                    Map<String, Object> provider = this.providerById(connection);
+                    Map<String, Object> data = (Map<String, Object>) provider.get("data");
+                    return (String) data.get("entityid");
+                })
+                .toList();
+        return this.allProviders.get(EntityType.saml20_idp).stream()
+                .filter(idp -> {
+                    Map<String, Object> data = (Map<String, Object>) idp.get("data");
+                    List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of());
+                    return allowedEntities.stream()
+                            .map(m -> m.get("name"))
+                            .anyMatch(entityIdentifiers::contains);
+                })
+                .toList();
     }
 }

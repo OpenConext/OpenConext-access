@@ -1,10 +1,7 @@
 package access.manage;
 
 import access.exception.NotFoundException;
-import access.model.Connection;
-import access.model.EntityType;
-import access.model.Environment;
-import access.model.Organization;
+import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -329,6 +326,22 @@ public class RemoteManage implements Manage {
                 EntityType.saml20_idp.name());
         return environmentRestTemplate(Environment.PROD)
                 .getForEntity(url, Map.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
+        List<Map<String, String>> body = connections.stream()
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
+                        connection.getEnvironment().equals(Environment.PROD) &&
+                        connection.getState().equals(State.prodaccepted))
+                .map(connection -> Map.of("id", connection.getManageIdentifier(),
+                        "type", connection.getProtocol().name()))
+                .toList();
+
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/delete-consequences",
+                environmentUrl(Environment.PROD));
+        return restTemplate.postForEntity(URI.create(url), body,List.class).getBody();
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
