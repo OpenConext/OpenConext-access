@@ -3,13 +3,7 @@ import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
 import {updateApplication} from "../api/index.js";
-import {
-    contactSectionValid,
-    convertClientApplicationToServer,
-    convertServerApplicationToClient,
-    logoSectionValid,
-    privacySectionValid
-} from "../utils/Application.js";
+import {convertClientApplicationToServer, convertServerApplicationToClient} from "../utils/Application.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import ContractSignedIcon from "../icons/undraw/contract_signed.svg";
 
@@ -20,7 +14,6 @@ export const Contract = ({
                              refresh,
                              protocolOptions,
                              profileOptions,
-                             privacyInfo,
                              arpInfo
                          }) => {
 
@@ -52,8 +45,7 @@ export const Contract = ({
         return <Loader/>
     }
 
-    const maySignContract = logoSectionValid(application) && contactSectionValid(application)
-        && privacySectionValid(privacyInfo, application);
+    const maySignContract = true;
 
     return (
         <div className="contract-container">

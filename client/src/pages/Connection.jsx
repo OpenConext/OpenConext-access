@@ -232,7 +232,6 @@ export const Connection = () => {
                                  refresh={refresh}
                                  protocolOptions={protocolOptions}
                                  profileOptions={profileOptions}
-                                 privacyInfo={privacy}
                                  arpInfo={arp}
                 />
             }
