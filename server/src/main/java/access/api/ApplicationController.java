@@ -206,4 +206,16 @@ public class ApplicationController implements UserAccessRights {
 
         return deleteResult();
     }
+
+    @GetMapping("/identity-providers-allowed-connections/{applicationId}")
+    public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
+                                                                                           @PathVariable("applicationId") Long applicationId) {
+        LOG.debug("/identityProvidersByAllowedConnections by: "+user.getEmail());
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+        List<Connection> connections = new ArrayList<>(application.getConnections());
+        List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(connections);
+        return ResponseEntity.ok(identityProviders);
+    }
+
 }

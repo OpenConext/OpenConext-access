@@ -216,6 +216,17 @@ public class ConnectionController implements UserAccessRights {
         return deleteResult();
     }
 
+    @GetMapping("/identity-providers-allowed-connections/{connectionId}")
+    public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
+                                                                                           @PathVariable("connectionId") Long connectionId) {
+        LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new NotFoundException("Connection not found"));
+        List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(List.of(connection));
+        return ResponseEntity.ok(identityProviders);
+    }
+
+
     @SuppressWarnings("unchecked")
     private Connection productionReadyChangeRequests(Connection connection, User user) {
         Environment environment = connection.getEnvironment();
@@ -270,7 +281,7 @@ public class ConnectionController implements UserAccessRights {
             if (isPrivateRelyingParty) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
                 Map<String, Object> data = getData(provider);
-                Map<String, Object> metaDataFields = getMetaDataFields (data);
+                Map<String, Object> metaDataFields = getMetaDataFields(data);
                 String secretFromManage = (String) metaDataFields.get("secret");
                 if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
                     String originalSecret = (String) connection.getMetaData().get("secret");

@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -311,6 +312,20 @@ public class OrganizationController implements UserAccessRights {
         organizationRepository.deleteOrganizationById(organizationId);
 
         return deleteResult();
+    }
+
+    @GetMapping("/identity-providers-allowed-connections/{organizationId}")
+    public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
+                                                                                   @PathVariable("organizationId") Long organizationId) {
+        LOG.debug("/identityProvidersByAllowedConnections by: "+user.getEmail());
+        Organization organization = organizationRepository.findApplicationsOrganizationById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organisation not found"));
+        List<Connection> connections = organization.getApplications().stream()
+                .map(Application::getConnections)
+                .flatMap(Collection::stream)
+                .toList();
+        List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(connections);
+        return ResponseEntity.ok(identityProviders);
     }
 
     private Organization createOrganization(User user, String name) {

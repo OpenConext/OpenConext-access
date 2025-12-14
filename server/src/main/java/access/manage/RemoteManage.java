@@ -334,7 +334,8 @@ public class RemoteManage implements Manage {
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
                         connection.getEnvironment().equals(Environment.PROD) &&
                         connection.getState().equals(State.prodaccepted))
-                .map(connection -> Map.of("id", connection.getManageIdentifier(),
+                .map(connection -> Map.of(
+                        "id", connection.getManageIdentifier(),
                         "type", connection.getProtocol().name()))
                 .toList();
 
