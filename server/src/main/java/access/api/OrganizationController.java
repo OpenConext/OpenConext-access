@@ -309,6 +309,12 @@ public class OrganizationController implements UserAccessRights {
         user = this.reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
+        organization.getApplications().stream()
+                .map(Application::getConnections)
+                .flatMap(Collection::stream)
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+                .forEach(connection -> manage.deleteProvider(connection));
+
         organizationRepository.deleteOrganizationById(organizationId);
 
         return deleteResult();

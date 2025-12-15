@@ -94,6 +94,7 @@ export function searchUsers(pagination = {}) {
 export function feedback(message) {
     return postPutJson("/api/v1/users/feedback", {message: message}, "POST");
 }
+//Organizations
 
 //attributePaths = {"organizationMemberships.user", "invitations.invitee", "joinRequests.user"}
 export function organizationUserManagementById(id) {
@@ -149,6 +150,10 @@ export function updateOrganizationMetaData(organizationId, metaData) {
     return postPutJson(`/api/v1/organizations/metadata/${organizationId}`, metaData, "PUT");
 }
 
+export function identityProvidersByUsedConnectionsForOrganization(organizationId) {
+    return fetchJson(`/api/v1/organizations/identity-providers-allowed-connections/${organizationId}`);
+}
+
 //JoinRequest
 export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");
@@ -184,6 +189,10 @@ export function updateApplication(application) {
     return postPutJson("/api/v1/applications", application, "PUT");
 }
 
+export function identityProvidersByUsedConnectionsForApplication(applicationId) {
+    return fetchJson(`/api/v1/applications/identity-providers-allowed-connections/${applicationId}`);
+}
+
 //Application memberships
 export function deleteApplicationMembershipById(applicationMembership) {
     return fetchDelete(`/api/v1/application_memberships/${applicationMembership.id}`);
@@ -195,6 +204,10 @@ export function createApplicationMembership(organizationMembershipId, applicatio
 }
 
 //Manage
+export function revokeChangeRequest(changeRequest) {
+    return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
+}
+
 export function parseMedaData(xml) {
     return postPutJson("/api/v1/manage/parse", {xml: xml}, "POST");
 }
@@ -244,10 +257,9 @@ export function requestConnectionProductionStatus(connectionId) {
     return postPutJson(`/api/v1/connections/request-production-status/${connectionId}`, {}, "PUT");
 }
 
-export function revokeChangeRequest(changeRequest) {
-    return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
+export function identityProvidersByUsedConnection(connectionId) {
+    return fetchJson(`/api/v1/connections/identity-providers-allowed-connections/${connectionId}`);
 }
-
 
 //OrganizationMemberships
 export function changeOrganizationMembershipById(organizationMembership, authority) {

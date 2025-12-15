@@ -1,20 +1,23 @@
 import I18n from "../locale/I18n";
 import "./ApplicationConnectionHeader.scss"
-import {stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent} from "../utils/Utils.js";
 import MenuIcon from "../icons/menu.svg";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {deleteApplicationById} from "../api/index.js";
+import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import {Chip, ChipType} from "@surfnet/sds";
+import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
+import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 
-export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab, setLoading}) => {
+export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
+    const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -33,15 +36,23 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
     const doDelete = (e, confirmationRequired) => {
         stopEvent(e);
         if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(null, false),
-                question: I18n.t("application.deleteConfirmation", {name: application.name}),
-                okButton: I18n.t("forms.delete")
-            });
+            setLoading(true);
+            //First, fetch all the possible identityProvers affected by the deletion of this application
+            identityProvidersByUsedConnectionsForApplication(application.id)
+                .then(res => {
+                    setLoading(false);
+                    setAffectedIdentityProviders(res);
+                    setConfirmation({
+                        open: true,
+                        cancel: () => setConfirmation({open: false}),
+                        action: () => doDelete(null, false),
+                        question: I18n.t("application.deleteConfirmation", {name: application.name}),
+                        okButton: I18n.t(isEmpty(res) ? "forms.delete" : "forms.deleteAnyway")
+                    });
+                })
         } else {
             setLoading(true);
+            setAffectedIdentityProviders([]);
             deleteApplicationById(application.id).then(() => {
                 setConfirmation({});
                 navigate("/home");
@@ -71,6 +82,11 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
             </div>
         )
     }
+
+    if (loading) {
+        return <Loader/>
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
     return (
         <div className="application-connection-header-container">
@@ -78,6 +94,11 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
                                          cancel={cancel}
                                          confirmationHeader={I18n.t("forms.delete")}
                                          confirmationTxt={okButton}
+                                         isDeleteAction={true}
+                                         children={<ConnectionInUseWarning
+                                             identityProviders={affectedIdentityProviders}
+                                             unit={units.application}
+                                             applicationName={application.name}/>}
                                          question={question}
             />}
 
@@ -98,7 +119,6 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
             </div>
 
             <div className="tabs-menu">
-
                 {tabs.map(tab => <a key={tab.name}
                                     href={`/${tab.name}`}
                                     className={tab.name === currentTab ? "active" : tab.disabled ? "disabled" : ""}

@@ -28,6 +28,7 @@ import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
     getConnectionById,
+    identityProvidersByUsedConnection,
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
@@ -64,6 +65,7 @@ import {ConnectionAlert} from "./ConnectionAlert.jsx";
 import {createAndClickLink} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";
 import {useShallow} from "zustand/react/shallow";
+import {ConnectionInUseWarning, units} from "./ConnectionInUseWarning.jsx";
 
 const sections = {
     pendingChanges: "pendingChanges",
@@ -87,7 +89,8 @@ const grantTypes = {
 
 const modals = {
     resetSecretDisclaimer: "resetSecretDisclaimer",
-    resetSecret: "resetSecret"
+    resetSecret: "resetSecret",
+    deletionWarning: "deletionWarning",
 }
 
 export const Testing = ({
@@ -136,6 +139,8 @@ export const Testing = ({
     const [confirmation, setConfirmation] = useState({});
     const [busy, setBusy] = useState(false);
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
+    const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
+
     const connections = useMemo(() => application.connections
             .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
         [application, isProduction]);
@@ -381,17 +386,28 @@ export const Testing = ({
 
     const doDeleteConnection = confirmationRequired => {
         if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                header: I18n.t("forms.delete"),
-                question: I18n.t("connection.deleteConfirmation"),
-                action: () => doDeleteConnection(false),
-                modal: null,
-                okButton: I18n.t("forms.delete")
-            });
+            setLoading(true);
+            //First, fetch all the possible identityProvers affected by the deletion of this organization
+            identityProvidersByUsedConnection(connection.id)
+                .then(res => {
+                    setLoading(false);
+                    setAffectedIdentityProviders(res);
+                    setConfirmation({
+                        open: true,
+                        cancel: () => {
+                            setConfirmation({open: false});
+                            setAffectedIdentityProviders([]);
+                        },
+                        header: I18n.t("forms.delete"),
+                        question: I18n.t("connection.deleteConfirmation"),
+                        action: () => doDeleteConnection(false),
+                        modal: modals.deletionWarning,
+                        okButton: I18n.t((isProduction && !isEmpty(res)) ? "forms.deleteAnyway" : "forms.delete")
+                    });
+                })
         } else {
             setLoading(true);
+            setAffectedIdentityProviders([]);
             deleteConnectionById(connection.id).then(() => {
                 refresh(isProduction ? "prod" : "testing");
                 setConfirmation({open: false});
@@ -739,7 +755,7 @@ export const Testing = ({
                                     <p className="saml-test"
                                        dangerouslySetInnerHTML={{
                                            __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                                               ,{ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
+                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
                                        }}/>
                                 </div>
                             </div>
@@ -791,8 +807,8 @@ export const Testing = ({
                             <Checkbox name={idp.name}
                                       readOnly={true}
                                       value={allowedEntities.includes(idp.entityid)}
-                                      //onChange={e => changeAllowedTestEntity(idp, e)}
-                                 />
+                                //onChange={e => changeAllowedTestEntity(idp, e)}
+                            />
                             <div className="idp-info">
                                 <p dangerouslySetInnerHTML={{__html: idp.name}}/>
                                 <p dangerouslySetInnerHTML={{__html: idp[`description${I18n.locale.toUpperCase()}`]}}/>
@@ -889,7 +905,7 @@ export const Testing = ({
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                           ,{ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
+                           , {ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
                    }}/>
                 <InputField name={I18n.t("connection.connectionOverview.discovery")}
                             value={config.discovery}
@@ -968,8 +984,8 @@ export const Testing = ({
 
                 <div className="attributes">
                     {allAttributes.map((attribute, index) => {
-                        const arpAttribute = arpInfo.attributes.find(attr => attr.name === attribute);
-                        return (
+                            const arpAttribute = arpInfo.attributes.find(attr => attr.name === attribute);
+                            return (
                                 <Fragment key={index}>
                                     <span>{attribute}{arpAttribute.scopedValue && <sup>*</sup>}</span>
                                     <span>{arpAttribute.example}</span>
@@ -979,7 +995,8 @@ export const Testing = ({
                     )}
                 </div>
                 {scopeValuesPresent &&
-                    <p className="scoped-value-disclaimer"><sup>* </sup>{I18n.t("connection.informational.scopedValueAttributeDisclaimer")}</p>}
+                    <p className="scoped-value-disclaimer">
+                        <sup>* </sup>{I18n.t("connection.informational.scopedValueAttributeDisclaimer")}</p>}
 
                 {currentProfile.requiresMotivation &&
                     <div className="profile=motivation">
@@ -1040,9 +1057,9 @@ export const Testing = ({
                                                     msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
                                                 />}
                                             {(selected && arpAttribute.scopedValue && defaultArpValue) &&
-                                                    <Alert alertType={AlertType.Warning}
-                                                            asChild={false}
-                                                            message={I18n.t("connection.informational.scopedValueAttributeDisclaimer")}/>
+                                                <Alert alertType={AlertType.Warning}
+                                                       asChild={false}
+                                                       message={I18n.t("connection.informational.scopedValueAttributeDisclaimer")}/>
                                             }
                                         </div>
                                     )
@@ -1190,7 +1207,7 @@ export const Testing = ({
         refresh();
         setConnection(null);
         navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({top: 0, behavior: "smooth"});
         changeSection(sections.technical);
     }
 
@@ -1426,6 +1443,7 @@ export const Testing = ({
                                          confirmationTxt={okButton}
                                          disabledConfirm={busy}
                                          question={question}
+                                         isDeleteAction={modal === modals.deletionWarning}
                                          children={modal === modals.resetSecretDisclaimer ?
                                              <Alert alertType={AlertType.Error}
                                                     asChild={true}
@@ -1440,7 +1458,11 @@ export const Testing = ({
                                                                  disabled={true}
                                                                  copyClipBoard={true}/>
 
-                                                 </div> : null
+                                                 </div> :
+                                                 modal === modals.deletionWarning ? <ConnectionInUseWarning
+                                                     identityProviders={affectedIdentityProviders}
+                                                     unit={units.connection}
+                                                     applicationName={application.name}/> : null
                                          }
             />}
             {showInitialConnection ? renderInitialConnection() : renderConnections()}

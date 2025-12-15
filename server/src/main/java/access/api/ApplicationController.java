@@ -190,7 +190,6 @@ public class ApplicationController implements UserAccessRights {
         Organization organization = application.getOrganization();
 
         user = this.reinitializeUser(user, userRepository);
-        user = reinitializeUser(user, userRepository);
         confirmApplicationDeleteAccess(user, application);
 
         //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
@@ -201,6 +200,11 @@ public class ApplicationController implements UserAccessRights {
                     .filter(applicationMembership -> applicationMembership.getApplication().getId().equals(applicationId)).toList();
             organizationMembership.removeApplicationMemberships(applicationMemberships);
         });
+
+        application.getConnections()
+                .stream()
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+                .forEach(connection -> manage.deleteProvider(connection));
 
         applicationRepository.deleteById(application.getId());
 

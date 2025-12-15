@@ -37,11 +37,14 @@ export const menuItemsForUser = user => {
     if (onlyGuest) {
         return newMenuItems;
     }
-    const isMember = user.organizationMemberships.some(m => m.authority === authorities.MEMBER);
-    if (isMember) {
+    const isMemberOrAdmin = user.organizationMemberships.some(m => m.authority === authorities.MEMBER ||
+        m.authority === authorities.ADMIN);
+    if (isMemberOrAdmin) {
         newMenuItems.push(mainMenuItems.users);
     }
-    if (!user.externalUser) {
+    if (user.externalUser) {
+        newMenuItems.push(mainMenuItems.idp);
+    } else {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
     return newMenuItems;

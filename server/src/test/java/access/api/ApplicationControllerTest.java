@@ -165,6 +165,8 @@ class ApplicationControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
 
+        super.stubForDeleteProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER);
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

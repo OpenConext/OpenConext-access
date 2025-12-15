@@ -211,6 +211,10 @@ public class ConnectionController implements UserAccessRights {
         Application application = connection.getApplication();
         application.removeConnection(connection);
 
+        if (StringUtils.hasText(connection.getManageIdentifier())) {
+            manage.deleteProvider(connection);
+        }
+
         connectionRepository.deleteConnectionById(connectionId);
 
         return deleteResult();

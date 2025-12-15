@@ -243,6 +243,8 @@ class OrganizationControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
+        super.stubForDeleteProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER);
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

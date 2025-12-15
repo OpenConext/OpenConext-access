@@ -295,12 +295,7 @@ class ConnectionControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
 
-        String url = String.format("/manage/api/internal/metadata/%s/%s", EntityType.oidc10_rp.name(), MANAGE_IDENTIFIER);
-        stubFor(delete(urlPathMatching(url))
-                .atPriority(1)
-                .willReturn(aResponse()
-                        .withHeader("Content-Length", "0")
-                        .withStatus(204)));
+        super.stubForDeleteProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER);
 
         given()
                 .when()

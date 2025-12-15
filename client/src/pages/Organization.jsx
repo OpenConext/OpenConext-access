@@ -160,6 +160,11 @@ const Organization = () => {
                 mapper: application => application.name
             },
             {
+                key: "status",
+                header: I18n.t("accessibleApps.status"),
+                mapper: application => renderApplicationStatus(application)
+            },
+            {
                 key: "createdAt",
                 header: I18n.t("accessibleApps.created"),
                 mapper: application => dateFromEpoch(application.createdAt)

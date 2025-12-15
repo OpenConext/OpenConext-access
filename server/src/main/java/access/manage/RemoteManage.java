@@ -7,14 +7,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -25,7 +28,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static access.manage.ManageData.getData;
@@ -37,15 +39,7 @@ public class RemoteManage implements Manage {
     private static final Log LOG = LogFactory.getLog(RemoteManage.class);
 
     //Because of the custom error handling, we need to use Buffering
-    private final Map<Environment, RestTemplate> restTemplates = Map.of(
-            Environment.TEST, new RestTemplate(
-                    new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())
-            ),
-            Environment.PROD, new RestTemplate(
-                    new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory())
-            )
-
-    );
+    private final Map<Environment, RestTemplate> restTemplates;
     private final Map<String, Object> queries;
     private final ConnectionProviderConverter converter;
     private final ManageAuthorization testAuthorization;
@@ -64,14 +58,31 @@ public class RemoteManage implements Manage {
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
-        restTemplates.forEach((environment, restTemplate) -> {
-            List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-            ManageAuthorization authorization = environment.equals(Environment.TEST) ? testAuthorization : productionAuthorization;
-            interceptors.add(new BasicAuthenticationInterceptor(authorization.user(), authorization.password()));
-            interceptors.add(new JSONHeaderInterceptor());
-            restTemplate.setErrorHandler(resilientErrorHandler);
+        this.restTemplates = Map.of(
+                Environment.TEST, initRestTemplate(resilientErrorHandler, testAuthorization),
+                Environment.PROD, initRestTemplate(resilientErrorHandler, productionAuthorization)
 
-        });
+        );
+    }
+
+    private RestTemplate initRestTemplate(ResponseErrorHandler resilientErrorHandler, ManageAuthorization manageAuthorization) {
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
+                .setConnectionManager(new PoolingHttpClientConnectionManager())
+                .disableCookieManagement();
+
+        CloseableHttpClient httpClient = httpClientBuilder.build();
+
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
+
+        RestTemplateBuilder builder = new RestTemplateBuilder();
+        return builder
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(requestFactory))
+                .additionalInterceptors(List.of(
+                        new BasicAuthenticationInterceptor(manageAuthorization.user(), manageAuthorization.password()),
+                        new JSONHeaderInterceptor()))
+                .errorHandler(resilientErrorHandler)
+                .build();
     }
 
     @Override
@@ -338,11 +349,14 @@ public class RemoteManage implements Manage {
                         "id", connection.getManageIdentifier(),
                         "type", connection.getProtocol().name()))
                 .toList();
-
+        if (body.isEmpty()) {
+            //No use to actually go to Manage
+            return List.of();
+        }
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/delete-consequences",
                 environmentUrl(Environment.PROD));
-        return restTemplate.postForEntity(URI.create(url), body,List.class).getBody();
+        return restTemplate.postForEntity(URI.create(url), body, List.class).getBody();
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {
@@ -369,4 +383,6 @@ public class RemoteManage implements Manage {
     private RestTemplate environmentRestTemplate(Environment environment) {
         return restTemplates.get(environment);
     }
+
+
 }

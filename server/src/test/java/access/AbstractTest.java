@@ -62,6 +62,7 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -153,7 +154,7 @@ public abstract class AbstractTest {
     protected final Map<String, Long> seedIdentifiers = new HashMap<>();
 
     @RegisterExtension
-    CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
+    static CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
 
     @LocalServerPort
     protected int port;
@@ -419,6 +420,17 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForDeleteProvider(EntityType entityType, String manageIdentifier) {
+        String url = String.format("/manage/api/internal/metadata/%s/%s",
+                entityType.name(),
+                manageIdentifier);
+        stubFor(delete(urlPathMatching(url))
+                .atPriority(1)
+                .willReturn(aResponse()
+                        .withStatus(204)));
+    }
+
+    @SneakyThrows
     protected void stubForGetProvider(Connection connection) {
         Map<String, Object> provider = localManage.providerById(connection);
         String body = objectMapper.writeValueAsString(provider);
@@ -455,7 +467,7 @@ public abstract class AbstractTest {
     @SneakyThrows
     protected List<Map<String, Object>> getChangeRequests() {
         return objectMapper.readValue(new ClassPathResource("/manage/change_requests.json").getInputStream(), new TypeReference<>() {
-        }) ;
+        });
     }
 
     @SneakyThrows
@@ -472,7 +484,7 @@ public abstract class AbstractTest {
     protected void stubForIdentityProviderByInstitutionalGUID(String organisationGuid) {
         List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID(Environment.PROD, organisationGuid);
         String body = objectMapper.writeValueAsString(providers);
-        stubFor(post("/manage/api/internal/search/saml20_idp")
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)

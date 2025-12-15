@@ -304,7 +304,14 @@ const en = {
             name: "Test",
             connections: "Koppelingen met onze testomgeving",
             info: "Test of federatief inloggen werkt via onze testomgeving.",
-
+        },
+        inUseWarning: "All the members of the following institution(s) will lose access to the application <strong>{{name}}</strong>:",
+        inUseWarningOrg: "All of the members of the following institution(s) will lose access to all of the applications of this organization:",
+        inUseTip: "We strongly recommend contacting <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>, if you really want to delete this {{unit}}.",
+        units: {
+            organization: "organization",
+            application: "application",
+            connection: "connection"
         },
         team: {
             name: "Teams",
@@ -916,6 +923,7 @@ const en = {
         accept: "Accept",
         proceed: "Proceed",
         delete: "Delete",
+        deleteAnyway: "I know what I'm doing. Delete!",
         back: "Back",
         and: "and",
         or: "or",
@@ -967,6 +975,7 @@ const en = {
         new: "Nieuwe applicatie toevoegen",
         name: "App",
         vendor: "Vendor",
+        status: "Status",
         created: "Date connected",
         searchPlaceHolder: "Search...",
         all: "All categories",
@@ -1008,7 +1017,8 @@ const en = {
         externalUserTooltip: "An external user - as opposed to an internal user - is a user who only has an eduID account and not an institutional account.",
         internalUser: "Internal user",
         internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account."
-    }
+    },
+
 }
 
 export default en;

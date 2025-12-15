@@ -71,16 +71,27 @@ div.organization-outer-container {
         table.application-list-view {
             th {
                 &.name {
-                    width: 45%;
+                    width: 30%;
+                }
+
+                &.status {
+                    width: 30%;
+                    text-align: center;
                 }
 
                 &.createdAt {
-                    width: 25%;
+                    width: 20%;
                 }
 
                 &.white-space {
-                    width: 30%;
+                    width: 20%;
                 }
+            }
+            td {
+                &.status {
+                    text-align: center;
+                }
+
             }
         }
 

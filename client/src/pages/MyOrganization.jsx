@@ -3,6 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router-dom";
 import {
     deleteOrganizationById,
+    identityProvidersByUsedConnectionsForOrganization,
     organizationMineById,
     updateOrganizationMetaData,
     updateOrganizationName
@@ -19,6 +20,7 @@ import {contactSectionValid, convertServerApplicationToClient} from "../utils/Ap
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
+import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -40,6 +42,7 @@ const MyOrganization = ({refreshUser}) => {
     const [section, setSection] = useState(externalUser ? sections.general : sections.contactPersons);
     const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
+    const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [dirty, setDirty] = useState(new Date());
 
     const inputRef = useRef(null);
@@ -47,8 +50,9 @@ const MyOrganization = ({refreshUser}) => {
     const navigate = useNavigate();
 
     const adminUser = useMemo(() => {
+        const organizationIntegerIdentifier = parseInt(organizationId, 10);
         return user.superUser || user.organizationMemberships
-            .some(om => om.authority === authorities.ADMIN && om.organization.id === organizationId);
+            .some(om => om.authority === authorities.ADMIN && om.organization.id === organizationIntegerIdentifier);
     }, [user, organizationId]);
 
     useEffect(() => {
@@ -93,15 +97,23 @@ const MyOrganization = ({refreshUser}) => {
     const doDelete = (e, confirmationRequired) => {
         stopEvent(e);
         if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(null, false),
-                question: I18n.t("organization.deleteConfirmation", {name: organization.name}),
-                okButton: I18n.t("forms.delete")
-            });
+            setLoading(true);
+            //First, fetch all the possible identityProvers affected by the deletion of this organization
+            identityProvidersByUsedConnectionsForOrganization(organization.id)
+                .then(res => {
+                    setLoading(false);
+                    setAffectedIdentityProviders(res);
+                    setConfirmation({
+                        open: true,
+                        cancel: () => setConfirmation({open: false}),
+                        action: () => doDelete(null, false),
+                        question: I18n.t("organization.deleteConfirmation", {name: organization.name}),
+                        okButton: I18n.t(isEmpty(res) ? "forms.delete" : "forms.deleteAnyway")
+                    });
+                })
         } else {
             setLoading(true);
+            setAffectedIdentityProviders([]);
             deleteOrganizationById(organization.id).then(() => {
                 setConfirmation({});
                 useAppStore.setState({
@@ -236,6 +248,10 @@ const MyOrganization = ({refreshUser}) => {
                                          confirmationHeader={I18n.t("forms.delete")}
                                          confirmationTxt={okButton}
                                          isDeleteAction={true}
+                                         children={<ConnectionInUseWarning
+                                             identityProviders={affectedIdentityProviders}
+                                             unit={units.organization}
+                                             applicationName="N/A"/>}
                                          question={question}
             />}
             <div className="my-organization-header-container">
