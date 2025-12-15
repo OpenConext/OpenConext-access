@@ -10,6 +10,7 @@ import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
 import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
 import {authorities} from "./Permissions.js";
+import {useAppStore} from "../stores/AppStore.js";
 
 export const mainMenuItems = {
     home: "home",
@@ -24,7 +25,7 @@ export const mainMenuItems = {
     feedback: "feedback"
 }
 
-export const menuItemsForUser = user => {
+const doMenuItemsForUser = user => {
     //Every user has access to the home, catalogue and help menu items
     const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk, mainMenuItems.feedback];
     const noOrganizationMemberships = isEmpty(user.organizationMemberships);
@@ -48,6 +49,15 @@ export const menuItemsForUser = user => {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
     return newMenuItems;
+}
+
+export const menuItemsForUser = user => {
+    const allMenuItems = doMenuItemsForUser(user);
+    const disabledFeatures = useAppStore.getState().config.features
+        .filter(feature => feature.enabled === false)
+        .map(feature => feature.name);
+    return allMenuItems
+        .filter(menuItem => !disabledFeatures.includes(menuItem));
 }
 
 export const allMenuGroups = [

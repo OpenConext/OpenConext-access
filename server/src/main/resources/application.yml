@@ -105,6 +105,15 @@ config:
         descriptionEN: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
         descriptionNL: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
   idp_proxy_meta_data:  https://metadata.test2.surfconext.nl/idp-metadata.xml
+  features:
+    - name: idp
+      enabled: true
+    - name: invite
+      enabled: true
+    - name: sram
+      enabled: true
+    - name: mfa
+      enabled: true
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl"
 

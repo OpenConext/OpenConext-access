@@ -19,7 +19,7 @@ const icons = {
 const ExternalApplication = () => {
     const {app} = useParams();
     const [alertClosed, setAlertClosed] = useState(false);
-    const {config} = useAppStore.getState();
+    const config = useAppStore.getState().config;
 
 
     useEffect(() => {
