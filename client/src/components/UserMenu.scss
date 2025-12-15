@@ -32,13 +32,27 @@
         flex-direction: column;
         z-index: 7;
 
-        span {
+        div.organization-option {
             padding: 12px 15px 4px 15px;
             cursor: pointer;
             width: 100%;
+            display: flex;
 
             &:hover {
                 background-color: var(--sds--color--gray--250);
+            }
+
+            span.active {
+                font-weight: 600
+            }
+
+            span.check {
+                margin-left: auto;
+                svg {
+                    height: auto;
+                    width: 22px;
+                }
+
             }
         }
     }

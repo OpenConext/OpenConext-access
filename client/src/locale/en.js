@@ -955,7 +955,7 @@ const en = {
     myOrganization: {
         title: "Mine organization",
         info: "Voor het inzien van andere information over je organisatie, bezoek <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
-        maintenance: "Beheer",
+        maintenance: "Beheer {{name}}",
         contactPersons: "Contact personen",
         general: "Algemene gegevens",
         delete: "Organisatie verwijderen",

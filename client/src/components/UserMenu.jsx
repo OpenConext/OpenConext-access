@@ -6,12 +6,15 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
+import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
 import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
+import {menuItemsForUser} from "../utils/MenuItems.js";
 
 export const UserMenu = ({setIsAuthenticated}) => {
 
     const user = useAppStore(state => state.user);
+    const currentOrganization = useAppStore(state => state.currentOrganization);
 
     const navigate = useNavigate();
 
@@ -31,15 +34,17 @@ export const UserMenu = ({setIsAuthenticated}) => {
             setTimeout(() => {
                 setIsAuthenticated(false);
                 navigate("/home");
-            },150)
+            }, 150)
 
         });
     }
 
     const switchOrganization = organization => {
+        const newMenuItems = menuItemsForUser(user, organization);
         useAppStore.setState(() => ({
-            currentOrganization: organization
-        }));
+            currentOrganization: organization,
+            menuItems: newMenuItems
+        }))
         navigate(`/organization/${organization.id}`);
     }
 
@@ -59,7 +64,15 @@ export const UserMenu = ({setIsAuthenticated}) => {
                 {isSwitchOrganizationOpen &&
                     <section className="organization-switch-section sds--user-info--dropdown">
                         {organizations.map((org, index) =>
-                            <span key={index} onClick={() => switchOrganization(org)}>{org.name}</span>)}
+                            <div key={index} className="organization-option" onClick={() => switchOrganization(org)}>
+                                <span className={`${currentOrganization.id === org.id ? "active" : ""}`}>
+                                    {org.name}
+                                </span>
+                                {currentOrganization.id === org.id && <span className="check">
+                                    <CheckPlain/>
+                                </span>}
+                            </div>
+                        )}
                     </section>}
             </div>
         );
@@ -79,7 +92,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
                         <a href="/logout" onClick={logoutUser}>{I18n.t(`landing.header.logout`)}</a>
                     </li>
                 </ul>
-            {user.superUser && <ul>
+                {user.superUser && <ul>
                     <li>
                         <Link to="/system">
                             {I18n.t("landing.header.system")}

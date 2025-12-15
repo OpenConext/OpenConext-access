@@ -261,7 +261,7 @@ const MyOrganization = ({refreshUser}) => {
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"))}}/>
             </div>
             <div className="my-organization">
-                <h1>{I18n.t("myOrganization.maintenance")}</h1>
+                <h1>{I18n.t("myOrganization.maintenance", {name: organization.name})}</h1>
                 <div className="menu-container">
                     <div className="left-menu">
                         {availableSections

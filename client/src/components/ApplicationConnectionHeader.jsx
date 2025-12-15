@@ -104,7 +104,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
 
             <div className="top-header"
                  tabIndex={1}
-                 onBlur={() => setTimeout(() => setDropDownActive(false), 475)}>
+                 onBlur={() => setTimeout(() => setDropDownActive(false), 275)}>
                 <h1>{application.name}</h1>
                 <div className="menu-container">
                     {application.type === "CONTENT" &&

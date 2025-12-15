@@ -25,7 +25,7 @@ export const mainMenuItems = {
     feedback: "feedback"
 }
 
-const doMenuItemsForUser = user => {
+const doMenuItemsForUser = (user, currentOrganization) => {
     //Every user has access to the home, catalogue and help menu items
     const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk, mainMenuItems.feedback];
     const noOrganizationMemberships = isEmpty(user.organizationMemberships);
@@ -34,15 +34,19 @@ const doMenuItemsForUser = user => {
     }
     //If there is at least one organizationMembership, then we show yourApps
     newMenuItems.push(mainMenuItems.yourApps);
-    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST);
+    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
+        m.organization.id === currentOrganization.id);
     if (onlyGuest) {
         return newMenuItems;
     }
-    const isMemberOrAdmin = user.organizationMemberships.some(m => m.authority === authorities.MEMBER ||
-        m.authority === authorities.ADMIN);
+    const isMemberOrAdmin = user.organizationMemberships
+        .some(m => [authorities.MEMBER, authorities.ADMIN].includes(m.authority) &&
+            m.organization.id === currentOrganization.id);
+
     if (isMemberOrAdmin) {
         newMenuItems.push(mainMenuItems.users);
     }
+
     if (user.externalUser) {
         newMenuItems.push(mainMenuItems.idp);
     } else {
@@ -51,8 +55,8 @@ const doMenuItemsForUser = user => {
     return newMenuItems;
 }
 
-export const menuItemsForUser = user => {
-    const allMenuItems = doMenuItemsForUser(user);
+export const menuItemsForUser = (user, organization = useAppStore.getState().currentOrganization) => {
+    const allMenuItems = doMenuItemsForUser(user, organization);
     const disabledFeatures = useAppStore.getState().config.features
         .filter(feature => feature.enabled === false)
         .map(feature => feature.name);

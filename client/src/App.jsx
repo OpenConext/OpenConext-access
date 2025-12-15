@@ -63,7 +63,8 @@ const App = () => {
 
     const refreshUser = () => {
         me().then(user => {
-            const newMenuItems = menuItemsForUser(user);
+            const currentOrganization = useAppStore.getState().currentOrganization
+            const newMenuItems = menuItemsForUser(user, currentOrganization);
             useAppStore.setState(() => ({
                 user: user,
                 menuItems: newMenuItems
@@ -84,12 +85,13 @@ const App = () => {
                     setIsAuthenticated(res[0].authenticated);
                     if (res[0].authenticated) {
                         me().then(user => {
-                            const newMenuItems = menuItemsForUser(user);
+                            const currentOrganization = user.organizationMemberships.map(om => om.organization)[0] || {name: ""};
+                            const newMenuItems = menuItemsForUser(user, currentOrganization);
                             useAppStore.setState(() => ({
                                 user: user,
                                 menuItems: newMenuItems,
                                 activeMenuItem: activeMenuItem(currentLocation),
-                                currentOrganization: user.organizationMemberships.map(om => om.organization)[0] || {name: ""}
+                                currentOrganization: currentOrganization
                             }));
                             const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
                             let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
