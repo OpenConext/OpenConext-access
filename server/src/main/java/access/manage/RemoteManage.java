@@ -202,6 +202,7 @@ public class RemoteManage implements Manage {
                 url, connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
+    @Override
     public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
         String url = this.environmentUrl(Environment.PROD);
         return String.format("%s/metadata/%s/%s/requests",

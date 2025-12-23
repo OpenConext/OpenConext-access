@@ -37,7 +37,7 @@ public interface Manage {
 
     String changeRequestURL(Environment environment, Connection connection);
 
-    String changeRequestURL(EntityType entityType, String manageIdentifier);
+    String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier);
 
     List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID);
 

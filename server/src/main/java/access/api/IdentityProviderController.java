@@ -87,7 +87,7 @@ public class IdentityProviderController implements UserAccessRights {
             return Results.createResult();
         }
 
-        String changeRequestURL = manage.changeRequestURL(EntityType.saml20_idp, idpManageIdentifier);
+        String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
 
         String entityId = (String) ((Map) identityProvider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
@@ -106,7 +106,7 @@ public class IdentityProviderController implements UserAccessRights {
         ChangeRequest changeRequest = new ChangeRequest(
                 idpManageIdentifier,
                 EntityType.saml20_idp,
-                //TODO - See idp-dashboard
+                //TODO - See idp-dashboard ServicesController#connect
                 Map.of("state", "prodaccepted"),
                 Map.of("user", user.getEmail(),
                         "notes", String.format("Production status requested by %s for %s. See Jira %s",

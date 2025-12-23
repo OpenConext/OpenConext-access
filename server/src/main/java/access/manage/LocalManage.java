@@ -189,7 +189,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public String changeRequestURL(EntityType entityType, String manageIdentifier) {
+    public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
         return String.format("http://localhost:8088/metadata/%s/%s", entityType.name(), manageIdentifier);
     }
 
