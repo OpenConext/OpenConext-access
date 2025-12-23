@@ -11,12 +11,14 @@ import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizati
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
-const ApplicationDetail = () => {
+const ApplicationDetail = ({anonymous}) => {
 
-        const {arp, privacy} = useAppStore(useShallow(state => ({
+        const {arp, privacy, user} = useAppStore(useShallow(state => ({
             arp: state.arp,
-            privacy: state.privacy
+            privacy: state.privacy,
+            user: state.user
         })));
 
         const navigate = useNavigate();
@@ -26,6 +28,7 @@ const ApplicationDetail = () => {
         const [serviceProvider, setServiceProvider] = useState([]);
         const [showAttributes, setShowAttributes] = useState(false);
         const [showPrivacy, setShowPrivacy] = useState(false);
+        const [confirmation, setConfirmation] = useState({});
 
         useEffect(() => {
             publicServiceProviderByDetail(manageType, manageId)
@@ -76,9 +79,60 @@ const ApplicationDetail = () => {
             return arp.attributes.find(attr => attr.urn === urn);
         }
 
+        const mayConnectWithoutInteraction = () => {
+            const connectOption = metaData["coin:dashboard_connect_option"] || "connect_with_interaction";
+            const sameInstitution = !isEmpty(metaData["coin:institution_guid"]) &&
+                metaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
+            return connectOption !== "connect_with_interaction" || sameInstitution;
+        }
+
+        const openConnectDialog = () => {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doDelete(invitation, false),
+                question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
+                okButton: I18n.t("invitationsManagement.revoke")
+            });
+        }
+
+        const doRequestConnection = () => {
+
+        }
+
+        const openRequestConnectionDialog = () => {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doDelete(invitation, false),
+                question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
+                okButton: I18n.t("invitationsManagement.revoke")
+            });
+        }
+
+        const goBack = e => {
+            stopEvent(e);
+            navigate(-1);
+        }
+
+        const connectButtonText = () => {
+            //Is the app already connected, may the app be connected without interaction, or is there already an outstanding change request?
+            return I18n.t(`applicationConnect.${mayConnectWithoutInteraction() ? "connect" : "request"}`)
+        }
+
+        const {open, cancel, action, question, okButton, children} = confirmation;
+
         return (
             <div className="application-detail-container">
-                <div className="application-detail-header-container">
+                {open && <ConfirmationDialog confirm={action}
+                                             cancel={cancel}
+                                             confirmationHeader={I18n.t("forms.submit")}
+                                             confirmationTxt={okButton}
+                                             question={question}>
+                    {children}
+                </ConfirmationDialog>
+                }
+                {anonymous && <div className="application-detail-header-container">
                     <div className="application-detail-header">
                         <div className="left">
                             <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
@@ -86,9 +140,14 @@ const ApplicationDetail = () => {
                         </div>
                         <img src={StudentPng} alt="student"/>
                     </div>
-                </div>
+                </div>}
+                {!anonymous &&
+                    <div className="application-detail-top">
+                        <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
+                    </div>
+                }
                 <div className="inner-application-detail-container">
-                    <div className="application-detail">
+                    <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
                         <div className="meta-data">
                             {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
                             {!metaData["logo:0:url"] && <PlaceHolderImage/>}
@@ -100,11 +159,13 @@ const ApplicationDetail = () => {
                                     {providerName(I18n.locale, serviceProvider)}
                                 </p>
                             </div>
-                            <Button type={ButtonType.Secondary}
-                                    icon={<ArrowLeftIcon/>}
-                                    iconPlacement={ButtonIconPlacement.Left}
-                                    onClick={() => navigate(-1)}
-                                    txt={I18n.t("applicationDetail.back")}/>
+                            {anonymous && <Button type={ButtonType.Secondary}
+                                                  icon={<ArrowLeftIcon/>}
+                                                  iconPlacement={ButtonIconPlacement.Left}
+                                                  onClick={goBack}
+                                                  txt={I18n.t("applicationDetail.back")}/>}
+                            {!anonymous && <Button onClick={() => alert("Todo")}
+                                                   txt={connectButtonText()}/>}
                         </div>
                         <div className="details">
                             <div className="left">

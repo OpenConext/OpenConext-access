@@ -62,7 +62,7 @@ public class ApplicationMembershipController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{membership_id}"})
-    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("membership_id") Long membershipId) {
+    public ResponseEntity<Map<String, Object>> delete(User user, @PathVariable("membership_id") Long membershipId) {
         LOG.debug("/delete");
         ApplicationMembership applicationMembership = this.applicationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));

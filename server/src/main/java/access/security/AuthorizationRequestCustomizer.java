@@ -12,9 +12,11 @@ import java.util.function.Consumer;
 public class AuthorizationRequestCustomizer implements Consumer<OAuth2AuthorizationRequest.Builder> {
 
     private final String eduidIdpEntityId;
+    private final String minimalStepupAcrLevel;
 
-    public AuthorizationRequestCustomizer(String eduidIdpEntityId) {
+    public AuthorizationRequestCustomizer(String eduidIdpEntityId, String minimalStepupAcrLevel) {
         this.eduidIdpEntityId = eduidIdpEntityId;
+        this.minimalStepupAcrLevel= minimalStepupAcrLevel;
     }
 
     @Override
@@ -34,6 +36,10 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             String[] eduId = savedRequest.getParameterValues("eduId");
             if (eduId != null && eduId.length == 1) {
                 params.put("login_hint", eduidIdpEntityId);
+            }
+            String[] upgradeLoa = savedRequest.getParameterValues("upgradeLoa");
+            if (upgradeLoa != null && upgradeLoa.length == 1) {
+                params.put("acr_values", minimalStepupAcrLevel);
             }
         });
     }

@@ -1,0 +1,33 @@
+[
+  {
+    "id": 9222,
+    "name": "Test Role Profile",
+    "shortName": "test_role_profile",
+    "description": "Test Role Profile",
+    "urn": "urn:mace:surf.nl:invite.test2.surfconext.nl:f5b477df-6af9-46f8-b0fa-8e7a8695afb0:test_role_profile",
+    "defaultExpiryDays": 3650,
+    "enforceEmailEquality": false,
+    "eduIDOnly": false,
+    "blockExpiryDate": false,
+    "overrideSettingsAllowed": true,
+    "teamsOrigin": false,
+    "identifier": "f5b477df-6af9-46f8-b0fa-8e7a8695afb0",
+    "organizationGUID": "ad93daef-0911-e511-80d0-005056956c1a",
+    "userRoleCount": 0,
+    "applicationUsages": [
+      {
+        "id": 58740,
+        "landingPage": "https://profile.com",
+        "application": {
+          "id": 7434,
+          "manageId": "002231f8-40c3-4fa0-9b8a-fbda1a4ae65c",
+          "manageType": "SAML20_SP"
+        }
+      }
+    ],
+    "auditable": {
+      "createdAt": 1766051652.000000000,
+      "createdBy": "admin@example.com"
+    }
+  }
+]

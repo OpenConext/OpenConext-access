@@ -71,7 +71,7 @@ public interface UserAccessRights {
         }
     }
 
-    private static Optional<OrganizationMembership> getOrganizationMembership(User user, Organization organization, Authority authority) {
+    default Optional<OrganizationMembership> getOrganizationMembership(User user, Organization organization, Authority authority) {
         return user.getOrganizationMemberships().stream()
                 .filter(orgMembership -> orgMembership.getOrganization().getId().equals(organization.getId()))
                 .filter(orgMembership -> orgMembership.getAuthority().isAllowed(authority))

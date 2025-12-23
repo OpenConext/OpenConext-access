@@ -182,7 +182,7 @@ public class ApplicationController implements UserAccessRights {
     }
 
     @DeleteMapping({"", "/{applicationId}"})
-    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("applicationId") Long applicationId) {
+    public ResponseEntity<Map<String, Object>> delete(User user, @PathVariable("applicationId") Long applicationId) {
         LOG.debug("/delete application by " + user.getEmail());
 
         Application application = applicationRepository.findById(applicationId)

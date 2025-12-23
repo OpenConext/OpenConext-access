@@ -10,15 +10,15 @@ public class Results {
     private Results() {
     }
 
-    public static ResponseEntity<Map<String, Integer>> createResult() {
+    public static ResponseEntity<Map<String, Object>> createResult() {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", HttpStatus.CREATED.value()));
     }
 
-    public static ResponseEntity<Map<String, Integer>> okResult() {
+    public static ResponseEntity<Map<String, Object>> okResult() {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("status", HttpStatus.OK.value()));
     }
 
-    public static ResponseEntity<Map<String, Integer>> deleteResult() {
+    public static ResponseEntity<Map<String, Object>> deleteResult() {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("status", HttpStatus.NO_CONTENT.value()));
     }
 }

@@ -1,6 +1,7 @@
 package access.api;
 
 import access.manage.Manage;
+import access.manage.ManageData;
 import access.model.EntityType;
 import access.model.Environment;
 import lombok.SneakyThrows;
@@ -46,7 +47,11 @@ public class PublicController {
             @PathVariable("type") EntityType entityType,
             @PathVariable("identifier") String identifier) {
         LOG.debug("/identityProviders");
-        return ResponseEntity.ok(manage.providerById(entityType, identifier, Environment.PROD));
+        Map<String, Object> provider = manage
+                .providerById(entityType, identifier, Environment.PROD);
+        ManageData.getMetaDataFields(ManageData.getData(provider)).keySet()
+                .removeIf(key -> key.startsWith("contacts:"));
+        return ResponseEntity.ok(provider);
     }
 
 

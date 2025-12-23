@@ -81,7 +81,7 @@ public class JoinRequestController implements UserAccessRights {
     }
 
     @PutMapping({"/approval"})
-    public ResponseEntity<Map<String, Integer>> approval(User user, @RequestBody JoinRequestApproval joinRequestApproval) {
+    public ResponseEntity<Map<String, Object>> approval(User user, @RequestBody JoinRequestApproval joinRequestApproval) {
         LOG.debug("/approval joinRequest by " + user.getEmail());
 
         Long joinRequestId = joinRequestApproval.getJoinRequestId();

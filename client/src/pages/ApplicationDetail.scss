@@ -38,11 +38,20 @@ div.application-detail-container {
         background-color: white;
     }
 
+    .application-detail-top {
+        background-color: white;
+        padding: 0 25px;
+    }
+
     .application-detail {
         @include index.page;
         background-color: white;
         max-width: $width;
         padding: 25px 0;
+
+        &.stand-alone {
+            margin: 0 25px;
+        }
 
         .meta-data {
             display: flex;

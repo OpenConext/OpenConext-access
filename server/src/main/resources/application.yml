@@ -114,6 +114,11 @@ config:
       enabled: true
     - name: mfa
       enabled: true
+  acr_values:
+    - "http://test2.surfconext.nl/assurance/loa1.5"
+    - "http://test2.surfconext.nl/assurance/loa2"
+    - "http://test2.surfconext.nl/assurance/loa3"
+  minimal_stepup_acr_level: "http://test2.surfconext.nl/assurance/loa2"
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl"
 
@@ -166,6 +171,12 @@ manage:
   # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage
 #  staticManageDirectory: file:///usr/local/etc/manage
+
+invite:
+  enabled: True
+  url: "https://invite.test2.surfconext.nl"
+  user: access
+  password: secret
 
 s3storage:
   #  url: "https://minioapi.test2.surfconext.nl"

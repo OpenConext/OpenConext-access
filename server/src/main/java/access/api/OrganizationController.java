@@ -301,7 +301,7 @@ public class OrganizationController implements UserAccessRights {
     }
 
     @DeleteMapping({"", "/{organizationId}"})
-    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("organizationId") Long organizationId) {
+    public ResponseEntity<Map<String, Object>> delete(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete organization by " + user.getEmail());
 
         Organization organization = findOrganizationById(organizationId);

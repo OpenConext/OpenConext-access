@@ -79,7 +79,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @PostMapping({"", "/"})
-    public ResponseEntity<Map<String, Integer>> create(User user, @RequestBody InvitationForm invitationForm) {
+    public ResponseEntity<Map<String, Object>> create(User user, @RequestBody InvitationForm invitationForm) {
         LOG.debug("/create invitation by " + user.getEmail());
 
         Long organizationID = invitationForm.getOrganizationId();
@@ -113,7 +113,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @PutMapping({"/accept"})
-    public ResponseEntity<Map<String, Integer>> accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
+    public ResponseEntity<Map<String, Object>> accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
         LOG.debug("/accept invitation by " + user.getEmail());
 
         Invitation invitation = invitationRepository.findByIdAndHash(acceptInvitation.invitationId(), acceptInvitation.hash())
@@ -154,7 +154,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{invitationId}"})
-    public ResponseEntity<Map<String, Integer>> deleteInvitation(User user, @PathVariable("invitationId") Long invitationId) {
+    public ResponseEntity<Map<String, Object>> deleteInvitation(User user, @PathVariable("invitationId") Long invitationId) {
         LOG.debug("/delete invitation by " + user.getEmail());
 
         Invitation invitation = invitationRepository.findById(invitationId)
@@ -170,7 +170,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @DeleteMapping({"/delete/all/{organizationId}"})
-    public ResponseEntity<Map<String, Integer>> deleteAll(User user, @PathVariable("organizationId") Long organizationId) {
+    public ResponseEntity<Map<String, Object>> deleteAll(User user, @PathVariable("organizationId") Long organizationId) {
         LOG.debug("/delete all invitation by " + user.getEmail());
 
         Organization organization = organizationRepository.findById(organizationId)
@@ -186,7 +186,7 @@ public class InvitationController implements UserAccessRights {
     }
 
     @PutMapping({"/resend/{invitationId}"})
-    public ResponseEntity<Map<String, Integer>> resendInvitation(User user, @PathVariable("invitationId") Long invitationId) {
+    public ResponseEntity<Map<String, Object>> resendInvitation(User user, @PathVariable("invitationId") Long invitationId) {
         LOG.debug("/resend invitation by " + user.getEmail());
 
         Invitation invitation = invitationRepository.findById(invitationId)

@@ -1,21 +1,21 @@
 package access.api;
 
 import access.exception.InvalidInputException;
+import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
-import access.manage.*;
+import access.manage.ChangeRequest;
+import access.manage.Manage;
+import access.manage.PathUpdateType;
+import access.manage.RequestType;
 import access.model.*;
-import access.repository.ApplicationRepository;
-import access.repository.ConnectionRepository;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,136 +37,62 @@ import static access.manage.ManageData.getData;
 import static access.manage.ManageData.getMetaDataFields;
 
 @RestController
-@RequestMapping(value = {"/api/v1/connections"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/v1/idp"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class ConnectionController implements UserAccessRights {
+public class IdentityProviderController implements UserAccessRights {
 
-    private static final Log LOG = LogFactory.getLog(ConnectionController.class);
-    private static final int SECRET_LENGTH = 36;
+    private static final Log LOG = LogFactory.getLog(IdentityProviderController.class);
 
-    private final ConnectionRepository connectionRepository;
-    private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
     private final Manage manage;
     private final JiraClient jiraClient;
-    private final PasswordGenerator passwordGenerator = new PasswordGenerator();
-    private final List<CharacterRule> rules = initPasswordGeneratorRules();
-    private final ConnectionProviderConverter connectionProviderConverter;
 
-    public ConnectionController(ConnectionRepository connectionRepository,
-                                ApplicationRepository applicationRepository,
-                                UserRepository userRepository,
-                                Manage manage,
-                                JiraClient jiraClient,
-                                ConnectionProviderConverter connectionProviderConverter) {
-        this.connectionRepository = connectionRepository;
-        this.applicationRepository = applicationRepository;
+    public IdentityProviderController(UserRepository userRepository,
+                                      OrganizationRepository organizationRepository,
+                                      Manage manage,
+                                      JiraClient jiraClient) {
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
-        this.connectionProviderConverter = connectionProviderConverter;
     }
 
-    private List<CharacterRule> initPasswordGeneratorRules() {
-        return List.of(
-                new CharacterRule(EnglishCharacterData.LowerCase, 8),
-                new CharacterRule(EnglishCharacterData.UpperCase, 8),
-                new CharacterRule(EnglishCharacterData.Digit, 8));
-    }
+    @PutMapping({"/connect"})
+    public ResponseEntity<Map<String, Object>> connect(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
+        LOG.debug("/connect SP to IdP connection for " + user.getEmail());
 
-    @GetMapping({"/{connectionId}"})
-    public ResponseEntity<Connection> find(User user, @PathVariable("connectionId") Long connectionId) {
-        LOG.debug("/find connection for " + user.getEmail());
+        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
+                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        if (StringUtils.hasText(connection.getManageIdentifier())) {
-            Map<String, Object> provider = manage.providerById(connection);
-            if (connection.mergeMetaData(provider, false)) {
-                connectionRepository.save(connection);
-            }
-            if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
-            }
+        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+
+        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
+                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
+
+        User userFromDB = reinitializeUser(user, userRepository);
+        boolean memberRequest = !userFromDB.isSuperUser();
+        if (memberRequest) {
+            OrganizationMembership organizationMembership = getOrganizationMembership(userFromDB, organization, Authority.GUEST)
+                    .orElseThrow(() -> new NotAllowedException(
+                            String.format("User %s is not a member of organization %s", userFromDB.getEmail(), organization.getName())));
+            memberRequest = !organizationMembership.getAuthority().equals(Authority.ADMIN);
         }
-        return ResponseEntity.ok(connection);
-    }
-
-    @PostMapping({"", "/"})
-    public ResponseEntity<Connection> create(User user, @Validated @RequestBody Connection connection) {
-        LOG.debug("/create connection by " + user.getEmail());
-        if (!connection.isValid()) {
-            throw new InvalidInputException("Connection is not valid");
+        if (memberRequest) {
+            //The only action is to email the institution admin of the organization, with a deep link to App
+            // TODO send email
+            return Results.createResult();
         }
 
-        Long applicationID = connection.getApplication().getId();
-        Application application = applicationRepository.findById(applicationID)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        String changeRequestURL = manage.changeRequestURL(EntityType.saml20_idp, idpManageIdentifier);
 
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application);
-
-        connection.setCreatedAt(Instant.now());
-        connection.setApplication(application);
-        connection = saveConnection(connection);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(connection);
-    }
-
-    @PutMapping({"", "/"})
-    public ResponseEntity<Connection> update(User user, @Validated @RequestBody Connection connectionData) {
-        LOG.debug("/update connection by " + user.getEmail());
-        if (!connectionData.isValid()) {
-            throw new InvalidInputException("Connection is not valid");
-        }
-        Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());
-
-        connection.merge(connectionData);
-
-        if (connection.changeRequestRequired()) {
-            //Not allowed to sync the connection to Manage. Create ChangeRequests
-            connection = this.productionReadyChangeRequests(connection, user);
-            connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
-        } else {
-            connection = saveConnection(connection);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(connection);
-    }
-
-    @SneakyThrows
-    @GetMapping(value = "/change-requests/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Map<String, Object>>> changeRequests(User user, @PathVariable("connectionId") Long connectionId) {
-        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
-
-        List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection.getEnvironment(), connection);
-        return ResponseEntity.ok(changeRequests);
-    }
-
-    @PutMapping(value = "/reset-secret/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> secret(User user, @PathVariable("connectionId") Long connectionId) {
-        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
-
-        String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
-        connection.getMetaData().put("secret", secret);
-        saveConnection(connection);
-
-        return Collections.singletonMap("secret", secret);
-    }
-
-    @PutMapping(value = "/request-production-status/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> requestProductionStatus(User user,
-                                                                       @PathVariable("connectionId") Long connectionId) {
-        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
-
-        String changeRequestURL = manage.changeRequestURL(connection.getEnvironment(), connection);
-
-        Map<String, Object> provider = manage.providerById(connection);
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        String entityId = (String) ((Map) identityProvider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
-        String summary = String.format("Production status requested by %s for %s.",
-                user.getName(), connection.getName());
+        String summary = String.format("Connection request requested by %s for %s.",
+                user.getName(), serviceProvider);
         String jiraKey = jiraClient.create(new JiraIssue(
                 entityId,
                 String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
@@ -174,25 +100,23 @@ public class ConnectionController implements UserAccessRights {
                         lineSeparator,
                         changeRequestURL),
                 summary,
-                connection.getProtocol(),
+                EntityType.saml20_idp,
                 user.getEmail()
         ));
         ChangeRequest changeRequest = new ChangeRequest(
-                connection.getManageIdentifier(),
-                connection.getProtocol(),
+                idpManageIdentifier,
+                EntityType.saml20_idp,
+                //TODO - See idp-dashboard
                 Map.of("state", "prodaccepted"),
                 Map.of("user", user.getEmail(),
                         "notes", String.format("Production status requested by %s for %s. See Jira %s",
                                 user.getName(), connection.getName(), jiraKey)),
                 false,
                 PathUpdateType.ADDITION,
-                RequestType.ProductionStatusRequest);
+                RequestType.LinkRequest);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);
-
-        connection.setStatus(ConnectionStatus.PENDING_PROD);
-        saveConnection(connection);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));

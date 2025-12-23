@@ -2,23 +2,17 @@ package access.manage;
 
 import access.exception.NotFoundException;
 import access.model.*;
+import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -59,30 +53,9 @@ public class RemoteManage implements Manage {
         });
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
         this.restTemplates = Map.of(
-                Environment.TEST, initRestTemplate(resilientErrorHandler, testAuthorization),
-                Environment.PROD, initRestTemplate(resilientErrorHandler, productionAuthorization)
-
+                Environment.TEST, RestTemplateFactory.buildRrestTemplate(resilientErrorHandler, testAuthorization.user(), testAuthorization.password()),
+                Environment.PROD, RestTemplateFactory.buildRrestTemplate(resilientErrorHandler, productionAuthorization.user(), productionAuthorization.password())
         );
-    }
-
-    private RestTemplate initRestTemplate(ResponseErrorHandler resilientErrorHandler, ManageAuthorization manageAuthorization) {
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
-                .setConnectionManager(new PoolingHttpClientConnectionManager())
-                .disableCookieManagement();
-
-        CloseableHttpClient httpClient = httpClientBuilder.build();
-
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                new HttpComponentsClientHttpRequestFactory(httpClient);
-
-        RestTemplateBuilder builder = new RestTemplateBuilder();
-        return builder
-                .requestFactory(() -> new BufferingClientHttpRequestFactory(requestFactory))
-                .additionalInterceptors(List.of(
-                        new BasicAuthenticationInterceptor(manageAuthorization.user(), manageAuthorization.password()),
-                        new JSONHeaderInterceptor()))
-                .errorHandler(resilientErrorHandler)
-                .build();
     }
 
     @Override
@@ -227,6 +200,12 @@ public class RemoteManage implements Manage {
         String url = this.environmentUrl(environment);
         return String.format("%s/metadata/%s/%s/requests",
                 url, connection.getProtocol().name(), connection.getManageIdentifier());
+    }
+
+    public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
+        String url = this.environmentUrl(Environment.PROD);
+        return String.format("%s/metadata/%s/%s/requests",
+                url, entityType.name(), manageIdentifier);
     }
 
     /**

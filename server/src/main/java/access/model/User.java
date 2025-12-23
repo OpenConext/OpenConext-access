@@ -90,6 +90,9 @@ public class User implements Serializable, NameHolder {
     private Map<String, Object> identityProvider = null;
 
     @Transient
+    private int loaLevel = 1;
+
+    @Transient
     private boolean externalUser;
 
     public User(Map<String, Object> attributes) {
@@ -228,6 +231,11 @@ public class User implements Serializable, NameHolder {
     @JsonProperty
     public Map<String, Object> getIdentityProvider() {
         return identityProvider;
+    }
+
+    @JsonProperty
+    public int getLoaLevel() {
+        return loaLevel;
     }
 
     @JsonProperty

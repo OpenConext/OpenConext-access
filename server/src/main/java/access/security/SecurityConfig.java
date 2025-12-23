@@ -49,14 +49,17 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final Environment environment;
     private final String eduidIdpEntityId;
+    private final String minimalStepupAcrLevel;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           Environment environment,
-                          @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) {
+                          @Value("${eduid-idp-entity-id}") String eduidIdpEntityId,
+                          @Value("${config.minimal_stepup_acr_level}") String minimalStepupAcrLevel) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.environment = environment;
         this.eduidIdpEntityId = eduidIdpEntityId;
+        this.minimalStepupAcrLevel = minimalStepupAcrLevel;
     }
 
     @Configuration
@@ -186,7 +189,7 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer(eduidIdpEntityId));
+                new AuthorizationRequestCustomizer(eduidIdpEntityId, minimalStepupAcrLevel));
         return authorizationRequestResolver;
     }
 

@@ -98,7 +98,7 @@ public class ManageController {
 
     @SneakyThrows
     @PutMapping("/reject-change-request")
-    public ResponseEntity<Map<String, Integer>> rejectChangeRequest(@RequestBody ChangeRequest changeRequest) {
+    public ResponseEntity<Map<String, Object>> rejectChangeRequest(@RequestBody ChangeRequest changeRequest) {
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
         return Results.okResult();
     }

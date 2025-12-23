@@ -14,6 +14,18 @@
         "coin:application_url": "https://default-url-wiki.org",
         "application_tags": ["education"],
         "coin:interfed_source": "WO"
+      },
+      "arp": {
+        "enabled": true,
+        "attributes": {
+          "urn:mace:dir:attribute-def:isMemberOf": [
+            {
+              "value": "*",
+              "source": "voot",
+              "motivation": ""
+            }
+          ]
+        }
       }
     }
   },

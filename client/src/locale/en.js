@@ -1018,7 +1018,11 @@ const en = {
         internalUser: "Internal user",
         internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account."
     },
-
+    applicationConnect: {
+        connect: "Connect",
+        request: "Request connection",
+        back: "← Back to other apps"
+    }
 }
 
 export default en;

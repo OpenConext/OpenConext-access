@@ -189,6 +189,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public String changeRequestURL(EntityType entityType, String manageIdentifier) {
+        return String.format("http://localhost:8088/metadata/%s/%s", entityType.name(), manageIdentifier);
+    }
+
+    @Override
     public List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID) {
         return this.allProviders.get(EntityType.saml20_idp).stream()
                 .filter(provider -> {

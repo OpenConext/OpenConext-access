@@ -28,6 +28,8 @@ public class Config {
     private List<Map<String, String>> identityProviders;
     private String idpProxyMetaData;
     private List<Feature> features;
+    private List<String> acrValues;
+    private String minimalStepupAcrLevel;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -40,6 +42,8 @@ public class Config {
         this.identityProviders = base.identityProviders;
         this.idpProxyMetaData = base.idpProxyMetaData;
         this.features = base.features;
+        this.acrValues = base.acrValues;
+        this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;
     }
 
     public Config withAuthenticated(boolean authenticated) {

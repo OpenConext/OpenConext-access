@@ -35,7 +35,7 @@ public class OrganizationMembershipController implements UserAccessRights {
     }
 
     @DeleteMapping({"/{membership_id}"})
-    public ResponseEntity<Map<String, Integer>> delete(User user, @PathVariable("membership_id") Long membershipId) {
+    public ResponseEntity<Map<String, Object>> delete(User user, @PathVariable("membership_id") Long membershipId) {
         LOG.debug("/delete");
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));

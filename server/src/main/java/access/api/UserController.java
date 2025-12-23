@@ -98,16 +98,20 @@ public class UserController implements UserAccessRights {
         userFromDB.setExternalUser(isExternalUserFromSchacHome);
         if (!isExternalUserFromSchacHome) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-            String authenticatingAuthority = (String) oidcUser.getUserInfo().getClaims().get("authenticating_authority");
+            Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
+            String authenticatingAuthority = (String) claims.get("authenticating_authority");
             Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
             String manageIdentifier = (String) identityProvider.get("_id");
             userFromDB.setIdentityProvider(identityProvider);
+            String obtainedAcr = (String) claims.getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
+            userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
+
             // Provision the user into the organization, if no organization is created yet, create it on the fly
             if (userFromDB.getOrganizationMemberships().stream()
                     .noneMatch(organizationMembership -> organizationMembership.getOrganization()
                             .getManageIdentifier().equals(manageIdentifier))) {
                 Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
-                Institution institution = (Institution) oidcUser.getUserInfo().getClaims().getOrDefault(InstitutionAdmin.INSTITUTION, null);
+                Institution institution = (Institution) claims.getOrDefault(InstitutionAdmin.INSTITUTION, null);
                 userFromDB.setInstitution(institution);
                 Authority authority = userFromDB.isInstitutionAdmin() && institution != null ? Authority.ADMIN : Authority.MEMBER;
                 organizationOptional.ifPresentOrElse(
@@ -142,7 +146,7 @@ public class UserController implements UserAccessRights {
     }
 
     @DeleteMapping
-    public ResponseEntity<Map<String, Integer>> deleteMe(@Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Object>> deleteMe(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/delete for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())
@@ -154,7 +158,7 @@ public class UserController implements UserAccessRights {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
         LOG.debug("/logout");
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
@@ -165,7 +169,7 @@ public class UserController implements UserAccessRights {
     }
 
     @PostMapping("/feedback")
-    public ResponseEntity<Map<String, Integer>> feedback(User user, @RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, Object>> feedback(User user, @RequestBody Map<String, String> body) {
         LOG.debug("/feedback from " + user.getEmail());
         String message = body.get("message");
         if (StringUtils.hasText(message)) {
@@ -209,6 +213,20 @@ public class UserController implements UserAccessRights {
             result.withMissingAttributes(missingAttributes);
         }
     }
+
+    private int convertLoaLevel(String acr) {
+        if (!StringUtils.hasText(acr) || acr.trim().toLowerCase().endsWith("password")) {
+            return 1;
+        }
+        try {
+            int loa = Integer.parseInt(acr.substring(acr.length() - 1));
+            //Corner case for 1.5
+            return loa == 5 ? 1 : loa;
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
 
 
 }
