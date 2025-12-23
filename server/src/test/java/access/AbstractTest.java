@@ -87,7 +87,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "jira.enabled=false",
                 "s3storage.url=http://localhost:8081",
                 "invite.enabled=true",
-                "invite.url=http://localhost:8081"
+                //Trailing backslash for testing purposes
+                "invite.url=http://localhost:8081/"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
