@@ -45,6 +45,7 @@ public class JiraClient {
         });
         this.issueType = this.resolveIssueType();
         if (config.isEnabled()) {
+            //Must do this before adding the interceptors
             SimpleClientHttpRequestFactory requestFactory = (SimpleClientHttpRequestFactory) this.restTemplate.getRequestFactory();
             requestFactory.setReadTimeout(config.getConnectionTimeout());
             requestFactory.setConnectTimeout(config.getConnectionTimeout());
@@ -52,6 +53,10 @@ public class JiraClient {
             this.defaultHeaders = new HttpHeaders();
             this.defaultHeaders.setContentType(MediaType.APPLICATION_JSON);
             this.defaultHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + config.getApiKey());
+
+            List<ClientHttpRequestInterceptor> interceptors = this.restTemplate.getInterceptors();
+            interceptors.add(new APITokenHeaderInterceptor(config.getApiKey()));
+            interceptors.add(new JSONHeaderInterceptor());
         }
     }
 

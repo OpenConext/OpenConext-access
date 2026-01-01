@@ -103,142 +103,23 @@ public class IdentityProviderController implements UserAccessRights {
                 EntityType.saml20_idp,
                 user.getEmail()
         ));
-        ChangeRequest changeRequest = new ChangeRequest(
-                idpManageIdentifier,
-                EntityType.saml20_idp,
-                //TODO - See idp-dashboard ServicesController#connect
-                Map.of("state", "prodaccepted"),
-                Map.of("user", user.getEmail(),
-                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                                user.getName(), connection.getName(), jiraKey)),
-                false,
-                PathUpdateType.ADDITION,
-                RequestType.LinkRequest);
-        Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
-
-        LOG.debug("Change request response from manage: " + changeRequestResponse);
+////        ChangeRequest changeRequest = new ChangeRequest(
+////                idpManageIdentifier,
+////                EntityType.saml20_idp,
+////                //TODO - See idp-dashboard ServicesController#connect
+////                Map.of("state", "prodaccepted"),
+////                Map.of("user", user.getEmail(),
+////                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
+////                                user.getName(), connection.getName(), jiraKey)),
+////                false,
+////                PathUpdateType.ADDITION,
+////                RequestType.LinkRequest);
+////        Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
+////
+//        LOG.debug("Change request response from manage: " + changeRequestResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
-    }
-
-    @DeleteMapping({"", "/{connectionId}"})
-    public ResponseEntity<Map<String, Object>> delete(User user, @PathVariable("connectionId") Long connectionId) {
-        LOG.debug("/delete connection by " + user.getEmail());
-
-        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
-
-        if (StringUtils.hasText(connection.getManageIdentifier())) {
-            manage.deleteProvider(connection);
-        }
-        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
-        Application application = connection.getApplication();
-        application.removeConnection(connection);
-
-        if (StringUtils.hasText(connection.getManageIdentifier())) {
-            manage.deleteProvider(connection);
-        }
-
-        connectionRepository.deleteConnectionById(connectionId);
-
-        return deleteResult();
-    }
-
-    @GetMapping("/identity-providers-allowed-connections/{connectionId}")
-    public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
-                                                                                           @PathVariable("connectionId") Long connectionId) {
-        LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(List.of(connection));
-        return ResponseEntity.ok(identityProviders);
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private Connection productionReadyChangeRequests(Connection connection, User user) {
-        Environment environment = connection.getEnvironment();
-        String changeRequestURL = manage.changeRequestURL(environment, connection);
-        Map<String, Object> provider = manage.providerById(connection);
-        connection.updateRemoteManageData(provider);
-
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
-        String summary = String.format("Data change requested by %s for %s with entityID %s",
-                user.getName(),
-                connection.getName(),
-                entityId);
-        String jiraKey = jiraClient.create(new JiraIssue(
-                entityId,
-                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
-                        summary,
-                        System.lineSeparator(),
-                        changeRequestURL),
-                summary,
-                connection.getProtocol(),
-                user.getEmail()
-        ));
-        Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                        user.getName(), connection.getName(), jiraKey));
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData);
-        changeRequests.forEach(changeRequest -> manage.createChangeRequest(environment, changeRequest));
-        //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
-        connection.mergeMetaData(provider, true);
-        connection = connectionRepository.save(connection);
-        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
-        return connection;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Connection saveConnection(Connection connection) {
-        //Put / Post to Manage only if the status is not OPEN
-        if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
-            boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
-                    connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
-            boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret"));
-            if (isPrivateRelyingParty && !hasSecret) {
-                //generate secret but store the raw-text variant, because Manage encodes it
-                String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
-                connection.getMetaData().put("secret", secret);
-                connection.setSecretSet(true);
-            }
-            //Now sync the Connection to Manage.
-            Map<String, Object> provider = manage.saveProvider(connection);
-            connection.updateRemoteManageData(provider);
-
-            if (isPrivateRelyingParty) {
-                //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
-                Map<String, Object> data = getData(provider);
-                Map<String, Object> metaDataFields = getMetaDataFields(data);
-                String secretFromManage = (String) metaDataFields.get("secret");
-                if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
-                    String originalSecret = (String) connection.getMetaData().get("secret");
-                    connection.getMetaData().put("secret", secretFromManage);
-                    if (originalSecret.length() == SECRET_LENGTH) {
-                        connection.getMetaData().put("originalSecret", originalSecret);
-                    }
-                }
-            }
-
-            List<Map<String, Object>> contactPersons = (List<Map<String, Object>>) connection.getMetaData().get("contactPersons");
-            if (!CollectionUtils.isEmpty(contactPersons)) {
-                Application application = connection.getApplication();
-                application.getMetaData().put("contactPersons", contactPersons);
-                applicationRepository.save(application);
-                //No need to store redundant data
-                connection.getMetaData().remove("contactPersons");
-            }
-        }
-        return connectionRepository.save(connection);
-    }
-
-    private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
-        Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
-        Application application = connection.getApplication();
-        user = this.reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application);
-        return connection;
     }
 
 

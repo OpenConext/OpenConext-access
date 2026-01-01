@@ -26,7 +26,7 @@ class InviteClientTest extends AbstractTest {
     @SneakyThrows
     @Test
     void rolesPerOrganizationApplicationId() {
-        List<Map<String, Object>> roles = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
+        List<Map<String, Object>> roles = objectMapper.readValue(new ClassPathResource("/invite/roles.json").getInputStream(), new TypeReference<>() {
         });
         String rolesResult = objectMapper.writeValueAsString(roles);
 
