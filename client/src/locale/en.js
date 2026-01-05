@@ -1021,7 +1021,12 @@ const en = {
     applicationConnect: {
         connect: "Connect",
         request: "Request connection",
-        back: "← Back to other apps"
+        back: "← Back to other apps",
+        defaultAccess: "Hoe wil je default toegang instellen?",
+        access: {
+            all:"Iedereen van de {{orgName}} heeft direct automatisch toegang",
+            some: "Pas toegangsregels toe"
+        }
     }
 }
 

@@ -1,9 +1,6 @@
 package access.manage;
 
-import access.model.Connection;
-import access.model.EntityType;
-import access.model.Environment;
-import access.model.Organization;
+import access.model.*;
 
 import java.util.*;
 
@@ -48,6 +45,8 @@ public interface Manage {
     List<Map<String, Object>> serviceProvidersLight(Environment environment);
 
     List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections);
+
+    void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser);
 
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'

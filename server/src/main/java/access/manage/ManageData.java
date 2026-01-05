@@ -15,8 +15,8 @@ public class ManageData {
         return (Map<String, Object>) data.get("metaDataFields");
     }
 
-    public static Map<String, Object> getData(Map<String, Object> data) {
-        return (Map<String, Object>) data.get("data");
+    public static Map<String, Object> getData(Map<String, Object> provider) {
+        return (Map<String, Object>) provider.get("data");
     }
 
 

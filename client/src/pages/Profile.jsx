@@ -12,6 +12,7 @@ import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
 import {useNavigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
+import {providerName} from "../utils/Manage.js";
 
 const Profile = ({setIsAuthenticated}) => {
 
@@ -91,7 +92,7 @@ const Profile = ({setIsAuthenticated}) => {
                     />
                 }
                 {user.institutionAdmin &&
-                    <InputField name={I18n.t("profile.institutionAdmin")}
+                    <InputField name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, user.identityProvider)})}
                                 noInput={true}
                     />
                 }

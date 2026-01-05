@@ -86,6 +86,18 @@ public class IdentityProviderController implements UserAccessRights {
             // TODO send email
             return Results.createResult();
         }
+        //Now check if the connection can be made automatically
+        Map<String, Object> spMetaDataFields = getMetaDataFields(getData(serviceProvider));
+        String connectOption = (String) spMetaDataFields.getOrDefault("coin:dashboard_connect_option", "connect_with_interaction");
+        String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get("coin:institution_guid");
+
+        boolean idpAndSpShareInstitution = spMetaDataFields.getOrDefault("coin:institution_guid", "nope")
+                .equals(idpInstitutionGUID);
+        boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals("connect_with_interaction");
+        if (connectWithoutInteraction) {
+            manage.connectWithoutInteraction(identityProvider, serviceProvider, userFromDB);
+            return Results.createResult();
+        }
 
         String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
 

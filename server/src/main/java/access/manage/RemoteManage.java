@@ -230,7 +230,7 @@ public class RemoteManage implements Manage {
         if (identityProviders.isEmpty()) {
             throw new NotFoundException("No identityProviders found for entityID: " + entityID);
         }
-        return identityProviders.getFirst();
+        return sanitizeProvider(identityProviders.getFirst());
     }
 
     @Override
@@ -337,6 +337,21 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/delete-consequences",
                 environmentUrl(Environment.PROD));
         return restTemplate.postForEntity(URI.create(url), body, List.class).getBody();
+    }
+
+    @Override
+    public void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User user) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/connectWithoutInteraction",
+                environmentUrl(Environment.PROD));
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("idpId", (String) getData(identityProvider).get("entityid"));
+        bodyMap.put("spId", (String) getData(serviceProvider).get("entityid"));
+        bodyMap.put("spType", (String) serviceProvider.get("type"));
+        bodyMap.put("user", user.getName());
+        bodyMap.put("userUrn", user.getSub());
+        //Fire and forget. An exception will be thrown by the restTemplate if the return is not 20X
+        restTemplate.put(url, bodyMap);
     }
 
     private List<Map<String, Object>> getRemoteMetaData(Environment environment, String type, boolean allAttributes) {

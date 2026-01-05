@@ -133,6 +133,8 @@ gui:
 
 feature:
   enable-performance-seed: False
+  statistics-enabled: False
+  stepup-required: False
 
 email:
   from: "no-reply@surf.nl"

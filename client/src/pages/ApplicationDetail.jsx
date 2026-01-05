@@ -1,9 +1,9 @@
 import "./ApplicationDetail.scss";
 import React, {useEffect, useState} from "react";
-import {publicServiceProviderByDetail} from "../api/index.js";
+import {connectServiceProviderToIdentityProvider, publicServiceProviderByDetail} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, ButtonIconPlacement, ButtonType, Loader} from "@surfnet/sds";
+import {Button, ButtonIconPlacement, ButtonType, Loader, RadioOptions, RadioOptionsOrientation} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
@@ -12,6 +12,13 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+
+const confirmationModalOptions = {
+    makeConnection: "makeConnection",
+    requestConnection: "requestConnection",
+    disconnectConnection: "disconnectConnection",
+    requestDisconnectConnection: "requestDisconnectConnection",
+}
 
 const ApplicationDetail = ({anonymous}) => {
 
@@ -28,13 +35,24 @@ const ApplicationDetail = ({anonymous}) => {
         const [serviceProvider, setServiceProvider] = useState([]);
         const [showAttributes, setShowAttributes] = useState(false);
         const [showPrivacy, setShowPrivacy] = useState(false);
+        const [metaData, setMetaData] = useState({});
+        const [connectWithOutInteraction, setConnectWithOutInteraction] = useState(false);
         const [confirmation, setConfirmation] = useState({});
+        const [accessChoice, setAccessChoice] = useState("ALL");
+        const [confirmationModalOption, setConfirmationModalOption] = useState(null);
+
 
         useEffect(() => {
             publicServiceProviderByDetail(manageType, manageId)
                 .then(res => {
                     setServiceProvider(res);
                     setLoading(false);
+                    const newMetaData = res.data.metaDataFields;
+                    setMetaData(newMetaData);
+                    const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
+                    const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
+                        newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
+                    setConnectWithOutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
                 })
                 .catch(() => {
                     navigate("/404");
@@ -63,8 +81,6 @@ const ApplicationDetail = ({anonymous}) => {
             );
         }
 
-        const metaData = serviceProvider.data.metaDataFields;
-
         const toggleShowAttributes = e => {
             stopEvent(e);
             setShowAttributes(true);
@@ -79,35 +95,48 @@ const ApplicationDetail = ({anonymous}) => {
             return arp.attributes.find(attr => attr.urn === urn);
         }
 
-        const mayConnectWithoutInteraction = () => {
-            const connectOption = metaData["coin:dashboard_connect_option"] || "connect_with_interaction";
-            const sameInstitution = !isEmpty(metaData["coin:institution_guid"]) &&
-                metaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
-            return connectOption !== "connect_with_interaction" || sameInstitution;
+        const confirmationModalChildren = () => {
+            if (confirmationModalOption === confirmationModalOptions.makeConnection ) {
+                return (
+                    <div className="connect-options-container">
+                        <RadioOptions name={"access"}
+                                      label={I18n.t("applicationConnect.defaultAccess")}
+                                      value={accessChoice}
+                                      onChange={e => {
+                                          const newValue = e.target.id.replace("access_", "").toUpperCase();
+                                          setAccessChoice(newValue);
+                                      }}
+                                      isMultiple={true}
+                                      labels={["ALL", "SOME"]}
+                                      labelResolver={label => I18n.t(`applicationConnect.access.${label.toLowerCase()}`, {
+                                          orgName: providerName(I18n.locale, user.identityProvider)
+                                      })}
+                                      orientation={RadioOptionsOrientation.column}/>
+                    </div>
+                );
+            }
+            return "TODO"
         }
 
-        const openConnectDialog = () => {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(invitation, false),
-                question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
-                okButton: I18n.t("invitationsManagement.revoke")
-            });
-        }
-
-        const doRequestConnection = () => {
-
-        }
-
-        const openRequestConnectionDialog = () => {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(invitation, false),
-                question: I18n.t("invitationsManagement.deleteConfirmation", {email: invitation.inviter.name}),
-                okButton: I18n.t("invitationsManagement.revoke")
-            });
+        const doRequestConnection = withConfirmation => {
+            if (withConfirmation) {
+                setConfirmation({
+                    open: true,
+                    cancel: () => setConfirmation({open: false}),
+                    action: () => doRequestConnection(false),
+                    title: null,
+                    question: null,
+                    okButton: I18n.t("forms.proceed")
+                });
+                setConfirmationModalOption(confirmationModalOptions.makeConnection)
+            } else {
+                setConfirmation({});
+                connectServiceProviderToIdentityProvider(serviceProvider.id,serviceProvider.type, user.identityProvider.id)
+                    .then(() => {
+                        //Where to go to next?
+                        alert("done")
+                    })
+            }
         }
 
         const goBack = e => {
@@ -115,21 +144,16 @@ const ApplicationDetail = ({anonymous}) => {
             navigate(-1);
         }
 
-        const connectButtonText = () => {
-            //Is the app already connected, may the app be connected without interaction, or is there already an outstanding change request?
-            return I18n.t(`applicationConnect.${mayConnectWithoutInteraction() ? "connect" : "request"}`)
-        }
-
-        const {open, cancel, action, question, okButton, children} = confirmation;
+        const {open, cancel, action, question, title, okButton} = confirmation;
 
         return (
             <div className="application-detail-container">
                 {open && <ConfirmationDialog confirm={action}
                                              cancel={cancel}
-                                             confirmationHeader={I18n.t("forms.submit")}
                                              confirmationTxt={okButton}
+                                             confirmationHeader={title}
                                              question={question}>
-                    {children}
+                    {confirmationModalChildren()}
                 </ConfirmationDialog>
                 }
                 {anonymous && <div className="application-detail-header-container">
@@ -164,8 +188,8 @@ const ApplicationDetail = ({anonymous}) => {
                                                   iconPlacement={ButtonIconPlacement.Left}
                                                   onClick={goBack}
                                                   txt={I18n.t("applicationDetail.back")}/>}
-                            {!anonymous && <Button onClick={() => alert("Todo")}
-                                                   txt={connectButtonText()}/>}
+                            {!anonymous && <Button onClick={() => doRequestConnection(true)}
+                                                   txt={I18n.t(`applicationConnect.${connectWithOutInteraction ? "connect" : "request"}`)}/>}
                         </div>
                         <div className="details">
                             <div className="left">

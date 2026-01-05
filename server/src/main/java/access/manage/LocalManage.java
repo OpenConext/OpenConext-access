@@ -1,10 +1,7 @@
 package access.manage;
 
 import access.exception.NotFoundException;
-import access.model.Connection;
-import access.model.EntityType;
-import access.model.Environment;
-import access.model.Organization;
+import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -246,5 +243,10 @@ public final class LocalManage implements Manage {
                             .anyMatch(entityIdentifiers::contains);
                 })
                 .toList();
+    }
+
+    @Override
+    public void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser) {
+        //nope
     }
 }

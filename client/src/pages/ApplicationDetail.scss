@@ -6,6 +6,18 @@ div.application-detail-container {
 
     $width: 920px;
 
+    .sds--modal--container {
+        max-width: 620px;
+    }
+
+    .connect-options-container {
+        .sds--text-field-container > [class^="option-"] {
+            padding: 14px 20px 14px 10px;
+            background-color: var(--sds--color--gray--background);
+            border-radius: 6px;
+        }
+    }
+
     .application-detail-header-container {
         width: 100%;
         background-color: var(--sds--color--gray--background);
@@ -41,6 +53,11 @@ div.application-detail-container {
     .application-detail-top {
         background-color: white;
         padding: 0 25px;
+
+        a {
+            color: var(--sds--color--gray--500);
+            text-decoration: none;
+        }
     }
 
     .application-detail {
