@@ -7,15 +7,16 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class AuthorizationRequestCustomizer implements Consumer<OAuth2AuthorizationRequest.Builder> {
 
-    private final String eduidIdpEntityId;
+    private final List<String> eduidIdpEntityIdentifiers;
     private final String minimalStepupAcrLevel;
 
-    public AuthorizationRequestCustomizer(String eduidIdpEntityId, String minimalStepupAcrLevel) {
-        this.eduidIdpEntityId = eduidIdpEntityId;
+    public AuthorizationRequestCustomizer(List<String> eduidIdpEntityIdentifiers, String minimalStepupAcrLevel) {
+        this.eduidIdpEntityIdentifiers = eduidIdpEntityIdentifiers;
         this.minimalStepupAcrLevel= minimalStepupAcrLevel;
     }
 
@@ -35,7 +36,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             }
             String[] eduId = savedRequest.getParameterValues("eduId");
             if (eduId != null && eduId.length == 1) {
-                params.put("login_hint", eduidIdpEntityId);
+                params.put("login_hint", eduidIdpEntityIdentifiers.getFirst());
             }
             String[] upgradeLoa = savedRequest.getParameterValues("upgradeLoa");
             if (upgradeLoa != null && upgradeLoa.length == 1) {

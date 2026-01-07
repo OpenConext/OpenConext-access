@@ -120,7 +120,7 @@ config:
     - "http://test2.surfconext.nl/assurance/loa3"
   minimal_stepup_acr_level: "http://test2.surfconext.nl/assurance/loa2"
 
-eduid-idp-entity-id: "https://login.test2.eduid.nl"
+eduid-idp-entity-id: "https://login.test2.eduid.nl, https://localhost.surf.id"
 
 super-admin:
   users:

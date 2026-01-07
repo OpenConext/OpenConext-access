@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.IOException;
 import java.util.*;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -57,7 +56,7 @@ public class UserController implements UserAccessRights {
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox) throws IOException {
+                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox) {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
@@ -86,7 +85,6 @@ public class UserController implements UserAccessRights {
     }
 
     @GetMapping("/me")
-    @SuppressWarnings("unchecked")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user, Authentication authentication) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
@@ -136,7 +134,7 @@ public class UserController implements UserAccessRights {
 
     @GetMapping("/other/{id}")
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
         if (!user.isSuperUser()) {
             throw new NotAllowedException("Not allowed endpoint by" + user);

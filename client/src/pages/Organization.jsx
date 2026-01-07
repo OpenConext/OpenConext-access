@@ -124,6 +124,7 @@ const Organization = () => {
                             <div key={index} className="first-application">
                                 <div
                                     className={`application ${readOnly ? "read-only" : ""}`}
+                                    title={readOnly ? I18n.t("organization.readOnly", {orgName: organization.name}) : ""}
                                     onClick={() => !readOnly && navigate(`/connection/${application.id}`)}>
                                     {isEmpty(application.logoUrl) ? <ImageNotFound/> :
                                         <img src={application.logoUrl} alt={application.name}/>}
@@ -191,6 +192,7 @@ const Organization = () => {
                 searchAttributes={["name"]}
                 rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(`/connection/${application.id}`)}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
+                notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
                 newEntityFunc={() => navigate("/application/new")}
                 inputFocus={true}/>
         );

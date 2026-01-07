@@ -39,7 +39,8 @@ export const Entities = ({
                              newEntityFunc,
                              defaultSort,
                              rowClassNameResolver,
-                             inputFocus = false
+                             inputFocus = false,
+                             notAllowedTitle = ""
                          }) => {
 
     const [query, setQuery] = useState("");
@@ -166,6 +167,7 @@ export const Entities = ({
         const overrideClickable = typeof rowOverrideClickable === "function" && rowOverrideClickable(entity);
         const clickAble = (!overrideClickable && typeof rowLinkMapper === "function") ? "clickable" : "";
         return <tr key={`tr_${entity.id}_${index}`}
+                   title={overrideClickable && notAllowedTitle ? notAllowedTitle : ""}
                    className={`${clickAble} ${onHover ? "hoverable" : ""} ${additionalClassName} ${overrideClickable ? "not-allowed" : ""}`}>
             {columns.map((column, i) =>
                 <td key={`td_${column.key}_${i}`}

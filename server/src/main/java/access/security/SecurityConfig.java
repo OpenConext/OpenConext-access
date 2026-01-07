@@ -37,6 +37,7 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 @EnableWebSecurity
 @EnableScheduling
@@ -48,7 +49,7 @@ public class SecurityConfig {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final Environment environment;
-    private final String eduidIdpEntityId;
+    private final List<String> eduidIdpEntityIdentifiers;
     private final String minimalStepupAcrLevel;
 
     @Autowired
@@ -58,7 +59,7 @@ public class SecurityConfig {
                           @Value("${config.minimal_stepup_acr_level}") String minimalStepupAcrLevel) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.environment = environment;
-        this.eduidIdpEntityId = eduidIdpEntityId;
+        this.eduidIdpEntityIdentifiers = Stream.of(eduidIdpEntityId.split(",")).map(entityId -> entityId.trim()).toList();
         this.minimalStepupAcrLevel = minimalStepupAcrLevel;
     }
 
@@ -189,7 +190,7 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer(eduidIdpEntityId, minimalStepupAcrLevel));
+                new AuthorizationRequestCustomizer(eduidIdpEntityIdentifiers, minimalStepupAcrLevel));
         return authorizationRequestResolver;
     }
 

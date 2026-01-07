@@ -45,7 +45,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         String requestURI = request.getRequestURI();
 
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
-            //The user has logged in and obtained an access_token. Access is acting as an API resource server
+            //The user has logged in and got an access_token. Access is acting as an API resource server
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             //The user has logged in with OpenIDConnect. Access is acting as a backend server
