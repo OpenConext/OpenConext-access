@@ -1,7 +1,6 @@
 package access.remote;
 
 import access.manage.JSONHeaderInterceptor;
-import access.manage.ManageAuthorization;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
@@ -20,11 +19,11 @@ public class RestTemplateFactory {
     private RestTemplateFactory() {
     }
 
-    public static RestTemplate buildRrestTemplate(String user, String password) {
-        return buildRrestTemplate(new DefaultResponseErrorHandler(), user, password);
+    public static RestTemplate buildRestTemplate(String user, String password) {
+        return buildRestTemplate(new DefaultResponseErrorHandler(), user, password);
     }
 
-    public static RestTemplate buildRrestTemplate(ResponseErrorHandler resilientErrorHandler, String user, String password) {
+    public static RestTemplate buildRestTemplate(ResponseErrorHandler resilientErrorHandler, String user, String password) {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
                 .setConnectionManager(new PoolingHttpClientConnectionManager())
                 .disableCookieManagement();

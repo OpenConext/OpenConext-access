@@ -21,7 +21,7 @@ public class InviteClient {
                         @Value("${invite.password}") String password) {
         this.enabled = enabled;
         this.url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
-        this.restTemplate = RestTemplateFactory.buildRrestTemplate(user, password);
+        this.restTemplate = RestTemplateFactory.buildRestTemplate(user, password);
     }
 
     @SuppressWarnings("unchecked")

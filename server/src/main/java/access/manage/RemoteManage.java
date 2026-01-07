@@ -53,8 +53,8 @@ public class RemoteManage implements Manage {
         });
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
         this.restTemplates = Map.of(
-                Environment.TEST, RestTemplateFactory.buildRrestTemplate(resilientErrorHandler, testAuthorization.user(), testAuthorization.password()),
-                Environment.PROD, RestTemplateFactory.buildRrestTemplate(resilientErrorHandler, productionAuthorization.user(), productionAuthorization.password())
+                Environment.TEST, RestTemplateFactory.buildRestTemplate(resilientErrorHandler, testAuthorization.user(), testAuthorization.password()),
+                Environment.PROD, RestTemplateFactory.buildRestTemplate(resilientErrorHandler, productionAuthorization.user(), productionAuthorization.password())
         );
     }
 
