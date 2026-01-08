@@ -34,10 +34,11 @@ public interface UserAccessRights {
         boolean allowed = switch (organizationMembership.getAuthority()) {
             case ADMIN -> true;
             case MEMBER, GUEST -> {
-                boolean allowedByApplicationMembership = organizationMembership.getApplicationMemberships().stream()
+                boolean allowedByApplicationMembership = organizationMembership.getApplicationMemberships()
+                        .stream()
                         .anyMatch(applicationMembership -> applicationMembership.getApplication().getId().equals(application.getId()));
-                yield (application.getOwner() != null && application.getOwner().getId().equals(user.getId())) ||
-                        allowedByApplicationMembership;
+                yield allowedByApplicationMembership ||
+                        (application.getOwner() != null && application.getOwner().getId().equals(user.getId()));
             }
         };
         if (!allowed) {
