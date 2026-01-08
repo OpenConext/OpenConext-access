@@ -10,9 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -77,11 +75,15 @@ public class RemoteManage implements Manage {
         return providerDetails(environment, protocol, manageIdentifier);
     }
 
-    private Map providerDetails(Environment environment, EntityType protocol, String manageIdentifier) {
+    private Map<String, Object> providerDetails(Environment environment, EntityType protocol, String manageIdentifier) {
         String url = environmentUrl(environment);
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, protocol.name(), manageIdentifier);
         RestTemplate restTemplate = environmentRestTemplate(environment);
-        return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+        ResponseEntity<Map> responseEntity = restTemplate.getForEntity(queryUrl, Map.class);
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return sanitizeProvider(responseEntity.getBody());
+        }
+        return responseEntity.getBody();
     }
 
     public Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment) {

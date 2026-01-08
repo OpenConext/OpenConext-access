@@ -12,5 +12,6 @@ public class ConnectionRequest implements Serializable {
     private String applicationManageIdentifier;
     private EntityType entityType;
     private String idpManageIdentifier;
+    private String message;
 
 }

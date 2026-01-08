@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.enabled=false",
                 "jira.enabled=true",
-                "s3storage.url=http://localhost:8081"
+                "jira.base-url=http://localhost:8081"
         })
 class JiraClientTest extends AbstractTest {
 

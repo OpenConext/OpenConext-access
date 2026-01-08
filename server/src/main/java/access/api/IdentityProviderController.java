@@ -1,40 +1,34 @@
 package access.api;
 
-import access.exception.InvalidInputException;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
-import access.manage.ChangeRequest;
+import access.mail.MailBox;
+import access.manage.DashBoardConnectionOption;
 import access.manage.Manage;
-import access.manage.PathUpdateType;
-import access.manage.RequestType;
 import access.model.*;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
-import static access.api.Results.deleteResult;
-import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/idp"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,15 +43,18 @@ public class IdentityProviderController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final Manage manage;
     private final JiraClient jiraClient;
+    private final MailBox mailBox;
 
     public IdentityProviderController(UserRepository userRepository,
                                       OrganizationRepository organizationRepository,
                                       Manage manage,
-                                      JiraClient jiraClient) {
+                                      JiraClient jiraClient,
+                                      MailBox mailBox) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
+        this.mailBox = mailBox;
     }
 
     @PutMapping({"/connect"})
@@ -74,6 +71,7 @@ public class IdentityProviderController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
         User userFromDB = reinitializeUser(user, userRepository);
+        //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
         boolean memberRequest = !userFromDB.isSuperUser();
         if (memberRequest) {
             OrganizationMembership organizationMembership = getOrganizationMembership(userFromDB, organization, Authority.GUEST)
@@ -83,19 +81,40 @@ public class IdentityProviderController implements UserAccessRights {
         }
         if (memberRequest) {
             //The only action is to email the institution admin of the organization, with a deep link to App
-            // TODO send email
+            List<User> admins = organization.getOrganizationMemberships().stream()
+                    .filter(membership -> membership.getAuthority().equals(Authority.ADMIN))
+                    .map(membership -> membership.getUser())
+                    .toList();
+            if (admins.isEmpty()) {
+                //Edge case, send the mail to the superusers instead
+                admins = userRepository.findBySuperUser(true);
+            }
+            String deeplink = String.format("/application-detail/%s/%s",
+                    serviceProvider.get("type"),
+                    serviceProvider.get("id"));
+            mailBox.sendConnectionRequest(userFromDB, admins, organization, getProviderName(serviceProvider),
+                    connectionRequest.getMessage(), deeplink);
             return Results.createResult();
         }
         //Now check if the connection can be made automatically
         Map<String, Object> spMetaDataFields = getMetaDataFields(getData(serviceProvider));
-        String connectOption = (String) spMetaDataFields.getOrDefault("coin:dashboard_connect_option", "connect_with_interaction");
+        DashBoardConnectionOption connectOption = DashBoardConnectionOption
+                .fromValue((String) spMetaDataFields.getOrDefault("coin:dashboard_connect_option", "connect_with_interaction"));
         String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get("coin:institution_guid");
 
         boolean idpAndSpShareInstitution = spMetaDataFields.getOrDefault("coin:institution_guid", "nope")
                 .equals(idpInstitutionGUID);
-        boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals("connect_with_interaction");
+        boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals(DashBoardConnectionOption.connectWithInteraction);
         if (connectWithoutInteraction) {
             manage.connectWithoutInteraction(identityProvider, serviceProvider, userFromDB);
+            if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail)) {
+                mailBox.sendNewConnectionCreated(
+                        userFromDB,
+                        contactPersons(serviceProvider),
+                        getProviderName(identityProvider),
+                        getProviderName(serviceProvider),
+                        (String) getData(serviceProvider).get("entityid"));
+            }
             return Results.createResult();
         }
 

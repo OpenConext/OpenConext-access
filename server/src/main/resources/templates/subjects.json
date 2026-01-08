@@ -3,12 +3,16 @@
     "newInvitation": "Invitation for %s at OpenConext Access",
     "newJoinRequest": "New join request from %s for %s",
     "acceptJoinRequest": "Join request for %s accepted",
-    "deniedJoinRequest": "Join request for %s denied"
+    "deniedJoinRequest": "Join request for %s denied",
+    "connectionRequest": "Connection request for %s",
+    "newConnectionMade": "New Connection for %s with %s"
   },
   "nl": {
     "newInvitation": "Invitation for %s at OpenConext Access",
     "newJoinRequest": "New join request from %s for %s",
     "acceptJoinRequest": "Join request for %s accepted",
-    "deniedJoinRequest": "Join request for %s denied"
+    "deniedJoinRequest": "Join request for %s denied",
+    "connectionRequest": "Connection request for %s",
+    "newConnectionMade": "New Connection for %s with %s"
   }
 }

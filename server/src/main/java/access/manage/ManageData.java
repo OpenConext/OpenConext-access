@@ -4,6 +4,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ManageData {
@@ -19,6 +20,22 @@ public class ManageData {
         return (Map<String, Object>) provider.get("data");
     }
 
+    public static String getProviderName(Map<String, Object> provider) {
+        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+        return (String) metaDataFields.get("name:en");
+    }
+
+    public static List<String> contactPersons(Map<String, Object> provider) {
+        Pattern pattern = Pattern.compile("contacts:[0-9]:contactType");
+        List contactTypes = List.of("technical", "support", "administrative");
+        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+        return metaDataFields.keySet()
+                .stream()
+                .filter(key -> pattern.matcher(key).matches() && contactTypes.contains(metaDataFields.get(key)))
+                .map(key -> (String) metaDataFields.get(key.replace("contactType", "emailAddress")))
+                .toList();
+
+    }
 
     public static boolean isEmpty(Object object) {
         return switch (object) {

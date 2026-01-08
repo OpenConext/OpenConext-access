@@ -25,19 +25,19 @@
     "contactPersons": [
       {
         "type": "support",
-        "email": "help@surfconext.nl",
+        "email": "support@surfconext.nl",
         "surName": "Doe",
         "givenName": "Supp"
       },
       {
         "type": "technical",
-        "email": "help@surfconext.nl",
+        "email": "technical@surfconext.nl",
         "surName": "DPEOOE",
         "givenName": "Tech"
       },
       {
         "type": "administrative",
-        "email": "help@surfconext.nl",
+        "email": "admin@surfconext.nl",
         "surName": "Codo",
         "givenName": "Admin"
       }

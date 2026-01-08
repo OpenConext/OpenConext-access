@@ -1,0 +1,8 @@
+{{requester.name}}</strong>
+            has requested to connect service {{serviceProviderName} to your organization {{organization.name}}
+
+Visit service:
+
+{{{ deepLink }}}
+
+{{> footer_en.txt}}

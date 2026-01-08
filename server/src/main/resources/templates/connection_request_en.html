@@ -17,9 +17,8 @@
         {{/environment}}
         <p class="title" style="">Hello,</p>
 
-        <p><strong>{{invitation.invitee.name}}</strong> (from
-            <strong>{{invitation.invitee.schacHomeOrganization}}</strong>)
-            has invited you to organization {{invitation.organization.name}}.</p>
+        <p><strong>{{requester.name}}</strong>
+            has requested to connect service {{serviceProviderName} to your organization {{organization.name}}.</p>
 
         {{#message}}
         <p style="margin: 20px 0 0 0;">Personal message from {{invitation.invitee.name}}</p>
@@ -31,9 +30,9 @@
         {{/message}}
 
         <div style="display: flex;">
-            <a class="button" href="{{{ url }}}"
+            <a class="button" href="{{{ deepLink }}}"
                style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
-                <span style="color: white;margin: auto 0 auto 25px;">Accept invitation</span>
+                <span style="color: white;margin: auto 0 auto 25px;">Click to open {{serviceProviderName}} in Access</span>
             </a>
         </div>
     </div>

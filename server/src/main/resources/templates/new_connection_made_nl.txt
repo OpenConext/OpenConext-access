@@ -1,0 +1,7 @@
+As a service provider, you allow institutions on SURFconext to connect your service automatically.
+You receive this email because you have chosen to receive notifications for new connections.
+
+{{user}} from Institution {{idpName}} has initiated the connection between their institution and your
+service {{spName}} (with entityID="{{spEntityID}}").
+
+{{> footer_en.txt}}

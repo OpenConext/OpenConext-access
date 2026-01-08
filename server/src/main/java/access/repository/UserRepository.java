@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
     Optional<User> findDetailsById(Long id);
 
     Optional<User> findBySubIgnoreCase(String sub);
+
+    List<User> findBySuperUser(boolean isSuperUser);
 
     @Query(value = """
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,

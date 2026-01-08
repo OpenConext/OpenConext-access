@@ -76,6 +76,59 @@ public class MailBox {
     }
 
     @SneakyThrows
+    public void sendConnectionRequest(User requester,
+                                      List<User> recipients,
+                                      Organization organization,
+                                      String serviceProviderName,
+                                      String message,
+                                      String deepLink) {
+        Language language = Language.valueOf(preferredLanguage());
+        String title = String.format(subjects.get(language.name()).get("connectionRequest"),
+                serviceProviderName);
+        Map<String, Object> variables = new HashMap<>();
+        if (StringUtils.hasText(message)) {
+            variables.put("message", message.replaceAll("\n", "<br/>"));
+        }
+        variables.put("title", title);
+        variables.put("serviceProviderName", serviceProviderName);
+        variables.put("organization", organization);
+        variables.put("requester", requester);
+        variables.put("deepLink", String.format("%s/%s", clientUrl, deepLink));
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("connection_request_%s", language.name()),
+                title,
+                variables,
+                recipients.stream().map(user -> user.getEmail()).toList().toArray(new String[]{}));
+    }
+
+    @SneakyThrows
+    public void sendNewConnectionCreated(User institutionAdmin,
+                                         List<String> recipients,
+                                         String identityProviderName,
+                                         String serviceProviderName,
+                                         String serviceProviderEntityId) {
+        Language language = Language.valueOf(preferredLanguage());
+        String title = String.format(subjects.get(language.name()).get("newConnectionMade"),
+                serviceProviderName,
+                identityProviderName);
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("title", title);
+        variables.put("identityProviderName", identityProviderName);
+        variables.put("serviceProviderName", serviceProviderName);
+        variables.put("serviceProviderEntityId", serviceProviderEntityId);
+        variables.put("institutionAdmin", institutionAdmin);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("new_connection_made_%s", language.name()),
+                title,
+                variables,
+                recipients.toArray(new String[]{}));
+    }
+
+    @SneakyThrows
     public void sendJoinRequestMail(JoinRequest joinRequest) {
         Language language = joinRequest.getLanguage();
         Organization organization = joinRequest.getOrganization();
@@ -140,7 +193,7 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
         variables.put("title", "SURF Access feedback form");
-        String now =  LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
         variables.put("message", message.replaceAll("\n", "<br/>"));
         if (!environment.equalsIgnoreCase("prod")) {
