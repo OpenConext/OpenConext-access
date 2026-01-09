@@ -36,8 +36,13 @@ class JiraClientTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        String jiraKey = jiraClient.create(new JiraIssue("entityID", "description", "summary",
-                EntityType.saml20_sp, "mail@to.org"));
+        String jiraKey = jiraClient.create(new JiraIssue(
+                "serviceProviderEntityID",
+                "identityProviderEntityID",
+                "description",
+                "summary",
+                EntityType.saml20_sp,
+                "mail@to.org"));
         assertEquals("CTX-1000", jiraKey);
     }
 }

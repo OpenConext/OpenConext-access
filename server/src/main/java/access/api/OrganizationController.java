@@ -230,6 +230,7 @@ public class OrganizationController implements UserAccessRights {
                 orgName);
         String jiraKey = jiraClient.create(new JiraIssue(
                 orgName,
+                null,// There is no identity provider for approving organizations
                 String.format("%s The new organisation is pending approval. Visit to evaluate:%s%s",
                         summary,
                         System.lineSeparator(),

@@ -132,9 +132,9 @@ const ApplicationDetail = ({anonymous}) => {
             } else {
                 setConfirmation({});
                 connectServiceProviderToIdentityProvider(serviceProvider.id,serviceProvider.type, user.identityProvider.id)
-                    .then(() => {
+                    .then(res => {
                         //Where to go to next?
-                        alert("done")
+                        alert("done:"+JSON.stringify(res));
                     })
             }
         }

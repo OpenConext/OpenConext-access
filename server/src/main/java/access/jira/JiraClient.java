@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -68,13 +69,16 @@ public class JiraClient {
         }
         Map<String, Object> fields = new HashMap<>();
         fields.put("project", Map.of("key", config.getProjectKey()));
-        fields.put("customfield_" + spCustomField(), issue.getEntityID());
+        fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
+        fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
         fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", issue.getEntityType().name()));
         fields.put("customfield_" + emailToCustomField(), issue.getEmailTo());
         fields.put("issuetype", ImmutableMap.of("id", issueType));
         fields.put("summary", issue.getSummary());
         fields.put("description", issue.getDescription());
         fields.put("duedate", dueDate());
+        //We don't send keys with null or empty values
+        fields.entrySet().removeIf(entry -> entry.getValue() instanceof String && !StringUtils.hasText((String) entry.getValue()));
 
         Map<String, Map<String, Object>> jiraIssue = Map.of("fields", fields);
 
@@ -110,6 +114,10 @@ public class JiraClient {
         return this.customField("spEntityId");
     }
 
+    private String idpCustomField() {
+        return this.customField("idpEntityId");
+    }
+
     private String typeMetaDataCustomField() {
         return this.customField("typeMetaData");
     }
@@ -124,8 +132,7 @@ public class JiraClient {
 
     private String dueDate() {
         LocalDate localDate = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return localDate.plusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return localDate.plusWeeks(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
-
 
 }

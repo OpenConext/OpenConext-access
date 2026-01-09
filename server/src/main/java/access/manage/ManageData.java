@@ -25,6 +25,11 @@ public class ManageData {
         return (String) metaDataFields.get("name:en");
     }
 
+    public static String getEntityID(Map<String, Object> provider) {
+        Map<String, Object> data = getData(provider);
+        return (String) data.get("entityid");
+    }
+
     public static List<String> contactPersons(Map<String, Object> provider) {
         Pattern pattern = Pattern.compile("contacts:[0-9]:contactType");
         List contactTypes = List.of("technical", "support", "administrative");

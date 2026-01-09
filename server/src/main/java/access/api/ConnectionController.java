@@ -169,6 +169,7 @@ public class ConnectionController implements UserAccessRights {
                 user.getName(), connection.getName());
         String jiraKey = jiraClient.create(new JiraIssue(
                 entityId,
+                null,// There is no identity provider for requesting production status
                 String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
                         summary,
                         lineSeparator,
@@ -245,6 +246,7 @@ public class ConnectionController implements UserAccessRights {
                 entityId);
         String jiraKey = jiraClient.create(new JiraIssue(
                 entityId,
+                null,// There is no identity provider for change requests
                 String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
                         summary,
                         System.lineSeparator(),

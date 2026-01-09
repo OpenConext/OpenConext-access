@@ -5,8 +5,7 @@ import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.mail.MailBox;
-import access.manage.DashBoardConnectionOption;
-import access.manage.Manage;
+import access.manage.*;
 import access.model.*;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
@@ -120,34 +119,37 @@ public class IdentityProviderController implements UserAccessRights {
 
         String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
 
-        String entityId = (String) ((Map) identityProvider.get("data")).get("entityid");
+        String identityProviderEntityID = getEntityID(identityProvider);
+        String serviceProviderEntityID = getEntityID(serviceProvider);
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Connection request requested by %s for %s.",
-                user.getName(), serviceProvider);
+                user.getName(), getProviderName(identityProvider));
         String jiraKey = jiraClient.create(new JiraIssue(
-                entityId,
-                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
+                serviceProviderEntityID,
+                identityProviderEntityID,
+                String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
                         summary,
+                        lineSeparator,
                         lineSeparator,
                         changeRequestURL),
                 summary,
-                EntityType.saml20_idp,
+                EntityType.valueOf((String) serviceProvider.get("type")),
                 user.getEmail()
         ));
-////        ChangeRequest changeRequest = new ChangeRequest(
-////                idpManageIdentifier,
-////                EntityType.saml20_idp,
-////                //TODO - See idp-dashboard ServicesController#connect
-////                Map.of("state", "prodaccepted"),
-////                Map.of("user", user.getEmail(),
-////                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
-////                                user.getName(), connection.getName(), jiraKey)),
-////                false,
-////                PathUpdateType.ADDITION,
-////                RequestType.LinkRequest);
-////        Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
-////
-//        LOG.debug("Change request response from manage: " + changeRequestResponse);
+        ChangeRequest changeRequest = new ChangeRequest(
+                idpManageIdentifier,
+                EntityType.saml20_idp,
+                Map.of("allowedEntities", Map.of("name", serviceProviderEntityID)),
+                Map.of("user", user.getEmail(),
+                        "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
+                                user.getName(),
+                                identityProviderEntityID,
+                                serviceProviderEntityID,
+                                jiraKey)),
+                true,
+                PathUpdateType.ADDITION,
+                RequestType.LinkRequest);
+        manage.createChangeRequest(Environment.PROD, changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
