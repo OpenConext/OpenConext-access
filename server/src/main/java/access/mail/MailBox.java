@@ -93,7 +93,7 @@ public class MailBox {
         variables.put("serviceProviderName", serviceProviderName);
         variables.put("organization", organization);
         variables.put("requester", requester);
-        variables.put("deepLink", String.format("%s/%s", clientUrl, deepLink));
+        variables.put("deepLink", String.format("%s%s", clientUrl, deepLink));
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }

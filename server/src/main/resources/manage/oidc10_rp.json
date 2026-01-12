@@ -12,7 +12,10 @@
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-        "coin:application_url": "https://default-url-calendar.org"
+        "coin:application_url": "https://default-url-calendar.org",
+        "coin:dashboard_connect_option": "connect_without_interaction_with_email",
+        "contacts:0:contactType": "support",
+        "contacts:0:emailAddress": "support@cal.com"
       }
     }
   },
@@ -28,7 +31,8 @@
         "name:nl": "Cloud NL",
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
-        "coin:application_url": "https://default-url-cloud.org"
+        "coin:application_url": "https://default-url-cloud.org",
+        "coin:dashboard_connect_option": "connect_without_interaction_without_email"
       }
     }
   },

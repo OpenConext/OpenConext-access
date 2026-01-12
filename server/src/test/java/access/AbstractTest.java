@@ -47,6 +47,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -151,6 +152,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected OrganizationMembershipRepository organizationMembershipRepository;
+
+    @Autowired
+    protected DataSource dataSource;
 
     protected LocalManage localManage;
 

@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,14 +62,14 @@ public class IdentityProviderController implements UserAccessRights {
     public ResponseEntity<Map<String, Object>> connect(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
         LOG.debug("/connect SP to IdP connection for " + user.getEmail());
 
+        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
+        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
+                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
+
         Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
                 connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
-        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
         Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
-
-        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
-                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
         User userFromDB = reinitializeUser(user, userRepository);
         //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
@@ -105,14 +107,17 @@ public class IdentityProviderController implements UserAccessRights {
                 .equals(idpInstitutionGUID);
         boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals(DashBoardConnectionOption.connectWithInteraction);
         if (connectWithoutInteraction) {
-            manage.connectWithoutInteraction(identityProvider, serviceProvider, userFromDB);
+                manage.connectWithoutInteraction(identityProvider, serviceProvider, userFromDB);
             if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail)) {
-                mailBox.sendNewConnectionCreated(
-                        userFromDB,
-                        contactPersons(serviceProvider),
-                        getProviderName(identityProvider),
-                        getProviderName(serviceProvider),
-                        (String) getData(serviceProvider).get("entityid"));
+                List<String> recipients = contactPersons(serviceProvider);
+                if (!CollectionUtils.isEmpty(recipients)) {
+                    mailBox.sendNewConnectionCreated(
+                            userFromDB,
+                            recipients,
+                            getProviderName(identityProvider),
+                            getProviderName(serviceProvider),
+                            (String) getData(serviceProvider).get("entityid"));
+                }
             }
             return Results.createResult();
         }

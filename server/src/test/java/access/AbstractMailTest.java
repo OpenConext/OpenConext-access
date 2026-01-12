@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -54,12 +57,9 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
-    protected List<MimeMessageParser> allMailMessages(int expectedLength) {
-        await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
-        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
-        return Stream.of(receivedMessages)
-                .map(this::mimeMessageParser)
-                .collect(Collectors.toList());
+    protected void confirmNoMailMessages() {
+        await().atLeast(Duration.ofSeconds(1L));
+        assertEquals(0, greenMail.getReceivedMessages().length);
     }
 
     @SneakyThrows

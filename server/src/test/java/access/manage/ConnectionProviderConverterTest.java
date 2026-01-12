@@ -41,7 +41,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Map<String, Object> provider = localManage.providerById(connection);
         List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, Map.of());
         assertEquals(1, changeRequests.size());
-        assertEquals(17, changeRequests.getFirst().getPathUpdates().size());
+        assertEquals(19, changeRequests.getFirst().getPathUpdates().size());
     }
 
     @SneakyThrows
