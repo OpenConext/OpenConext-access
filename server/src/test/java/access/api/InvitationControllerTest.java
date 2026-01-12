@@ -105,7 +105,9 @@ class InvitationControllerTest extends AbstractMailTest {
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
-        stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
+
         User user = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -135,8 +137,9 @@ class InvitationControllerTest extends AbstractMailTest {
                     m.put("schac_home_organization", schacHomeOrganization);
                     return m;
                 });
-        //Looku for identity provider by authenticating authority
-        stubForIdentityProviderByEntityId(authenticatingAuthority);
+        //Lookup for identity provider by authenticating authority
+        super.stubForIdentityProviderByEntityId(authenticatingAuthority);
+        super.stubForGetChangeRequests(getChangeRequests());
 
         User user = given()
                 .when()
