@@ -976,6 +976,7 @@ const en = {
         new: "Nieuwe applicatie toevoegen",
         name: "App",
         vendor: "Vendor",
+        connectRequested: "Requested",
         status: "Status",
         created: "Date connected",
         searchPlaceHolder: "Search...",
@@ -1022,11 +1023,25 @@ const en = {
     applicationConnect: {
         connect: "Connect",
         request: "Request connection",
+        requestMember: "Request application",
         back: "← Back to other apps",
         defaultAccess: "Hoe wil je default toegang instellen?",
+        requestConnection: "Koppeling met deze applicatie moet worden aangevraagd",
+        requestConnectionInfo: "De leverancier van deze applicatie ontvangt en beoordeelt de aanvraag. ",
         access: {
             all:"Iedereen van de {{orgName}} heeft direct automatisch toegang",
             some: "Pas toegangsregels toe"
+        },
+        memberRequestInfo: [
+            "Om een applicatie gekoppelde te krijgen met het SURF Access platform, moet akkoord gegeven worden worden door de SURF Access Verantwoordelijke van de {{orgName}}.",
+            "Geef hieronder aan waarom je deze applicatie geactiveerd wil hebben. Wij versturen het bericht naar hem of haar, je ontvangt zelf ook een kopie."
+        ],
+        messagePlaceholder: "Your message",
+        sendMessage: "Send message",
+        flash: {
+            requestConnectionByMember: "Your request has been send",
+            makeConnection: "Application access has been set",
+            requestConnection: "Application access is requested"
         }
     }
 }

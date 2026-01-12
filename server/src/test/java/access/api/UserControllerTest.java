@@ -26,7 +26,10 @@ class UserControllerTest extends AbstractTest {
     void meWithOauth2Login() throws Exception {
         this.stubForStats();
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
-        stubForIdentityProviderByEntityId("http://mock-idp");
+
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
+
         User user = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -52,7 +55,8 @@ class UserControllerTest extends AbstractTest {
                 MANAGE_SUB, (UserInfoEnhancer)
                         userInfo -> userInfo.put("email", "changed.doe@example.com")
         );
-        stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
 
         User user = given()
                 .when()
@@ -90,7 +94,8 @@ class UserControllerTest extends AbstractTest {
     @Test
     void meManagerWithMockLogin() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
 
         User user = given()
                 .when()
@@ -235,7 +240,9 @@ class UserControllerTest extends AbstractTest {
                 "schac_home_organization", "sharelogics.org",
                 "sub", "urn:collab:person:providence:new");
         AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
-        stubForIdentityProviderByEntityId("http://mock-idp");
+
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
 
         User user = given()
                 .when()
@@ -255,6 +262,7 @@ class UserControllerTest extends AbstractTest {
     @Test
     void createOrganizationForInstitutionAdmin() throws Exception {
         super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
+        super.stubForGetChangeRequests(getChangeRequests());
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));

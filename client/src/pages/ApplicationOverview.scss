@@ -24,6 +24,13 @@ div.accessible-apps-container {
         }
     }
 
+    .app-name {
+        display: flex;
+        button {
+            margin: 0 15px 0 auto;
+        }
+    }
+
     .accessible-apps-header-container {
         background-color: var(--sds--color--gray--background);
         padding: 25px 50px 25px 50px;

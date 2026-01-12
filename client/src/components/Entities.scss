@@ -125,15 +125,6 @@
         }
     }
 
-    svg.impersonate {
-        width: 26px;
-        height: auto;
-        cursor: pointer;
-        color: var(--sds--color--blue--400);
-
-    }
-
-
     table {
         width: 100%;
         table-layout: fixed;
@@ -290,6 +281,13 @@
                         height: auto;
                         color: var(--sds--color--gray--300);
                         border-radius: 12px;
+
+                        &.impersonate {
+                            width: 26px;
+                            height: auto;
+                            cursor: pointer;
+                            color: var(--sds--color--blue--400);
+                        }
                     }
                 }
 

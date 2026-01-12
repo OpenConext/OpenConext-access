@@ -74,6 +74,7 @@ public class OrganizationMembership implements NameHolder {
         if (organization != null && Hibernate.isInitialized(organization)) {
             organizationInfo.put("id", organization.getId());
             organizationInfo.put("name", organization.getName());
+            organizationInfo.put("manageIdentifier", organization.getManageIdentifier());
             organizationInfo.put("status", organization.getStatus());
             organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
         }

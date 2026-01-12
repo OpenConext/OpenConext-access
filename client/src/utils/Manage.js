@@ -61,6 +61,15 @@ export const ENVIRONMENTS = {
     TEST: "TEST", PROD: "PROD"
 }
 
+export const CHANGE_REQUEST_TYPE = {
+    PRODUCTION_STATUS_REQUEST: "ProductionStatusRequest",
+    LINK_REQUEST: "LinkRequest",
+    UNLINK_REQUEST:"UnlinkRequest",
+    CHANGE:"Change",
+    LINK_INVITE:"LinkInvite",
+    UNLINK_INVITE: "UnlinkInvite"
+}
+
 export const APPLICATION_LINKS = [
     {
         locale: "applicationDetail.website",

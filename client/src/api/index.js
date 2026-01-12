@@ -303,11 +303,12 @@ export function deleteAllInvitations(organization) {
 }
 
 //IdentityProvider
-export function connectServiceProviderToIdentityProvider(applicationManageIdentifier, entityType, idpManageIdentifier) {
+export function connectServiceProviderToIdentityProvider(applicationManageIdentifier, entityType, idpManageIdentifier, message) {
     const body = {
         applicationManageIdentifier: applicationManageIdentifier,
         entityType: entityType,
-        idpManageIdentifier: idpManageIdentifier
+        idpManageIdentifier: idpManageIdentifier,
+        message
     };
     return postPutJson("/api/v1/idp/connect", body, "PUT")
 }

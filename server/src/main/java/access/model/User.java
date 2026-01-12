@@ -90,6 +90,9 @@ public class User implements Serializable, NameHolder {
     private Map<String, Object> identityProvider = null;
 
     @Transient
+    private List<Map<String, Object>> changeRequests = null;
+
+    @Transient
     private int loaLevel = 1;
 
     @Transient
@@ -241,5 +244,10 @@ public class User implements Serializable, NameHolder {
     @JsonProperty
     public boolean isExternalUser() {
         return externalUser;
+    }
+
+    @JsonProperty
+    public List<Map<String, Object>> getChangeRequests() {
+        return changeRequests;
     }
 }

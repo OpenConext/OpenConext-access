@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +94,9 @@ public class IdentityProviderController implements UserAccessRights {
             String deeplink = String.format("/application-detail/%s/%s",
                     serviceProvider.get("type"),
                     serviceProvider.get("id"));
+            //Avoid UnsupportedException for immutable collections
+            admins = new ArrayList<>(admins);
+            admins.add(user);
             mailBox.sendConnectionRequest(userFromDB, admins, organization, getProviderName(serviceProvider),
                     connectionRequest.getMessage(), deeplink);
             return Results.createResult();

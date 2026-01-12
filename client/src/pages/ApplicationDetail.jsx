@@ -7,25 +7,36 @@ import {Button, ButtonIconPlacement, ButtonType, Loader, RadioOptions, RadioOpti
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
-import {APPLICATION_LINKS, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
+import {
+    APPLICATION_LINKS,
+    CHANGE_REQUEST_TYPE,
+    providerDescription,
+    providerName,
+    providerOrganizationName
+} from "../utils/Manage.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {authorities} from "../utils/Permissions.js";
+import InputField from "../components/InputField.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
     requestConnection: "requestConnection",
+    requestConnectionByMember: "requestConnectionByMember",
     disconnectConnection: "disconnectConnection",
     requestDisconnectConnection: "requestDisconnectConnection",
 }
 
 const ApplicationDetail = ({anonymous}) => {
 
-        const {arp, privacy, user} = useAppStore(useShallow(state => ({
+        const {arp, privacy, user, setFlash} = useAppStore(useShallow(state => ({
             arp: state.arp,
             privacy: state.privacy,
-            user: state.user
+            user: state.user,
+            setFlash: state.setFlash
         })));
 
         const navigate = useNavigate();
@@ -36,11 +47,15 @@ const ApplicationDetail = ({anonymous}) => {
         const [showAttributes, setShowAttributes] = useState(false);
         const [showPrivacy, setShowPrivacy] = useState(false);
         const [metaData, setMetaData] = useState({});
-        const [connectWithOutInteraction, setConnectWithOutInteraction] = useState(false);
+        const [connectWithoutInteraction, setConnectWithoutInteraction] = useState(false);
+        const [isAdminUser, setIsAdminUser] = useState(false);
         const [confirmation, setConfirmation] = useState({});
         const [accessChoice, setAccessChoice] = useState("ALL");
         const [confirmationModalOption, setConfirmationModalOption] = useState(null);
-
+        const [message, setMessage] = useState("");
+        const [memberRequestSend, setMemberRequestSend] = useState(false);
+        const [accessible, setAccessible] = useState(false);
+        const [readOnly, setReadOnly] = useState(true);
 
         useEffect(() => {
             publicServiceProviderByDetail(manageType, manageId)
@@ -49,15 +64,44 @@ const ApplicationDetail = ({anonymous}) => {
                     setLoading(false);
                     const newMetaData = res.data.metaDataFields;
                     setMetaData(newMetaData);
+                    //See if this application is already connected
+                    const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
+                    let isAccessible = allowedEntities.includes(res.data.entityid);
+                    if (isAccessible) {
+                        setReadOnly(false);
+                    } else {
+                        //Check if there is an outstanding change request
+                        isAccessible = user.changeRequests
+                            .some(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
+                                changeRequest.pathUpdateType === "ADDITION" &&
+                                changeRequest.pathUpdates.allowedEntities.name === res.data.entityid
+                            );
+                        setReadOnly(true);
+                    }
+                    setAccessible(isAccessible);
+                    useAppStore.setState({
+                        breadcrumbPaths: [
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                            {
+                                path: isAccessible ? "/accessibleApps" : "/catalogue",
+                                value: I18n.t(`navigation.${isAccessible ? "accessibleApps" : "catalogue"}`)
+                            },
+                            {value: providerName(I18n.locale, res)}
+                        ],
+                        activeMenuItem: isAccessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
+                    });
                     const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
                     const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
                         newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
-                    setConnectWithOutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
+                    setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
+                    const idpId = user.identityProvider.id
+                    const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
+                    setIsAdminUser(user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN));
                 })
                 .catch(() => {
                     navigate("/404");
                 });
-        }, []);// eslint-disable-line react-hooks/exhaustive-deps
+        }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
         if (loading) {
             return <Loader/>
@@ -96,7 +140,7 @@ const ApplicationDetail = ({anonymous}) => {
         }
 
         const confirmationModalChildren = () => {
-            if (confirmationModalOption === confirmationModalOptions.makeConnection ) {
+            if (confirmationModalOption === confirmationModalOptions.makeConnection) {
                 return (
                     <div className="connect-options-container">
                         <RadioOptions name={"access"}
@@ -114,27 +158,75 @@ const ApplicationDetail = ({anonymous}) => {
                                       orientation={RadioOptionsOrientation.column}/>
                     </div>
                 );
+            } else if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
+                return (
+                    <div className="connect-options-container">
+                        <h3>{I18n.t("applicationConnect.requestMember")}</h3>
+                        {I18n.translations[I18n.locale].applicationConnect.memberRequestInfo
+                            .map((info, index) =>
+                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                            )}
+                        <InputField multiline={true}
+                                    displayLabel={false}
+                                    value={message}
+                                    placeholder={I18n.t("applicationConnect.messagePlaceholder")}
+                                    onChange={e => setMessage(e.target.value)}
+                        />
+                    </div>
+                );
+
+            } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
+                return (
+                    <div className="connect-options-container">
+                        <h3>{I18n.t("applicationConnect.requestConnection")}</h3>
+                        <p>{I18n.t("applicationConnect.requestConnectionInfo")}</p>
+                    </div>
+                );
+
             }
             return "TODO"
+        }
+
+        const cancelConfirmation = () => {
+            setConfirmation({});
+            setMessage("");
+            setAccessChoice("ALL")
         }
 
         const doRequestConnection = withConfirmation => {
             if (withConfirmation) {
                 setConfirmation({
                     open: true,
-                    cancel: () => setConfirmation({open: false}),
+                    cancel: () => cancelConfirmation(),
                     action: () => doRequestConnection(false),
                     title: null,
                     question: null,
-                    okButton: I18n.t("forms.proceed")
+                    okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "forms.proceed")
                 });
-                setConfirmationModalOption(confirmationModalOptions.makeConnection)
+                if (!isAdminUser) {
+                    setConfirmationModalOption(confirmationModalOptions.requestConnectionByMember);
+                } else if (connectWithoutInteraction) {
+                    setConfirmationModalOption(confirmationModalOptions.makeConnection);
+                } else {
+                    setConfirmationModalOption(confirmationModalOptions.requestConnection);
+                }
             } else {
-                setConfirmation({});
-                connectServiceProviderToIdentityProvider(serviceProvider.id,serviceProvider.type, user.identityProvider.id)
-                    .then(res => {
-                        //Where to go to next?
-                        alert("done:"+JSON.stringify(res));
+                cancelConfirmation();
+                connectServiceProviderToIdentityProvider(
+                    serviceProvider.id,
+                    serviceProvider.type,
+                    user.identityProvider.id,
+                    message)
+                    .then(() => {
+                        if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
+                            setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
+                            setMemberRequestSend(true);
+                        } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
+                            setFlash(I18n.t("applicationConnect.flash.requestConnection"));
+                        } else if (confirmationModalOption === confirmationModalOptions.makeConnection) {
+                            setFlash(I18n.t("applicationConnect.flash.makeConnection"));
+                        }
+
                     })
             }
         }
@@ -146,6 +238,173 @@ const ApplicationDetail = ({anonymous}) => {
 
         const {open, cancel, action, question, title, okButton} = confirmation;
 
+        const renderAccessibleApp = () => {
+            return (
+                <>
+                    <p>readOnly {readOnly.toString()}</p>
+                </>
+            )
+        }
+
+        const renderNonAccessibleApp = () => {
+            return (
+                <>
+                    {anonymous &&
+                        <div className="application-detail-header-container">
+                            <div className="application-detail-header">
+                                <div className="left">
+                                    <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
+                                    <p>{I18n.t("applicationDetail.subTitle")}</p>
+                                </div>
+                                <img src={StudentPng} alt="student"/>
+                            </div>
+                        </div>}
+                    {!anonymous &&
+                        <div className="application-detail-top">
+                            <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
+                        </div>
+                    }
+                    <div className="inner-application-detail-container">
+                        <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
+                            <div className="meta-data">
+                                {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                                {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                                <div className="meta-data-name">
+                                    <p className="organization">
+                                        {providerOrganizationName(I18n.locale, serviceProvider)}
+                                    </p>
+                                    <p className="name">
+                                        {providerName(I18n.locale, serviceProvider)}
+                                    </p>
+                                </div>
+                                {anonymous && <Button type={ButtonType.Secondary}
+                                                      icon={<ArrowLeftIcon/>}
+                                                      iconPlacement={ButtonIconPlacement.Left}
+                                                      onClick={goBack}
+                                                      txt={I18n.t("applicationDetail.back")}/>}
+                                {!anonymous && <Button onClick={() => doRequestConnection(true)}
+                                                       disabled={memberRequestSend}
+                                                       txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
+                                                           connectWithoutInteraction ? "connect" : "request"}`)}/>}
+                            </div>
+                            <div className="details">
+                                <div className="left">
+                                    <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                                    <div className="details-panel">
+                                        <p className="title">{I18n.t("applicationDetail.attributes")}</p>
+                                        <p>{I18n.t("applicationDetail.attributesInfo")}</p>
+                                        {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                                            {I18n.t("applicationDetail.details")}
+                                        </a>}
+                                        {showAttributes && <div className="arp-attributes">
+                                            {!serviceProvider.data.arp.enabled &&
+                                                <p>{I18n.t("applicationDetail.noArp")}</p>
+                                            }
+                                            {serviceProvider.data.arp.enabled &&
+                                                <>
+                                                    {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
+                                                        const attribute = findArpEntry(entry[0]);
+                                                        //ARP entries only have one value / source
+                                                        const value = entry[1][0];
+                                                        const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
+                                                        return (
+                                                            <div className="attribute" key={index}>
+                                                            <span
+                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
+                                                                {!isEmpty(value.motivation) &&
+                                                                    <span
+                                                                        className="attr-motivation">{value.motivation}</span>}
+                                                                {isEmpty(value.motivation) && <span
+                                                                    className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
+                                                                <span className="attr-source">
+                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
+                                                            </span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            }
+                                        </div>}
+                                    </div>
+                                    <div className="details-panel">
+                                        <p className="title">{I18n.t("applicationDetail.privacy")}</p>
+                                        <p>{I18n.t("applicationDetail.privacyInfo")}</p>
+                                        {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+                                            {I18n.t("applicationDetail.details")}
+                                        </a>}
+                                        {showPrivacy &&
+                                            <div className="privacy-questions">
+                                                {privacy.map((item, index) => {
+                                                        const question = item[`info_${I18n.locale}`];
+                                                        const strippedQuestion = question.substring(question.indexOf(" ") + 1);
+                                                        const answer = metaData[item.manage]
+                                                        return (
+                                                            <div className="privacy-question" key={index}>
+                                                                <span className="priv-name">{strippedQuestion}</span>
+                                                                {isEmpty(answer) && <span
+                                                                    className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
+                                                                {!isEmpty(answer) &&
+                                                                    <span className="priv-answer">{answer}</span>}
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
+                                            </div>}
+                                    </div>
+                                </div>
+                                <div className="right">
+                                    <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
+                                    <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
+                                    <div className="info-block">
+                                        {APPLICATION_LINKS.map((link, index) =>
+                                            externalLink(link, metaData, index)
+                                        )}
+                                    </div>
+                                    <p className="info">{I18n.t("applicationDetail.contractual")}</p>
+                                    <p>
+                                <span>
+                                    {metaData["coin:contractual_base"] ?
+                                        I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
+                                            {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
+                                        : I18n.t("applicationDetail.noInformation")}
+                                </span>
+                                        <span
+                                            dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
+                                    </p>
+                                    <p>{I18n.t("applicationDetail.contractualInfoOrganization",
+                                        {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
+                                    <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
+                                    <div className="info-block">
+                                        {[1, 2, 3, 4].map(nbr =>
+                                            externalLink({
+                                                locale: "applicationDetail.entityCategory",
+                                                localeAttribute: true,
+                                                metaData: `coin:entity_categories:${nbr}`,
+                                                languageProperty: false
+                                            }, metaData, nbr)
+                                        )}
+                                        {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
+                                            <p>{I18n.t("applicationDetail.none")}</p>
+                                        }
+                                    </div>
+                                    {metaData["mdrpi:RegistrationInfo"] && (
+                                        <div className="federation-source">
+                                            <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
+                                            <span
+                                                dangerouslySetInnerHTML={{
+                                                    __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
         return (
             <div className="application-detail-container">
                 {open && <ConfirmationDialog confirm={action}
@@ -154,155 +413,9 @@ const ApplicationDetail = ({anonymous}) => {
                                              confirmationHeader={title}
                                              question={question}>
                     {confirmationModalChildren()}
-                </ConfirmationDialog>
-                }
-                {anonymous && <div className="application-detail-header-container">
-                    <div className="application-detail-header">
-                        <div className="left">
-                            <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
-                            <p>{I18n.t("applicationDetail.subTitle")}</p>
-                        </div>
-                        <img src={StudentPng} alt="student"/>
-                    </div>
-                </div>}
-                {!anonymous &&
-                    <div className="application-detail-top">
-                        <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
-                    </div>
-                }
-                <div className="inner-application-detail-container">
-                    <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
-                        <div className="meta-data">
-                            {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                            {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                            <div className="meta-data-name">
-                                <p className="organization">
-                                    {providerOrganizationName(I18n.locale, serviceProvider)}
-                                </p>
-                                <p className="name">
-                                    {providerName(I18n.locale, serviceProvider)}
-                                </p>
-                            </div>
-                            {anonymous && <Button type={ButtonType.Secondary}
-                                                  icon={<ArrowLeftIcon/>}
-                                                  iconPlacement={ButtonIconPlacement.Left}
-                                                  onClick={goBack}
-                                                  txt={I18n.t("applicationDetail.back")}/>}
-                            {!anonymous && <Button onClick={() => doRequestConnection(true)}
-                                                   txt={I18n.t(`applicationConnect.${connectWithOutInteraction ? "connect" : "request"}`)}/>}
-                        </div>
-                        <div className="details">
-                            <div className="left">
-                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                <div className="details-panel">
-                                    <p className="title">{I18n.t("applicationDetail.attributes")}</p>
-                                    <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                                    {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
-                                        {I18n.t("applicationDetail.details")}
-                                    </a>}
-                                    {showAttributes && <div className="arp-attributes">
-                                        {!serviceProvider.data.arp.enabled &&
-                                            <p>{I18n.t("applicationDetail.noArp")}</p>
-                                        }
-                                        {serviceProvider.data.arp.enabled &&
-                                            <>
-                                                {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
-                                                    const attribute = findArpEntry(entry[0]);
-                                                    //ARP entries only have one value / source
-                                                    const value = entry[1][0];
-                                                    const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
-                                                    return (
-                                                        <div className="attribute" key={index}>
-                                                            <span
-                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
-                                                            {!isEmpty(value.motivation) &&
-                                                                <span className="attr-motivation">{value.motivation}</span>}
-                                                            {isEmpty(value.motivation) && <span
-                                                                className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
-                                                            <span className="attr-source">
-                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </>
-                                        }
-                                    </div>}
-                                </div>
-                                <div className="details-panel">
-                                    <p className="title">{I18n.t("applicationDetail.privacy")}</p>
-                                    <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-                                    {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
-                                        {I18n.t("applicationDetail.details")}
-                                    </a>}
-                                    {showPrivacy &&
-                                        <div className="privacy-questions">
-                                            {privacy.map((item, index) => {
-                                                    const question = item[`info_${I18n.locale}`];
-                                                    const strippedQuestion = question.substring(question.indexOf(" ") + 1);
-                                                    const answer = metaData[item.manage]
-                                                    return (
-                                                        <div className="privacy-question" key={index}>
-                                                            <span className="priv-name">{strippedQuestion}</span>
-                                                            {isEmpty(answer) && <span
-                                                                className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
-                                                            {!isEmpty(answer) && <span className="priv-answer">{answer}</span>}
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
-                                        </div>}
-                                </div>
-                            </div>
-                            <div className="right">
-                                <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
-                                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
-                                <div className="info-block">
-                                    {APPLICATION_LINKS.map((link, index) =>
-                                        externalLink(link, metaData, index)
-                                    )}
-                                </div>
-                                <p className="info">{I18n.t("applicationDetail.contractual")}</p>
-                                <p>
-                                <span>
-                                    {metaData["coin:contractual_base"] ?
-                                        I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
-                                            {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
-                                        : I18n.t("applicationDetail.noInformation")}
-                                </span>
-                                    <span
-                                        dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
-                                </p>
-                                <p>{I18n.t("applicationDetail.contractualInfoOrganization",
-                                    {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
-                                <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
-                                <div className="info-block">
-                                    {[1, 2, 3, 4].map(nbr =>
-                                        externalLink({
-                                            locale: "applicationDetail.entityCategory",
-                                            localeAttribute: true,
-                                            metaData: `coin:entity_categories:${nbr}`,
-                                            languageProperty: false
-                                        }, metaData, nbr)
-                                    )}
-                                    {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
-                                        <p>{I18n.t("applicationDetail.none")}</p>
-                                    }
-                                </div>
-                                {metaData["mdrpi:RegistrationInfo"] && (
-                                    <div className="federation-source">
-                                        <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
-                                        <span
-                                            dangerouslySetInnerHTML={{
-                                                __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </ConfirmationDialog>}
+                {accessible && renderAccessibleApp()}
+                {!accessible && renderNonAccessibleApp()}
             </div>
         );
     }

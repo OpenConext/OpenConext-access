@@ -103,6 +103,8 @@ public class UserController implements UserAccessRights {
             userFromDB.setIdentityProvider(identityProvider);
             String obtainedAcr = (String) claims.getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
             userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
+            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
+            userFromDB.setChangeRequests(changeRequests);
 
             // Provision the user into the organization, if no organization is created yet, create it on the fly
             if (userFromDB.getOrganizationMemberships().stream()

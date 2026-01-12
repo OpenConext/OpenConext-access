@@ -85,7 +85,7 @@ class IdentityProviderControllerTest extends AbstractMailTest {
         MimeMessageParser messageParser = super.mailMessage();
         List<String> recipients = messageParser.getTo().stream().map(address -> address.toString()).sorted().toList();
         //select email from users where super_user = 1
-        assertEquals(List.of("david.doe@example.com", "mos.doe@example.com"), recipients);
+        assertEquals(List.of("david.doe@example.com", "ex.doe@eduid.nl", "mos.doe@example.com"), recipients);
         String htmlContent = messageParser.getHtmlContent();
         assertTrue(htmlContent.contains("has requested to connect service Storage EN to your organization ShareLogics"));
     }
@@ -136,6 +136,7 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 .then()
                 .statusCode(404);
     }
+
     @SneakyThrows
     @Test
     void adminConnectionRequest() {

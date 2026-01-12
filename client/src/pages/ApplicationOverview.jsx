@@ -3,10 +3,10 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
-import {Loader} from "@surfnet/sds";
+import {Loader, Chip, ChipType} from "@surfnet/sds";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {providerName, providerOrganizationName} from "../utils/Manage.js";
+import {CHANGE_REQUEST_TYPE, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
@@ -40,19 +40,24 @@ const ApplicationOverview = ({accessible}) => {
             publicServiceProviders()
                 .then(res => {
                     //Scope the services on the allowed-entities of the IdP of the user
+                    const openConnectionRequests = (user.changeRequests || [])
+                        .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
+                            changeRequest.pathUpdateType === "ADDITION")
+                        .map(changeRequest => changeRequest.pathUpdates.allowedEntities.name);
                     if (accessible) {
                         const allowedAll = user.identityProvider.data.allowedall;
                         const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
-                        res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid))
+                        res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid))
                     } else {
                         //In the case of eduID / external user, we don't have an identityProvider
                         const allowedEntities = (user.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
-                        res = res.filter(entity => !allowedEntities.includes(entity.data.entityid))
+                        res = res.filter(entity => !allowedEntities.includes(entity.data.entityid) && !openConnectionRequests.includes(entity.data.entityid))
                     }
                     res.forEach(entity => {
                         entity.name = providerName(I18n.locale, entity);
                         entity.vendor = providerOrganizationName(I18n.locale, entity);
                         entity.created = entity.revision.created
+                        entity.connectionRequest = openConnectionRequests.includes(entity.data.entityid);
                     });
                     res = res
                         .sort((sp1, sp2) => sp1.name.toLowerCase()
@@ -166,7 +171,9 @@ const ApplicationOverview = ({accessible}) => {
             {
                 key: "name",
                 header: I18n.t("accessibleApps.name"),
-                mapper: entity => entity.name
+                mapper: entity => <div className="app-name">
+                    {entity.name}{entity.connectionRequest && <Chip type={ChipType.Status_error}
+                                                                    label={I18n.t("accessibleApps.connectRequested")}/>}</div>
             },
             {
                 key: "vendor",

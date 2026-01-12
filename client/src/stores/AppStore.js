@@ -14,7 +14,7 @@ export const useAppStore = create(set => ({
     setFlash: (message, type) => {
         set({flash: {msg: message, type: type || "info"}});
         if (!type || type === "info") {
-            setTimeout(() => set({flash: {}}), 5000);
+            setTimeout(() => set({flash: {}}), 6500);
         }
     },
     clearFlash: () => set({flash: {}}),
