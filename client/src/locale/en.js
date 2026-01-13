@@ -184,6 +184,8 @@ const en = {
         team: "My Team",
         joins: "Join Requests",
         invitations: "Invitations",
+        access: "Access",
+        information: "App information"
     },
     joinRequest: {
         info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang vragen aan de beheerder.",
@@ -977,6 +979,7 @@ const en = {
         name: "App",
         vendor: "Vendor",
         connectRequested: "Requested",
+        connectionMade: "Connected",
         status: "Status",
         created: "Date connected",
         searchPlaceHolder: "Search...",
@@ -995,9 +998,6 @@ const en = {
         privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
         select_locale: "Select your preferred language"
-    },
-    appAccess: {
-        roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol"
     },
     profile: {
         title: "Profile",
@@ -1029,7 +1029,7 @@ const en = {
         requestConnection: "Koppeling met deze applicatie moet worden aangevraagd",
         requestConnectionInfo: "De leverancier van deze applicatie ontvangt en beoordeelt de aanvraag. ",
         access: {
-            all:"Iedereen van de {{orgName}} heeft direct automatisch toegang",
+            all: "Iedereen van de {{orgName}} heeft direct automatisch toegang",
             some: "Pas toegangsregels toe"
         },
         memberRequestInfo: [
@@ -1043,7 +1043,23 @@ const en = {
             makeConnection: "Application access has been set",
             requestConnection: "Application access is requested"
         }
+    },
+    appAccess: {
+        title: "Central Access",
+        users: "User from {{name}}",
+        config: "⚡️Configureer automatische toegang op basis van kenmerken",
+        accessFor: "There is access for:",
+        everyBody: "Everybody from {{name}}",
+        noAccessFor: "Geen toegang voor:",
+        noOneGroups: "There are no groups excluded from access",
+        outSideUsers: "Users from outside",
+        roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol",
+        noOneRole: "There are users yet from outside with a role",
+        roleManagement: "To role management",
+        decentralAccess: "Decentral Access",
+        noDecentralAccess: "This application <span class='red'>is not used</span> by collaborative groups."
     }
+
 }
 
 export default en;

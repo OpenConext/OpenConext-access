@@ -171,9 +171,13 @@ const ApplicationOverview = ({accessible}) => {
             {
                 key: "name",
                 header: I18n.t("accessibleApps.name"),
-                mapper: entity => <div className="app-name">
-                    {entity.name}{entity.connectionRequest && <Chip type={ChipType.Status_error}
-                                                                    label={I18n.t("accessibleApps.connectRequested")}/>}</div>
+                mapper: entity => entity.name
+            },
+            {
+                key: "connectionRequest",
+                header: "",
+                mapper: entity => entity.connectionRequest && <Chip type={ChipType.Status_error}
+                                                                    label={I18n.t("accessibleApps.connectRequested")}/>
             },
             {
                 key: "vendor",
@@ -184,6 +188,12 @@ const ApplicationOverview = ({accessible}) => {
                 key: "created",
                 header: I18n.t("accessibleApps.created"),
                 mapper: entity => formatLongDate(entity.created, true, false)
+            },
+            {
+                key: "space",
+                nonSortable: true,
+                header: "",
+                mapper: () => null
             }
         ];
 

@@ -16,6 +16,7 @@ div.application-detail-container {
             background-color: var(--sds--color--gray--background);
             border-radius: 6px;
         }
+
         h3 {
             margin-bottom: 20px;
         }
@@ -46,6 +47,36 @@ div.application-detail-container {
             border-radius: 20px;
             margin: auto 0 auto auto;
         }
+    }
+
+    .application-card-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 25px;
+    }
+
+    .application-card {
+        display: flex;
+        background: white;
+        border: 1px solid #EAECF0;
+        border-radius: 10px;
+        gap: 15px;
+        padding: 30px;
+        width: 70%;
+        @media (max-width: $medium) {
+            width: 100%;
+        }
+
+        img, svg {
+            width: 80px;
+            height: 80px;
+        }
+    }
+
+    .application-detail-page {
+        background-color: white;
+        height: 100%;
+        padding: 25px 50px;
     }
 
     .inner-application-detail-container {

@@ -24,13 +24,6 @@ div.accessible-apps-container {
         }
     }
 
-    .app-name {
-        display: flex;
-        button {
-            margin: 0 15px 0 auto;
-        }
-    }
-
     .accessible-apps-header-container {
         background-color: var(--sds--color--gray--background);
         padding: 25px 50px 25px 50px;
@@ -53,15 +46,29 @@ div.accessible-apps-container {
                 }
 
                 &.name {
-                    width: 33%;
+                    width: 25%;
+                }
+
+                &.connectionRequest {
+                    width: 10%;
                 }
 
                 &.vendor {
-                    width: 33%;
+                    width: 25%;
                 }
 
                 &.created {
-                    width: 33%;
+                    width: 20%;
+                }
+                &.space {
+                    width: 20%;
+                }
+            }
+        }
+        tbody {
+            td {
+                &.connectionRequest {
+                    text-align: right;
                 }
             }
         }

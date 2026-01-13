@@ -45,19 +45,20 @@ const App = () => {
 
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const impersonator= useAppStore(state => state.impersonator);
+    const impersonator = useAppStore(state => state.impersonator);
     const navigate = useNavigate();
     const currentLocation = useLocation();
 
     const refreshUser = () => {
-        me().then(user => {
-            const currentOrganization = useAppStore.getState().currentOrganization
-            const newMenuItems = menuItemsForUser(user, currentOrganization);
-            useAppStore.setState(() => ({
-                user: user,
-                menuItems: newMenuItems
-            }))
-        })
+        me()
+            .then(user => {
+                const currentOrganization = useAppStore.getState().currentOrganization
+                const newMenuItems = menuItemsForUser(user, currentOrganization);
+                useAppStore.setState(() => ({
+                    user: user,
+                    menuItems: newMenuItems
+                }))
+            })
     }
 
     useEffect(() => {
@@ -136,13 +137,14 @@ const App = () => {
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
-                            <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail anonymous={false}/>}/>
+                            <Route path="/application-detail/:manageType/:manageId"
+                                   element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
-                            <Route path="/accessible-apps" element={<ApplicationOverview accessible={true} />}/>
-                            <Route path="/catalogue" element={<ApplicationOverview accessible={false} />}/>
+                            <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
+                            <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
                     </div>
@@ -160,7 +162,8 @@ const App = () => {
                         <Route path="/connect" element={<Connect/>}/>
                         <Route path="/applications" element={<Applications/>}/>
                         <Route path="/login-info" element={<LoginInfo/>}/>
-                        <Route path="/application-detail/:manageType/:manageId" element={<ApplicationDetail anonymous={true}/>}/>
+                        <Route path="/application-detail/:manageType/:manageId"
+                               element={<ApplicationDetail anonymous={true}/>}/>
                         <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                         <Route path="/*" element={<LoginRedirect/>}/>
                     </Routes>

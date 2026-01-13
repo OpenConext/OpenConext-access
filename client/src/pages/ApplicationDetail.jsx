@@ -3,7 +3,16 @@ import React, {useEffect, useState} from "react";
 import {connectServiceProviderToIdentityProvider, publicServiceProviderByDetail} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, ButtonIconPlacement, ButtonType, Loader, RadioOptions, RadioOptionsOrientation} from "@surfnet/sds";
+import {
+    Button,
+    ButtonIconPlacement,
+    ButtonType,
+    Chip,
+    ChipType,
+    Loader,
+    RadioOptions,
+    RadioOptionsOrientation
+} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
@@ -21,6 +30,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {authorities} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {TabHeader} from "../components/TabHeader.jsx";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -30,7 +40,9 @@ const confirmationModalOptions = {
     requestDisconnectConnection: "requestDisconnectConnection",
 }
 
-const ApplicationDetail = ({anonymous}) => {
+const tabNames = ["access", "information"]
+
+const ApplicationDetail = ({anonymous, refreshUser}) => {
 
         const {arp, privacy, user, setFlash} = useAppStore(useShallow(state => ({
             arp: state.arp,
@@ -40,8 +52,10 @@ const ApplicationDetail = ({anonymous}) => {
         })));
 
         const navigate = useNavigate();
-        const {manageType, manageId} = useParams();
+        const [refresh, setRefresh] = useState(-1);
+        const {manageType, manageId, tab = "access"} = useParams();
 
+        const [currentTab, setCurrentTab] = useState(tab);
         const [loading, setLoading] = useState(true);
         const [serviceProvider, setServiceProvider] = useState([]);
         const [showAttributes, setShowAttributes] = useState(false);
@@ -83,7 +97,7 @@ const ApplicationDetail = ({anonymous}) => {
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                             {
-                                path: isAccessible ? "/accessibleApps" : "/catalogue",
+                                path: isAccessible ? "/accessible-apps" : "/catalogue",
                                 value: I18n.t(`navigation.${isAccessible ? "accessibleApps" : "catalogue"}`)
                             },
                             {value: providerName(I18n.locale, res)}
@@ -101,7 +115,7 @@ const ApplicationDetail = ({anonymous}) => {
                 .catch(() => {
                     navigate("/404");
                 });
-        }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
+        }, [user, refresh]);// eslint-disable-line react-hooks/exhaustive-deps
 
         if (loading) {
             return <Loader/>
@@ -238,10 +252,52 @@ const ApplicationDetail = ({anonymous}) => {
 
         const {open, cancel, action, question, title, okButton} = confirmation;
 
+        const renderCurrentTab = () => {
+            switch (currentTab) {
+                case  "access": {
+                    return renderAccessApp();
+                }
+                case  "information": {
+                    return <span>TODO</span>;
+                }
+                default:
+                    throw new Error(`Unknown tab; ${currentTab}`)
+            }
+        }
+
+        const tabChanged = name => {
+            setCurrentTab(name);
+        }
+
+        const renderAccessApp = () => {
+            return <span>TODO renderAccessApp</span>;
+        }
+
         const renderAccessibleApp = () => {
             return (
                 <>
-                    <p>readOnly {readOnly.toString()}</p>
+                    <div className="application-detail-header-container">
+                        <TabHeader tab={currentTab}
+                                   setTab={tabChanged}
+                                   tabNames={tabNames}
+                        >
+                            <div className="application-card-container">
+                                <div className="application-card">
+                                    {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                                    {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                                    <div className="provider-details">
+                                        <h3>{providerName(I18n.locale, serviceProvider)}</h3>
+                                        <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                                    </div>
+                                </div>
+                                <Chip type={readOnly ? ChipType.Status_error : ChipType.Status_info}
+                                      label={I18n.t(`accessibleApps.${readOnly ? "connectRequested" : "connectionMade"}`)}/>
+                            </div>
+                        </TabHeader>
+                    </div>
+                    <div className="application-detail-page">
+                        {renderCurrentTab()}
+                    </div>
                 </>
             )
         }
