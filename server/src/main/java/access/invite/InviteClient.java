@@ -26,14 +26,14 @@ public class InviteClient {
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> rolesPerOrganizationApplicationId(String organizationGUID,
-                                                                       String manageId) {
+                                                                       String applicationManageId) {
         if (!enabled) {
             return List.of();
         }
         return restTemplate.getForObject(
-                url + "/api/external/v1/internal/invite/roles/{organizationGUID}/{manageId}",
+                url + "/api/external/v1/internal/invite/roles/{organizationGUID}/{applicationManageId}",
                 List.class,
                 organizationGUID,
-                manageId);
+                applicationManageId);
     }
 }

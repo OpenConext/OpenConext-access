@@ -313,6 +313,11 @@ export function connectServiceProviderToIdentityProvider(applicationManageIdenti
     return postPutJson("/api/v1/idp/connect", body, "PUT")
 }
 
+//External Invite Proxy
+export function inviteRoles(organizationGUID, applicationManageId) {
+    return fetchJson(`/api/v1/invite/roles/${organizationGUID}/${applicationManageId}`);
+}
+
 //Public
 export function publicIdentityProviders() {
     return fetchJson("/api/v1/public/identity-providers");

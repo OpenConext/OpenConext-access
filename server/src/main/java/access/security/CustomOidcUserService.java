@@ -69,11 +69,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
             String authenticatingAuthority = (String) claims.get("authenticating_authority");
             List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(Environment.PROD, organizationGuid);
-            Optional<Map<String, Object>> optionalIdentityProvider = identityProviders.stream()
-                    .filter(idp -> entityID(idp).equals(authenticatingAuthority)).findFirst();
+            Optional<Map<String, Object>> optionalIdentityProvider = identityProviders.isEmpty() ? Optional.empty() :
+                    Optional.of(identityProviders.stream()
+                            .filter(idp -> entityID(idp).equals(authenticatingAuthority))
+                            .findFirst()
+                            .orElse(identityProviders.getFirst()));
             optionalIdentityProvider.ifPresent(provider -> newClaims.put(INSTITUTION, new Institution(provider)));
         }
-
         optionalUser.ifPresent(user -> {
             boolean changed = user.updateAttributes(newClaims);
             if (changed) {

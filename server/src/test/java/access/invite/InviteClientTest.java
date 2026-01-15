@@ -31,11 +31,11 @@ class InviteClientTest extends AbstractTest {
         String rolesResult = objectMapper.writeValueAsString(roles);
 
         String organizationGUID = "organizationGUID";
-        String manageId = "manageId";
-        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles/" + organizationGUID + "/" + manageId)).willReturn(aResponse()
+        String applicationManageId = "manageId";
+        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles/" + organizationGUID + "/" + applicationManageId)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(rolesResult)));
-        roles = inviteClient.rolesPerOrganizationApplicationId(organizationGUID, manageId);
+        roles = inviteClient.rolesPerOrganizationApplicationId(organizationGUID, applicationManageId);
         assertEquals(1, roles.size());
         assertEquals("Test Role Profile", roles.getFirst().get("name"));
     }
