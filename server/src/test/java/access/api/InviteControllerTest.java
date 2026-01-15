@@ -97,13 +97,21 @@ class InviteControllerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void rolesPerOrganizationInviteApplicationNotAllowed() {
-        //Does not matter
-        String applicationManageId = UUID.randomUUID().toString();
-
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        //This will create an institution admin with the ORGANISATION_GUID as organizationGUID
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me");
+
+        //Does not matter
+        String applicationManageId = UUID.randomUUID().toString();
 
         given()
                 .when()
