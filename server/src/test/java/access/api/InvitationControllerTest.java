@@ -153,7 +153,7 @@ class InvitationControllerTest extends AbstractMailTest {
         Organization organization = user.getOrganizationMemberships().iterator().next().getOrganization();
         assertEquals(schacHomeOrganization, organization.getSchacHomeOrganization());
 
-        //Now create an Application  for the new invitation
+        //Now create an Application for the new invitation
         Application application = new Application("JIT", organization, "me", Map.of());
         application = applicationRepository.save(application);
 
