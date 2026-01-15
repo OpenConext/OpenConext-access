@@ -106,6 +106,7 @@ config:
         descriptionEN: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
         descriptionNL: "Een test-IdP met <a href='https://idp.diy.surfconext.nl/showusers.php' target='_blank'>fictieve gebruikersaccounts</a>. De metadata vind je <a href='https://idp.diy.surfconext.nl/saml2/idp/metadata.php' target='_blank'>hier</a>"
   idp_proxy_meta_data:  https://metadata.test2.surfconext.nl/idp-metadata.xml
+  minimal_stepup_acr_level: "http://test2.surfconext.nl/assurance/loa2"
   features:
     - name: idp
       enabled: true
@@ -119,7 +120,6 @@ config:
     - "http://test2.surfconext.nl/assurance/loa1.5"
     - "http://test2.surfconext.nl/assurance/loa2"
     - "http://test2.surfconext.nl/assurance/loa3"
-  minimal_stepup_acr_level: "http://test2.surfconext.nl/assurance/loa2"
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl, https://localhost.surf.id"
 

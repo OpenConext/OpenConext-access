@@ -31,7 +31,6 @@ public class S3Storage {
     private final String s3URL;
     private final ObjectMapper objectMapper;
     private final S3Client s3Client;
-    private final Map<String, String> metadata = Map.of("Cache-Control", "max-age=31536000, public");
     private boolean bucketExists;
 
     @SneakyThrows
@@ -81,7 +80,7 @@ public class S3Storage {
                         .bucket(bucketName)
                         .key(uuid)
                         .contentType("image/jpeg")
-                        .metadata(metadata)
+                        .cacheControl("public, max-age=31536000, immutable")
                         .build(),
                 RequestBody.fromInputStream(inputStream, inputStream.available()));
 
