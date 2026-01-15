@@ -49,7 +49,7 @@ const App = () => {
     const navigate = useNavigate();
     const currentLocation = useLocation();
 
-    const refreshUser = () => {
+    const refreshUser = callback => {
         me()
             .then(user => {
                 const currentOrganization = useAppStore.getState().currentOrganization
@@ -57,7 +57,8 @@ const App = () => {
                 useAppStore.setState(() => ({
                     user: user,
                     menuItems: newMenuItems
-                }))
+                }));
+                callback && callback();
             })
     }
 

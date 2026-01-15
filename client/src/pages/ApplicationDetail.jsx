@@ -44,436 +44,448 @@ const tabNames = ["access", "information"]
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
-        const {arp, privacy, user, setFlash} = useAppStore(useShallow(state => ({
-            arp: state.arp,
-            privacy: state.privacy,
-            user: state.user,
-            setFlash: state.setFlash
-        })));
+    const {arp, privacy, user, setFlash} = useAppStore(useShallow(state => ({
+        arp: state.arp,
+        privacy: state.privacy,
+        user: state.user,
+        setFlash: state.setFlash
+    })));
 
-        const navigate = useNavigate();
-        const [refresh, setRefresh] = useState(-1);
-        const {manageType, manageId, tab = "access"} = useParams();
+    const navigate = useNavigate();
+    const {manageType, manageId, tab = "access"} = useParams();
 
-        const [currentTab, setCurrentTab] = useState(tab);
-        const [loading, setLoading] = useState(true);
-        const [serviceProvider, setServiceProvider] = useState([]);
-        const [showAttributes, setShowAttributes] = useState(false);
-        const [showPrivacy, setShowPrivacy] = useState(false);
-        const [metaData, setMetaData] = useState({});
-        const [connectWithoutInteraction, setConnectWithoutInteraction] = useState(false);
-        const [isAdminUser, setIsAdminUser] = useState(false);
-        const [confirmation, setConfirmation] = useState({});
-        const [accessChoice, setAccessChoice] = useState("ALL");
-        const [confirmationModalOption, setConfirmationModalOption] = useState(null);
-        const [message, setMessage] = useState("");
-        const [memberRequestSend, setMemberRequestSend] = useState(false);
-        const [accessible, setAccessible] = useState(false);
-        const [readOnly, setReadOnly] = useState(true);
+    const [currentTab, setCurrentTab] = useState(tab);
+    const [loading, setLoading] = useState(true);
+    const [serviceProvider, setServiceProvider] = useState([]);
+    const [showAttributes, setShowAttributes] = useState(false);
+    const [showPrivacy, setShowPrivacy] = useState(false);
+    const [metaData, setMetaData] = useState({});
+    const [connectWithoutInteraction, setConnectWithoutInteraction] = useState(false);
+    const [isAdminUser, setIsAdminUser] = useState(false);
+    const [confirmation, setConfirmation] = useState({});
+    const [accessChoice, setAccessChoice] = useState("ALL");
+    const [confirmationModalOption, setConfirmationModalOption] = useState(null);
+    const [message, setMessage] = useState("");
+    const [memberRequestSend, setMemberRequestSend] = useState(false);
+    const [accessible, setAccessible] = useState(false);
+    const [readOnly, setReadOnly] = useState(true);
 
-        useEffect(() => {
-            publicServiceProviderByDetail(manageType, manageId)
-                .then(res => {
-                    setServiceProvider(res);
-                    setLoading(false);
-                    const newMetaData = res.data.metaDataFields;
-                    setMetaData(newMetaData);
-                    //See if this application is already connected
-                    const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
-                    let isAccessible = allowedEntities.includes(res.data.entityid);
-                    if (isAccessible) {
-                        setReadOnly(false);
-                    } else {
-                        //Check if there is an outstanding change request
-                        isAccessible = user.changeRequests
-                            .some(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
-                                changeRequest.pathUpdateType === "ADDITION" &&
-                                changeRequest.pathUpdates.allowedEntities.name === res.data.entityid
-                            );
-                        setReadOnly(true);
-                    }
-                    setAccessible(isAccessible);
-                    useAppStore.setState({
-                        breadcrumbPaths: [
-                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                            {
-                                path: isAccessible ? "/accessible-apps" : "/catalogue",
-                                value: I18n.t(`navigation.${isAccessible ? "accessibleApps" : "catalogue"}`)
-                            },
-                            {value: providerName(I18n.locale, res)}
-                        ],
-                        activeMenuItem: isAccessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
-                    });
-                    const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
-                    const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
-                        newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
-                    setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
-                    const idpId = user.identityProvider.id
-                    const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
-                    setIsAdminUser(user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN));
-                })
-                .catch(() => {
-                    navigate("/404");
-                });
-        }, [user, refresh]);// eslint-disable-line react-hooks/exhaustive-deps
-
-        if (loading) {
-            return <Loader/>
-        }
-
-        const externalLink = (link, metaData, index) => {
-            const attribute = link.languageProperty ?
-                (I18n.locale === "en" ? metaData[`${link.metaData}:en`] : metaData[`${link.metaData}:nl`] || metaData[`${link.metaData}:en`]) :
-                metaData[link.metaData];
-            if (isEmpty(attribute)) {
-                return null;
-            }
-            if (link.localeAttribute) {
-                let s = `${link.locale}.${attribute}`;
-                console.log(s);
-            }
-            return (
-                <a href={attribute} key={index} target="_blank" rel="noopener noreferrer">
-                    {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale)}
-                </a>
-            );
-        }
-
-        const toggleShowAttributes = e => {
-            stopEvent(e);
-            setShowAttributes(true);
-        }
-
-        const toggleShowPrivacy = e => {
-            stopEvent(e);
-            setShowPrivacy(true);
-        }
-
-        const findArpEntry = urn => {
-            return arp.attributes.find(attr => attr.urn === urn);
-        }
-
-        const confirmationModalChildren = () => {
-            if (confirmationModalOption === confirmationModalOptions.makeConnection) {
-                return (
-                    <div className="connect-options-container">
-                        <RadioOptions name={"access"}
-                                      label={I18n.t("applicationConnect.defaultAccess")}
-                                      value={accessChoice}
-                                      onChange={e => {
-                                          const newValue = e.target.id.replace("access_", "").toUpperCase();
-                                          setAccessChoice(newValue);
-                                      }}
-                                      isMultiple={true}
-                                      labels={["ALL", "SOME"]}
-                                      labelResolver={label => I18n.t(`applicationConnect.access.${label.toLowerCase()}`, {
-                                          orgName: providerName(I18n.locale, user.identityProvider)
-                                      })}
-                                      orientation={RadioOptionsOrientation.column}/>
-                    </div>
-                );
-            } else if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
-                return (
-                    <div className="connect-options-container">
-                        <h3>{I18n.t("applicationConnect.requestMember")}</h3>
-                        {I18n.translations[I18n.locale].applicationConnect.memberRequestInfo
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
-                            )}
-                        <InputField multiline={true}
-                                    displayLabel={false}
-                                    value={message}
-                                    placeholder={I18n.t("applicationConnect.messagePlaceholder")}
-                                    onChange={e => setMessage(e.target.value)}
-                        />
-                    </div>
-                );
-
-            } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
-                return (
-                    <div className="connect-options-container">
-                        <h3>{I18n.t("applicationConnect.requestConnection")}</h3>
-                        <p>{I18n.t("applicationConnect.requestConnectionInfo")}</p>
-                    </div>
-                );
-
-            }
-            return "TODO"
-        }
-
-        const cancelConfirmation = () => {
-            setConfirmation({});
-            setMessage("");
-            setAccessChoice("ALL")
-        }
-
-        const doRequestConnection = withConfirmation => {
-            if (withConfirmation) {
-                setConfirmation({
-                    open: true,
-                    cancel: () => cancelConfirmation(),
-                    action: () => doRequestConnection(false),
-                    title: null,
-                    question: null,
-                    okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "forms.proceed")
-                });
-                if (!isAdminUser) {
-                    setConfirmationModalOption(confirmationModalOptions.requestConnectionByMember);
-                } else if (connectWithoutInteraction) {
-                    setConfirmationModalOption(confirmationModalOptions.makeConnection);
+    useEffect(() => {
+        publicServiceProviderByDetail(manageType, manageId)
+            .then(res => {
+                setServiceProvider(res);
+                setLoading(false);
+                const newMetaData = res.data.metaDataFields;
+                setMetaData(newMetaData);
+                //See if this application is already connected
+                const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
+                let isAccessible = allowedEntities.includes(res.data.entityid);
+                if (isAccessible) {
+                    setReadOnly(false);
                 } else {
-                    setConfirmationModalOption(confirmationModalOptions.requestConnection);
+                    //Check if there is an outstanding change request
+                    isAccessible = user.changeRequests
+                        .some(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
+                            changeRequest.pathUpdateType === "ADDITION" &&
+                            changeRequest.pathUpdates.allowedEntities.name === res.data.entityid
+                        );
+                    setReadOnly(true);
                 }
+                setAccessible(isAccessible);
+                useAppStore.setState({
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                        {
+                            path: isAccessible ? "/accessible-apps" : "/catalogue",
+                            value: I18n.t(`navigation.${isAccessible ? "accessibleApps" : "catalogue"}`)
+                        },
+                        {value: providerName(I18n.locale, res)}
+                    ],
+                    activeMenuItem: isAccessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
+                });
+                const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
+                const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
+                    newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
+                setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
+                const idpId = user.identityProvider.id
+                const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
+                setIsAdminUser(user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN));
+            })
+            .catch(() => {
+                navigate("/404");
+            });
+    }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    if (loading) {
+        return <Loader/>
+    }
+
+    const externalLink = (link, metaData, index) => {
+        const attribute = link.languageProperty ?
+            (I18n.locale === "en" ? metaData[`${link.metaData}:en`] : metaData[`${link.metaData}:nl`] || metaData[`${link.metaData}:en`]) :
+            metaData[link.metaData];
+        if (isEmpty(attribute)) {
+            return null;
+        }
+        if (link.localeAttribute) {
+            let s = `${link.locale}.${attribute}`;
+            console.log(s);
+        }
+        return (
+            <a href={attribute} key={index} target="_blank" rel="noopener noreferrer">
+                {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale)}
+            </a>
+        );
+    }
+
+    const toggleShowAttributes = e => {
+        stopEvent(e);
+        setShowAttributes(true);
+    }
+
+    const toggleShowPrivacy = e => {
+        stopEvent(e);
+        setShowPrivacy(true);
+    }
+
+    const findArpEntry = urn => {
+        return arp.attributes.find(attr => attr.urn === urn);
+    }
+
+    const confirmationModalChildren = () => {
+        if (confirmationModalOption === confirmationModalOptions.makeConnection) {
+            return (
+                <div className="connect-options-container">
+                    <RadioOptions name={"access"}
+                                  label={I18n.t("applicationConnect.defaultAccess")}
+                                  value={accessChoice}
+                                  onChange={e => {
+                                      const newValue = e.target.id.replace("access_", "").toUpperCase();
+                                      setAccessChoice(newValue);
+                                  }}
+                                  isMultiple={true}
+                                  labels={["ALL", "SOME"]}
+                                  labelResolver={label => I18n.t(`applicationConnect.access.${label.toLowerCase()}`, {
+                                      orgName: providerName(I18n.locale, user.identityProvider)
+                                  })}
+                                  orientation={RadioOptionsOrientation.column}/>
+                </div>
+            );
+        } else if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
+            return (
+                <div className="connect-options-container">
+                    <h3>{I18n.t("applicationConnect.requestMember")}</h3>
+                    {I18n.translations[I18n.locale].applicationConnect.memberRequestInfo
+                        .map((info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                        )}
+                    <InputField multiline={true}
+                                displayLabel={false}
+                                value={message}
+                                placeholder={I18n.t("applicationConnect.messagePlaceholder")}
+                                onChange={e => setMessage(e.target.value)}
+                    />
+                </div>
+            );
+
+        } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
+            return (
+                <div className="connect-options-container">
+                    <h3>{I18n.t("applicationConnect.requestConnection")}</h3>
+                    <p>{I18n.t("applicationConnect.requestConnectionInfo")}</p>
+                </div>
+            );
+
+        }
+        return "TODO"
+    }
+
+    const cancelConfirmation = () => {
+        setConfirmation({});
+        setMessage("");
+        setAccessChoice("ALL")
+    }
+
+    const doRequestConnection = withConfirmation => {
+        if (withConfirmation) {
+            setConfirmation({
+                open: true,
+                cancel: () => cancelConfirmation(),
+                action: () => doRequestConnection(false),
+                title: null,
+                question: null,
+                okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "forms.proceed")
+            });
+            if (!isAdminUser) {
+                setConfirmationModalOption(confirmationModalOptions.requestConnectionByMember);
+            } else if (connectWithoutInteraction) {
+                setConfirmationModalOption(confirmationModalOptions.makeConnection);
             } else {
-                cancelConfirmation();
-                connectServiceProviderToIdentityProvider(
-                    serviceProvider.id,
-                    serviceProvider.type,
-                    user.identityProvider.id,
-                    message)
-                    .then(() => {
-                        if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
-                            setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
-                            setMemberRequestSend(true);
-                        } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
-                            setFlash(I18n.t("applicationConnect.flash.requestConnection"));
-                        } else if (confirmationModalOption === confirmationModalOptions.makeConnection) {
-                            setFlash(I18n.t("applicationConnect.flash.makeConnection"));
-                        }
-
-                    })
+                setConfirmationModalOption(confirmationModalOptions.requestConnection);
             }
-        }
+        } else {
+            cancelConfirmation();
+            setLoading(true);
+            connectServiceProviderToIdentityProvider(
+                serviceProvider.id,
+                serviceProvider.type,
+                user.identityProvider.id,
+                message)
+                .then(() => {
+                    if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
+                        setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
+                        setMemberRequestSend(true);
+                    } else {
+                        setFlash(I18n.t(`applicationConnect.flash.${confirmationModalOption}`));
+                        //Because user is an useEffect dependency, everything will reload. Including change requests
+                        refreshUser(() => {
+                            setLoading(false);
+                        });
 
-        const goBack = e => {
-            stopEvent(e);
-            navigate(-1);
-        }
-
-        const {open, cancel, action, question, title, okButton} = confirmation;
-
-        const renderCurrentTab = () => {
-            switch (currentTab) {
-                case  "access": {
-                    return renderAccessApp();
-                }
-                case  "information": {
-                    return <span>TODO</span>;
-                }
-                default:
-                    throw new Error(`Unknown tab; ${currentTab}`)
-            }
-        }
-
-        const tabChanged = name => {
-            setCurrentTab(name);
-        }
-
-        const renderAccessApp = () => {
-            return <span>TODO renderAccessApp</span>;
-        }
-
-        const renderAccessibleApp = () => {
-            return (
-                <>
-                    <div className="application-detail-header-container">
-                        <TabHeader tab={currentTab}
-                                   setTab={tabChanged}
-                                   tabNames={tabNames}
-                        >
-                            <div className="application-card-container">
-                                <div className="application-card">
-                                    {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                    {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                    <div className="provider-details">
-                                        <h3>{providerName(I18n.locale, serviceProvider)}</h3>
-                                        <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                    </div>
-                                </div>
-                                <Chip type={readOnly ? ChipType.Status_error : ChipType.Status_info}
-                                      label={I18n.t(`accessibleApps.${readOnly ? "connectRequested" : "connectionMade"}`)}/>
-                            </div>
-                        </TabHeader>
-                    </div>
-                    <div className="application-detail-page">
-                        {renderCurrentTab()}
-                    </div>
-                </>
-            )
-        }
-
-        const renderNonAccessibleApp = () => {
-            return (
-                <>
-                    {anonymous &&
-                        <div className="application-detail-header-container">
-                            <div className="application-detail-header">
-                                <div className="left">
-                                    <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
-                                    <p>{I18n.t("applicationDetail.subTitle")}</p>
-                                </div>
-                                <img src={StudentPng} alt="student"/>
-                            </div>
-                        </div>}
-                    {!anonymous &&
-                        <div className="application-detail-top">
-                            <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
-                        </div>
                     }
-                    <div className="inner-application-detail-container">
-                        <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
-                            <div className="meta-data">
+                })
+
+        }
+    }
+
+    const goBack = e => {
+        stopEvent(e);
+        navigate(-1);
+    }
+
+    const {open, cancel, action, question, title, okButton} = confirmation;
+
+    const renderCurrentTab = () => {
+        switch (currentTab) {
+            case  "access": {
+                return renderAccessApp();
+            }
+            case  "information": {
+                return renderInformation();
+            }
+            default:
+                throw new Error(`Unknown tab; ${currentTab}`)
+        }
+    }
+
+    const tabChanged = name => {
+        setCurrentTab(name);
+    }
+
+    const renderAccessApp = () => {
+        return (
+            <div>
+                <span>TODO renderAccessApp </span>
+                <span>readOnly: {readOnly.toString()}</span>
+            </div>
+        );
+    }
+
+    const renderInformation = () => {
+        return <span>TODO renderInformation</span>;
+    }
+
+    const renderAccessibleApp = () => {
+        return (
+            <>
+                <div className="application-detail-header-container">
+                    <TabHeader tab={currentTab}
+                               setTab={tabChanged}
+                               tabNames={tabNames}
+                    >
+                        <div className="application-card-container">
+                            <div className="application-card">
                                 {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
                                 {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                <div className="meta-data-name">
-                                    <p className="organization">
-                                        {providerOrganizationName(I18n.locale, serviceProvider)}
-                                    </p>
-                                    <p className="name">
-                                        {providerName(I18n.locale, serviceProvider)}
-                                    </p>
-                                </div>
-                                {anonymous && <Button type={ButtonType.Secondary}
-                                                      icon={<ArrowLeftIcon/>}
-                                                      iconPlacement={ButtonIconPlacement.Left}
-                                                      onClick={goBack}
-                                                      txt={I18n.t("applicationDetail.back")}/>}
-                                {!anonymous && <Button onClick={() => doRequestConnection(true)}
-                                                       disabled={memberRequestSend}
-                                                       txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
-                                                           connectWithoutInteraction ? "connect" : "request"}`)}/>}
-                            </div>
-                            <div className="details">
-                                <div className="left">
+                                <div className="provider-details">
+                                    <h3>{providerName(I18n.locale, serviceProvider)}</h3>
                                     <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                    <div className="details-panel">
-                                        <p className="title">{I18n.t("applicationDetail.attributes")}</p>
-                                        <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                                        {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
-                                            {I18n.t("applicationDetail.details")}
-                                        </a>}
-                                        {showAttributes && <div className="arp-attributes">
-                                            {!serviceProvider.data.arp.enabled &&
-                                                <p>{I18n.t("applicationDetail.noArp")}</p>
-                                            }
-                                            {serviceProvider.data.arp.enabled &&
-                                                <>
-                                                    {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
-                                                        const attribute = findArpEntry(entry[0]);
-                                                        //ARP entries only have one value / source
-                                                        const value = entry[1][0];
-                                                        const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
-                                                        return (
-                                                            <div className="attribute" key={index}>
+                                </div>
+                            </div>
+                            <Chip type={readOnly ? ChipType.Status_error : ChipType.Status_info}
+                                  label={I18n.t(`accessibleApps.${readOnly ? "connectRequested" : "connectionMade"}`)}/>
+                        </div>
+                    </TabHeader>
+                </div>
+                <div className="application-detail-page">
+                    {renderCurrentTab()}
+                </div>
+            </>
+        )
+    }
+
+    const renderNonAccessibleApp = () => {
+        return (
+            <>
+                {anonymous &&
+                    <div className="application-detail-header-container">
+                        <div className="application-detail-header">
+                            <div className="left">
+                                <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
+                                <p>{I18n.t("applicationDetail.subTitle")}</p>
+                            </div>
+                            <img src={StudentPng} alt="student"/>
+                        </div>
+                    </div>}
+                {!anonymous &&
+                    <div className="application-detail-top">
+                        <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
+                    </div>
+                }
+                <div className="inner-application-detail-container">
+                    <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
+                        <div className="meta-data">
+                            {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
+                            {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                            <div className="meta-data-name">
+                                <p className="organization">
+                                    {providerOrganizationName(I18n.locale, serviceProvider)}
+                                </p>
+                                <p className="name">
+                                    {providerName(I18n.locale, serviceProvider)}
+                                </p>
+                            </div>
+                            {anonymous && <Button type={ButtonType.Secondary}
+                                                  icon={<ArrowLeftIcon/>}
+                                                  iconPlacement={ButtonIconPlacement.Left}
+                                                  onClick={goBack}
+                                                  txt={I18n.t("applicationDetail.back")}/>}
+                            {!anonymous && <Button onClick={() => doRequestConnection(true)}
+                                                   disabled={memberRequestSend}
+                                                   txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
+                                                       connectWithoutInteraction ? "connect" : "request"}`)}/>}
+                        </div>
+                        <div className="details">
+                            <div className="left">
+                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                                <div className="details-panel">
+                                    <p className="title">{I18n.t("applicationDetail.attributes")}</p>
+                                    <p>{I18n.t("applicationDetail.attributesInfo")}</p>
+                                    {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                                        {I18n.t("applicationDetail.details")}
+                                    </a>}
+                                    {showAttributes && <div className="arp-attributes">
+                                        {!serviceProvider.data.arp.enabled &&
+                                            <p>{I18n.t("applicationDetail.noArp")}</p>
+                                        }
+                                        {serviceProvider.data.arp.enabled &&
+                                            <>
+                                                {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
+                                                    const attribute = findArpEntry(entry[0]);
+                                                    //ARP entries only have one value / source
+                                                    const value = entry[1][0];
+                                                    const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
+                                                    return (
+                                                        <div className="attribute" key={index}>
                                                             <span
                                                                 className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
-                                                                {!isEmpty(value.motivation) &&
-                                                                    <span
-                                                                        className="attr-motivation">{value.motivation}</span>}
-                                                                {isEmpty(value.motivation) && <span
-                                                                    className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
-                                                                <span className="attr-source">
+                                                            {!isEmpty(value.motivation) &&
+                                                                <span
+                                                                    className="attr-motivation">{value.motivation}</span>}
+                                                            {isEmpty(value.motivation) && <span
+                                                                className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
+                                                            <span className="attr-source">
                                                          {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
                                                             </span>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </>
-                                            }
-                                        </div>}
-                                    </div>
-                                    <div className="details-panel">
-                                        <p className="title">{I18n.t("applicationDetail.privacy")}</p>
-                                        <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-                                        {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
-                                            {I18n.t("applicationDetail.details")}
-                                        </a>}
-                                        {showPrivacy &&
-                                            <div className="privacy-questions">
-                                                {privacy.map((item, index) => {
-                                                        const question = item[`info_${I18n.locale}`];
-                                                        const strippedQuestion = question.substring(question.indexOf(" ") + 1);
-                                                        const answer = metaData[item.manage]
-                                                        return (
-                                                            <div className="privacy-question" key={index}>
-                                                                <span className="priv-name">{strippedQuestion}</span>
-                                                                {isEmpty(answer) && <span
-                                                                    className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
-                                                                {!isEmpty(answer) &&
-                                                                    <span className="priv-answer">{answer}</span>}
-                                                            </div>
-                                                        );
-                                                    }
-                                                )}
-                                            </div>}
-                                    </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </>
+                                        }
+                                    </div>}
                                 </div>
-                                <div className="right">
-                                    <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
-                                    <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
-                                    <div className="info-block">
-                                        {APPLICATION_LINKS.map((link, index) =>
-                                            externalLink(link, metaData, index)
-                                        )}
-                                    </div>
-                                    <p className="info">{I18n.t("applicationDetail.contractual")}</p>
-                                    <p>
+                                <div className="details-panel">
+                                    <p className="title">{I18n.t("applicationDetail.privacy")}</p>
+                                    <p>{I18n.t("applicationDetail.privacyInfo")}</p>
+                                    {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+                                        {I18n.t("applicationDetail.details")}
+                                    </a>}
+                                    {showPrivacy &&
+                                        <div className="privacy-questions">
+                                            {privacy.map((item, index) => {
+                                                    const question = item[`info_${I18n.locale}`];
+                                                    const strippedQuestion = question.substring(question.indexOf(" ") + 1);
+                                                    const answer = metaData[item.manage]
+                                                    return (
+                                                        <div className="privacy-question" key={index}>
+                                                            <span className="priv-name">{strippedQuestion}</span>
+                                                            {isEmpty(answer) && <span
+                                                                className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
+                                                            {!isEmpty(answer) &&
+                                                                <span className="priv-answer">{answer}</span>}
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
+                                        </div>}
+                                </div>
+                            </div>
+                            <div className="right">
+                                <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
+                                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
+                                <div className="info-block">
+                                    {APPLICATION_LINKS.map((link, index) =>
+                                        externalLink(link, metaData, index)
+                                    )}
+                                </div>
+                                <p className="info">{I18n.t("applicationDetail.contractual")}</p>
+                                <p>
                                 <span>
                                     {metaData["coin:contractual_base"] ?
                                         I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
                                             {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
                                         : I18n.t("applicationDetail.noInformation")}
                                 </span>
-                                        <span
-                                            dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
-                                    </p>
-                                    <p>{I18n.t("applicationDetail.contractualInfoOrganization",
-                                        {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
-                                    <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
-                                    <div className="info-block">
-                                        {[1, 2, 3, 4].map(nbr =>
-                                            externalLink({
-                                                locale: "applicationDetail.entityCategory",
-                                                localeAttribute: true,
-                                                metaData: `coin:entity_categories:${nbr}`,
-                                                languageProperty: false
-                                            }, metaData, nbr)
-                                        )}
-                                        {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
-                                            <p>{I18n.t("applicationDetail.none")}</p>
-                                        }
-                                    </div>
-                                    {metaData["mdrpi:RegistrationInfo"] && (
-                                        <div className="federation-source">
-                                            <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
-                                            <span
-                                                dangerouslySetInnerHTML={{
-                                                    __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
-                                                }}
-                                            />
-                                        </div>
+                                    <span
+                                        dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
+                                </p>
+                                <p>{I18n.t("applicationDetail.contractualInfoOrganization",
+                                    {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
+                                <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
+                                <div className="info-block">
+                                    {[1, 2, 3, 4].map(nbr =>
+                                        externalLink({
+                                            locale: "applicationDetail.entityCategory",
+                                            localeAttribute: true,
+                                            metaData: `coin:entity_categories:${nbr}`,
+                                            languageProperty: false
+                                        }, metaData, nbr)
                                     )}
+                                    {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
+                                        <p>{I18n.t("applicationDetail.none")}</p>
+                                    }
                                 </div>
+                                {metaData["mdrpi:RegistrationInfo"] && (
+                                    <div className="federation-source">
+                                        <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
+                                        <span
+                                            dangerouslySetInnerHTML={{
+                                                __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
-                </>
-            );
-        }
-
-        return (
-            <div className="application-detail-container">
-                {open && <ConfirmationDialog confirm={action}
-                                             cancel={cancel}
-                                             confirmationTxt={okButton}
-                                             confirmationHeader={title}
-                                             question={question}>
-                    {confirmationModalChildren()}
-                </ConfirmationDialog>}
-                {accessible && renderAccessibleApp()}
-                {!accessible && renderNonAccessibleApp()}
-            </div>
+                </div>
+            </>
         );
     }
-;
+
+    return (
+        <div className="application-detail-container">
+            {open && <ConfirmationDialog confirm={action}
+                                         cancel={cancel}
+                                         confirmationTxt={okButton}
+                                         confirmationHeader={title}
+                                         question={question}>
+                {confirmationModalChildren()}
+            </ConfirmationDialog>}
+            {accessible && renderAccessibleApp()}
+            {!accessible && renderNonAccessibleApp()}
+        </div>
+    );
+}
+
 export default ApplicationDetail;
