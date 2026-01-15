@@ -206,23 +206,25 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         setAccessChoice("ALL")
     }
 
-    const doRequestConnection = withConfirmation => {
+    const doRequestConnection = (withConfirmation, modalOption) => {
         if (withConfirmation) {
+            let newModalOption;
+            if (!isAdminUser) {
+                newModalOption = confirmationModalOptions.requestConnectionByMember;
+            } else if (connectWithoutInteraction) {
+                newModalOption = confirmationModalOptions.makeConnection;
+            } else {
+                newModalOption = confirmationModalOptions.requestConnection;
+            }
+            setConfirmationModalOption(newModalOption);
             setConfirmation({
                 open: true,
                 cancel: () => cancelConfirmation(),
-                action: () => doRequestConnection(false),
+                action: () => doRequestConnection(false, newModalOption),
                 title: null,
                 question: null,
                 okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "forms.proceed")
             });
-            if (!isAdminUser) {
-                setConfirmationModalOption(confirmationModalOptions.requestConnectionByMember);
-            } else if (connectWithoutInteraction) {
-                setConfirmationModalOption(confirmationModalOptions.makeConnection);
-            } else {
-                setConfirmationModalOption(confirmationModalOptions.requestConnection);
-            }
         } else {
             cancelConfirmation();
             setLoading(true);
@@ -236,10 +238,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
                         setMemberRequestSend(true);
                     } else {
-                        setFlash(I18n.t(`applicationConnect.flash.${confirmationModalOption}`));
+                        setFlash(I18n.t(`applicationConnect.flash.${modalOption}`));
                         //Because user is an useEffect dependency, everything will reload. Including change requests
                         refreshUser(() => {
-                            setLoading(false);
+                            //a small timeout to prevent flickering - connecting apps does not happen that often
+                            setTimeout(() => setLoading(false), 175);
                         });
 
                     }
@@ -423,7 +426,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <div className="right">
                                 <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
                                 <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
-                                <div className="info-block">
+                                <div className="app-info-block">
                                     {APPLICATION_LINKS.map((link, index) =>
                                         externalLink(link, metaData, index)
                                     )}
@@ -442,7 +445,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 <p>{I18n.t("applicationDetail.contractualInfoOrganization",
                                     {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
                                 <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
-                                <div className="info-block">
+                                <div className="app-info-block">
                                     {[1, 2, 3, 4].map(nbr =>
                                         externalLink({
                                             locale: "applicationDetail.entityCategory",
