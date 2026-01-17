@@ -74,7 +74,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         publicServiceProviderByDetail(manageType, manageId)
             .then(res => {
                 setServiceProvider(res);
-                setLoading(false);
                 const newMetaData = res.data.metaDataFields;
                 setMetaData(newMetaData);
                 //See if this application is already connected
@@ -110,6 +109,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 const idpId = user.identityProvider.id
                 const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
                 setIsAdminUser(user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN));
+                setLoading(false);
             })
             .catch(() => {
                 navigate("/404");
@@ -242,12 +242,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         //Because user is an useEffect dependency, everything will reload. Including change requests
                         refreshUser(() => {
                             //a small timeout to prevent flickering - connecting apps does not happen that often
-                            setTimeout(() => setLoading(false), 175);
+                            setTimeout(() => setLoading(false), 75);
                         });
 
                     }
                 })
-
         }
     }
 
@@ -317,6 +316,75 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         )
     }
 
+    const renderAppAttributes = () => {
+        return (
+            <div className="details-panel">
+                <p className="title">{I18n.t("applicationDetail.attributes")}</p>
+                <p>{I18n.t("applicationDetail.attributesInfo")}</p>
+                {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                    {I18n.t("applicationDetail.details")}
+                </a>}
+                {showAttributes && <div className="arp-attributes">
+                    {!serviceProvider.data.arp.enabled &&
+                        <p>{I18n.t("applicationDetail.noArp")}</p>
+                    }
+                    {serviceProvider.data.arp.enabled &&
+                        <>
+                            {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
+                                const attribute = findArpEntry(entry[0]);
+                                //ARP entries only have one value / source
+                                const value = entry[1][0];
+                                const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
+                                return (
+                                    <div className="attribute" key={index}>
+                                                            <span
+                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
+                                        {!isEmpty(value.motivation) &&
+                                            <span
+                                                className="attr-motivation">{value.motivation}</span>}
+                                        {isEmpty(value.motivation) && <span
+                                            className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
+                                        <span className="attr-source">
+                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
+                                                            </span>
+                                    </div>
+                                );
+                            })}
+                        </>
+                    }
+                </div>}
+            </div>
+        );
+    }
+
+    function renderAppPrivacy() {
+        return <div className="details-panel">
+            <p className="title">{I18n.t("applicationDetail.privacy")}</p>
+            <p>{I18n.t("applicationDetail.privacyInfo")}</p>
+            {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+                {I18n.t("applicationDetail.details")}
+            </a>}
+            {showPrivacy &&
+                <div className="privacy-questions">
+                    {privacy.map((item, index) => {
+                            const question = item[`info_${I18n.locale}`];
+                            const strippedQuestion = question.substring(question.indexOf(" ") + 1);
+                            const answer = metaData[item.manage]
+                            return (
+                                <div className="privacy-question" key={index}>
+                                    <span className="priv-name">{strippedQuestion}</span>
+                                    {isEmpty(answer) && <span
+                                        className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
+                                    {!isEmpty(answer) &&
+                                        <span className="priv-answer">{answer}</span>}
+                                </div>
+                            );
+                        }
+                    )}
+                </div>}
+        </div>;
+    }
+
     const renderNonAccessibleApp = () => {
         return (
             <>
@@ -361,67 +429,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <div className="details">
                             <div className="left">
                                 <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                <div className="details-panel">
-                                    <p className="title">{I18n.t("applicationDetail.attributes")}</p>
-                                    <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                                    {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
-                                        {I18n.t("applicationDetail.details")}
-                                    </a>}
-                                    {showAttributes && <div className="arp-attributes">
-                                        {!serviceProvider.data.arp.enabled &&
-                                            <p>{I18n.t("applicationDetail.noArp")}</p>
-                                        }
-                                        {serviceProvider.data.arp.enabled &&
-                                            <>
-                                                {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
-                                                    const attribute = findArpEntry(entry[0]);
-                                                    //ARP entries only have one value / source
-                                                    const value = entry[1][0];
-                                                    const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
-                                                    return (
-                                                        <div className="attribute" key={index}>
-                                                            <span
-                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
-                                                            {!isEmpty(value.motivation) &&
-                                                                <span
-                                                                    className="attr-motivation">{value.motivation}</span>}
-                                                            {isEmpty(value.motivation) && <span
-                                                                className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
-                                                            <span className="attr-source">
-                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </>
-                                        }
-                                    </div>}
-                                </div>
-                                <div className="details-panel">
-                                    <p className="title">{I18n.t("applicationDetail.privacy")}</p>
-                                    <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-                                    {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
-                                        {I18n.t("applicationDetail.details")}
-                                    </a>}
-                                    {showPrivacy &&
-                                        <div className="privacy-questions">
-                                            {privacy.map((item, index) => {
-                                                    const question = item[`info_${I18n.locale}`];
-                                                    const strippedQuestion = question.substring(question.indexOf(" ") + 1);
-                                                    const answer = metaData[item.manage]
-                                                    return (
-                                                        <div className="privacy-question" key={index}>
-                                                            <span className="priv-name">{strippedQuestion}</span>
-                                                            {isEmpty(answer) && <span
-                                                                className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
-                                                            {!isEmpty(answer) &&
-                                                                <span className="priv-answer">{answer}</span>}
-                                                        </div>
-                                                    );
-                                                }
-                                            )}
-                                        </div>}
-                                </div>
+                                {renderAppAttributes()}
+                                {renderAppPrivacy()}
                             </div>
                             <div className="right">
                                 <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
