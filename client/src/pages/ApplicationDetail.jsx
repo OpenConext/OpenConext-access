@@ -2,6 +2,7 @@ import "./ApplicationDetail.scss";
 import React, {useEffect, useState} from "react";
 import {connectServiceProviderToIdentityProvider, publicServiceProviderByDetail} from "../api/index.js";
 import I18n from "../locale/I18n.js";
+import ExternalLinkIcon from "../icons/external-link.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {
     Button,
@@ -31,6 +32,7 @@ import {authorities} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
+import {InfoBlock} from "../components/InfoBlock.jsx";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -44,10 +46,11 @@ const tabNames = ["access", "information"]
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
-    const {arp, privacy, user, setFlash} = useAppStore(useShallow(state => ({
+    const {arp, privacy, user, config, setFlash} = useAppStore(useShallow(state => ({
         arp: state.arp,
         privacy: state.privacy,
         user: state.user,
+        config: state.config,
         setFlash: state.setFlash
     })));
 
@@ -276,15 +279,49 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const renderAccessApp = () => {
         return (
-            <div>
-                <span>TODO renderAccessApp </span>
-                <span>readOnly: {readOnly.toString()}</span>
+            <div className="app-access">
+                <h2>{I18n.t("appAccess.title")}</h2>
+                <InfoBlock className="no-gap">
+                    <div className="grouped">
+                        <div >
+                            <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
+                            <p>{I18n.t("appAccess.config")}</p>
+                        </div>
+                        <Button type={ButtonType.Primary}
+                                onClick={() => alert("ToDo")}
+                                txt={I18n.t("forms.edit")}/>
+                    </div>
+                    <p>{I18n.t("appAccess.accessFor")}</p>
+                    <div className="access-card">
+                        <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                        {renderLogo(user.identityProvider.data.metaDataFields)}
+                    </div>
+                </InfoBlock>
+                <InfoBlock className="no-gap">
+                    <div className="grouped">
+                        <div >
+                            <h3>{I18n.t("appAccess.outSideUsers")}</h3>
+                            <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                        </div>
+                        <Button type={ButtonType.Primary}
+                                onClick={() => window.open(config.invite, "_blank").focus()}
+                                icon={<ExternalLinkIcon/>}
+                                txt={I18n.t("appAccess.roleManagement")}/>
+                    </div>
+                    <p>{I18n.t("appAccess.accessFor")}</p>
+                    <div className="access-card">
+                        <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                        {renderLogo(user.identityProvider.data.metaDataFields)}
+                    </div>
+                </InfoBlock>
+                <p>readOnly: {readOnly.toString()}</p>
+                <p>isAccessible: {accessible.toString()}</p>
             </div>
         );
     }
 
     const renderInformation = () => {
-        return <span>TODO renderInformation</span>;
+        return renderDetailsApp();
     }
 
     const renderAccessibleApp = () => {
@@ -385,6 +422,77 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         </div>;
     }
 
+    const renderQuickLinks = () => {
+        return (
+            <>
+                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
+                <div className="app-info-block">
+                    {APPLICATION_LINKS.map((link, index) =>
+                        externalLink(link, metaData, index)
+                    )}
+                </div>
+            </>
+        );
+    }
+
+    const renderLogo = metaDataFields => {
+        const logoUrl = metaDataFields["logo:0:url"];
+        return isEmpty(logoUrl) ? <PlaceHolderImage/> : <img src={logoUrl} alt=""/>
+    }
+
+    const renderDetailsApp = () => {
+        return (
+            <div className="details">
+                <div className="left">
+                    <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                    {renderAppAttributes()}
+                    {renderAppPrivacy()}
+                </div>
+                <div className="right">
+                    <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
+                    {renderQuickLinks()}
+                    <p className="info">{I18n.t("applicationDetail.contractual")}</p>
+                    <p>
+                                <span>
+                                    {metaData["coin:contractual_base"] ?
+                                        I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
+                                            {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
+                                        : I18n.t("applicationDetail.noInformation")}
+                                </span>
+                        <span
+                            dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
+                    </p>
+                    <p>{I18n.t("applicationDetail.contractualInfoOrganization",
+                        {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
+                    <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
+                    <div className="app-info-block">
+                        {[1, 2, 3, 4].map(nbr =>
+                            externalLink({
+                                locale: "applicationDetail.entityCategory",
+                                localeAttribute: true,
+                                metaData: `coin:entity_categories:${nbr}`,
+                                languageProperty: false
+                            }, metaData, nbr)
+                        )}
+                        {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
+                            <p>{I18n.t("applicationDetail.none")}</p>
+                        }
+                    </div>
+                    {metaData["mdrpi:RegistrationInfo"] && (
+                        <div className="federation-source">
+                            <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
+                            <span
+                                dangerouslySetInnerHTML={{
+                                    __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     const renderNonAccessibleApp = () => {
         return (
             <>
@@ -406,8 +514,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 <div className="inner-application-detail-container">
                     <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
                         <div className="meta-data">
-                            {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                            {!metaData["logo:0:url"] && <PlaceHolderImage/>}
+                            {renderLogo(metaData)}
                             <div className="meta-data-name">
                                 <p className="organization">
                                     {providerOrganizationName(I18n.locale, serviceProvider)}
@@ -426,59 +533,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                                    txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
                                                        connectWithoutInteraction ? "connect" : "request"}`)}/>}
                         </div>
-                        <div className="details">
-                            <div className="left">
-                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                {renderAppAttributes()}
-                                {renderAppPrivacy()}
-                            </div>
-                            <div className="right">
-                                <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
-                                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
-                                <div className="app-info-block">
-                                    {APPLICATION_LINKS.map((link, index) =>
-                                        externalLink(link, metaData, index)
-                                    )}
-                                </div>
-                                <p className="info">{I18n.t("applicationDetail.contractual")}</p>
-                                <p>
-                                <span>
-                                    {metaData["coin:contractual_base"] ?
-                                        I18n.t(`applicationDetail.contractualBase.${metaData["coin:contractual_base"].toLowerCase()}`,
-                                            {organisation: providerOrganizationName(I18n.locale, serviceProvider)})
-                                        : I18n.t("applicationDetail.noInformation")}
-                                </span>
-                                    <span
-                                        dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
-                                </p>
-                                <p>{I18n.t("applicationDetail.contractualInfoOrganization",
-                                    {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
-                                <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
-                                <div className="app-info-block">
-                                    {[1, 2, 3, 4].map(nbr =>
-                                        externalLink({
-                                            locale: "applicationDetail.entityCategory",
-                                            localeAttribute: true,
-                                            metaData: `coin:entity_categories:${nbr}`,
-                                            languageProperty: false
-                                        }, metaData, nbr)
-                                    )}
-                                    {[1, 2, 3, 4].every(nbr => isEmpty(metaData[`coin:entity_categories:${nbr}`])) &&
-                                        <p>{I18n.t("applicationDetail.none")}</p>
-                                    }
-                                </div>
-                                {metaData["mdrpi:RegistrationInfo"] && (
-                                    <div className="federation-source">
-                                        <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
-                                        <span
-                                            dangerouslySetInnerHTML={{
-                                                __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        {renderDetailsApp()}
                     </div>
                 </div>
             </>

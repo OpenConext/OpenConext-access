@@ -1047,7 +1047,7 @@ const en = {
     appAccess: {
         title: "Central Access",
         users: "User from {{name}}",
-        config: "⚡️Configureer automatische toegang op basis van kenmerken",
+        config: "⚡️ Configureer automatische toegang op basis van kenmerken",
         accessFor: "There is access for:",
         everyBody: "Everybody from {{name}}",
         noAccessFor: "Geen toegang voor:",

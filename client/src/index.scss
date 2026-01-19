@@ -125,7 +125,7 @@ h1.large {
 
 .card {
     background: white;
-    border: 1px solid #EAECF0;
+    border: 1px solid var(--sl-color-grey-400);
     border-radius: 10px;
     flex-direction: column;
     display: flex;

@@ -46,6 +46,16 @@
         border: 1px solid var(--sds--color--gray--300);
     }
 
+    &.no-gap {
+        gap: 0;
+    }
+
+    &.row {
+        flex-direction: row;
+        align-items: center;
+    }
+
+
     &.full-row {
         grid-column: 1 / -1;
         background: white;
