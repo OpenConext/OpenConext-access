@@ -2,6 +2,6 @@ package access.model;
 
 public enum EntityType {
 
-    saml20_sp, oidc10_rp, saml20_idp;
+    saml20_sp, oidc10_rp, saml20_idp, policy;
 
 }

@@ -77,14 +77,6 @@ div.application-detail-container {
         background-color: white;
         height: 100%;
         padding: 35px 50px;
-
-        .details {
-            width: 70%;
-            @media (max-width: $medium) {
-                width: 100%;
-            }
-
-        }
     }
 
     .inner-application-detail-container {
@@ -153,6 +145,11 @@ div.application-detail-container {
 
     .details {
         display: flex;
+        gap: 25px;
+        width: 70%;
+        @media (max-width: $medium) {
+            width: 100%;
+        }
 
         .left {
             width: 65%;
@@ -230,9 +227,38 @@ div.application-detail-container {
     }
 
     .app-access {
-        width: 70%;
+        width: 80%;
+        display: flex;
+        gap: 25px;
         @media (max-width: $medium) {
             width: 100%;
+            flex-direction: column;
+        }
+
+        .red {
+            color: var(--sds--color--red--400);
+        }
+
+        .green {
+            color: var(--sds--color--green--400);
+        }
+
+        .app-access-central {
+            width: 65%;
+        }
+
+        .app-access-decentral {
+            width: 35%;
+
+            .not-allowed-container {
+                display: flex;
+                gap: 18px;
+                align-content: center;
+                width: 100%;
+                svg {
+                    fill: none;
+                }
+            }
         }
 
         h2 {
@@ -243,7 +269,7 @@ div.application-detail-container {
             padding: 24px 40px 24px 24px;
 
             &:not(:last-child) {
-              margin-bottom: 25px;
+                margin-bottom: 25px;
             }
 
             h3 {
@@ -273,6 +299,11 @@ div.application-detail-container {
             align-items: center;
             padding: 8px;
             width: 100%;
+
+            &.grey {
+                background-color: var(--sl-color-grey-400);
+                font-style: italic;
+            }
 
             h4 {
                 font-size: 18px;

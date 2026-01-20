@@ -1057,7 +1057,10 @@ const en = {
         noOneRole: "There are users yet from outside with a role",
         roleManagement: "To role management",
         decentralAccess: "Decentral Access",
-        noDecentralAccess: "This application <span class='red'>is not used</span> by collaborative groups."
+        noDecentralAccess: "This application <span class='red'>is not used</span> by collaborative groups.",
+        roleReady: "This application <span class='green'>supports</span> SURF Access roles.",
+        notRoleReady: "This application <span class='red'>does not yet</span> support SURF Access roles.",
+        noRoles: "There are no outside users yet with a role"
     }
 
 }

@@ -1,10 +1,7 @@
 package access.api;
 
 import access.exception.InvalidInputException;
-import access.manage.ChangeRequest;
-import access.manage.Manage;
-import access.manage.MetaData;
-import access.manage.MetaDataFeedParser;
+import access.manage.*;
 import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +15,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -83,6 +82,20 @@ public class ManageController {
     @GetMapping("/identity-providers/{environment}")
     public ResponseEntity<List<Map<String, Object>>> identityProviders(@PathVariable("environment") Environment environment) {
         List<Map<String, Object>> providers = manage.providers(environment, EntityType.saml20_idp);
+        return ResponseEntity.ok(providers);
+    }
+
+    @SneakyThrows
+    @GetMapping("/policies/{entityId}")
+    public ResponseEntity<List<Map<String, Object>>> policies(Authentication authentication,
+                                                              @PathVariable String entityId) {
+        //we need to ensure the application is connected to the IdP of the user
+        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
+        String authenticatingAuthority = (String) claims.get("authenticating_authority");
+        Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
+        Map<String, Object> data = ManageData.getData(identityProvider);
+        List<Map<String, Object>> providers = manage.providers(environment, EntityType.policy);
         return ResponseEntity.ok(providers);
     }
 

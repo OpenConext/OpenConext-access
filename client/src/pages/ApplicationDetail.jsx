@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {connectServiceProviderToIdentityProvider, publicServiceProviderByDetail} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
+import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {
     Button,
@@ -280,42 +281,50 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const renderAccessApp = () => {
         return (
             <div className="app-access">
-                <h2>{I18n.t("appAccess.title")}</h2>
-                <InfoBlock className="no-gap">
-                    <div className="grouped">
-                        <div >
-                            <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
-                            <p>{I18n.t("appAccess.config")}</p>
+                <div className="app-access-central">
+                    <h2>{I18n.t("appAccess.title")}</h2>
+                    <InfoBlock className="no-gap">
+                        <div className="grouped">
+                            <div>
+                                <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
+                                <p>{I18n.t("appAccess.config")}</p>
+                            </div>
+                            <Button type={ButtonType.Primary}
+                                    onClick={() => alert("ToDo")}
+                                    txt={I18n.t("forms.edit")}/>
                         </div>
-                        <Button type={ButtonType.Primary}
-                                onClick={() => alert("ToDo")}
-                                txt={I18n.t("forms.edit")}/>
-                    </div>
-                    <p>{I18n.t("appAccess.accessFor")}</p>
-                    <div className="access-card">
-                        <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
-                        {renderLogo(user.identityProvider.data.metaDataFields)}
-                    </div>
-                </InfoBlock>
-                <InfoBlock className="no-gap">
-                    <div className="grouped">
-                        <div >
-                            <h3>{I18n.t("appAccess.outSideUsers")}</h3>
-                            <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                        <p>{I18n.t("appAccess.accessFor")}</p>
+                        <div className="access-card">
+                            <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                            {renderLogo(user.identityProvider.data.metaDataFields)}
                         </div>
-                        <Button type={ButtonType.Primary}
-                                onClick={() => window.open(config.invite, "_blank").focus()}
-                                icon={<ExternalLinkIcon/>}
-                                txt={I18n.t("appAccess.roleManagement")}/>
-                    </div>
-                    <p>{I18n.t("appAccess.accessFor")}</p>
-                    <div className="access-card">
-                        <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
-                        {renderLogo(user.identityProvider.data.metaDataFields)}
-                    </div>
-                </InfoBlock>
-                <p>readOnly: {readOnly.toString()}</p>
-                <p>isAccessible: {accessible.toString()}</p>
+                    </InfoBlock>
+                    <InfoBlock className="no-gap">
+                        <div className="grouped">
+                            <div>
+                                <h3>{I18n.t("appAccess.outSideUsers")}</h3>
+                                <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                            </div>
+                            <Button type={ButtonType.Primary}
+                                    onClick={() => window.open(config.invite, "_blank").focus()}
+                                    icon={<ExternalLinkIcon/>}
+                                    txt={I18n.t("appAccess.roleManagement")}/>
+                        </div>
+                        <div className="access-card grey">
+                            <p>{I18n.t("appAccess.noRoles")}</p>
+                        </div>
+                    </InfoBlock>
+                </div>
+                <div className="app-access-decentral">
+                    <h2>{I18n.t("appAccess.decentralAccess")}</h2>
+                    <InfoBlock className="no-gap grey row">
+                        <div className="not-allowed-container">
+                            <NotAllowedIcon/>
+                            <p
+                                dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
+                        </div>
+                    </InfoBlock>
+                </div>
             </div>
         );
     }
