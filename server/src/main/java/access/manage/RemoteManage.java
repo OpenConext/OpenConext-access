@@ -10,7 +10,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -257,7 +260,7 @@ public class RemoteManage implements Manage {
     public List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID) {
         LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
 
-        Map<String, Object> baseQuery = getBaseQuery(false);
+        Map<String, Object> baseQuery = getBaseQuery(true);
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
 
         String url = String.format("%s/manage/api/internal/search/%s",
@@ -339,6 +342,25 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/delete-consequences",
                 environmentUrl(Environment.PROD));
         return restTemplate.postForEntity(URI.create(url), body, List.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> policiesByServiceProvider(String identityProviderEntityId,
+                                                               String serviceProviderEntityId) {
+        String query = """
+                {
+                "data.serviceProviderIds.name": "%s",
+                $or: [
+                    { "data.identityProviderIds": { $size: 0 } },
+                    { "data.identityProviderIds": { $exists: false } },
+                    { "data.identityProviderIds.name": "%s" }
+                ]
+                })
+                """.formatted(serviceProviderEntityId, identityProviderEntityId);
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/rawSearch/%s",
+                environmentUrl(Environment.PROD), EntityType.policy);
+        return restTemplate.postForEntity(url, query, List.class).getBody();
     }
 
     @Override

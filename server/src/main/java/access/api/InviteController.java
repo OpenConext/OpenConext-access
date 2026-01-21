@@ -1,10 +1,8 @@
 package access.api;
 
-import access.exception.NotFoundException;
+import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
 import access.invite.InviteClient;
-import access.model.Authority;
-import access.model.Organization;
 import access.model.User;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
@@ -59,6 +57,10 @@ public class InviteController implements UserAccessRights {
             throw new UserRestrictionException(
                     String.format("User %s is not authorized for organizationGUID %s",
                             user.getEmail(), organizationGUID));
+        }
+        if (!applicationManageId.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")) {
+            throw new InvalidInputException(
+                    String.format("ApplicationManageId %s is not a valid UUID", applicationManageId));
         }
         List<Map<String, Object>> inviteRoles = this.inviteClient.rolesPerOrganizationApplicationId(organizationGUID, applicationManageId);
         return ResponseEntity.ok(inviteRoles);

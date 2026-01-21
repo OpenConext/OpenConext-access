@@ -61,6 +61,9 @@ public class User implements Serializable, NameHolder {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
+    @Column(name = "authenticating_authority")
+    private String authenticatingAuthority;
+
     @Column
     private String email;
 
@@ -107,6 +110,7 @@ public class User implements Serializable, NameHolder {
         this.sub = (String) attributes.get("sub");
         this.eduPersonPrincipalName = (String) attributes.get("eduperson_principal_name");
         this.schacHomeOrganization = (String) attributes.get("schac_home_organization");
+        this.authenticatingAuthority = (String) attributes.get("authenticating_authority");
         this.email = (String) attributes.get("email");
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
@@ -117,7 +121,7 @@ public class User implements Serializable, NameHolder {
         this.lastActivity = this.createdAt;
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
-        this.institution = (Institution) attributes.getOrDefault(INSTITUTION, null);
+        this.institution = (Institution) attributes.get(INSTITUTION);
 
         //Defensive mode, EPPN is not a required attribute for access RP
         if (!StringUtils.hasText(this.eduPersonPrincipalName)) {

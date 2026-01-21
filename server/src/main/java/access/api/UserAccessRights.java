@@ -92,4 +92,12 @@ public interface UserAccessRights {
         }
     }
 
+    default void confirmInstitutionAdmin(User user) {
+        if (!user.isSuperUser() && !user.isInstitutionAdmin()) {
+            throw new UserRestrictionException(String.format("User %s, %s is no super user or institution admin",
+                    user.getEmail(), user.getAuthenticatingAuthority()));
+        }
+
+    }
+
 }

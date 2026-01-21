@@ -44,7 +44,6 @@ public final class LocalManage implements Manage {
         List<Map<String, Object>> providers = objectMapper.readValue(resource.getInputStream(), new TypeReference<>() {
         });
         //Need mutability
-
         return providers.stream().map(provider -> sanitizeProvider(provider))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -241,6 +240,24 @@ public final class LocalManage implements Manage {
                     return allowedEntities.stream()
                             .map(m -> m.get("name"))
                             .anyMatch(entityIdentifiers::contains);
+                })
+                .toList();
+    }
+
+    @Override
+    public List<Map<String, Object>> policiesByServiceProvider(String identityProviderEntityId, String serviceProviderEntityId) {
+        return this.allProviders.get(EntityType.policy).stream()
+                .filter(policy -> {
+                    Map<String, Object> data = getData(policy);
+                    List<Map<String, String>> serviceProviderIds = (List<Map<String, String>>)
+                            data.getOrDefault("serviceProviderIds", List.of());
+                    List<Map<String, String>> identityProviderIds = (List<Map<String, String>>)
+                            data.getOrDefault("identityProviderIds", List.of());
+                    return serviceProviderIds.stream()
+                            .anyMatch(m -> m.get("name").equals(serviceProviderEntityId))
+                            && (identityProviderIds.isEmpty() ||
+                            identityProviderIds.stream()
+                                    .anyMatch(m -> m.get("name").equals(identityProviderEntityId)));
                 })
                 .toList();
     }

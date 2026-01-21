@@ -46,6 +46,9 @@ public interface Manage {
 
     List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections);
 
+    List<Map<String, Object>> policiesByServiceProvider(String identityProviderEntityId,
+                                                        String serviceProviderEntityId);
+
     void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser);
 
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {

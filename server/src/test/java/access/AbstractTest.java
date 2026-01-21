@@ -106,6 +106,8 @@ public abstract class AbstractTest {
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String EXTERNAL_USER_SUB = "urn:collab:person:example.com:external_user";
     public static final String MULTIPLE_ORG_SUB = "urn:collab:person:example.com:mos";
+    public static final String INSTITUTION_ADMIN = "urn:collab:person:example.com:mujina_institution_admin";
+
     //Organisation GUD of the mock-idp
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     //Organizations
@@ -499,7 +501,7 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
-    protected void stubForIdentityProviderByEntityId(String entityId) {
+    protected Map<String, Object> stubForIdentityProviderByEntityId(String entityId) {
         Map<String, Object> provider = localManage.identityProviderByEntityID(entityId);
         String body = objectMapper.writeValueAsString(List.of(provider));
         stubFor(post("/manage/api/internal/search/saml20_idp")
@@ -507,6 +509,7 @@ public abstract class AbstractTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
+        return provider;
     }
 
     @SneakyThrows
@@ -518,6 +521,17 @@ public abstract class AbstractTest {
                         .withBody(body)
                         .withStatus(200)));
 
+    }
+
+    @SneakyThrows
+    protected void stubForPolicyByServiceProvider(String identityProviderEntityId, String serviceProviderEntityId) {
+        List<Map<String, Object>> policies = localManage
+                .policiesByServiceProvider(identityProviderEntityId, serviceProviderEntityId);
+        String body = objectMapper.writeValueAsString(policies);
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/policy"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
     }
 
     @SneakyThrows
@@ -553,7 +567,13 @@ public abstract class AbstractTest {
                 new User(false, EXTERNAL_USER_SUB, EXTERNAL_USER_SUB, "eduid.nl", "Ex", "Doe", "ex.doe@eduid.nl");
         User multipleOrganizationUser =
                 new User(true, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
-        doSave(this.userRepository, superUser, manager, guest, externalUser, multipleOrganizationUser);
+        User institutionAdmin =
+                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Pat", "Doe", "pat.doe@example.com");
+        institutionAdmin.setAuthenticatingAuthority("http://mock-idp");
+        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
+        institutionAdmin.setInstitutionAdmin(true);
+
+        doSave(this.userRepository, superUser, manager, guest, externalUser, multipleOrganizationUser, institutionAdmin);
 
         Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org", "7", 1);
         Organization logistics = new Organization(LOGISTICS, "logistics.org", "8", 1);

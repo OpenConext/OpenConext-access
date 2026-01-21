@@ -1,8 +1,10 @@
 package access.api;
 
 import access.exception.InvalidInputException;
+import access.exception.UserRestrictionException;
 import access.manage.*;
 import access.model.*;
+import access.security.InstitutionAdmin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -27,7 +29,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
-public class ManageController {
+public class ManageController implements UserAccessRights{
 
     private static final Log LOG = LogFactory.getLog(ManageController.class);
 
@@ -86,17 +88,21 @@ public class ManageController {
     }
 
     @SneakyThrows
-    @GetMapping("/policies/{entityId}")
-    public ResponseEntity<List<Map<String, Object>>> policies(Authentication authentication,
-                                                              @PathVariable String entityId) {
+    @GetMapping("/policies")
+    public ResponseEntity<List<Map<String, Object>>> policies(User user,
+                                                              Authentication authentication,
+                                                              @RequestParam("entityId") String entityId) {
+        confirmInstitutionAdmin(user);
         //we need to ensure the application is connected to the IdP of the user
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
-        String authenticatingAuthority = (String) claims.get("authenticating_authority");
-        Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
-        Map<String, Object> data = ManageData.getData(identityProvider);
-        List<Map<String, Object>> providers = manage.providers(environment, EntityType.policy);
-        return ResponseEntity.ok(providers);
+        Institution institution = (Institution) claims.get(InstitutionAdmin.INSTITUTION);
+        if (!institution.getAllowedEntities().contains(entityId)) {
+            throw new UserRestrictionException(String.format("User %s is not allowed to request policies for %s",
+                    user.getEmail(), entityId));
+        }
+        List<Map<String, Object>> policies = this.manage.policiesByServiceProvider(institution.getEntityID(), entityId);
+        return ResponseEntity.ok(policies);
     }
 
     @SneakyThrows

@@ -15,9 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InviteControllerTest extends AbstractTest {
 
@@ -121,8 +120,39 @@ class InviteControllerTest extends AbstractTest {
                 .pathParam("organizationGUID", "nope")
                 .pathParam("applicationManageId", applicationManageId)
                 .get("/api/v1/invite/roles/{organizationGUID}/{applicationManageId}")
-                        .then()
-                                .statusCode(HttpStatus.FORBIDDEN.value());
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @SneakyThrows
+    @Test
+    void rolesPerOrganizationInviteApplicationServerSideRequestForgery() {
+        //Not a valid UUID
+        String applicationManageId = "nope";
+
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        //This will create an institution admin with the ORGANISATION_GUID as organizationGUID
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me");
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationGUID", ORGANISATION_GUID)
+                .pathParam("applicationManageId", applicationManageId)
+                .get("/api/v1/invite/roles/{organizationGUID}/{applicationManageId}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
 }

@@ -33,7 +33,7 @@ public class LoginController {
     }
 
     @PutMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody Map<String, String> body,
+    public ResponseEntity<Void> login(@RequestBody Map<String, Object> body,
                                       HttpServletRequest servletRequest,
                                       HttpServletResponse servletResponse) {
         if (!environment.acceptsProfiles(Profiles.of("test"))) {

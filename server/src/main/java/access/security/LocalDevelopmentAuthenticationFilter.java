@@ -1,5 +1,6 @@
 package access.security;
 
+import access.model.Institution;
 import jakarta.servlet.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static access.security.InstitutionAdmin.IDENTITY_PROVIDER;
+import static access.security.InstitutionAdmin.INSTITUTION;
+
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
     private static final String sub = "urn:collab:person:example.com:mos";
@@ -32,7 +36,8 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    public static void populateSecurityContext(Map<String, String> body) {
+    @SuppressWarnings("unchecked")
+    public static void populateSecurityContext(Map<String, Object> body) {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
         Map<String, Object> defaultClaims = Map.of(
                 "eduperson_principal_name", "urn:collab:person:example.com:super",
@@ -47,6 +52,10 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "uids", List.of("super"));
         //We can't rely on the mutability of the body
         Map<String, Object> claims = new HashMap<>(defaultClaims);
+        if (body.containsKey(IDENTITY_PROVIDER)) {
+            body.put(INSTITUTION, new Institution((Map<String, Object>) body.get(IDENTITY_PROVIDER)));
+            body.remove(IDENTITY_PROVIDER);
+        }
         claims.putAll(body);
 
         OidcIdToken idToken = new OidcIdToken(
