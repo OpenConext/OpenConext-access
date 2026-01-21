@@ -27,6 +27,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
+import static access.manage.ManageData.getData;
+
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ManageController implements UserAccessRights{
@@ -89,15 +91,24 @@ public class ManageController implements UserAccessRights{
 
     @SneakyThrows
     @GetMapping("/policies")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<List<Map<String, Object>>> policies(User user,
                                                               Authentication authentication,
                                                               @RequestParam("entityId") String entityId) {
         confirmInstitutionAdmin(user);
-        //we need to ensure the application is connected to the IdP of the user
+        //we need to ensure the application is connected to the IdP of the user - realtime
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
         Institution institution = (Institution) claims.get(InstitutionAdmin.INSTITUTION);
-        if (!institution.getAllowedEntities().contains(entityId)) {
+        //We can't use any cache as this method is called right after automatic connection allowed
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, institution.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> data = getData(identityProvider);
+        List<String> allowedEntities = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
+                .stream()
+                .map(allowedEntity -> allowedEntity.get("name"))
+                .toList();
+
+        if (!allowedEntities.contains(entityId)) {
             throw new UserRestrictionException(String.format("User %s is not allowed to request policies for %s",
                     user.getEmail(), entityId));
         }

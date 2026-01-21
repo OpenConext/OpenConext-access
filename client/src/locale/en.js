@@ -1047,6 +1047,10 @@ const en = {
     appAccess: {
         title: "Central Access",
         users: "User from {{name}}",
+        requestedAccessNotification: "You have requested access to this application. If the supplier (SP) approves this, you can manage access to the app below. Still don't want to connect?",
+        cancelRequest: "Cancel the request.",
+        cancelRequestTitle: "Cancel the request.",
+        cancelRequestQuestion: "Are you sure you don't want to have access to this application? The request will be withdrawn.",
         config: "⚡️ Configureer automatische toegang op basis van kenmerken",
         accessFor: "There is access for:",
         everyBody: "Everybody from {{name}}",
@@ -1058,9 +1062,12 @@ const en = {
         roleManagement: "To role management",
         decentralAccess: "Decentral Access",
         noDecentralAccess: "This application <span class='red'>is not used</span> by collaborative groups.",
-        roleReady: "This application <span class='green'>supports</span> SURF Access roles.",
-        notRoleReady: "This application <span class='red'>does not yet</span> support SURF Access roles.",
-        noRoles: "There are no outside users yet with a role"
+        roleReady: "This application <span class='green'>receives</span> SURF Access authorization roles.",
+        notRoleReady: "This application <span class='red'>does not yet</span> receive SURF Access authorization roles.",
+        noRoles: "There are no outside users yet with a role",
+        roleUsers: "<strong>{{count}}</strong> users with role",
+        eduIDOnly: "eduID only",
+        everyIdp: "any IdP",
     }
 
 }

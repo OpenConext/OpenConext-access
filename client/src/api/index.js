@@ -225,6 +225,10 @@ export function getIdentityProviders(environment) {
     return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
 }
 
+export function getPolicyByServiceProviderEntityId(entityId) {
+    return fetchJson(`/api/v1/manage/policies?entityId=${encodeURIComponent(entityId)}`);
+}
+
 export function uniqueEntityID(environment, entityID) {
     return postPutJson(`/api/v1/manage/unique-entity-id/${environment}`, {entityID: entityID}, "POST");
 }

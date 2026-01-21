@@ -77,6 +77,14 @@ div.application-detail-container {
         background-color: white;
         height: 100%;
         padding: 35px 50px;
+
+        .sds--alert .sds--alert--textual.with-children {
+            display: flow;
+            a {
+                display: inline-block;
+                margin-left: 3px;
+            }
+        }
     }
 
     .inner-application-detail-container {
@@ -148,6 +156,10 @@ div.application-detail-container {
         gap: 25px;
         width: 70%;
         @media (max-width: $medium) {
+            width: 100%;
+        }
+
+        &.anonymous {
             width: 100%;
         }
 
@@ -226,6 +238,15 @@ div.application-detail-container {
         }
     }
 
+    .sds--alert {
+        width: 80%;
+        margin-bottom: 25px;
+
+        .sds--alert--actions {
+            cursor: pointer;
+        }
+    }
+
     .app-access {
         width: 80%;
         display: flex;
@@ -235,12 +256,27 @@ div.application-detail-container {
             flex-direction: column;
         }
 
+        &.read-only {
+            z-index: 999;
+            opacity: 0.2;
+            cursor: default;
+        }
+
+        &.read-only > * {
+            pointer-events: none;
+        }
+
         .red {
             color: var(--sds--color--red--400);
         }
 
         .green {
             color: var(--sds--color--green--400);
+        }
+
+        .sds--btn.sds--btn-icon svg {
+            width: 18px;
+            height: auto;
         }
 
         .app-access-central {
@@ -255,6 +291,7 @@ div.application-detail-container {
                 gap: 18px;
                 align-content: center;
                 width: 100%;
+
                 svg {
                     fill: none;
                 }
@@ -305,6 +342,10 @@ div.application-detail-container {
                 font-style: italic;
             }
 
+            &.large {
+                font-size: 18px;
+            }
+
             h4 {
                 font-size: 18px;
             }
@@ -313,13 +354,24 @@ div.application-detail-container {
                 margin-left: auto;
                 width: 42px;
                 height: 42px;
+            }
 
+            .chip {
+                margin-left: auto;
+                border-radius: 38px;
+                padding: 2px 12px;
+                font-size: 16px;
+                background-color: var(--sl-color-neutral-100);
+                color: var(--sl-color-neutral-500);
+                min-width: 100px;
+                text-align: center;
+
+                &.blue {
+                    background-color: var(--sds--color--blue--400);
+                    color: white;
+                }
             }
         }
     }
 
-    .sds--btn.sds--btn-icon svg {
-        width: 18px;
-        height: auto;
-    }
 }

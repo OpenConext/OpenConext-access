@@ -34,7 +34,7 @@ export const Navigation = ({mobile, path}) => {
             <div className="links">
                 {path !== "/login-info" &&
                     <Button onClick={() => navigate("/login-info")}
-                        txt={I18n.t("landing.header.login")}/>}
+                            txt={I18n.t("landing.header.login")}/>}
             </div>
         </div>
     );

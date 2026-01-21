@@ -1,11 +1,18 @@
 import "./ApplicationDetail.scss";
 import React, {useEffect, useState} from "react";
-import {connectServiceProviderToIdentityProvider, publicServiceProviderByDetail} from "../api/index.js";
+import {
+    connectServiceProviderToIdentityProvider,
+    getPolicyByServiceProviderEntityId,
+    inviteRoles,
+    publicServiceProviderByDetail
+} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router-dom";
 import {
+    Alert,
+    AlertType,
     Button,
     ButtonIconPlacement,
     ButtonType,
@@ -21,6 +28,7 @@ import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg"
 import {
     APPLICATION_LINKS,
     CHANGE_REQUEST_TYPE,
+    isAccessRoleReady,
     providerDescription,
     providerName,
     providerOrganizationName
@@ -34,6 +42,7 @@ import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {InfoBlock} from "../components/InfoBlock.jsx";
+import DOMPurify from "dompurify";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -42,8 +51,6 @@ const confirmationModalOptions = {
     disconnectConnection: "disconnectConnection",
     requestDisconnectConnection: "requestDisconnectConnection",
 }
-
-const tabNames = ["access", "information"]
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
@@ -58,9 +65,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const navigate = useNavigate();
     const {manageType, manageId, tab = "access"} = useParams();
 
+    const [tabNames, setTabNames] = useState(["access", "information"]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [loading, setLoading] = useState(true);
-    const [serviceProvider, setServiceProvider] = useState([]);
+    const [serviceProvider, setServiceProvider] = useState({});
+    const [accessRoles, setAccessRoles] = useState({});
+    const [policies, setPolicies] = useState({});
     const [showAttributes, setShowAttributes] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
     const [metaData, setMetaData] = useState({});
@@ -80,11 +90,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 setServiceProvider(res);
                 const newMetaData = res.data.metaDataFields;
                 setMetaData(newMetaData);
+                if (anonymous) {
+                    setLoading(false);
+                    return;
+                }
                 //See if this application is already connected
                 const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
                 let isAccessible = allowedEntities.includes(res.data.entityid);
+                let isReadOnly = true;
                 if (isAccessible) {
-                    setReadOnly(false);
+                    isReadOnly = false;
                 } else {
                     //Check if there is an outstanding change request
                     isAccessible = user.changeRequests
@@ -92,7 +107,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             changeRequest.pathUpdateType === "ADDITION" &&
                             changeRequest.pathUpdates.allowedEntities.name === res.data.entityid
                         );
-                    setReadOnly(true);
                 }
                 setAccessible(isAccessible);
                 useAppStore.setState({
@@ -112,8 +126,32 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
                 const idpId = user.identityProvider.id
                 const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
-                setIsAdminUser(user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN));
-                setLoading(false);
+                const adminUser = user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN);
+                setIsAdminUser(adminUser);
+                setReadOnly(isReadOnly);
+                if (isAccessible) {
+                    if (adminUser) {
+                        if (isReadOnly) {
+                            setLoading(false);
+                        } else {
+                            Promise.all([
+                                inviteRoles(user.organizationGUID, res.id),
+                                getPolicyByServiceProviderEntityId(res.data.entityid)
+                            ]).then(res => {
+                                setAccessRoles(res[0]);
+                                setPolicies(res[1]);
+                                setLoading(false);
+                            })
+                        }
+                    } else {
+                        setTabNames(["information"]);
+                        setCurrentTab("information");
+                        setLoading(false);
+                    }
+                } else {
+                    setLoading(false);
+                }
+
             })
             .catch(() => {
                 navigate("/404");
@@ -201,13 +239,30 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             );
 
         }
-        return "TODO"
+        return null;
     }
 
     const cancelConfirmation = () => {
         setConfirmation({});
         setMessage("");
         setAccessChoice("ALL")
+    }
+
+    const cancelConnectionRequest = (withConfirmation, e) => {
+        stopEvent(e);
+        if (withConfirmation) {
+            setConfirmation({
+                open: true,
+                cancel: () => cancelConfirmation(),
+                action: () => cancelConnectionRequest(false),
+                title: I18n.t("appAccess.cancelRequestTitle"),
+                okButton: I18n.t("forms.sure"),
+                question: I18n.t("appAccess.cancelRequestQuestion"),
+            });
+        } else {
+            cancelConfirmation();
+            alert("cancel request")
+        }
     }
 
     const doRequestConnection = (withConfirmation, modalOption) => {
@@ -280,52 +335,94 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const renderAccessApp = () => {
         return (
-            <div className="app-access">
-                <div className="app-access-central">
-                    <h2>{I18n.t("appAccess.title")}</h2>
-                    <InfoBlock className="no-gap">
-                        <div className="grouped">
-                            <div>
-                                <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
-                                <p>{I18n.t("appAccess.config")}</p>
+            <>
+                {readOnly && <Alert alertType={AlertType.Warning}
+                                    asChild={true}
+                                    children={<a href="/" onClick={e => cancelConnectionRequest(true, e)}>
+                                        {I18n.t("appAccess.cancelRequest")}</a>}
+                                    message={I18n.t("appAccess.requestedAccessNotification")}/>
+                }
+                <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
+                    <div className="app-access-central">
+                        <h2>{I18n.t("appAccess.title")}</h2>
+                        <InfoBlock className="no-gap">
+                            <div className="grouped">
+                                <div>
+                                    <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
+                                    <p>{I18n.t("appAccess.config")}</p>
+                                </div>
+                                <Button type={ButtonType.Primary}
+                                        onClick={() => alert("ToDo")}
+                                        txt={I18n.t("forms.edit")}/>
                             </div>
-                            <Button type={ButtonType.Primary}
-                                    onClick={() => alert("ToDo")}
-                                    txt={I18n.t("forms.edit")}/>
-                        </div>
-                        <p>{I18n.t("appAccess.accessFor")}</p>
-                        <div className="access-card">
-                            <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
-                            {renderLogo(user.identityProvider.data.metaDataFields)}
-                        </div>
-                    </InfoBlock>
-                    <InfoBlock className="no-gap">
-                        <div className="grouped">
-                            <div>
-                                <h3>{I18n.t("appAccess.outSideUsers")}</h3>
-                                <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                            <p>{I18n.t("appAccess.accessFor")}</p>
+                            <div className="access-card large">
+                                <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                                {renderLogo(user.identityProvider.data.metaDataFields)}
                             </div>
-                            <Button type={ButtonType.Primary}
-                                    onClick={() => window.open(config.invite, "_blank").focus()}
-                                    icon={<ExternalLinkIcon/>}
-                                    txt={I18n.t("appAccess.roleManagement")}/>
-                        </div>
-                        <div className="access-card grey">
-                            <p>{I18n.t("appAccess.noRoles")}</p>
-                        </div>
-                    </InfoBlock>
+                            {!isEmpty(policies) && <>
+                                {policies.map((policy, index) =>
+                                    <div key={index} className="access-card large">
+                                        {policy.data.name}
+
+                                    </div>)}
+
+                            </>}
+                        </InfoBlock>
+                        <InfoBlock className="no-gap">
+                            <div className="grouped">
+                                <div>
+                                    <h3>{I18n.t("appAccess.outSideUsers")}</h3>
+                                    <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                                </div>
+                                <Button type={ButtonType.Primary}
+                                        onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
+                                            "_blank").focus()}
+                                        icon={<ExternalLinkIcon/>}
+                                        txt={I18n.t("appAccess.roleManagement")}/>
+                            </div>
+                            {isEmpty(accessRoles) &&
+                                <div className="access-card grey">
+                                    <p>{I18n.t("appAccess.noRoles")}</p>
+                                </div>}
+                            {!isEmpty(accessRoles) &&
+                                <>
+                                    <p>{I18n.t("appAccess.accessFor")}</p>
+                                    {accessRoles.map((role, index) =>
+                                        <div key={index} className="access-card column large">
+                                            <div>
+                                                <p dangerouslySetInnerHTML={{
+                                                    __html: DOMPurify.sanitize(
+                                                        I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
+                                                }}/>
+                                                <p><strong>{role.name}</strong></p>
+                                            </div>
+                                            <div className={`chip ${role.eduIDOnly ? "blue" : ""}`}>
+                                                {I18n.t(`appAccess.${role.eduIDOnly ? "eduIDOnly" : "everyIdp"}`)}
+                                            </div>
+
+
+                                        </div>)}
+                                </>
+                            }
+                            <em className="role-ready" dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(
+                                    I18n.t(`appAccess.${isAccessRoleReady(serviceProvider) ? "roleReady" : "notRoleReady"}`))
+                            }}/>
+                        </InfoBlock>
+                    </div>
+                    <div className="app-access-decentral">
+                        <h2>{I18n.t("appAccess.decentralAccess")}</h2>
+                        <InfoBlock className="no-gap grey row">
+                            <div className="not-allowed-container">
+                                <NotAllowedIcon/>
+                                <p
+                                    dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
+                            </div>
+                        </InfoBlock>
+                    </div>
                 </div>
-                <div className="app-access-decentral">
-                    <h2>{I18n.t("appAccess.decentralAccess")}</h2>
-                    <InfoBlock className="no-gap grey row">
-                        <div className="not-allowed-container">
-                            <NotAllowedIcon/>
-                            <p
-                                dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
-                        </div>
-                    </InfoBlock>
-                </div>
-            </div>
+            </>
         );
     }
 
@@ -451,7 +548,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const renderDetailsApp = () => {
         return (
-            <div className="details">
+            <div className={`details ${anonymous ? "anonymous" : ""}`}>
                 <div className="left">
                     <p>{providerDescription(I18n.locale, serviceProvider)}</p>
                     {renderAppAttributes()}
@@ -550,7 +647,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     return (
-        <div className="application-detail-container">
+        <div className={`application-detail-container`}>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          confirmationTxt={okButton}

@@ -17,19 +17,14 @@ import static access.manage.ManageData.getMetaDataFields;
 @NoArgsConstructor
 public class Institution implements Serializable {
 
+    private String manageIdentifier;
     private String entityID;
     private String name;
     private String organizationName;
-    private boolean allowedall;
-    private List<String> allowedEntities;
 
     public Institution(Map<String, Object> provider) {
+        this.manageIdentifier = (String) provider.get("_id");
         Map<String, Object> data = getData(provider);
-        this.allowedall = (boolean) data.getOrDefault("allowedall", false);
-        this.allowedEntities = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", Map.of()))
-                .stream()
-                .map(allowedEntity -> allowedEntity.get("name"))
-                .toList();
         Map<String, Object> metaDataFields = getMetaDataFields(data);
         this.entityID = (String) data.get("entityid");
         this.name = (String) metaDataFields.get("name:en");
