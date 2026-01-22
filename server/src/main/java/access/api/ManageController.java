@@ -103,12 +103,11 @@ public class ManageController implements UserAccessRights{
         //We can't use any cache as this method is called right after automatic connection allowed
         Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, institution.getManageIdentifier(), Environment.PROD);
         Map<String, Object> data = getData(identityProvider);
-        List<String> allowedEntities = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
+        boolean noneMatch = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
                 .stream()
-                .map(allowedEntity -> allowedEntity.get("name"))
-                .toList();
+                .noneMatch(allowedEntity -> allowedEntity.get("name").equals(entityId));
 
-        if (!allowedEntities.contains(entityId)) {
+        if (noneMatch) {
             throw new UserRestrictionException(String.format("User %s is not allowed to request policies for %s",
                     user.getEmail(), entityId));
         }

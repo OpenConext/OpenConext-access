@@ -364,6 +364,38 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public Map<String, Object> createPolicy(Map<String, Object> policy) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/internal/metadata",
+                environmentUrl(Environment.PROD));
+        return restTemplate.postForEntity(url, policy, Map.class).getBody();
+    }
+
+    @Override
+    public Map<String, Object> updatePolicy(Map<String, Object> policy) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/internal/metadata",
+                environmentUrl(Environment.PROD));
+        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(policy), Map.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, String>> allowedAttributes() {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/protected/allowed-attributes",
+                environmentUrl(Environment.PROD));
+        return restTemplate.getForObject(url, List.class);
+    }
+
+    @Override
+    public void deletePolicy(Map<String, Object> policy) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/internal/metadata/%s/%s",
+                environmentUrl(Environment.PROD), EntityType.policy.name(), policy.get("id"));
+        restTemplate.delete(url);
+    }
+
+    @Override
     public void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User user) {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/connectWithoutInteraction",

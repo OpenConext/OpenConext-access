@@ -4,19 +4,15 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Environment;
-import access.model.Institution;
 import access.security.InstitutionAdmin;
 import com.nimbusds.jose.util.IOUtils;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
-import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -109,7 +105,10 @@ class ManageControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
 
         String serviceProviderEntityId = "https://network";
+        //Stub the actual call to fetch the policies for a SP
         this.stubForPolicyByServiceProvider("http://mock-idp", serviceProviderEntityId);
+        //The IdP is fetched to check the allowed entities
+        this.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
 
         List<Map<String, Object>> policies = given()
                 .when()
@@ -119,7 +118,8 @@ class ManageControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .queryParam("entityId", serviceProviderEntityId)
                 .get("/api/v1/manage/policies")
-                .as(new TypeRef<>() {});
+                .as(new TypeRef<>() {
+                });
         assertEquals(1, policies.size());
     }
 

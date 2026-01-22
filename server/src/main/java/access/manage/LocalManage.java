@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
@@ -28,6 +29,7 @@ public final class LocalManage implements Manage {
     private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
     private final ConnectionProviderConverter converter;
     private final ObjectMapper objectMapper;
+    private final Map<String, Map<String, Object>> policies = new HashMap<>();
 
     public LocalManage(ConnectionProviderConverter converter, ObjectMapper objectMapper, String staticManageDirectory) {
         this.converter = converter;
@@ -260,6 +262,32 @@ public final class LocalManage implements Manage {
                                     .anyMatch(m -> m.get("name").equals(identityProviderEntityId)));
                 })
                 .toList();
+    }
+
+    @Override
+    public Map<String, Object> createPolicy(Map<String, Object> policy) {
+        String id = UUID.randomUUID().toString();
+        policy.put("id", id);
+        policies.put(id, policy);
+        return policy;
+    }
+
+    @Override
+    public Map<String, Object> updatePolicy(Map<String, Object> policy) {
+        policies.put((String) policy.get("id"), policy);
+        return policy;
+    }
+
+    @SneakyThrows
+    @Override
+    public List<Map<String, String>> allowedAttributes() {
+        return objectMapper.readValue(new ClassPathResource("/manage/allowed_attributes.json").getInputStream(), new TypeReference<>() {
+        });
+    }
+
+    @Override
+    public void deletePolicy(Map<String, Object> policy) {
+        policies.remove((String) policy.get("id"));
     }
 
     @Override
