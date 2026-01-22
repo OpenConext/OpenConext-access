@@ -1,6 +1,7 @@
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
 import {paginationQueryParams} from "../utils/Pagination.js";
+import {isEmpty} from "../utils/Utils.js";
 
 //Internal API
 function validateResponse(showErrorDialog) {
@@ -334,3 +335,19 @@ export function publicServiceProviders() {
 export function publicServiceProviderByDetail(type, identifier) {
     return fetchJson(`/api/v1/public/service-provider-detail/${type}/${identifier}`);
 }
+
+//Stats
+export function loginTimeFrame(from, to, scale, spEntityId) {
+    const sp = !isEmpty(spEntityId) ? `&spEntityId=${encodeURIComponent(spEntityId)}` : ''
+    return fetchJson(`/api/v1/stats/loginTimeFrame?from=${from}&to=${to}&scale=${scale}&${sp}`)
+}
+
+export function loginAggregated(period, spEntityId) {
+    const sp = !isEmpty(spEntityId) ? `&spEntityId=${encodeURIComponent(spEntityId)}` : ''
+    return fetchJson(`/api/v1/stats/loginAggregated?period=${period}${sp}`)
+}
+
+export function uniqueLoginCount(from, to, spEntityId) {
+    return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
+}
+

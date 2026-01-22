@@ -181,6 +181,12 @@ invite:
   user: access
   password: secret
 
+statistics:
+  enabled: False
+  url: "http://locallhost:8081"
+  user: access
+  password: secret
+
 s3storage:
   #  url: "https://minioapi.test2.surfconext.nl"
   #  key: "minioadmin"
