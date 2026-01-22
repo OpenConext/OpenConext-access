@@ -3,7 +3,10 @@ package access.api;
 import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
 import access.manage.*;
-import access.model.*;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Institution;
+import access.model.User;
 import access.security.InstitutionAdmin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,12 +34,13 @@ import static access.manage.ManageData.getData;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
-public class ManageController implements UserAccessRights{
+public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ManageController.class);
 
     private final MetaDataFeedParser metaDataFeedParser = new MetaDataFeedParser();
     private final Manage manage;
+    private final ObjectMapper objectMapper;
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
 
@@ -44,6 +48,7 @@ public class ManageController implements UserAccessRights{
     public ManageController(Manage manage,
                             ObjectMapper objectMapper) {
         this.manage = manage;
+        this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
@@ -97,22 +102,31 @@ public class ManageController implements UserAccessRights{
                                                               @RequestParam("entityId") String entityId) {
         confirmInstitutionAdmin(user);
         //we need to ensure the application is connected to the IdP of the user - realtime
-        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-        Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
-        Institution institution = (Institution) claims.get(InstitutionAdmin.INSTITUTION);
-        //We can't use any cache as this method is called right after automatic connection allowed
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, institution.getManageIdentifier(), Environment.PROD);
-        Map<String, Object> data = getData(identityProvider);
-        boolean noneMatch = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
-                .stream()
-                .noneMatch(allowedEntity -> allowedEntity.get("name").equals(entityId));
+        if (!user.isSuperUser()) {
+            Map<String, Object> data = getIdentityProvider(authentication);
+            boolean noneMatch = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
+                    .stream()
+                    .noneMatch(allowedEntity -> allowedEntity.get("name").equals(entityId));
 
-        if (noneMatch) {
-            throw new UserRestrictionException(String.format("User %s is not allowed to request policies for %s",
-                    user.getEmail(), entityId));
+            if (noneMatch) {
+                throw new UserRestrictionException(String.format("User %s is not allowed to request policies for %s",
+                        user.getEmail(), entityId));
+            }
         }
-        List<Map<String, Object>> policies = this.manage.policiesByServiceProvider(institution.getEntityID(), entityId);
+        List<Map<String, Object>> policies = this.manage
+                .policiesByServiceProvider(user.getAuthenticatingAuthority(), entityId);
         return ResponseEntity.ok(policies);
+    }
+
+    @SneakyThrows
+    @PostMapping("/policies")
+    public ResponseEntity<Map<String, Object>> createPolicy(User user,
+                                                            @RequestBody Map<String, Object> policy) {
+        confirmInstitutionAdmin(user);
+        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
+        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
+        confirmPolicyAccess(user, policyDefinition, manage);
+        return ResponseEntity.ok(policy);
     }
 
     @SneakyThrows
@@ -131,4 +145,16 @@ public class ManageController implements UserAccessRights{
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
         return Results.okResult();
     }
+
+    private Map<String, Object> getIdentityProvider(Authentication authentication) {
+        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
+        Institution institution = (Institution) claims.get(InstitutionAdmin.INSTITUTION);
+        //We can't use any cache as this method is called right after automatic connection allowed
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, institution.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> data = getData(identityProvider);
+        return data;
+    }
+
+
 }
