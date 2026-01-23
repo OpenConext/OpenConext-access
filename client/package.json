@@ -27,7 +27,7 @@
     "react-select": "^5.10.2",
     "react-tooltip": "^5.30.0",
     "use-debounce": "^10.1.0",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
