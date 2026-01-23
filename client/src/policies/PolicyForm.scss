@@ -1,0 +1,63 @@
+@use "../styles/vars.scss" as *;
+
+.policy-form-container {
+    width: 50%;
+    @media (max-width: $medium) {
+        width: 100%;
+    }
+
+    .policy-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        border: 1px solid var(--sl-color-neutral-100);
+        border-radius: 10px;
+        padding: 24px 32px 32px 32px;
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            div.row-item:last-child {
+                margin-left: auto;
+            }
+        }
+
+        .sds--segmented-control.sds--tooltip-parent {
+            margin-right: 8px;
+        }
+
+        .sds--segmented-control button {
+            min-width: 110px;
+        }
+        .filters {
+            background-color: var(--sds--color--gray--background);
+            padding: 20px;
+
+            .input-select-inner.creatable {
+                .select-inner__indicators {
+                    display: none;
+                }
+            }
+
+        }
+
+    }
+
+    .actions {
+        display: flex;
+        width: 100%;
+        margin: 35px 0 25px 0;
+        gap: 20px;
+        padding-top: 25px;
+        border-top: 1px solid var(--sds--color--gray--200);
+
+        button {
+            &:first-child {
+                margin-left: auto;
+            }
+        }
+
+    }
+}

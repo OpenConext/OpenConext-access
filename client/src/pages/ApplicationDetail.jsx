@@ -43,6 +43,9 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
+import {PolicyOverview} from "../policies/PolicyOverview.jsx";
+import {PolicyForm} from "../policies/PolicyForm.jsx";
+import {policyTemplate} from "../utils/Policy.js";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -83,6 +86,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [memberRequestSend, setMemberRequestSend] = useState(false);
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
+    const [showPolicyOverview, setShowPolicyOverview] = useState(false);
+    const [showNewPolicy, setShowNewPolicy] = useState(false);
+    const [currentPolicy, setCurrentPolicy] = useState(null);
 
     useEffect(() => {
         publicServiceProviderByDetail(manageType, manageId)
@@ -343,84 +349,113 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     message={I18n.t("appAccess.requestedAccessNotification")}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
-                    <div className="app-access-central">
-                        <h2>{I18n.t("appAccess.title")}</h2>
-                        <InfoBlock className="no-gap">
-                            <div className="grouped">
-                                <div>
-                                    <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
-                                    <p>{I18n.t("appAccess.config")}</p>
+                    {showNewPolicy &&
+                        <PolicyForm backToAccess={() => setShowNewPolicy(false)}
+                                    policy={currentPolicy}
+                                    setPolicy={setCurrentPolicy}
+                        />
+                    }
+                    {showPolicyOverview &&
+                        <PolicyOverview
+                            serviceProvider={serviceProvider}
+                            policies={policies}
+                            backToAccess={e => {
+                                stopEvent(e);
+                                setShowPolicyOverview(false);
+                                setShowNewPolicy(false);
+                            }}
+                            newPolicy={() => {
+                                setShowPolicyOverview(false);
+                                setCurrentPolicy(policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid))
+                                setShowNewPolicy(true);
+                            }}
+                        />
+                    }
+                    {(!showPolicyOverview && !showNewPolicy) && <>
+                        <div className="app-access-central">
+                            <h2>{I18n.t("appAccess.title")}</h2>
+                            <InfoBlock className="no-gap">
+                                <div className="grouped">
+                                    <div>
+                                        <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
+                                        <p>{I18n.t("appAccess.config")}</p>
+                                    </div>
+                                    <Button type={ButtonType.Primary}
+                                            onClick={() => setShowPolicyOverview(true)}
+                                            txt={I18n.t("forms.edit")}/>
                                 </div>
-                                <Button type={ButtonType.Primary}
-                                        onClick={() => alert("ToDo")}
-                                        txt={I18n.t("forms.edit")}/>
-                            </div>
-                            <p>{I18n.t("appAccess.accessFor")}</p>
-                            <div className="access-card large">
-                                <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
-                                {renderLogo(user.identityProvider.data.metaDataFields)}
-                            </div>
-                            {!isEmpty(policies) && <>
-                                {policies.map((policy, index) =>
-                                    <div key={index} className="access-card large">
-                                        {policy.data.name}
-
-                                    </div>)}
-
-                            </>}
-                        </InfoBlock>
-                        <InfoBlock className="no-gap">
-                            <div className="grouped">
-                                <div>
-                                    <h3>{I18n.t("appAccess.outSideUsers")}</h3>
-                                    <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                                <p>{I18n.t("appAccess.accessFor")}</p>
+                                <div className="access-card large">
+                                    <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                                    {renderLogo(user.identityProvider.data.metaDataFields)}
                                 </div>
-                                <Button type={ButtonType.Primary}
-                                        onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
-                                            "_blank").focus()}
-                                        icon={<ExternalLinkIcon/>}
-                                        txt={I18n.t("appAccess.roleManagement")}/>
-                            </div>
-                            {isEmpty(accessRoles) &&
-                                <div className="access-card grey">
-                                    <p>{I18n.t("appAccess.noRoles")}</p>
-                                </div>}
-                            {!isEmpty(accessRoles) &&
-                                <>
-                                    <p>{I18n.t("appAccess.accessFor")}</p>
-                                    {accessRoles.map((role, index) =>
-                                        <div key={index} className="access-card column large">
-                                            <div>
-                                                <p dangerouslySetInnerHTML={{
-                                                    __html: DOMPurify.sanitize(
-                                                        I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
-                                                }}/>
-                                                <p><strong>{role.name}</strong></p>
-                                            </div>
-                                            <div className={`chip ${role.eduIDOnly ? "blue" : ""}`}>
-                                                {I18n.t(`appAccess.${role.eduIDOnly ? "eduIDOnly" : "everyIdp"}`)}
-                                            </div>
-
+                                {isEmpty(policies) && <>
+                                    <div className="access-card grey">
+                                        {I18n.t("appAccess.noOneGroups")}
+                                    </div>
+                                </>}
+                                {!isEmpty(policies) && <>
+                                    {policies.map((policy, index) =>
+                                        <div key={index} className="access-card large">
+                                            {policy.data.name}
 
                                         </div>)}
-                                </>
-                            }
-                            <em className="role-ready" dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(
-                                    I18n.t(`appAccess.${isAccessRoleReady(serviceProvider) ? "roleReady" : "notRoleReady"}`))
-                            }}/>
-                        </InfoBlock>
-                    </div>
-                    <div className="app-access-decentral">
-                        <h2>{I18n.t("appAccess.decentralAccess")}</h2>
-                        <InfoBlock className="no-gap grey row">
-                            <div className="not-allowed-container">
-                                <NotAllowedIcon/>
-                                <p
-                                    dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
-                            </div>
-                        </InfoBlock>
-                    </div>
+
+                                </>}
+                            </InfoBlock>
+                            <InfoBlock className="no-gap">
+                                <div className="grouped">
+                                    <div>
+                                        <h3>{I18n.t("appAccess.outSideUsers")}</h3>
+                                        <p>{I18n.t("appAccess.roleBasedAccess")}</p>
+                                    </div>
+                                    <Button type={ButtonType.Primary}
+                                            onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
+                                                "_blank").focus()}
+                                            icon={<ExternalLinkIcon/>}
+                                            txt={I18n.t("appAccess.roleManagement")}/>
+                                </div>
+                                {isEmpty(accessRoles) &&
+                                    <div className="access-card grey">
+                                        <p>{I18n.t("appAccess.noRoles")}</p>
+                                    </div>}
+                                {!isEmpty(accessRoles) &&
+                                    <>
+                                        <p>{I18n.t("appAccess.accessFor")}</p>
+                                        {accessRoles.map((role, index) =>
+                                            <div key={index} className="access-card column large">
+                                                <div>
+                                                    <p dangerouslySetInnerHTML={{
+                                                        __html: DOMPurify.sanitize(
+                                                            I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
+                                                    }}/>
+                                                    <p><strong>{role.name}</strong></p>
+                                                </div>
+                                                <div className={`chip ${role.eduIDOnly ? "blue" : ""}`}>
+                                                    {I18n.t(`appAccess.${role.eduIDOnly ? "eduIDOnly" : "everyIdp"}`)}
+                                                </div>
+
+
+                                            </div>)}
+                                    </>
+                                }
+                                <em className="role-ready" dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(
+                                        I18n.t(`appAccess.${isAccessRoleReady(serviceProvider) ? "roleReady" : "notRoleReady"}`))
+                                }}/>
+                            </InfoBlock>
+                        </div>
+                        <div className="app-access-decentral">
+                            <h2>{I18n.t("appAccess.decentralAccess")}</h2>
+                            <InfoBlock className="no-gap grey row">
+                                <div className="not-allowed-container">
+                                    <NotAllowedIcon/>
+                                    <p
+                                        dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
+                                </div>
+                            </InfoBlock>
+                        </div>
+                    </>}
                 </div>
             </>
         );

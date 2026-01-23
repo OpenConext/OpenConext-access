@@ -43,6 +43,10 @@ span.label {
     margin-bottom: var(--sds--space--1);
     position: relative;
 
+    &.standalone {
+        margin: 12px 0 var(--sds--space--1);
+    }
+
     svg.alert-triangle {
         fill: black;
         color: white;

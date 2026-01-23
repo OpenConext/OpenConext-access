@@ -1,0 +1,26 @@
+@use "../styles/vars.scss" as *;
+
+.policy-overview-container {
+    width: 65%;
+    @media (max-width: $medium) {
+        width: 100%;
+    }
+    .policy-overview {
+        a, a.visited {
+            text-decoration: none;
+            color: var(--sl-color-neutral-500);
+        }
+        .grouped {
+            display: flex;
+            width: 100%;
+            margin: 25px 0;
+
+            button {
+                align-self: flex-start;
+                margin-left: auto;
+            }
+
+        }
+
+    }
+}

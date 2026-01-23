@@ -1,15 +1,15 @@
-export const policyTemplate = {
+export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId) => ({
     "active": true,
     "allAttributesMustMatch": false,
-    "attributes": [],
+    "attributes": [{name: null, value: ""}],
     "denyAdvice": "",
     "denyAdviceNl": "",
     "denyRule": false,
     "description": "",
     "entityid": "",
-    "identityProviderIds": [],
+    "identityProviderIds": [{name: identityProviderEntityId}],
     "metaDataFields": {},
     "name": "",
-    "serviceProviderIds": [],
+    "serviceProviderIds": [{name: serviceProviderEntityId}],
     "type": "reg"
-}
+})

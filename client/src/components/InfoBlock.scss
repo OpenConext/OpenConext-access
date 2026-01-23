@@ -46,6 +46,12 @@
         border: 1px solid var(--sds--color--gray--300);
     }
 
+    &.light-grey {
+        background-color: var(--sds--color--gray--background);
+        border: 1px solid var(--sl-color-grey-100);
+
+    }
+
     &.no-gap {
         gap: 0;
     }

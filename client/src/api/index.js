@@ -242,6 +242,22 @@ export function privacy() {
     return fetchJson("/api/v1/manage/privacy", {}, {}, false);
 }
 
+export function newPolicy(policy) {
+    return postPutJson("/api/v1/manage", policy, "POST");
+}
+
+export function updatePolicy(policy) {
+    return postPutJson("/api/v1/manage", policy, "PUT");
+}
+
+export function deletePolicy(policy) {
+    return fetchDelete(`/api/v1/manage/${policy.id}`);
+}
+
+export function allowedAttributes() {
+    return fetchJson("/api/v1/manage/allowed-attributes", {}, {}, false);
+}
+
 //Connections
 export function newConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "POST");

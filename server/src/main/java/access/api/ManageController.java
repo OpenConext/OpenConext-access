@@ -43,6 +43,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final ObjectMapper objectMapper;
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
+    private final List<Map<String, String>> allowedAttributes;
 
     @SneakyThrows
     public ManageController(Manage manage,
@@ -53,23 +54,28 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         });
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
+        this.allowedAttributes = manage.allowedAttributes();
     }
 
     @GetMapping("/arp")
     public ResponseEntity<Map<String, Object>> arp() {
         LOG.debug("/arp");
+
         return ResponseEntity.ok(this.arpInfo);
     }
 
     @GetMapping("/privacy")
     public ResponseEntity<List<Map<String, Object>>> privacy() {
         LOG.debug("/privacy");
+
         return ResponseEntity.ok(this.privacyInfo);
     }
 
     @SneakyThrows
     @PostMapping("/parse")
     public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) {
+        LOG.debug("/parse");
+
         List<EntityDescriptor> entityDescriptors;
         Resource resource;
         if (requestBody.containsKey("url")) {
@@ -90,6 +96,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     @SneakyThrows
     @GetMapping("/identity-providers/{environment}")
     public ResponseEntity<List<Map<String, Object>>> identityProviders(@PathVariable("environment") Environment environment) {
+        LOG.debug("/identityProviders for " + environment);
+
         List<Map<String, Object>> providers = manage.providers(environment, EntityType.saml20_idp);
         return ResponseEntity.ok(providers);
     }
@@ -100,6 +108,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<List<Map<String, Object>>> policies(User user,
                                                               Authentication authentication,
                                                               @RequestParam("entityId") String entityId) {
+        LOG.debug("/policies for " + entityId + " for " + user.getEmail());
+
         confirmInstitutionAdmin(user);
         //we need to ensure the application is connected to the IdP of the user - realtime
         if (!user.isSuperUser()) {
@@ -120,28 +130,69 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     @SneakyThrows
     @PostMapping("/policies")
-    public ResponseEntity<Map<String, Object>> createPolicy(User user,
-                                                            @RequestBody Map<String, Object> policy) {
+    public ResponseEntity<Map<String, Object>> createPolicy(User user, @RequestBody Map<String, Object> policy) {
+        LOG.debug("/createPolicy for " + policy + " for " + user.getEmail());
+
         confirmInstitutionAdmin(user);
         //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
         PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
         confirmPolicyAccess(user, policyDefinition, manage);
-        return ResponseEntity.ok(policy);
+        Map<String, Object> policyCreated = manage.createPolicy(policy);
+        return ResponseEntity.ok(policyCreated);
+    }
+
+    @SneakyThrows
+    @PutMapping("/policies")
+    public ResponseEntity<Map<String, Object>> updatePolicy(User user, @RequestBody Map<String, Object> policy) {
+        LOG.debug("/updatePolicy for " + policy + " for " + user.getEmail());
+
+        confirmInstitutionAdmin(user);
+        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
+        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
+        confirmPolicyAccess(user, policyDefinition, manage);
+        Map<String, Object> policyUpdated = manage.updatePolicy(policy);
+        return ResponseEntity.ok(policyUpdated);
+    }
+
+    @SneakyThrows
+    @DeleteMapping("/policies/{policyId}")
+    public ResponseEntity<Void> deletePolicy(User user, @PathVariable String policyId) {
+        confirmInstitutionAdmin(user);
+        Map<String, Object> policy = manage.providerById(EntityType.policy, policyId, Environment.PROD);
+
+        LOG.debug("/deletePolicy for " + policy + " for " + user.getEmail());
+
+        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
+        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
+        confirmPolicyAccess(user, policyDefinition, manage);
+        manage.deletePolicy(policy);
+        return ResponseEntity.noContent().build();
     }
 
     @SneakyThrows
     @PostMapping("/unique-entity-id/{environment}")
     public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@PathVariable("environment") Environment environment,
                                                                          @RequestBody Map<String, String> data) {
+        LOG.debug("/unique-entity-id for " + data);
+
         String entityID = data.get("entityID");
         //It does not matter which entityType we use, all services will be queried
         List<Map<String, Object>> providers = manage.uniqueEntityId(environment, EntityType.saml20_sp, entityID);
         return ResponseEntity.ok(providers);
     }
 
+    @GetMapping("/allowed-attributes")
+    public ResponseEntity<List<Map<String, String>>> allowedAttributes() {
+        LOG.debug("/allowedAttributes");
+
+        return ResponseEntity.ok(this.allowedAttributes);
+    }
+
     @SneakyThrows
     @PutMapping("/reject-change-request")
-    public ResponseEntity<Map<String, Object>> rejectChangeRequest(@RequestBody ChangeRequest changeRequest) {
+    public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
+        LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
+        //change request has non guessable identifier
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
         return Results.okResult();
     }
