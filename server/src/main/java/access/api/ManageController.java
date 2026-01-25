@@ -43,7 +43,6 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final ObjectMapper objectMapper;
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
-    private final List<Map<String, String>> allowedAttributes;
 
     @SneakyThrows
     public ManageController(Manage manage,
@@ -54,7 +53,6 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         });
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
-        this.allowedAttributes = manage.allowedAttributes();
     }
 
     @GetMapping("/arp")
@@ -185,7 +183,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<List<Map<String, String>>> allowedAttributes() {
         LOG.debug("/allowedAttributes");
 
-        return ResponseEntity.ok(this.allowedAttributes);
+        return ResponseEntity.ok(manage.allowedAttributes());
     }
 
     @SneakyThrows
