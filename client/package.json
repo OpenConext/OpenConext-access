@@ -10,6 +10,9 @@
     "preview": "vite preview",
     "test": "vitest"
   },
+  "resolutions": {
+    "lodash": "^4.17.23"
+  },
   "dependencies": {
     "@surfnet/sds": "^0.0.159",
     "detect-browser": "^5.3.0",
