@@ -53,7 +53,9 @@ public interface Manage {
 
     Map<String, Object> updatePolicy(Map<String, Object> policy);
 
-    List<Map<String, String>> allowedAttributes();
+    List<Map<String, Object>> uniquePolicyName(Map<String, Object> properties);
+
+    List<Map<String, Object>> allowedAttributes();
 
     void deletePolicy(Map<String, Object> policy);
 
@@ -86,5 +88,4 @@ public interface Manage {
         result.put("data", data);
         return result;
     }
-
 }

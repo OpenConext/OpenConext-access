@@ -278,9 +278,16 @@ public final class LocalManage implements Manage {
         return policy;
     }
 
+    @Override
+    public List<Map<String, Object>> uniquePolicyName(Map<String, Object> properties) {
+        String name = (String) properties.get("name");
+        return policies.values().stream().filter(policy -> ((String) policy.get("name")).equalsIgnoreCase(name))
+                .toList();
+    }
+
     @SneakyThrows
     @Override
-    public List<Map<String, String>> allowedAttributes() {
+    public List<Map<String, Object>> allowedAttributes() {
         return objectMapper.readValue(new ClassPathResource("/manage/allowed_attributes.json").getInputStream(), new TypeReference<>() {
         });
     }

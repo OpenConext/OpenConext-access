@@ -31,6 +31,7 @@
         .sds--segmented-control button {
             min-width: 110px;
         }
+
         .filters {
             background-color: var(--sds--color--gray--background);
             padding: 20px;
@@ -41,6 +42,22 @@
                 }
             }
 
+            .attribute-name-wrapper {
+                display: flex;
+                width: 100%;
+
+                .select-field {
+                    flex-grow: 2;
+                    margin-right: 15px;
+                }
+
+                button.sds--btn--delete {
+                    margin: auto 0 0 auto;
+                    padding: 13px 13px;
+                    background-color: white;
+                    border: 1px solid var(--sds--color--gray--300);
+                }
+            }
         }
 
     }

@@ -179,8 +179,18 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(providers);
     }
 
+    @SneakyThrows
+    @PostMapping("/unique-policy-name")
+    public ResponseEntity<List<Map<String, Object>>> uniquePolicyName(@RequestBody Map<String, Object> properties) {
+        LOG.debug("/unique-entity-id for " + properties);
+
+        List<Map<String, Object>> policies = manage.uniquePolicyName(properties);
+        return ResponseEntity.ok(policies);
+    }
+
+
     @GetMapping("/allowed-attributes")
-    public ResponseEntity<List<Map<String, String>>> allowedAttributes() {
+    public ResponseEntity<List<Map<String, Object>>> allowedAttributes() {
         LOG.debug("/allowedAttributes");
 
         return ResponseEntity.ok(manage.allowedAttributes());

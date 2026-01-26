@@ -1,7 +1,9 @@
+import {isEmpty} from "./Utils.js";
+
 export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId) => ({
     "active": true,
     "allAttributesMustMatch": false,
-    "attributes": [{name: null, value: ""}],
+    "attributes": [{name: "", value: []}],
     "denyAdvice": "",
     "denyAdviceNl": "",
     "denyRule": false,
@@ -12,4 +14,29 @@ export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId
     "name": "",
     "serviceProviderIds": [{name: serviceProviderEntityId}],
     "type": "reg"
-})
+});
+
+export const groupByValues = attributes => {
+    return Object.values(
+        attributes.reduce((acc, attribute) => {
+            if (!acc[attribute.name]) {
+                acc[attribute.name] = { name: attribute.name, value: [] };
+            }
+            acc[attribute.name].value.push(attribute.value);
+            return acc;
+        }, {})
+    );
+}
+
+export const defaultAttributes = newAttributes => {
+    return isEmpty(newAttributes) ? [{name: "", value: []}] : newAttributes;
+}
+
+export const flatMapByValues = attributes => {
+    return attributes.flatMap(attribute =>
+        attribute.value.map(val => ({
+            name: attribute.name,
+            value: val.value
+        }))
+    );
+}

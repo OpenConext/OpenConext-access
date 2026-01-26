@@ -243,15 +243,19 @@ export function privacy() {
 }
 
 export function newPolicy(policy) {
-    return postPutJson("/api/v1/manage", policy, "POST");
+    return postPutJson("/api/v1/manage/policies", policy, "POST");
 }
 
 export function updatePolicy(policy) {
-    return postPutJson("/api/v1/manage", policy, "PUT");
+    return postPutJson("/api/v1/manage/policies", policy, "PUT");
+}
+
+export function uniquePolicyName(name) {
+    return postPutJson("/api/v1/manage/unique-policy-name", {name:name}, "POST");
 }
 
 export function deletePolicy(policy) {
-    return fetchDelete(`/api/v1/manage/${policy.id}`);
+    return fetchDelete(`/api/v1/manage/policies/${policy.id}`);
 }
 
 export function allowedAttributes() {

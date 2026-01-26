@@ -175,52 +175,25 @@ public class User implements Serializable, NameHolder {
     }
 
     @JsonIgnore
-    public boolean updateAttributes(Map<String, Object> attributes) {
-        boolean changed = false;
-        String newEdupersonPrincipalName = (String) attributes.get("eduperson_principal_name");
-        changed = changed || !Objects.equals(this.eduPersonPrincipalName, newEdupersonPrincipalName);
-        this.eduPersonPrincipalName = newEdupersonPrincipalName;
-
-        String newSchacHomeOrganization = (String) attributes.get("schac_home_organization");
-        changed = changed || !Objects.equals(this.schacHomeOrganization, newSchacHomeOrganization);
-        this.schacHomeOrganization = newSchacHomeOrganization;
-
-        String newGivenName = (String) attributes.get("given_name");
-        changed = changed || !Objects.equals(this.givenName, newGivenName);
-        this.givenName = newGivenName;
-
-        String newFamilyName = (String) attributes.get("family_name");
-        changed = changed || !Objects.equals(this.familyName, newFamilyName);
-        this.familyName = newFamilyName;
-
-        String newEmail = (String) attributes.get("email");
-        changed = changed || !Objects.equals(this.email, newEmail);
-        this.email = newEmail;
-
-        String newSubjectId = (String) attributes.get("subject_id");
-        changed = changed || !Objects.equals(this.subjectId, newSubjectId);
-        this.subjectId = newSubjectId;
-
-        boolean newInstitutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
-        changed = changed || !Objects.equals(this.institutionAdmin, newInstitutionAdmin);
-        this.institutionAdmin = newInstitutionAdmin;
-
-        String newOrganizationGUID = (String) attributes.get(ORGANIZATION_GUID);
-        changed = changed || !Objects.equals(this.organizationGUID, newOrganizationGUID);
-        this.organizationGUID = newOrganizationGUID;
-
+    public void updateAttributes(Map<String, Object> attributes) {
+        this.eduPersonPrincipalName = (String) attributes.get("eduperson_principal_name");
+        this.schacHomeOrganization = (String) attributes.get("schac_home_organization");
+        this.givenName = (String) attributes.get("given_name");
+        this.familyName = (String) attributes.get("family_name");
+        this.authenticatingAuthority = (String) attributes.get("authenticating_authority");
+        this.email = (String) attributes.get("email");
+        this.subjectId = (String) attributes.get("subject_id");
+        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
+        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        this.eduId = (String) attributes.get("eduid");
         this.lastActivity = Instant.now();
-
-        String currentName = this.name;
-        String currentGivenName = this.givenName;
-        String currentFamilyName = this.familyName;
 
         this.nameInvariant(attributes);
 
-        changed = changed || !Objects.equals(this.name, currentName) || !Objects.equals(this.givenName, currentGivenName)
-                || !Objects.equals(this.familyName, currentFamilyName);
-
-        return changed;
+        //Defensive mode, EPPN is not a required attribute for access RP
+        if (!StringUtils.hasText(this.eduPersonPrincipalName)) {
+            this.eduPersonPrincipalName = this.email;
+        }
     }
 
     @JsonIgnore

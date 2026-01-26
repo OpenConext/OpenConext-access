@@ -366,21 +366,33 @@ public class RemoteManage implements Manage {
     @Override
     public Map<String, Object> createPolicy(Map<String, Object> policy) {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
-        String url = String.format("%s/manage/api/internal/internal/metadata",
+        String url = String.format("%s/manage/api/internal/metadata",
                 environmentUrl(Environment.PROD));
-        return restTemplate.postForEntity(url, policy, Map.class).getBody();
+        Map<String, Object> metaData = Map.of(
+                "type",EntityType.policy.name(),
+                "data", policy
+        );
+        return restTemplate.postForEntity(url, metaData, Map.class).getBody();
     }
 
     @Override
     public Map<String, Object> updatePolicy(Map<String, Object> policy) {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
-        String url = String.format("%s/manage/api/internal/internal/metadata",
+        String url = String.format("%s/manage/api/internal/metadata",
                 environmentUrl(Environment.PROD));
         return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(policy), Map.class).getBody();
     }
 
     @Override
-    public List<Map<String, String>> allowedAttributes() {
+    public List<Map<String, Object>> uniquePolicyName(Map<String, Object> properties) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/uniquePolicyName/policy",
+                environmentUrl(Environment.PROD));
+        return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(properties), List.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> allowedAttributes() {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/protected/allowed-attributes",
                 environmentUrl(Environment.PROD));
@@ -390,7 +402,7 @@ public class RemoteManage implements Manage {
     @Override
     public void deletePolicy(Map<String, Object> policy) {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
-        String url = String.format("%s/manage/api/internal/internal/metadata/%s/%s",
+        String url = String.format("%s/manage/api/internal/metadata/%s/%s",
                 environmentUrl(Environment.PROD), EntityType.policy.name(), policy.get("id"));
         restTemplate.delete(url);
     }

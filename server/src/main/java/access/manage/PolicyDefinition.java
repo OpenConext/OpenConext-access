@@ -33,13 +33,13 @@ public class PolicyDefinition {
 
     private String entityid;
 
-    private List<String> identityProviderIds;
+    private List<PolicyProvider> identityProviderIds;
 
     private Map<String, String> metaDataFields;
 
     private String name;
 
-    private List<String> serviceProviderIds;
+    private List<PolicyProvider> serviceProviderIds;
 
     private String type;
 

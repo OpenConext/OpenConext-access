@@ -78,11 +78,11 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             optionalIdentityProvider.ifPresent(provider -> newClaims.put(INSTITUTION, new Institution(provider)));
         }
         optionalUser.ifPresent(user -> {
-            boolean changed = user.updateAttributes(newClaims);
-            if (changed) {
-                LOG.debug("Updating user with new attributes: " + newClaims);
-                userRepository.save(user);
-            }
+            user.updateAttributes(newClaims);
+
+            LOG.debug("Updating user: " + newClaims);
+
+            userRepository.save(user);
         });
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);

@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Environment;
 import access.security.InstitutionAdmin;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -179,6 +180,100 @@ class ManageControllerTest extends AbstractTest {
                     optionalAttributes.stream().allMatch(attribute -> attributePresent(attribute, attributes));
         });
         assertTrue(allAttributesPresent);
+    }
+
+    @Test
+    void createPolicy() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        String policy = IOUtils.readInputStreamToString(new ClassPathResource("/manage/new_policy.json").getInputStream());
+        stubFor(post(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(policy)
+                        .withStatus(201)));
+
+        Map<String, Object> newPolicy = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(policy)
+                .post("/api/v1/manage/policies")
+                .as(new TypeRef<>() {
+                });
+        Map<String, Object> expectedPolicy = objectMapper.readValue(policy, new TypeReference<>() {
+        });
+        assertEquals(expectedPolicy, newPolicy);
+    }
+
+    @Test
+    void uniquePolicyName() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        stubFor(post(urlPathMatching("/manage/api/internal/uniquePolicyName/policy"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody("[]")
+                        .withStatus(200)));
+
+        List<Map<String, Object>> policies =given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("name","policyName"))
+                .post("/api/v1/manage/unique-policy-name")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, policies.size());
+    }
+
+    @Test
+    void updatePolicy() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        String policy = IOUtils.readInputStreamToString(new ClassPathResource("/manage/new_policy.json").getInputStream());
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(policy)
+                        .withStatus(201)));
+
+        Map<String, Object> updatedPolicy = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(policy)
+                .put("/api/v1/manage/policies")
+                .as(new TypeRef<>() {
+                });
+        Map<String, Object> expectedPolicy = objectMapper.readValue(policy, new TypeReference<>() {
+        });
+        assertEquals(expectedPolicy, updatedPolicy);
+    }
+
+    @Test
+    void deletePolicy() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        // See server/src/main/resources/manage/policy.json
+        String manageIdentifier = "fab50830-9551-46ec-9eb6-5db98ba8f2bd";
+        super.stubForGetProvider(EntityType.policy, manageIdentifier, Environment.PROD);
+
+        String url = String.format("/manage/api/internal/metadata/%s/%s",
+                EntityType.policy.name(), manageIdentifier);
+        stubFor(delete(urlPathMatching(url))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withStatus(204)));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("policyId", manageIdentifier)
+                .delete("/api/v1/manage/policies/{policyId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
     private boolean attributePresent(String attribute, List<Map<String, Object>> attributes) {

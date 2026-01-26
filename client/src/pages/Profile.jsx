@@ -82,7 +82,10 @@ const Profile = ({setIsAuthenticated}) => {
                 </div>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("profile.info",
-                        {createdAt: dateFromEpoch(user.createdAt)}))
+                        {
+                            createdAt: dateFromEpoch(user.createdAt),
+                            lastActivity: dateFromEpoch(user.lastActivity)
+                        }))
                 }}/>
             </div>
             <div className="profile">
@@ -92,13 +95,14 @@ const Profile = ({setIsAuthenticated}) => {
                     />
                 }
                 {user.institutionAdmin &&
-                    <InputField name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, user.identityProvider)})}
-                                noInput={true}
+                    <InputField
+                        name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, user.identityProvider)})}
+                        noInput={true}
                     />
                 }
                 <div className="user-container">
                     <h5>{I18n.t("profile.attributes")}</h5>
-                    {["name", "eduPersonPrincipalName", "email", "schacHomeOrganization"]
+                    {["name", "eduPersonPrincipalName", "email", "schacHomeOrganization", "authenticatingAuthority"]
                         .map((attr, index) =>
                             <Fragment key={index}>
                                 <InputField name={I18n.t(`profile.${attr}`)}
@@ -107,6 +111,24 @@ const Profile = ({setIsAuthenticated}) => {
                                 />
                             </Fragment>
                         )}
+                    {externalUser &&
+                        <div className="multi-list">
+                            <div className="external-user-container">
+                                <p>{I18n.t("profile.externalUser")}</p>
+                                <Tooltip tip={I18n.t("profile.externalUserTooltip")}/>
+                            </div>
+                            <Checkbox value={externalUser}
+                                      readOnly={true}/>
+                        </div>}
+                    {!externalUser &&
+                        <div className="multi-list">
+                            <div className="external-user-container">
+                                <p>{I18n.t("profile.internalUser")}</p>
+                                <Tooltip tip={I18n.t("profile.internalUserTooltip")}/>
+                            </div>
+                            <Checkbox value={!externalUser}
+                                      readOnly={true}/>
+                        </div>}
 
                     {!isEmpty(user.organizationMemberships) &&
                         <div className="multi-list">
@@ -121,6 +143,7 @@ const Profile = ({setIsAuthenticated}) => {
                                 )}
                             </ul>
                         </div>}
+
                     {!isEmpty(applicationMemberships) &&
                         <div className="multi-list">
                             <p>{I18n.t(`profile.application${applicationMemberships.length > 1 ? "Multiple" : ""}`)}</p>
@@ -133,24 +156,6 @@ const Profile = ({setIsAuthenticated}) => {
                                     </li>
                                 )}
                             </ul>
-                        </div>}
-                    {externalUser &&
-                        <div className="multi-list">
-                        <div className="external-user-container">
-                            <p>{I18n.t("profile.externalUser")}</p>
-                            <Tooltip tip={I18n.t("profile.externalUserTooltip")}/>
-                        </div>
-                        <Checkbox value={externalUser}
-                                  readOnly={true}/>
-                    </div>}
-                    {!externalUser &&
-                        <div className="multi-list">
-                            <div className="external-user-container">
-                                <p>{I18n.t("profile.internalUser")}</p>
-                                <Tooltip tip={I18n.t("profile.internalUserTooltip")}/>
-                            </div>
-                            <Checkbox value={!externalUser}
-                                      readOnly={true}/>
                         </div>}
                 </div>
                 <div className="delete-container">

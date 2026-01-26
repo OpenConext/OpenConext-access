@@ -168,6 +168,17 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return <Loader/>
     }
 
+    const refreshPolicies = () => {
+        setLoading(true);
+        getPolicyByServiceProviderEntityId(serviceProvider.data.entityid)
+            .then(res => {
+                setPolicies(res);
+                setShowPolicyOverview(true);
+                setShowNewPolicy(false);
+                setLoading(false);
+            })
+    }
+
     const externalLink = (link, metaData, index) => {
         const attribute = link.languageProperty ?
             (I18n.locale === "en" ? metaData[`${link.metaData}:en`] : metaData[`${link.metaData}:nl`] || metaData[`${link.metaData}:en`]) :
@@ -353,6 +364,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <PolicyForm backToAccess={() => setShowNewPolicy(false)}
                                     policy={currentPolicy}
                                     setPolicy={setCurrentPolicy}
+                                    isExistingPolicy={false}
+                                    originalName={null}
+                                    refreshPolicies={refreshPolicies}
                         />
                     }
                     {showPolicyOverview &&
