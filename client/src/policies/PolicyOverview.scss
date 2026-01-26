@@ -5,11 +5,13 @@
     @media (max-width: $medium) {
         width: 100%;
     }
+
     .policy-overview {
         a, a.visited {
             text-decoration: none;
             color: var(--sl-color-neutral-500);
         }
+
         .grouped {
             display: flex;
             width: 100%;
@@ -20,6 +22,28 @@
                 margin-left: auto;
             }
 
+        }
+
+        .access-card-container {
+            display: flex;
+            width: 100%;
+            gap: 15px;
+            align-items: center;
+
+            svg {
+                fill: transparent;
+                cursor: pointer;
+            }
+
+            .access-card {
+                margin-right: 15px;
+
+                svg {
+                    color: var(--sds--color--green--400);
+                    margin: 0 10px 0 auto;
+                    cursor: default;
+                }
+            }
         }
 
     }
