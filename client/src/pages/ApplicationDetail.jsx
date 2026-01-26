@@ -144,6 +144,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 inviteRoles(user.organizationGUID, res.id),
                                 getPolicyByServiceProviderEntityId(res.data.entityid)
                             ]).then(res => {
+                                res[1].forEach(policy => policy.originalName = policy.name);
                                 setAccessRoles(res[0]);
                                 setPolicies(res[1]);
                                 setLoading(false);
