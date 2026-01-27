@@ -43,8 +43,8 @@ export const providerDescription = (locale, provider) => {
 
 export const isAccessRoleReady = provider => {
     //If not enabled, then all sources are the IdP
-    const isMemberOfArpArray = provider.data.arp.attributes["urn:mace:dir:attribute-def:isMemberOf"];
-    return provider.data.arp.enabled === true &&
+    const isMemberOfArpArray = provider.data?.arp?.attributes?.["urn:mace:dir:attribute-def:isMemberOf"];
+    return provider.data.arp?.enabled === true &&
         !isEmpty(isMemberOfArpArray) && ["voot", "invite"].includes(isMemberOfArpArray[0].source);
 }
 

@@ -1058,8 +1058,10 @@ const en = {
         config: "⚡️ Configure automatic access based on attributes",
         accessFor: "There is access for:",
         everyBody: "Everybody from {{name}}",
-        noAccessFor: "Geen toegang voor:",
+        notEveryBody: "Not everybody from {{name}}",
+        noAccessFor: "No access for:",
         noOneGroups: "There are no groups excluded from access",
+        groupsPresent: "There are certain groups excluded from access",
         outSideUsers: "Users from outside",
         roleBasedAccess: "🥸 Toegang verloopt op basis van uitnodiging voor een rol",
         noOneRole: "There are users yet from outside with a role",
@@ -1092,6 +1094,7 @@ const en = {
         filters: "Filter on attributes",
         attribute: "Attribute",
         attributePlaceholder: "Select an attribute",
+        addAttributePlaceholder: "Add another attribute",
         permittedValues: "Permitted value(s)",
         permittedValuesPlaceholder: "Add values(s)...",
         denyEn: "English message for users without access",
@@ -1103,6 +1106,9 @@ const en = {
             created: "Policy {{name}} has been created and is ready for use",
             updated: "Policy {{name}} has been updated",
             deleted: "Policy {{name}} has been deleted",
+        },
+        confirmation: {
+            deleteQuestion: "Are you sure you want to delete this policy?"
         }
     }
 

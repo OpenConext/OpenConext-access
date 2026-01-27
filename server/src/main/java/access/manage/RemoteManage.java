@@ -368,11 +368,7 @@ public class RemoteManage implements Manage {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/metadata",
                 environmentUrl(Environment.PROD));
-        Map<String, Object> metaData = Map.of(
-                "type",EntityType.policy.name(),
-                "data", policy
-        );
-        return restTemplate.postForEntity(url, metaData, Map.class).getBody();
+        return restTemplate.postForEntity(url, policy, Map.class).getBody();
     }
 
     @Override

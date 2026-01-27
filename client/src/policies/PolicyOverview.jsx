@@ -1,5 +1,5 @@
 import "./PolicyOverview.scss";
-import React from "react";
+import React, {useState} from "react";
 import {Button, ButtonType, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
@@ -8,17 +8,56 @@ import {isEmpty} from "../utils/Utils.js";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import PolicyIcon from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {deletePolicy} from "../api/index.js";
+import {useAppStore} from "../stores/AppStore.js";
+import {useShallow} from "zustand/react/shallow";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
-export const PolicyOverview = ({serviceProvider, policies, backToAccess, newPolicy}) => {
+export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyDetails, refreshPolicies}) => {
+
+    const {setFlash} = useAppStore(useShallow(state => ({
+        setFlash: state.setFlash
+    })));
+
+    const [confirmation, setConfirmation] = useState({});
+
+    const doDeletePolicy = (confirmationRequired, policy) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doDeletePolicy(false, policy),
+                question: I18n.t("appAccess.confirmation.deleteQuestion"),
+                okButton: I18n.t("forms.delete")
+            });
+        } else {
+            deletePolicy(policy)
+                .then(() => {
+                    setConfirmation({});
+                    refreshPolicies();
+                    setFlash(I18n.t("appAccess.flash.deleted", {
+                        name: policy.data.name
+                    }));
+                })
+        }
+    }
+
+    const {open, cancel, action, question, okButton} = confirmation;
 
     return (
         <div className="policy-overview-container">
+            {open && <ConfirmationDialog confirm={action}
+                                         cancel={cancel}
+                                         confirmationHeader={I18n.t("confirmationDialog.confirm")}
+                                         confirmationTxt={okButton}
+                                         question={question}
+            />}
             <div className="policy-overview">
                 <a href="/#" onClick={e => backToAccess(e)}>{I18n.t("appAccess.backToAccess")}</a>
                 <div className="grouped">
                     <h2>{I18n.t("appAccess.authorizationRules")}</h2>
                     <Button type={ButtonType.Primary}
-                            onClick={() => newPolicy(true)}
+                            onClick={() => policyDetails("new")}
                             txt={I18n.t("forms.new")}/>
                 </div>
                 <InfoBlock className="light-grey">
@@ -41,10 +80,10 @@ export const PolicyOverview = ({serviceProvider, policies, backToAccess, newPoli
                                 </div>
                                 <Tooltip tip={I18n.t("forms.edit")}
                                          standalone={true}
-                                         children={<PencilIcon onClick={() => alert("TODO edit")}/>}/>
+                                         children={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
                                 <Tooltip tip={I18n.t("forms.delete")}
                                          standalone={true}
-                                         children={<TrashIcon onClick={() => alert("TODO delete")}/>}/>
+                                         children={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
                             </div>)}
 
                     </>}

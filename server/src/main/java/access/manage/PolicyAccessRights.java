@@ -10,6 +10,7 @@ public interface PolicyAccessRights {
         if (user.isSuperUser()) {
             return;
         }
+        //TODO implement
         //Is the IdP of the Policy the same as the IdP of the User?
 
         //No IdP, all SP's must be owned by the IdP of the user (=organizationGUID of the instituitonAdmin)

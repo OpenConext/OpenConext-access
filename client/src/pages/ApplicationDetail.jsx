@@ -45,7 +45,7 @@ import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
-import {policyTemplate} from "../utils/Policy.js";
+import {groupByValues, policyTemplate} from "../utils/Policy.js";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -66,7 +66,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     })));
 
     const navigate = useNavigate();
-    const {manageType, manageId, tab = "access"} = useParams();
+    const {manageType, manageId, tab = "access", page, policyId} = useParams();
 
     const [tabNames, setTabNames] = useState(["access", "information"]);
     const [currentTab, setCurrentTab] = useState(tab);
@@ -87,7 +87,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
-    const [showNewPolicy, setShowNewPolicy] = useState(false);
+    const [showPolicyDetails, setShowPolicyDetails] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
 
     useEffect(() => {
@@ -140,13 +140,22 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         if (isReadOnly) {
                             setLoading(false);
                         } else {
-                            Promise.all([
-                                inviteRoles(user.organizationGUID, res.id),
-                                getPolicyByServiceProviderEntityId(res.data.entityid)
-                            ]).then(res => {
-                                res[1].forEach(policy => policy.originalName = policy.name);
-                                setAccessRoles(res[0]);
-                                setPolicies(res[1]);
+                            const promises = [getPolicyByServiceProviderEntityId(res.data.entityid)];
+                            if (user.organizationGUID) {
+                                promises.push(inviteRoles(user.organizationGUID, res.id),)
+                            } else {
+                                promises.push(Promise.resolve([]));
+                            }
+                            Promise.all(promises).then(res => {
+                                res[0].forEach(policy => policy.originalName = policy.name);
+                                setPolicies(res[0]);
+                                setAccessRoles(res[1]);
+                                if (page === "overview") {
+                                    setShowPolicyOverview(true);
+                                }
+                                if (page === "detail" && !isEmpty(policyId)) {
+                                    toPolicyDetail(policyId);
+                                }
                                 setLoading(false);
                             })
                         }
@@ -158,7 +167,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 } else {
                     setLoading(false);
                 }
-
             })
             .catch(() => {
                 navigate("/404");
@@ -175,8 +183,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             .then(res => {
                 setPolicies(res);
                 setShowPolicyOverview(true);
-                setShowNewPolicy(false);
+                setShowPolicyDetails(false);
                 setLoading(false);
+                navigate(`/application-detail/${manageType}/${manageId}/overview`);
             })
     }
 
@@ -328,7 +337,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const goBack = e => {
-        stopEvent(e);
+        stopEvent(e)
+        navigate(`/application-detail/${manageType}/${manageId}`);
+        setShowPolicyOverview(false);
+    }
+
+    const goBackToApplications = () => {
         navigate(-1);
     }
 
@@ -351,6 +365,28 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         setCurrentTab(name);
     }
 
+    const backToAccess = (e, pageName) => {
+        stopEvent(e);
+        const toOverview = pageName === "/overview";
+        setShowPolicyOverview(toOverview);
+        setShowPolicyDetails(false);
+        navigate(`/application-detail/${manageType}/${manageId}${pageName}`);
+    }
+
+    const toPolicyDetail = policyIdentifier => {
+        setShowPolicyOverview(false);
+        let newCurrentPolicy;
+        if (policyIdentifier === "new") {
+            newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid);
+        } else {
+            newCurrentPolicy = policies.find(policy => policy.id === policyIdentifier);
+            newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
+        }
+        setCurrentPolicy(newCurrentPolicy);
+        setShowPolicyDetails(true);
+        navigate(`/application-detail/${manageType}/${manageId}/details/${policyIdentifier}`);
+    }
+
     const renderAccessApp = () => {
         return (
             <>
@@ -361,12 +397,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     message={I18n.t("appAccess.requestedAccessNotification")}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
-                    {showNewPolicy &&
-                        <PolicyForm backToAccess={() => setShowNewPolicy(false)}
+                    {showPolicyDetails &&
+                        <PolicyForm backToAccess={e => backToAccess(e, "/overview")}
                                     policy={currentPolicy}
                                     setPolicy={setCurrentPolicy}
-                                    isExistingPolicy={false}
-                                    originalName={null}
+                                    isExistingPolicy={!isEmpty(currentPolicy.id)}
+                                    originalName={currentPolicy.originalName}
                                     refreshPolicies={refreshPolicies}
                         />
                     }
@@ -374,19 +410,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <PolicyOverview
                             serviceProvider={serviceProvider}
                             policies={policies}
-                            backToAccess={e => {
-                                stopEvent(e);
-                                setShowPolicyOverview(false);
-                                setShowNewPolicy(false);
-                            }}
-                            newPolicy={() => {
-                                setShowPolicyOverview(false);
-                                setCurrentPolicy(policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid))
-                                setShowNewPolicy(true);
-                            }}
+                            backToAccess={e => backToAccess(e, "")}
+                            policyDetails={toPolicyDetail}
+                            refreshPolicies={refreshPolicies}
                         />
                     }
-                    {(!showPolicyOverview && !showNewPolicy) && <>
+                    {(!showPolicyOverview && !showPolicyDetails) && <>
                         <div className="app-access-central">
                             <h2>{I18n.t("appAccess.title")}</h2>
                             <InfoBlock className="no-gap">
@@ -396,14 +425,19 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         <p>{I18n.t("appAccess.config")}</p>
                                     </div>
                                     <Button type={ButtonType.Primary}
-                                            onClick={() => setShowPolicyOverview(true)}
+                                            onClick={() => {
+                                                setShowPolicyOverview(true);
+                                                navigate(`/application-detail/${manageType}/${manageId}/overview`);
+                                            }}
                                             txt={I18n.t("forms.edit")}/>
                                 </div>
                                 <p>{I18n.t("appAccess.accessFor")}</p>
                                 <div className="access-card large">
-                                    <h4>{I18n.t("appAccess.everyBody", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                                    <h4>{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
+                                        {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
                                     {renderLogo(user.identityProvider.data.metaDataFields)}
                                 </div>
+                                <p>{I18n.t(`appAccess.${isEmpty(policies) ? "noAccessFor" : "accessFor"}`)}</p>
                                 {isEmpty(policies) && <>
                                     <div className="access-card grey">
                                         {I18n.t("appAccess.noOneGroups")}
@@ -664,7 +698,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
-                        <a href={"/"} onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
+                        <a onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
                     </div>
                 }
                 <div className="inner-application-detail-container">
@@ -682,7 +716,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             {anonymous && <Button type={ButtonType.Secondary}
                                                   icon={<ArrowLeftIcon/>}
                                                   iconPlacement={ButtonIconPlacement.Left}
-                                                  onClick={goBack}
+                                                  onClick={goBackToApplications}
                                                   txt={I18n.t("applicationDetail.back")}/>}
                             {!anonymous && <Button onClick={() => doRequestConnection(true)}
                                                    disabled={memberRequestSend}

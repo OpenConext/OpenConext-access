@@ -230,10 +230,12 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void updatePolicy() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
-        String policy = IOUtils.readInputStreamToString(new ClassPathResource("/manage/new_policy.json").getInputStream());
+        String manageIdentifier = "1";
+        Map<String, Object> policyFromDB = super.stubForGetProvider(EntityType.policy, manageIdentifier, Environment.PROD);
+
         stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
-                        .withBody(policy)
+                        .withBody(objectMapper.writeValueAsString(policyFromDB))
                         .withStatus(201)));
 
         Map<String, Object> updatedPolicy = given()
@@ -242,20 +244,18 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(policy)
+                .body(policyFromDB)
                 .put("/api/v1/manage/policies")
                 .as(new TypeRef<>() {
                 });
-        Map<String, Object> expectedPolicy = objectMapper.readValue(policy, new TypeReference<>() {
-        });
-        assertEquals(expectedPolicy, updatedPolicy);
+        assertEquals(policyFromDB, updatedPolicy);
     }
 
     @Test
     void deletePolicy() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
         // See server/src/main/resources/manage/policy.json
-        String manageIdentifier = "fab50830-9551-46ec-9eb6-5db98ba8f2bd";
+        String manageIdentifier = "1";
         super.stubForGetProvider(EntityType.policy, manageIdentifier, Environment.PROD);
 
         String url = String.format("/manage/api/internal/metadata/%s/%s",

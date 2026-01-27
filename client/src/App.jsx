@@ -138,7 +138,7 @@ const App = () => {
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
-                            <Route path="/application-detail/:manageType/:manageId"
+                            <Route path="/application-detail/:manageType/:manageId/:page?/:policyId?"
                                    element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>

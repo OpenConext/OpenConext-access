@@ -58,9 +58,10 @@ public class InviteController implements UserAccessRights {
                     String.format("User %s is not authorized for organizationGUID %s",
                             user.getEmail(), organizationGUID));
         }
-        if (!applicationManageId.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")) {
+        if (!applicationManageId.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+                && !applicationManageId.matches("^\\d+$")) {
             throw new InvalidInputException(
-                    String.format("ApplicationManageId %s is not a valid UUID", applicationManageId));
+                    String.format("ApplicationManageId %s is not a valid UUID or number", applicationManageId));
         }
         List<Map<String, Object>> inviteRoles = this.inviteClient.rolesPerOrganizationApplicationId(organizationGUID, applicationManageId);
         return ResponseEntity.ok(inviteRoles);

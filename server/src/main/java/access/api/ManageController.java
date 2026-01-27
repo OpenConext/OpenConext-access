@@ -131,12 +131,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Map<String, Object>> createPolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/createPolicy for " + policy + " for " + user.getEmail());
 
-        confirmInstitutionAdmin(user);
-        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
-        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
-        confirmPolicyAccess(user, policyDefinition, manage);
-        Map<String, Object> policyCreated = manage.createPolicy(policy);
-        return ResponseEntity.ok(policyCreated);
+        policyAccessAllowed(user, policy);
+        return ResponseEntity.ok(manage.createPolicy(policy));
     }
 
     @SneakyThrows
@@ -144,25 +140,18 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Map<String, Object>> updatePolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/updatePolicy for " + policy + " for " + user.getEmail());
 
-        confirmInstitutionAdmin(user);
-        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
-        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
-        confirmPolicyAccess(user, policyDefinition, manage);
-        Map<String, Object> policyUpdated = manage.updatePolicy(policy);
-        return ResponseEntity.ok(policyUpdated);
+        policyAccessAllowed(user, policy);
+        return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
     @SneakyThrows
     @DeleteMapping("/policies/{policyId}")
     public ResponseEntity<Void> deletePolicy(User user, @PathVariable String policyId) {
-        confirmInstitutionAdmin(user);
         Map<String, Object> policy = manage.providerById(EntityType.policy, policyId, Environment.PROD);
 
         LOG.debug("/deletePolicy for " + policy + " for " + user.getEmail());
 
-        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
-        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy, PolicyDefinition.class);
-        confirmPolicyAccess(user, policyDefinition, manage);
+        policyAccessAllowed(user, policy);
         manage.deletePolicy(policy);
         return ResponseEntity.noContent().build();
     }
@@ -203,6 +192,13 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         //change request has non guessable identifier
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
         return Results.okResult();
+    }
+
+    private void policyAccessAllowed(User user, Map<String, Object> policy) {
+        confirmInstitutionAdmin(user);
+        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
+        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy.get("data"), PolicyDefinition.class);
+        confirmPolicyAccess(user, policyDefinition, manage);
     }
 
     private Map<String, Object> getIdentityProvider(Authentication authentication) {

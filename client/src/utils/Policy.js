@@ -1,19 +1,22 @@
 import {isEmpty} from "./Utils.js";
 
 export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId) => ({
-    "active": true,
-    "allAttributesMustMatch": false,
-    "attributes": [{name: "", value: []}],
-    "denyAdvice": "",
-    "denyAdviceNl": "",
-    "denyRule": false,
-    "description": "",
-    "entityid": "",
-    "identityProviderIds": [{name: identityProviderEntityId}],
-    "metaDataFields": {},
-    "name": "",
-    "serviceProviderIds": [{name: serviceProviderEntityId}],
-    "type": "reg"
+    data: {
+        active: true,
+        allAttributesMustMatch: false,
+        attributes: [{name: "", value: []}],
+        denyAdvice: "",
+        denyAdviceNl: "",
+        denyRule: false,
+        description: "",
+        entityid: "",
+        identityProviderIds: [{name: identityProviderEntityId}],
+        metaDataFields: {},
+        name: "",
+        serviceProviderIds: [{name: serviceProviderEntityId}],
+        type: "reg"
+    },
+    type: "policy"
 });
 
 export const groupByValues = attributes => {
@@ -22,7 +25,7 @@ export const groupByValues = attributes => {
             if (!acc[attribute.name]) {
                 acc[attribute.name] = { name: attribute.name, value: [] };
             }
-            acc[attribute.name].value.push(attribute.value);
+            acc[attribute.name].value.push({value: attribute.value, label: attribute.value});
             return acc;
         }, {})
     );

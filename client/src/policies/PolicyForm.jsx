@@ -30,8 +30,12 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
             })
     }, []);
 
+    const internalUpdatePolicy = updates => {
+        setPolicy({...policy, data: {...policy.data, ...updates}})
+    }
+
     const isValid = () => {
-        return required.every(attr => !isEmpty(policy[attr]));
+        return required.every(attr => !isEmpty(policy.data[attr]));
     }
 
     const submit = () => {
@@ -39,47 +43,50 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
         if (isValid()) {
             const promise = isExistingPolicy ? updatePolicy : newPolicy;
             //We need to destructure the attributes with multiple values, to single attribute / value pairs
-            policy.attributes = flatMapByValues(policy.attributes);
-            if (!isExistingPolicy) {
-                policy.entityid = crypto.randomUUID();
-            }
+            policy.data.attributes = flatMapByValues([...policy.data.attributes]);
             promise(policy)
                 .then(res => {
-                    setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.name}));
+                    setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.data.name}));
                     refreshPolicies();
                 });
         }
     }
 
     const attributeSelected = (option, index) => {
-        const newAttributes = [...policy.attributes];
+        const newAttributes = [...policy.data.attributes];
         newAttributes[index] = {name: option.value, value: []};
-        setPolicy({...policy, attributes: newAttributes})
+        internalUpdatePolicy({attributes: newAttributes})
+    }
+
+    const attributeAdded = option => {
+        const newAttributes = [...policy.data.attributes];
+        newAttributes.push({name: option.value, value: []});
+        internalUpdatePolicy({attributes: defaultAttributes(newAttributes)})
     }
 
     const attributeDeleted = index => {
-        const newAttributes = policy.attributes.filter((item, i) => i !== index);
-        setPolicy({...policy, attributes: defaultAttributes(newAttributes)})
+        const newAttributes = policy.data.attributes.filter((item, i) => i !== index);
+        internalUpdatePolicy({attributes: defaultAttributes(newAttributes)})
     }
 
     const attributeValueChanged = (value, index) => {
-        const newAttributes = [...policy.attributes];
+        const newAttributes = [...policy.data.attributes];
         const attribute = newAttributes[index];
         attribute.value = value;
-        setPolicy({...policy, attributes: newAttributes});
+        internalUpdatePolicy({attributes: newAttributes})
     }
 
     const denyRuleToggle = val => {
         const denyRule = val === "deny";
-        const newAttributes = denyRule ? policy.attributes
+        const newAttributes = denyRule ? policy.data.attributes
                 .filter(attr => allAllowedAttributes.some(option => option.allowedInDenyRule && option.value === attr.name))
-            : [...policy.attributes];
-        setPolicy({...policy, denyRule: denyRule, attributes: defaultAttributes(newAttributes)});
+            : [...policy.data.attributes];
+        internalUpdatePolicy({denyRule: denyRule, attributes: defaultAttributes(newAttributes)})
     }
 
     const policyNameChanged = e => {
-        const name = e.target.value.trim();
-        setPolicy({...policy, name: name});
+        const name = e.target.value;
+        internalUpdatePolicy({name: name});
         setDuplicatePolicyName(false);
     }
 
@@ -98,28 +105,29 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
         <div className="policy-form-container">
             <div className="policy-form">
                 <InputField name={I18n.t("appAccess.targetGroup")}
-                            value={policy.name}
+                            value={policy.data.name}
                             required={true}
                             onBlur={validatePolicyName}
-                            error={!initial && isEmpty(policy.name) || duplicatePolicyName}
+                            error={!initial && isEmpty(policy.data.name) || duplicatePolicyName}
                             placeholder={I18n.t("appAccess.placeholderTargetGroup")}
                             onChange={policyNameChanged}
                 />
-                {(!initial && isEmpty(policy.name)) &&
+                {(!initial && isEmpty(policy.data.name)) &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("forms.required", {name: I18n.t("appAccess.targetGroup")})}/>}
                 {duplicatePolicyName &&
-                    <ErrorIndicator adjustMargin={true} msg={I18n.t("appAccess.duplicateName", {name: policy.name})}/>}
+                    <ErrorIndicator adjustMargin={true}
+                                    msg={I18n.t("appAccess.duplicateName", {name: policy.data.name})}/>}
 
                 <InputField name={I18n.t("appAccess.description")}
-                            value={policy.description}
+                            value={policy.data.description}
                             required={true}
                             multiline={true}
-                            error={!initial && isEmpty(policy.description)}
+                            error={!initial && isEmpty(policy.data.description)}
                             placeholder={I18n.t("appAccess.placeholderDescription")}
-                            onChange={e => setPolicy({...policy, description: e.target.value})}
+                            onChange={e => internalUpdatePolicy({description: e.target.value})}
                 />
-                {(!initial && isEmpty(policy.description)) &&
+                {(!initial && isEmpty(policy.data.description)) &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("forms.required", {name: I18n.t("appAccess.description")})}/>}
 
@@ -129,7 +137,7 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
                             <Tooltip tip={I18n.t("appAccess.denyRuleTooltip")}/>
                         </span>
                         <SegmentedControl onClick={val => denyRuleToggle(val)}
-                                          option={policy.denyRule ? "deny" : "allow"}
+                                          option={policy.data.denyRule ? "deny" : "allow"}
                                           options={["deny", "allow"]}
                                           optionLabelResolver={option => I18n.t(`appAccess.${option}`)}/>
                     </div>
@@ -137,16 +145,15 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
                         <span className="label standalone">{I18n.t("appAccess.allAttributesMatch")}
                             <Tooltip tip={I18n.t("appAccess.allAttributesMatchTooltip")}/>
                         </span>
-                        <SegmentedControl onClick={val => setPolicy({...policy, allAttributesMustMatch: val === "all"})}
-                                          option={policy.allAttributesMustMatch ? "all" : "any"}
+                        <SegmentedControl onClick={val => internalUpdatePolicy({allAttributesMustMatch: val === "all"})}
+                                          option={policy.data.allAttributesMustMatch ? "all" : "any"}
                                           options={["all", "any"]}
                                           optionLabelResolver={option => I18n.t(`appAccess.${option}`)}/>
                     </div>
                 </div>
                 <span className="label standalone">{I18n.t("appAccess.filters")}</span>
                 <div className="filters">
-                    <p>{JSON.stringify(policy.attributes)}</p>
-                    {policy.attributes.map((attribute, index) =>
+                    {policy.data.attributes.map((attribute, index) =>
                         <div key={index} className="attribute">
                             <div className="attribute-name-wrapper">
                                 <SelectField name={I18n.t("appAccess.attribute")}
@@ -154,7 +161,7 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
                                              value={allAllowedAttributes.find(attr => attr.value === attribute.name)}
                                              required={true}
                                              onChange={option => attributeSelected(option, index)}
-                                             options={policy.denyRule ? allAllowedAttributes
+                                             options={policy.data.denyRule ? allAllowedAttributes
                                                  .filter(option => option.allowedInDenyRule) : allAllowedAttributes}/>
                                 {(!isEmpty(attribute.name) && !isEmpty(attribute.value)) &&
                                     <Button type={ButtonType.Delete}
@@ -171,35 +178,45 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
                                          onChange={values => attributeValueChanged(values, index)}
                             />
                         </div>)}
+                    {policy.data.attributes.every(attribute => attribute.name && !isEmpty(attribute.value)) &&
+                        <div className="add-attribute-container">
+                            <SelectField placeholder={I18n.t("appAccess.addAttributePlaceholder")}
+                                         value={null}
+                                         onChange={option => attributeAdded(option)}
+                                         options={policy.data.denyRule ? allAllowedAttributes
+                                             .filter(option => option.allowedInDenyRule) : allAllowedAttributes}/>
+                        </div>
+                    }
 
                 </div>
                 <InputField name={I18n.t("appAccess.denyEn")}
-                            value={policy.denyAdvice}
+                            value={policy.data.denyAdvice}
                             required={true}
-                            error={!initial && isEmpty(policy.denyAdvice)}
+                            error={!initial && isEmpty(policy.data.denyAdvice)}
                             placeholder={I18n.t("appAccess.denyPlaceholder")}
-                            onChange={e => setPolicy({...policy, denyAdvice: e.target.value})}
+                            onChange={e => internalUpdatePolicy({denyAdvice: e.target.value})}
                 />
-                {(!initial && isEmpty(policy.denyAdvice)) &&
+                {(!initial && isEmpty(policy.data.denyAdvice)) &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("forms.required", {name: I18n.t("appAccess.denyEn")})}/>}
 
                 <InputField name={I18n.t("appAccess.denyNl")}
-                            value={policy.denyAdviceNl}
+                            value={policy.data.denyAdviceNl}
                             required={true}
-                            error={!initial && isEmpty(policy.denyAdviceNl)}
+                            error={!initial && isEmpty(policy.data.denyAdviceNl)}
                             placeholder={I18n.t("appAccess.denyPlaceholder")}
-                            onChange={e => setPolicy({...policy, denyAdviceNl: e.target.value})}
+                            onChange={e => internalUpdatePolicy({denyAdviceNl: e.target.value})}
                 />
-                {(!initial && isEmpty(policy.denyAdviceNl)) &&
+                {(!initial && isEmpty(policy.data.denyAdviceNl)) &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("forms.required", {name: I18n.t("appAccess.denyNl")})}/>}
 
             </div>
             <div className="actions">
                 <Button type={ButtonType.Secondary}
-                        onClick={() => backToAccess(true)}
+                        onClick={backToAccess}
                         txt={I18n.t("forms.cancel")}/>
+                <p>isValid:{isValid().toString()}</p>
                 <Button type={ButtonType.Primary}
                         onClick={() => submit()}
                         disabled={!initial && !isValid()}
