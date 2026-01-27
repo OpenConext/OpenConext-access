@@ -290,7 +290,7 @@ class ConnectionControllerTest extends AbstractTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void deleteConnectionWithManageProvider() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
