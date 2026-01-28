@@ -27,7 +27,6 @@ import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import {
     APPLICATION_LINKS,
-    CHANGE_REQUEST_TYPE,
     isAccessRoleReady,
     providerDescription,
     providerName,
@@ -37,7 +36,7 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {authorities} from "../utils/Permissions.js";
+import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
@@ -97,6 +96,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
+            if (isEmpty(newCurrentPolicy)) {
+                navigate("/404");
+                return;
+            }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
         }
         setCurrentPolicy(newCurrentPolicy);
@@ -115,20 +118,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     return;
                 }
                 //See if this application is already connected
-                const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
-                let isAccessible = allowedEntities.includes(res.data.entityid);
-                let isReadOnly = true;
-                if (isAccessible) {
-                    isReadOnly = false;
-                } else {
-                    //Check if there is an outstanding change request
-                    isAccessible = user.changeRequests
-                        .some(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
-                            changeRequest.pathUpdateType === "ADDITION" &&
-                            changeRequest.pathUpdates.allowedEntities.name === res.data.entityid
-                        );
-                }
+                const { isAccessible, isReadOnly } = deriveAccess(user, res.data.entityid);
+                const adminUser = isAdmin(user, authorities);
                 setAccessible(isAccessible);
+                setIsAdminUser(adminUser);
+                setReadOnly(isReadOnly);
+                //Update breadcrumb
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
@@ -144,11 +139,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
                     newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
                 setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
-                const idpId = user.identityProvider.id
-                const orgMembership = user.organizationMemberships.find(orgMembership => orgMembership.organization.manageIdentifier === idpId);
-                const adminUser = user.superUser || (!isEmpty(orgMembership) && orgMembership.authority === authorities.ADMIN);
-                setIsAdminUser(adminUser);
-                setReadOnly(isReadOnly);
                 if (isAccessible) {
                     if (adminUser) {
                         if (isReadOnly) {

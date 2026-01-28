@@ -1,4 +1,5 @@
 import {isEmpty} from "./Utils.js";
+import {CHANGE_REQUEST_TYPE} from "./Manage.js";
 
 export const authorities = {
     SUPER_USER: "SUPER_USER",
@@ -75,4 +76,28 @@ export const hasApplicationDeleteAccess = (user, application) => {
         return true;
     }
     return application.ownerIdentifier === user.id;
+}
+
+export const deriveAccess = (user, spEntityId) => {
+    const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
+    let isAccessible = allowedEntities.includes(spEntityId);
+    let isReadOnly = !isAccessible;
+
+    if (!isAccessible) {
+        isAccessible = user.changeRequests.some(cr =>
+            cr.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
+            cr.pathUpdateType === "ADDITION" &&
+            cr.pathUpdates.allowedEntities.name === spEntityId
+        );
+    }
+
+    return { isAccessible, isReadOnly };
+}
+
+export const isAdmin = (user, authorities) => {
+    const idpId = user.identityProvider.id;
+    const orgMembership = user.organizationMemberships.find(
+        m => m.organization.manageIdentifier === idpId
+    );
+    return user.superUser || (orgMembership && orgMembership.authority === authorities.ADMIN);
 }
