@@ -140,24 +140,21 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         if (isReadOnly) {
                             setLoading(false);
                         } else {
-                            const promises = [getPolicyByServiceProviderEntityId(res.data.entityid)];
-                            if (user.organizationGUID) {
-                                promises.push(inviteRoles(user.organizationGUID, res.id),)
-                            } else {
-                                promises.push(Promise.resolve([]));
-                            }
-                            Promise.all(promises).then(res => {
-                                res[0].forEach(policy => policy.originalName = policy.name);
-                                setPolicies(res[0]);
-                                setAccessRoles(res[1]);
-                                if (page === "overview") {
-                                    setShowPolicyOverview(true);
-                                }
-                                if (page === "detail" && !isEmpty(policyId)) {
-                                    toPolicyDetail(policyId);
-                                }
-                                setLoading(false);
-                            })
+                            Promise.all([
+                                getPolicyByServiceProviderEntityId(res.data.entityid),
+                                inviteRoles(user.organizationGUID, res.id)])
+                                .then(res => {
+                                    res[0].forEach(policy => policy.originalName = policy.name);
+                                    setPolicies(res[0]);
+                                    setAccessRoles(res[1]);
+                                    if (page === "overview") {
+                                        setShowPolicyOverview(true);
+                                    }
+                                    if (page === "detail" && !isEmpty(policyId)) {
+                                        toPolicyDetail(policyId);
+                                    }
+                                    setLoading(false);
+                                })
                         }
                     } else {
                         setTabNames(["information"]);

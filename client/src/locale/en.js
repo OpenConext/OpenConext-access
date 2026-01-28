@@ -114,7 +114,11 @@ const en = {
         invitations: "Invitations",
         home: "Home",
         feedback: "Feedback",
-        profile: "Profile"
+        profile: "Profile",
+        system: "System",
+        users: "Users",
+        organizations:"Organizations",
+        organizationPendingApproval: "Pending approval"
     },
     welcome: {
         greeting: "Welcome {{name}}",
