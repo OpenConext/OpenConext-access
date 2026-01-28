@@ -5,8 +5,18 @@ import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.mail.MailBox;
-import access.manage.*;
-import access.model.*;
+import access.manage.ChangeRequest;
+import access.manage.DashBoardConnectionOption;
+import access.manage.Manage;
+import access.manage.PathUpdateType;
+import access.manage.RequestType;
+import access.model.Authority;
+import access.model.ConnectionRequest;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +70,10 @@ public class IdentityProviderController implements UserAccessRights {
 
     @PutMapping({"/connect"})
     public ResponseEntity<Map<String, Object>> connect(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
-        LOG.debug("/connect SP to IdP connection for " + user.getEmail());
+        String email = user.getEmail();
+        LOG.debug("/connect SP to IdP connection for " + email);
+
+        user = reinitializeUser(user, userRepository);
 
         String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
@@ -70,15 +82,11 @@ public class IdentityProviderController implements UserAccessRights {
         Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
                 connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
-
-        User userFromDB = reinitializeUser(user, userRepository);
-        //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
-        boolean memberRequest = !userFromDB.isSuperUser();
+        boolean memberRequest = !user.isSuperUser();
         if (memberRequest) {
-            OrganizationMembership organizationMembership = getOrganizationMembership(userFromDB, organization, Authority.GUEST)
+            OrganizationMembership organizationMembership = getOrganizationMembership(user, organization, Authority.GUEST)
                     .orElseThrow(() -> new NotAllowedException(
-                            String.format("User %s is not a member of organization %s", userFromDB.getEmail(), organization.getName())));
+                            String.format("User %s is not a member of organization %s", email, organization.getName())));
             memberRequest = !organizationMembership.getAuthority().equals(Authority.ADMIN);
         }
         if (memberRequest) {
@@ -97,10 +105,14 @@ public class IdentityProviderController implements UserAccessRights {
             //Avoid UnsupportedException for immutable collections
             admins = new ArrayList<>(admins);
             admins.add(user);
-            mailBox.sendConnectionRequest(userFromDB, admins, organization, getProviderName(serviceProvider),
+            mailBox.sendConnectionRequest(user, admins, organization, getProviderName(serviceProvider),
                     connectionRequest.getMessage(), deeplink);
             return Results.createResult();
         }
+
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+
+        //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
         //Now check if the connection can be made automatically
         Map<String, Object> spMetaDataFields = getMetaDataFields(getData(serviceProvider));
         DashBoardConnectionOption connectOption = DashBoardConnectionOption
@@ -111,12 +123,12 @@ public class IdentityProviderController implements UserAccessRights {
                 .equals(idpInstitutionGUID);
         boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals(DashBoardConnectionOption.connectWithInteraction);
         if (connectWithoutInteraction) {
-                manage.connectWithoutInteraction(identityProvider, serviceProvider, userFromDB);
+            manage.connectWithoutInteraction(identityProvider, serviceProvider, user);
             if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail)) {
                 List<String> recipients = contactPersons(serviceProvider);
                 if (!CollectionUtils.isEmpty(recipients)) {
                     mailBox.sendNewConnectionCreated(
-                            userFromDB,
+                            user,
                             recipients,
                             getProviderName(identityProvider),
                             getProviderName(serviceProvider),
@@ -143,13 +155,13 @@ public class IdentityProviderController implements UserAccessRights {
                         changeRequestURL),
                 summary,
                 EntityType.valueOf((String) serviceProvider.get("type")),
-                user.getEmail()
+                email
         ));
         ChangeRequest changeRequest = new ChangeRequest(
                 idpManageIdentifier,
                 EntityType.saml20_idp,
                 Map.of("allowedEntities", Map.of("name", serviceProviderEntityID)),
-                Map.of("user", user.getEmail(),
+                Map.of("user", email,
                         "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
                                 user.getName(),
                                 identityProviderEntityID,
@@ -164,5 +176,58 @@ public class IdentityProviderController implements UserAccessRights {
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
     }
 
+    @PutMapping({"/disconnect"})
+    public ResponseEntity<Map<String, Object>> disconnect(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
+        LOG.debug("/disconnect SP to IdP request by " + user.getEmail());
+
+        user = reinitializeUser(user, userRepository);
+
+        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
+        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
+                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
+
+        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
+                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+
+        String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
+
+        String identityProviderEntityID = getEntityID(identityProvider);
+        String serviceProviderEntityID = getEntityID(serviceProvider);
+        String lineSeparator = System.lineSeparator();
+        String summary = String.format("Disconnection request requested by %s for %s.",
+                user.getName(), getProviderName(identityProvider));
+        String jiraKey = jiraClient.create(new JiraIssue(
+                serviceProviderEntityID,
+                identityProviderEntityID,
+                String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
+                        summary,
+                        lineSeparator,
+                        lineSeparator,
+                        changeRequestURL),
+                summary,
+                EntityType.valueOf((String) serviceProvider.get("type")),
+                user.getEmail()
+        ));
+        ChangeRequest changeRequest = new ChangeRequest(
+                idpManageIdentifier,
+                EntityType.saml20_idp,
+                Map.of("allowedEntities", Map.of("name", serviceProviderEntityID)),
+                Map.of("user", user.getEmail(),
+                        "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",
+                                user.getName(),
+                                identityProviderEntityID,
+                                serviceProviderEntityID,
+                                jiraKey)),
+                true,
+                PathUpdateType.REMOVAL,
+                RequestType.UnlinkRequest);
+        manage.createChangeRequest(Environment.PROD, changeRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
+    }
 
 }

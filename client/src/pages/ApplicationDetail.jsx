@@ -56,12 +56,13 @@ const confirmationModalOptions = {
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
-    const {arp, privacy, user, config, setFlash} = useAppStore(useShallow(state => ({
+    const {arp, privacy, user, config, setFlash, currentOrganization} = useAppStore(useShallow(state => ({
         arp: state.arp,
         privacy: state.privacy,
         user: state.user,
         config: state.config,
-        setFlash: state.setFlash
+        setFlash: state.setFlash,
+        currentOrganization: state.currentOrganization
     })));
 
     const navigate = useNavigate();
@@ -118,7 +119,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     return;
                 }
                 //See if this application is already connected
-                const { isAccessible, isReadOnly } = deriveAccess(user, res.data.entityid);
+                const {isAccessible, isReadOnly} = deriveAccess(user, res.data.entityid);
                 const adminUser = isAdmin(user, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
@@ -245,10 +246,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             return (
                 <div className="connect-options-container">
                     <h3>{I18n.t("applicationConnect.requestMember")}</h3>
-                    {I18n.translations[I18n.locale].applicationConnect.memberRequestInfo
-                        .map((info, index) =>
-                            <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
-                        )}
+                    <p dangerouslySetInnerHTML={{
+                        __html: I18n.t("applicationConnect.memberRequestInfo.info",
+                            {orgName: currentOrganization.name})
+                    }}/>
+                    <p dangerouslySetInnerHTML={{__html: I18n.t("applicationConnect.memberRequestInfo.subInfo")}}/>
                     <InputField multiline={true}
                                 displayLabel={false}
                                 value={message}
@@ -278,6 +280,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const cancelConnectionRequest = (withConfirmation, e) => {
         stopEvent(e);
+        setConfirmationModalOption(null);
         if (withConfirmation) {
             setConfirmation({
                 open: true,
@@ -315,10 +318,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else {
             cancelConfirmation();
             setLoading(true);
+            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
             connectServiceProviderToIdentityProvider(
                 serviceProvider.id,
                 serviceProvider.type,
-                user.identityProvider.id,
+                manageIdentifierOrg,
                 message)
                 .then(() => {
                     if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {

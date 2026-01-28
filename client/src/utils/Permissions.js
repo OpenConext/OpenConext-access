@@ -79,9 +79,14 @@ export const hasApplicationDeleteAccess = (user, application) => {
 }
 
 export const deriveAccess = (user, spEntityId) => {
+    let isAccessible = false, isReadOnly = false;
+    if (isEmpty(user.identityProvider)) {
+        //External user
+        return {isAccessible, isReadOnly};
+    }
     const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
-    let isAccessible = allowedEntities.includes(spEntityId);
-    let isReadOnly = !isAccessible;
+    isAccessible = allowedEntities.includes(spEntityId);
+    isReadOnly = !isAccessible;
 
     if (!isAccessible) {
         isAccessible = user.changeRequests.some(cr =>
@@ -91,10 +96,14 @@ export const deriveAccess = (user, spEntityId) => {
         );
     }
 
-    return { isAccessible, isReadOnly };
+    return {isAccessible, isReadOnly};
 }
 
 export const isAdmin = (user, authorities) => {
+    if (isEmpty(user.identityProvider)) {
+        //External user
+        return false;
+    }
     const idpId = user.identityProvider.id;
     const orgMembership = user.organizationMemberships.find(
         m => m.organization.manageIdentifier === idpId

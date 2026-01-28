@@ -42,6 +42,7 @@ const MyOrganization = ({refreshUser}) => {
     const [section, setSection] = useState(externalUser ? sections.general : sections.contactPersons);
     const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
+    const [originalOrganizationName, setOriginalOrganizationName] = useState("");
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [dirty, setDirty] = useState(new Date());
 
@@ -63,6 +64,7 @@ const MyOrganization = ({refreshUser}) => {
                 .then(res => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);
+                    setOriginalOrganizationName(res.name);
                     setLoading(false);
                 }).catch(() => {
                 navigate("/home")
@@ -261,7 +263,7 @@ const MyOrganization = ({refreshUser}) => {
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"))}}/>
             </div>
             <div className="my-organization">
-                <h1>{I18n.t("myOrganization.maintenance", {name: organization.name})}</h1>
+                <h1>{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
                 <div className="menu-container">
                     <div className="left-menu">
                         {availableSections

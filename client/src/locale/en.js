@@ -1040,10 +1040,10 @@ const en = {
             all: "Iedereen van de {{orgName}} heeft direct automatisch toegang",
             some: "Pas toegangsregels toe"
         },
-        memberRequestInfo: [
-            "Om een applicatie gekoppelde te krijgen met het SURF Access platform, moet akkoord gegeven worden worden door de SURF Access Verantwoordelijke van de {{orgName}}.",
-            "Geef hieronder aan waarom je deze applicatie geactiveerd wil hebben. Wij versturen het bericht naar hem of haar, je ontvangt zelf ook een kopie."
-        ],
+        memberRequestInfo: {
+            info:"Om een applicatie gekoppelde te krijgen met het SURF Access platform, moet akkoord gegeven worden worden door de SURF Access Verantwoordelijke van de {{orgName}} organisatie.",
+            subInfo:"Geef hieronder aan waarom je deze applicatie geactiveerd wil hebben. Wij versturen het bericht naar hem of haar, je ontvangt zelf ook een kopie."
+        },
         messagePlaceholder: "Your message",
         sendMessage: "Send message",
         flash: {
