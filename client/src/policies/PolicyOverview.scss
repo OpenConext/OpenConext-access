@@ -37,11 +37,15 @@
 
             .access-card {
                 margin-right: 15px;
+                &.small-icons {
+                    svg {
+                        color: var(--sds--color--green--400);
+                        margin: 0 10px 0 auto;
+                        width: 24px;
+                        height: auto;
+                        cursor: default;
+                    }
 
-                svg {
-                    color: var(--sds--color--green--400);
-                    margin: 0 10px 0 auto;
-                    cursor: default;
                 }
             }
         }

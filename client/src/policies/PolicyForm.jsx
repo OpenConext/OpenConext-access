@@ -1,22 +1,28 @@
 import "./PolicyForm.scss";
 import React, {useEffect, useState} from "react";
-import {Button, ButtonType, SegmentedControl, Tooltip} from "@surfnet/sds";
+import {Button, ButtonIconPlacement, ButtonType, Chip, ChipType, SegmentedControl, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
-import {allowedAttributes, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
+import {allowedAttributes, deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {defaultAttributes, flatMapByValues} from "../utils/Policy.js";
+import PauzeIcon from "../icons/pauze.svg";
+import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import ActivateIcon from "@surfnet/sds/icons/functional-icons/success.svg";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
-
-export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
+export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
 
     const [allAllowedAttributes, setAllAllowedAttributes] = useState([]);
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
+    const [showActivateNudge, setShowActivateNudge] = useState(false);
+    const [confirmation, setConfirmation] = useState({});
+
     const required = ["name", "denyAdvice", "denyAdviceNl"];
 
     const {setFlash} = useAppStore(useShallow(state => ({
@@ -35,7 +41,28 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
     }
 
     const isValid = () => {
-        return required.every(attr => !isEmpty(policy.data[attr]));
+        return required.every(attr => !isEmpty(policy.data[attr])) && !duplicatePolicyName;
+    }
+
+    const doDeletePolicy = (confirmationRequired, policy) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doDeletePolicy(false, policy),
+                question: I18n.t("appAccess.confirmation.deleteQuestion"),
+                okButton: I18n.t("forms.delete")
+            });
+        } else {
+            deletePolicy(policy)
+                .then(() => {
+                    setConfirmation({});
+                    refreshPolicies();
+                    setFlash(I18n.t("appAccess.flash.deleted", {
+                        name: policy.data.name
+                    }));
+                })
+        }
     }
 
     const submit = () => {
@@ -100,9 +127,43 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
         }
     }
 
+    const activeToggled = () => {
+        internalUpdatePolicy({active: !policy.data.active});
+        setShowActivateNudge(true);
+    }
+
+    const {open, cancel, action, question, okButton} = confirmation;
 
     return (
         <div className="policy-form-container">
+            {open && <ConfirmationDialog confirm={action}
+                                         cancel={cancel}
+                                         confirmationHeader={I18n.t("confirmationDialog.confirm")}
+                                         confirmationTxt={okButton}
+                                         question={question}
+            />}
+            <div className="policy-form-header">
+                <div className="header-top">
+                    <h2>{I18n.t(`appAccess.${isExistingPolicy ? "editPolicy" : "newPolicy"}`)}</h2>
+                    {isExistingPolicy &&
+                        <div className="policy-header-actions">
+                            <Chip type={ChipType.Status_info}
+                                  label={I18n.t(`appAccess.${policy.data.active ? "active" : "paused"}`)}/>
+                            <Button type={ButtonType.Secondary}
+                                    icon={policy.data.active ? <PauzeIcon/> : <ActivateIcon/>}
+                                    iconPlacement={ButtonIconPlacement.Left}
+                                    onClick={() => activeToggled()}
+                                    txt={I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`)}/>
+                            <TrashIcon onClick={() => doDeletePolicy(true, policy)}/>
+                        </div>}
+                </div>
+                {showActivateNudge && <div className="header-bottom">
+                    <em>{I18n.t("appAccess.activateNudge",
+                        {action: I18n.t(`appAccess.${policy.data.active ? "activate" : "pause"}`).toLowerCase()})}
+                    </em>
+                </div>}
+            </div>
+
             <div className="policy-form">
                 <InputField name={I18n.t("appAccess.targetGroup")}
                             value={policy.data.name}
@@ -214,9 +275,8 @@ export const PolicyForm = ({backToAccess, policy, setPolicy, isExistingPolicy, o
             </div>
             <div className="actions">
                 <Button type={ButtonType.Secondary}
-                        onClick={backToAccess}
+                        onClick={refreshPolicies}
                         txt={I18n.t("forms.cancel")}/>
-                <p>isValid:{isValid().toString()}</p>
                 <Button type={ButtonType.Primary}
                         onClick={() => submit()}
                         disabled={!initial && !isValid()}

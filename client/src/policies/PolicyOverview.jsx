@@ -74,7 +74,7 @@ export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyD
                         {policies.map((policy, index) =>
                             <div key={index} className="access-card-container">
 
-                                <div className="access-card large">
+                                <div className="access-card large small-icons">
                                     {policy.data.name}
                                     <PolicyIcon/>
                                 </div>

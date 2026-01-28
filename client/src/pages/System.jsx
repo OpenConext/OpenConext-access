@@ -1,17 +1,35 @@
 import "./System.scss";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {Users} from "./Users.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import I18n from "../locale/I18n.js";
 import {Organizations} from "./Organizations.jsx";
+import {useAppStore} from "../stores/AppStore.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const tabNames = ["users", "organizations", "organizationPendingApproval"]
 
 const System = () => {
     const {tab = "users"} = useParams();
-    const [currentTab, setCurrentTab] = useState(tab);
     const navigate = useNavigate();
+
+    const [currentTab, setCurrentTab] = useState(tab);
+
+    useEffect(() => {
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                {
+                    path: "/system",
+                    value: I18n.t("breadCrumb.system")
+                },
+                {value: I18n.t(`breadCrumb.${currentTab}`)}
+            ],
+            activeMenuItem: null
+        });
+
+    }, [currentTab]);
 
     const tabChanged = (name) => {
         setCurrentTab(name);

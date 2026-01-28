@@ -73,7 +73,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [loading, setLoading] = useState(true);
     const [serviceProvider, setServiceProvider] = useState({});
     const [accessRoles, setAccessRoles] = useState({});
-    const [policies, setPolicies] = useState({});
+    const [policies, setPolicies] = useState([]);
     const [showAttributes, setShowAttributes] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
     const [metaData, setMetaData] = useState({});
@@ -89,6 +89,20 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
+
+    const toPolicyDetail = (policyIdentifier, allPolicies = policies) => {
+        setShowPolicyOverview(false);
+        let newCurrentPolicy;
+        if (policyIdentifier === "new") {
+            newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid);
+        } else {
+            newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
+            newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
+        }
+        setCurrentPolicy(newCurrentPolicy);
+        setShowPolicyDetails(true);
+        navigate(`/application-detail/${manageType}/${manageId}/details/${policyIdentifier}`);
+    }
 
     useEffect(() => {
         publicServiceProviderByDetail(manageType, manageId)
@@ -150,8 +164,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     if (page === "overview") {
                                         setShowPolicyOverview(true);
                                     }
-                                    if (page === "detail" && !isEmpty(policyId)) {
-                                        toPolicyDetail(policyId);
+                                    if (page === "details" && !isEmpty(policyId)) {
+                                        toPolicyDetail(policyId, res[0]);
                                     }
                                     setLoading(false);
                                 })
@@ -370,20 +384,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         navigate(`/application-detail/${manageType}/${manageId}${pageName}`);
     }
 
-    const toPolicyDetail = policyIdentifier => {
-        setShowPolicyOverview(false);
-        let newCurrentPolicy;
-        if (policyIdentifier === "new") {
-            newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid);
-        } else {
-            newCurrentPolicy = policies.find(policy => policy.id === policyIdentifier);
-            newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
-        }
-        setCurrentPolicy(newCurrentPolicy);
-        setShowPolicyDetails(true);
-        navigate(`/application-detail/${manageType}/${manageId}/details/${policyIdentifier}`);
-    }
-
     const renderAccessApp = () => {
         return (
             <>
@@ -395,8 +395,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     {showPolicyDetails &&
-                        <PolicyForm backToAccess={e => backToAccess(e, "/overview")}
-                                    policy={currentPolicy}
+                        <PolicyForm policy={currentPolicy}
                                     setPolicy={setCurrentPolicy}
                                     isExistingPolicy={!isEmpty(currentPolicy.id)}
                                     originalName={currentPolicy.originalName}

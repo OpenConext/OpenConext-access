@@ -1,9 +1,50 @@
 @use "../styles/vars.scss" as *;
 
 .policy-form-container {
-    width: 50%;
+    width: 60%;
     @media (max-width: $medium) {
         width: 100%;
+    }
+
+    .policy-form-header {
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+
+            h2 {
+                margin-bottom: 0;
+            }
+
+            .policy-header-actions {
+                display: flex;
+                gap: 18px;
+                align-items: center;
+                margin-left: auto;
+
+                svg {
+                    fill: var(--sl-color-neutral-400);
+                    color: var(--sl-color-neutral-400);
+                    &.bin-svg {
+                        cursor: pointer;
+                        &:hover {
+                            color: var(--sds--color--red--500);
+                        }
+                    }
+                }
+            }
+        }
+
+        .header-bottom {
+            display: flex;
+            margin-bottom: 15px;
+
+            em {
+                margin-left: auto;
+            }
+        }
+
     }
 
     .policy-form {
@@ -61,9 +102,11 @@
         }
 
     }
-.add-attribute-container {
-    margin-top: 60px;
-}
+
+    .add-attribute-container {
+        margin-top: 60px;
+    }
+
     .actions {
         display: flex;
         width: 100%;
