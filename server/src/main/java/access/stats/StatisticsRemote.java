@@ -25,9 +25,9 @@ public class StatisticsRemote implements Statistics {
     private final String baseUrl;
 
     @Autowired
-    public StatisticsRemote(@Value("${statsUser}") String user,
-                            @Value("${statsPassword}") String password,
-                            @Value("${statsBaseUrl}") String baseUrl) {
+    public StatisticsRemote(@Value("${statistics.user}") String user,
+                            @Value("${statistics.password}") String password,
+                            @Value("${statistics.url}") String baseUrl) {
         this.restTemplate = RestTemplateFactory.buildRestTemplate(user, password);
         this.baseUrl = baseUrl;
     }
