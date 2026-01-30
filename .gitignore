@@ -49,3 +49,4 @@ application-local.yml
 jira.yml
 spieldata
 PlayGroundTest.java
+LOCAL_USERS.md

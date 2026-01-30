@@ -1,11 +1,11 @@
 import "./UserHome.scss";
-import React, {useEffect} from "react";
+import React from "react";
 import {useAppStore} from "../stores/AppStore";
+import {Button, ButtonType} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
-import {useNavigate} from "react-router-dom";
+import {Navigate, useNavigate} from "react-router-dom";
 import {mainMenuItems} from "../utils/MenuItems.js";
-import {Button, ButtonType} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 
@@ -15,25 +15,21 @@ const UserHome = () => {
     const currentOrganization = useAppStore(state => state.currentOrganization);
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        let newLocation = null;
-        if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
-            newLocation = "/landing"
-
-        } else if (!isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
-            newLocation = "/relax"
-        }
-        if (newLocation !== null) {
-            navigate(newLocation, {replace: true});
-        } else {
-            useAppStore.setState({
-                breadcrumbPaths: [
-                    {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
-                ]
-            });
-        }
-    }, [user.joinRequests, currentOrganization?.id, navigate]);
+    let newLocation = null;
+    if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
+        newLocation = "/landing"
+    } else if (!isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
+        newLocation = "/relax"
+    }
+    if (newLocation !== null) {
+        return <Navigate to={newLocation} replace/>;
+    } else {
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
+            ]
+        });
+    }
 
     const navigateInner = (menuItem, path) => {
         navigate(path);

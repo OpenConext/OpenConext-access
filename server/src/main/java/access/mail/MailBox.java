@@ -140,7 +140,8 @@ public class MailBox {
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
-        variables.put("url", String.format("%s/organization/%s/joins", clientUrl, organization.getId()));
+
+        variables.put("url", String.format("%s/users/%s/joins", clientUrl, organization.getId()));
         List<String> emails = organization.getOrganizationMemberships().stream()
                 .filter(organizationMembership -> organizationMembership.getAuthority().equals(Authority.ADMIN))
                 .map(organizationMembership -> organizationMembership.getUser().getEmail())

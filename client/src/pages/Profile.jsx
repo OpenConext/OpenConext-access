@@ -24,7 +24,7 @@ const Profile = ({setIsAuthenticated}) => {
     useEffect(() => {
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("profile.title"), menuItemName: mainMenuItems.home},
+                {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home},
                 {value: I18n.t("breadCrumb.profile")}
             ]
         });

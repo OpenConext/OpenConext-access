@@ -11,6 +11,7 @@ import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
+import {useLocation} from "react-router-dom";
 
 export const SharedMenu = () => {
 
@@ -21,7 +22,8 @@ export const SharedMenu = () => {
     })));
 
     const navigate = useNavigate();
-
+    const currentLocation = useLocation();
+        console.log(currentLocation.href)
     const filteredMenuGroups = useMemo(() => {
         return allMenuGroups
             .map(menuGroup => ({

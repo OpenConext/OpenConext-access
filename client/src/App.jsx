@@ -120,7 +120,7 @@ const App = () => {
                 <Flash/>
                 {impersonator && <Impersonating/>}
                 <div className="container">
-                    <SharedMenu/>
+                    <SharedMenu currentLocation={currentLocation}/>
                     <div className="pages">
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
                         <Routes>
