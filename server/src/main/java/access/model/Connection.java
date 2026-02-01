@@ -1,10 +1,20 @@
 package access.model;
 
-import access.manage.Contact;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +24,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static access.manage.ManageData.*;
@@ -41,7 +55,7 @@ public class Connection implements NameHolder {
 
     @Type(JsonType.class)
     @Column(name = "meta_data", columnDefinition = "jsonb")
-    private Map<String, Object> metaData = new HashMap<>();
+    private HashMap<String, Object> metaData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -87,7 +101,7 @@ public class Connection implements NameHolder {
     public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol, Environment environment) {
         this.name = name;
         this.application = application;
-        this.metaData = metaData;
+        this.metaData = new HashMap<>(metaData);
         this.protocol = protocol;
         this.environment = environment;
         this.createdAt = Instant.now();
@@ -149,7 +163,7 @@ public class Connection implements NameHolder {
         this.metaData.put("allowedEntities", allowedEntitiesMapped);
         this.metaData.put("arp", data.get("arp"));
 
-        Map<String, Object> metaDataFields = getMetaDataFields (data);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
         this.name = (String) metaDataFields.getOrDefault("name:en", this.name);
         this.metaData.put("name", name);
         this.metaData.put("pkce", metaDataFields.get("isPublicClient"));

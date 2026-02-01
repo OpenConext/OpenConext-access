@@ -15,6 +15,7 @@ const UserHome = () => {
     const currentOrganization = useAppStore(state => state.currentOrganization);
 
     const navigate = useNavigate();
+
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
         newLocation = "/landing"

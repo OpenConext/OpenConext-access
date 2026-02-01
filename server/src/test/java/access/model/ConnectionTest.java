@@ -27,7 +27,7 @@ class ConnectionTest {
         assertFalse(connection.isValid());
 
         //Need mutability
-        Map<String, Object> metaData = new HashMap<>();
+        HashMap<String, Object> metaData = new HashMap<>();
         metaData.put("entityID", "http://mock-rp");
         connection.setMetaData(metaData);
         assertFalse(connection.isValid());

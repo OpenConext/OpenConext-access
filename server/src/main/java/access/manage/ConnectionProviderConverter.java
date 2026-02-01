@@ -182,9 +182,9 @@ public class ConnectionProviderConverter {
         return changeRequests;
     }
 
-    public Map<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {
+    public HashMap<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {
         Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-        Map<String, Object> updatedMetaData = new HashMap<>();
+        HashMap<String, Object> updatedMetaData = new HashMap<>();
 
         updatedMetaData.put("privacy", this.privacyInfo.stream().collect(Collectors.toMap(
                 m -> m.get("name"),

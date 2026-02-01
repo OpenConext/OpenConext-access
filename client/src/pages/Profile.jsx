@@ -7,19 +7,18 @@ import DOMPurify from "dompurify";
 import {Button, ButtonType, Checkbox, Tooltip} from "@surfnet/sds";
 import {dateFromEpoch} from "../utils/Date.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
-import {deleteUser, logout} from "../api/index.js";
-import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
-import {useNavigate} from "react-router";
+import {deleteUser} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import {providerName} from "../utils/Manage.js";
+import {useLogout} from "../hooks/UseLogout.jsx";
 
 const Profile = ({setIsAuthenticated}) => {
 
     const user = useAppStore(state => state.user);
 
     const [confirmation, setConfirmation] = useState({});
-    const navigate = useNavigate();
+    const logoutUser = useLogout();
 
     useEffect(() => {
         useAppStore.setState({
@@ -43,20 +42,7 @@ const Profile = ({setIsAuthenticated}) => {
         } else {
             deleteUser().then(() => {
                 setConfirmation({});
-                logout()
-                    .then(() => {
-                        useAppStore.setState(() => ({
-                            currentOrganization: {name: ""},
-                            breadcrumbPaths: [],
-                            user: {name: ""}
-                        }));
-                        sessionStorage.removeItem(SESSION_STORAGE_LOCATION);
-                        navigate("/authentication-switch");
-                        setTimeout(() => {
-                            setIsAuthenticated(false);
-                            navigate("/home");
-                        }, 150)
-                    });
+                logoutUser(null, setIsAuthenticated);
             })
         }
     }

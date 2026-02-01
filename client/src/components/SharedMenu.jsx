@@ -23,7 +23,7 @@ export const SharedMenu = () => {
 
     const navigate = useNavigate();
     const currentLocation = useLocation();
-        console.log(currentLocation.href)
+
     const filteredMenuGroups = useMemo(() => {
         return allMenuGroups
             .map(menuGroup => ({
@@ -51,6 +51,10 @@ export const SharedMenu = () => {
         useAppStore.setState(() => ({
             activeMenuItem: menuItem.name
         }));
+    }
+
+    if (currentLocation.pathname === "/landing") {
+        return null;
     }
 
     const isPendingApproval = currentOrganization.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;

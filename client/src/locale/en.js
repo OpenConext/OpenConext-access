@@ -930,6 +930,7 @@ const en = {
         sure: "I'm sure",
         edit: "Edit",
         accept: "Accept",
+        ok: "Ok",
         proceed: "Proceed",
         delete: "Delete",
         deleteAnyway: "I know what I'm doing. Delete!",
@@ -1120,6 +1121,11 @@ const en = {
         confirmation: {
             deleteQuestion: "Are you sure you want to delete this policy?"
         }
+    },
+    error: {
+        title: "Whoops, error!!!",
+        unexpected: "An unexpected error occurred. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
+        jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support."
     }
 
 }

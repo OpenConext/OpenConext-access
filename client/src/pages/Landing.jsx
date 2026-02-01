@@ -45,7 +45,6 @@ const Landing = ({refreshUser}) => {
         }
         useAppStore.setState({
             breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });

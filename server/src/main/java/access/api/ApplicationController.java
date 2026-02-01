@@ -111,7 +111,7 @@ public class ApplicationController implements UserAccessRights {
         Map<String, Object> provider = latestChangedProvider.get();
         if (provider != null) {
             //Take the last updated provider and merge / save the application metaData
-            Map<String, Object> updatedMetaData = connectionProviderConverter.convertProviderToApplicationMetaData(provider);
+            HashMap<String, Object> updatedMetaData = connectionProviderConverter.convertProviderToApplicationMetaData(provider);
             application.setMetaData(updatedMetaData);
 
             Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));

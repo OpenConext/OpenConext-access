@@ -2,14 +2,13 @@ import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
 import {Link, useNavigate} from "react-router-dom";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty} from "../utils/Utils";
 import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
-import {logout} from "../api";
 import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
-import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
 import {menuItemsForUser} from "../utils/MenuItems.js";
+import {useLogout} from '../hooks/UseLogout.jsx';
 
 export const UserMenu = ({setIsAuthenticated}) => {
 
@@ -21,23 +20,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const [dropDownActive, setDropDownActive] = useState(false);
     const [isSwitchOrganizationOpen, setIsSwitchOrganizationOpen] = useState(false);
 
-    const logoutUser = e => {
-        stopEvent(e);
-        logout().then(() => {
-            useAppStore.setState(() => ({
-                currentOrganization: {name: ""},
-                breadcrumbPaths: [],
-                user: {name: ""}
-            }));
-            sessionStorage.removeItem(SESSION_STORAGE_LOCATION);
-            navigate("/authentication-switch");
-            setTimeout(() => {
-                setIsAuthenticated(false);
-                navigate("/home");
-            }, 150)
-
-        });
-    }
+    const logoutUser = useLogout();
 
     const switchOrganization = organization => {
         const newMenuItems = menuItemsForUser(user, organization);
@@ -89,7 +72,9 @@ export const UserMenu = ({setIsAuthenticated}) => {
                 </ul>
                 <ul>
                     <li>
-                        <a href="/logout" onClick={logoutUser}>{I18n.t(`landing.header.logout`)}</a>
+                        <a href="/logout" onClick={e => logoutUser(e, setIsAuthenticated)}>
+                            {I18n.t("landing.header.logout")}
+                        </a>
                     </li>
                 </ul>
                 {user.superUser && <ul>

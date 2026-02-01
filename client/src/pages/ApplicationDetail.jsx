@@ -198,10 +198,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         if (isEmpty(attribute)) {
             return null;
         }
-        if (link.localeAttribute) {
-            let s = `${link.locale}.${attribute}`;
-            console.log(s);
-        }
         return (
             <a href={attribute} key={index} target="_blank" rel="noopener noreferrer">
                 {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale)}
@@ -292,7 +288,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             });
         } else {
             cancelConfirmation();
-            alert("cancel request")
+            alert("cancel request");
         }
     }
 
@@ -337,7 +333,19 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         });
 
                     }
+                }).catch(() => {
+                setLoading(false);
+                setConfirmationModalOption(null);
+                setConfirmation({
+                    open: true,
+                    cancel: null,
+                    action: () => cancelConfirmation(),
+                    title: I18n.t("error.title"),
+                    isError: true,
+                    question: I18n.t("error.jiraDown"),
+                    okButton: I18n.t("forms.ok")
                 })
+            })
         }
     }
 
@@ -351,7 +359,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         navigate(-1);
     }
 
-    const {open, cancel, action, question, title, okButton} = confirmation;
+    const {open, cancel, isError, action, question, title, okButton} = confirmation;
 
     const renderCurrentTab = () => {
         switch (currentTab) {
@@ -605,7 +613,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const renderQuickLinks = () => {
         return (
             <>
-                <p className="info">{I18n.t("applicationDetail.quickLinks")}</p>
+                <p className="info no-margin">{I18n.t("applicationDetail.quickLinks")}</p>
                 <div className="app-info-block">
                     {APPLICATION_LINKS.map((link, index) =>
                         externalLink(link, metaData, index)
@@ -629,7 +637,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     {renderAppPrivacy()}
                 </div>
                 <div className="right">
-                    <p className="license">{I18n.t(`applicationDetail.license.${metaData['coin:ss:license_status'] || 'license_not_required'}`)}</p>
                     {renderQuickLinks()}
                     <p className="info">{I18n.t("applicationDetail.contractual")}</p>
                     <p>
@@ -724,6 +731,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         <div className={`application-detail-container`}>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
+                                         isError={isError}
                                          confirmationTxt={okButton}
                                          confirmationHeader={title}
                                          question={question}>

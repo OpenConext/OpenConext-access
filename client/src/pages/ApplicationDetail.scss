@@ -225,6 +225,9 @@ div.application-detail-container {
                 margin-top: 25px;
                 font-size: 18px;
                 font-weight: 600;
+                &.no-margin {
+                    margin-top: 0;
+                }
             }
 
             .app-info-block {

@@ -2,7 +2,7 @@
 @use "../index";
 
 .landing-container {
-    padding: 60px 50px 0 50px;
+    padding: 0 50px 0 50px;
     width: 50%;
 
     @include index.page-media;
@@ -12,8 +12,13 @@
         flex-direction: column;
         gap: 25px;
 
-        .sds-loading {
-            top: 41%;
+        .sds--loading-container {
+            position: fixed;
+
+            .sds-loading {
+                top: 160px;
+                left: 49%;
+            }
         }
     }
 

@@ -38,7 +38,7 @@ public class Application implements NameHolder {
 
     @Type(JsonType.class)
     @Column(name = "meta_data", columnDefinition = "jsonb")
-    private Map<String, Object> metaData = new HashMap<>();
+    private HashMap<String, Object> metaData = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -83,7 +83,7 @@ public class Application implements NameHolder {
     public Application(String name, Organization organization, String createdBy, Map<String, Object> metaData) {
         this.name = name;
         this.organization = organization;
-        this.metaData = metaData;
+        this.metaData = new HashMap<>(metaData);
         this.createdAt = Instant.now();
         this.createdBy = createdBy;
     }
