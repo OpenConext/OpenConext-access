@@ -20,13 +20,7 @@ public class CloningJsonSerializer implements JsonSerializer {
         if (value instanceof String) {
             return value;
         }
-
-        try {
-            // Serialize to JSON string and deserialize back to clone
-            String json = objectMapper.writeValueAsString(value);
-            return (T) objectMapper.readValue(json, value.getClass());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot clone object: " + value.getClass(), e);
-        }
+        // Serialize and deserialize back to clone
+        return (T) objectMapper.convertValue(value, value.getClass());
     }
 }

@@ -89,10 +89,10 @@ altered:
 
 ### [Upgrade](#upgrade)
 
-To update the pom.xml with the latest versions, run 
+To check the pom.xml with the latest versions, run 
 ```
 cd server
-mvn versions:use-latest-releases
+mvn versions:display-dependency-updates -DprocessDependencyManagement=false -DdependencyIncludes=*:*
 ```
 To see the latest versions report for the client run
 ```
