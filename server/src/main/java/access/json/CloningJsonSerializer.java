@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.util.JsonSerializer;
 
 public class CloningJsonSerializer implements JsonSerializer {
-    
+
     private final ObjectMapper objectMapper;
 
     public CloningJsonSerializer(ObjectMapper objectMapper) {

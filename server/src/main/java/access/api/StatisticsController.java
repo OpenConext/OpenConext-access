@@ -22,7 +22,7 @@ public class StatisticsController {
     }
 
     //Used for retrieval of all logins for one SP
-    @GetMapping("loginTimeFrame")
+    @GetMapping("/loginTimeFrame")
     public List<Object> loginTimeFrame(User user,
                                        @RequestParam("from") long from,
                                        @RequestParam("to") long to,
@@ -33,7 +33,7 @@ public class StatisticsController {
     }
 
     //Used for retrieval of all logins for all SPs
-    @GetMapping("loginAggregated")
+    @GetMapping("/loginAggregated")
     public List<Object> loginAggregated(User user,
                                         @RequestParam("period") String period,
                                         @RequestParam(value = "spEntityId", required = false) String spEntityId) {

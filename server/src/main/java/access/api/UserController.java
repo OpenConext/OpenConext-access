@@ -78,7 +78,7 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("login")
+    @GetMapping("/login")
     public View login() {
         LOG.debug("/login");
         return new RedirectView(config.getClientUrl(), false);
