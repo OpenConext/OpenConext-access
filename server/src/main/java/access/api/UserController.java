@@ -139,7 +139,7 @@ public class UserController implements UserAccessRights {
         LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
         if (!user.isSuperUser()) {
-            throw new NotAllowedException("Not allowed endpoint by" + user);
+            throw new NotAllowedException("Not allowed endpoint by " + user.getEmail());
         }
         User other = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         return ResponseEntity.ok(other);

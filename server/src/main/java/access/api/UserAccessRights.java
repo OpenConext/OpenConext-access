@@ -2,7 +2,11 @@ package access.api;
 
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
-import access.model.*;
+import access.model.Application;
+import access.model.Authority;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.UserRepository;
 
 import java.util.Optional;
@@ -21,15 +25,19 @@ public interface UserAccessRights {
     }
 
     default void confirmApplicationWriteAccess(User user, Application application) {
+        confirmApplicationWriteAccess(user, application, Authority.GUEST);
+    }
+
+    default void confirmApplicationWriteAccess(User user, Application application, Authority minimalAuthority) {
         if (user.isSuperUser()) {
             return;
         }
         //First, get the organization membership for the user
         Organization organization = application.getOrganization();
-        OrganizationMembership organizationMembership = getOrganizationMembership(user, organization, Authority.GUEST)
+        OrganizationMembership organizationMembership = getOrganizationMembership(user, organization, minimalAuthority)
                 .orElseThrow(() -> new UserRestrictionException(
-                        String.format("User %s is not a member of organization %s",
-                                user.getEmail(), organization.getName())));
+                        String.format("User %s is not a %s of organization %s",
+                                user.getEmail(), minimalAuthority, organization.getName())));
 
         boolean allowed = switch (organizationMembership.getAuthority()) {
             case ADMIN -> true;
@@ -47,7 +55,9 @@ public interface UserAccessRights {
                             user.getEmail(), application.getName()));
         }
 
+
     }
+
 
     default void confirmApplicationDeleteAccess(User user, Application application) {
         if (user.isSuperUser()) {

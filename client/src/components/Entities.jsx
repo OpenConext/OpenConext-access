@@ -124,7 +124,7 @@ export const Entities = ({
         if (isEmpty(newQuery) || customSearch) {
             return entities;
         }
-        const queryLower = newQuery.toLowerCase();
+        const queryLower = newQuery.toLowerCase().trim();
         return entities.filter(entity => searchAttributes.some(attr => {
             const val = valueForSort(attr, entity);
             return (isEmpty(val) || typeof val !== "string" || val.toLowerCase === undefined) ? false : val.toLowerCase().indexOf(queryLower) > -1;

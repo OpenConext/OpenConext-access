@@ -10,7 +10,13 @@ import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
-import {allAuthorities, authorities, authorityWeights, currentUserMembershipAuthority} from "../utils/Permissions.js";
+import {
+    allAuthorities,
+    authorities,
+    authorityWeights,
+    currentUserMembershipAuthority,
+    hasApplicationWriteAccess
+} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
@@ -147,6 +153,8 @@ export const InvitationForm = () => {
                             .map(applicationOption)}
                         options={organization.applications
                             .filter(app => !invitation.applicationIdentifiers.includes(app.id))
+                            //All applications must either be owned by the current User or an ApplicationMembership must exists
+                            .filter(app => hasApplicationWriteAccess(user, app))
                             .map(applicationOption)}
                         name={I18n.t("invitation.applications")}
                         searchable={true}

@@ -70,6 +70,12 @@ class UserAccessRightsTest {
         //GUEST Authority alone is not enough, but it is when the user is a member of the application
         organizationMembership.addApplicationMembership(new ApplicationMembership(application, organizationMembership));
         userAccessRights.confirmApplicationWriteAccess(user, application);
+
+        //Explicit test against MEMBER Authority (e.g. for invitations)
+        assertThrows(UserRestrictionException.class,
+                () -> userAccessRights.confirmApplicationWriteAccess(user, application, Authority.MEMBER));
+        organizationMembership.setAuthority(Authority.MEMBER);
+        userAccessRights.confirmApplicationWriteAccess(user, application, Authority.MEMBER);
     }
 
     @Test

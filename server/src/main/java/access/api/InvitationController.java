@@ -4,8 +4,20 @@ import access.config.HashGenerator;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
-import access.model.*;
-import access.repository.*;
+import access.model.AcceptInvitation;
+import access.model.Application;
+import access.model.ApplicationMembership;
+import access.model.Authority;
+import access.model.Invitation;
+import access.model.InvitationForm;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
+import access.repository.ApplicationRepository;
+import access.repository.InvitationRepository;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +26,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -87,7 +107,9 @@ public class InvitationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
         Authority requiredAuthority = invitationForm.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
-        confirmOrganizationMembership(user, organization, requiredAuthority);
+
+        User userFromDB = reinitializeUser(user, userRepository);
+
         Set<Application> applications = invitationForm.getApplicationIdentifiers().stream()
                 .map(applicationId -> this.applicationRepository.findById(applicationId)
                         .orElseThrow(() -> new NotFoundException("Application not found")))
@@ -95,6 +117,8 @@ public class InvitationController implements UserAccessRights {
         if (!applications.stream().allMatch(application -> application.getOrganization().getId().equals(organizationID))) {
             throw new NotAllowedException("Not allowed to add applications outside the organization");
         }
+        applications.forEach(application -> confirmApplicationWriteAccess(userFromDB,application,Authority.MEMBER));
+
         invitationForm.getInvites().forEach(invitee -> {
             Invitation invitation = new Invitation(
                     invitationForm.getLanguage(),
