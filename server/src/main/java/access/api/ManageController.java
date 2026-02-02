@@ -8,6 +8,7 @@ import access.model.Environment;
 import access.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,7 +100,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     @SneakyThrows
     @GetMapping("/policies")
     @SuppressWarnings("unchecked")
-    public ResponseEntity<List<Map<String, Object>>> policies(User user,
+    public ResponseEntity<List<Map<String, Object>>> policies(@Parameter(hidden = true) User user,
                                                               @RequestParam("entityId") String entityId) {
         LOG.debug("/policies for " + entityId + " for " + user.getEmail());
 

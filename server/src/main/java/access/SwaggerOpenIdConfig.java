@@ -50,8 +50,8 @@ public class SwaggerOpenIdConfig {
 
         OpenAPI openAPI = new OpenAPI()
                 .info(new Info()
-                        .description("Invite external API endpoints")
-                        .title("Invite API")
+                        .description("Access external API endpoints")
+                        .title("Access API")
                         .version("v1"))
                 .addServersItem(new Server()
                         .url(baseUrl));

@@ -67,7 +67,7 @@ oidcng:
   introspect-url: "https://connect.test2.surfconext.nl/oidc/introspect"
   resource-server-id: myconext.rs
   resource-server-secret: secret
-  base-url: http://localhost:8888
+  base-url: http://localhost:8886
 
 lifecycle:
   user: lifecycle
@@ -194,13 +194,13 @@ s3storage:
   bucket: "s3-images"
 
 springdoc:
-  pathsToMatch: "/access/api/v1/**"
+  pathsToMatch: "/api/v1/**"
   api-docs:
     path: "/ui/api-docs"
-    enabled: true
+    enabled: false
   swagger-ui:
     path: "/ui/api-ui.html"
-    enabled: true
+    enabled: false
     operationsSorter: method
     oauth:
       client-id: ${spring.security.oauth2.client.registration.oidcng.client-id}
