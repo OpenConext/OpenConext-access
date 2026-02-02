@@ -127,7 +127,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Map<String, Object>> createPolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/createPolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy, true);
+        policyAccessAllowed(user, policy);
         return ResponseEntity.ok(manage.createPolicy(policy));
     }
 
@@ -136,7 +136,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Map<String, Object>> updatePolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/updatePolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy, true);
+        policyAccessAllowed(user, policy);
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
@@ -147,7 +147,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         LOG.debug("/deletePolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy, true);
+        policyAccessAllowed(user, policy);
         manage.deletePolicy(policy);
         return ResponseEntity.noContent().build();
     }
@@ -190,7 +190,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return Results.okResult();
     }
 
-    private void policyAccessAllowed(User user, Map<String, Object> policy, boolean throwException) {
+    private void policyAccessAllowed(User user, Map<String, Object> policy) {
         confirmInstitutionAdmin(user);
         //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
         PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy.get("data"), PolicyDefinition.class);

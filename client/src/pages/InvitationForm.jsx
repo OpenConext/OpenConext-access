@@ -132,7 +132,7 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitation.requiredEmail")}/>}
 
-                {authorityOptions.length > 0 &&
+                {authorityOptions.length > 1 &&
                     <SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                             || authorityOptions[authorityOptions.length - 1]}

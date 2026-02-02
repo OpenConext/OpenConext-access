@@ -1,6 +1,7 @@
 package access.api;
 
 import access.model.User;
+import access.stats.Scale;
 import access.stats.Statistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/v1/stats")
 public class StatisticsController {
 
-    private Statistics statistics;
+    private final Statistics statistics;
 
     @Autowired
     public StatisticsController(Statistics statistics) {
@@ -26,10 +27,10 @@ public class StatisticsController {
     public List<Object> loginTimeFrame(User user,
                                        @RequestParam("from") long from,
                                        @RequestParam("to") long to,
-                                       @RequestParam("scale") String scale,
+                                       @RequestParam("scale") Scale scale,
                                        @RequestParam(value = "spEntityId", required = false) String spEntityId) {
         String authenticatingAuthority = user.getAuthenticatingAuthority();
-        return statistics.loginTimeFrame(from, to, scale, authenticatingAuthority, spEntityId);
+        return statistics.loginTimeFrame(from, to, scale.name(), authenticatingAuthority, spEntityId);
     }
 
     //Used for retrieval of all logins for all SPs

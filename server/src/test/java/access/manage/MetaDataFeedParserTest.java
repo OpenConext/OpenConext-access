@@ -10,6 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MetaDataFeedParserTest {
 
@@ -37,5 +38,17 @@ class MetaDataFeedParserTest {
         assertEquals("SURFconext TEST", metaData.getDescription());
         assertEquals(acsLocation, metaData.getAcsLocations().getFirst());
         assertEquals(3, metaData.getContactPersons().size());
+    }
+
+    @Test
+    void importXMLDescriptors() {
+        List<EntityDescriptor> entityDescriptors = metaDataFeedParser.importXML(new ClassPathResource("/idps-metadata.xml"));
+        assertEquals(1, entityDescriptors.size());
+    }
+
+    @Test
+    void importXMLAssertion() {
+        assertThrows(IllegalStateException.class, () -> metaDataFeedParser.importXML(new ClassPathResource("/assertion.xml")));
+
     }
 }

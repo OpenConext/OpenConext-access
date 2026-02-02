@@ -161,7 +161,8 @@ public class User implements Serializable, NameHolder {
         }
     }
 
-    public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
+    public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName,
+                String familyName, String email, String authenticatingAuthority) {
         this.superUser = superUser;
         this.eduPersonPrincipalName = eppn;
         this.sub = sub;
@@ -170,6 +171,7 @@ public class User implements Serializable, NameHolder {
         this.familyName = familyName;
         this.name = String.format("%s %s", givenName, familyName);
         this.email = email;
+        this.authenticatingAuthority = authenticatingAuthority;
         this.createdAt = Instant.now();
         this.lastActivity = Instant.now();
     }

@@ -183,7 +183,7 @@ invite:
 
 statistics:
   enabled: True
-  url: "http://locallhost:8081"
+  url: "http://localhost:8081"
   user: access
   password: secret
 

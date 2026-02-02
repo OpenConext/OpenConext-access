@@ -6,8 +6,10 @@ import access.model.EntityType;
 import access.model.Environment;
 import access.model.State;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 
 import java.util.List;
@@ -100,6 +102,17 @@ class RemoteManageTest extends AbstractTest {
                 .withBody(body)));
         List<Map<String, Object>> remoteIdentityProviders = manage.identityProvidersByAllowedConnections(connections);
         assertEquals(identityProviders, remoteIdentityProviders);
+    }
+
+    @SneakyThrows
+    @Test
+    void providerNotFound() {
+        Map<String, Object> provider = localManage.identityProviderByEntityID("http://mock-idp");
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(provider))
+                .withStatus(404)));
+        assertThrows(HttpClientErrorException.NotFound.class, () -> manage.identityProviderByEntityID("http://mock-idp"));
     }
 
     private Connection connection(EntityType entityType, String manageIdentifier) {

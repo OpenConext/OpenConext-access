@@ -3,6 +3,7 @@ package access.manage;
 import access.exception.UserRestrictionException;
 import access.model.User;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public interface PolicyAccessRights {
                 .equals(authenticatingAuthority)) {
             throwUserRestrictionException(user, policyDefinition);
         }
-        //All SP's must be linked to the IdP of the user (=organizationGUID of the instituitonAdmin)
+        //All SP's must be linked to the IdP of the user (=authenticatingAuthority of the User)
         List<String> serviceProviderIdentifiers = policyDefinition.getServiceProviderIds().stream()
                 .map(policyProvider -> policyProvider.getName())
                 .toList();
@@ -35,7 +36,7 @@ public interface PolicyAccessRights {
                 .stream()
                 .map(allowedEntry -> allowedEntry.get("name"))
                 .toList();
-        if (!allowedEntities.containsAll(serviceProviderIdentifiers)) {
+        if (!new HashSet<>(allowedEntities).containsAll(serviceProviderIdentifiers)) {
             throwUserRestrictionException(user, policyDefinition);
         }
     }

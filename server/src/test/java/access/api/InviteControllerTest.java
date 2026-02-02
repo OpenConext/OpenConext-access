@@ -95,6 +95,58 @@ class InviteControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void rolesPerOrganizationInviteApplicationSuperUserOrganizationGUIDFallBack() {
+        List<Map<String, Object>> roles = objectMapper.readValue(new ClassPathResource("/invite/roles.json").getInputStream(), new TypeReference<>() {
+        });
+        String rolesResult = objectMapper.writeValueAsString(roles);
+
+        //Does not matter
+        String applicationManageId = UUID.randomUUID().toString();
+
+        //See src/main/resources/manage/saml20_idp.json coin:institution_guid
+        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles/ad93daef-0911-e511-80d0-005056956c1a/" + applicationManageId)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(rolesResult)));
+        stubForIdentityProviderByEntityId("http://mock-idp");
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+
+        List<Map<String, Object>> inviteRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationManageId", applicationManageId)
+                .get("/api/v1/invite/roles/undefined/{applicationManageId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, inviteRoles.size());
+        assertEquals("Test Role Profile", inviteRoles.getFirst().get("name"));
+    }
+
+    @SneakyThrows
+    @Test
+    void rolesPerOrganizationInviteApplicationSuperUserNoOrganizationGUID() {
+        stubForIdentityProviderByEntityId("https://idp.diy.surfconext.nl/saml2/idp/metadata.php");
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+
+        List<Map<String, Object>> inviteRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationManageId", "nope")
+                .get("/api/v1/invite/roles/undefined/{applicationManageId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(0, inviteRoles.size());
+    }
+
+    @SneakyThrows
+    @Test
     void rolesPerOrganizationInviteApplicationNotAllowed() {
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());

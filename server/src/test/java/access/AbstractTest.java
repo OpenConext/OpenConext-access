@@ -559,17 +559,17 @@ public abstract class AbstractTest {
         this.joinRequestRepository.deleteAllInBatch();
 
         User superUser =
-                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
+                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com", "http://mock-idp");
         User manager =
-                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
+                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com", "http://mock-idp");
         User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com");
+                new User(false, GUEST_SUB, GUEST_SUB, "eduid.nl", "Peter", "Doe", "peter.doe@example.com","http://mock-idp");
         User externalUser =
-                new User(false, EXTERNAL_USER_SUB, EXTERNAL_USER_SUB, "eduid.nl", "Ex", "Doe", "ex.doe@eduid.nl");
+                new User(false, EXTERNAL_USER_SUB, EXTERNAL_USER_SUB, "eduid.nl", "Ex", "Doe", "ex.doe@eduid.nl","http://mock-idp");
         User multipleOrganizationUser =
-                new User(true, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com");
+                new User(true, MULTIPLE_ORG_SUB, MULTIPLE_ORG_SUB, "eduid.nl", "Mos", "Doe", "mos.doe@example.com","http://mock-idp");
         User institutionAdmin =
-                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Pat", "Doe", "pat.doe@example.com");
+                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Pat", "Doe", "pat.doe@example.com", "http://mock-idp");
         institutionAdmin.setAuthenticatingAuthority("http://mock-idp");
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
         institutionAdmin.setInstitutionAdmin(true);

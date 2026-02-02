@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- No longer current, please use https://metadata.test.surfconext.nl/ -->
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="EB88d2617285f262283aae1170c354a76521ee41df"
                      entityID="https://engine.test.surfconext.nl/authentication/sp/metadata"
                      validUntil="2025-05-20T08:37:45Z">

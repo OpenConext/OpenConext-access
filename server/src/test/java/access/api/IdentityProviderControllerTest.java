@@ -51,7 +51,7 @@ class IdentityProviderControllerTest extends AbstractMailTest {
 
     @SneakyThrows
     @Test
-    void memberConnectionRequestSupperUserRecipientFallback() {
+    void memberConnectionRequestSuperUserRecipientFallback() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
@@ -244,4 +244,39 @@ class IdentityProviderControllerTest extends AbstractMailTest {
 
         confirmNoMailMessages();
     }
+
+    @SneakyThrows
+    @Test
+    void adminDisconnectionRequest() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        ConnectionRequest connectionRequest = new ConnectionRequest(
+                "3",
+                EntityType.saml20_sp,
+                organization.getManageIdentifier(),
+                "Connect..."
+        );
+        //Need to stub manage calls for SP and IdP retrieval
+        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+
+        /// Stub for POST new change request
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(manageResponse))));
+
+        Map<String, Object> res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(connectionRequest)
+                .put("/api/v1/idp/disconnect")
+                .as(new TypeRef<>() {
+                });
+        assertNotNull(res.get("jiraKey"));
+    }
+
 }

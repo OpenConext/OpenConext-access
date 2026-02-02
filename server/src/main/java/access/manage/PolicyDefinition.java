@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,13 +34,13 @@ public class PolicyDefinition {
 
     private String entityid;
 
-    private List<PolicyProvider> identityProviderIds;
+    private List<PolicyProvider> identityProviderIds = new ArrayList<>();
 
-    private Map<String, String> metaDataFields;
+    private Map<String, String> metaDataFields = new HashMap<>();
 
     private String name;
 
-    private List<PolicyProvider> serviceProviderIds;
+    private List<PolicyProvider> serviceProviderIds = new ArrayList<>();
 
     private String type;
 
