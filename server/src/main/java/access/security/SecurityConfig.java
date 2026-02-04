@@ -120,6 +120,7 @@ public class SecurityConfig {
                                 "/api/v1/test/login",
                                 "/api/v1/public/**",
                                 "/api/v1/manage/arp",
+                                "/api/v1/manage/allowed-attributes",
                                 "/api/v1/manage/privacy",
                                 "/ui/**",
                                 "/internal/health",
