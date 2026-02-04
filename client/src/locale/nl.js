@@ -179,8 +179,8 @@ const nl = {
     },
     tabs: {
         users: "Users",
-        organisations: "Organisations",
-        organisationPendingApproval: "Approve organisations",
+        organizations: "Organisations",
+        organizationPendingApproval: "Approve organisations",
         team: "Users",
         joins: "Join Requests",
         invitations: "Invitations",
