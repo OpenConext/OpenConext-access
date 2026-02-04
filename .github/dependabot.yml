@@ -68,4 +68,7 @@ updates:
           - "patch"
     # We want to manage this ourselves and not receive PR's for this
     ignore:
-      - dependency-name: "org.springframework.security*"
+      - dependency-name: "org.springframework.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.flywaydb.*"
+        update-types: ["version-update:semver-major"]
