@@ -45,7 +45,7 @@ export const policyBreakDowwn = (allowedAttributes, policy, prefix, orSeparator,
     const policyRules = grouped.map(attribute => {
         const name = attributeName(allowedAttributes, attribute);
         const values = splitListSemantically(attribute.value.map(val => `'${val.label}'`), orSeparator)
-        return `${prefix} ${name} = ${values}`;
+        return `${prefix} '${name}' = ${values}`;
     });
     return policyRules.flatMap((item, index) =>
         index < policyRules.length - 1 ? [item, attributeSeparator] : [item]
