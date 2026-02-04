@@ -682,10 +682,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                                   iconPlacement={ButtonIconPlacement.Left}
                                                   onClick={goBackToApplications}
                                                   txt={I18n.t("applicationDetail.back")}/>}
-                            {!anonymous && <Button onClick={() => doRequestConnection(true)}
-                                                   disabled={memberRequestSend}
-                                                   txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
-                                                       connectWithoutInteraction ? "connect" : "request"}`)}/>}
+                            {(!anonymous && currentOrganization.manageIdentifier) &&
+                                <Button onClick={() => doRequestConnection(true)}
+                                        disabled={memberRequestSend}
+                                        txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
+                                            connectWithoutInteraction ? "connect" : "request"}`)}/>}
                         </div>
                         {renderDetailsApp()}
                     </div>
