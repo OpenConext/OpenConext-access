@@ -28,7 +28,7 @@
             display: flex;
             width: 100%;
             gap: 15px;
-            align-items: center;
+
 
             svg {
                 fill: transparent;
@@ -37,16 +37,67 @@
 
             .access-card {
                 margin-right: 15px;
-                &.small-icons {
-                    svg {
-                        color: var(--sds--color--green--400);
-                        margin: 0 10px 0 auto;
-                        width: 24px;
-                        height: auto;
-                        cursor: default;
+
+                &.policy-breakdown {
+                    flex-direction: column;
+                    align-items: normal;
+
+                    &.paused {
+                        background-color: var(--sds--color--gray--background);
                     }
 
+                    .policy-name-container {
+                        display: flex;
+                        align-items: center;
+
+                        p.policy-name {
+                            font-weight: 600;
+                        }
+
+                        .policy-paused-container {
+                            display: flex;
+                            gap: 20px;
+                            align-items: center;
+                            margin: 0 15px 0 auto;
+                        }
+
+                        p.policy-paused {
+                            color: var(--sl-color-warning-600);
+                            font-weight: 600;
+                        }
+
+                        .sds--chips {
+                            color: white;
+
+                            &.policy-chip-deny {
+                                background-color: var(--sds--color--red--400);
+                            }
+
+                            &.policy-chip-allow {
+                                background-color: var(--sds--color--green--400);
+                            }
+                        }
+                    }
+
+                    .policy-attributes-container {
+                        display: flex;
+                        flex-direction: column;
+                        margin-top: 6px;
+                        p {
+                            line-height: 20px;
+                            font-size: 16px;
+                            &.logic {
+                                font-weight: 600;
+                            }
+                        }
+                    }
                 }
+
+            }
+            .policy-actions {
+                display: flex;
+                gap: 15px;
+                margin-top: 24px;
             }
         }
 

@@ -35,5 +35,6 @@ export const useAppStore = create(set => ({
     //{name: "ShareWorks"}
     currentOrganization: {name: ""},
     arp: {},
-    privacy: []
+    privacy: [],
+    allowedAttributes: []
 }));

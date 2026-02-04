@@ -1,4 +1,4 @@
-import {isEmpty} from "./Utils.js";
+import {isEmpty, splitListSemantically} from "./Utils.js";
 
 export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId) => ({
     data: {
@@ -23,7 +23,7 @@ export const groupByValues = attributes => {
     return Object.values(
         attributes.reduce((acc, attribute) => {
             if (!acc[attribute.name]) {
-                acc[attribute.name] = { name: attribute.name, value: [] };
+                acc[attribute.name] = {name: attribute.name, value: []};
             }
             acc[attribute.name].value.push({value: attribute.value, label: attribute.value});
             return acc;
@@ -33,6 +33,23 @@ export const groupByValues = attributes => {
 
 export const defaultAttributes = newAttributes => {
     return isEmpty(newAttributes) ? [{name: "", value: []}] : newAttributes;
+}
+
+const attributeName = (allowedAttributes, attribute) => {
+    const res = allowedAttributes.find(attr => attr.value === attribute.name);
+    return res.label;
+}
+
+export const policyBreakDowwn = (allowedAttributes, policy, prefix, orSeparator, attributeSeparator) => {
+    const grouped = groupByValues([...policy.data.attributes]);
+    const policyRules = grouped.map(attribute => {
+        const name = attributeName(allowedAttributes, attribute);
+        const values = splitListSemantically(attribute.value.map(val => `'${val.label}'`), orSeparator)
+        return `${prefix} ${name} = ${values}`;
+    });
+    return policyRules.flatMap((item, index) =>
+        index < policyRules.length - 1 ? [item, attributeSeparator] : [item]
+    );
 }
 
 export const flatMapByValues = attributes => {

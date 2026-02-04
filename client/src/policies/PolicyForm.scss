@@ -22,17 +22,6 @@
                 gap: 18px;
                 align-items: center;
                 margin-left: auto;
-
-                svg {
-                    fill: var(--sl-color-neutral-400);
-                    color: var(--sl-color-neutral-400);
-                    &.bin-svg {
-                        cursor: pointer;
-                        &:hover {
-                            color: var(--sds--color--red--500);
-                        }
-                    }
-                }
             }
         }
 
@@ -115,10 +104,21 @@
         padding-top: 25px;
         border-top: 1px solid var(--sds--color--gray--200);
 
-        button {
-            &:first-child {
-                margin-left: auto;
+        svg {
+            fill: var(--sl-color-neutral-400);
+            color: var(--sl-color-neutral-400);
+
+            &.bin-svg {
+                cursor: pointer;
+
+                &:hover {
+                    color: var(--sds--color--red--500);
+                }
             }
+        }
+
+        button.sds--btn--secondary {
+            margin-left: auto;
         }
 
     }

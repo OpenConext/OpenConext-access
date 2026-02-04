@@ -1034,13 +1034,11 @@ const en = {
         request: "Request connection",
         requestMember: "Request application",
         back: "← Back to other apps",
-        defaultAccess: "Hoe wil je default toegang instellen?",
+        defaultAccessTitle: "Koppelen aan {{name}}",
         requestConnection: "Koppeling met deze applicatie moet worden aangevraagd",
         requestConnectionInfo: "De leverancier van deze applicatie ontvangt en beoordeelt de aanvraag. ",
-        access: {
-            all: "Iedereen van de {{orgName}} heeft direct automatisch toegang",
-            some: "Pas toegangsregels toe"
-        },
+        defaultAccessInfo: "Deze applicatie is direct koppelbaar, er is geen toestemming van de leverancier voor nodig.",
+        defaultAccessInfo2: "Na de koppeling kan de toegang tot de applicatie direct worden ingesteld.",
         memberRequestInfo: {
             info:"Om een applicatie gekoppelde te krijgen met het SURF Access platform, moet akkoord gegeven worden worden door de SURF Access Verantwoordelijke van de {{orgName}} organisatie.",
             subInfo:"Geef hieronder aan waarom je deze applicatie geactiveerd wil hebben. Wij versturen het bericht naar hem of haar, je ontvangt zelf ook een kopie."
@@ -1061,9 +1059,11 @@ const en = {
         cancelRequestTitle: "Cancel the request.",
         cancelRequestQuestion: "Are you sure you don't want to have access to this application? The request will be withdrawn.",
         config: "⚡️ Configure automatic access based on attributes",
+        edit: "Maintain policies",
         accessFor: "There is access for:",
-        everyBody: "Everybody from {{name}}",
-        notEveryBody: "Not everybody from {{name}}",
+        everyBody: "Everybody from {{name}} has access",
+        notEveryBody: "Automatic access is limited",
+        policies: "{{nbr}} policies active",
         noAccessFor: "No access for:",
         noOneGroups: "There are no groups excluded from access",
         groupsPresent: "There are certain groups excluded from access",
@@ -1080,10 +1080,11 @@ const en = {
         eduIDOnly: "eduID only",
         everyIdp: "any IdP",
         backToAccess: "← back to access",
-        authorizationRules: "Authorization rules for:",
+        authorizationRules: "Authorization rules",
         noPolicies: "No authorization rules have been configured yet",
         newPolicy: "New authorization rule",
         editPolicy: "Edit authorization rule",
+        new: "New policy",
         active: "Active",
         paused: "Paused",
         activate: "Activate",
@@ -1113,13 +1114,21 @@ const en = {
         denyPlaceholder: "Type your descriptive message",
         submitNew: "Save and activate",
         submitExisting: "Update",
+        breakdown: {
+            if: "If",
+            when: "When"
+        },
         flash: {
             created: "Policy {{name}} has been created and is ready for use",
             updated: "Policy {{name}} has been updated",
             deleted: "Policy {{name}} has been deleted",
+            paused: "Policy {{name}} has been paused",
+            activated: "Policy {{name}} has been activated",
         },
         confirmation: {
-            deleteQuestion: "Are you sure you want to delete this policy?"
+            deleteQuestion: "Are you sure you want to delete this policy?",
+            activateQuestion: "Are you sure you want to activate this policy?",
+            pauseQuestion: "Are you sure you want to pause this policy? The policy will no longer be evaluated.",
         }
     },
     error: {

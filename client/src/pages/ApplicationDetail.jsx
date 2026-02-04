@@ -10,18 +10,7 @@ import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router-dom";
-import {
-    Alert,
-    AlertType,
-    Button,
-    ButtonIconPlacement,
-    ButtonType,
-    Chip,
-    ChipType,
-    Loader,
-    RadioOptions,
-    RadioOptionsOrientation
-} from "@surfnet/sds";
+import {Alert, AlertType, Button, ButtonIconPlacement, ButtonType, Chip, ChipType, Loader} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
@@ -80,7 +69,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [connectWithoutInteraction, setConnectWithoutInteraction] = useState(false);
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [confirmation, setConfirmation] = useState({});
-    const [accessChoice, setAccessChoice] = useState("ALL");
     const [confirmationModalOption, setConfirmationModalOption] = useState(null);
     const [message, setMessage] = useState("");
     const [memberRequestSend, setMemberRequestSend] = useState(false);
@@ -103,6 +91,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
         }
+        window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
         setShowPolicyDetails(true);
         navigate(`/application-detail/${manageType}/${manageId}/details/${policyIdentifier}`);
@@ -223,19 +212,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         if (confirmationModalOption === confirmationModalOptions.makeConnection) {
             return (
                 <div className="connect-options-container">
-                    <RadioOptions name={"access"}
-                                  label={I18n.t("applicationConnect.defaultAccess")}
-                                  value={accessChoice}
-                                  onChange={e => {
-                                      const newValue = e.target.id.replace("access_", "").toUpperCase();
-                                      setAccessChoice(newValue);
-                                  }}
-                                  isMultiple={true}
-                                  labels={["ALL", "SOME"]}
-                                  labelResolver={label => I18n.t(`applicationConnect.access.${label.toLowerCase()}`, {
-                                      orgName: providerName(I18n.locale, user.identityProvider)
-                                  })}
-                                  orientation={RadioOptionsOrientation.column}/>
+                    <h3>{I18n.t("applicationConnect.defaultAccessTitle", {name: providerName(I18n.locale, serviceProvider)})}</h3>
+                    <p>{I18n.t("applicationConnect.defaultAccessInfo")}</p>
+                    <p>{I18n.t("applicationConnect.defaultAccessInfo2")}</p>
                 </div>
             );
         } else if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
@@ -271,7 +250,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const cancelConfirmation = () => {
         setConfirmation({});
         setMessage("");
-        setAccessChoice("ALL")
     }
 
     const cancelConnectionRequest = (withConfirmation, e) => {
@@ -309,7 +287,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 action: () => doRequestConnection(false, newModalOption),
                 title: null,
                 question: null,
-                okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "forms.proceed")
+                okButton: I18n.t(!isAdminUser ? "applicationConnect.sendMessage" : "applicationConnect.connect")
             });
         } else {
             cancelConfirmation();
@@ -406,7 +384,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     }
                     {showPolicyOverview &&
                         <PolicyOverview
-                            serviceProvider={serviceProvider}
                             policies={policies}
                             backToAccess={e => backToAccess(e, "")}
                             policyDetails={toPolicyDetail}
@@ -427,28 +404,18 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                                 setShowPolicyOverview(true);
                                                 navigate(`/application-detail/${manageType}/${manageId}/overview`);
                                             }}
-                                            txt={I18n.t("forms.edit")}/>
+                                            txt={I18n.t("appAccess.edit")}/>
                                 </div>
-                                <p>{I18n.t("appAccess.accessFor")}</p>
                                 <div className="access-card large">
                                     <h4>{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
                                         {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                                    {!isEmpty(policies) &&
+                                        <Chip type={ChipType.Status_info}
+                                              label={I18n.t("appAccess.policies", {nbr: policies.length})}
+                                              className={"policies-active"}/>
+                                    }
                                     {renderLogo(user.identityProvider.data.metaDataFields)}
                                 </div>
-                                <p>{I18n.t(`appAccess.${isEmpty(policies) ? "noAccessFor" : "accessFor"}`)}</p>
-                                {isEmpty(policies) && <>
-                                    <div className="access-card grey">
-                                        {I18n.t("appAccess.noOneGroups")}
-                                    </div>
-                                </>}
-                                {!isEmpty(policies) && <>
-                                    {policies.map((policy, index) =>
-                                        <div key={index} className="access-card large">
-                                            {policy.data.name}
-
-                                        </div>)}
-
-                                </>}
                             </InfoBlock>
                             <InfoBlock className="no-gap">
                                 <div className="grouped">

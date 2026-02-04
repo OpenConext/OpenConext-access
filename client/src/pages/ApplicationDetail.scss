@@ -285,6 +285,12 @@ div.application-detail-container {
 
         .app-access-central {
             width: 65%;
+
+            .sds--chips.policies-active {
+                margin: 0 auto;
+                background-color: var(--sl-color-warning);
+                color: white;
+            }
         }
 
         .app-access-decentral {
@@ -334,7 +340,7 @@ div.application-detail-container {
         .access-card {
             background: white;
             margin: 10px 0;
-            border: 1px solid var(--sl-color-grey-400);
+            border: 1px solid var(--sl-color-secondary-400);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -342,7 +348,7 @@ div.application-detail-container {
             width: 100%;
 
             &.grey {
-                background-color: var(--sl-color-grey-400);
+                background-color: var(--sds--color--gray--background);
                 font-style: italic;
             }
 

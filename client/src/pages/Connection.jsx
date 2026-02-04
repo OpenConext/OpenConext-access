@@ -21,6 +21,7 @@ import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 import {connectOptions, visibilities} from "../utils/Connection.js";
 import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {useShallow} from "zustand/react/shallow";
 
 const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
 
@@ -31,7 +32,12 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 
 export const Connection = () => {
     const {applicationId, tab = "overview", connectionId} = useParams();
-    const {user, config, arp, privacy} = useAppStore(state => state);
+    const {user, config, arp, privacy} = useAppStore(useShallow(state => ({
+        user: state.user,
+        config: state.config,
+        arp: state.arp,
+        privacy: state.privacy,
+    })));
 
     const [application, setApplication] = useState({organization: {}});
     const [profileOptions, setProfileOptions] = useState([]);
@@ -63,8 +69,11 @@ export const Connection = () => {
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                        {path: `/organization/${res.organization.id}`, value: I18n.t(`navigation.${mainMenuItems.yourApps}`),
-                            menuItemName: mainMenuItems.yourApps},
+                        {
+                            path: `/organization/${res.organization.id}`,
+                            value: I18n.t(`navigation.${mainMenuItems.yourApps}`),
+                            menuItemName: mainMenuItems.yourApps
+                        },
                         {value: res.name}
                     ]
                 });
@@ -252,11 +261,11 @@ export const Connection = () => {
     return (
         <div className="application-connection-container">
             <ApplicationConnectionHeader tabs={tabNames.map(name => ({
-                    name: name,
-                    disabled:
-                        (name === "prod" && !testConnectionComplete) ||
-                        (name === "application" && false) || //!testConnectionComplete) ||
-                        (name === "contract" && false)//!productionConnectionComplete)
+                name: name,
+                disabled:
+                    (name === "prod" && !testConnectionComplete) ||
+                    (name === "application" && false) || //!testConnectionComplete) ||
+                    (name === "contract" && false)//!productionConnectionComplete)
             }))}
                                          application={application}
                                          currentTab={currentTab}

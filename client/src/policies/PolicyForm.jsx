@@ -1,40 +1,30 @@
 import "./PolicyForm.scss";
-import React, {useEffect, useState} from "react";
-import {Button, ButtonIconPlacement, ButtonType, Chip, ChipType, SegmentedControl, Tooltip} from "@surfnet/sds";
+import React, {useState} from "react";
+import {Button, ButtonType, Chip, ChipType, SegmentedControl, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
-import {allowedAttributes, deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
+import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {defaultAttributes, flatMapByValues} from "../utils/Policy.js";
-import PauzeIcon from "../icons/pauze.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
-import ActivateIcon from "@surfnet/sds/icons/functional-icons/success.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
 
-    const [allAllowedAttributes, setAllAllowedAttributes] = useState([]);
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
-    const [showActivateNudge, setShowActivateNudge] = useState(false);
     const [confirmation, setConfirmation] = useState({});
 
     const required = ["name", "denyAdvice", "denyAdviceNl"];
 
-    const {setFlash} = useAppStore(useShallow(state => ({
-        setFlash: state.setFlash
+    const {setFlash, allowedAttributes} = useAppStore(useShallow(state => ({
+        setFlash: state.setFlash,
+        allowedAttributes: state.allowedAttributes
     })));
-
-    useEffect(() => {
-        allowedAttributes()
-            .then(res => {
-                setAllAllowedAttributes(res);
-            })
-    }, []);
 
     const internalUpdatePolicy = updates => {
         setPolicy({...policy, data: {...policy.data, ...updates}})
@@ -106,7 +96,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
     const denyRuleToggle = val => {
         const denyRule = val === "deny";
         const newAttributes = denyRule ? policy.data.attributes
-                .filter(attr => allAllowedAttributes.some(option => option.allowedInDenyRule && option.value === attr.name))
+                .filter(attr => allowedAttributes.some(option => option.allowedInDenyRule && option.value === attr.name))
             : [...policy.data.attributes];
         internalUpdatePolicy({denyRule: denyRule, attributes: defaultAttributes(newAttributes)})
     }
@@ -127,11 +117,6 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
         }
     }
 
-    const activeToggled = () => {
-        internalUpdatePolicy({active: !policy.data.active});
-        setShowActivateNudge(true);
-    }
-
     const {open, cancel, action, question, okButton} = confirmation;
 
     return (
@@ -149,19 +134,8 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                         <div className="policy-header-actions">
                             <Chip type={ChipType.Status_info}
                                   label={I18n.t(`appAccess.${policy.data.active ? "active" : "paused"}`)}/>
-                            <Button type={ButtonType.Secondary}
-                                    icon={policy.data.active ? <PauzeIcon/> : <ActivateIcon/>}
-                                    iconPlacement={ButtonIconPlacement.Left}
-                                    onClick={() => activeToggled()}
-                                    txt={I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`)}/>
-                            <TrashIcon onClick={() => doDeletePolicy(true, policy)}/>
                         </div>}
                 </div>
-                {showActivateNudge && <div className="header-bottom">
-                    <em>{I18n.t("appAccess.activateNudge",
-                        {action: I18n.t(`appAccess.${policy.data.active ? "activate" : "pause"}`).toLowerCase()})}
-                    </em>
-                </div>}
             </div>
 
             <div className="policy-form">
@@ -219,11 +193,11 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                             <div className="attribute-name-wrapper">
                                 <SelectField name={I18n.t("appAccess.attribute")}
                                              placeholder={I18n.t("appAccess.attributePlaceholder")}
-                                             value={allAllowedAttributes.find(attr => attr.value === attribute.name)}
+                                             value={allowedAttributes.find(attr => attr.value === attribute.name)}
                                              required={true}
                                              onChange={option => attributeSelected(option, index)}
-                                             options={policy.data.denyRule ? allAllowedAttributes
-                                                 .filter(option => option.allowedInDenyRule) : allAllowedAttributes}/>
+                                             options={policy.data.denyRule ? allowedAttributes
+                                                 .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
                                 {(!isEmpty(attribute.name) && !isEmpty(attribute.value)) &&
                                     <Button type={ButtonType.Delete}
                                             onClick={() => attributeDeleted(index)}
@@ -244,8 +218,8 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                             <SelectField placeholder={I18n.t("appAccess.addAttributePlaceholder")}
                                          value={null}
                                          onChange={option => attributeAdded(option)}
-                                         options={policy.data.denyRule ? allAllowedAttributes
-                                             .filter(option => option.allowedInDenyRule) : allAllowedAttributes}/>
+                                         options={policy.data.denyRule ? allowedAttributes
+                                             .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
                         </div>
                     }
 
@@ -274,6 +248,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
 
             </div>
             <div className="actions">
+                <TrashIcon onClick={() => doDeletePolicy(true, policy)}/>
                 <Button type={ButtonType.Secondary}
                         onClick={refreshPolicies}
                         txt={I18n.t("forms.cancel")}/>

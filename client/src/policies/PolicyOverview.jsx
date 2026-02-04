@@ -1,22 +1,24 @@
 import "./PolicyOverview.scss";
 import React, {useState} from "react";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Chip, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
-import {providerOrganizationName} from "../utils/Manage.js";
 import {isEmpty} from "../utils/Utils.js";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
-import PolicyIcon from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
-import {deletePolicy} from "../api/index.js";
+import PauseIcon from "../icons/pause.svg";
+import ActivateIcon from "../icons/play.svg";
+import {deletePolicy, updatePolicy} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {policyBreakDowwn} from "../utils/Policy.js";
 
-export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyDetails, refreshPolicies}) => {
+export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPolicies}) => {
 
-    const {setFlash} = useAppStore(useShallow(state => ({
-        setFlash: state.setFlash
+    const {setFlash, allowedAttributes} = useAppStore(useShallow(state => ({
+        setFlash: state.setFlash,
+        allowedAttributes: state.allowedAttributes
     })));
 
     const [confirmation, setConfirmation] = useState({});
@@ -42,6 +44,29 @@ export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyD
         }
     }
 
+    const doUpdatePolicy = (confirmationRequired, policy, activate) => {
+        if (confirmationRequired) {
+            setConfirmation({
+                open: true,
+                cancel: () => setConfirmation({open: false}),
+                action: () => doUpdatePolicy(false, policy, activate),
+                question: I18n.t(`appAccess.confirmation.${activate ? "activateQuestion" : "pauseQuestion"}`),
+                okButton: I18n.t(`appAccess.${activate ? "activate" : "pause"}`)
+            });
+        } else {
+            const updates = {active: !policy.data.active}
+            const newPolicy = {...policy, data: {...policy.data, ...updates}}
+            updatePolicy(newPolicy)
+                .then(() => {
+                    setConfirmation({});
+                    refreshPolicies();
+                    setFlash(I18n.t(`appAccess.flash.${activate ? "activated" : "paused"}`, {
+                        name: policy.data.name
+                    }));
+                })
+        }
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
 
     return (
@@ -58,13 +83,9 @@ export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyD
                     <h2>{I18n.t("appAccess.authorizationRules")}</h2>
                     <Button type={ButtonType.Primary}
                             onClick={() => policyDetails("new")}
-                            txt={I18n.t("forms.new")}/>
+                            txt={I18n.t("appAccess.new")}/>
                 </div>
                 <InfoBlock className="light-grey">
-                    <div>
-                        <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
-                        <p>{I18n.t("appAccess.config")}</p>
-                    </div>
                     {isEmpty(policies) && <>
                         <div className="access-card grey border">
                             {I18n.t("appAccess.noPolicies")}
@@ -73,17 +94,44 @@ export const PolicyOverview = ({serviceProvider, policies, backToAccess, policyD
                     {!isEmpty(policies) && <>
                         {policies.map((policy, index) =>
                             <div key={index} className="access-card-container">
+                                <div className={`access-card policy-breakdown ${policy.data.active ? "" : "paused"}`}>
+                                    <div className="policy-name-container">
+                                        <p className="policy-name">{policy.data.name}</p>
+                                        <div className="policy-paused-container">
+                                            {!policy.data.active && <p className="policy-paused">
+                                                {I18n.t("appAccess.paused")}
+                                            </p>}
+                                            <Chip className={`policy-chip-${policy.data.denyRule ? "deny" : "allow"}`}
+                                                  label={I18n.t(`appAccess.${policy.data.denyRule ? "deny" : "allow"}`)}/>
+                                        </div>
+                                    </div>
+                                    <div className="policy-attributes-container">
+                                        {policyBreakDowwn(
+                                            allowedAttributes,
+                                            policy,
+                                            I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`),
+                                            I18n.t("forms.or"),
+                                            I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`))
+                                            .map((sentence, index) => <p key={index}
+                                                                         className={index % 2 === 1 ? "logic" : "rule"}>
+                                                {sentence}
+                                            </p>)}
 
-                                <div className="access-card large small-icons">
-                                    {policy.data.name}
-                                    <PolicyIcon/>
+                                    </div>
                                 </div>
-                                <Tooltip tip={I18n.t("forms.edit")}
-                                         standalone={true}
-                                         children={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
-                                <Tooltip tip={I18n.t("forms.delete")}
-                                         standalone={true}
-                                         children={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
+                                <div className="policy-actions">
+                                    <Tooltip tip={I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`)}
+                                             standalone={true}
+                                             children={policy.data.active ?
+                                                 <PauseIcon onClick={() => doUpdatePolicy(true, policy, false)}/> :
+                                                 <ActivateIcon onClick={() => doUpdatePolicy(true, policy, true)}/>}/>
+                                    <Tooltip tip={I18n.t("forms.edit")}
+                                             standalone={true}
+                                             children={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
+                                    <Tooltip tip={I18n.t("forms.delete")}
+                                             standalone={true}
+                                             children={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
+                                </div>
                             </div>)}
 
                     </>}

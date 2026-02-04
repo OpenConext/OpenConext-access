@@ -2,8 +2,10 @@ $min-width-pixels: 620px;
 
 :root {
     --sds--color--gray--background: #F4F6F8;
+    --sl-color-warning: #FFC100;
     --sl-color-warning-50: #FEFBE6;
     --sl-color-warning-100: #FFD03A;
+    --sl-color-warning-600: #F5B800;
     --sl-color-grey-100: #E1E4E8;
     --sl-color-grey-400: #EAECF0;
     --sl-color-green-100: #ECFCF3;
@@ -11,6 +13,7 @@ $min-width-pixels: 620px;
     --sl-color-neutral-100: #EEEFF1;
     --sl-color-neutral-400: #888F99;
     --sl-color-neutral-500: #5E6873;
+    --sl-color-secondary-400: #888F99;
 }
 
 .sds--card--big {
