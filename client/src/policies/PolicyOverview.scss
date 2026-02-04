@@ -33,6 +33,10 @@
             svg {
                 fill: transparent;
                 cursor: pointer;
+                color: var(--sds--color--gray--500);
+                &:hover {
+                    color: black;
+                }
             }
 
             .access-card {
