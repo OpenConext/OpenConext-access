@@ -99,7 +99,9 @@ export const Organizations = ({pendingApproval, tab}) => {
                 okButton: I18n.t("forms.submit")
             });
         } else {
+            setLoading(true);
             updateOrganizationStatus(organization.id, status).then(() => {
+                setLoading(false);
                 setConfirmation({});
                 setFlash(I18n.t("organizations.flash.updated", {
                     name: organization.name,
@@ -124,7 +126,9 @@ export const Organizations = ({pendingApproval, tab}) => {
                 okButton: I18n.t("forms.delete")
             });
         } else {
+            setLoading(true);
             deleteOrganizationById(organization.id).then(() => {
+                setLoading(false);
                 setConfirmation({});
                 setFlash(I18n.t("organizations.flash.deleted", {
                     name: organization.name
@@ -185,6 +189,7 @@ export const Organizations = ({pendingApproval, tab}) => {
         setLoading(true);
         setOpenOrganizationId(null);
         updateOrganizationName(openOrganizationId, newOrganizationName).then(() => {
+            setLoading(false);
             setFlash(I18n.t("organizations.flash.nameChange", {name: newOrganizationName}));
             setRefresh(new Date());
         })
