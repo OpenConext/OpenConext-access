@@ -81,7 +81,7 @@ const en = {
         invite: "Roles",
         sram: "Collaborative groups",
         allApps: "All apps",
-        organisationMaintenance: "Manage organisation",
+        organizationMaintenance: "Manage organisation",
         idp: "My organisation",
         users: "SURF Access users",
         applications: "Applications",
