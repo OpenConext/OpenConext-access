@@ -1,9 +1,12 @@
 package access.remote;
 
 import access.manage.JSONHeaderInterceptor;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -24,17 +27,27 @@ public class RestTemplateFactory {
     }
 
     public static RestTemplate buildRestTemplate(ResponseErrorHandler resilientErrorHandler, String user, String password) {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        // Configure connection timeout on the connection manager
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.ofMilliseconds(10_000))
+                .build();
+        connectionManager.setDefaultConnectionConfig(connectionConfig);
+
+        // Configure read timeout (socket timeout) on the request config
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setResponseTimeout(Timeout.ofMilliseconds(15_000))
+                .build();
+
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
-                .setConnectionManager(new PoolingHttpClientConnectionManager())
+                .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(requestConfig)
                 .disableCookieManagement();
 
         CloseableHttpClient httpClient = httpClientBuilder.build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
-        // Set timeouts (in milliseconds)
-        requestFactory.setConnectTimeout(10_000);
-        requestFactory.setReadTimeout(15_000);
 
         RestTemplateBuilder builder = new RestTemplateBuilder();
         return builder
