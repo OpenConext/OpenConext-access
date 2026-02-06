@@ -2201,14 +2201,14 @@ https-proxy-agent@^7.0.6:
     agent-base "^7.1.2"
     debug "4"
 
-i18n-js@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/i18n-js/-/i18n-js-4.5.1.tgz#12ea3d6333552ff75be0904ea50705f5a263d172"
-  integrity sha512-n7jojFj1WC0tztgr0I8jqTXuIlY1xNzXnC3mjKX/YjJhimdM+jXM8vOmn9d3xQFNC6qDHJ4ovhdrGXrRXLIGkA==
+i18n-js@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/i18n-js/-/i18n-js-4.5.2.tgz#54026cca2c60709e502cfd0ccefebd0afc1cb34f"
+  integrity sha512-QetDvWXkyX+FTbidPn7gEyGtO5l0cB5nj/MNfnXczrUWCGaF9p8pzoh5lTStXww3KZj2D9s5xXNH6Z5gKhd6iQ==
   dependencies:
     bignumber.js "*"
     lodash "*"
-    make-plural "*"
+    make-plural "7.5.0"
 
 ignore@^5.2.0:
   version "5.3.2"
@@ -2635,10 +2635,10 @@ magic-string@^0.30.21:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.5.5"
 
-make-plural@*:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/make-plural/-/make-plural-8.1.0.tgz#cc7ee2fb10d764fd958051102267c058d768414a"
-  integrity sha512-p8EfQ2LFxnU4KGc82hOYdUplQw0eoWJLzJVKyv2GR9sd4zkjA8bLSXLEmp/qE08c/cFTZOK8j6Ex80+Wey+4PA==
+make-plural@7.5.0:
+  version "7.5.0"
+  resolved "https://registry.yarnpkg.com/make-plural/-/make-plural-7.5.0.tgz#ff99598640d82ec7a69bea15d34ecc50152fc0db"
+  integrity sha512-0booA+aVYyVFoR67JBHdfVk0U08HmrBH2FrtmBqBa+NldlqXv/G2Z9VQuQq6Wgp2jDWdybEWGfBkk1cq5264WA==
 
 math-intrinsics@^1.1.0:
   version "1.1.0"
