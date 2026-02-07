@@ -327,12 +327,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         }
     }
 
-    const goBack = e => {
-        stopEvent(e)
-        navigate(`/application-detail/${manageType}/${manageId}`);
-        setShowPolicyOverview(false);
-    }
-
     const goBackToApplications = e => {
         stopEvent(e);
         navigate(-1);
