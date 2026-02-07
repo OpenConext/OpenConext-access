@@ -221,11 +221,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             return (
                 <div className="connect-options-container">
                     <h3>{I18n.t("applicationConnect.requestMember")}</h3>
-                    <p dangerouslySetInnerHTML={{
-                        __html: I18n.t("applicationConnect.memberRequestInfo.info",
-                            {orgName: currentOrganization.name})
-                    }}/>
-                    <p dangerouslySetInnerHTML={{__html: I18n.t("applicationConnect.memberRequestInfo.subInfo")}}/>
+                                    <p dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.info",
+                                            {orgName: currentOrganization.name}))
+                                    }}/>
+                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.subInfo"))}}/>
                     <InputField multiline={true}
                                 displayLabel={false}
                                 value={message}
@@ -460,7 +460,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 <div className="not-allowed-container">
                                     <NotAllowedIcon/>
                                     <p
-                                        dangerouslySetInnerHTML={{__html: I18n.t("appAccess.noDecentralAccess")}}/>
+                                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noDecentralAccess"))}}/>
                                 </div>
                             </InfoBlock>
                         </div>
@@ -609,7 +609,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         : I18n.t("applicationDetail.noInformation")}
                                 </span>
                         <span
-                            dangerouslySetInnerHTML={{__html: I18n.t("applicationDetail.wiki")}}/>
+                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("applicationDetail.wiki"))}}/>
                     </p>
                     <p>{I18n.t("applicationDetail.contractualInfoOrganization",
                         {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
@@ -632,7 +632,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                    __html: DOMPurify.sanitize(I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]})),
                                 }}
                             />
                         </div>

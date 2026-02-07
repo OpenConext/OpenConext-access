@@ -8,6 +8,7 @@ import {newOrganization, searchOrganizations} from "../api/index.js";
 import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
+import DOMPurify from "dompurify";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -132,7 +133,7 @@ const Landing = ({refreshUser}) => {
                         {isEmpty(organizations) && <p>{I18n.t("welcome.zeroState")}</p>}
                         <section className="organization register"
                                  onClick={() => createOrganization()}>
-                            <p dangerouslySetInnerHTML={{__html: I18n.t("welcome.register", {name: search})}}/>
+                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("welcome.register", {name: search}))}}/>
                             <ArrowRight/>
                         </section>
                     </>}

@@ -6,6 +6,7 @@ import {Background} from "../components/Background.jsx";
 import {Link, useNavigate} from "react-router-dom";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
+import DOMPurify from "dompurify";
 
 export const Home = () => {
 
@@ -29,7 +30,7 @@ export const Home = () => {
                         {I18n.t("landing.header.title")}
                     </h1>
                     <p
-                        dangerouslySetInnerHTML={{__html: I18n.t("landing.header.subTitle")}}/>
+                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.subTitle"))}}/>
                 </div>
                 <Logo/>
             </div>
@@ -41,7 +42,7 @@ export const Home = () => {
                         </h3>
                         {I18n.translations[I18n.locale].landing.applicationProviders.info
                             .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => navigate("/connect")}
                                 txt={I18n.t("landing.applicationProviders.connect")}/>
@@ -52,7 +53,7 @@ export const Home = () => {
                         </h3>
                         {I18n.translations[I18n.locale].landing.institutions.info
                             .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => contactUs()}
                                 type={ButtonType.Secondary}
@@ -64,7 +65,7 @@ export const Home = () => {
                         </h3>
                         {I18n.translations[I18n.locale].landing.joining.info
                             .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <p className="links">
                             <span>{I18n.t("landing.joining.links.prefix")}</span>

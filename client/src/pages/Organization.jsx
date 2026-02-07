@@ -12,6 +12,7 @@ import Divider from "../icons/divider.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import CardView from "@surfnet/sds/icons/functional-icons/card-view.svg";
 import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg";
+import DOMPurify from "dompurify";
 import {convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {
@@ -234,13 +235,13 @@ const Organization = () => {
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>
                             <ul>
                                 <li><p
-                                    dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`)}}/>
+                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`))}}/>
                                 </li>
                                 <li><p
-                                    dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`)}}/>
+                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`))}}/>
                                 </li>
                             </ul>
-                            <p dangerouslySetInnerHTML={{__html: I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`)}}/>
+                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`))}}/>
                         </div>
                     </div>}
                 {!isEmpty(organization.applications) &&

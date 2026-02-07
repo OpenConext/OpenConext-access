@@ -5,6 +5,7 @@ import I18n from "../locale/I18n.js";
 import StudentPng from "../icons/student.png";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
+import DOMPurify from "dompurify";
 
 const Connect = () => {
 
@@ -50,9 +51,9 @@ const Connect = () => {
                                 <td>
                                     <p>{I18n.t("connect.commercial")}</p>
                                 </td>
-                                <td dangerouslySetInnerHTML={{__html: I18n.t("connect.fairUse")}}/>
-                                <td dangerouslySetInnerHTML={{__html: I18n.t("connect.accessTOS")}}/>
-                                <td dangerouslySetInnerHTML={{__html: I18n.t("connect.connectionAgreement")}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.fairUse"))}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.accessTOS"))}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.connectionAgreement"))}}/>
                             </tr>
                             <tr>
                                 <td>
@@ -60,7 +61,7 @@ const Connect = () => {
                                 </td>
                                 <td><span>{I18n.t("connect.notNeeded")}</span></td>
                                 <td><span>{I18n.t("connect.notNeeded")}</span></td>
-                                <td dangerouslySetInnerHTML={{__html: I18n.t("connect.memberAgreement")}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.memberAgreement"))}}/>
                             </tr>
                             </tbody>
                         </table>
@@ -75,7 +76,7 @@ const Connect = () => {
                         <p>{I18n.t("connect.serviceInfo")}</p>
                         <ul>
                             {I18n.translations[I18n.locale].connect.serviceBullets
-                                .map((s,index) => <li key={index} dangerouslySetInnerHTML={{__html: s}}/>)}
+                                .map((s,index) => <li key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(s)}}/>)}
                         </ul>
                     </div>
                     <div>

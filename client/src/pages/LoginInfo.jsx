@@ -6,6 +6,7 @@ import {Background} from "../components/Background.jsx";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
 import {login} from "../utils/Login.js";
+import DOMPurify from "dompurify";
 
 export const LoginInfo = () => {
 
@@ -19,7 +20,7 @@ export const LoginInfo = () => {
                         {I18n.t("landing.loginInfo.title")}
                     </h1>
                     <p
-                        dangerouslySetInnerHTML={{__html: I18n.t("landing.loginInfo.subTitle")}}/>
+                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.loginInfo.subTitle"))}}/>
                 </div>
                 <Logo/>
             </div>
@@ -31,7 +32,7 @@ export const LoginInfo = () => {
                         </h3>
                         {I18n.translations[I18n.locale].landing.loginInfo.commercial.info
                             .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => login(config, true, true)}
                                 type={ButtonType.Secondary}
@@ -43,7 +44,7 @@ export const LoginInfo = () => {
                         </h3>
                         {I18n.translations[I18n.locale].landing.loginInfo.education.info
                             .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: info}}/>
+                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => login(config, true, false)}
                                 type={ButtonType.Secondary}
