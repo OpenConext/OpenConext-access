@@ -40,7 +40,6 @@ export const currentUserMembershipAuthority = (user, organizationMembership) => 
     } else {
         return authorities.GUEST;
     }
-
 }
 
 export const hasApplicationWriteAccess = (user, application) => {
@@ -109,4 +108,10 @@ export const isAdmin = (user, authorities) => {
         m => m.organization.manageIdentifier === idpId
     );
     return user.superUser || (orgMembership && orgMembership.authority === authorities.ADMIN);
+}
+
+export const hasCreateApplicationAccess = (user, organization) => {
+    const organizationMembership = (user.organizationMemberships || [])
+        .find(membership => membership.organization.id === organization.id);
+    return !isEmpty(organizationMembership) && organizationMembership.authority !== authorities.GUEST;
 }

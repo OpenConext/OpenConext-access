@@ -36,6 +36,9 @@ const doMenuItemsForUser = (user, currentOrganization) => {
     newMenuItems.push(mainMenuItems.yourApps);
     const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
         m.organization.id === currentOrganization.id);
+    if (user.externalUser) {
+        newMenuItems.push(mainMenuItems.idp);
+    }
     if (onlyGuest) {
         return newMenuItems;
     }
@@ -46,10 +49,7 @@ const doMenuItemsForUser = (user, currentOrganization) => {
     if (isMemberOrAdmin) {
         newMenuItems.push(mainMenuItems.users);
     }
-
-    if (user.externalUser) {
-        newMenuItems.push(mainMenuItems.idp);
-    } else {
+    if (!user.externalUser) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
     return newMenuItems;

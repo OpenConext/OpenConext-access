@@ -125,15 +125,15 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     ],
                     activeMenuItem: isAccessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
                 });
-                const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
-                const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
-                    newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
-                setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
                 if (isAccessible) {
                     if (adminUser) {
                         if (isReadOnly) {
                             setLoading(false);
                         } else {
+                            const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
+                            const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
+                                newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
+                            setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
                             Promise.all([
                                 getPolicyByServiceProviderEntityId(res.data.entityid),
                                 inviteRoles(user.organizationGUID, res.id)])
@@ -333,7 +333,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         setShowPolicyOverview(false);
     }
 
-    const goBackToApplications = () => {
+    const goBackToApplications = e => {
+        stopEvent(e);
         navigate(-1);
     }
 
@@ -662,7 +663,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
-                        <a onClick={goBack}>{I18n.t("applicationConnect.back")}</a>
+                        <a href="/#" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</a>
                     </div>
                 }
                 <div className="inner-application-detail-container">

@@ -148,7 +148,7 @@ public class OrganizationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);
+        confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
 
         if (StringUtils.hasText(organization.getManageIdentifier())) {
             Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);

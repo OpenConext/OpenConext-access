@@ -17,12 +17,13 @@ import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {
     authorities,
     currentUserMembershipAuthority,
-    hasApplicationWriteAccess,
+    hasApplicationWriteAccess, hasCreateApplicationAccess,
     isOrganizationMember
 } from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+
 
 const views = {
     card: "card",
@@ -198,6 +199,7 @@ const Organization = () => {
         );
     }
 
+    const mayCreateApplication = hasCreateApplicationAccess(user, organization);
     return (
         <div
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
@@ -222,8 +224,11 @@ const Organization = () => {
                     <div className="organization">
                         <div className="left">
                             <Logo/>
+                            {mayCreateApplication &&
                             <Button onClick={() => navigate("/application/new")}
-                                    txt={I18n.t("organization.addFirstApplication")}/>
+                                    txt={I18n.t("organization.addFirstApplication")}/>}
+                            {!mayCreateApplication &&
+                                <p>{I18n.t("organization.guestNoApplicationMessage")}</p>}
                         </div>
                         <div className="right">
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>
