@@ -347,16 +347,24 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> policiesByServiceProvider(String identityProviderEntityId,
                                                                String serviceProviderEntityId) {
-        String query = """
-                {
-                "data.serviceProviderIds.name": "%s",
-                $or: [
-                    { "data.identityProviderIds": { $size: 0 } },
-                    { "data.identityProviderIds": { $exists: false } },
-                    { "data.identityProviderIds.name": "%s" }
-                ]
-                })
-                """.formatted(serviceProviderEntityId, identityProviderEntityId);
+        // Build query using immutable Maps to ensure proper JSON serialization and prevent injection
+        Map<String, Object> identityProviderOrCondition = Map.of(
+                "data.identityProviderIds.name", identityProviderEntityId
+        );
+        Map<String, Object> identityProviderExistsFalseCondition = Map.of(
+                "data.identityProviderIds", Map.of("$exists", false)
+        );
+        Map<String, Object> identityProviderSizeZeroCondition = Map.of(
+                "data.identityProviderIds", Map.of("$size", 0)
+        );
+        Map<String, Object> query = Map.of(
+                "data.serviceProviderIds.name", serviceProviderEntityId,
+                "$or", List.of(
+                        identityProviderSizeZeroCondition,
+                        identityProviderExistsFalseCondition,
+                        identityProviderOrCondition
+                )
+        );
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/rawSearch/%s",
                 environmentUrl(Environment.PROD), EntityType.policy);
