@@ -7,6 +7,7 @@ import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.manage.Manage;
+import access.manage.ManageData;
 import access.model.*;
 import access.repository.OrganizationMembershipRepository;
 import access.repository.OrganizationRepository;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
@@ -37,6 +39,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -121,9 +125,11 @@ public class OrganizationController implements UserAccessRights {
             List<Map<String, Object>> applications = (List<Map<String, Object>>) organizationMap.getOrDefault("applications", List.of());
             applications.removeIf(application -> !applicationIdentifiers.contains((Long)application.get("id")));
         }
-
+        List<Map<String, Object>> applications = (List<Map<String, Object>>) organizationMap.getOrDefault("applications", List.of());
+        applications.forEach(application -> ManageData.removeSecrets(application));
         return ResponseEntity.ok(organizationMap);
     }
+
 
     @GetMapping("/details/{id}")
     public ResponseEntity<Organization> findUserManagementDetails(User user,

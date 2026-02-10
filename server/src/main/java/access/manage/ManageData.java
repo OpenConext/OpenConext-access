@@ -1,13 +1,21 @@
 package access.manage;
 
+import access.api.ApplicationController;
+import access.model.Application;
+import access.model.Connection;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ManageData {
+
+    private static Set<String> secrets = Set.of("secret", "originalSecret");
 
     private ManageData() {
     }
@@ -41,6 +49,23 @@ public class ManageData {
                 .toList();
 
     }
+
+    public static void removeSecrets(Map<String, Object> application) {
+            List<Map<String, Object>> connections = (List<Map<String, Object>>) application.getOrDefault("connections", List.of());
+            connections.forEach(connection -> {
+                Map<String, Object> metaData = (Map<String, Object>) connection.getOrDefault("metaData", Map.of());
+                metaData.keySet().removeIf(key -> secrets.contains(key));
+            });
+    }
+
+    public static void removeSecrets(Application application) {
+        Set<Connection> connections = application.getConnections();
+        connections.forEach(connection -> {
+            HashMap<String, Object> metaData = connection.getMetaData();
+            metaData.keySet().removeIf(key -> secrets.contains(key));
+        });
+    }
+
 
     public static boolean isEmpty(Object object) {
         return switch (object) {

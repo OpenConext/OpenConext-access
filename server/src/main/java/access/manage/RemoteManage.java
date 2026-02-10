@@ -100,7 +100,6 @@ public class RemoteManage implements Manage {
     public Map<String, Object> saveIdentityProvider(Organization organization) {
         Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
         Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-
         Map<String, Object> metaDataOrganization = organization.getMetaData();
         converter.convertContactPersons(metaDataOrganization, metaDataFields);
         String keyWords = String.join(" ", ((List<String>) metaDataOrganization.getOrDefault("keyWords", List.of())));

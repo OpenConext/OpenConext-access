@@ -3,6 +3,7 @@ package access.api;
 import access.exception.NotFoundException;
 import access.manage.ConnectionProviderConverter;
 import access.manage.Manage;
+import access.manage.ManageData;
 import access.model.*;
 import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
@@ -76,6 +77,8 @@ public class ApplicationController implements UserAccessRights {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
         List<Application> applications = this.applicationRepository.findByOrganization(organization);
+
+        applications.forEach(application -> ManageData.removeSecrets(application));
         return ResponseEntity.ok(applications);
     }
 
@@ -119,6 +122,8 @@ public class ApplicationController implements UserAccessRights {
             application.setName((String) metaDataFields.getOrDefault("coin:application_name", application.getName()));
             applicationRepository.save(application);
         }
+        ManageData.removeSecrets(application);
+
         return ResponseEntity.ok(application);
     }
 

@@ -16,7 +16,7 @@
         background-color: var(--sds--color--gray--100);
     }
 
-    &.disabled {
+    &.disabled:not(.active) {
         cursor: not-allowed;
         &:hover:not(.active) {
             background-color: white;

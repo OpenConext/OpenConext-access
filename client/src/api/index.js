@@ -170,15 +170,6 @@ export function approvalJoinRequest(joinRequestId, approved, authority) {
     return postPutJson("/api/v1/join/approval", body, "PUT");
 }
 
-export function joinRequestByOrganization(organization) {
-    return fetchJson(`/api/v1/join/all/${organization.id}`);
-}
-
-//Applications
-export function getApplicationsByOrganization(organisation) {
-    return fetchJson(`/api/v1/applications/all/${organisation.id}`);
-}
-
 export function getApplicationById(applicationId) {
     return fetchJson(`/api/v1/applications/${applicationId}`);
 }

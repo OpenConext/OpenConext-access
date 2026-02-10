@@ -1,16 +1,31 @@
 package access.manage;
 
-import access.model.*;
+import access.model.Application;
+import access.model.ConnectOptions;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.State;
+import access.model.Visibility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static access.api.ConnectionController.SECRET_LENGTH;
 import static access.manage.ManageData.*;
 
 @SuppressWarnings("unchecked")
@@ -114,7 +129,13 @@ public class ConnectionProviderConverter {
             if (grantTypes.contains("refresh_token")) {
                 metaDataFields.put("refreshTokenValidity", connectionMetaData.getOrDefault("refreshTokenValidity", 3600));
             }
-            putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
+            String secret = (String) connectionMetaData.get("secret");
+            //Might be an initial secret or a deliberate reset
+            if (StringUtils.hasText(secret) && secret.length() == SECRET_LENGTH) {
+                putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
+            } else {
+                putIf(metaDataFields, "secret", metaDataFields.get("secret"));
+            }
         }
 
         if (EntityType.saml20_sp.equals(connection.getProtocol())) {

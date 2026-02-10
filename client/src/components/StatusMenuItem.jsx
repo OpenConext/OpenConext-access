@@ -7,8 +7,11 @@ export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert
 
     const icon = isAlert ? <AlertIcon/> : pending ? <PendingIcon/> : <CompletedIcon/>;
 
+    const isActive = active ? "active" : "";
+    const isDisabled = disabled ? "disabled" : "";
+
     return (
-        <div className={`status-menu-item ${active && "active"} ${disabled && "disabled"}`}
+        <div className={`status-menu-item ${isActive} ${isDisabled}`}
              onClick={() => !disabled && action()}>
             <span className="info">{info}</span>
             {!hideIcon && icon}

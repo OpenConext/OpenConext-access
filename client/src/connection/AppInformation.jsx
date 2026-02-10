@@ -75,10 +75,21 @@ export const AppInformation = ({
     }
 
     const isDisabled = sectionName => {
-        const validCurrentSection = section === sections.logo ? logoSectionValid(application) :
-            section === sections.contact ? contactSectionValid(application) : privacySectionValid(privacyInfo, application);
-        const sectionIsCurrent = sectionName === section;
-        return !validCurrentSection && !sectionIsCurrent
+        const isLogoSectionInvalid = !logoSectionValid(application);
+        const isContactSectionInvalid = !contactSectionValid(application);
+        const isPrivacySectionInvalid = !privacySectionValid(privacyInfo, application);
+        switch (sectionName) {
+            case sections.logo: {
+                return isLogoSectionInvalid;
+            }
+            case sections.contact: {
+                return isContactSectionInvalid && isLogoSectionInvalid;
+            }
+            case sections.privacy: {
+                return isPrivacySectionInvalid && isContactSectionInvalid;
+            }
+        }
+        return false;
     }
 
     const storeAndNextDisabled = () => {
@@ -180,7 +191,7 @@ export const AppInformation = ({
                             required={true}
                             multiline={true}
                 />
-                {(!initial && isEmpty(application.information.descriptionNL)) &&
+                {(!initial && isEmpty(application.information.descriptionEN)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionEn")})}
                     />}
 

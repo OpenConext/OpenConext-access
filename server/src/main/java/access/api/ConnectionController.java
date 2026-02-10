@@ -4,8 +4,17 @@ import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
-import access.manage.*;
-import access.model.*;
+import access.manage.ChangeRequest;
+import access.manage.ConnectionProviderConverter;
+import access.manage.Manage;
+import access.manage.PathUpdateType;
+import access.manage.RequestType;
+import access.model.Application;
+import access.model.Connection;
+import access.model.ConnectionStatus;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
@@ -23,7 +32,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -43,8 +59,9 @@ import static access.manage.ManageData.getMetaDataFields;
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 public class ConnectionController implements UserAccessRights {
 
+    public static final int SECRET_LENGTH = 36;
+
     private static final Log LOG = LogFactory.getLog(ConnectionController.class);
-    private static final int SECRET_LENGTH = 36;
 
     private final ConnectionRepository connectionRepository;
     private final ApplicationRepository applicationRepository;
@@ -150,6 +167,7 @@ public class ConnectionController implements UserAccessRights {
 
         String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
         connection.getMetaData().put("secret", secret);
+        connection.setSecretSet(false);
         saveConnection(connection);
 
         return Collections.singletonMap("secret", secret);
@@ -273,10 +291,11 @@ public class ConnectionController implements UserAccessRights {
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
                     connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
-            boolean hasSecret = StringUtils.hasText((String) connection.getMetaData().get("secret"));
-            if (isPrivateRelyingParty && !hasSecret) {
-                //generate secret but store the raw-text variant, because Manage encodes it
-                String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
+
+            boolean secretNotSet = !connection.isSecretSet();
+            if (isPrivateRelyingParty && secretNotSet) {
+                //generate secret if it is not already set, but store the raw-text variant, because Manage encodes it
+                String secret = (String) connection.getMetaData().getOrDefault("secret", passwordGenerator.generatePassword(SECRET_LENGTH, rules));
                 connection.getMetaData().put("secret", secret);
                 connection.setSecretSet(true);
             }
@@ -284,7 +303,7 @@ public class ConnectionController implements UserAccessRights {
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
 
-            if (isPrivateRelyingParty) {
+            if (isPrivateRelyingParty && secretNotSet) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
                 Map<String, Object> data = getData(provider);
                 Map<String, Object> metaDataFields = getMetaDataFields(data);
@@ -292,6 +311,7 @@ public class ConnectionController implements UserAccessRights {
                 if (StringUtils.hasText(secretFromManage) && secretFromManage.length() != SECRET_LENGTH) {
                     String originalSecret = (String) connection.getMetaData().get("secret");
                     connection.getMetaData().put("secret", secretFromManage);
+                    //To display in the client
                     if (originalSecret.length() == SECRET_LENGTH) {
                         connection.getMetaData().put("originalSecret", originalSecret);
                     }
