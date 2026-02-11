@@ -85,6 +85,7 @@ const Organization = () => {
 
     const renderApplicationStatus = application => {
         const prodConnections = (application.connections || []).filter(conn => conn.environment === ENVIRONMENTS.PROD);
+        // eslint-disable-next-line no-useless-assignment
         let status = "";
         if (prodConnections.length === 0) {
             status = "in_progress";
@@ -94,8 +95,7 @@ const Organization = () => {
             const connection = prodConnections[0];
             if (!application.signedContract) {
                 status = "in_progress";
-            }
-            if (application.signedContract && (
+            } else if (application.signedContract && (
                 connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) {
                 status = "ready_for_prod"
             } else if (!isEmpty(connection.changeRequests)) {
