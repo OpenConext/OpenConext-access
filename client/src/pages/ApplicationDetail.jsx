@@ -221,11 +221,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             return (
                 <div className="connect-options-container">
                     <h3>{I18n.t("applicationConnect.requestMember")}</h3>
-                                    <p dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.info",
-                                            {orgName: currentOrganization.name}))
-                                    }}/>
-                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.subInfo"))}}/>
+                    <p dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.info",
+                            {orgName: currentOrganization.name}))
+                    }}/>
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.subInfo"))}}/>
                     <InputField multiline={true}
                                 displayLabel={false}
                                 value={message}
@@ -299,9 +299,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 manageIdentifierOrg,
                 message)
                 .then(() => {
-                    if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
+                    if (modalOption === confirmationModalOptions.requestConnectionByMember) {
                         setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
                         setMemberRequestSend(true);
+                        setLoading(false);
                     } else {
                         setFlash(I18n.t(`applicationConnect.flash.${modalOption}`));
                         //Because user is an useEffect dependency, everything will reload. Including change requests
@@ -309,7 +310,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             //a small timeout to prevent flickering - connecting apps does not happen that often
                             setTimeout(() => setLoading(false), 75);
                         });
-
                     }
                 }).catch(() => {
                 setLoading(false);
@@ -331,8 +331,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         stopEvent(e);
         navigate(-1);
     }
-
-    const {open, cancel, isError, action, question, title, okButton} = confirmation;
 
     const renderCurrentTab = () => {
         switch (currentTab) {
@@ -641,6 +639,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             </div>
         );
     }
+    let connectButtonPostFixTxt;
+    if (isAdminUser) {
+        connectButtonPostFixTxt = connectWithoutInteraction ? "connect" : "request"
+    } else {
+        connectButtonPostFixTxt = memberRequestSend ? "requested" : "requestMember";
+    }
 
     const renderNonAccessibleApp = () => {
         return (
@@ -680,8 +684,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             {(!anonymous && currentOrganization.manageIdentifier) &&
                                 <Button onClick={() => doRequestConnection(true)}
                                         disabled={memberRequestSend}
-                                        txt={I18n.t(`applicationConnect.${!isAdminUser ? "requestMember" :
-                                            connectWithoutInteraction ? "connect" : "request"}`)}/>}
+                                        txt={I18n.t(`applicationConnect.${connectButtonPostFixTxt}`)}/>}
                         </div>
                         {renderDetailsApp()}
                     </div>
@@ -690,11 +693,15 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         );
     }
 
+    const {open, cancel, isError, action, question, title, okButton} = confirmation;
+
     return (
         <div className={`application-detail-container`}>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          isError={isError}
+                                         disabledConfirm={confirmationModalOption === confirmationModalOptions.requestConnectionByMember
+                                             && isEmpty(message)}
                                          confirmationTxt={okButton}
                                          confirmationHeader={title}
                                          question={question}>

@@ -28,7 +28,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
             currentOrganization: organization,
             menuItems: newMenuItems
         }))
-        navigate(`/organization/${organization.id}`);
+        navigate("/home");
     }
 
     const renderOrganizationSwitch = () => {

@@ -49,7 +49,11 @@ const Profile = ({setIsAuthenticated}) => {
 
     const {open, cancel, action, question, okButton} = confirmation;
     const applicationMemberships = (user.organizationMemberships || [])
-        .map(orgMembership => orgMembership.applicationMemberships)
+        .map(orgMembership => orgMembership.applicationMemberships
+            .map(applicationMembership => ({
+                ...applicationMembership,
+                organizationName: orgMembership.organization.name
+            })))
         .flat();
     const externalUser = user.externalUser;
     return (
@@ -136,8 +140,7 @@ const Profile = ({setIsAuthenticated}) => {
                             <ul>
                                 {applicationMemberships.map((appMembership, index) =>
                                     <li key={index}>
-                                        <span> {`${appMembership.applicationName}`}
-                                            <em> {" - " + I18n.t(`roles.${appMembership.authority.toLowerCase()}`)}</em>
+                                        <span>{`${appMembership.applicationName} (${appMembership.organizationName})`}
                                         </span>
                                     </li>
                                 )}

@@ -185,7 +185,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
                 title={I18n.t("invitationsManagement.maintain", {name: organization.name})}
                 columns={columns}
                 filters={filters()}
-                showNew={currentUserAuthority !== authorities.GUEST}
+                showNew={currentUserAuthority === authorities.ADMIN || currentUserAuthority === authorities.SUPER_USER}
                 newLabel={I18n.t("invitationsManagement.deleteAll")}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}

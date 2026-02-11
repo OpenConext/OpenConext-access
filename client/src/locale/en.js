@@ -113,7 +113,7 @@ const en = {
         profile: "Profile",
         system: "System",
         users: "Users",
-        organizations:"Organizations",
+        organizations: "Organizations",
         organizationPendingApproval: "Pending approval"
     },
     welcome: {
@@ -1030,16 +1030,17 @@ const en = {
         connect: "Connect",
         request: "Request connection",
         requestMember: "Request application",
+        requested: "Application requested",
         back: "← Back to other apps",
         defaultAccess: "How do you want to configure default access?",
         requestConnection: "A connection to this application must be approved",
         requestConnectionInfo: "The provider of this application receives the request.",
         defaultAccessInfo: "This application is directly connectable, no vendor permission is required.",
         defaultAccessInfo2: "After connecting, access to the application can be set up immediately.",
-        memberRequestInfo: [
-            "In order to connect an application to the SURF Access platform, approval must be given by the SURF Access Manager of {{orgName}}.",
-            "Please indicate below why you want to activate this application. We will send the message to them, and you will also receive a copy."
-        ],
+        memberRequestInfo: {
+            info: "In order to connect an application to the SURF Access platform, approval must be given by the SURF Access Manager of {{orgName}}.",
+            subInfo: "Please indicate below why you want to activate this application. We will send the message to them, and you will also receive a copy."
+        },
         messagePlaceholder: "Your message",
         sendMessage: "Send message",
         flash: {

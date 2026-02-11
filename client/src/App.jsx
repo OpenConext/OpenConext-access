@@ -52,7 +52,7 @@ const App = () => {
     const refreshUser = callback => {
         me()
             .then(user => {
-                const currentOrganization = useAppStore.getState().currentOrganization
+                const currentOrganization = useAppStore.getState().currentOrganization;
                 const newMenuItems = menuItemsForUser(user, currentOrganization);
                 useAppStore.setState(() => ({
                     user: user,

@@ -1,10 +1,19 @@
 package access.api;
 
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.manage.ConnectionProviderConverter;
 import access.manage.Manage;
 import access.manage.ManageData;
-import access.model.*;
+import access.model.Application;
+import access.model.ApplicationMembership;
+import access.model.Authority;
+import access.model.Connection;
+import access.model.ConnectionStatus;
+import access.model.Environment;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -19,12 +28,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -160,6 +179,11 @@ public class ApplicationController implements UserAccessRights {
 
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, application);
+        if (!application.isSignedContract() && applicationData.isSignedContract()) {
+            throw new UserRestrictionException(
+                    String.format("User %s is not allowed to sign contract for application %s",
+                            user.getEmail(), application.getName()));
+        }
 
         //If the metadata has changed, we must propagate this to manage
         boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());
@@ -219,7 +243,7 @@ public class ApplicationController implements UserAccessRights {
     @GetMapping("/identity-providers-allowed-connections/{applicationId}")
     public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
                                                                                            @PathVariable("applicationId") Long applicationId) {
-        LOG.debug("/identityProvidersByAllowedConnections by: "+user.getEmail());
+        LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
         List<Connection> connections = new ArrayList<>(application.getConnections());

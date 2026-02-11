@@ -32,11 +32,13 @@ const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
 
 export const Connection = () => {
     const {applicationId, tab = "overview", connectionId} = useParams();
-    const {user, config, arp, privacy} = useAppStore(useShallow(state => ({
+    const {user, config, currentOrganization, arp, privacy} = useAppStore(useShallow(state => ({
         user: state.user,
         config: state.config,
+        currentOrganization: state.currentOrganization,
         arp: state.arp,
         privacy: state.privacy,
+
     })));
 
     const [application, setApplication] = useState({organization: {}});
@@ -239,6 +241,8 @@ export const Connection = () => {
                                  setApplication={setApplication}
                                  changeTab={changeTab}
                                  refresh={refresh}
+                                 user={user}
+                                 currentOrganization={currentOrganization}
                                  protocolOptions={protocolOptions}
                                  profileOptions={profileOptions}
                                  arpInfo={arp}

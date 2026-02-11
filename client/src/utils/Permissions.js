@@ -74,7 +74,7 @@ export const hasApplicationDeleteAccess = (user, application) => {
     if (currentOrgMembership.authority === authorities.ADMIN) {
         return true;
     }
-    return application.ownerIdentifier === user.id;
+    return application.ownerIdentifier === user.id && currentOrgMembership.authority !== authorities.GUEST;
 }
 
 export const deriveAccess = (user, spEntityId) => {

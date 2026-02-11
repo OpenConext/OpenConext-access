@@ -6,10 +6,13 @@ import {updateApplication} from "../api/index.js";
 import {convertClientApplicationToServer, convertServerApplicationToClient} from "../utils/Application.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import ContractSignedIcon from "../icons/undraw/contract_signed.svg";
+import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 
 export const Contract = ({
                              application,
                              setApplication,
+                             user,
+                             currentOrganization,
                              changeTab,
                              refresh,
                              protocolOptions,
@@ -45,7 +48,7 @@ export const Contract = ({
         return <Loader/>
     }
 
-    const maySignContract = true;
+    const maySignContract = currentUserMembershipAuthority(user, currentOrganization) === authorities.ADMIN;
 
     return (
         <div className="contract-container">

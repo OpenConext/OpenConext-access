@@ -50,7 +50,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             deleteOrganizationMembershipById(membership).then(() => {
                 setConfirmation({});
-                setFlash(I18n.t("teamManagement.flash.deleted",{name: membership.user.name}));
+                setFlash(I18n.t("teamManagement.flash.deleted", {name: membership.user.name}));
                 refreshMemberships();
             })
         }
@@ -68,7 +68,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
-                setFlash(I18n.t("teamManagement.flash.updated",{name: membership.user.name}));
+                setFlash(I18n.t("teamManagement.flash.updated", {name: membership.user.name}));
                 refreshMemberships();
             })
         }
@@ -81,7 +81,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
         } else {
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
-                setFlash(I18n.t("teamManagement.flash.updated",{name: membership.user.name}));
+                setFlash(I18n.t("teamManagement.flash.updated", {name: membership.user.name}));
                 refreshMemberships();
             })
         }
@@ -106,10 +106,11 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                             <PencilIcon/>
                             <span>{I18n.t("teamManagement.makeGuest")}</span>
                         </li>}
-                    {currentUserAuthority === authorities.ADMIN && <li onClick={() => doDelete(membership, true)}>
-                        <TrashIcon/>
-                        <span>{I18n.t("forms.delete")}</span>
-                    </li>}
+                    {currentUserAuthority === authorities.ADMIN &&
+                        <li onClick={() => doDelete(membership, true)}>
+                            <TrashIcon/>
+                            <span>{I18n.t("forms.delete")}</span>
+                        </li>}
                 </ul>
             </div>
         )
@@ -137,14 +138,14 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                 header: "",
                 nonSortable: true,
                 mapper: membership => {
-                    if (currentUserAuthority === authorities.GUEST) {
+                    if (currentUserAuthority === authorities.GUEST || currentUserAuthority === authorities.MEMBER) {
                         return null;
                     }
                     return (
                         <div className="top-header"
                              tabIndex={1}
                              onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
-                            >
+                        >
                             <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
                                 <MenuIcon/>

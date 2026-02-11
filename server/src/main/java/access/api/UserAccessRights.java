@@ -20,8 +20,8 @@ public interface UserAccessRights {
         //Throw an Exception if there is no Organization membership for this user with the required authority
         getOrganizationMembership(user, organization, authority)
                 .orElseThrow(() -> new UserRestrictionException(
-                        String.format("User %s is not a member of organization %s",
-                                user.getEmail(), organization.getName())));
+                        String.format("User %s does not have the authority %s of a membership in organization %s",
+                                user.getEmail(), authority, organization.getName())));
     }
 
     default void confirmApplicationWriteAccess(User user, Application application) {

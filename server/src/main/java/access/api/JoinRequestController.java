@@ -97,7 +97,6 @@ public class JoinRequestController implements UserAccessRights {
             organizationMembershipRepository.save(organizationMembership);
 
             mailBox.sendJoinRequestAcceptedMail(joinRequest);
-
         } else {
             mailBox.sendJoinRequestDeniedMail(joinRequest);
         }

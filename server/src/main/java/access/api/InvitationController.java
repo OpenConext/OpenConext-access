@@ -106,9 +106,10 @@ public class InvitationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(organizationID)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
-        Authority requiredAuthority = invitationForm.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
+        boolean isGuestInvitation = invitationForm.getIntendedAuthority().equals(Authority.GUEST);
 
         User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, isGuestInvitation ? Authority.MEMBER : Authority.ADMIN);
 
         Set<Application> applications = invitationForm.getApplicationIdentifiers().stream()
                 .map(applicationId -> this.applicationRepository.findById(applicationId)
@@ -117,7 +118,7 @@ public class InvitationController implements UserAccessRights {
         if (!applications.stream().allMatch(application -> application.getOrganization().getId().equals(organizationID))) {
             throw new NotAllowedException("Not allowed to add applications outside the organization");
         }
-        applications.forEach(application -> confirmApplicationWriteAccess(userFromDB,application,Authority.MEMBER));
+        applications.forEach(application -> confirmApplicationWriteAccess(userFromDB, application, Authority.MEMBER));
 
         invitationForm.getInvites().forEach(invitee -> {
             Invitation invitation = new Invitation(
