@@ -128,7 +128,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
                 mapper: membership => I18n.t(`roles.${membership.authority.toLowerCase()}`)
             },
             {
-                key: "created",
+                key: "createdAt",
                 header: I18n.t("teamManagement.active"),
                 mapper: membership => dateFromEpoch(membership.createdAt)
             },

@@ -93,7 +93,7 @@ public class JoinRequestController implements UserAccessRights {
 
         if (joinRequestApproval.isApproved()) {
             OrganizationMembership organizationMembership = new OrganizationMembership(
-                    joinRequest.getUser(), organization, Authority.GUEST);
+                    joinRequest.getUser(), organization, Authority.MEMBER);
             organizationMembershipRepository.save(organizationMembership);
 
             mailBox.sendJoinRequestAcceptedMail(joinRequest);

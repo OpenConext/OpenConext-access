@@ -12,6 +12,8 @@ import MenuIcon from "../icons/menu.svg";
 import {MoreLessToggle} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
+import CheckIcon from "@surfnet/sds/icons/functional-icons/checkbox-check.svg";
+import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, setRefresh}) => {
 
@@ -68,13 +70,13 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
     const renderMenu = joinRequest => {
         return (
             <div className="sds--user-info--dropdown">
-                <ul>
+                <ul className="join-request-actions">
                     <li onClick={() => doApprove(joinRequest, true, true)}>
-                        <span className="svg">✅</span>
+                        <CheckIcon/>
                         <span>{I18n.t("joinRequestManagement.approve")}</span>
                     </li>
                     <li onClick={() => doApprove(joinRequest, false, true)}>
-                        <span className="svg">⛔️</span>
+                        <TrashIcon/>️
                         <span>{I18n.t("joinRequestManagement.deny")}</span>
                     </li>
                 </ul>

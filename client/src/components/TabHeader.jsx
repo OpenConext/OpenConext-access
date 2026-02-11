@@ -14,7 +14,6 @@ export const TabHeader = ({tabNames, tab, setTab, children, fullWidth = false}) 
         <div className={`tab-header-container ${fullWidth ? "full-width" : ""}`}>
             {children}
             <div className="tabs-menu">
-
                 {tabNames.map(tabName => <a key={tabName}
                                             href={`/${tabName}`}
                                             className={tabName === tab ? "active" : ""}

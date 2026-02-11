@@ -95,7 +95,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
         User user = userRepository.findDetailsById(seedIdentifiers.get("Peter Doe")).get();
         Optional<OrganizationMembership> optionalOrganizationMembership = user.getOrganizationMemberships().stream()
                 .filter(membership -> membership.getOrganization().getName().equalsIgnoreCase(SHARE_LOGICS) &&
-                        membership.getAuthority().equals(Authority.GUEST))
+                        membership.getAuthority().equals(Authority.MEMBER))
                 .findFirst();
         assertTrue(optionalOrganizationMembership.isPresent());
     }
