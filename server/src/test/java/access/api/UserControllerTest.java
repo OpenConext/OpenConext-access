@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -156,6 +157,22 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/me")
                 .header("Location");
         assertTrue(location.endsWith("/oauth2/authorization/oidcng"));
+    }
+
+    @Test
+    void otherAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        User user = userRepository.findDetailsById(seedIdentifiers.get("Peter Doe")).get();
+        Map<String, Object> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("id", user.getId())
+                .get("/api/v1/users/other/{id}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(user.getName(), result.get("name"));
     }
 
     @Test
