@@ -1113,6 +1113,7 @@ const en = {
         denyPlaceholder: "Type your descriptive message",
         submitNew: "Save and activate",
         submitExisting: "Update",
+        attributeValueErrors: "The following value(s) are invalid for {{name}}: {{values}}",
         breakdown: {
             if: "If",
             when: "When",

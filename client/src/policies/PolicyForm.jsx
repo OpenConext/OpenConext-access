@@ -6,18 +6,20 @@ import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, splitListSemantically} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {defaultAttributes, flatMapByValues, policyDesscription} from "../utils/Policy.js";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
+
 export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
 
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
     const [confirmation, setConfirmation] = useState({});
+    const [attributeValueErrors, setAttributeValueErrors] = useState({});
 
     const required = ["name", "denyAdvice", "denyAdviceNl"];
 
@@ -31,7 +33,8 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
     }
 
     const isValid = () => {
-        return required.every(attr => !isEmpty(policy.data[attr])) && !duplicatePolicyName;
+        const allAttributesValuesValid = Object.values(attributeValueErrors).every(values => isEmpty(values));
+        return required.every(attr => !isEmpty(policy.data[attr])) && !duplicatePolicyName && allAttributesValuesValid;
     }
 
     const doDeletePolicy = (confirmationRequired, policy) => {
@@ -93,14 +96,23 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
 
     const attributeDeleted = index => {
         const newAttributes = policy.data.attributes.filter((item, i) => i !== index);
-        internalUpdatePolicy({attributes: defaultAttributes(newAttributes)})
+        internalUpdatePolicy({attributes: defaultAttributes(newAttributes)});
+        const deletedAttribute = policy.data.attributes[index];
+        delete attributeValueErrors[deletedAttribute.name];
+        setAttributeValueErrors({...attributeValueErrors});
     }
 
-    const attributeValueChanged = (value, index) => {
+    const attributeValueChanged = (values, index) => {
         const newAttributes = [...policy.data.attributes];
         const attribute = newAttributes[index];
-        attribute.value = value;
-        internalUpdatePolicy({attributes: newAttributes})
+        attribute.value = values;
+        internalUpdatePolicy({attributes: newAttributes});
+        const validationRegex = allowedAttributes.find(attr => attr.value === attribute.name).validationRegex;
+        const regex = new RegExp(validationRegex);
+        const invalidValues = values
+            .map(value => value.value)
+            .filter(value => !regex.test(value));
+        setAttributeValueErrors({...attributeValueErrors, [attribute.name]: invalidValues});
     }
 
     const denyRuleToggle = val => {
@@ -163,7 +175,6 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                 {duplicatePolicyName &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("appAccess.duplicateName", {name: policy.data.name})}/>}
-
                 <div className="row">
                     <div className="row-item">
                         <span className="label standalone">{I18n.t("appAccess.allowDeny")}
@@ -210,6 +221,15 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                                          placeholder={I18n.t("appAccess.permittedValuesPlaceholder")}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
+                            {!isEmpty(attributeValueErrors[attribute.name]) &&
+                                <ErrorIndicator adjustMargin={false}
+                                                msg={I18n.t("appAccess.attributeValueErrors",
+                                                    {
+                                                        name: allowedAttributes.find(attr => attr.value === attribute.name).label,
+                                                        values: splitListSemantically(
+                                                            attributeValueErrors[attribute.name].map(val => `'${val}'`),
+                                                            I18n.t("forms.and"))
+                                                    })}/>}
                         </div>)}
                     {policy.data.attributes.every(attribute => attribute.name && !isEmpty(attribute.value)) &&
                         <div className="add-attribute-container">
