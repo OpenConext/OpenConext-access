@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Environment;
 import access.security.InstitutionAdmin;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
 import io.restassured.common.mapper.TypeRef;
@@ -126,6 +127,31 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void policyByServiceProviderNotAllowed() {
+        Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        Map<String, Object> attributes = Map.of(
+                "sub", INSTITUTION_ADMIN,
+                InstitutionAdmin.IDENTITY_PROVIDER, identityProvider);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+
+        String serviceProviderEntityId = "nope";
+        //The IdP is fetched to check the allowed entities
+        this.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("entityId", serviceProviderEntityId)
+                .get("/api/v1/manage/policies")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @SneakyThrows
+    @Test
     void uniqueEntityId() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         String entityID = "https://network";
@@ -183,6 +209,25 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
+    void allowedAttributes() throws JsonProcessingException {
+        List<Map<String, Object>> allowedAttributes  = localManage.allowedAttributes();
+        String body = objectMapper.writeValueAsString(allowedAttributes);
+        stubFor(get("/manage/api/internal/protected/allowed-attributes")
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
+        allowedAttributes = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/allowed-attributes")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(9, allowedAttributes.size());
+    }
+
+    @Test
     void createPolicy() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
         String policy = IOUtils.readInputStreamToString(new ClassPathResource("/manage/new_policy.json").getInputStream());
@@ -214,13 +259,13 @@ class ManageControllerTest extends AbstractTest {
                         .withBody("[]")
                         .withStatus(200)));
 
-        List<Map<String, Object>> policies =given()
+        List<Map<String, Object>> policies = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(Map.of("name","policyName"))
+                .body(Map.of("name", "policyName"))
                 .post("/api/v1/manage/unique-policy-name")
                 .as(new TypeRef<>() {
                 });

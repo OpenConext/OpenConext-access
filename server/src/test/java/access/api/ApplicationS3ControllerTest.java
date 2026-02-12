@@ -3,7 +3,6 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.Application;
-import access.model.Connection;
 import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.http.ContentType;

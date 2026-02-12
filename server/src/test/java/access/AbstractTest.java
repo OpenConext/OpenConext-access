@@ -163,7 +163,7 @@ public abstract class AbstractTest {
     protected final Map<String, Long> seedIdentifiers = new HashMap<>();
 
     @RegisterExtension
-    static CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
+    protected static CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
 
     @LocalServerPort
     protected int port;
