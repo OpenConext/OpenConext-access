@@ -1035,6 +1035,7 @@ const en = {
         defaultAccess: "How do you want to configure default access?",
         requestConnection: "A connection to this application must be approved",
         requestConnectionInfo: "The provider of this application receives the request.",
+        defaultAccessTitle: "Connect to {{name}}",
         defaultAccessInfo: "This application is directly connectable, no vendor permission is required.",
         defaultAccessInfo2: "After connecting, access to the application can be set up immediately.",
         memberRequestInfo: {

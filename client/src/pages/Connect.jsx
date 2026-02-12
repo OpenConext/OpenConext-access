@@ -51,9 +51,12 @@ const Connect = () => {
                                 <td>
                                     <p>{I18n.t("connect.commercial")}</p>
                                 </td>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.fairUse"))}}/>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.accessTOS"))}}/>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.connectionAgreement"))}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.fairUse"),
+                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.accessTOS"),
+                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.connectionAgreement"),
+                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
                             </tr>
                             <tr>
                                 <td>
@@ -61,7 +64,8 @@ const Connect = () => {
                                 </td>
                                 <td><span>{I18n.t("connect.notNeeded")}</span></td>
                                 <td><span>{I18n.t("connect.notNeeded")}</span></td>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.memberAgreement"))}}/>
+                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.memberAgreement"),
+                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
                             </tr>
                             </tbody>
                         </table>

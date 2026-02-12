@@ -16,6 +16,7 @@ import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import {
     APPLICATION_LINKS,
+    connectWithoutInteraction,
     isAccessRoleReady,
     providerDescription,
     providerName,
@@ -66,7 +67,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [showAttributes, setShowAttributes] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
     const [metaData, setMetaData] = useState({});
-    const [connectWithoutInteraction, setConnectWithoutInteraction] = useState(false);
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationModalOption, setConfirmationModalOption] = useState(null);
@@ -130,10 +130,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         if (isReadOnly) {
                             setLoading(false);
                         } else {
-                            const connectOption = newMetaData["coin:dashboard_connect_option"] || "connect_with_interaction";
-                            const sameInstitution = !isEmpty(newMetaData["coin:institution_guid"]) &&
-                                newMetaData["coin:institution_guid"] === user.identityProvider.data.metaDataFields["coin:institution_guid"]
-                            setConnectWithoutInteraction(connectOption !== "connect_with_interaction" || sameInstitution);
                             Promise.all([
                                 getPolicyByServiceProviderEntityId(res.data.entityid),
                                 inviteRoles(user.organizationGUID, res.id)])
@@ -273,9 +269,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const doRequestConnection = (withConfirmation, modalOption) => {
         if (withConfirmation) {
             let newModalOption;
+            const directConnectAllowed = connectWithoutInteraction(metaData, user);
             if (!isAdminUser) {
                 newModalOption = confirmationModalOptions.requestConnectionByMember;
-            } else if (connectWithoutInteraction) {
+            } else if (directConnectAllowed) {
                 newModalOption = confirmationModalOptions.makeConnection;
             } else {
                 newModalOption = confirmationModalOptions.requestConnection;
@@ -607,7 +604,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         : I18n.t("applicationDetail.noInformation")}
                                 </span>
                         <span
-                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("applicationDetail.wiki"))}}/>
+                            dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(I18n.t("applicationDetail.wiki"),
+                                    {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
+                            }}/>
                     </p>
                     <p>{I18n.t("applicationDetail.contractualInfoOrganization",
                         {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
@@ -630,7 +630,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]})),
+                                    __html: DOMPurify.sanitize(I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']}),
                                 }}
                             />
                         </div>
@@ -641,7 +642,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
     let connectButtonPostFixTxt;
     if (isAdminUser) {
-        connectButtonPostFixTxt = connectWithoutInteraction ? "connect" : "request"
+        connectButtonPostFixTxt = connectWithoutInteraction(metaData, user) ? "connect" : "request"
     } else {
         connectButtonPostFixTxt = memberRequestSend ? "requested" : "requestMember";
     }

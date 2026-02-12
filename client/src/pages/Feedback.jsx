@@ -56,7 +56,7 @@ export default function Feedback() {
                 <section className="disclaimer">
                 <span dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("feedback.disclaimer"),
-                        {ADD_ATTR: ['target']})
+                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
                 }}/>
                 </section>
                 <section className="actions">

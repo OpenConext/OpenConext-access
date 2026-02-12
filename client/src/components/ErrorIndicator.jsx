@@ -10,6 +10,6 @@ export default function ErrorIndicator({msg, standalone = false, decode = true, 
         <span className={className}>
             <CriticalIcon/>
             <span className={"error-message"}
-                  dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(msg, {ADD_ATTR: ['target']})}}/>
+                  dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(msg, {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
         </span>
 }

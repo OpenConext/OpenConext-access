@@ -18,7 +18,8 @@ import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {
     authorities,
     currentUserMembershipAuthority,
-    hasApplicationWriteAccess, hasCreateApplicationAccess,
+    hasApplicationWriteAccess,
+    hasCreateApplicationAccess,
     isOrganizationMember
 } from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
@@ -226,8 +227,8 @@ const Organization = () => {
                         <div className="left">
                             <Logo/>
                             {mayCreateApplication &&
-                            <Button onClick={() => navigate("/application/new")}
-                                    txt={I18n.t("organization.addFirstApplication")}/>}
+                                <Button onClick={() => navigate("/application/new")}
+                                        txt={I18n.t("organization.addFirstApplication")}/>}
                             {!mayCreateApplication &&
                                 <p>{I18n.t("organization.guestNoApplicationMessage")}</p>}
                         </div>
@@ -235,13 +236,22 @@ const Organization = () => {
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>
                             <ul>
                                 <li><p
-                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`))}}/>
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(I18n.t(`organization.catalog.fairUse${isExternal ? "External" : ""}`),
+                                            {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
+                                    }}/>
                                 </li>
                                 <li><p
-                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`))}}/>
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(I18n.t(`organization.catalog.agreement${isExternal ? "External" : ""}`),
+                                            {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
+                                    }}/>
                                 </li>
                             </ul>
-                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`))}}/>
+                            <p dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(I18n.t(`organization.catalog.disclaimer${isExternal ? "External" : ""}`),
+                                    {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
+                            }}/>
                         </div>
                     </div>}
                 {!isEmpty(organization.applications) &&

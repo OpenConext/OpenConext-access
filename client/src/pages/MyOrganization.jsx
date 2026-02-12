@@ -260,7 +260,8 @@ const MyOrganization = ({refreshUser}) => {
                 <div className="top-header">
                     <h1>{I18n.t("myOrganization.title")}</h1>
                 </div>
-                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"))}}/>
+                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
+                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
             </div>
             <div className="my-organization">
                 <h1>{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>

@@ -109,3 +109,11 @@ export const APPLICATION_LINKS = [
         languageProperty: true
     },
 ]
+
+export const connectWithoutInteraction = (metaData, user) => {
+    const connectOption = metaData["coin:dashboard_connect_option"] || "connect_with_interaction";
+    const sameInstitution = !isEmpty(metaData["coin:institution_guid"]) &&
+        metaData["coin:institution_guid"] === user?.identityProvider?.data?.metaDataFields["coin:institution_guid"]
+    return connectOption !== "connect_with_interaction" || sameInstitution;
+
+}

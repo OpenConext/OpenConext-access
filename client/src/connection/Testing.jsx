@@ -755,7 +755,7 @@ export const Testing = ({
                                     <p className="saml-test"
                                        dangerouslySetInnerHTML={{
                                            __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
+                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"] })
                                        }}/>
                                 </div>
                             </div>
@@ -889,7 +889,7 @@ export const Testing = ({
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverviewSAML.link",
-                           {ADD_ATTR: ["target"]}))
+                           {ADD_ATTR: ["target"], ADD_TAGS: ['rel']}))
                    }}/>
             </section>
         )
@@ -905,7 +905,7 @@ export const Testing = ({
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                           , {ADD_ATTR: ["target"], ADD_TAGS: ["a"]})
+                           , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
                    }}/>
                 <InputField name={I18n.t("connection.connectionOverview.discovery")}
                             value={config.discovery}
