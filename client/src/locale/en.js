@@ -1115,7 +1115,9 @@ const en = {
         submitExisting: "Update",
         breakdown: {
             if: "If",
-            when: "When"
+            when: "When",
+            allowDescriptionPrefix: "A user from '{{idp}}' is only allowed acces to '{{sp}}'",
+            denyDescriptionPrefix: "A user from '{{idp}}' is denied acces to '{{sp}}'"
         },
         flash: {
             created: "Policy {{name}} has been created and is ready for use",

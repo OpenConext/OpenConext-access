@@ -9,7 +9,7 @@ import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/in
 import {isEmpty} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {defaultAttributes, flatMapByValues} from "../utils/Policy.js";
+import {defaultAttributes, flatMapByValues, policyDesscription} from "../utils/Policy.js";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
@@ -61,6 +61,16 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
             const promise = isExistingPolicy ? updatePolicy : newPolicy;
             //We need to destructure the attributes with multiple values, to single attribute / value pairs
             policy.data.attributes = flatMapByValues([...policy.data.attributes]);
+            policy.data.description = policyDesscription(
+                allowedAttributes,
+                policy,
+                I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`).toLowerCase(),
+                I18n.t("forms.or"),
+                I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`),
+                I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "deny" : "allow"}DescriptionPrefix`, {
+                    idp: policy.data.identityProviderIds[0].name, sp: policy.data.serviceProviderIds[0].name
+                })
+            );
             promise(policy)
                 .then(res => {
                     setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.data.name}));
@@ -153,18 +163,6 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                 {duplicatePolicyName &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("appAccess.duplicateName", {name: policy.data.name})}/>}
-
-                <InputField name={I18n.t("appAccess.description")}
-                            value={policy.data.description}
-                            required={true}
-                            multiline={true}
-                            error={!initial && isEmpty(policy.data.description)}
-                            placeholder={I18n.t("appAccess.placeholderDescription")}
-                            onChange={e => internalUpdatePolicy({description: e.target.value})}
-                />
-                {(!initial && isEmpty(policy.data.description)) &&
-                    <ErrorIndicator adjustMargin={true}
-                                    msg={I18n.t("forms.required", {name: I18n.t("appAccess.description")})}/>}
 
                 <div className="row">
                     <div className="row-item">
