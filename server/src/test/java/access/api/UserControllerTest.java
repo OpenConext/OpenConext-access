@@ -6,6 +6,7 @@ import access.UserInfoEnhancer;
 import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
@@ -173,6 +174,20 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(user.getName(), result.get("name"));
+    }
+
+    @Test
+    void login() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        String location = given()
+                .redirects().follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/login")
+                .getHeader("Location");
+        assertEquals(location, "http://localhost:3002");
     }
 
     @Test
