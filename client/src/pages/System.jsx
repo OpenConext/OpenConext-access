@@ -1,35 +1,41 @@
 import "./System.scss";
-import React, {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import React, {useState} from "react";
+import {Navigate, useNavigate, useParams} from "react-router-dom";
 import {Users} from "./Users.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import I18n from "../locale/I18n.js";
 import {Organizations} from "./Organizations.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {useShallow} from "zustand/react/shallow";
 
 const tabNames = ["users", "organizations", "organizationPendingApproval"]
 
 const System = () => {
     const {tab = "users"} = useParams();
-    const navigate = useNavigate();
-
     const [currentTab, setCurrentTab] = useState(tab);
 
-    useEffect(() => {
-        useAppStore.setState({
-            breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                {
-                    path: "/system",
-                    value: I18n.t("breadCrumb.system")
-                },
-                {value: I18n.t(`breadCrumb.${currentTab}`)}
-            ],
-            activeMenuItem: null
-        });
+    const navigate = useNavigate();
 
-    }, [currentTab]);
+    const {user} = useAppStore(useShallow(state => ({
+        user: state.user
+    })));
+
+    if (!user.superUser) {
+        return <Navigate to={"/404"} replace/>;
+    }
+
+    useAppStore.setState({
+        breadcrumbPaths: [
+            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+            {
+                path: "/system",
+                value: I18n.t("breadCrumb.system")
+            },
+            {value: I18n.t(`breadCrumb.${currentTab}`)}
+        ],
+        activeMenuItem: null
+    });
 
     const tabChanged = (name) => {
         setCurrentTab(name);

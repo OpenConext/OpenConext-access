@@ -136,7 +136,6 @@ const App = () => {
                             <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation refreshUser={refreshUser}/>}/>
-                            <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId/:page?/:policyId?"
@@ -147,6 +146,7 @@ const App = () => {
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
                             <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
+                            <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
                     </div>

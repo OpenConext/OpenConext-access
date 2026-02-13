@@ -32,14 +32,13 @@ const MyOrganization = ({refreshUser}) => {
     const user = useAppStore(state => state.user);
     const setFlash = useAppStore(state => state.setFlash);
 
-    const externalUser = user.externalUser;
-
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
+    const [externalOrganization, setExternalOrganization] = useState(true);
     const [confirmation, setConfirmation] = useState({});
-    const [section, setSection] = useState(externalUser ? sections.general : sections.contactPersons);
+    const [section, setSection] = useState(null);
     const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
     const [originalOrganizationName, setOriginalOrganizationName] = useState("");
@@ -65,6 +64,8 @@ const MyOrganization = ({refreshUser}) => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);
                     setOriginalOrganizationName(res.name);
+                    setExternalOrganization(isEmpty(res.manageIdentifier));
+                    setSection(isEmpty(res.manageIdentifier) ? sections.general : sections.contactPersons);
                     setLoading(false);
                 }).catch(() => {
                 navigate("/home")
@@ -86,11 +87,10 @@ const MyOrganization = ({refreshUser}) => {
     }, [focusedId]);
 
     const availableSections = useMemo(() => {
-        const isExternalUser = user.externalUser;
         return Object.values(sections)
-            .filter(s => s !== sections.delete || (isExternalUser && (user.superUser || isOrganizationAdmin(user, organization))))
-            .filter(s => s !== sections.contactPersons || !isExternalUser)
-    }, [organization, user])
+            .filter(s => s !== sections.delete || (externalOrganization && (user.superUser || isOrganizationAdmin(user, organization))))
+            .filter(s => s !== sections.contactPersons || !externalOrganization)
+    }, [externalOrganization, organization, user])
 
     if (loading) {
         return <Loader/>
@@ -233,10 +233,13 @@ const MyOrganization = ({refreshUser}) => {
                 return renderContactPersonsSection();
             }
             case sections.general: {
-                return externalUser ? renderExternalGeneralSection() : renderInternalGeneralSection();
+                return externalOrganization ? renderExternalGeneralSection() : renderInternalGeneralSection();
             }
             case sections.delete: {
                 return renderDeleteSection();
+            }
+            case null: {
+                return null;
             }
         }
     }
@@ -280,7 +283,7 @@ const MyOrganization = ({refreshUser}) => {
                 </div>
                 {(section !== sections.delete && adminUser) &&
                     <div className="actions proceed">
-                        <Button onClick={() => externalUser ? saveExternalOrganization() : saveInternalOrganization()}
+                        <Button onClick={() => externalOrganization ? saveExternalOrganization() : saveInternalOrganization()}
                                 disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
                                 txt={I18n.t("myOrganization.proceedButton")}
                         />

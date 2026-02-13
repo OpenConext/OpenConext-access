@@ -20,6 +20,8 @@ spring:
     jdbc:
       cleanup-cron: "-"
       initialize-schema: always
+      flush-mode: on_save
+      save-mode: on_set_attribute
     store-type: jdbc
     timeout: 8h
   mvc:
