@@ -9,6 +9,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -191,19 +192,33 @@ public class MailBox {
 
     @SneakyThrows
     public void sendFeedbackMail(User user, String message) {
+        sendFeedbackMail(user, message, null, null, null, null);
+    }
+
+    @SneakyThrows
+    public void sendFeedbackMail(User user, String message, String url, byte[] screenshotBytes,
+                                 String screenshotName, String screenshotContentType) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
         variables.put("title", "SURF Access feedback form");
         String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
         variables.put("message", message.replaceAll("\n", "<br/>"));
+        variables.put("url", url);
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
         variables.put("env", environment);
+        MailAttachment attachment = null;
+        if (screenshotBytes != null && screenshotBytes.length > 0) {
+            String filename = screenshotName == null ? "feedback.png" : screenshotName;
+            String contentType = screenshotContentType == null ? "image/png" : screenshotContentType;
+            attachment = new MailAttachment(filename, screenshotBytes, contentType);
+        }
         sendMail("feedback_en",
                 "Feedback",
                 variables,
+                attachment,
                 supportEmail);
     }
 
@@ -212,6 +227,11 @@ public class MailBox {
     }
 
     private String sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
+        return sendMail(templateName, subject, variables, null, to);
+    }
+
+    private String sendMail(String templateName, String subject, Map<String, Object> variables,
+                            MailAttachment attachment, String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -221,8 +241,23 @@ public class MailBox {
         helper.setText(plainText, htmlText);
         helper.setTo(to);
         helper.setFrom(emailFrom);
+        if (attachment != null && attachment.bytes != null) {
+            helper.addAttachment(attachment.filename, new ByteArrayResource(attachment.bytes), attachment.contentType);
+        }
         new Thread(() -> mailSender.send(message)).start();
         return htmlText;
+    }
+
+    private static class MailAttachment {
+        private final String filename;
+        private final byte[] bytes;
+        private final String contentType;
+
+        private MailAttachment(String filename, byte[] bytes, String contentType) {
+            this.filename = filename;
+            this.bytes = bytes;
+            this.contentType = contentType;
+        }
     }
 
     private String mailTemplate(String templateName, Map<String, Object> context) {

@@ -957,7 +957,10 @@ const en = {
         help: "Need help?",
         helpInfo: "For questions or issues, please reach out to us at <a href='mailto:support@surf.nl'>support@surf.nl</a>",
         send: "Provide feedback",
-        flash: "Your feedback has been sent. Thanks!"
+        flash: "Your feedback has been sent. Thanks!",
+        widgetLabel: "Feedback",
+        includeScreenshot: "Include screenshot",
+        tooLarge: "The screenshot is too large (max 5MB). It was not attached."
     },
     myOrganization: {
         title: "My organisation",
@@ -1142,4 +1145,3 @@ const en = {
 }
 
 export default en;
-

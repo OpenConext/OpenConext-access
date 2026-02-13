@@ -1,0 +1,66 @@
+.user-feedback-widget {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+
+    &__trigger {
+        background: var(--sl-color-green-200);
+        color: #000;
+        border: none;
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transform: rotate(-90deg);
+        transform-origin: right center;
+    }
+
+    &__trigger:hover {
+        transform: rotate(-90deg) translateY(-2px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+    }
+
+    &__modal {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__options {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #2a2a2a;
+    }
+
+    .disclaimer,
+    .help {
+        font-size: 13px;
+        color: #4b4b4b;
+    }
+
+    .help .title {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+}
+
+body.feedback-capture .user-feedback-widget,
+body.feedback-capture .sds--modal {
+    visibility: hidden !important;
+}
+
+@media (max-width: 768px) {
+    .user-feedback-widget {
+        right: 0;
+        top: auto;
+        bottom: 18px;
+        transform: none;
+    }
+}

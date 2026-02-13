@@ -40,6 +40,7 @@ import Feedback from "./pages/Feedback.jsx";
 import MyOrganization from "./pages/MyOrganization.jsx";
 import ApplicationOverview from "./pages/ApplicationOverview.jsx";
 import Profile from "./pages/Profile.jsx";
+import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 
 const App = () => {
 
@@ -124,6 +125,7 @@ const App = () => {
                     <SharedMenu currentLocation={currentLocation}/>
                     <div className="pages">
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
+                        <UserFeedbackWidget/>
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>

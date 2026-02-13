@@ -96,6 +96,10 @@ export function feedback(message) {
     return postPutJson("/api/v1/users/feedback", {message: message}, "POST");
 }
 
+export function sendFeedback(formData) {
+    return postPutJson("/api/v1/feedback", formData, "POST");
+}
+
 //Organizations
 
 //attributePaths = {"organizationMemberships.user", "invitations.invitee", "joinRequests.user"}
@@ -361,4 +365,3 @@ export function loginAggregated(period, spEntityId) {
 export function uniqueLoginCount(from, to, spEntityId) {
     return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
 }
-

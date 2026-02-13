@@ -947,16 +947,19 @@ const nl = {
         copied: "Copied"
     },
     feedback: {
-        title: "Provide Feedback",
-        info: "Like what you see? Have a suggestion? Let us know what you think here",
+        title: "Feedback geven",
+        info: "Zie je iets wat beter kan? Laat ons weten wat je denkt.",
         disclaimer: "We will use this information to fix problems, improve our products and help you. " +
             "We may follow up with you regarding your feedback. " +
             "Please make sure the feedback does not contain any confidential, sensitive, or personal information. " +
             "For more information, please review our <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
-        help: "Need help?",
-        helpInfo: "For questions or issues, please reach out to us at <a href='mailto:support@surf.nl'>support@surf.nl</a>",
-        send: "Provide feedback",
-        flash: "Your feedback has been sent. Thanks!"
+        help: "Hulp nodig?",
+        helpInfo: "Voor vragen of problemen kun je ons bereiken via <a href='mailto:support@surf.nl'>support@surf.nl</a>",
+        send: "Feedback geven",
+        flash: "Je feedback is verstuurd. Bedankt!",
+        widgetLabel: "Feedback",
+        includeScreenshot: "Schermafbeelding toevoegen",
+        tooLarge: "De schermafbeelding is te groot (max 5MB). Deze is niet toegevoegd."
     },
     myOrganization: {
         title: "My organisation",
@@ -1136,4 +1139,3 @@ const nl = {
 }
 
 export default nl;
-

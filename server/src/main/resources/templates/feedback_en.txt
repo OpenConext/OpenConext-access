@@ -1,5 +1,8 @@
 Hi,
 User {{ user.name }} has provided the following feedback for {{ environment }} at {{ date }}:
+{{#url}}
+Page URL: {{ url }}
+{{/url}}
 
 {{ message }}
 
