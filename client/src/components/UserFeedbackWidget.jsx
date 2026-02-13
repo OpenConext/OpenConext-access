@@ -70,8 +70,6 @@ export const UserFeedbackWidget = () => {
             await sendFeedback(payload);
             setFlash(I18n.t("feedback.flash"));
             closeModal();
-        } catch (error) {
-            setFlash(I18n.t("forms.error"));
         } finally {
             setSubmitting(false);
         }
@@ -129,7 +127,7 @@ export const UserFeedbackWidget = () => {
                 className="user-feedback-widget__trigger"
                 onClick={() => {
                     setOpen(true);
-                    setTimeout(() => inputRef.current?.focus(), 0);
+                    setTimeout(() => inputRef.current?.focus(), 25);
                 }}
                 type="button"
             >

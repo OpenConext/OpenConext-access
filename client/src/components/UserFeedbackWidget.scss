@@ -1,6 +1,6 @@
 .user-feedback-widget {
     position: fixed;
-    right: 0;
+    right: 30px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 90;
@@ -10,8 +10,8 @@
         color: #000;
         border: none;
         border-radius: 999px;
-        padding: 10px 14px;
-        font-size: 12px;
+        padding: 14px 26px;
+        font-size: 16px;
         font-weight: 600;
         cursor: pointer;
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
