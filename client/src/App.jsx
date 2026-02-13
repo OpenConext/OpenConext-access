@@ -47,6 +47,7 @@ const App = () => {
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const impersonator = useAppStore(state => state.impersonator);
+    const feedbackWidgetEnabled = useAppStore(state => state.config.feedbackWidgetEnabled);
     const navigate = useNavigate();
     const currentLocation = useLocation();
 
@@ -125,7 +126,7 @@ const App = () => {
                     <SharedMenu currentLocation={currentLocation}/>
                     <div className="pages">
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
-                        <UserFeedbackWidget/>
+                        {feedbackWidgetEnabled && <UserFeedbackWidget/>}
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>

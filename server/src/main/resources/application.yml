@@ -98,6 +98,7 @@ config:
   invite: "https://invite.test2.surfconext.nl"
   sram: "https://test.sram.surf.nl/"
   service_desk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
+  feedback_widget_enabled: true
   identity_providers:
       - name: "SXS IdP"
         entityid: "http://mock-idp"
