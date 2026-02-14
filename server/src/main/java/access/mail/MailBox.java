@@ -43,7 +43,8 @@ public class MailBox {
             String serviceDeskEmail,
             String supportEmail,
             String clientUrl,
-            String environment, ObjectMapper objectMapper) throws IOException {
+            String environment,
+            ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
         this.serviceDeskEmail = serviceDeskEmail;
