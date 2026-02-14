@@ -27,7 +27,7 @@ export const mainMenuItems = {
 
 const doMenuItemsForUser = (user, currentOrganization) => {
     //Every user has access to the home, catalogue and help menu items
-    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk, mainMenuItems.feedback];
+    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk];
     const noOrganizationMemberships = isEmpty(user.organizationMemberships);
     if (noOrganizationMemberships) {
         return newMenuItems;

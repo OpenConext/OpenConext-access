@@ -253,8 +253,6 @@ export const Connection = () => {
                                           refresh={refresh}
                 />
             }
-            default:
-                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
 

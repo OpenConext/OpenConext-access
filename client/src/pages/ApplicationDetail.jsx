@@ -337,8 +337,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             case  "information": {
                 return renderInformation();
             }
-            default:
-                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
 

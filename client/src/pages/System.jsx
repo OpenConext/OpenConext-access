@@ -54,8 +54,6 @@ const System = () => {
             case  "organizationPendingApproval": {
                 return <Organizations pendingApproval={true} tab={currentTab}/>
             }
-            default:
-                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
 

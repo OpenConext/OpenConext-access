@@ -87,8 +87,6 @@ export const UserManagement = () => {
                                              currentUserAuthority={currentUserAuthority}
                                              setRefresh={setRefresh}/>;
             }
-            default:
-                throw new Error(`Unknown tab; ${currentTab}`)
         }
     }
 
