@@ -1,5 +1,4 @@
 import React, {useCallback, useRef, useState} from "react";
-import {createPortal} from "react-dom";
 import {Checkbox} from "@surfnet/sds";
 import {useLocation} from "react-router-dom";
 import DOMPurify from "dompurify";
@@ -29,18 +28,15 @@ export const UserFeedbackWidget = () => {
 
     const captureScreenshot = useCallback(async () => {
         document.body.classList.add("feedback-capture");
-        try {
-            const canvas = await html2canvas(document.body, {
-                backgroundColor: null,
-                useCORS: true,
-                scale: 1,
-                windowWidth: document.documentElement.clientWidth,
-                windowHeight: document.documentElement.clientHeight
-            });
-            return canvas.toDataURL("image/png");
-        } finally {
-            document.body.classList.remove("feedback-capture");
-        }
+        const canvas = await html2canvas(document.body, {
+            backgroundColor: null,
+            useCORS: true,
+            scale: 1,
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.clientHeight
+        });
+        setTimeout(() => document.body.classList.remove("feedback-capture"), 225);
+        return canvas.toDataURL("image/png");
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -120,7 +116,19 @@ export const UserFeedbackWidget = () => {
             </section>
         </div>
     );
-
+    if (open) {
+        return (
+            <ConfirmationDialog
+                cancel={closeModal}
+                confirm={handleSubmit}
+                confirmationHeader={I18n.t("feedback.title")}
+                confirmationTxt={I18n.t("forms.submit")}
+                disabledConfirm={submitting || !message.trim()}
+                children={renderContent()}
+                largeWidth={true}
+            />
+        );
+    }
     return (
         <div className="user-feedback-widget">
             <button
@@ -133,18 +141,6 @@ export const UserFeedbackWidget = () => {
             >
                 {I18n.t("feedback.widgetLabel")}
             </button>
-            {open && createPortal(
-                <ConfirmationDialog
-                    cancel={closeModal}
-                    confirm={handleSubmit}
-                    confirmationHeader={I18n.t("feedback.title")}
-                    confirmationTxt={I18n.t("forms.submit")}
-                    disabledConfirm={submitting || !message.trim()}
-                    children={renderContent()}
-                    largeWidth={true}
-                />,
-                document.body
-            )}
         </div>
     );
 };

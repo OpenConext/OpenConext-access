@@ -272,8 +272,10 @@ const MyOrganization = ({refreshUser}) => {
                     <div className="left-menu">
                         {availableSections
                             .map((s, index) =>
-                                <div key={index} className={`menu-item ${s === section ? "active" : ""}`}>
-                                    <span onClick={() => setSection(s)}>{I18n.t(`myOrganization.${s}`)}</span>
+                                <div key={index}
+                                     className={`menu-item ${s === section ? "active" : ""}`}
+                                     onClick={() => setSection(s)}>
+                                    <span>{I18n.t(`myOrganization.${s}`)}</span>
                                 </div>
                             )}
                     </div>

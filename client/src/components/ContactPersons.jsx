@@ -57,7 +57,7 @@ export const ContactPersons = ({
                 example: emailPlaceholder("support", application?.organization?.name || application.name, I18n.t("forms.or"))
             })}</p>
             {Object.keys(contactPersonsGrouped).map((contactType, index) =>
-                <section key={index} className="contact-person-section">
+                <section key={index} className={`contact-person-section ${readOnly ? "read-only": ""}`}>
                     <h4>{I18n.t(`connection.contacts.${contactType}`)}</h4>
                     {!isEmpty(I18n.translations[I18n.locale].connection.contacts[`${contactType}Disclaimer`]) &&
                         <p>{I18n.t(`connection.contacts.${contactType}Disclaimer`)}</p>
@@ -65,7 +65,7 @@ export const ContactPersons = ({
                     {contactPersonsGrouped[contactType].map((contactPerson, innerIndex) =>
                         <Fragment key={innerIndex}>
                             <InputField value={contactPerson.email}
-                                        name={I18n.t("connection.contacts.emailOrWebsite")}
+                                        name={readOnly ? null : I18n.t("connection.contacts.emailOrWebsite")}
                                         placeholder={emailPlaceholder(
                                             I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
                                             I18n.t("forms.or")
@@ -86,7 +86,7 @@ export const ContactPersons = ({
                                     msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
                                 />}
                             {(innerIndex === (contactPersonsGrouped[contactType].length - 1) && contactPerson.type === contactPersonTypes.technical
-                                    && contactPersonsGrouped[contactType].length < 2) &&
+                                    && contactPersonsGrouped[contactType].length < 2 && !readOnly) &&
                                 <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                     {I18n.t("connection.contacts.addTechnicalContact")}
                                 </a>}
