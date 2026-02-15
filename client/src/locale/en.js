@@ -85,6 +85,7 @@ const en = {
         idp: "My organisation",
         users: "SURF Access users",
         applications: "Applications",
+        policies: "Policies",
         teams: "Teams",
         support: "Support",
         serviceDesk: "SURF Servicedesk",

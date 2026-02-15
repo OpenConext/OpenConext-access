@@ -1,7 +1,12 @@
 package access.manage;
 
 import access.exception.NotFoundException;
-import access.model.*;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Organization;
+import access.model.State;
+import access.model.User;
 import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -363,6 +368,17 @@ public class RemoteManage implements Manage {
                         identityProviderExistsFalseCondition,
                         identityProviderOrCondition
                 )
+        );
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/rawSearch/%s",
+                environmentUrl(Environment.PROD), EntityType.policy);
+        return restTemplate.postForEntity(url, query, List.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId) {
+        Map<String, Object> query = Map.of(
+                "data.identityProviderIds.name", identityProviderEntityId
         );
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/rawSearch/%s",

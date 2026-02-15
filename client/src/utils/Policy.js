@@ -1,6 +1,6 @@
 import {isEmpty, splitListSemantically} from "./Utils.js";
 
-export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId) => ({
+export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId = null) => ({
     data: {
         active: true,
         allAttributesMustMatch: false,
@@ -13,7 +13,7 @@ export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId
         identityProviderIds: [{name: identityProviderEntityId}],
         metaDataFields: {},
         name: "",
-        serviceProviderIds: [{name: serviceProviderEntityId}],
+        serviceProviderIds: isEmpty(serviceProviderEntityId) ? [] : [{name: serviceProviderEntityId}],
         type: "reg"
     },
     type: "policy"

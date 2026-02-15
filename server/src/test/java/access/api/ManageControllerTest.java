@@ -127,6 +127,30 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void policyByIdentityProvider() {
+        Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        Map<String, Object> attributes = Map.of(
+                "sub", INSTITUTION_ADMIN,
+                InstitutionAdmin.IDENTITY_PROVIDER, identityProvider);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+
+        //Stub the actual call to fetch the policies for a IdP
+        this.stubForPolicyByIdentityProvider("http://mock-idp");
+
+        List<Map<String, Object>> policies = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/identity-provider/policies")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, policies.size());
+    }
+
+    @SneakyThrows
+    @Test
     void policyByServiceProviderNotAllowed() {
         Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
         Map<String, Object> attributes = Map.of(

@@ -3,6 +3,7 @@ import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
 import HierarchyIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import LaptopFloatIcon from "@surfnet/sds/icons/illustrative-icons/laptop-1.svg";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import PolicyIcon from "@surfnet/sds/icons/functional-icons/lock.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
@@ -18,6 +19,7 @@ export const mainMenuItems = {
     idp: "idp",
     yourApps: "yourApps",
     catalogue: "catalogue",
+    policies: "policies",
     accessibleApps: "accessibleApps",
     invite: "invite",
     sram: "sram",
@@ -25,9 +27,12 @@ export const mainMenuItems = {
     feedback: "feedback"
 }
 
-const doMenuItemsForUser = (user, currentOrganization) => {
+const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = useAppStore.getState().config.feedbackWidgetEnabled) => {
     //Every user has access to the home, catalogue and help menu items
     const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk];
+    if (!feedbackWidgetEnabled) {
+        newMenuItems.push(mainMenuItems.feedback);
+    }
     const noOrganizationMemberships = isEmpty(user.organizationMemberships);
     if (noOrganizationMemberships) {
         return newMenuItems;
@@ -42,15 +47,21 @@ const doMenuItemsForUser = (user, currentOrganization) => {
     if (onlyGuest) {
         return newMenuItems;
     }
-    const isMemberOrAdmin = user.organizationMemberships
-        .some(m => [authorities.MEMBER, authorities.ADMIN].includes(m.authority) &&
+    const isMember = user.organizationMemberships
+        .some(m => authorities.MEMBER === m.authority &&
+            m.organization.id === currentOrganization.id);
+    const isAdmin = user.organizationMemberships
+        .some(m => authorities.ADMIN === m.authority &&
             m.organization.id === currentOrganization.id);
 
-    if (isMemberOrAdmin) {
+    if (isMember || isAdmin) {
         newMenuItems.push(mainMenuItems.users);
     }
     if (!user.externalUser) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
+    }
+    if ((isAdmin || user.superUser) && !isEmpty(currentOrganization.manageIdentifier)) {
+        newMenuItems.push(mainMenuItems.policies);
     }
     return newMenuItems;
 }
@@ -121,6 +132,11 @@ export const allMenuGroups = [
                 name: mainMenuItems.users,
                 path: "/users/organizationId",
                 Logo: UserIcon
+            },
+            {
+                name: mainMenuItems.policies,
+                path: "/policies/overview",
+                Logo: PolicyIcon
             },
         ]
     },

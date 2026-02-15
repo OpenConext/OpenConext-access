@@ -265,6 +265,20 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId) {
+        return this.allProviders.get(EntityType.policy).stream()
+                .filter(policy -> {
+                    Map<String, Object> data = getData(policy);
+                    List<Map<String, String>> identityProviderIds = (List<Map<String, String>>)
+                            data.getOrDefault("identityProviderIds", List.of());
+                    return identityProviderIds.stream()
+                                    .anyMatch(m -> m.get("name").equals(identityProviderEntityId));
+                })
+                .toList();
+    }
+
+
+    @Override
     public Map<String, Object> createPolicy(Map<String, Object> policy) {
         String id = UUID.randomUUID().toString();
         policy.put("id", id);

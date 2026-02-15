@@ -41,6 +41,7 @@ import MyOrganization from "./pages/MyOrganization.jsx";
 import ApplicationOverview from "./pages/ApplicationOverview.jsx";
 import Profile from "./pages/Profile.jsx";
 import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
+import Policies from "./pages/Policies.jsx";
 
 const App = () => {
 
@@ -146,6 +147,7 @@ const App = () => {
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>
+                            <Route path="/policies/:page?/:policyId?" element={<Policies/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
                             <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>

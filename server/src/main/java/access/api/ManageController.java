@@ -98,6 +98,17 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
     @SneakyThrows
+    @GetMapping("/identity-provider/policies")
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<List<Map<String, Object>>> identityProviderPolicies(@Parameter(hidden = true) User user) {
+        LOG.debug("/identityProviderPolicies for " + user.getEmail());
+
+        confirmInstitutionAdmin(user);
+        List<Map<String, Object>> policies = this.manage.policiesByIdentityProvider(user.getAuthenticatingAuthority());
+        return ResponseEntity.ok(policies);
+    }
+
+    @SneakyThrows
     @GetMapping("/policies")
     @SuppressWarnings("unchecked")
     public ResponseEntity<List<Map<String, Object>>> policies(@Parameter(hidden = true) User user,

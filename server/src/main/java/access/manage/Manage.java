@@ -49,6 +49,8 @@ public interface Manage {
     List<Map<String, Object>> policiesByServiceProvider(String identityProviderEntityId,
                                                         String serviceProviderEntityId);
 
+    List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId);
+
     Map<String, Object> createPolicy(Map<String, Object> policy);
 
     Map<String, Object> updatePolicy(Map<String, Object> policy);

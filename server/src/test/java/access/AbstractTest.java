@@ -536,6 +536,17 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForPolicyByIdentityProvider(String identityProviderEntityId) {
+        List<Map<String, Object>> policies = localManage
+                .policiesByIdentityProvider(identityProviderEntityId);
+        String body = objectMapper.writeValueAsString(policies);
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/policy"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForServiceProviders() {
         List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_sp);
         List<Map<String, Object>> relyingParties = localManage.providers(Environment.TEST, EntityType.oidc10_rp);

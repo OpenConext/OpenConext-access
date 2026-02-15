@@ -133,7 +133,6 @@ export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPo
                                              children={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
                                 </div>
                             </div>)}
-
                     </>}
                 </InfoBlock>
             </div>
