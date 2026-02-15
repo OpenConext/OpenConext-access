@@ -1,0 +1,36 @@
+@use "../index";
+@use "../styles/vars" as *;
+
+div.policies-outer-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .policies-header-container {
+        background-color: var(--sds--color--gray--background);
+        padding: 25px 50px 25px 50px;
+
+        .top-header {
+            margin-bottom: 15px;
+        }
+    }
+
+    div.policies {
+        padding: 25px 50px;
+        background-color: white;
+    }
+
+    .app-policies {
+        display: flex;
+        width: 75%;
+        gap: 25px;
+        @media (max-width: $medium) {
+            width: 100%;
+            flex-direction: column;
+        }
+
+    }
+
+
+}

@@ -1,4 +1,5 @@
 import "./PolicyOverview.scss";
+import "../styles/access_card.scss";
 import React, {useState} from "react";
 import {Button, ButtonType, Chip, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
@@ -78,7 +79,7 @@ export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPo
                                          question={question}
             />}
             <div className="policy-overview">
-                <a href="/#" onClick={e => backToAccess(e)}>{I18n.t("appAccess.backToAccess")}</a>
+                {backToAccess && <a href="/#" onClick={e => backToAccess(e)}>{I18n.t("appAccess.backToAccess")}</a>}
                 <div className="grouped">
                     <h2>{I18n.t("appAccess.authorizationRules")}</h2>
                     <Button type={ButtonType.Primary}

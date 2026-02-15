@@ -24,6 +24,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import static access.manage.ManageData.getMetaDataFields;
 public class RemoteManage implements Manage {
 
     private static final Log LOG = LogFactory.getLog(RemoteManage.class);
+    private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {
+    };
 
     //Because of the custom error handling, we need to use Buffering
     private final Map<Environment, RestTemplate> restTemplates;
@@ -113,14 +116,9 @@ public class RemoteManage implements Manage {
 
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = environmentUrl(Environment.PROD);
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                HttpMethod.PUT, new HttpEntity<>(provider), Map.class);
-        Map body = responseEntity.getBody();
-        if (ResilientErrorHandler.ignoreError(body)) {
-            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
-            return provider;
-        }
-        return body;
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+                HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
+        return checkNoChangeResponse(responseEntity, provider);
     }
 
     @SneakyThrows
@@ -136,14 +134,9 @@ public class RemoteManage implements Manage {
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                httpMethod, new HttpEntity<>(provider), Map.class);
-        Map body = responseEntity.getBody();
-        if (ResilientErrorHandler.ignoreError(body)) {
-            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
-            return provider;
-        }
-        return body;
+        ResponseEntity<Map<String ,Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+                httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
+        return checkNoChangeResponse(responseEntity, provider);
     }
 
     @Override
@@ -179,8 +172,7 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/change-requests", environmentUrl(environment));
         HttpEntity<ChangeRequest> requestEntity = new HttpEntity<>(changeRequest);
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
-                new ParameterizedTypeReference<>() {
-                });
+                PARAMETERIZED_TYPE_REFERENCE);
         return responseEntity.getBody();
     }
 
@@ -399,7 +391,8 @@ public class RemoteManage implements Manage {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = String.format("%s/manage/api/internal/metadata",
                 environmentUrl(Environment.PROD));
-        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(policy), Map.class).getBody();
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(policy), PARAMETERIZED_TYPE_REFERENCE);
+        return checkNoChangeResponse(responseEntity, policy);
     }
 
     @Override
@@ -466,5 +459,14 @@ public class RemoteManage implements Manage {
         return restTemplates.get(environment);
     }
 
+    private Map<String, Object> checkNoChangeResponse(ResponseEntity<Map<String, Object>> responseEntity, Map<String, Object> provider) {
+        Map<String, Object> body = responseEntity.getBody();
+        if (body == null || ResilientErrorHandler.ignoreError(body)) {
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
+            return provider;
+        }
+        return body;
+
+    }
 
 }

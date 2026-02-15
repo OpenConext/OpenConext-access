@@ -1,4 +1,5 @@
 import "./ApplicationDetail.scss";
+import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {
     connectServiceProviderToIdentityProvider,
