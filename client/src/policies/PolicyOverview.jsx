@@ -68,6 +68,14 @@ export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPo
         }
     }
 
+    const renderPolicyChip = policy => {
+        const policyType = policy.data.type === "step" ? "step" : policy.data.denyRule ? "deny" : "allow"
+        return (
+            <Chip className={`policy-chip-${policyType}`}
+                  label={I18n.t(`appAccess.${policyType}`)}/>
+        );
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
 
     return (
@@ -99,11 +107,11 @@ export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPo
                                     <div className="policy-name-container">
                                         <p className="policy-name">{policy.data.name}</p>
                                         <div className="policy-paused-container">
-                                            {!policy.data.active && <p className="policy-paused">
-                                                {I18n.t("appAccess.paused")}
-                                            </p>}
-                                            <Chip className={`policy-chip-${policy.data.denyRule ? "deny" : "allow"}`}
-                                                  label={I18n.t(`appAccess.${policy.data.denyRule ? "deny" : "allow"}`)}/>
+                                            {!policy.data.active &&
+                                                <p className="policy-paused">
+                                                    {I18n.t("appAccess.paused")}
+                                                </p>}
+                                            {renderPolicyChip(policy)}
                                         </div>
                                     </div>
                                     <div className="policy-attributes-container">

@@ -1134,6 +1134,22 @@ const nl = {
         title: "Whoops, error!!!",
         unexpected: "An unexpected error occurred. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
         jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support."
+    },
+    policies: {
+        title: "Policies for {{name}}",
+        defaultDenyDescription: "Je bent succesvol ingelogd, maar je hebt geen toegang tot deze service.",
+        policyChoices: {
+            title: "Choose which type of policy you want to create",
+            regTitle: "Authorization policy",
+            regInfo: "Controls which users can access an application.",
+            regChoice: "Choose Authorization policy if:",
+            regExplanation:"→ You need to decide which users or groups get access to an application",
+            stepTitle: "Step-up policy",
+            stepInfo: "Defines the required Level of Assurance (LoA) for access to an application.",
+            stepChoice: "Choose Step-up authentication policy if:",
+            stepExplanation:"→ Users may access the application, but must log in with a higher LoA or MFA"
+
+        }
     }
 
 }

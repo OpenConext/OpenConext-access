@@ -9,9 +9,10 @@ import DOMPurify from "dompurify";
 import {authorities} from "../utils/Permissions.js";
 import {Loader} from "@surfnet/sds";
 import {useShallow} from "zustand/react/shallow";
-import {groupByValues, policyTemplate} from "../utils/Policy.js";
+import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
+import PolicyChoiceDialog from "../policies/PolicyChoiceDialog.jsx";
 
 
 const Policies = () => {
@@ -26,6 +27,7 @@ const Policies = () => {
     const [policies, setPolicies] = useState({});
     const [showPolicyOverview, setShowPolicyOverview] = useState(true);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
+    const [showNewPolicyChoice, setShowNewPolicyChoice] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
 
     const navigate = useNavigate();
@@ -36,11 +38,17 @@ const Policies = () => {
             && !isEmpty(currentOrganization.manageIdentifier));
     }, [user, currentOrganization]);
 
-    const toPolicyDetail = (policyIdentifier, allPolicies = policies) => {
+    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
-            newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid);
+            if (isEmpty(policyType)) {
+                setShowNewPolicyChoice(true);
+                return;
+            } else {
+                newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
+                    policyTemplateRegular(user.identityProvider.data.entityid);
+            }
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {
@@ -49,6 +57,7 @@ const Policies = () => {
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
         }
+        setShowNewPolicyChoice(false);
         window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
         setShowPolicyDetails(true);
@@ -92,6 +101,13 @@ const Policies = () => {
     return (
         <div
             className="policies-outer-container">
+            {showNewPolicyChoice &&
+                <PolicyChoiceDialog policies={policies}
+                                    close={() => {
+                                        setShowNewPolicyChoice(false);
+                                        setShowPolicyOverview(true);
+                                    }}
+                                    confirm={toPolicyDetail}/>}
             <div className="policies-header-container">
                 <div className="top-header">
                     <h1>{I18n.t("policies.title", {name: currentOrganization.name})}</h1>

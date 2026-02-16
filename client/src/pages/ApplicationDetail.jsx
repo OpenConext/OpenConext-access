@@ -35,7 +35,7 @@ import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
-import {groupByValues, policyTemplate} from "../utils/Policy.js";
+import {groupByValues, policyTemplateRegular} from "../utils/Policy.js";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -83,7 +83,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
-            newCurrentPolicy = policyTemplate(user.identityProvider.data.entityid, serviceProvider.data.entityid);
+            newCurrentPolicy = policyTemplateRegular(user.identityProvider.data.entityid, serviceProvider.data.entityid);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {

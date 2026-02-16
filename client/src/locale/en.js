@@ -1102,6 +1102,7 @@ const en = {
         denyRuleTooltip: "Permit policies enforce that only a successful match of the attributes defined will result in a Permit. No match will result in a Deny<br/><br/>Deny policies are less common to use. If the attributes in the policy match those of the person trying to log in then this will result in a Deny. No match will result in a Permit.",
         allow: "Allow",
         deny: "Deny",
+        step: "Stepup",
         allAttributesMatch: "Match all or any filters?",
         allAttributesMatchTooltip: "Policies with a logical AND rule enforce that all attributes defined must match those of the person trying to log in.<br/><br/>Policies defined with a logical OR only require one of the attributes to match the attributes of the person requesting access.",
         all: "All",
@@ -1143,7 +1144,20 @@ const en = {
         jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support."
     },
     policies: {
-        title: "Policies for {{name}}"
+        title: "Policies for {{name}}",
+        defaultDenyDescription: "You have successfully signed in, but you are not authorised to access this service.",
+        policyChoices: {
+            title: "Choose which type of policy you want to create",
+            regTitle: "Authorization policy",
+            regInfo: "Controls which users can access an application.",
+            regChoice: "Choose Authorization policy if:",
+            regExplanation:"→ You need to decide which users or groups get access to an application",
+            stepTitle: "Step-up policy",
+            stepInfo: "Defines the required Level of Assurance (LoA) for access to an application.",
+            stepChoice: "Choose Step-up authentication policy if:",
+            stepExplanation:"→ Users may access the application, but must log in with a higher LoA or MFA"
+
+        }
     }
 
 }

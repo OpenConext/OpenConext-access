@@ -1,7 +1,7 @@
 @use "../styles/vars.scss" as *;
 
 .policy-overview-container {
-    width: 65%;
+    width: 75%;
     @media (max-width: $medium) {
         width: 100%;
     }
@@ -79,6 +79,9 @@
 
                             &.policy-chip-allow {
                                 background-color: var(--sds--color--green--400);
+                            }
+                            &.policy-chip-step {
+                                background-color: var(--sds--color--blue--400);
                             }
                         }
                     }

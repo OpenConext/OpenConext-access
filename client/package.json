@@ -14,7 +14,7 @@
     "lodash": "^4.17.23"
   },
   "dependencies": {
-    "@surfnet/sds": "^0.0.160",
+    "@surfnet/sds": "^0.0.162",
     "detect-browser": "^5.3.0",
     "dompurify": "^3.3.1",
     "html2canvas": "^1.4.1",

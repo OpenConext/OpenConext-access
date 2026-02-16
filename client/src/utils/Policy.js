@@ -1,12 +1,18 @@
 import {isEmpty, splitListSemantically} from "./Utils.js";
+import I18n from "../locale/I18n";
 
-export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId = null) => ({
+export const policyTypes = {
+    reg: "reg",
+    step: "step"
+}
+
+export const policyTemplateRegular = (identityProviderEntityId, serviceProviderEntityId = null) => ({
     data: {
         active: true,
         allAttributesMustMatch: false,
         attributes: [{name: "", value: []}],
-        denyAdvice: "",
-        denyAdviceNl: "",
+        denyAdvice: I18n.translations.en.policies.defaultDenyDescription,
+        denyAdviceNl: I18n.translations.nl.policies.defaultDenyDescription,
         denyRule: false,
         description: "",
         entityid: "",
@@ -14,7 +20,39 @@ export const policyTemplate = (identityProviderEntityId, serviceProviderEntityId
         metaDataFields: {},
         name: "",
         serviceProviderIds: isEmpty(serviceProviderEntityId) ? [] : [{name: serviceProviderEntityId}],
-        type: "reg"
+        type: policyTypes.reg
+    },
+    type: "policy"
+});
+
+export const policyTemplateStepUp = (identityProviderEntityId, serviceProviderEntityId = null) => ({
+    data: {
+        active: true,
+        allAttributesMustMatch: false,
+        attributes: [],
+        denyAdvice: "",
+        denyAdviceNl: "",
+        denyRule: false,
+        description: "",
+        entityid: "",
+        loas: [{
+            allAttributesMustMatch: true,
+            level: "",
+            negateCidrNotation: false,
+            attributes: [
+                {
+                    name: "",
+                    value: [],
+                    negated: false
+                }
+            ],
+            cidrNotations: []
+        }],
+        identityProviderIds: [{name: identityProviderEntityId}],
+        metaDataFields: {},
+        name: "",
+        serviceProviderIds: isEmpty(serviceProviderEntityId) ? [] : [{name: serviceProviderEntityId}],
+        type: policyTypes.step
     },
     type: "policy"
 });
@@ -41,7 +79,8 @@ const attributeName = (allowedAttributes, attribute) => {
 }
 
 export const policyBreakDowwn = (allowedAttributes, policy, prefix, orSeparator, attributeSeparator) => {
-    const grouped = groupByValues([...policy.data.attributes]);
+    const grouped = policy.data.type === policyTypes.reg ? groupByValues([...policy.data.attributes]) :
+        groupByValues([...policy.data.loas.map(loa => loa.attributes).flat()]);
     const policyRules = grouped.map(attribute => {
         const name = attributeName(allowedAttributes, attribute);
         const values = splitListSemantically(attribute.value.map(val => `'${val.label}'`), orSeparator)
