@@ -35,7 +35,7 @@ export const UserFeedbackWidget = () => {
             windowWidth: document.documentElement.clientWidth,
             windowHeight: document.documentElement.clientHeight
         });
-        setTimeout(() => document.body.classList.remove("feedback-capture"), 225);
+        setTimeout(() => document.body.classList.remove("feedback-capture"), 625);
         return canvas.toDataURL("image/png");
     }, []);
 
@@ -62,10 +62,10 @@ export const UserFeedbackWidget = () => {
                     payload.screenshotContentType = "image/png";
                 }
             }
-
             await sendFeedback(payload);
-            setFlash(I18n.t("feedback.flash"));
             closeModal();
+            setTimeout(() => document.body.classList.remove("feedback-capture"), 625);
+            setFlash(I18n.t("feedback.flash"));
         } finally {
             setSubmitting(false);
         }
