@@ -4,13 +4,14 @@ import access.exception.InvalidInputException;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FullSearchQueryParser {
 
     //SELECT * FROM INFORMATION_SCHEMA.INNODB_FT_DEFAULT_STOPWORD;
-    private static final List<String> stopWords = List.of(
+    private static final Set<String> stopWords = Set.of(
             "a", "about", "an", "are",
             "as", "at", "be", "by",
             "com", "de", "en", "for",
@@ -19,7 +20,7 @@ public class FullSearchQueryParser {
             "on", "or", "that", "the",
             "this", "to", "was", "what",
             "when", "where", "who", "will",
-            "with", "und", "the", "www"
+            "with", "und", "www"
     );
 
     private FullSearchQueryParser() {
@@ -34,6 +35,11 @@ public class FullSearchQueryParser {
                 .filter(part -> !(part.length() < 3 || stopWords.contains(part.toLowerCase())))
                 .map(part -> "+" + part)
                 .collect(Collectors.joining(" "));
+
+        if (parsedQuery.isEmpty()) {
+            throw new InvalidInputException("Search query contains no usable terms after filtering");
+        }
+
         return parsedQuery + "*";
     }
 }

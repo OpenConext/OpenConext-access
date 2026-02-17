@@ -28,6 +28,7 @@ class FullSearchQueryParserTest {
         assertThrows(InvalidInputException.class, () -> FullSearchQueryParser.parse(null));
         assertThrows(InvalidInputException.class, () -> FullSearchQueryParser.parse(""));
         assertThrows(InvalidInputException.class, () -> FullSearchQueryParser.parse("  "));
+        assertThrows(InvalidInputException.class, () -> FullSearchQueryParser.parse("no no no"));
     }
 
 }
