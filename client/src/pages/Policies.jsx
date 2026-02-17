@@ -38,7 +38,7 @@ const Policies = () => {
             && !isEmpty(currentOrganization.manageIdentifier));
     }, [user, currentOrganization]);
 
-    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
+    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = policyTypes.reg) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
