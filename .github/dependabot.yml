@@ -74,3 +74,5 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "org.opensaml.*"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "org.junit.platform.*"
+        update-types: ["version-update:semver-major"]

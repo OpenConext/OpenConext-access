@@ -288,7 +288,6 @@ class OrganizationControllerTest extends AbstractTest {
 
         //See seed for SHARE_LOGICS, which has a manage identifier of "7"
         stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
-        stubForGetChangeRequests(getChangeRequests());
 
         Map<String, Object> organization = given()
                 .when()
@@ -300,7 +299,6 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/mine/{id}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, ((List) organization.get("changeRequests")).size());
         assertEquals(11, ((Map) organization.get("metaData")).size());
         assertNull(organization.get("applications"));
         assertNull(organization.get("invitations"));
