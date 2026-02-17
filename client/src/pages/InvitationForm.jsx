@@ -50,7 +50,11 @@ export const InvitationForm = () => {
                 useAppStore.setState({
                     breadcrumbPaths: [
                         {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                        {path: `/users/${organizationId}/team`, value: I18n.t("navigation.users"), menuItemName: mainMenuItems.users},
+                        {
+                            path: `/users/${organizationId}/team`,
+                            value: I18n.t("navigation.users"),
+                            menuItemName: mainMenuItems.users
+                        },
                         {value: I18n.t("breadCrumb.invitations")}
                     ]
                 });
@@ -98,7 +102,8 @@ export const InvitationForm = () => {
     const authorityChanged = option => {
         setInvitation({
             ...invitation,
-            intendedAuthority: option.value
+            intendedAuthority: option.value,
+            applicationIdentifiers: option.value === authorities.ADMIN ? [] : invitation.applicationIdentifiers
         });
     }
 
@@ -146,7 +151,7 @@ export const InvitationForm = () => {
                         className={"small"}
                     />}
 
-                {organization.applications.length > 0 &&
+                {(organization.applications.length > 0 && invitation.intendedAuthority !== authorities.ADMIN) &&
                     <SelectField
                         value={organization.applications
                             .filter(app => invitation.applicationIdentifiers.includes(app.id))

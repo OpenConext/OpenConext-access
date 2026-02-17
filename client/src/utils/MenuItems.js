@@ -60,9 +60,9 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     if (!user.externalUser) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
-    // if ((isAdmin || user.superUser) && !isEmpty(currentOrganization.manageIdentifier)) {
-    //     newMenuItems.push(mainMenuItems.policies);
-    // }
+    if ((isAdmin || user.superUser) && !isEmpty(currentOrganization.manageIdentifier)) {
+        newMenuItems.push(mainMenuItems.policies);
+    }
     return newMenuItems;
 }
 
