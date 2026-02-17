@@ -178,7 +178,8 @@ public class ConnectionProviderConverter {
     //For all attributes that have been changed, we create a single ChangeRequest
     public List<ChangeRequest> deduceChangeRequests(Connection connection,
                                                     Map<String, Object> currentProvider,
-                                                    Map<String, Object> auditData) {
+                                                    Map<String, Object> auditData,
+                                                    String jiraKey) {
         //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
         //So we need to convert the connection in to the new Map, without modifying the originalMap
         Map clonedProvider = deepClone(currentProvider);
@@ -197,7 +198,8 @@ public class ConnectionProviderConverter {
                     auditData,
                     false,
                     null,
-                    RequestType.Change);
+                    RequestType.Change,
+                    jiraKey);
             changeRequests.add(changeRequest);
         }
         return changeRequests;

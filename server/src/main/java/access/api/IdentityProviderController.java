@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -46,6 +47,7 @@ import static access.manage.ManageData.*;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+@SuppressWarnings("unchecked")
 public class IdentityProviderController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(IdentityProviderController.class);
@@ -169,7 +171,8 @@ public class IdentityProviderController implements UserAccessRights {
                                 jiraKey)),
                 true,
                 PathUpdateType.ADDITION,
-                RequestType.LinkRequest);
+                RequestType.LinkRequest,
+                jiraKey);
         manage.createChangeRequest(Environment.PROD, changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -223,11 +226,47 @@ public class IdentityProviderController implements UserAccessRights {
                                 jiraKey)),
                 true,
                 PathUpdateType.REMOVAL,
-                RequestType.UnlinkRequest);
+                RequestType.UnlinkRequest,
+                jiraKey);
         manage.createChangeRequest(Environment.PROD, changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
     }
 
+    @PutMapping({"/cancel-connection-request"})
+    public ResponseEntity<Map<String, Object>> cancelConnectionRequest(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
+        LOG.debug("/cancelConnectionRequest SP to IdP request by " + user.getEmail());
+
+        user = reinitializeUser(user, userRepository);
+
+        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
+        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
+                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
+
+        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
+                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+
+        List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
+        String serviceProviderEntityID = getEntityID(serviceProvider);
+        List<Map<String, Object>> openChangeRequests = changeRequests.stream()
+                .filter(changeRequest ->
+                        EntityType.saml20_idp.name().equals(changeRequest.get("type")) &&
+                                PathUpdateType.ADDITION.name().equalsIgnoreCase((String) changeRequest.get("pathUpdateType")) &&
+                                RequestType.LinkRequest.name().equalsIgnoreCase((String) changeRequest.get("requestType")) &&
+                                serviceProviderEntityID.equals(((Map<String, Map<String, String>>)
+                                        changeRequest.getOrDefault("pathUpdates", Map.of()))
+                                        .getOrDefault("allowedEntities", Map.of()).get("name")))
+                .toList();
+        //First delete all manage change request - this is most likely to succeed
+        openChangeRequests.forEach(changeRequest -> manage.rejectChangeRequest(Environment.PROD, new ChangeRequest(changeRequest)));
+        //Then update all Jira comments, this API is not so stable
+        String comment = "Ticket can be closed by request of the requestor";
+        openChangeRequests.forEach(changeRequest -> jiraClient.comment((String) changeRequest.get("ticketKey"), comment));
+
+        return Results.okResult();
+    }
 }

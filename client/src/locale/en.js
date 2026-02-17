@@ -1051,7 +1051,8 @@ const en = {
         flash: {
             requestConnectionByMember: "Your request has been send",
             makeConnection: "Application access has been set",
-            requestConnection: "Application access is requested"
+            requestConnection: "Application access is requested",
+            cancelConnectionRequest: "Your request has been cancelled"
         }
     },
     appAccess: {

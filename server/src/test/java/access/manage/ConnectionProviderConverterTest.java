@@ -39,9 +39,12 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
         connection.setManageIdentifier("5");
         Map<String, Object> provider = localManage.providerById(connection);
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, Map.of());
+        String jiraKey = "CTX-123456";
+        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, Map.of(), jiraKey);
         assertEquals(1, changeRequests.size());
-        assertEquals(19, changeRequests.getFirst().getPathUpdates().size());
+        ChangeRequest changeRequest = changeRequests.getFirst();
+        assertEquals(19, changeRequest.getPathUpdates().size());
+        assertEquals(jiraKey, changeRequest.getTicketKey());
     }
 
     @SneakyThrows

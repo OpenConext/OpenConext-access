@@ -205,7 +205,8 @@ public class ConnectionController implements UserAccessRights {
                                 user.getName(), connection.getName(), jiraKey)),
                 false,
                 PathUpdateType.ADDITION,
-                RequestType.ProductionStatusRequest);
+                RequestType.ProductionStatusRequest,
+                jiraKey);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);
@@ -276,7 +277,7 @@ public class ConnectionController implements UserAccessRights {
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
                 "notes", String.format("Production status requested by %s for %s. See Jira %s",
                         user.getName(), connection.getName(), jiraKey));
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData);
+        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData, jiraKey);
         changeRequests.forEach(changeRequest -> manage.createChangeRequest(environment, changeRequest));
         //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
         connection.mergeMetaData(provider, true);

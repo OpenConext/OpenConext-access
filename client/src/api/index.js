@@ -337,6 +337,26 @@ export function connectServiceProviderToIdentityProvider(applicationManageIdenti
     return postPutJson("/api/v1/idp/connect", body, "PUT")
 }
 
+export function disconnectServiceProviderToIdentityProvider(applicationManageIdentifier, entityType, idpManageIdentifier, message) {
+    const body = {
+        applicationManageIdentifier: applicationManageIdentifier,
+        entityType: entityType,
+        idpManageIdentifier: idpManageIdentifier,
+        message
+    };
+    return postPutJson("/api/v1/idp/disconnect", body, "PUT")
+}
+
+export function cancelServiceProviderConnectionRequest(applicationManageIdentifier, entityType, idpManageIdentifier, message) {
+    const body = {
+        applicationManageIdentifier: applicationManageIdentifier,
+        entityType: entityType,
+        idpManageIdentifier: idpManageIdentifier,
+        message
+    };
+    return postPutJson("/api/v1/idp/cancel-connection-request", body, "PUT")
+}
+
 //External Invite Proxy
 export function inviteRoles(organizationGUID, applicationManageId) {
     return fetchJson(`/api/v1/invite/roles/${organizationGUID}/${applicationManageId}`);

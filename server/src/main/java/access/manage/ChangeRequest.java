@@ -35,13 +35,22 @@ public class ChangeRequest implements Serializable {
 
     private RequestType requestType;
 
+    private String ticketKey;
+
+    public ChangeRequest(Map<String, Object> manageChangeRequest) {
+        this.id = (String) manageChangeRequest.get("id");
+        this.type = (String) manageChangeRequest.get("type");
+        this.metaDataId = (String) manageChangeRequest.get("metaDataId");
+    }
+
     public ChangeRequest(String metaDataId,
                          EntityType entityType,
                          Map<String, Object> pathUpdates,
                          Map<String, Object> auditData,
                          boolean incrementalChange,
                          PathUpdateType pathUpdateType,
-                         RequestType requestType) {
+                         RequestType requestType,
+                         String ticketKey) {
         this.metaDataId = metaDataId;
         this.type = entityType.name();
         this.note = auditData != null ? (String) auditData.get("notes") : null;
@@ -50,6 +59,7 @@ public class ChangeRequest implements Serializable {
         this.incrementalChange = incrementalChange;
         this.pathUpdateType = pathUpdateType;
         this.requestType = requestType;
+        this.ticketKey = ticketKey;
     }
 
 }

@@ -2,6 +2,7 @@ import "./ApplicationDetail.scss";
 import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {
+    cancelServiceProviderConnectionRequest,
     connectServiceProviderToIdentityProvider,
     getPolicyByServiceProviderEntityId,
     inviteRoles,
@@ -41,7 +42,7 @@ const confirmationModalOptions = {
     makeConnection: "makeConnection",
     requestConnection: "requestConnection",
     requestConnectionByMember: "requestConnectionByMember",
-    disconnectConnection: "disconnectConnection",
+    cancelConnection: "cancelConnection",
     requestDisconnectConnection: "requestDisconnectConnection",
 }
 
@@ -263,7 +264,21 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             });
         } else {
             cancelConfirmation();
-            alert("cancel request");
+            setLoading(true);
+            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            cancelServiceProviderConnectionRequest(
+                serviceProvider.id,
+                serviceProvider.type,
+                manageIdentifierOrg,
+                message)
+                .then(() => {
+                    //Because user is an useEffect dependency, everything will reload. Including change requests
+                    refreshUser(() => {
+                        //a small timeout to prevent flickering - cancelling requests does not happen that often
+                        setTimeout(() => setLoading(false), 75);
+                    });
+                    setFlash(I18n.t("applicationConnect.flash.cancelConnectionRequest"));
+                });
         }
     }
 

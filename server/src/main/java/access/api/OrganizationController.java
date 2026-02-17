@@ -161,9 +161,6 @@ public class OrganizationController implements UserAccessRights {
             if (organization.mergeMetaData(provider, false)) {
                 organizationRepository.save(organization);
             }
-            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(provider);
-            organization.convertChangeRequests(changeRequests);
-
         }
         return ResponseEntity.ok(organization);
     }

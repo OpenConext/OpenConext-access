@@ -12,7 +12,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -100,6 +102,18 @@ public class JiraClient {
                     e);
             throw e;
         }
+    }
+
+    public void comment(String jiraKey, String comment) {
+        String commentUrl = config.getBaseUrl() + "/issue/" + jiraKey + "/comment";
+        Map<String, String> body = Map.of("body", comment);
+        HttpEntity<Object> commentRequestEntity = new HttpEntity<>(body, defaultHeaders);
+
+        LOG.info("Sending JSON {} to JIRA", body);
+
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(commentUrl, HttpMethod.POST, commentRequestEntity, Map.class);
+
+        LOG.info("Response {} from JIRA", responseEntity.getBody());
     }
 
     private String resolveIssueType() {
