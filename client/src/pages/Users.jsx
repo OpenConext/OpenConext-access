@@ -42,7 +42,8 @@ export const Users = () => {
         [paginationQueryParams]);
 
     const search = (query, sorted, reverse, page) => {
-        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== paginationQueryParams.sortDirection ||
+        const isSortReversed = paginationQueryParams.sortDirection !== "DESC";
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== isSortReversed ||
             page !== paginationQueryParams.pageNumber;
         if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
@@ -106,9 +107,9 @@ export const Users = () => {
 
     const impersonate = user => {
         setLoading(true);
-        startImpersonation(user);
+        navigate("/", {replace: true});
         setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: user.name}));
-        setTimeout(() => navigate("/", {replace: true}), 375);
+        setTimeout(() => startImpersonation(user), 375);
     }
 
     if (showImpersonation) {

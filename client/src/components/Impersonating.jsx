@@ -23,7 +23,6 @@ export const Impersonating = () => {
     const endImpersonation = () => {
         stopImpersonation();
         setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
-        navigate("/");
         setTimeout(() => navigate("/", {replace: true}), 375);
     }
 

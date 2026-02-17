@@ -636,7 +636,7 @@ const en = {
             admin: "Admin",
             adminRights: "Admins can control all features and manage members and guests.",
             member: "Member",
-            memberRights: "Members belong to the organisation. They can manage applications and invite application users.",
+            memberRights: "Members belong to the organisation. They can manage their own applications and invite application users.",
             guest: "Guest",
             guestRights: "Guests are users who do not belong to the organisation but are involved in managing certain applications."
         }

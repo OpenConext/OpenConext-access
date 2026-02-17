@@ -107,6 +107,7 @@ export const AppTeamManagement = ({
                 value={null}
                 options={organization.organizationMemberships
                     .filter(member => !applicationMemberships.some(appMember => appMember.organizationMembershipIdentifier === member.id))
+                    .filter(member => member.authority !== authorities.ADMIN)
                     .map(organizationMemberOption)}
                 placeholder={I18n.t("appTeamManagement.addPlaceHolder")}
                 searchable={true}
