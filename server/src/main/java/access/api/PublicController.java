@@ -56,7 +56,8 @@ public class PublicController {
                 //We need the identity provider to see which providers are connected and are therefore visiblle
                 String authenticatingAuthority = (String) user.getClaims().get("authenticating_authority");
                 Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
-                Set<String> allowedEntities = ((List<Map<String, String>>) getData(identityProvider).getOrDefault("allowedEntities", List.of()))
+                Set<String> allowedEntities = ((List<Map<String, String>>) getData(identityProvider)
+                        .getOrDefault("allowedEntities", List.of()))
                         .stream()
                         .map(allowedEntity -> allowedEntity.get("name"))
                         .collect(Collectors.toSet());
