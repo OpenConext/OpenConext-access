@@ -230,15 +230,6 @@ $width-percentage: 75%;
         @include card(15px);
     }
 
-    .call-for-action {
-        @include card(15px);
-        margin-top: 35px;
-
-        p {
-            font-weight: 600;
-        }
-    }
-
     .grant-types {
 
         .grant-type {

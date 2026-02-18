@@ -1277,12 +1277,6 @@ export const Testing = ({
                                                     info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
                                                     active={section === sectionValue}/>)}
                         </div>
-                        <div className="call-for-action">
-                            <p>{I18n.t("connection.help")}</p>
-                            <Button txt={I18n.t("connection.callSurf")}
-                                    type={ButtonType.Secondary}
-                                    onClick={() => createAndClickLink(I18n.t("connection.mailToSurf"))}/>
-                        </div>
                     </section>
                     <section className="right">
                         {renderSection()}
