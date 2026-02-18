@@ -50,10 +50,10 @@ const System = () => {
                 return <Users/>
             }
             case "organizations": {
-                return <Organizations pendingApproval={false} tab={currentTab}/>
+                return <Organizations pendingApproval={false} />
             }
             case  "organizationPendingApproval": {
-                return <Organizations pendingApproval={true} tab={currentTab}/>
+                return <Organizations pendingApproval={true}/>
             }
         }
     }

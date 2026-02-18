@@ -26,7 +26,7 @@ import {
     updateOrganizationStatus
 } from "../api";
 
-export const Organizations = ({pendingApproval, tab}) => {
+export const Organizations = ({pendingApproval}) => {
 
     const setFlash = useAppStore(state => state.setFlash);
 
