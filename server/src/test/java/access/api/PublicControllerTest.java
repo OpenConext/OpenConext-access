@@ -1,6 +1,7 @@
 package access.api;
 
 import access.AbstractTest;
+import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Environment;
 import io.restassured.common.mapper.TypeRef;
@@ -27,7 +28,45 @@ class PublicControllerTest extends AbstractTest {
                 .get("/api/v1/public/service-providers")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(8, serviceProviders.size());
+        //Three are filtered out because of coin:ss:hidden and coin:ss:idp_visible_only
+        assertEquals(5, serviceProviders.size());
+    }
+
+    @Test
+    void serviceProvidersWithAuthenticatedInternalUser() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForServiceProviders();
+        this.stubForIdentityProviderByEntityId("http://mock-idp");
+        List<Map<String, Object>> serviceProviders = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/public/service-providers")
+                .as(new TypeRef<>() {
+                });
+        //Only two are filtered out because of coin:ss:hidden and coin:ss:idp_visible_only and internal user
+        assertEquals(6, serviceProviders.size());
+    }
+
+    @Test
+    void serviceProvidersWithAuthenticatedExternalUser() {
+        Map<String, Object> body = Map.of("sub", MANAGE_SUB, "schac_home_organization", "eduid.nl");
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(body);
+        this.stubForServiceProviders();
+        this.stubForIdentityProviderByEntityId("http://mock-idp");
+        List<Map<String, Object>> serviceProviders = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/public/service-providers")
+                .as(new TypeRef<>() {
+                });
+        //Three are filtered out because of coin:ss:hidden and coin:ss:idp_visible_only and external user
+        assertEquals(5, serviceProviders.size());
     }
 
     @Test

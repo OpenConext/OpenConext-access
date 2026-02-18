@@ -13,7 +13,8 @@
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
         "coin:application_url": "https://default-url-wiki.org",
         "application_tags": ["education"],
-        "coin:interfed_source": "WO"
+        "coin:interfed_source": "WO",
+        "coin:ss:idp_visible_only": true
       },
       "arp": {
         "enabled": true,

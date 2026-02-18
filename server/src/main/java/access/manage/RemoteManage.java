@@ -289,6 +289,8 @@ public class RemoteManage implements Manage {
         Map<String, Object> baseQuery = getBaseQuery(false);
         List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
         requestedAttributes.add("metaDataFields.coin:interfed_source");
+        requestedAttributes.add("metaDataFields.coin:ss:hidden");
+        requestedAttributes.add("metaDataFields.coin:ss:idp_visible_only");
         requestedAttributes.add("metaDataFields.application_tags");
 
         String url = String.format("%s/manage/api/internal/search/%s",

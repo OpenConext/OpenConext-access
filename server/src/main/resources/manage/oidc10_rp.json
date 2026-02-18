@@ -32,7 +32,8 @@
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
         "coin:application_url": "https://default-url-cloud.org",
-        "coin:dashboard_connect_option": "connect_without_interaction_without_email"
+        "coin:dashboard_connect_option": "connect_without_interaction_without_email",
+        "coin:ss:idp_visible_only": true
       }
     }
   },
@@ -48,7 +49,8 @@
         "name:nl": "Unused NL",
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
-        "coin:application_url": "https://default-url-unused.org"
+        "coin:application_url": "https://default-url-unused.org",
+        "coin:ss:hidden": true
       }
     }
   },

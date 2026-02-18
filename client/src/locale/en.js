@@ -131,7 +131,7 @@ const en = {
         register: "Register new organisation: ‘<strong>{{name}}</strong>’",
         confirmation: "Are you sure you want to register a new organisation called {{name}}?",
         confirmationAfter: "Your organisation is created. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
-        neworganisation: "New organisation created",
+        newOrganization: "New organisation created",
         flash: "Created organisation {{name}}."
     },
     userHome: {
