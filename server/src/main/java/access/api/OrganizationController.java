@@ -173,6 +173,8 @@ public class OrganizationController implements UserAccessRights {
                                                             @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
                                                             @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/search/paginated for user %s", user.getEduPersonPrincipalName()));
+        //Only used in the Systems tab and exclusively for superusers
+        confirmSuperUser(user);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
 
@@ -181,6 +183,14 @@ public class OrganizationController implements UserAccessRights {
         return ResponseEntity.ok(usersPage);
     }
 
+    @GetMapping("/search-landing")
+    public ResponseEntity<List<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "query") String query) {
+        LOG.debug(String.format("/landing-search for user %s", user.getEduPersonPrincipalName()));
+
+        List<Map<String, Object>> organizations = organizationRepository.searchWithKeyword(FullSearchQueryParser.parse(query));
+        return ResponseEntity.ok(organizations);
+    }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<Organization> usersOfOrganization(User user, @PathVariable("id") Long id) {

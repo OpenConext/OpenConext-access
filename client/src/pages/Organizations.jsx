@@ -32,6 +32,7 @@ export const Organizations = ({pendingApproval, tab}) => {
 
     const [refresh, setRefresh] = useState(new Date());
     const [searching, setSearching] = useState(false);
+    const [sortedBy, setSortedBy] = useState("DESC");
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination("createdAt", "DESC"));
     const [totalElements, setTotalElements] = useState(0);
     const [organizations, setOrganizations] = useState([]);
@@ -47,7 +48,6 @@ export const Organizations = ({pendingApproval, tab}) => {
             if (pendingApproval) {
                 pendingApprovalOrganizations().then(res => {
                     setOrganizations(res);
-                    setLoading(false);
                 })
             } else {
                 searchOrganizations(paginationQueryParams)
@@ -58,7 +58,7 @@ export const Organizations = ({pendingApproval, tab}) => {
                     });
             }
         },
-        [refresh, paginationQueryParams, tab]);// eslint-disable-line react-hooks/exhaustive-deps
+        [refresh, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inputRef.current) {
@@ -67,9 +67,11 @@ export const Organizations = ({pendingApproval, tab}) => {
     }, [openOrganizationId]);
 
     const search = (query, sorted, reverse, page) => {
-        const isSortReversed = paginationQueryParams.sortDirection !== "DESC";
-        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== isSortReversed ||
+        const newSorted = reverse ? "ASC" : "DESC";
+        const isReverseChanged = sortedBy !== newSorted;
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || isReverseChanged ||
             page !== paginationQueryParams.pageNumber;
+        setSortedBy(newSorted);
         if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
         }
@@ -254,14 +256,9 @@ export const Organizations = ({pendingApproval, tab}) => {
             mapper: org => <div className="wrapper"><Checkbox value={!isEmpty(org.manageIdentifier)} disabled={true}/></div>
         },
         {
-            key: "applicationCount",
-            header: I18n.t("organizations.applicationCount"),
-            mapper: org => org.applicationCount
-        },
-        {
-            key: "memberCount",
-            header: I18n.t("organizations.memberCount"),
-            mapper: org => org.memberCount
+            key: "adminEmail",
+            header: I18n.t("organizations.adminEmail"),
+            mapper: org => org.adminEmail
         },
         {
             key: "createdAt",

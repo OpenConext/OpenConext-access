@@ -38,7 +38,7 @@ export const defaultPagination = (sort = "name", sortDirection = "ASC") => {
         sort: sort,
         sortDirection: sortDirection
     };
-    return {...dp};
+    return dp;
 }
 
 export const storePageNumber = nbr => {

@@ -137,14 +137,14 @@ class OrganizationControllerTest extends AbstractTest {
 
     @Test
     void search() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
         Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query", "logi")
+                .queryParam("query", "share")
                 .queryParam("pageNumber", 0)
                 .queryParam("pageSize", 10)
                 .queryParam("sort", "name")
@@ -156,13 +156,31 @@ class OrganizationControllerTest extends AbstractTest {
         List content = (List) results.get("content");
         assertEquals(1, content.size());
         Map<String, Object> organization = (Map<String, Object>) content.getFirst();
-        assertEquals(1, organization.get("memberCount"));
-        assertEquals(0, organization.get("applicationCount"));
+        assertEquals("mary.doe@example.com", organization.get("adminEmail"));
+    }
+
+    @Test
+    void searchNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "logi")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .queryParam("sort", "name")
+                .queryParam("sortDirection", Sort.Direction.ASC)
+                .get("/api/v1/organizations/search")
+                .then()
+                        .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
     void searchWithoutQuery() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
         Map<String, Object> results = given()
                 .when()
@@ -171,7 +189,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .queryParam("pageNumber", 0)
                 .queryParam("pageSize", 10)
-                .queryParam("sort", "applicationCount")
+                .queryParam("sort", "name")
                 .queryParam("sortDirection", Sort.Direction.ASC)
                 .get("/api/v1/organizations/search")
                 .as(new TypeRef<>() {
@@ -182,8 +200,25 @@ class OrganizationControllerTest extends AbstractTest {
     }
 
     @Test
-    void searchWithoutQuerySortMemberCount() {
+    void searchLanding() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        List<Map<String, Object>> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "logi")
+                .get("/api/v1/organizations/search-landing")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, results.size());
+    }
+
+    @Test
+    void searchWithoutQuerySortAdminEmail() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
         Map<String, Object> results = given()
                 .when()
@@ -192,7 +227,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .queryParam("pageNumber", 2)
                 .queryParam("pageSize", 1)
-                .queryParam("sort", "memberCount")
+                .queryParam("sort", "adminEmail")
                 .queryParam("sortDirection", Sort.Direction.DESC)
                 .get("/api/v1/organizations/search")
                 .as(new TypeRef<>() {

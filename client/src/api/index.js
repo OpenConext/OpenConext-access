@@ -132,6 +132,10 @@ export function searchOrganizations(pagination = {}) {
     return fetchJson(`/api/v1/organizations/search?${queryPart}`);
 }
 
+export function searchOrganizationsLandingPage(query) {
+    return fetchJson(`/api/v1/organizations/search-landing?query=${encodeURIComponent(query)}`);
+}
+
 export function pendingApprovalOrganizations() {
     return fetchJson("/api/v1/organizations/status/pending");
 }

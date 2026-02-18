@@ -26,25 +26,27 @@ export const Users = () => {
 
     const [searching, setSearching] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [sortedBy, setSortedBy] = useState("DESC");
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination("createdAt", "DESC"));
     const [totalElements, setTotalElements] = useState(0);
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-            searchUsers(paginationQueryParams)
-                .then(page => {
-                    setUsers(page.content);
-                    setTotalElements(page.totalElements);
-                    setSearching(false);
-                });
-        },
-        [paginationQueryParams]);
+        searchUsers(paginationQueryParams)
+            .then(page => {
+                setUsers(page.content);
+                setTotalElements(page.totalElements);
+                setSearching(false);
+            });
+    }, [paginationQueryParams]);
 
     const search = (query, sorted, reverse, page) => {
-        const isSortReversed = paginationQueryParams.sortDirection !== "DESC";
-        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== isSortReversed ||
+        const newSorted = reverse ? "ASC" : "DESC";
+        const isReverseChanged = sortedBy !== newSorted;
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || isReverseChanged ||
             page !== paginationQueryParams.pageNumber;
+        setSortedBy(newSorted);
         if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
         }

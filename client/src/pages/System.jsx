@@ -40,6 +40,7 @@ const System = () => {
     const tabChanged = (name) => {
         setCurrentTab(name);
         const path = encodeURIComponent(`/system/${name}`);
+        //We need to force a refresh of the Organization component that is used twice
         navigate(`/refresh-route/${path}`);
     }
 

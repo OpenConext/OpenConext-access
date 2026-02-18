@@ -24,6 +24,8 @@ public class PolicyDefinition {
 
     private List<PolicyAttribute> attributes = new ArrayList<>();
 
+    private List<LoA> loas = new ArrayList<>();
+
     private String denyAdvice;
 
     private String denyAdviceNl;
@@ -41,6 +43,8 @@ public class PolicyDefinition {
     private String name;
 
     private List<PolicyProvider> serviceProviderIds = new ArrayList<>();
+
+    private boolean serviceProvidersNegated;
 
     private String type;
 

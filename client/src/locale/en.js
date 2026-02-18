@@ -218,6 +218,7 @@ const en = {
         createdAt: "Created",
         memberCount: "# Members",
         applicationCount: "# Apps",
+        adminEmail: "Admin email",
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",

@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {newOrganization, searchOrganizations} from "../api/index.js";
+import {newOrganization, searchOrganizationsLandingPage} from "../api/index.js";
 import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
@@ -33,9 +33,9 @@ const Landing = ({refreshUser}) => {
     const navigate = useNavigate();
 
     const debouncedFetch = useDebouncedCallback(val => {
-        searchOrganizations({query: val, pageSize: 100_000, sort: "name"})
-            .then(page => {
-                setOrganizations(page.content);
+        searchOrganizationsLandingPage(val)
+            .then(res => {
+                setOrganizations(res);
                 setLoading(false);
             })
     }, 850);
