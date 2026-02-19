@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AttributePolicyManipulationTest {
+class AttributeManipulationCompilerTest {
 
     private final AttributeManipulationCompiler compiler = new AttributeManipulationCompiler();
 
@@ -81,7 +81,7 @@ class AttributePolicyManipulationTest {
     @Test
     void shouldAllowSubjectIdUsage() {
         String script = """
-                set('subject', {getSubjectId()})
+                set('subject', {subjectId()})
                 """;
 
         compiler.compile(script);

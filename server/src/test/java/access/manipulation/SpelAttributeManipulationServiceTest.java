@@ -67,7 +67,7 @@ class SpelAttributeManipulationServiceTest {
         Map<String, List<String>> attributes = new HashMap<>();
 
         String script = """
-                set('subject', {getSubjectId()})
+                set('subject', {subjectId()})
                 """;
 
         service.apply(compilePolicy(script), attributes, "the-user");
@@ -128,19 +128,7 @@ class SpelAttributeManipulationServiceTest {
     void shouldSetAttribute() {
         Map<String, List<String>> attributes = new HashMap<>();
 
-        String script = "set('uid', {getSubjectId()})";
-
-        service.apply(compilePolicy(script), attributes, "user");
-
-        assertEquals(1, attributes.size());
-        assertEquals(List.of("user"), attributes.get("uid"));
-    }
-
-    @Test
-    void worksForImmutableMaps() {
-        Map<String, List<String>> attributes = Map.of();
-
-        String script = "set('uid', {getSubjectId()})";
+        String script = "set('uid', {subjectId()})";
 
         service.apply(compilePolicy(script), attributes, "user");
 

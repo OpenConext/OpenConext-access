@@ -20,10 +20,8 @@ public class SpelAttributeManipulationService implements AttributeManipulationSe
         if (expression == null) {
             return;
         }
-        if (!(attributes instanceof HashMap<String, List<String>>)) {
-            attributes = new HashMap<>(attributes);
-        }
         AttributeScriptContext ctx = new AttributeScriptContext(attributes, subjectId);
+
 
         StandardEvaluationContext context = new StandardEvaluationContext(ctx);
 
