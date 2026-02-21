@@ -22,6 +22,6 @@ public record AttributeScriptContext(Map<String, List<String>> attributes, Strin
         return get(name).stream()
                 .map(mapping::get)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

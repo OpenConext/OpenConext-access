@@ -39,7 +39,7 @@ public class AttributeManipulationCompiler {
 
             return expression;
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new InvalidAttributePolicyException("Invalid script", e);
         }
     }
