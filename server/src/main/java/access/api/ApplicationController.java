@@ -178,8 +178,11 @@ public class ApplicationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
+
         confirmApplicationWriteAccess(user, application);
-        if (!application.isSignedContract() && applicationData.isSignedContract()) {
+
+        if (!application.isSignedContract() && applicationData.isSignedContract() &&
+                getOrganizationMembership(user, application.getOrganization(), Authority.ADMIN).isEmpty()) {
             throw new UserRestrictionException(
                     String.format("User %s is not allowed to sign contract for application %s",
                             user.getEmail(), application.getName()));
