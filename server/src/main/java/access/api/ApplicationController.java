@@ -181,7 +181,9 @@ public class ApplicationController implements UserAccessRights {
 
         confirmApplicationWriteAccess(user, application);
 
+        // Only admins can sign contracts
         if (!application.isSignedContract() && applicationData.isSignedContract() &&
+                !user.isSuperUser() &&
                 getOrganizationMembership(user, application.getOrganization(), Authority.ADMIN).isEmpty()) {
             throw new UserRestrictionException(
                     String.format("User %s is not allowed to sign contract for application %s",

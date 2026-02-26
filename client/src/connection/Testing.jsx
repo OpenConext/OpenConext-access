@@ -1280,6 +1280,7 @@ export const Testing = ({
                     </section>
                     <section className="right">
                         {renderSection()}
+                        {section !== sections.pendingChanges &&
                         <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
                             {!showOverviewButton &&
                                 <>
@@ -1303,7 +1304,7 @@ export const Testing = ({
                                         icon={<ArrowRight/>}
                                         onClick={backToMainOverview}/>
                             }
-                        </div>
+                        </div>}
 
                     </section>
                 </div>
