@@ -98,6 +98,24 @@ export const deriveAccess = (user, spEntityId) => {
     return {isAccessible, isReadOnly};
 }
 
+export const hasRequestedDisconnect = (user, spEntityId) => {
+    if (isEmpty(user.identityProvider)) {
+        //External user
+        return false;
+    }
+    const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
+    if (allowedEntities.includes(spEntityId)) {
+        //already connected
+        return false;
+    }
+    user.changeRequests.some(cr =>
+        cr.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
+        cr.pathUpdateType === "REMOVAL" &&
+        cr.pathUpdates.allowedEntities.name === spEntityId
+    );
+
+}
+
 export const isAdmin = (user, authorities) => {
     if (isEmpty(user.identityProvider)) {
         //External user

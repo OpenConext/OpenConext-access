@@ -1036,6 +1036,8 @@ const en = {
         request: "Request connection",
         requestMember: "Request application",
         requested: "Application requested",
+        disconnect: "Disconnect",
+        disconnectRequested: "Request disconnection",
         back: "← Back to other apps",
         defaultAccess: "How do you want to configure default access?",
         requestConnection: "A connection to this application must be approved",
@@ -1158,8 +1160,8 @@ const en = {
             stepInfo: "Defines the required Level of Assurance (LoA) for access to an application.",
             stepChoice: "Choose Step-up authentication policy if:",
             stepExplanation:"→ Users may access the application, but must log in with a higher LoA or MFA"
-
-        }
+        },
+        negateApplication: "Select <strong>Negate selection</strong> to apply this policy to all service providers except the ones you chose.",
     }
 
 }

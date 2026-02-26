@@ -24,7 +24,7 @@ export const useLogout = () => {
             setTimeout(() => {
                 setIsAuthenticated(false);
                 navigate("/home");
-            }, 150);
+            }, 375);
         });
     }, [navigate]);
 

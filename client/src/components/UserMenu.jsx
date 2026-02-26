@@ -7,7 +7,7 @@ import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
-import {menuItemsForUser} from "../utils/MenuItems.js";
+import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {useLogout} from '../hooks/UseLogout.jsx';
 
 export const UserMenu = ({setIsAuthenticated}) => {
@@ -26,7 +26,8 @@ export const UserMenu = ({setIsAuthenticated}) => {
         const newMenuItems = menuItemsForUser(user, organization);
         useAppStore.setState(() => ({
             currentOrganization: organization,
-            menuItems: newMenuItems
+            menuItems: newMenuItems,
+            activeMenuItem: mainMenuItems.home
         }))
         navigate("/home");
     }

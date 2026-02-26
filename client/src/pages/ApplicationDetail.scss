@@ -48,7 +48,11 @@ div.application-detail-container {
             margin: auto 0 auto auto;
         }
     }
-
+.accessible-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
     .application-card-container {
         display: flex;
         align-items: flex-start;
