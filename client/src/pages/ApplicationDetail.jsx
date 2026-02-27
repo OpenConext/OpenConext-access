@@ -373,7 +373,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 serviceProvider.id,
                 serviceProvider.type,
                 manageIdentifierOrg,
-                null)
+                message)
                 .then(() => {
                     setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
                     //Because user is an useEffect dependency, everything will reload. Including change requests

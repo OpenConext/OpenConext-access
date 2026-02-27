@@ -13,6 +13,7 @@ import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes}
 import {PolicyForm} from "../policies/PolicyForm.jsx";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
 import PolicyChoiceDialog from "../policies/PolicyChoiceDialog.jsx";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 
 const Policies = () => {
@@ -71,6 +72,12 @@ const Policies = () => {
                 if (page === "details" && !isEmpty(policyId)) {
                     toPolicyDetail(policyId, res);
                 }
+                useAppStore.setState({
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                        {value: I18n.t("navigation.policies")}
+                    ]
+                });
                 setLoading(false);
             }).catch(() => {
             navigate("/home")

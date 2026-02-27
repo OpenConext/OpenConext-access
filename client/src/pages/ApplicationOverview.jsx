@@ -182,7 +182,7 @@ const ApplicationOverview = ({accessible}) => {
             {
                 key: "vendor",
                 header: I18n.t("accessibleApps.vendor"),
-                mapper: entity => entity.name
+                mapper: entity => entity.vendor
             },
             {
                 key: "created",

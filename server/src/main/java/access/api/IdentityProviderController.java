@@ -12,6 +12,7 @@ import access.manage.PathUpdateType;
 import access.manage.RequestType;
 import access.model.Authority;
 import access.model.ConnectionRequest;
+import access.model.DisconnectionRequest;
 import access.model.EntityType;
 import access.model.Environment;
 import access.model.Organization;
@@ -180,17 +181,17 @@ public class IdentityProviderController implements UserAccessRights {
     }
 
     @PutMapping({"/disconnect"})
-    public ResponseEntity<Map<String, Object>> disconnect(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
+    public ResponseEntity<Map<String, Object>> disconnect(User user, @RequestBody @Validated DisconnectionRequest disconnectionRequest) {
         LOG.debug("/disconnect SP to IdP request by " + user.getEmail());
 
         user = reinitializeUser(user, userRepository);
 
-        String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
+        String idpManageIdentifier = disconnectionRequest.getIdpManageIdentifier();
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
-        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
-                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+        Map<String, Object> serviceProvider = manage.providerById(disconnectionRequest.getEntityType(),
+                disconnectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
         Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
