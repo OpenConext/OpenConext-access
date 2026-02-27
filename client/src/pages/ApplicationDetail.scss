@@ -8,6 +8,17 @@ div.application-detail-container {
 
     .sds--modal--container {
         max-width: 620px;
+
+        &.policy-choice-dialog {
+            width: 46em;
+            max-width: 46em;
+
+            .sds--modal--content {
+                background-color: var(--sds--color--gray--100);
+                padding: 35px;
+            }
+
+        }
     }
 
     .connect-options-container {
@@ -48,11 +59,13 @@ div.application-detail-container {
             margin: auto 0 auto auto;
         }
     }
-.accessible-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+
+    .accessible-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
     .application-card-container {
         display: flex;
         align-items: flex-start;
@@ -229,6 +242,7 @@ div.application-detail-container {
                 margin-top: 25px;
                 font-size: 18px;
                 font-weight: 600;
+
                 &.no-margin {
                     margin-top: 0;
                 }

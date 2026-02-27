@@ -37,7 +37,8 @@ import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
-import {groupByValues, policyTemplateRegular} from "../utils/Policy.js";
+import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
+import PolicyChoiceDialog from "../policies/PolicyChoiceDialog.jsx";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -81,12 +82,19 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
+    const [showNewPolicyChoice, setShowNewPolicyChoice] = useState(false);
 
-    const toPolicyDetail = (policyIdentifier, allPolicies = policies) => {
+    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
-            newCurrentPolicy = policyTemplateRegular(user.identityProvider.data.entityid, serviceProvider.data.entityid);
+            if (isEmpty(policyType)) {
+                setShowNewPolicyChoice(true);
+                return;
+            } else {
+                newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
+                    policyTemplateRegular(user.identityProvider.data.entityid);
+            }
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {
@@ -95,6 +103,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
         }
+        setShowNewPolicyChoice(false);
         window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
         setShowPolicyDetails(true);
@@ -767,6 +776,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     return (
         <div className={`application-detail-container`}>
+            {showNewPolicyChoice &&
+                <PolicyChoiceDialog policies={policies}
+                                    close={() => {
+                                        setShowNewPolicyChoice(false);
+                                        setShowPolicyOverview(true);
+                                    }}
+                                    confirm={toPolicyDetail}/>}
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          isError={isError}
@@ -777,7 +793,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                          question={question}>
                 {confirmationModalChildren()}
             </ConfirmationDialog>}
-            {accessible && renderAccessibleApp()}
+            {(!showNewPolicyChoice && accessible) && renderAccessibleApp()}
             {!accessible && renderNonAccessibleApp()}
         </div>
     );
