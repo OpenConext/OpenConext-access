@@ -11,18 +11,16 @@ export const useLogout = () => {
 
     const logoutUser = useCallback((e, setIsAuthenticated) => {
         stopEvent(e);
+        navigate("/authentication-switch");
         logout().then(() => {
-            useAppStore.setState(() => ({
-                currentOrganization: { name: "" },
-                breadcrumbPaths: [],
-                user: { name: "" }
-            }));
-
             sessionStorage.removeItem(SESSION_STORAGE_LOCATION);
-            navigate("/authentication-switch");
-
+            setIsAuthenticated(false);
             setTimeout(() => {
-                setIsAuthenticated(false);
+                useAppStore.setState(() => ({
+                    currentOrganization: { name: "" },
+                    breadcrumbPaths: [],
+                    user: { name: "" }
+                }));
                 navigate("/home");
             }, 375);
         });

@@ -1,5 +1,5 @@
 import "./UserHome.scss";
-import React from "react";
+import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {Button, ButtonType} from "@surfnet/sds";
 import I18n from "../locale/I18n";
@@ -22,16 +22,20 @@ const UserHome = () => {
     } else if (!isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
         newLocation = "/relax"
     }
+
+    useEffect(() => {
+        if (newLocation === null) {
+            useAppStore.setState({
+                breadcrumbPaths: [
+                    {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
+                ]
+            });
+        }
+    }, []);
+
     if (newLocation !== null) {
         return <Navigate to={newLocation} replace/>;
-    } else {
-        useAppStore.setState({
-            breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
-            ]
-        });
     }
-
     const navigateInner = (menuItem, path) => {
         navigate(path);
         useAppStore.setState(() => ({

@@ -27,15 +27,16 @@ export const UserFeedbackWidget = () => {
     };
 
     const captureScreenshot = useCallback(async () => {
+        window.scrollTo({top: 0, behavior: "instant"});
         document.body.classList.add("feedback-capture");
         const canvas = await html2canvas(document.body, {
             backgroundColor: null,
             useCORS: true,
             scale: 1,
-            windowWidth: document.documentElement.clientWidth,
-            windowHeight: document.documentElement.clientHeight
+            windowWidth: document.body.clientWidth,
+            windowHeight: document.body.scrollHeight
         });
-        setTimeout(() => document.body.classList.remove("feedback-capture"), 625);
+        setTimeout(() => document.body.classList.remove("feedback-capture"), 825);
         return canvas.toDataURL("image/png");
     }, []);
 
