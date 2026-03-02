@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Test Role Profile",
+    "description": "Test Role Profile",
+    "urn": "urn:mace:surf.nl:invite.test2.surfconext.nl:f5b477df-6af9-46f8-b0fa-8e7a8695afb0:test_role_profile"
+  },
+  {
+    "name": "Test Role Profile II ",
+    "description": "Test Role Profile Description",
+    "urn": "urn:mace:surf.nl:invite.test2.surfconext.nl:f5b477df-6af9-46f8-b0fa-8e7a8695afb0:test_role2_profile"
+  }
+]

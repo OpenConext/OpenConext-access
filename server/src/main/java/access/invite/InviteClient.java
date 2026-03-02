@@ -36,4 +36,12 @@ public class InviteClient {
                 organizationGUID,
                 applicationManageId);
     }
+
+    public List<Map<String, Object>> rolesSummary() {
+        if (!enabled) {
+            return List.of();
+        }
+        return restTemplate.getForObject(
+                url + "/api/external/v1/internal/invite/roles-summary", List.class);
+    }
 }

@@ -207,4 +207,30 @@ class InviteControllerTest extends AbstractTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
+    @SneakyThrows
+    @Test
+    void rolesSummary() {
+        List<Map<String, Object>> rolesMock = objectMapper.readValue(new ClassPathResource("/invite/roles_summary.json").getInputStream(),
+                new TypeReference<>() {
+                });
+        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles-summary"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(rolesMock))));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+
+        List<Map<String, String>> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invite/roles-summary")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(2, roles.size());
+    }
+
+
 }

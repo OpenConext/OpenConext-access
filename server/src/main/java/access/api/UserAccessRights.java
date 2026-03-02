@@ -54,10 +54,7 @@ public interface UserAccessRights {
                     String.format("User %s is not allowed to access application %s",
                             user.getEmail(), application.getName()));
         }
-
-
     }
-
 
     default void confirmApplicationDeleteAccess(User user, Application application) {
         if (user.isSuperUser()) {

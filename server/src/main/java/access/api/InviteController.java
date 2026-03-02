@@ -4,9 +4,7 @@ import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
 import access.invite.InviteClient;
 import access.manage.Manage;
-import access.manage.ManageData;
 import access.model.User;
-import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,7 +71,7 @@ public class InviteController implements UserAccessRights {
             if (StringUtils.hasText(idpInstitutionGUID)) {
                 organizationGUID = idpInstitutionGUID;
             } else {
-                LOG.warn("Not fetching invite roles as there is no institution GUID for IdP: "+user.getAuthenticatingAuthority());
+                LOG.warn("Not fetching invite roles as there is no institution GUID for IdP: " + user.getAuthenticatingAuthority());
                 return ResponseEntity.ok(List.of());
             }
         }
@@ -85,4 +83,16 @@ public class InviteController implements UserAccessRights {
         List<Map<String, Object>> inviteRoles = this.inviteClient.rolesPerOrganizationApplicationId(organizationGUID, applicationManageId);
         return ResponseEntity.ok(inviteRoles);
     }
+
+
+    @GetMapping("/roles-summary")
+    public ResponseEntity<List<Map<String, Object>>> rolesSummary(User user) {
+        LOG.debug("/rolesSummary called by: " + user.getEmail());
+
+        confirmInstitutionAdmin(user);
+
+        List<Map<String, Object>> inviteRoles = this.inviteClient.rolesSummary();
+        return ResponseEntity.ok(inviteRoles);
+    }
+
 }
