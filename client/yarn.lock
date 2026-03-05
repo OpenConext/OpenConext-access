@@ -2233,10 +2233,10 @@ https-proxy-agent@^7.0.6:
     agent-base "^7.1.2"
     debug "4"
 
-i18n-js@^4.5.2:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/i18n-js/-/i18n-js-4.5.2.tgz#54026cca2c60709e502cfd0ccefebd0afc1cb34f"
-  integrity sha512-QetDvWXkyX+FTbidPn7gEyGtO5l0cB5nj/MNfnXczrUWCGaF9p8pzoh5lTStXww3KZj2D9s5xXNH6Z5gKhd6iQ==
+i18n-js@^4.5.3:
+  version "4.5.3"
+  resolved "https://registry.yarnpkg.com/i18n-js/-/i18n-js-4.5.3.tgz#b86c5e6b8d1f09e15952edd7fb7d07445e8d5475"
+  integrity sha512-5/tT6R9t9qlYqGhxGq9I9Ap3WKUaAMq5aRuO1gqAcUqm6xGbL0jwTAjSFjgbx935BAV8QbEzvQOzE796dUlEfA==
   dependencies:
     bignumber.js "*"
     lodash "*"
