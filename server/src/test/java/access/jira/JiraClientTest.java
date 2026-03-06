@@ -45,4 +45,14 @@ class JiraClientTest extends AbstractTest {
                 "mail@to.org"));
         assertEquals("CTX-1000", jiraKey);
     }
+
+    @Test
+    void comment() {
+        String jiraKey = "CTX-1000";
+        stubFor(post(urlPathMatching("/issue/" + jiraKey + "/comment")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withStatus(200)));
+
+        jiraClient.comment(jiraKey,"Comment");
+    }
 }
