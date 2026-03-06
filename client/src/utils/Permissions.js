@@ -81,7 +81,7 @@ export const deriveAccess = (user, spEntityId) => {
     let isAccessible = false, isReadOnly = false, isPendingDisconnect = false;
     if (isEmpty(user.identityProvider)) {
         //External user
-        return {isAccessible, isReadOnly};
+        return {isAccessible, isReadOnly, isPendingDisconnect};
     }
     const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
     isAccessible = allowedEntities.includes(spEntityId);

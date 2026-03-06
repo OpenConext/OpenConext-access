@@ -105,6 +105,9 @@ public class JiraClient {
     }
 
     public void comment(String jiraKey, String comment) {
+        if (!config.isEnabled()) {
+            return ;
+        }
         String commentUrl = config.getBaseUrl() + "/issue/" + jiraKey + "/comment";
         Map<String, String> body = Map.of("body", comment);
         HttpEntity<Object> commentRequestEntity = new HttpEntity<>(body, defaultHeaders);

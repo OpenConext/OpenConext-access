@@ -2,7 +2,7 @@ import "./ApplicationDetail.scss";
 import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {
-    cancelServiceProviderConnectionRequest,
+    cancelServiceProviderConnectionRequest, cancelServiceProviderDisconnectionRequest,
     connectServiceProviderToIdentityProvider,
     disconnectServiceProviderToIdentityProvider,
     getPolicyByServiceProviderEntityId,
@@ -79,7 +79,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
     const [pendingDisconnect, setPendingDisconnect] = useState(true);
-    const [requestedDisconnect, setRequestedDisconnect] = useState(true);
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
@@ -353,6 +352,38 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         }
     }
 
+    const cancelDisconnectionRequest = (withConfirmation, e) => {
+        stopEvent(e);
+        setConfirmationModalOption(null);
+        if (withConfirmation) {
+            setConfirmation({
+                open: true,
+                cancel: () => cancelConfirmation(),
+                action: () => cancelDisconnectionRequest(false),
+                title: I18n.t("appAccess.cancelRequestTitle"),
+                okButton: I18n.t("forms.sure"),
+                question: I18n.t("appAccess.cancelDisrequestQuestion"),
+            });
+        } else {
+            cancelConfirmation();
+            setLoading(true);
+            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            cancelServiceProviderDisconnectionRequest(
+                serviceProvider.id,
+                serviceProvider.type,
+                manageIdentifierOrg,
+                message)
+                .then(() => {
+                    //Because user is an useEffect dependency, everything will reload. Including change requests
+                    refreshUser(() => {
+                        //a small timeout to prevent flickering - cancelling requests does not happen that often
+                        setTimeout(() => setLoading(false), 75);
+                    });
+                    setFlash(I18n.t("applicationConnect.flash.cancelConnectionRequest"));
+                });
+        }
+    }
+
     const doRequestDisconnection = (withConfirmation) => {
         if (withConfirmation) {
             const newModalOption = confirmationModalOptions.requestDisconnectConnection;
@@ -433,6 +464,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     children={<a href="/" onClick={e => cancelConnectionRequest(true, e)}>
                                         {I18n.t("appAccess.cancelRequest")}</a>}
                                     message={I18n.t("appAccess.requestedAccessNotification")}/>
+                }
+                {pendingDisconnect && <Alert alertType={AlertType.Warning}
+                                    asChild={true}
+                                    children={<a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
+                                        {I18n.t("appAccess.cancelRequest")}</a>}
+                                    message={I18n.t("appAccess.requestedDisconnectNotification")}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     {showPolicyDetails &&
