@@ -78,7 +78,7 @@ export const hasApplicationDeleteAccess = (user, application) => {
 }
 
 export const deriveAccess = (user, spEntityId) => {
-    let isAccessible = false, isReadOnly = false;
+    let isAccessible = false, isReadOnly = false, isPendingDisconnect = false;
     if (isEmpty(user.identityProvider)) {
         //External user
         return {isAccessible, isReadOnly};
@@ -94,26 +94,13 @@ export const deriveAccess = (user, spEntityId) => {
             cr.pathUpdates.allowedEntities.name === spEntityId
         );
     }
+    isPendingDisconnect = user.changeRequests.some(cr =>
+            cr.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
+            cr.pathUpdateType === "REMOVAL" &&
+            cr.pathUpdates.allowedEntities.name === spEntityId
+        );
 
-    return {isAccessible, isReadOnly};
-}
-
-export const hasRequestedDisconnect = (user, spEntityId) => {
-    if (isEmpty(user.identityProvider)) {
-        //External user
-        return false;
-    }
-    const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
-    if (allowedEntities.includes(spEntityId)) {
-        //already connected
-        return false;
-    }
-    user.changeRequests.some(cr =>
-        cr.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
-        cr.pathUpdateType === "REMOVAL" &&
-        cr.pathUpdates.allowedEntities.name === spEntityId
-    );
-
+    return {isAccessible, isReadOnly, isPendingDisconnect};
 }
 
 export const isAdmin = (user, authorities) => {

@@ -29,7 +29,7 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {authorities, deriveAccess, hasRequestedDisconnect, isAdmin} from "../utils/Permissions.js";
+import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
@@ -78,6 +78,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [memberRequestSend, setMemberRequestSend] = useState(false);
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
+    const [pendingDisconnect, setPendingDisconnect] = useState(true);
     const [requestedDisconnect, setRequestedDisconnect] = useState(true);
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
@@ -121,13 +122,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     return;
                 }
                 //See if this application is already connected
-                const {isAccessible, isReadOnly} = deriveAccess(user, res.data.entityid);
-                const isRequestedDisconnect = hasRequestedDisconnect(user, res.data.entityid);
+                const {isAccessible, isReadOnly, isPendingDisconnect} = deriveAccess(user, res.data.entityid);
                 const adminUser = isAdmin(user, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
                 setReadOnly(isReadOnly);
-                setRequestedDisconnect(isRequestedDisconnect);
+                setPendingDisconnect(isPendingDisconnect);
                 //Update breadcrumb
                 useAppStore.setState({
                     breadcrumbPaths: [
@@ -362,7 +362,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 cancel: () => cancelConfirmation(),
                 action: () => doRequestDisconnection(false),
                 title: null,
-                question: null,
+                question: I18n.t("applicationConnect.disconnectRequestedQuestion"),
                 okButton: I18n.t("applicationConnect.disconnectRequested")
             });
         } else {
@@ -540,6 +540,26 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return renderDetailsApp();
     }
 
+    const chipTypeForConnectionStatus = () => {
+        if (readOnly) {
+            return ChipType.Status_error;
+        }
+        if (pendingDisconnect) {
+            return ChipType.Status_warning;
+        }
+        return ChipType.Status_info;
+    }
+
+    const translationForConnectionStatus = () => {
+        if (readOnly) {
+            return I18n.t("accessibleApps.connectRequested");
+        }
+        if (pendingDisconnect) {
+            return I18n.t("accessibleApps.disconnectRequested");
+        }
+        return I18n.t("accessibleApps.connectionMade");
+    }
+
     const renderAccessibleApp = () => {
         return (
             <>
@@ -558,13 +578,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </div>
                             </div>
                             <div className="accessible-options">
-                                <Chip type={readOnly ? ChipType.Status_error : ChipType.Status_info}
-                                      label={I18n.t(`accessibleApps.${readOnly ? "connectRequested" : "connectionMade"}`)}/>
-                                {(!readOnly && currentOrganization.manageIdentifier && isAdminUser) &&
-                                    <Button onClick={() => doRequestDisconnection(true)}
-                                            disabled={requestedDisconnect}
-                                            type={ButtonType.DestructiveSecondary}
-                                            txt={I18n.t(`applicationConnect.${requestedDisconnect ? "disconnectRequested" : "disconnect"}`)}/>}
+                                <Chip type={chipTypeForConnectionStatus()}
+                                      label={translationForConnectionStatus()}/>
+                                {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
+                                    && <Button onClick={() => doRequestDisconnection(true)}
+                                               type={ButtonType.DestructiveSecondary}
+                                               txt={I18n.t("applicationConnect.disconnect")}/>
+                                }
                             </div>
                         </div>
                     </TabHeader>
