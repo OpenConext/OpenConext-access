@@ -31,7 +31,7 @@ const UserHome = () => {
                 ]
             });
         }
-    }, []);
+    }, [newLocation]);
 
     if (newLocation !== null) {
         return <Navigate to={newLocation} replace/>;
