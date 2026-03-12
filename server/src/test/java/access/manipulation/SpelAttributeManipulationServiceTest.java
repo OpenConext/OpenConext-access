@@ -169,9 +169,7 @@ class SpelAttributeManipulationServiceTest {
     }
 
     private AttributeManipulation compilePolicy(String script) {
-        AttributeManipulation policy = new AttributeManipulation(script);
-        Expression compiled = compiler.compile(policy.getScript());
-        policy.setCompiledExpression(compiled);
-        return policy;
+        Expression expression = compiler.compile(script);
+        return new AttributeManipulation(script, expression);
     }
 }

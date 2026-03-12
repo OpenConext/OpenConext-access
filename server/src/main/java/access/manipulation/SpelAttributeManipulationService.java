@@ -20,8 +20,8 @@ public class SpelAttributeManipulationService implements AttributeManipulationSe
         if (expression == null) {
             return;
         }
-        AttributeScriptContext ctx = new AttributeScriptContext(attributes, subjectId);
 
+        AttributeScriptContext ctx = new AttributeScriptContext(attributes, subjectId);
 
         StandardEvaluationContext context = new StandardEvaluationContext(ctx);
 
