@@ -1,0 +1,46 @@
+.mod-manage {
+    position: relative;
+    max-width: 100%;
+
+    .mod-spinner-loading {
+        position: absolute;
+        top: -90px;
+        right: 50%;
+    }
+
+    .mod-entities .entities-search {
+        width: auto;
+    }
+
+    table.users {
+
+        thead {
+            th {
+                &.name {
+                    width: 35%;
+                }
+
+                &.schac_home_organisation {
+                    width: 20%;
+                }
+
+                &.createdAt {
+                    width: 20%;
+                }
+
+                &.lastActivity {
+                    width: 20%;
+                }
+            }
+        }
+
+        tbody {
+            td.authority {
+                text-align: center;
+            }
+
+        }
+
+    }
+
+}
