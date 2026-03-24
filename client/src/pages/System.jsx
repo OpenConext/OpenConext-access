@@ -41,12 +41,11 @@ const System = () => {
     });
 
     const tabChanged = name => {
+        //We need to force a refresh if the tab change is between the two Organization components
         const refreshRequired = name !== currentTab && organizationTabs.includes(name) &&
             organizationTabs.includes(currentTab);
-        debugger;
         setCurrentTab(name);
         const path = encodeURIComponent(`/system/${name}`);
-        //We need to force a refresh of the Organization component that is used twice
         navigate(refreshRequired ? `/refresh-route/${path}` : path);
     }
 
