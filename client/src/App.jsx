@@ -42,6 +42,7 @@ import ApplicationOverview from "./pages/ApplicationOverview.jsx";
 import Profile from "./pages/Profile.jsx";
 import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
+import ManageDetail from "./pages/ManageDetail.jsx";
 
 const App = () => {
 
@@ -144,6 +145,8 @@ const App = () => {
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId/:page?/:policyId?"
                                    element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>
+                            <Route path="/manage/details/:manageType/:manageId"
+                                   element={<ManageDetail />}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>

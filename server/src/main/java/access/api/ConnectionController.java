@@ -14,6 +14,7 @@ import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
 import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -109,6 +110,25 @@ public class ConnectionController implements UserAccessRights {
             }
         }
         return ResponseEntity.ok(connection);
+    }
+
+    @GetMapping({"/{manageType}/{manageIdentifier}"})
+    public ResponseEntity<?> findByManage(User user,
+                                          @PathVariable("manageType") EntityType entityType,
+                                          @PathVariable String manageIdentifier) {
+        LOG.debug("/find findByManage for " + user.getEmail());
+
+        return connectionRepository.findByProtocolAndManageIdentifier(entityType, manageIdentifier)
+                .map(connection -> {
+                    Application application = connection.getApplication();
+                    Organization organization = application.getOrganization();
+                    return ResponseEntity.ok(Map.of(
+                            "connection", connection,
+                            "application", application,
+                            "organization", organization
+                    ));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping({"", "/"})

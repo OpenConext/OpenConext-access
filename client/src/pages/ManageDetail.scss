@@ -1,0 +1,75 @@
+@use "../index";
+@use "../styles/vars.scss" as *;
+
+div.manage-detail-container {
+    width: 100%;
+
+    $width: 920px;
+
+    .inner-manage-detail-container {
+        width: 100%;
+        background-color: white;
+    }
+
+    .manage-detail-top {
+        background-color: white;
+        padding: 0 25px;
+
+        a {
+            color: var(--sds--color--gray--500);
+            text-decoration: none;
+        }
+    }
+
+    .manage-detail {
+        @include index.page;
+        margin: 0 25px;
+        background-color: white;
+        max-width: $width;
+        padding: 25px 0;
+
+        &.stand-alone {
+            margin: 0 25px;
+        }
+
+        .meta-data {
+            display: flex;
+            align-items: center;
+            padding-bottom: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--sds--color--gray--300);
+
+            img {
+                width: 140px;
+                height: auto;
+                border: 1px solid var(--sds--color--gray--200);
+                padding: 12px;
+                border-radius: 8px;
+                margin-right: 25px;
+            }
+
+            .meta-data-name {
+
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+
+                p.organization {
+                    color: var(--sds--color--blue--400);
+                    font-size: 20px;
+                }
+
+                p.name {
+                    font-weight: 600;
+                    font-size: 24px;
+                }
+            }
+
+            button {
+                margin-left: auto;
+            }
+        }
+    }
+
+
+}

@@ -2,13 +2,18 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.model.*;
+import access.model.Application;
+import access.model.Connection;
+import access.model.ConnectionStatus;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.GrantType;
+import access.model.State;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -202,6 +207,42 @@ class ConnectionControllerTest extends AbstractTest {
         assertEquals(2, changeRequests.size());
     }
 
+    @Test
+    void find() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+
+        Connection fetchedConnection = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("manageType", connection.getProtocol())
+                .pathParam("manageIdentifier", connection.getManageIdentifier())
+                .get("/api/v1/connections/{manageType}/{manageIdentifier}")
+                .as(Connection.class);
+
+        assertEquals(connection.getId(), fetchedConnection.getId());
+    }
+
+    @Test
+    void find404() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("manageType", EntityType.oidc10_rp)
+                .pathParam("manageIdentifier", "nope")
+                .get("/api/v1/connections")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+
+    }
+
     @SneakyThrows
     @Test
     void findAndSyncWithManage() {
@@ -226,7 +267,7 @@ class ConnectionControllerTest extends AbstractTest {
         //See /manage/playground_rp.json
         assertEquals(244, connection.get("manageVersion"));
         assertEquals(ConnectionStatus.PROD_READY.name(), connection.get("status"));
-        assertEquals(2, ((List)connection.get("changeRequests")).size());
+        assertEquals(2, ((List) connection.get("changeRequests")).size());
     }
 
     @SneakyThrows
@@ -252,7 +293,8 @@ class ConnectionControllerTest extends AbstractTest {
                 });
         assertEquals(2, changeRequests.size());
     }
-        @Test
+
+    @Test
     void resetSecret() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Map<String, String> newSecret = given()

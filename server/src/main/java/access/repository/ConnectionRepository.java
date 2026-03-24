@@ -1,6 +1,7 @@
 package access.repository;
 
 import access.model.Connection;
+import access.model.EntityType;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +17,9 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     @EntityGraph(attributePaths = {"application.organization"})
     Optional<Connection> findDetailsById(Long id);
+
+    @EntityGraph(attributePaths = {"application.organization"})
+    Optional<Connection> findByProtocolAndManageIdentifier(EntityType entityType, String manageIdentifier);
 
     @Modifying
     @Query(value = "DELETE FROM connections WHERE id = ?1", nativeQuery = true)

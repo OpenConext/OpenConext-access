@@ -286,6 +286,10 @@ export function getConnectionById(connectionId) {
     return fetchJson(`/api/v1/connections/${connectionId}`);
 }
 
+export function getByManageIdentifiers(entityType, manageIdentifier) {
+    return fetchJson(`/api/v1/connections/${entityType}/${manageIdentifier}`);
+}
+
 export function deleteConnectionById(connectionId) {
     return fetchDelete(`/api/v1/connections/${connectionId}`);
 }

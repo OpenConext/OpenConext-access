@@ -1175,6 +1175,10 @@ const en = {
         oidc10_rp: "OIDC Relying Party",
         saml20_sp: "SAML Service Provider",
         searchPlaceHolder: "Search for Manage entities"
+    },
+    manageDetail: {
+        backToSystem: "← Back to manage apps",
+        import: "Import"
     }
 
 }
