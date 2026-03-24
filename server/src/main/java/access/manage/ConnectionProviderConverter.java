@@ -190,7 +190,7 @@ public class ConnectionProviderConverter {
         List<ChangeRequest> changeRequests = new ArrayList<>();
         Map<String, Object> pathUpdates = new LinkedHashMap<>();
         diffChangeRequestRecursive("", currentData, newData, pathUpdates);
-        if (!pathUpdates.isEmpty()) {
+        if (pathUpdatesWarrantChangeRequest(pathUpdates)) {
             ChangeRequest changeRequest = new ChangeRequest(
                     connection.getManageIdentifier(),
                     connection.getProtocol(),
@@ -203,6 +203,16 @@ public class ConnectionProviderConverter {
             changeRequests.add(changeRequest);
         }
         return changeRequests;
+    }
+
+    private boolean pathUpdatesWarrantChangeRequest(Map<String, Object> pathUpdates) {
+        if (pathUpdates.isEmpty()) {
+            return false;
+        }
+        if (pathUpdates.size() == 1 && pathUpdates.containsKey("revisionnote")) {
+            return false;
+        }
+        return true;
     }
 
     public HashMap<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {
