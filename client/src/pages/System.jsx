@@ -45,8 +45,13 @@ const System = () => {
         const refreshRequired = name !== currentTab && organizationTabs.includes(name) &&
             organizationTabs.includes(currentTab);
         setCurrentTab(name);
-        const path = encodeURIComponent(`/system/${name}`);
-        navigate(refreshRequired ? `/refresh-route/${path}` : path);
+        const newPath = `/system/${name}`;
+        if (refreshRequired) {
+            const encodedPath = encodeURIComponent(newPath);
+            navigate(`/refresh-route/${encodedPath}`);
+        } else {
+            navigate(newPath, {replace: true});
+        }
     }
 
     const renderCurrentTab = () => {
