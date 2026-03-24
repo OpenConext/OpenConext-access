@@ -1,6 +1,8 @@
 package access.manage;
 
 import access.model.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -56,6 +58,8 @@ public interface Manage {
     Map<String, Object> updatePolicy(Map<String, Object> policy);
 
     List<Map<String, Object>> uniquePolicyName(Map<String, Object> properties);
+
+    Map<String, List<Map<String, Object>>> autoCompleteEntities(EntityType type, String query);
 
     List<Map<String, Object>> allowedAttributes();
 

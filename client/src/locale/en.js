@@ -115,7 +115,8 @@ const en = {
         system: "System",
         users: "Users",
         organizations: "Organizations",
-        organizationPendingApproval: "Pending approval"
+        organizationPendingApproval: "Pending approval",
+        manage: "Manage"
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -186,7 +187,8 @@ const en = {
         joins: "Join Requests",
         invitations: "Invitations",
         access: "Access",
-        information: "App information"
+        information: "App information",
+        manage: "Manage"
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -1165,6 +1167,14 @@ const en = {
             stepExplanation:"→ Users may access the application, but must log in with a higher LoA or MFA"
         },
         negateApplication: "Select <strong>Negate selection</strong> to apply this policy to all service providers except the ones you chose.",
+    },
+    manage: {
+        name: "Name",
+        organization: "Organization",
+        type: "Entity type",
+        oidc10_rp: "OIDC Relying Party",
+        saml20_sp: "SAML Service Provider",
+        searchPlaceHolder: "Search for Manage entities"
     }
 
 }

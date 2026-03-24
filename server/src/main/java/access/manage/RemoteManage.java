@@ -26,6 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -419,6 +421,16 @@ public class RemoteManage implements Manage {
         String url = String.format("%s/manage/api/internal/metadata/%s/%s",
                 environmentUrl(Environment.PROD), EntityType.policy.name(), policy.get("id"));
         restTemplate.delete(url);
+    }
+
+    @Override
+    public Map<String, List<Map<String, Object>>> autoCompleteEntities(EntityType type, String query) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = String.format("%s/manage/api/internal/autocomplete/%s?query=%s",
+                environmentUrl(Environment.PROD),
+                type.name(),
+                URLEncoder.encode(query, Charset.defaultCharset()));
+        return restTemplate.getForObject(url, Map.class);
     }
 
     @Override

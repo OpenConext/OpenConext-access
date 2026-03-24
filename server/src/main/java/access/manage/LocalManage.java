@@ -1,7 +1,11 @@
 package access.manage;
 
 import access.exception.NotFoundException;
-import access.model.*;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Organization;
+import access.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -12,7 +16,12 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -272,7 +281,7 @@ public final class LocalManage implements Manage {
                     List<Map<String, String>> identityProviderIds = (List<Map<String, String>>)
                             data.getOrDefault("identityProviderIds", List.of());
                     return identityProviderIds.stream()
-                                    .anyMatch(m -> m.get("name").equals(identityProviderEntityId));
+                            .anyMatch(m -> m.get("name").equals(identityProviderEntityId));
                 })
                 .toList();
     }
@@ -314,5 +323,25 @@ public final class LocalManage implements Manage {
     @Override
     public void connectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser) {
         //nope
+    }
+
+    @Override
+    public Map<String, List<Map<String, Object>>> autoCompleteEntities(EntityType type, String query) {
+        String lowerCaseQuery = query.toLowerCase();
+        return Map.of("suggestions", this.allProviders.get(type).stream()
+                .filter(entity -> {
+                    Map<String, Object> data = getData(entity);
+                    String entityid = (String) data.get("entityid");
+                    if (entityid.toLowerCase().contains(lowerCaseQuery)) {
+                        return true;
+                    }
+                    Map<String, Object> metaDataFields = getMetaDataFields(data);
+                    return Stream.of("name:en", "name:nl", "OrganizationName:en", "OrganizationName:nl")
+                            .anyMatch(attr -> {
+                                String val = (String) metaDataFields.get("attr");
+                                return StringUtils.hasText(val) && val.toLowerCase().contains(query);
+                            });
+                })
+                .toList());
     }
 }

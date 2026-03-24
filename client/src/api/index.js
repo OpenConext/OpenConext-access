@@ -265,6 +265,10 @@ export function allowedAttributes() {
     return fetchJson("/api/v1/manage/allowed-attributes", {}, {}, false);
 }
 
+export function autoCompleteEntities(query, entityType) {
+    return fetchJson(`/api/v1/manage/autocomplete/${entityType}?query=${encodeURIComponent(query)}`);
+}
+
 //Connections
 export function newConnection(connection) {
     return postPutJson("/api/v1/connections", connection, "POST");

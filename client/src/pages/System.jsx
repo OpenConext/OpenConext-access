@@ -8,8 +8,11 @@ import {Organizations} from "./Organizations.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
+import {Manage} from "./Manage.jsx";
 
-const tabNames = ["users", "organizations", "organizationPendingApproval"]
+const tabNames = ["users", "organizations", "organizationPendingApproval", "manage"]
+
+const organizationTabs = ["organizations", "organizationPendingApproval"];
 
 const System = () => {
     const {tab = "users"} = useParams();
@@ -37,11 +40,14 @@ const System = () => {
         activeMenuItem: null
     });
 
-    const tabChanged = (name) => {
+    const tabChanged = name => {
+        const refreshRequired = name !== currentTab && organizationTabs.includes(name) &&
+            organizationTabs.includes(currentTab);
+        debugger;
         setCurrentTab(name);
         const path = encodeURIComponent(`/system/${name}`);
         //We need to force a refresh of the Organization component that is used twice
-        navigate(`/refresh-route/${path}`);
+        navigate(refreshRequired ? `/refresh-route/${path}` : path);
     }
 
     const renderCurrentTab = () => {
@@ -54,6 +60,9 @@ const System = () => {
             }
             case  "organizationPendingApproval": {
                 return <Organizations pendingApproval={true}/>
+            }
+            case "manage": {
+                return <Manage />
             }
         }
     }

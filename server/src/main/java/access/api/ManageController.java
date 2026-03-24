@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -182,6 +183,16 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         List<Map<String, Object>> policies = manage.uniquePolicyName(properties);
         return ResponseEntity.ok(policies);
+    }
+    @GetMapping("/autocomplete/{type}")
+    public List<Map<String, Object>> autoCompleteEntities(@PathVariable EntityType type,
+                                                                        @RequestParam("query") String query) {
+        Map<String, List<Map<String, Object>>> entities = manage.autoCompleteEntities(type, query);
+        //We concat the suggestions and alternatives
+        List<Map<String, Object>> alternatives = entities.getOrDefault("alternatives", new ArrayList<>());
+        List<Map<String, Object>> suggestions = entities.getOrDefault("suggestions", new ArrayList<>());
+        alternatives.addAll(suggestions);
+        return alternatives;
     }
 
 

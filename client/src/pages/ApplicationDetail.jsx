@@ -92,8 +92,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 setShowNewPolicyChoice(true);
                 return;
             } else {
-                newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
-                    policyTemplateRegular(user.identityProvider.data.entityid);
+                newCurrentPolicy = policyType === policyTypes.step ?
+                    policyTemplateStepUp(user.identityProvider.data.entityid, serviceProvider.data.entityid) :
+                    policyTemplateRegular(user.identityProvider.data.entityid, serviceProvider.data.entityid);
             }
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
