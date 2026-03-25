@@ -17,8 +17,8 @@ const ManageDetail = () => {
     const [loading, setLoading] = useState(true);
     const [serviceProvider, setServiceProvider] = useState({});
     const [connection, setConnection] = useState({});
-    const [section, setSection] = useState({});
-    const [confirmation, setConfirmation] = useState({});
+    const [section, setSection] = useState({}); // eslint-disable-line no-unused-vars
+    const [confirmation, setConfirmation] = useState({}); // eslint-disable-line no-unused-vars
 
     useEffect(() => {
         publicServiceProviderByDetail(manageType, manageId)
