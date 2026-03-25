@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +213,7 @@ class ConnectionControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Connection connection = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
 
-        Connection fetchedConnection = given()
+        Map<String, Map<String, Object>> data = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
@@ -221,9 +222,10 @@ class ConnectionControllerTest extends AbstractTest {
                 .pathParam("manageType", connection.getProtocol())
                 .pathParam("manageIdentifier", connection.getManageIdentifier())
                 .get("/api/v1/connections/{manageType}/{manageIdentifier}")
-                .as(Connection.class);
+                .as(new TypeRef<>() {
+                });
 
-        assertEquals(connection.getId(), fetchedConnection.getId());
+        assertEquals(connection.getId().intValue(), data.get("connection").get("id"));
     }
 
     @Test
@@ -237,7 +239,7 @@ class ConnectionControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("manageType", EntityType.oidc10_rp)
                 .pathParam("manageIdentifier", "nope")
-                .get("/api/v1/connections")
+                .get("/api/v1/connections/{manageType}/{manageIdentifier}")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
 
