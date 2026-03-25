@@ -70,7 +70,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerById(Connection connection) {
+    public Map<String, Object> providerByConnection(Connection connection) {
         String manageIdentifier = connection.getManageIdentifier();
         EntityType protocol = connection.getProtocol();
         Environment environment = connection.getEnvironment();
@@ -85,7 +85,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment) {
+    public Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier, Environment environment) {
         LOG.debug("providerById for : " + entityType);
 
         List<Map<String, Object>> providers = providers(environment, entityType);
@@ -97,7 +97,7 @@ public final class LocalManage implements Manage {
 
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
-        Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
         Map<String, Object> data = getData(provider);
         Map<String, Object> metaDataFields = getMetaDataFields(data);
         converter.convertContactPersons(organization.getMetaData(), metaDataFields);
@@ -108,7 +108,7 @@ public final class LocalManage implements Manage {
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
         Map<String, Object> baseStructure = StringUtils.hasText(connection.getManageIdentifier()) ?
-                providerById(connection) :
+                providerByConnection(connection) :
                 baseStructureProvider();
 
         Map<String, Object> provider = converter.convert(connection, baseStructure, false);
@@ -131,6 +131,11 @@ public final class LocalManage implements Manage {
         } else {
             providers.add(provider);
         }
+        return provider;
+    }
+
+    @Override
+    public Map<String, Object> updateProvider(Map<String, Object> provider) {
         return provider;
     }
 
@@ -239,7 +244,7 @@ public final class LocalManage implements Manage {
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
                         connection.getEnvironment().equals(Environment.PROD))
                 .map(connection -> {
-                    Map<String, Object> provider = this.providerById(connection);
+                    Map<String, Object> provider = this.providerByConnection(connection);
                     Map<String, Object> data = (Map<String, Object>) provider.get("data");
                     return (String) data.get("entityid");
                 })

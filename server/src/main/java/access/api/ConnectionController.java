@@ -101,7 +101,7 @@ public class ConnectionController implements UserAccessRights {
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         if (StringUtils.hasText(connection.getManageIdentifier())) {
-            Map<String, Object> provider = manage.providerById(connection);
+            Map<String, Object> provider = manage.providerByConnection(connection);
             if (connection.mergeMetaData(provider, false)) {
                 connectionRepository.save(connection);
             }
@@ -125,7 +125,7 @@ public class ConnectionController implements UserAccessRights {
                     return ResponseEntity.ok(Map.of(
                             "connection", connection,
                             "application", application,
-                            "organization", organization
+                            "organisation", organization
                     ));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -200,7 +200,7 @@ public class ConnectionController implements UserAccessRights {
 
         String changeRequestURL = manage.changeRequestURL(connection.getEnvironment(), connection);
 
-        Map<String, Object> provider = manage.providerById(connection);
+        Map<String, Object> provider = manage.providerByConnection(connection);
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Production status requested by %s for %s.",
@@ -275,7 +275,7 @@ public class ConnectionController implements UserAccessRights {
     private Connection productionReadyChangeRequests(Connection connection, User user) {
         Environment environment = connection.getEnvironment();
         String changeRequestURL = manage.changeRequestURL(environment, connection);
-        Map<String, Object> provider = manage.providerById(connection);
+        Map<String, Object> provider = manage.providerByConnection(connection);
         connection.updateRemoteManageData(provider);
 
         String entityId = (String) ((Map) provider.get("data")).get("entityid");

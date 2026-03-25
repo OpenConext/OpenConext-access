@@ -155,7 +155,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     @SneakyThrows
     @DeleteMapping("/policies/{policyId}")
     public ResponseEntity<Void> deletePolicy(User user, @PathVariable String policyId) {
-        Map<String, Object> policy = manage.providerById(EntityType.policy, policyId, Environment.PROD);
+        Map<String, Object> policy = manage.providerByManageIdentifier(EntityType.policy, policyId, Environment.PROD);
 
         LOG.debug("/deletePolicy for " + policy + " for " + user.getEmail());
 

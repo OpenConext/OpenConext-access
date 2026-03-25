@@ -1174,11 +1174,35 @@ const en = {
         type: "Entity type",
         oidc10_rp: "OIDC Relying Party",
         saml20_sp: "SAML Service Provider",
-        searchPlaceHolder: "Search for Manage entities"
+        searchPlaceHolder: "Search for Manage entities",
+        notFound: "Nothing found"
     },
     manageDetail: {
         backToSystem: "← Back to manage apps",
-        import: "Import"
+        importAsNewApplication: "Import as new application",
+        importAsNewConnection: "Import as new connection",
+        migrate: "Migrate",
+        notInAccess: "This entity is not known in Access. You can import it by choosing first an organisation. " +
+            "Then choose either an existing application from this organization, or import this entity as a new application.",
+        inAccess: "This entity from Manage is a connection named <strong>{{connection}}</strong> in the application <strong>{{application}}</strong>" +
+            " in the organisation <strong>{{organisation}}</strong>. You can migrate the application <strong>{{application}}</strong> to a different organisation.",
+        chooseOrganisation: "Choose an organisation",
+        chooseOrganisationPlaceholder: "Find and choose an organisation to migrate the application",
+        chooseImportOrganisationPlaceholder: "Find and choose an organisation to import this entity",
+        chooseApplication: "Find and choose an application",
+        chooseApplicationPlaceholder: "Optional: find and choose an application",
+        migrateConfirmation: "Are you absolutely sure you want to migrate application <strong>{{application}}</strong> from the current " +
+            "organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
+        impportApplicationConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
+            "organisation <strong>{{organisation}}</strong> as a new application?",
+        impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
+            "organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
+        flash: {
+            migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
+            imported: "Entity {{entity}} has been imported into organisation {{organisation}}"
+        }
+
+
     }
 
 }

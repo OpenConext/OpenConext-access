@@ -1,8 +1,6 @@
 package access.manage;
 
 import access.model.*;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -10,13 +8,15 @@ public interface Manage {
 
     List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes);
 
-    Map<String, Object> providerById(Connection connection);
+    Map<String, Object> providerByConnection(Connection connection);
 
-    Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment);
+    Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier, Environment environment);
 
     Map<String, Object> saveIdentityProvider(Organization organization);
 
     Map<String, Object> saveProvider(Connection connection);
+
+    Map<String, Object> updateProvider(Map<String, Object> provider);
 
     void deleteProvider(Connection connection);
 

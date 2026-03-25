@@ -18,8 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
@@ -29,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -39,8 +36,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -157,7 +152,7 @@ public class OrganizationController implements UserAccessRights {
         confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
 
         if (StringUtils.hasText(organization.getManageIdentifier())) {
-            Map<String, Object> provider = manage.providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            Map<String, Object> provider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
             if (organization.mergeMetaData(provider, false)) {
                 organizationRepository.save(organization);
             }
@@ -189,6 +184,16 @@ public class OrganizationController implements UserAccessRights {
         LOG.debug(String.format("/landing-search for user %s", user.getEduPersonPrincipalName()));
 
         List<Map<String, Object>> organizations = organizationRepository.searchWithKeyword(FullSearchQueryParser.parse(query));
+        return ResponseEntity.ok(organizations);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String, Object>>> allLight(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/all organization for user %s", user.getEduPersonPrincipalName()));
+
+        confirmSuperUser(user);
+
+        List<Map<String, Object>> organizations = organizationRepository.findAllLight();
         return ResponseEntity.ok(organizations);
     }
 

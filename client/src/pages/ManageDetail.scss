@@ -64,9 +64,21 @@ div.manage-detail-container {
                     font-size: 24px;
                 }
             }
+        }
 
-            button {
-                margin-left: auto;
+        .migrate , .import{
+            margin-top: 25px;
+            width: 50%;
+
+            .options {
+                display: flex;
+                justify-content: flex-end;
+                gap: 25px;
+                margin-top: 25px;
+                padding-top: 25px;
+                border-top: 1px solid var(--sds--color--gray--100);
+
+
             }
         }
     }

@@ -38,7 +38,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
     void deduceChangeRequests() {
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
         connection.setManageIdentifier("5");
-        Map<String, Object> provider = localManage.providerById(connection);
+        Map<String, Object> provider = localManage.providerByConnection(connection);
         String jiraKey = "CTX-123456";
         List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, Map.of(), jiraKey);
         assertEquals(1, changeRequests.size());

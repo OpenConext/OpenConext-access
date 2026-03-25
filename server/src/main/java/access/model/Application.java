@@ -84,8 +84,8 @@ public class Application implements NameHolder {
         this.name = name;
         this.organization = organization;
         this.metaData = new HashMap<>(metaData);
-        this.createdAt = Instant.now();
         this.createdBy = createdBy;
+        this.createdAt = Instant.now();
     }
 
     //We need organization info, but we don't want cyclic JSON deserialization

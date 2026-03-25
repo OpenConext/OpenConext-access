@@ -79,7 +79,7 @@ public class PublicController {
             @PathVariable("identifier") String identifier) {
         LOG.debug("/identityProviders");
         Map<String, Object> provider = manage
-                .providerById(entityType, identifier, Environment.PROD);
+                .providerByManageIdentifier(entityType, identifier, Environment.PROD);
         getMetaDataFields(getData(provider)).keySet()
                 .removeIf(key -> key.startsWith("contacts:"));
         return ResponseEntity.ok(provider);

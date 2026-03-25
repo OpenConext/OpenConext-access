@@ -24,7 +24,6 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -78,7 +77,7 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerById(Connection connection) {
+    public Map<String, Object> providerByConnection(Connection connection) {
         String manageIdentifier = connection.getManageIdentifier();
         EntityType protocol = connection.getProtocol();
         Environment environment = connection.getEnvironment();
@@ -99,7 +98,7 @@ public class RemoteManage implements Manage {
         return responseEntity.getBody();
     }
 
-    public Map<String, Object> providerById(EntityType entityType, String manageIdentifier, Environment environment) {
+    public Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier, Environment environment) {
         LOG.debug("providerById: " + entityType);
 
         return providerDetails(environment, entityType, manageIdentifier);
@@ -108,7 +107,7 @@ public class RemoteManage implements Manage {
     @SneakyThrows
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
-        Map<String, Object> provider = providerById(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
         Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
         Map<String, Object> metaDataOrganization = organization.getMetaData();
         converter.convertContactPersons(metaDataOrganization, metaDataFields);
@@ -116,18 +115,14 @@ public class RemoteManage implements Manage {
         metaDataFields.put("keywords:0:nl", keyWords);
         metaDataFields.put("keywords:0:en", keyWords);
 
-        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
-        String url = environmentUrl(Environment.PROD);
-        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
-        return checkNoChangeResponse(responseEntity, provider);
+        return internalSaveProvider(provider);
     }
 
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
         Map<String, Object> remoteProvider = StringUtils.hasText(connection.getManageIdentifier()) ?
-                providerById(connection) :
+                providerByConnection(connection) :
                 baseStructureProvider();
         //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
         //Attribute Release Policies that are not available in Access
@@ -138,6 +133,19 @@ public class RemoteManage implements Manage {
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
         ResponseEntity<Map<String ,Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
+        return checkNoChangeResponse(responseEntity, provider);
+    }
+
+    @Override
+    public Map<String, Object> updateProvider(Map<String, Object> provider) {
+        return internalSaveProvider(provider);
+    }
+
+    private Map<String, Object> internalSaveProvider(Map<String, Object> provider) {
+        RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
+        String url = environmentUrl(Environment.PROD);
+        ResponseEntity<Map<String ,Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+                HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
         return checkNoChangeResponse(responseEntity, provider);
     }
 

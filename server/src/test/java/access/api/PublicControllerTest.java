@@ -85,7 +85,7 @@ class PublicControllerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void serviceProviderDetail() {
-        Map<String, Object> provider = localManage.providerById(EntityType.saml20_sp, "1", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.saml20_sp, "1", Environment.PROD);
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 EntityType.saml20_sp.name(),

@@ -441,7 +441,7 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForGetProvider(Connection connection) {
-        Map<String, Object> provider = localManage.providerById(connection);
+        Map<String, Object> provider = localManage.providerByConnection(connection);
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 connection.getProtocol().name(),
@@ -453,7 +453,7 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected Map<String, Object> stubForGetProvider(EntityType entityType, String manageIdentifier, Environment environment) {
-        Map<String, Object> provider = localManage.providerById(entityType, manageIdentifier, environment);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(entityType, manageIdentifier, environment);
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 entityType.name(),

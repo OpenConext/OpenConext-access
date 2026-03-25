@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -82,7 +81,7 @@ public class IdentityProviderController implements UserAccessRights {
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
-        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
+        Map<String, Object> serviceProvider = manage.providerByManageIdentifier(connectionRequest.getEntityType(),
                 connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
         boolean memberRequest = !user.isSuperUser();
@@ -113,7 +112,7 @@ public class IdentityProviderController implements UserAccessRights {
             return Results.createResult();
         }
 
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
 
         //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
         //Now check if the connection can be made automatically
@@ -190,11 +189,11 @@ public class IdentityProviderController implements UserAccessRights {
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
-        Map<String, Object> serviceProvider = manage.providerById(disconnectionRequest.getEntityType(),
+        Map<String, Object> serviceProvider = manage.providerByManageIdentifier(disconnectionRequest.getEntityType(),
                 disconnectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
 
         String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
 
@@ -245,11 +244,11 @@ public class IdentityProviderController implements UserAccessRights {
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
-        Map<String, Object> serviceProvider = manage.providerById(connectionRequest.getEntityType(),
+        Map<String, Object> serviceProvider = manage.providerByManageIdentifier(connectionRequest.getEntityType(),
                 connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
 
         List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
         String serviceProviderEntityID = getEntityID(serviceProvider);
@@ -281,11 +280,11 @@ public class IdentityProviderController implements UserAccessRights {
         Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
-        Map<String, Object> serviceProvider = manage.providerById(disconnectionRequest.getEntityType(),
+        Map<String, Object> serviceProvider = manage.providerByManageIdentifier(disconnectionRequest.getEntityType(),
                 disconnectionRequest.getApplicationManageIdentifier(), Environment.PROD);
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerById(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
 
         List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
         String serviceProviderEntityID = getEntityID(serviceProvider);

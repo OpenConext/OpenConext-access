@@ -5,7 +5,11 @@ import access.model.OrganizationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryRewriter;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +77,9 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
             """,
             nativeQuery = true)
     List<Map<String, Object>> searchWithKeyword(String keyWord);
+
+    @Query(value = "SELECT org.id, org.name FROM organizations org", nativeQuery = true)
+    List<Map<String, Object>> findAllLight();
 
     @Override
     default String rewrite(String query, Sort sort) {

@@ -42,37 +42,37 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providerById() throws JsonProcessingException {
-        Map<String, Object> provider = localManage.providerById(connection(EntityType.saml20_sp, "1"));
+    void providerByConnection() throws JsonProcessingException {
+        Map<String, Object> provider = localManage.providerByConnection(connection(EntityType.saml20_sp, "1"));
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        Map<String, Object> remoteProvider = manage.providerById(connection(EntityType.saml20_sp, "1"));
+        Map<String, Object> remoteProvider = manage.providerByConnection(connection(EntityType.saml20_sp, "1"));
         provider.values().removeIf(Objects::isNull);
         remoteProvider.values().removeIf(Objects::isNull);
         assertEquals(provider, remoteProvider);
     }
 
     @Test
-    void providerByIdNoDataChanged() throws JsonProcessingException {
+    void providerByConnectionNoDataChanged() throws JsonProcessingException {
         Map<String, String> errorMap = Map.of("validations", "No data is changed");
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(errorMap))
                 .withStatus(404)));
-        Map<String, Object> remoteProvider = manage.providerById(connection(EntityType.saml20_sp, "1"));
+        Map<String, Object> remoteProvider = manage.providerByConnection(connection(EntityType.saml20_sp, "1"));
         assertEquals(errorMap, remoteProvider);
     }
 
     @Test
-    void providerByIdExceptionHandling() throws JsonProcessingException {
+    void providerByConnectionExceptionHandling() throws JsonProcessingException {
         Map<String, String> errorMap = Map.of("error", "NotFound");
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(errorMap))
                 .withStatus(404)));
-        assertThrows(NotFound.class, () -> manage.providerById(connection(EntityType.saml20_sp, "1")));
+        assertThrows(NotFound.class, () -> manage.providerByConnection(connection(EntityType.saml20_sp, "1")));
 
     }
 

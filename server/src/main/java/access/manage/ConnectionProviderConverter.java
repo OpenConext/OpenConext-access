@@ -206,13 +206,8 @@ public class ConnectionProviderConverter {
     }
 
     private boolean pathUpdatesWarrantChangeRequest(Map<String, Object> pathUpdates) {
-        if (pathUpdates.isEmpty()) {
-            return false;
-        }
-        if (pathUpdates.size() == 1 && pathUpdates.containsKey("revisionnote")) {
-            return false;
-        }
-        return true;
+        return !pathUpdates.isEmpty() &&
+                (pathUpdates.size() != 1 || !pathUpdates.containsKey("revisionnote"));
     }
 
     public HashMap<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {

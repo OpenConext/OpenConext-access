@@ -127,6 +127,10 @@ export function organizationLightById(id) {
     return fetchJson(`/api/v1/organizations/light/${id}`);
 }
 
+export function organizationsLight() {
+    return fetchJson("/api/v1/organizations/all");
+}
+
 export function searchOrganizations(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
     return fetchJson(`/api/v1/organizations/search?${queryPart}`);
@@ -178,6 +182,7 @@ export function approvalJoinRequest(joinRequestId, approved, authority) {
     return postPutJson("/api/v1/join/approval", body, "PUT");
 }
 
+//Application
 export function getApplicationById(applicationId) {
     return fetchJson(`/api/v1/applications/${applicationId}`);
 }
@@ -194,8 +199,22 @@ export function updateApplication(application) {
     return postPutJson("/api/v1/applications", application, "PUT");
 }
 
+export function migrateApplication(applicationId, newOrganizationId) {
+    const body = {applicationId: applicationId, newOrganizationId: newOrganizationId}
+    return postPutJson("/api/v1/applications/migrate", body, "PUT");
+}
+
+export function importEntity(serviceProvider, organizationId, applicationId) {
+    const body = {applicationId: applicationId, organizationId: organizationId, serviceProvider: serviceProvider}
+    return postPutJson("/api/v1/applications/import", body, "POST");
+}
+
 export function identityProvidersByUsedConnectionsForApplication(applicationId) {
     return fetchJson(`/api/v1/applications/identity-providers-allowed-connections/${applicationId}`);
+}
+
+export function allAplicationsByOrganisationLight(organizationId) {
+    return fetchJson(`/api/v1/applications/all/light/${organizationId}`);
 }
 
 //Application memberships
@@ -254,7 +273,7 @@ export function updatePolicy(policy) {
 }
 
 export function uniquePolicyName(name) {
-    return postPutJson("/api/v1/manage/unique-policy-name", {name:name}, "POST");
+    return postPutJson("/api/v1/manage/unique-policy-name", {name: name}, "POST");
 }
 
 export function deletePolicy(policy) {
@@ -286,7 +305,7 @@ export function getConnectionById(connectionId) {
     return fetchJson(`/api/v1/connections/${connectionId}`);
 }
 
-export function getByManageIdentifiers(entityType, manageIdentifier) {
+export function getConnectionByManageIdentifiers(entityType, manageIdentifier) {
     return fetchJson(`/api/v1/connections/${entityType}/${manageIdentifier}`);
 }
 

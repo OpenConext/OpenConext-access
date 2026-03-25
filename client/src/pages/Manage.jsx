@@ -18,6 +18,7 @@ export const Manage = () => {
     const [entityType, setEntityType] = useState(entityTypes[0]);
     const [totalElements, setTotalElements] = useState(0);
     const [entities, setEntities] = useState([]);
+    const [nothingFound, setNothingFound] = useState(false);
     const currentQueryRef = useRef("");
     const navigate = useNavigate();
 
@@ -25,6 +26,8 @@ export const Manage = () => {
         currentQueryRef.current = query;
         if (!isEmpty(query) && query.trim().length > 2) {
             delayedAutocomplete(query);
+        } else {
+            setNothingFound(false);
         }
     };
 
@@ -36,6 +39,7 @@ export const Manage = () => {
         autoCompleteEntities(query, entityType.value).then(res => {
             setEntities(res);
             setTotalElements(res.length);
+            setNothingFound(isEmpty(res));
         });
     }, [entityType]), 375);
 
@@ -89,6 +93,9 @@ export const Manage = () => {
                       customSearch={search}
                       totalElements={totalElements}
             />
+            {nothingFound &&
+            <p>{I18n.t("manage.notFound")}</p>
+            }
         </div>
     );
 

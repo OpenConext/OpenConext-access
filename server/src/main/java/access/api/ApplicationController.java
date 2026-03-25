@@ -7,16 +7,21 @@ import access.manage.Manage;
 import access.manage.ManageData;
 import access.model.Application;
 import access.model.ApplicationMembership;
+import access.model.ApplicationStatus;
 import access.model.Authority;
 import access.model.Connection;
 import access.model.ConnectionStatus;
+import access.model.EntityType;
 import access.model.Environment;
+import access.model.ImportEntityRequest;
+import access.model.MigrateApplicationRequest;
 import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.User;
 import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -68,6 +73,7 @@ public class ApplicationController implements UserAccessRights {
     private final UserRepository userRepository;
     private final S3Storage s3Storage;
     private final ConnectionProviderConverter connectionProviderConverter;
+    private final OrganizationRepository organizationRepository;
 
     public ApplicationController(ApplicationRepository applicationRepository,
                                  ApplicationMembershipRepository applicationMembershipRepository,
@@ -75,7 +81,8 @@ public class ApplicationController implements UserAccessRights {
                                  Manage manage,
                                  UserRepository userRepository,
                                  S3Storage s3Storage,
-                                 ConnectionProviderConverter connectionProviderConverter) {
+                                 ConnectionProviderConverter connectionProviderConverter,
+                                 OrganizationRepository organizationRepository) {
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
@@ -83,6 +90,7 @@ public class ApplicationController implements UserAccessRights {
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
         this.connectionProviderConverter = connectionProviderConverter;
+        this.organizationRepository = organizationRepository;
     }
 
     @GetMapping("/all/{organizationId}")
@@ -101,6 +109,16 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.ok(applications);
     }
 
+    @GetMapping("/all/light/{organizationId}")
+    public ResponseEntity<List<Map<String, Object>>> allLightByOrganization(@PathVariable Long organizationId, User user) {
+        LOG.debug("/allLightByOrganization");
+
+        confirmSuperUser(user);
+
+        List<Map<String, Object>> applications = applicationRepository.findAllLight(organizationId);
+        return ResponseEntity.ok(applications);
+    }
+
     @GetMapping({"/{applicationId}"})
     @SuppressWarnings("unchecked")
     public ResponseEntity<Application> find(User user, @PathVariable("applicationId") Long applicationId) {
@@ -116,7 +134,7 @@ public class ApplicationController implements UserAccessRights {
         application.getConnections().stream()
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
                 .forEach(connection -> {
-                    Map<String, Object> provider = manage.providerById(connection);
+                    Map<String, Object> provider = manage.providerByConnection(connection);
                     if (connection.mergeMetaData(provider, false)) {
                         Map<String, Object> revision = (Map<String, Object>) provider.get("revision");
                         Instant revisionCreated = Instant.parse(revision.get("created").toString());
@@ -256,4 +274,100 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.ok(identityProviders);
     }
 
+    @PutMapping({"/migrate"})
+    public ResponseEntity<Map<String, Object>> migrate(User user, @Validated @RequestBody MigrateApplicationRequest migrateApplicationRequest) {
+        LOG.debug("/migrate application by " + user.getEmail());
+
+        confirmSuperUser(user);
+
+        Application application = applicationRepository.findById(migrateApplicationRequest.getApplicationId())
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Organization organization = organizationRepository.findById(migrateApplicationRequest.getNewOrganizationId())
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        application.setOrganization(organization);
+        applicationRepository.save(application);
+        application.getConnections().forEach(connection -> {
+            Map<String, Object> provider = manage.providerByConnection(connection);
+            Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+            metaDataFields.put("OrganizationName:en", organization.getName());
+            metaDataFields.put("OrganizationName:nl", organization.getName());
+            Map<String, Object> updatedProvider = manage.updateProvider(provider);
+            Integer version = (Integer) updatedProvider.get("version");
+            connection.setManageVersion(version);
+            connectionRepository.save(connection);
+        });
+
+        return Results.okResult();
+    }
+
+    @PostMapping({"/import"})
+    public ResponseEntity<Map<String, Object>> importEntity(User user,
+                @Validated @RequestBody ImportEntityRequest importEntityRequest) {
+        LOG.debug("/import entity by " + user.getEmail());
+
+        confirmSuperUser(user);
+
+        Organization organization = organizationRepository.findById(importEntityRequest.getOrganizationId())
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Map<String, Object> serviceProvider = importEntityRequest.getServiceProvider();
+
+        Application application = importEntityRequest.getApplicationId() != null ?
+                applicationRepository.findById(importEntityRequest.getApplicationId())
+                        .orElseThrow(() -> new NotFoundException("Application not found")) :
+                createApplicationFromProvider(user, organization, serviceProvider);
+
+        Map<String, Object> serviceProvider = importEntityRequest.getServiceProvider();
+        Map<String, Object> data = getData(serviceProvider);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
+        Connection connection = new Connection(
+                (String) metaDataFields.get("name:en"),
+                application,
+                new HashMap<>(),// We will fill the metadata later
+                EntityType.valueOf((String) serviceProvider.get("type")),
+                Environment.PROD
+        );
+        connection.setSecretSet(true);
+        connection.setStatus(ConnectionStatus.PENDING_PROD);
+
+        connection.mergeMetaData(serviceProvider, true);
+
+        if (importEntityRequest.getApplicationId() != null) {
+            Connection connection
+        }
+        Application application =
+        application.setOrganization(organization);
+        applicationRepository.save(application);
+        application.getConnections().forEach(connection -> {
+            Map<String, Object> provider = manage.providerByConnection(connection);
+            Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+            metaDataFields.put("OrganizationName:en", organization.getName());
+            metaDataFields.put("OrganizationName:nl", organization.getName());
+            Map<String, Object> updatedProvider = manage.updateProvider(provider);
+            Integer version = (Integer) updatedProvider.get("version");
+            connection.setManageVersion(version);
+            connectionRepository.save(connection);
+        });
+
+        return Results.okResult();
+    }
+
+    private Application createApplicationFromProvider(User user, Organization organization, Map<String, Object> serviceProvider) {
+        Map<String, Object> data = getData(serviceProvider);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
+        HashMap<String, Object> metaData = this.connectionProviderConverter.convertProviderToApplicationMetaData(serviceProvider);
+        String name = (String) metaDataFields.getOrDefault("coin:application_name", (String) metaDataFields.get("name:en"));
+        Application application = new Application(
+                name,
+                organization,
+                "System",
+                new HashMap<>()
+        );
+        application.setMetaData(metaData);
+        String logoUrl = (String) metaDataFields.get("logo:0:url");
+        application.setLogoUrl(logoUrl);
+        application.setCreatedBy(user.getName());
+        application.setStatus(ApplicationStatus.COMPLETE);
+        application.setSignedContract(true);
+        applicationRepository.save(application);
+    }
 }
