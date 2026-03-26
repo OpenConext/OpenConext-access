@@ -241,6 +241,21 @@ public class IdentityProviderController implements UserAccessRights {
     public ResponseEntity<Map<String, Object>> cancelConnectionRequest(User user, @RequestBody @Validated ConnectionRequest connectionRequest) {
         LOG.debug("/cancelConnectionRequest SP to IdP request by " + user.getEmail());
 
+        doCancelRequest(user, connectionRequest, PathUpdateType.ADDITION, RequestType.LinkRequest);
+
+        return Results.okResult();
+    }
+
+    @PutMapping({"/cancel-disconnection-request"})
+    public ResponseEntity<Map<String, Object>> cancelDisconnectionRequest(User user, @RequestBody @Validated DisconnectionRequest disconnectionRequest) {
+        LOG.debug("/cancelDisconnectionRequest SP to IdP request by " + user.getEmail());
+
+        doCancelRequest(user, disconnectionRequest, PathUpdateType.REMOVAL, RequestType.UnlinkRequest);
+
+        return Results.okResult();
+    }
+
+    private void doCancelRequest(User user, ConnectionRequest connectionRequest, PathUpdateType addition, RequestType linkRequest) {
         user = reinitializeUser(user, userRepository);
 
         String idpManageIdentifier = connectionRequest.getIdpManageIdentifier();
@@ -258,8 +273,8 @@ public class IdentityProviderController implements UserAccessRights {
         List<Map<String, Object>> openChangeRequests = changeRequests.stream()
                 .filter(changeRequest ->
                         EntityType.saml20_idp.name().equals(changeRequest.get("type")) &&
-                                PathUpdateType.ADDITION.name().equalsIgnoreCase((String) changeRequest.get("pathUpdateType")) &&
-                                RequestType.LinkRequest.name().equalsIgnoreCase((String) changeRequest.get("requestType")) &&
+                                addition.name().equalsIgnoreCase((String) changeRequest.get("pathUpdateType")) &&
+                                linkRequest.name().equalsIgnoreCase((String) changeRequest.get("requestType")) &&
                                 serviceProviderEntityID.equals(((Map<String, Map<String, String>>)
                                         changeRequest.getOrDefault("pathUpdates", Map.of()))
                                         .getOrDefault("allowedEntities", Map.of()).get("name")))
@@ -269,43 +284,5 @@ public class IdentityProviderController implements UserAccessRights {
         //Then update all Jira comments, this API is not so stable
         String comment = "Ticket can be closed by request of the requestor";
         openChangeRequests.forEach(changeRequest -> jiraClient.comment((String) changeRequest.get("ticketKey"), comment));
-
-        return Results.okResult();
-    }
-
-    @PutMapping({"/cancel-disconnection-request"})
-    public ResponseEntity<Map<String, Object>> cancelDisconnectionRequest(User user, @RequestBody @Validated DisconnectionRequest disconnectionRequest) {
-        LOG.debug("/cancelDisconnectionRequest SP to IdP request by " + user.getEmail());
-
-        user = reinitializeUser(user, userRepository);
-
-        String idpManageIdentifier = disconnectionRequest.getIdpManageIdentifier();
-        Organization organization = organizationRepository.findByManageIdentifier(idpManageIdentifier)
-                .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
-
-        Map<String, Object> serviceProvider = manage.providerByManageIdentifier(disconnectionRequest.getEntityType(),
-                disconnectionRequest.getApplicationManageIdentifier(), Environment.PROD);
-
-        confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
-
-        List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
-        String serviceProviderEntityID = getEntityID(serviceProvider);
-        List<Map<String, Object>> openChangeRequests = changeRequests.stream()
-                .filter(changeRequest ->
-                        EntityType.saml20_idp.name().equals(changeRequest.get("type")) &&
-                                PathUpdateType.REMOVAL.name().equalsIgnoreCase((String) changeRequest.get("pathUpdateType")) &&
-                                RequestType.UnlinkRequest.name().equalsIgnoreCase((String) changeRequest.get("requestType")) &&
-                                serviceProviderEntityID.equals(((Map<String, Map<String, String>>)
-                                        changeRequest.getOrDefault("pathUpdates", Map.of()))
-                                        .getOrDefault("allowedEntities", Map.of()).get("name")))
-                .toList();
-        //First delete all manage change request - this is most likely to succeed
-        openChangeRequests.forEach(changeRequest -> manage.rejectChangeRequest(Environment.PROD, new ChangeRequest(changeRequest)));
-        //Then update all Jira comments, this API is not so stable
-        String comment = "Ticket can be closed by request of the requestor";
-        openChangeRequests.forEach(changeRequest -> jiraClient.comment((String) changeRequest.get("ticketKey"), comment));
-
-        return Results.okResult();
     }
 }

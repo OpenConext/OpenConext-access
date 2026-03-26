@@ -113,7 +113,7 @@ const ManageDetail = () => {
                     application: application?.label,
                     organisation: organization.label
                 }),
-                okButton: I18n.t("manageDetail.migrate")
+                okButton: I18n.t("manageDetail.import")
             })
         } else {
             setLoading(true);
@@ -126,9 +126,10 @@ const ManageDetail = () => {
                         getConnectionByManageIdentifiers(manageType, manageId),
                         publicServiceProviderByDetail(manageType, manageId)
                     ]).then(res => {
+                        setAccessData(res[0])
                         setServiceProvider(res[1]);
                         setLoading(false);
-                        setFlash(I18n.t("manageDetail.flash.imported", {
+                        setFlash(I18n.t("manageDetail.flash.migrated", {
                             entity: providerName(I18n.locale, serviceProvider),
                             organisation: organization.label
                         }));

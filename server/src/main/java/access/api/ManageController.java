@@ -21,7 +21,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -42,9 +45,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
 
-    @SneakyThrows
     public ManageController(Manage manage,
-                            ObjectMapper objectMapper) {
+                            ObjectMapper objectMapper) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -67,9 +69,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(this.privacyInfo);
     }
 
-    @SneakyThrows
+
     @PostMapping("/parse")
-    public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) throws URISyntaxException, MalformedURLException {
         LOG.debug("/parse");
 
         List<EntityDescriptor> entityDescriptors;
@@ -89,7 +91,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());
     }
 
-    @SneakyThrows
+
     @GetMapping("/identity-providers/{environment}")
     public ResponseEntity<List<Map<String, Object>>> identityProviders(@PathVariable("environment") Environment environment) {
         LOG.debug("/identityProviders for " + environment);
@@ -98,7 +100,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(providers);
     }
 
-    @SneakyThrows
+
     @GetMapping("/identity-provider/policies")
     @SuppressWarnings("unchecked")
     public ResponseEntity<List<Map<String, Object>>> identityProviderPolicies(@Parameter(hidden = true) User user) {
@@ -109,7 +111,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(policies);
     }
 
-    @SneakyThrows
+
     @GetMapping("/policies")
     @SuppressWarnings("unchecked")
     public ResponseEntity<List<Map<String, Object>>> policies(@Parameter(hidden = true) User user,
@@ -134,7 +136,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(policies);
     }
 
-    @SneakyThrows
+
     @PostMapping("/policies")
     public ResponseEntity<Map<String, Object>> createPolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/createPolicy for " + policy + " for " + user.getEmail());
@@ -143,7 +145,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.createPolicy(policy));
     }
 
-    @SneakyThrows
+
     @PutMapping("/policies")
     public ResponseEntity<Map<String, Object>> updatePolicy(User user, @RequestBody Map<String, Object> policy) {
         LOG.debug("/updatePolicy for " + policy + " for " + user.getEmail());
@@ -152,7 +154,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
-    @SneakyThrows
+
     @DeleteMapping("/policies/{policyId}")
     public ResponseEntity<Void> deletePolicy(User user, @PathVariable String policyId) {
         Map<String, Object> policy = manage.providerByManageIdentifier(EntityType.policy, policyId, Environment.PROD);
@@ -164,7 +166,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.noContent().build();
     }
 
-    @SneakyThrows
+
     @PostMapping("/unique-entity-id/{environment}")
     public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@PathVariable("environment") Environment environment,
                                                                          @RequestBody Map<String, String> data) {
@@ -176,7 +178,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(providers);
     }
 
-    @SneakyThrows
+
     @PostMapping("/unique-policy-name")
     public ResponseEntity<List<Map<String, Object>>> uniquePolicyName(@RequestBody Map<String, Object> properties) {
         LOG.debug("/unique-entity-id for " + properties);
@@ -189,10 +191,10 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                                                                         @RequestParam("query") String query) {
         Map<String, List<Map<String, Object>>> entities = manage.autoCompleteEntities(type, query);
         //We concat the suggestions and alternatives
-        List<Map<String, Object>> alternatives = entities.getOrDefault("alternatives", new ArrayList<>());
         List<Map<String, Object>> suggestions = entities.getOrDefault("suggestions", new ArrayList<>());
-        alternatives.addAll(suggestions);
-        return alternatives;
+        List<Map<String, Object>> alternatives = entities.getOrDefault("alternatives", new ArrayList<>());
+        suggestions.addAll(alternatives);
+        return suggestions;
     }
 
 
@@ -203,7 +205,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.allowedAttributes());
     }
 
-    @SneakyThrows
+
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());

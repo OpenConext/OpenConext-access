@@ -189,7 +189,7 @@ const en = {
         invitations: "Invitations",
         access: "Access",
         information: "App information",
-        import: "ManageImport",
+        import: "Manage import",
         migrate: "App migration"
     },
     joinRequest: {
@@ -1198,7 +1198,7 @@ const en = {
         impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
             "organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
         flash: {
-            migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
+            imported: "Entity {{entity}} has been migrated to organisation {{organisation}}",
         }
     },
     applicationMigrate: {

@@ -465,8 +465,8 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
-    protected void stubForGetChangeRequests(List<Map<String, Object>> changeProviders) {
-        String body = objectMapper.writeValueAsString(changeProviders);
+    protected void stubForGetChangeRequests(List<Map<String, Object>> changeRequests) {
+        String body = objectMapper.writeValueAsString(changeRequests);
         stubFor(get(urlPathMatching("/manage/api/internal/change-requests/.*/.*"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -521,7 +521,6 @@ public abstract class AbstractTest {
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
-
     }
 
     @SneakyThrows

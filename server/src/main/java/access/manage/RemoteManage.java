@@ -438,6 +438,7 @@ public class RemoteManage implements Manage {
                 environmentUrl(Environment.PROD),
                 type.name(),
                 URLEncoder.encode(query, Charset.defaultCharset()));
+        String s = restTemplate.getForObject(url, String.class);
         return restTemplate.getForObject(url, Map.class);
     }
 

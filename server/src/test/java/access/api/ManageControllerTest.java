@@ -97,6 +97,30 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(3, identityProviders.size());
     }
 
+    @Test
+    void autoComplete() throws JsonProcessingException {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Map<String, List<Map<String, Object>>> entities = localManage.autoCompleteEntities(EntityType.saml20_sp, "Wiki");
+        String body = objectMapper.writeValueAsString(entities);
+        stubFor(get(urlPathMatching("/manage/api/internal/autocomplete/saml20_sp"))
+                .withQueryParam("query", matching("Wiki"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
+        List<Map<String, Object>> suggestions = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp)
+                .queryParam("query", "Wiki")
+                .get("/api/v1/manage/autocomplete/{type}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, suggestions.size());
+    }
+
     @SneakyThrows
     @Test
     void policyByServiceProvider() {
@@ -234,7 +258,7 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void allowedAttributes() throws JsonProcessingException {
-        List<Map<String, Object>> allowedAttributes  = localManage.allowedAttributes();
+        List<Map<String, Object>> allowedAttributes = localManage.allowedAttributes();
         String body = objectMapper.writeValueAsString(allowedAttributes);
         stubFor(get("/manage/api/internal/protected/allowed-attributes")
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -343,6 +367,25 @@ class ManageControllerTest extends AbstractTest {
                 .delete("/api/v1/manage/policies/{policyId}")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    void rejectChangeRequest() throws Exception {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests/reject"))
+                .willReturn(aResponse().withStatus(200)));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("id", "id", "type", EntityType.saml20_idp.name(), "metaDataId", "12"))
+                .put("/api/v1/manage/reject-change-request")
+                .then()
+                .statusCode(200);
+
     }
 
     private boolean attributePresent(String attribute, List<Map<String, Object>> attributes) {

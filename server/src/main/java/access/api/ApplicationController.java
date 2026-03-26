@@ -51,9 +51,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -340,7 +342,8 @@ public class ApplicationController implements UserAccessRights {
 
         //As this is an import, we need to deduce the profile / motivation
         Map<String, Object> arp = (Map<String, Object>) data.get("arp");
-        arp.put("profile","personalized");
+        String profile = arpProfileName(arp);
+        arp.put("profile", profile);
         serviceProvider = manage.updateProvider(serviceProvider);
 
         Connection connection = new Connection(
@@ -382,5 +385,28 @@ public class ApplicationController implements UserAccessRights {
         application.setStatus(ApplicationStatus.COMPLETE);
         application.setSignedContract(true);
         return applicationRepository.save(application);
+    }
+
+    private String arpProfileName(Map<String, Object> arp) {
+        Set<String> attributeNames = ((Map<String, Object>) arp.get("attributes")).keySet();
+
+        List<Map<String, Object>> attributes = (List<Map<String, Object>>) this.arpInfo.get("attributes");
+        Map<String, String> attributesMap = attributes.stream().collect(Collectors.toMap(
+                attr -> (String) attr.get("name"), attr -> (String) attr.get("urn")
+        ));
+        List<Map<String, Object>> profiles = (List<Map<String, Object>>) this.arpInfo.get("profiles");
+        return profiles.stream().filter(profile -> {
+            List<String> profileAttributes = (List<String>) profile.get("attributes");
+            List<String> optionalAttributes = (List<String>) profile.getOrDefault("optionalAttributes", List.of());
+            List<String> allAttributes = new ArrayList<>(profileAttributes);
+            allAttributes.addAll(optionalAttributes);
+            Set<String> urns = allAttributes.stream()
+                    .map(attr -> attributesMap.get(attr))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            return urns.containsAll(attributeNames);
+        }).findFirst()
+                .map(profile -> (String) profile.get("name"))
+                .orElse("personalized");
     }
 }

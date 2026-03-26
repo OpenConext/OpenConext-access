@@ -3,16 +3,22 @@ package access.api;
 import access.AbstractMailTest;
 import access.AccessCookieFilter;
 import access.mail.MimeMessageParser;
+import access.manage.ChangeRequest;
+import access.manage.PathUpdateType;
+import access.manage.RequestType;
 import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import static access.manage.ManageData.getData;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -279,4 +285,81 @@ class IdentityProviderControllerTest extends AbstractMailTest {
         assertNotNull(res.get("jiraKey"));
     }
 
+    @SneakyThrows
+    @Test
+    void cancelConnectionRequest() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        ConnectionRequest connectionRequest = new ConnectionRequest(
+                "3",
+                EntityType.saml20_sp,
+                organization.getManageIdentifier(),
+                "Connect..."
+        );
+        //Need to stub manage calls for SP and IdP retrieval
+        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        /// Stub for GET all change requests
+        ChangeRequest changeRequest = new ChangeRequest(
+                UUID.randomUUID().toString(),
+                EntityType.saml20_idp,
+                Map.of("allowedEntities", Map.of("name", getData(provider).get("entityid"))),
+                false,
+                PathUpdateType.ADDITION,
+                RequestType.LinkRequest
+        );
+        super.stubForGetChangeRequests(List.of(objectMapper.convertValue(changeRequest, Map.class)));
+
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests/reject"))
+                .willReturn(aResponse().withStatus(200)));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(connectionRequest)
+                .put("/api/v1/idp/cancel-connection-request")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @SneakyThrows
+    @Test
+    void cancelDisconnectionRequest() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        ConnectionRequest connectionRequest = new ConnectionRequest(
+                "3",
+                EntityType.saml20_sp,
+                organization.getManageIdentifier(),
+                "Connect..."
+        );
+        //Need to stub manage calls for SP and IdP retrieval
+        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        /// Stub for GET all change requests
+        ChangeRequest changeRequest = new ChangeRequest(
+                UUID.randomUUID().toString(),
+                EntityType.saml20_idp,
+                Map.of("allowedEntities", Map.of("name", getData(provider).get("entityid"))),
+                false,
+                PathUpdateType.REMOVAL,
+                RequestType.UnlinkRequest
+        );
+        super.stubForGetChangeRequests(List.of(objectMapper.convertValue(changeRequest, Map.class)));
+
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests/reject"))
+                .willReturn(aResponse().withStatus(200)));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(connectionRequest)
+                .put("/api/v1/idp/cancel-disconnection-request")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
 }
