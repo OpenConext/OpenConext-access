@@ -289,6 +289,7 @@ public class ConnectionController implements UserAccessRights {
         List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(Environment.PROD, connection);
         List<ChangeRequest> allChangeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
         List<ChangeRequest> changeRequests = filterExistingChangeRequestDuplicates(existingChangeRequests, allChangeRequests);
+        //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not
         if (!changeRequests.isEmpty()) {
             String entityId = (String) ((Map) provider.get("data")).get("entityid");
             String summary = String.format("Data change requested by %s for %s with entityID %s",
