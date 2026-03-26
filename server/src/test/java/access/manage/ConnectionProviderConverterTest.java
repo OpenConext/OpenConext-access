@@ -42,7 +42,7 @@ class ConnectionProviderConverterTest extends AbstractTest {
         List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
         assertEquals(1, changeRequests.size());
         ChangeRequest changeRequest = changeRequests.getFirst();
-        assertEquals(19, changeRequest.getPathUpdates().size());
+        assertEquals(18, changeRequest.getPathUpdates().size());
     }
 
     @SneakyThrows

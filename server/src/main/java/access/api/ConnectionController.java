@@ -50,8 +50,7 @@ import java.util.Map;
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.api.Results.deleteResult;
-import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/connections"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -271,6 +270,15 @@ public class ConnectionController implements UserAccessRights {
         return ResponseEntity.ok(identityProviders);
     }
 
+    private List<ChangeRequest> filterExistingChangeRequestDuplicates(List<Map<String, Object>> existingChangeRequests, List<ChangeRequest> newChangeRequests) {
+        if (isEmpty(existingChangeRequests) && !isEmpty(newChangeRequests)) {
+            return newChangeRequests;
+        }
+        return newChangeRequests.stream()
+                .filter(changeRequest ->
+                        existingChangeRequests.stream().noneMatch(changeRequestMap -> changeRequest.matches(changeRequestMap))
+                ).toList();
+    }
 
     @SuppressWarnings("unchecked")
     private Connection productionReadyChangeRequests(Connection connection, User user) {
@@ -278,8 +286,9 @@ public class ConnectionController implements UserAccessRights {
         String changeRequestURL = manage.changeRequestURL(environment, connection);
         Map<String, Object> provider = manage.providerByConnection(connection);
         connection.updateRemoteManageData(provider);
-
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
+        List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(Environment.PROD, connection);
+        List<ChangeRequest> allChangeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
+        List<ChangeRequest> changeRequests = filterExistingChangeRequestDuplicates(existingChangeRequests, allChangeRequests);
         if (!changeRequests.isEmpty()) {
             String entityId = (String) ((Map) provider.get("data")).get("entityid");
             String summary = String.format("Data change requested by %s for %s with entityID %s",

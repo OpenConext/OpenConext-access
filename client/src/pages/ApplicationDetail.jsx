@@ -2,7 +2,8 @@ import "./ApplicationDetail.scss";
 import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {
-    cancelServiceProviderConnectionRequest, cancelServiceProviderDisconnectionRequest,
+    cancelServiceProviderConnectionRequest,
+    cancelServiceProviderDisconnectionRequest,
     connectServiceProviderToIdentityProvider,
     disconnectServiceProviderToIdentityProvider,
     getPolicyByServiceProviderEntityId,
@@ -467,10 +468,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     message={I18n.t("appAccess.requestedAccessNotification")}/>
                 }
                 {pendingDisconnect && <Alert alertType={AlertType.Warning}
-                                    asChild={true}
-                                    children={<a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
-                                        {I18n.t("appAccess.cancelRequest")}</a>}
-                                    message={I18n.t("appAccess.requestedDisconnectNotification")}/>
+                                             asChild={true}
+                                             children={<a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
+                                                 {I18n.t("appAccess.cancelRequest")}</a>}
+                                             message={I18n.t("appAccess.requestedDisconnectNotification")}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     {showPolicyDetails &&
@@ -495,7 +496,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <InfoBlock className="no-gap">
                                 <div className="grouped">
                                     <div>
-                                        <h3>{I18n.t("appAccess.users", {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h3>
+                                        <h3>{I18n.t("appAccess.users", {name: currentOrganization.name})}</h3>
                                         <p>{I18n.t("appAccess.config")}</p>
                                     </div>
                                     <Button type={ButtonType.Primary}
@@ -507,7 +508,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </div>
                                 <div className="access-card large">
                                     <h4>{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
-                                        {name: providerOrganizationName(I18n.locale, serviceProvider)})}</h4>
+                                        {name: currentOrganization.name})}</h4>
                                     {!isEmpty(policies) &&
                                         <Chip type={ChipType.Status_info}
                                               label={I18n.t("appAccess.policies", {nbr: policies.length})}
