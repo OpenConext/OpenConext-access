@@ -25,6 +25,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query(value = "SELECT app.id, app.name FROM applications app where app.organization_id = ?1",
             nativeQuery = true)
-    List<Map<String, Object>> findAllLight(Long organizationId);
+    List<Map<String, Object>> findAllLightByOrganization(Long organizationId);
 
+    @Query(value = "SELECT app.id, app.name, org.id as org_id, org.name as org_name FROM applications app " +
+            "INNER JOIN organizations org on org.id = app.organization_id",
+            nativeQuery = true)
+    List<Map<String, Object>> findAllLight();
 }

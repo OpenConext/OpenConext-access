@@ -8,9 +8,10 @@ import {Organizations} from "./Organizations.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
-import {Manage} from "./Manage.jsx";
+import {ManageImport} from "./ManageImport.jsx";
+import ApplicationMigrate from "./ApplicationMigrate.jsx";
 
-const tabNames = ["users", "organizations", "organizationPendingApproval", "manage"]
+const tabNames = ["users", "organizations", "organizationPendingApproval", "import", "migrate"]
 
 const organizationTabs = ["organizations", "organizationPendingApproval"];
 
@@ -65,8 +66,11 @@ const System = () => {
             case  "organizationPendingApproval": {
                 return <Organizations pendingApproval={true}/>
             }
-            case "manage": {
-                return <Manage />
+            case "import": {
+                return <ManageImport />
+            }
+            case "migrate": {
+                return <ApplicationMigrate />
             }
         }
     }

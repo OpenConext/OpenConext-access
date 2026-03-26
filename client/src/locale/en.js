@@ -77,11 +77,11 @@ const en = {
         accessibleApps: "Enabled apps",
         yourApps: "Our apps",
         catalogue: "All other apps",
-        externalMaintenance: "Manage access options",
+        externalMaintenance: "ManageImport access options",
         invite: "Roles",
         sram: "Collaborative groups",
         allApps: "All apps",
-        organizationMaintenance: "Manage organisation",
+        organizationMaintenance: "ManageImport organisation",
         idp: "My organisation",
         users: "SURF Access users",
         applications: "Applications",
@@ -93,9 +93,9 @@ const en = {
         tooltips: {
             users: "",
             idp: "",
-            yourApps: "Manage the technical connection and metadata of your apps.",
+            yourApps: "ManageImport the technical connection and metadata of your apps.",
             catalogue: "Discover apps that aren't yet connected.",
-            accessibleApps: "Manage access to enabled applications",
+            accessibleApps: "ManageImport access to enabled applications",
             roles: "",
             collaborations: "",
             serviceDesk: "",
@@ -116,7 +116,8 @@ const en = {
         users: "Users",
         organizations: "Organizations",
         organizationPendingApproval: "Pending approval",
-        manage: "Manage"
+        import: "import",
+        migrate: "migrate"
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -144,23 +145,23 @@ const en = {
         backToLandingLink: " create your own organisation.",
         central: {
             title: "Central access management",
-            subTitle: "Manage access to enabled applications",
+            subTitle: "ManageImport access to enabled applications",
             connectedApps: "enabled apps",
             connectedAppsInfo: "The apps that are linked to our IdP",
-            maintainAccess: "Manage access",
+            maintainAccess: "ManageImport access",
             roles: "Access roles",
-            maintainRoles: "Manage roles",
+            maintainRoles: "ManageImport roles",
             teamCentral: "Central team",
             you: "You",
             responsible: "Responsible: <a href='mailto:{{mail}}'>{{name}}</a>",
-            maintainTeam: "Manage team",
+            maintainTeam: "ManageImport team",
         },
         catalogue: {
             title: "SURF Access catalog",
-            subTitle: "Manage your own apps and find new ones",
+            subTitle: "ManageImport your own apps and find new ones",
             ourApps: "Our apps",
             ourAppsInfo: "The apps we offer ourselves on SURF Access",
-            maintainOurApps: "Manage our apps",
+            maintainOurApps: "ManageImport our apps",
             allApps: "All other apps",
             openCatalogue: "Open the SURF app catalog"
         },
@@ -168,10 +169,10 @@ const en = {
             title: "Decentralised access management",
             subTitle: "Delegate member management and application access to collaborative groups.",
             collaborations: "Collaborative groups",
-            maintainCollaborations: "Manage collaborative groups",
+            maintainCollaborations: "ManageImport collaborative groups",
             teamDecentral: "Decentral team",
             responsible: "responsible: <a href='mailto:{{email}}'>{{name}}</a>",
-            maintainTeamDecentral: "Manage team"
+            maintainTeamDecentral: "ManageImport team"
         },
         tip: {
             info: "Tips from SURF when setting up access",
@@ -188,7 +189,8 @@ const en = {
         invitations: "Invitations",
         access: "Access",
         information: "App information",
-        manage: "Manage"
+        import: "ManageImport",
+        migrate: "App migration"
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -224,7 +226,7 @@ const en = {
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",
-        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from Manage) are immutable in SURF Access. Only external organisations from external (commercial) service providers are mutable.",
+        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from ManageImport) are immutable in SURF Access. Only external organisations from external (commercial) service providers are mutable.",
         flash: {
             updated: "Organisation {{name}} now has the status {{status}}",
             deleted: "Organisation {{name}} has been deleted",
@@ -324,7 +326,7 @@ const en = {
         team: {
             name: "Team",
             info: "Give team members or external users access to manage this app",
-            members: "Manage team members"
+            members: "ManageImport team members"
         },
         production: {
             name: "Production",
@@ -820,7 +822,7 @@ const en = {
             eduid: "EduID Identity Provider",
             idp: "Your IdP",
             invite: "SURF Invite",
-            manage: "SURF Manage",
+            manage: "SURF ManageImport",
             orcid: "ORCID organisation",
             sabrest: "SURF SAB",
             voot: "SURF Memberships",
@@ -885,6 +887,7 @@ const en = {
         profile: "profile",
         attributes: "attribute",
         motivation: "motivation",
+        allowedall: "Allowed all",
         refreshTokenValidity: "Refresh token validity in seconds",
         visible_to_all: "All organisations",
         visible_to_none: "No one (hide the app for now)",
@@ -968,7 +971,7 @@ const en = {
     myOrganization: {
         title: "My organisation",
         info: "To view other information about your organisation, visit <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
-        maintenance: "Manage {{name}}",
+        maintenance: "ManageImport {{name}}",
         contactPersons: "Contacts",
         general: "General information",
         delete: "Delete organisation",
@@ -1160,11 +1163,11 @@ const en = {
             regTitle: "Authorization policy",
             regInfo: "Controls which users can access an application.",
             regChoice: "Choose Authorization policy if:",
-            regExplanation:"→ You need to decide which users or groups get access to an application",
+            regExplanation: "→ You need to decide which users or groups get access to an application",
             stepTitle: "Step-up policy",
             stepInfo: "Defines the required Level of Assurance (LoA) for access to an application.",
             stepChoice: "Choose Step-up authentication policy if:",
-            stepExplanation:"→ Users may access the application, but must log in with a higher LoA or MFA"
+            stepExplanation: "→ Users may access the application, but must log in with a higher LoA or MFA"
         },
         negateApplication: "Select <strong>Negate selection</strong> to apply this policy to all service providers except the ones you chose.",
     },
@@ -1174,35 +1177,43 @@ const en = {
         type: "Entity type",
         oidc10_rp: "OIDC Relying Party",
         saml20_sp: "SAML Service Provider",
-        searchPlaceHolder: "Search for Manage entities",
+        searchPlaceHolder: "Search for ManageImport entities",
         notFound: "Nothing found"
     },
     manageDetail: {
         backToSystem: "← Back to manage apps",
         importAsNewApplication: "Import as new application",
         importAsNewConnection: "Import as new connection",
-        migrate: "Migrate",
+        import: "Import",
         notInAccess: "This entity is not known in Access. You can import it by choosing first an organisation. " +
             "Then choose either an existing application from this organization, or import this entity as a new application.",
-        inAccess: "This entity from Manage is a connection named <strong>{{connection}}</strong> in the application <strong>{{application}}</strong>" +
-            " in the organisation <strong>{{organisation}}</strong>. You can migrate the application <strong>{{application}}</strong> to a different organisation.",
+        inAccess: "This entity from Manage is an Access connection named <strong>{{connection}}</strong> in the application <strong>{{application}}</strong>" +
+            " in the organisation <strong>{{organisation}}</strong>. There is nothing to import.",
         chooseOrganisation: "Choose an organisation",
-        chooseOrganisationPlaceholder: "Find and choose an organisation to migrate the application",
         chooseImportOrganisationPlaceholder: "Find and choose an organisation to import this entity",
         chooseApplication: "Find and choose an application",
         chooseApplicationPlaceholder: "Optional: find and choose an application",
-        migrateConfirmation: "Are you absolutely sure you want to migrate application <strong>{{application}}</strong> from the current " +
-            "organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
         impportApplicationConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
             "organisation <strong>{{organisation}}</strong> as a new application?",
         impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
             "organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
         flash: {
             migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
-            imported: "Entity {{entity}} has been imported into organisation {{organisation}}"
         }
-
-
+    },
+    applicationMigrate: {
+        migrate: "Migrate",
+        findApplicationInfo: "An app migration is only changing the organisation name in the Manage metadata and changing the database " +
+            "reference. If contracts need to be changed please refer to SURF klant support",
+        findApplication: "Find an application to migrate",
+        findApplicationPlaceholder: "Find and select an application...",
+        chooseOrganisation: "Choose the target organisation",
+        chooseOrganisationPlaceholder: "Find and select an organisation to migrate the application to...",
+        migrateConfirmation: "Are you absolutely sure you want to migrate application <strong>{{application}}</strong> from its current " +
+            "organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
+        flash: {
+            migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
+        }
     }
 
 }

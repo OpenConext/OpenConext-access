@@ -23,10 +23,13 @@ import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +66,7 @@ import static access.manage.ManageData.getMetaDataFields;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+@SuppressWarnings("unchecked")
 public class ApplicationController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ApplicationController.class);
@@ -74,6 +79,7 @@ public class ApplicationController implements UserAccessRights {
     private final S3Storage s3Storage;
     private final ConnectionProviderConverter connectionProviderConverter;
     private final OrganizationRepository organizationRepository;
+    private final Map<String, Object> arpInfo;
 
     public ApplicationController(ApplicationRepository applicationRepository,
                                  ApplicationMembershipRepository applicationMembershipRepository,
@@ -82,7 +88,8 @@ public class ApplicationController implements UserAccessRights {
                                  UserRepository userRepository,
                                  S3Storage s3Storage,
                                  ConnectionProviderConverter connectionProviderConverter,
-                                 OrganizationRepository organizationRepository) {
+                                 OrganizationRepository organizationRepository,
+                                 ObjectMapper objectMapper) throws IOException {
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
@@ -91,6 +98,18 @@ public class ApplicationController implements UserAccessRights {
         this.s3Storage = s3Storage;
         this.connectionProviderConverter = connectionProviderConverter;
         this.organizationRepository = organizationRepository;
+        this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
+        });
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String, Object>>> all(User user) {
+        LOG.debug("/allLightByOrganization");
+
+        confirmSuperUser(user);
+
+        List<Map<String, Object>> applications = applicationRepository.findAllLight();
+        return ResponseEntity.ok(applications);
     }
 
     @GetMapping("/all/{organizationId}")
@@ -99,8 +118,8 @@ public class ApplicationController implements UserAccessRights {
 
         Set<OrganizationMembership> organizationMemberships = user.getOrganizationMemberships();
         Organization organization = organizationMemberships.stream()
-                .filter(membership -> membership.getOrganization().getId().equals(id))
                 .map(membership -> membership.getOrganization())
+                .filter(membershipOrganization -> membershipOrganization.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
         List<Application> applications = this.applicationRepository.findByOrganization(organization);
@@ -115,7 +134,7 @@ public class ApplicationController implements UserAccessRights {
 
         confirmSuperUser(user);
 
-        List<Map<String, Object>> applications = applicationRepository.findAllLight(organizationId);
+        List<Map<String, Object>> applications = applicationRepository.findAllLightByOrganization(organizationId);
         return ResponseEntity.ok(applications);
     }
 
@@ -265,7 +284,7 @@ public class ApplicationController implements UserAccessRights {
 
     @GetMapping("/identity-providers-allowed-connections/{applicationId}")
     public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
-                                                                                           @PathVariable("applicationId") Long applicationId) {
+                                                                                           @PathVariable Long applicationId) {
         LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
@@ -302,7 +321,7 @@ public class ApplicationController implements UserAccessRights {
 
     @PostMapping({"/import"})
     public ResponseEntity<Map<String, Object>> importEntity(User user,
-                @Validated @RequestBody ImportEntityRequest importEntityRequest) {
+                                                            @Validated @RequestBody ImportEntityRequest importEntityRequest) {
         LOG.debug("/import entity by " + user.getEmail());
 
         confirmSuperUser(user);
@@ -316,9 +335,14 @@ public class ApplicationController implements UserAccessRights {
                         .orElseThrow(() -> new NotFoundException("Application not found")) :
                 createApplicationFromProvider(user, organization, serviceProvider);
 
-        Map<String, Object> serviceProvider = importEntityRequest.getServiceProvider();
         Map<String, Object> data = getData(serviceProvider);
         Map<String, Object> metaDataFields = getMetaDataFields(data);
+
+        //As this is an import, we need to deduce the profile / motivation
+        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
+        arp.put("profile","personalized");
+        serviceProvider = manage.updateProvider(serviceProvider);
+
         Connection connection = new Connection(
                 (String) metaDataFields.get("name:en"),
                 application,
@@ -328,27 +352,16 @@ public class ApplicationController implements UserAccessRights {
         );
         connection.setSecretSet(true);
         connection.setStatus(ConnectionStatus.PENDING_PROD);
-
+        connection.updateRemoteManageData(serviceProvider);
         connection.mergeMetaData(serviceProvider, true);
 
-        if (importEntityRequest.getApplicationId() != null) {
-            Connection connection
-        }
-        Application application =
-        application.setOrganization(organization);
-        applicationRepository.save(application);
-        application.getConnections().forEach(connection -> {
-            Map<String, Object> provider = manage.providerByConnection(connection);
-            Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-            metaDataFields.put("OrganizationName:en", organization.getName());
-            metaDataFields.put("OrganizationName:nl", organization.getName());
-            Map<String, Object> updatedProvider = manage.updateProvider(provider);
-            Integer version = (Integer) updatedProvider.get("version");
-            connection.setManageVersion(version);
-            connectionRepository.save(connection);
-        });
-
-        return Results.okResult();
+        Connection savedConnection = connectionRepository.save(connection);
+        Map<String, Object> body = Map.of(
+                "status", HttpStatus.OK.value(),
+                "connectionId", savedConnection.getId(),
+                "applicationId", application.getId()
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     private Application createApplicationFromProvider(User user, Organization organization, Map<String, Object> serviceProvider) {
@@ -368,6 +381,6 @@ public class ApplicationController implements UserAccessRights {
         application.setCreatedBy(user.getName());
         application.setStatus(ApplicationStatus.COMPLETE);
         application.setSignedContract(true);
-        applicationRepository.save(application);
+        return applicationRepository.save(application);
     }
 }

@@ -216,17 +216,18 @@ public class ConnectionController implements UserAccessRights {
                 connection.getProtocol(),
                 user.getEmail()
         ));
+        Map<String, Object> auditData = Map.of("user", user.getEmail(),
+                "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                        user.getName(), connection.getName(), jiraKey));
         ChangeRequest changeRequest = new ChangeRequest(
                 connection.getManageIdentifier(),
                 connection.getProtocol(),
                 Map.of("state", "prodaccepted"),
-                Map.of("user", user.getEmail(),
-                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                                user.getName(), connection.getName(), jiraKey)),
                 false,
                 PathUpdateType.ADDITION,
-                RequestType.ProductionStatusRequest,
-                jiraKey);
+                RequestType.ProductionStatusRequest);
+        changeRequest.setTicketKey(jiraKey);
+        changeRequest.setAuditData(auditData);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);
@@ -278,27 +279,34 @@ public class ConnectionController implements UserAccessRights {
         Map<String, Object> provider = manage.providerByConnection(connection);
         connection.updateRemoteManageData(provider);
 
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
-        String summary = String.format("Data change requested by %s for %s with entityID %s",
-                user.getName(),
-                connection.getName(),
-                entityId);
-        String jiraKey = jiraClient.create(new JiraIssue(
-                entityId,
-                null,// There is no identity provider for change requests
-                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
-                        summary,
-                        System.lineSeparator(),
-                        changeRequestURL),
-                summary,
-                connection.getProtocol(),
-                user.getEmail()
-        ));
-        Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                        user.getName(), connection.getName(), jiraKey));
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider, auditData, jiraKey);
-        changeRequests.forEach(changeRequest -> manage.createChangeRequest(environment, changeRequest));
+        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
+        if (!changeRequests.isEmpty()) {
+            String entityId = (String) ((Map) provider.get("data")).get("entityid");
+            String summary = String.format("Data change requested by %s for %s with entityID %s",
+                    user.getName(),
+                    connection.getName(),
+                    entityId);
+            String jiraKey = jiraClient.create(new JiraIssue(
+                    entityId,
+                    null,// There is no identity provider for change requests
+                    String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
+                            summary,
+                            System.lineSeparator(),
+                            changeRequestURL),
+                    summary,
+                    connection.getProtocol(),
+                    user.getEmail()
+            ));
+            Map<String, Object> auditData = Map.of("user", user.getEmail(),
+                    "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                            user.getName(), connection.getName(), jiraKey));
+            changeRequests.forEach(changeRequest -> {
+                changeRequest.setTicketKey(jiraKey);
+                changeRequest.setAuditData(auditData);
+                manage.createChangeRequest(environment, changeRequest);
+            });
+        }
+
         //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
         connection.mergeMetaData(provider, true);
         connection = connectionRepository.save(connection);

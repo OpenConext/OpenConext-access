@@ -73,7 +73,7 @@ export const convertServerApplicationToClient = (application, protocolOptions, p
 export const convertClientApplicationToServer = (application) => {
     const serverContactPersons = application.contactPersons
         .map(person => {
-            //Not trivial, but SAML and Manage dictates givenName and surName
+            //Not trivial, but SAML and ManageImport dictates givenName and surName
             const givenName = parseContactPersonIdentifier(person.email);
             return {
                 type: person.type,

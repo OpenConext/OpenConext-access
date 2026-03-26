@@ -77,11 +77,11 @@ const nl = {
         accessibleApps: "Enabled apps",
         yourApps: "Our apps",
         catalogue: "All other apps",
-        externalMaintenance: "Manage access options",
+        externalMaintenance: "ManageImport access options",
         invite: "Roles",
         sram: "Collaborative groups",
         allApps: "All apps",
-        organizationMaintenance: "Manage organisation",
+        organizationMaintenance: "ManageImport organisation",
         idp: "My organisation",
         users: "SURF Access users",
         applications: "Applications",
@@ -92,9 +92,9 @@ const nl = {
         tooltips: {
             users: "",
             idp: "",
-            yourApps: "Manage the technical connection and metadata of your apps.",
+            yourApps: "ManageImport the technical connection and metadata of your apps.",
             catalogue: "Discover apps that aren't yet connected.",
-            accessibleApps: "Manage access to enabled applications",
+            accessibleApps: "ManageImport access to enabled applications",
             roles: "",
             collaborations: "",
             serviceDesk: "",
@@ -142,23 +142,23 @@ const nl = {
         backToLandingLink: " create your own organisation.",
         central: {
             title: "Central access management",
-            subTitle: "Manage access to enabled applications",
+            subTitle: "ManageImport access to enabled applications",
             connectedApps: "enabled apps",
             connectedAppsInfo: "The apps that are linked to our IdP",
-            maintainAccess: "Manage access",
+            maintainAccess: "ManageImport access",
             roles: "Access roles",
-            maintainRoles: "Manage roles",
+            maintainRoles: "ManageImport roles",
             teamCentral: "Central team",
             you: "You",
             responsible: "Responsible: <a href='mailto:{{mail}}'>{{name}}</a>",
-            maintainTeam: "Manage team",
+            maintainTeam: "ManageImport team",
         },
         catalogue: {
             title: "SURF Access catalog",
-            subTitle: "Manage your own apps and find new ones",
+            subTitle: "ManageImport your own apps and find new ones",
             ourApps: "Our apps",
             ourAppsInfo: "The apps we offer ourselves on SURF Access",
-            maintainOurApps: "Manage our apps",
+            maintainOurApps: "ManageImport our apps",
             allApps: "All other apps",
             openCatalogue: "Open the SURF app catalog"
         },
@@ -166,10 +166,10 @@ const nl = {
             title: "Decentralised access management",
             subTitle: "Delegate member management and application access to collaborative groups.",
             collaborations: "Collaborative groups",
-            maintainCollaborations: "Manage collaborative groups",
+            maintainCollaborations: "ManageImport collaborative groups",
             teamDecentral: "Decentral team",
             responsible: "responsible: <a href='mailto:{{email}}'>{{name}}</a>",
-            maintainTeamDecentral: "Manage team"
+            maintainTeamDecentral: "ManageImport team"
         },
         tip: {
             info: "Tips from SURF when setting up access",
@@ -220,7 +220,7 @@ const nl = {
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",
-        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from Manage) are immutable in SURF Access. Only external organisations from external (commercial) service providers are mutable.",
+        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from ManageImport) are immutable in SURF Access. Only external organisations from external (commercial) service providers are mutable.",
         flash: {
             updated: "Organisation {{name}} now has the status {{status}}",
             deleted: "Organisation {{name}} has been deleted",
@@ -319,7 +319,7 @@ const nl = {
         team: {
             name: "Team",
             info: "Give team members or external users access to manage this app",
-            members: "Manage team members"
+            members: "ManageImport team members"
         },
         production: {
             name: "Production",
@@ -815,7 +815,7 @@ const nl = {
             eduid: "EduID Identity Provider",
             idp: "Your IdP",
             invite: "SURF Invite",
-            manage: "SURF Manage",
+            manage: "SURF ManageImport",
             orcid: "ORCID organisation",
             sabrest: "SURF SAB",
             voot: "SURF Memberships",
@@ -964,7 +964,7 @@ const nl = {
     myOrganization: {
         title: "My organisation",
         info: "To view other information about your organisation, visit <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
-        maintenance: "Manage {{name}}",
+        maintenance: "ManageImport {{name}}",
         contactPersons: "Contacts",
         general: "General information",
         delete: "Delete organisation",

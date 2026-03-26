@@ -35,6 +35,7 @@ public class ChangeRequest implements Serializable {
 
     private RequestType requestType;
 
+    @Setter
     private String ticketKey;
 
     public ChangeRequest(Map<String, Object> manageChangeRequest) {
@@ -46,20 +47,19 @@ public class ChangeRequest implements Serializable {
     public ChangeRequest(String metaDataId,
                          EntityType entityType,
                          Map<String, Object> pathUpdates,
-                         Map<String, Object> auditData,
                          boolean incrementalChange,
                          PathUpdateType pathUpdateType,
-                         RequestType requestType,
-                         String ticketKey) {
+                         RequestType requestType) {
         this.metaDataId = metaDataId;
         this.type = entityType.name();
-        this.note = auditData != null ? (String) auditData.get("notes") : null;
         this.pathUpdates = pathUpdates;
-        this.auditData = auditData;
         this.incrementalChange = incrementalChange;
         this.pathUpdateType = pathUpdateType;
         this.requestType = requestType;
-        this.ticketKey = ticketKey;
     }
 
+    public void setAuditData(Map<String, Object> auditData) {
+        this.auditData = auditData;
+        this.note = auditData != null ? (String) auditData.get("notes") : null;
+    }
 }

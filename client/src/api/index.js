@@ -217,6 +217,10 @@ export function allAplicationsByOrganisationLight(organizationId) {
     return fetchJson(`/api/v1/applications/all/light/${organizationId}`);
 }
 
+export function allAplicationsLight() {
+    return fetchJson(`/api/v1/applications/all`);
+}
+
 //Application memberships
 export function deleteApplicationMembershipById(applicationMembership) {
     return fetchDelete(`/api/v1/application_memberships/${applicationMembership.id}`);
@@ -227,7 +231,7 @@ export function createApplicationMembership(organizationMembershipId, applicatio
     return postPutJson("/api/v1/application_memberships", body, "POST");
 }
 
-//Manage
+//ManageImport
 export function revokeChangeRequest(changeRequest) {
     return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
 }

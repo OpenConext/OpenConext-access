@@ -1,0 +1,26 @@
+@use "../index";
+@use "../styles/vars.scss" as *;
+
+div.manage-migrate-container {
+    width: 50%;
+
+    $width: 920px;
+
+    .inner-manage-migrate-container {
+        width: 100%;
+        background-color: white;
+    }
+
+    .migrate, {
+        margin-top: 25px;
+
+        .options {
+            display: flex;
+            justify-content: flex-end;
+            gap: 25px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--sds--color--gray--100);
+        }
+    }
+}

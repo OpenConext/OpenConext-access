@@ -5,7 +5,6 @@ import {
     allAplicationsByOrganisationLight,
     getConnectionByManageIdentifiers,
     importEntity,
-    migrateApplication,
     organizationsLight,
     publicServiceProviderByDetail
 } from "../api/index.js";
@@ -102,43 +101,6 @@ const ManageDetail = () => {
         );
     }
 
-    const doMigrate = confirm => {
-        if (confirm) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doMigrate(false),
-                title: I18n.t("manageDetail.migrate"),
-                question: I18n.t("manageDetail.migrateConfirmation", {
-                    connection: accessData.connection.name,
-                    application: accessData.application.name,
-                    organisation: accessData.organisation.name,
-                    newOrganisation: organization.label
-                }),
-                okButton: I18n.t("manageDetail.migrate")
-            })
-        } else {
-            setLoading(true);
-            setConfirmation({});
-            migrateApplication(accessData.application.id, organization.value)
-                .then(() => {
-                    setOrganization(null);
-                    Promise.all([
-                        getConnectionByManageIdentifiers(manageType, manageId),
-                        publicServiceProviderByDetail(manageType, manageId)
-                    ]).then(res => {
-                        setAccessData(res[0]);
-                        setServiceProvider(res[1]);
-                        setLoading(false);
-                        setFlash(I18n.t("manageDetail.flash.migrated", {
-                            application: accessData.application.name,
-                            organisation: organization.label
-                        }));
-                    })
-                })
-        }
-    }
-
     const doImport = (confirm, newApplication) => {
         if (confirm) {
             setConfirmation({
@@ -148,8 +110,8 @@ const ManageDetail = () => {
                 title: I18n.t("manageDetail.import"),
                 question: I18n.t(`manageDetail.${newApplication ? "impportApplicationConfirmation" : "impportConnectionConfirmation"}`, {
                     entity: providerName(I18n.locale, serviceProvider),
-                    application: application?.name,
-                    organisation: organization.name
+                    application: application?.label,
+                    organisation: organization.label
                 }),
                 okButton: I18n.t("manageDetail.migrate")
             })
@@ -164,7 +126,6 @@ const ManageDetail = () => {
                         getConnectionByManageIdentifiers(manageType, manageId),
                         publicServiceProviderByDetail(manageType, manageId)
                     ]).then(res => {
-                        setAccessData(res[0]);
                         setServiceProvider(res[1]);
                         setLoading(false);
                         setFlash(I18n.t("manageDetail.flash.imported", {
@@ -176,48 +137,9 @@ const ManageDetail = () => {
         }
     }
 
-    const renderConnection = () => {
-        return (
-            <div className="manage-info">
-                <p dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("manageDetail.inAccess", {
-                        connection: accessData.connection.name,
-                        application: accessData.application.name,
-                        organisation: accessData.organisation.name
-                    }))
-                }}/>
-                <div className="migrate">
-                    <SelectField name={I18n.t("manageDetail.chooseOrganisation")}
-                                 value={organization}
-                                 options={organizations
-                                     .filter(org => org.id !== accessData.organisation.id)
-                                     .map(org => ({value: org.id, label: org.name}))}
-                                 searchable={true}
-                                 placeholder={I18n.t("manageDetail.chooseOrganisationPlaceholder")}
-                                 onChange={val => setOrganization(val)}
-                    />
-                    <div className="options">
-                        <Button onClick={() => doMigrate(true)}
-                                type={ButtonType.DestructivePrimary}
-                                disabled={isEmpty(organization)}
-                                txt={I18n.t("manageDetail.migrate")}/>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const renderDetails = () => {
-        if (isEmpty(accessData)) {
-            return renderNoConnection();
-        } else {
-            return renderConnection()
-        }
-    }
-
     const backToSystem = e => {
         stopEvent(e);
-        navigate("/system/manage");
+        navigate("/system/import");
     }
 
     const renderLogo = metaDataFields => {
@@ -225,14 +147,6 @@ const ManageDetail = () => {
         return isEmpty(logoUrl) ? <PlaceHolderImage/> : <img src={logoUrl} alt=""/>
     }
 
-    /**
-     * Two options:
-     *
-     * 1) Not present in Access database, choose organization, import as application or as accessData under application X?
-     * 2) Present in Access database, choose other organization, move the application of  the accessData to different organization?
-     *
-     * First provide status in Chip, then based on 1/ or 2/, show the information needs to be filled in with dynamic components
-     */
     const renderApp = () => {
         return (
             <>
@@ -252,13 +166,27 @@ const ManageDetail = () => {
                                 </p>
                             </div>
                         </div>
-                        {renderDetails()}
+                        {isEmpty(accessData) && renderNoConnection()}
+                        {!isEmpty(accessData) && renderConnection()}
                     </div>
                 </div>
             </>
         );
     }
 
+    const renderConnection = () => {
+        return (
+            <div className="manage-info">
+                <p dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("manageDetail.inAccess", {
+                        connection: accessData.connection.name,
+                        application: accessData.application.name,
+                        organisation: accessData.organisation.name
+                    }))
+                }}/>
+            </div>
+        );
+    }
     const {open, cancel, action, question, title, okButton} = confirmation;
 
     return (
@@ -271,6 +199,7 @@ const ManageDetail = () => {
             </ConfirmationDialog>}
             <div className="inner-manage-detail-container">
                 {renderApp()}
+
             </div>
         </div>
     );

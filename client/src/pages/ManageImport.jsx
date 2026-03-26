@@ -13,7 +13,7 @@ import {useNavigate} from "react-router";
 const entityTypes = ["oidc10_rp", "saml20_sp"]
     .map(type => ({label: I18n.t(`manage.${type}`), value: type}))
 
-export const Manage = () => {
+export const ManageImport = () => {
 
     const [entityType, setEntityType] = useState(entityTypes[0]);
     const [totalElements, setTotalElements] = useState(0);

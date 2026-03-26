@@ -33,7 +33,7 @@ public class ConnectionProviderConverter {
 
     private final List<Map<String, Object>> privacyInfo;
     private final List<String> excludedARPAttributes;
-    private final List<String> excludedAttributes = List.of("revisionNote");
+    private final List<String> excludedAttributes = List.of("revisionnote");
     private final List<String> excludedMergeAttributesPaths = List.of("arp.attributes");
 
     private final State defaultTestState;
@@ -64,7 +64,9 @@ public class ConnectionProviderConverter {
                 .toList();
     }
 
-    public Map<String, Object> convert(Connection connection, Map<String, Object> remoteProvider, boolean changeRequestRequired) {
+    public Map<String, Object> convert(Connection connection,
+                                       Map<String, Object> remoteProvider,
+                                       boolean changeRequestRequired) {
         Application application = connection.getApplication();
         //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();
@@ -177,9 +179,7 @@ public class ConnectionProviderConverter {
 
     //For all attributes that have been changed, we create a single ChangeRequest
     public List<ChangeRequest> deduceChangeRequests(Connection connection,
-                                                    Map<String, Object> currentProvider,
-                                                    Map<String, Object> auditData,
-                                                    String jiraKey) {
+                                                    Map<String, Object> currentProvider) {
         //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
         //So we need to convert the connection in to the new Map, without modifying the originalMap
         Map clonedProvider = deepClone(currentProvider);
@@ -195,11 +195,9 @@ public class ConnectionProviderConverter {
                     connection.getManageIdentifier(),
                     connection.getProtocol(),
                     pathUpdates,
-                    auditData,
                     false,
                     null,
-                    RequestType.Change,
-                    jiraKey);
+                    RequestType.Change);
             changeRequests.add(changeRequest);
         }
         return changeRequests;
@@ -260,7 +258,7 @@ public class ConnectionProviderConverter {
                                             Object oldVal,
                                             Object newVal,
                                             Map<String, Object> pathUpdates) {
-        if (Objects.equals(oldVal, newVal) || excludedAttributes.contains(path)) {
+        if (Objects.equals(oldVal, newVal) || excludedAttributes.contains(path.toLowerCase())) {
             return;
         }
 

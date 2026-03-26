@@ -956,7 +956,7 @@ export const Testing = ({
         const profileInfo = I18n.translations[I18n.locale].connection.informational.profiles[profileName].info;
         const currentProfile = arpInfo.profiles.find(profile => profile.name === profileName);
         const isContentApp = application.type === "CONTENT";
-        //These are the attributes added in Manage. We will show them as regular attributes
+        //These are the attributes added in ManageImport. We will show them as regular attributes
         const extraAttributesOutsideBundle = connection.additionalAttributes.filter(attr => !currentProfile.optionalAttributes.includes(attr));
         const allAttributes = currentProfile.attributes.concat(extraAttributesOutsideBundle);
         const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)

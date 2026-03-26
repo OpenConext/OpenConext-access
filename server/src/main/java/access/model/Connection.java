@@ -161,7 +161,8 @@ public class Connection implements NameHolder {
         List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of());
         List<String> allowedEntitiesMapped = allowedEntities.stream().map(m -> m.get("name")).toList();
         this.metaData.put("allowedEntities", allowedEntitiesMapped);
-        this.metaData.put("arp", data.get("arp"));
+        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
+        this.metaData.put("arp", arp);
 
         Map<String, Object> metaDataFields = getMetaDataFields(data);
         this.name = (String) metaDataFields.getOrDefault("name:en", this.name);

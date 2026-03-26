@@ -159,20 +159,22 @@ public class IdentityProviderController implements UserAccessRights {
                 EntityType.valueOf((String) serviceProvider.get("type")),
                 email
         ));
+        Map<String, Object> auditData = Map.of("user", email,
+                "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
+                        user.getName(),
+                        identityProviderEntityID,
+                        serviceProviderEntityID,
+                        jiraKey));
         ChangeRequest changeRequest = new ChangeRequest(
                 idpManageIdentifier,
                 EntityType.saml20_idp,
                 Map.of("allowedEntities", Map.of("name", serviceProviderEntityID)),
-                Map.of("user", email,
-                        "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
-                                user.getName(),
-                                identityProviderEntityID,
-                                serviceProviderEntityID,
-                                jiraKey)),
                 true,
                 PathUpdateType.ADDITION,
-                RequestType.LinkRequest,
-                jiraKey);
+                RequestType.LinkRequest);
+        changeRequest.setTicketKey(jiraKey);
+        changeRequest.setAuditData(auditData);
+
         manage.createChangeRequest(Environment.PROD, changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -214,20 +216,21 @@ public class IdentityProviderController implements UserAccessRights {
                 EntityType.valueOf((String) serviceProvider.get("type")),
                 user.getEmail()
         ));
+        Map<String,Object> auditData = Map.of("user", user.getEmail(),
+                "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",
+                        user.getName(),
+                        identityProviderEntityID,
+                        serviceProviderEntityID,
+                        jiraKey));
         ChangeRequest changeRequest = new ChangeRequest(
                 idpManageIdentifier,
                 EntityType.saml20_idp,
                 Map.of("allowedEntities", Map.of("name", serviceProviderEntityID)),
-                Map.of("user", user.getEmail(),
-                        "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",
-                                user.getName(),
-                                identityProviderEntityID,
-                                serviceProviderEntityID,
-                                jiraKey)),
                 true,
                 PathUpdateType.REMOVAL,
-                RequestType.UnlinkRequest,
-                jiraKey);
+                RequestType.UnlinkRequest);
+        changeRequest.setTicketKey(jiraKey);
+        changeRequest.setAuditData(auditData);
         manage.createChangeRequest(Environment.PROD, changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
