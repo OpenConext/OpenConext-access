@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -178,8 +179,8 @@ public class ConnectionProviderConverter {
     }
 
     //For all attributes that have been changed, we create a single ChangeRequest
-    public List<ChangeRequest> deduceChangeRequests(Connection connection,
-                                                    Map<String, Object> currentProvider) {
+    public Optional<ChangeRequest> deduceChangeRequests(Connection connection,
+                                                        Map<String, Object> currentProvider) {
         //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
         //So we need to convert the connection in to the new Map, without modifying the originalMap
         Map clonedProvider = deepClone(currentProvider);
@@ -187,7 +188,6 @@ public class ConnectionProviderConverter {
         Map<String, Object> newData = getData(newProvider);
         Map<String, Object> currentData = getData(currentProvider);
 
-        List<ChangeRequest> changeRequests = new ArrayList<>();
         Map<String, Object> pathUpdates = new LinkedHashMap<>();
         diffChangeRequestRecursive("", currentData, newData, pathUpdates);
         if (pathUpdatesWarrantChangeRequest(pathUpdates)) {
@@ -198,9 +198,9 @@ public class ConnectionProviderConverter {
                     false,
                     null,
                     RequestType.Change);
-            changeRequests.add(changeRequest);
+            return Optional.of(changeRequest);
         }
-        return changeRequests;
+        return Optional.empty();
     }
 
     private boolean pathUpdatesWarrantChangeRequest(Map<String, Object> pathUpdates) {

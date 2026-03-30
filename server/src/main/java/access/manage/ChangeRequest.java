@@ -72,6 +72,5 @@ public class ChangeRequest implements Serializable {
         return Objects.equals(changeRequestMap.get("pathUpdateType"), pathUpdateTypeString) &&
                 Objects.equals(changeRequestMap.get("requestType"), requestTypeString) &&
                 Objects.equals(changeRequestMap.get("pathUpdates"), pathUpdates) ;
-
     }
 }

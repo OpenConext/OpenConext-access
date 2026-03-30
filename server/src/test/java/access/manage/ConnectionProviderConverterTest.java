@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("unchecked")
 class ConnectionProviderConverterTest extends AbstractTest {
@@ -39,9 +40,9 @@ class ConnectionProviderConverterTest extends AbstractTest {
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
         connection.setManageIdentifier("5");
         Map<String, Object> provider = localManage.providerByConnection(connection);
-        List<ChangeRequest> changeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
-        assertEquals(1, changeRequests.size());
-        ChangeRequest changeRequest = changeRequests.getFirst();
+        Optional<ChangeRequest> changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);
+        assertTrue(changeRequestOptional.isPresent());
+        ChangeRequest changeRequest = changeRequestOptional.get();
         assertEquals(18, changeRequest.getPathUpdates().size());
     }
 

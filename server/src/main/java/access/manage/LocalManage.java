@@ -181,6 +181,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public Map<String, Object> updateChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        return Map.of();
+    }
+
+    @Override
     public void rejectChangeRequest(Environment environment, ChangeRequest changeRequest) {
         //noop
     }

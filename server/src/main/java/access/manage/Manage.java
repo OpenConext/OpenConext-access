@@ -30,6 +30,8 @@ public interface Manage {
 
     void rejectChangeRequest(Environment environment, ChangeRequest changeRequest);
 
+    Map<String, Object> updateChangeRequest(Environment environment, ChangeRequest changeRequest);
+
     List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection);
 
     List<Map<String, Object>> getChangeRequestsIdentityProvider(Map<String, Object> identityProvider);

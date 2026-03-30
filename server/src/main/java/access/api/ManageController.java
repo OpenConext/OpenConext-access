@@ -186,6 +186,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         List<Map<String, Object>> policies = manage.uniquePolicyName(properties);
         return ResponseEntity.ok(policies);
     }
+
     @GetMapping("/autocomplete/{type}")
     public List<Map<String, Object>> autoCompleteEntities(@PathVariable EntityType type,
                                                                         @RequestParam("query") String query) {

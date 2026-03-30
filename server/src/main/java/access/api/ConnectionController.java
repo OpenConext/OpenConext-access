@@ -46,6 +46,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -270,14 +271,16 @@ public class ConnectionController implements UserAccessRights {
         return ResponseEntity.ok(identityProviders);
     }
 
-    private List<ChangeRequest> filterExistingChangeRequestDuplicates(List<Map<String, Object>> existingChangeRequests, List<ChangeRequest> newChangeRequests) {
-        if (isEmpty(existingChangeRequests) && !isEmpty(newChangeRequests)) {
-            return newChangeRequests;
+    private boolean isNewChangeRequestDuplicate(List<Map<String, Object>> existingChangeRequests,
+                                                Optional<ChangeRequest> newChangeRequest) {
+        if (isEmpty(existingChangeRequests)) {
+            return false;
         }
-        return newChangeRequests.stream()
-                .filter(changeRequest ->
-                        existingChangeRequests.stream().noneMatch(changeRequestMap -> changeRequest.matches(changeRequestMap))
-                ).toList();
+        return newChangeRequest
+                .map(changeRequest ->
+                        existingChangeRequests.stream().anyMatch(changeRequestMap -> changeRequest.matches(changeRequestMap)))
+                .orElse(false);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -287,34 +290,44 @@ public class ConnectionController implements UserAccessRights {
         Map<String, Object> provider = manage.providerByConnection(connection);
         connection.updateRemoteManageData(provider);
         List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(Environment.PROD, connection);
-        List<ChangeRequest> allChangeRequests = connectionProviderConverter.deduceChangeRequests(connection, provider);
-        List<ChangeRequest> changeRequests = filterExistingChangeRequestDuplicates(existingChangeRequests, allChangeRequests);
-        //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not
-        if (!changeRequests.isEmpty()) {
-            String entityId = (String) ((Map) provider.get("data")).get("entityid");
-            String summary = String.format("Data change requested by %s for %s with entityID %s",
-                    user.getName(),
-                    connection.getName(),
-                    entityId);
-            String jiraKey = jiraClient.create(new JiraIssue(
-                    entityId,
-                    null,// There is no identity provider for change requests
-                    String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
-                            summary,
-                            System.lineSeparator(),
-                            changeRequestURL),
-                    summary,
-                    connection.getProtocol(),
-                    user.getEmail()
-            ));
-            Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                    "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                            user.getName(), connection.getName(), jiraKey));
-            changeRequests.forEach(changeRequest -> {
+        Optional<ChangeRequest> changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);
+        boolean isDuplicate = isNewChangeRequestDuplicate(existingChangeRequests, changeRequestOptional);
+        if (changeRequestOptional.isPresent() && !isDuplicate) {
+            if (existingChangeRequests.isEmpty()) {
+                //No existing change requests, proceed as normal and create a ticket
+                String entityId = (String) ((Map) provider.get("data")).get("entityid");
+                String summary = String.format("Data change requested by %s for %s with entityID %s",
+                        user.getName(),
+                        connection.getName(),
+                        entityId);
+                String jiraKey = jiraClient.create(new JiraIssue(
+                        entityId,
+                        null,// There is no identity provider for change requests
+                        String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
+                                summary,
+                                System.lineSeparator(),
+                                changeRequestURL),
+                        summary,
+                        connection.getProtocol(),
+                        user.getEmail()
+                ));
+                Map<String, Object> auditData = Map.of("user", user.getEmail(),
+                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                                user.getName(), connection.getName(), jiraKey));
+                ChangeRequest changeRequest = changeRequestOptional.get();
                 changeRequest.setTicketKey(jiraKey);
                 changeRequest.setAuditData(auditData);
                 manage.createChangeRequest(environment, changeRequest);
-            });
+            } else {
+                //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not overwrite changes
+                //And therefore we don't create a new change request, but update the existing one
+                Map<String, Object> existingChangeRequest = existingChangeRequests.getFirst();
+                ChangeRequest changeRequest = changeRequestOptional.get();
+                existingChangeRequest.get("pathUpdates")
+                //TODO , add / override all new pathUpdates, except if the value is a List, then sort out the difference
+
+
+            }
         }
 
         //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -178,10 +179,19 @@ public class RemoteManage implements Manage {
 
     @Override
     public Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        return doSaveChangeRequest(environment, changeRequest, HttpMethod.POST);
+    }
+
+    @Override
+    public Map<String, Object> updateChangeRequest(Environment environment, ChangeRequest changeRequest) {
+        return doSaveChangeRequest(environment, changeRequest, HttpMethod.PUT);
+    }
+
+    private @Nullable Map<String, Object> doSaveChangeRequest(Environment environment, ChangeRequest changeRequest, HttpMethod post) {
         RestTemplate restTemplate = environmentRestTemplate(environment);
         String url = String.format("%s/manage/api/internal/change-requests", environmentUrl(environment));
         HttpEntity<ChangeRequest> requestEntity = new HttpEntity<>(changeRequest);
-        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(url, post, requestEntity,
                 PARAMETERIZED_TYPE_REFERENCE);
         return responseEntity.getBody();
     }
@@ -438,7 +448,6 @@ public class RemoteManage implements Manage {
                 environmentUrl(Environment.PROD),
                 type.name(),
                 URLEncoder.encode(query, Charset.defaultCharset()));
-        String s = restTemplate.getForObject(url, String.class);
         return restTemplate.getForObject(url, Map.class);
     }
 
