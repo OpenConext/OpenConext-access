@@ -78,6 +78,10 @@ export function me() {
     return fetchJson("/api/v1/users/me");
 }
 
+export function organizationSwitch(organization) {
+    return fetchJson(`/api/v1/users/organization-switch/${organization.id}`);
+}
+
 export function deleteUser() {
     return fetchDelete("/api/v1/users");
 }

@@ -9,6 +9,7 @@ import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {useLogout} from '../hooks/UseLogout.jsx';
+import {organizationSwitch} from "../api/index.js";
 
 export const UserMenu = ({setIsAuthenticated}) => {
 
@@ -23,13 +24,17 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const logoutUser = useLogout();
 
     const switchOrganization = organization => {
-        const newMenuItems = menuItemsForUser(user, organization);
-        useAppStore.setState(() => ({
-            currentOrganization: organization,
-            menuItems: newMenuItems,
-            activeMenuItem: mainMenuItems.home
-        }))
-        navigate("/home");
+        organizationSwitch(organization)
+            .then(newUser => {
+                const newMenuItems = menuItemsForUser(newUser, organization);
+                useAppStore.setState(() => ({
+                    currentOrganization: organization,
+                    menuItems: newMenuItems,
+                    user: newUser,
+                    activeMenuItem: mainMenuItems.home,
+                }));
+                navigate("/home");
+            });
     }
 
     const renderOrganizationSwitch = () => {
@@ -48,7 +53,9 @@ export const UserMenu = ({setIsAuthenticated}) => {
                 {isSwitchOrganizationOpen &&
                     <section className="organization-switch-section sds--user-info--dropdown">
                         {organizations.map((org, index) =>
-                            <div key={index} className="organization-option" onClick={() => switchOrganization(org)}>
+                            <div key={index}
+                                 className="organization-option"
+                                 onClick={() => switchOrganization(org)}>
                                 <span className={`${currentOrganization.id === org.id ? "active" : ""}`}>
                                     {org.name}
                                 </span>

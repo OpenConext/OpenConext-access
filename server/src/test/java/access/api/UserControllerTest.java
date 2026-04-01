@@ -3,21 +3,23 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.UserInfoEnhancer;
-import access.model.*;
+import access.model.Authority;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Institution;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import io.restassured.http.Headers;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,6 +112,61 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertEquals("ShareLogics", organization.getName());
+    }
+
+    @Test
+    void swichOrganizationManagerWithMockLogin() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        super.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        super.stubForGetChangeRequests(getChangeRequests());
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/users/organization-switch/{organizationId}")
+                .as(User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
+        assertEquals("ShareLogics", organization.getName());
+
+        assertEquals("7", user.getIdentityProvider().get("id"));
+    }
+
+    @Test
+    void swichOrganizationGuestWithoutIdP() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", seedIdentifiers.get(FAR_WIND))
+                .get("/api/v1/users/organization-switch/{organizationId}")
+                .as(User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        assertNull(user.getIdentityProvider());
+    }
+
+    @Test
+    void swichOrganizationGuestNoAccess() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", -1L)
+                .get("/api/v1/users/organization-switch/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test

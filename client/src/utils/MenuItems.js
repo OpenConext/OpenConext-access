@@ -57,7 +57,7 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     if (isMember || isAdmin) {
         newMenuItems.push(mainMenuItems.users);
     }
-    if (!user.externalUser) {
+    if (!isEmpty(currentOrganization.manageIdentifier)) {
         newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
     }
     if ((isAdmin || user.superUser) && !isEmpty(currentOrganization.manageIdentifier)) {

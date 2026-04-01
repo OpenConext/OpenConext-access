@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.*;
@@ -131,6 +132,34 @@ public class UserController implements UserAccessRights {
             }
         }
         userRepository.save(userFromDB);
+        return ResponseEntity.ok(userFromDB);
+    }
+
+    @GetMapping("/organization-switch/{organizationId}")
+    public ResponseEntity<User> organizationSwitch(@Parameter(hidden = true) User user,
+                                                   @PathVariable("organizationId") Long organizationId,
+                                                   Authentication authentication) {
+        LOG.debug(String.format("/organization-switch for user %s", user.getEduPersonPrincipalName()));
+
+        User userFromDB = userRepository.findDetailsById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Organization organization = userFromDB.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organizationId))
+                .map(organizationMembership -> organizationMembership.getOrganization())
+                .findFirst()
+                .orElseThrow(() -> new UserRestrictionException((String.format("User %s is not a member of organization %s",
+                        user.getEmail(), organizationId))));
+
+        boolean isInternalUserFromOrganization = StringUtils.hasText(organization.getManageIdentifier());
+        userFromDB.setExternalUser(!isInternalUserFromOrganization);
+        if (isInternalUserFromOrganization) {
+            Map<String, Object> identityProvider = manage.providerByManageIdentifier(
+                    EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            userFromDB.setIdentityProvider(identityProvider);
+            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
+            userFromDB.setChangeRequests(changeRequests);
+        }
         return ResponseEntity.ok(userFromDB);
     }
 

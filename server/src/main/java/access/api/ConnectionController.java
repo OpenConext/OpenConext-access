@@ -323,7 +323,7 @@ public class ConnectionController implements UserAccessRights {
                 //And therefore we don't create a new change request, but update the existing one
                 Map<String, Object> existingChangeRequest = existingChangeRequests.getFirst();
                 ChangeRequest changeRequest = changeRequestOptional.get();
-                existingChangeRequest.get("pathUpdates")
+                existingChangeRequest.get("pathUpdates");
                 //TODO , add / override all new pathUpdates, except if the value is a List, then sort out the difference
 
 
