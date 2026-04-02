@@ -15,7 +15,7 @@ import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {policyBreakDowwn} from "../utils/Policy.js";
 
-export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPolicies}) => {
+export const PolicyOverview = ({policies, backToAccess, currentOrganization,policyDetails, refreshPolicies}) => {
 
     const {setFlash, allowedAttributes} = useAppStore(useShallow(state => ({
         setFlash: state.setFlash,
@@ -34,7 +34,7 @@ export const PolicyOverview = ({policies, backToAccess, policyDetails, refreshPo
                 okButton: I18n.t("forms.delete")
             });
         } else {
-            deletePolicy(policy)
+            deletePolicy(policy, currentOrganization.id)
                 .then(() => {
                     setConfirmation({});
                     refreshPolicies();

@@ -66,7 +66,7 @@ const Policies = () => {
     }
 
     useEffect(() => {
-        getPolicyByIdentityProvider()
+        getPolicyByIdentityProvider(currentOrganization.id)
             .then(res => {
                 setPolicies(res);
                 if (page === "details" && !isEmpty(policyId)) {
@@ -95,7 +95,7 @@ const Policies = () => {
 
     const refreshPolicies = () => {
         setLoading(true);
-        getPolicyByIdentityProvider()
+        getPolicyByIdentityProvider(currentOrganization.id)
             .then(res => {
                 setPolicies(res);
                 navigate("/policies/overview");
@@ -137,6 +137,7 @@ const Policies = () => {
                     {showPolicyOverview &&
                         <PolicyOverview
                             policies={policies}
+                            currentOrganization={currentOrganization}
                             policyDetails={toPolicyDetail}
                             refreshPolicies={refreshPolicies}
                         />

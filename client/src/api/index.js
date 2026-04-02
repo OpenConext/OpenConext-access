@@ -252,12 +252,12 @@ export function getIdentityProviders(environment) {
     return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
 }
 
-export function getPolicyByServiceProviderEntityId(entityId) {
-    return fetchJson(`/api/v1/manage/policies?entityId=${encodeURIComponent(entityId)}`);
+export function getPolicyByServiceProviderEntityId(entityId, organizationId) {
+    return fetchJson(`/api/v1/manage/policies?entityId=${encodeURIComponent(entityId)}&organizationId=${organizationId}`);
 }
 
-export function getPolicyByIdentityProvider() {
-    return fetchJson("/api/v1/manage/identity-provider/policies");
+export function getPolicyByIdentityProvider(organizationId) {
+    return fetchJson(`/api/v1/manage/identity-provider/policies?organizationId=${organizationId}`);
 }
 
 export function uniqueEntityID(environment, entityID) {
@@ -272,20 +272,20 @@ export function privacy() {
     return fetchJson("/api/v1/manage/privacy", {}, {}, false);
 }
 
-export function newPolicy(policy) {
-    return postPutJson("/api/v1/manage/policies", policy, "POST");
+export function newPolicy(policy, organizationId) {
+    return postPutJson(`/api/v1/manage/policies?organizationId=${organizationId}`, policy, "POST");
 }
 
-export function updatePolicy(policy) {
-    return postPutJson("/api/v1/manage/policies", policy, "PUT");
+export function updatePolicy(policy, organizationId) {
+    return postPutJson(`/api/v1/manage/policies?organizationId=${organizationId}`, policy, "PUT");
 }
 
 export function uniquePolicyName(name) {
     return postPutJson("/api/v1/manage/unique-policy-name", {name: name}, "POST");
 }
 
-export function deletePolicy(policy) {
-    return fetchDelete(`/api/v1/manage/policies/${policy.id}`);
+export function deletePolicy(policy, organizationId) {
+    return fetchDelete(`/api/v1/manage/policies/${policy.id}?organizationId=${organizationId}`);
 }
 
 export function allowedAttributes() {

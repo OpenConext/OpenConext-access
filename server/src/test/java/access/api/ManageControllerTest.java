@@ -4,6 +4,7 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
 import access.security.InstitutionAdmin;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -125,16 +126,14 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void policyByServiceProvider() {
         Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
-        Map<String, Object> attributes = Map.of(
-                "sub", INSTITUTION_ADMIN,
-                InstitutionAdmin.IDENTITY_PROVIDER, identityProvider);
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
         String serviceProviderEntityId = "https://network";
         //Stub the actual call to fetch the policies for a SP
         this.stubForPolicyByServiceProvider("http://mock-idp", serviceProviderEntityId);
         //The IdP is fetched to check the allowed entities
         this.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
 
         List<Map<String, Object>> policies = given()
                 .when()
@@ -143,6 +142,7 @@ class ManageControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("entityId", serviceProviderEntityId)
+                .queryParam("organizationId", organization.getId())
                 .get("/api/v1/manage/policies")
                 .as(new TypeRef<>() {
                 });
@@ -152,13 +152,12 @@ class ManageControllerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void policyByIdentityProvider() {
-        Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
-        Map<String, Object> attributes = Map.of(
-                "sub", INSTITUTION_ADMIN,
-                InstitutionAdmin.IDENTITY_PROVIDER, identityProvider);
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
 
         //Stub the actual call to fetch the policies for a IdP
+        this.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
         this.stubForPolicyByIdentityProvider("http://mock-idp");
 
         List<Map<String, Object>> policies = given()
@@ -167,6 +166,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("organizationId", organization.getId())
                 .get("/api/v1/manage/identity-provider/policies")
                 .as(new TypeRef<>() {
                 });
@@ -185,6 +185,7 @@ class ManageControllerTest extends AbstractTest {
         String serviceProviderEntityId = "nope";
         //The IdP is fetched to check the allowed entities
         this.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
 
         given()
                 .when()
@@ -193,6 +194,7 @@ class ManageControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("entityId", serviceProviderEntityId)
+                .queryParam("organizationId", organization.getId())
                 .get("/api/v1/manage/policies")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
@@ -283,6 +285,7 @@ class ManageControllerTest extends AbstractTest {
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(policy)
                         .withStatus(201)));
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
 
         Map<String, Object> newPolicy = given()
                 .when()
@@ -290,6 +293,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("organizationId", organization.getId())
                 .body(policy)
                 .post("/api/v1/manage/policies")
                 .as(new TypeRef<>() {
@@ -323,8 +327,10 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void updatePolicy() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
-        String manageIdentifier = "1";
-        Map<String, Object> policyFromDB = super.stubForGetProvider(EntityType.policy, manageIdentifier, Environment.PROD);
+
+        Map<String, Object> policyFromDB = super.stubForGetProvider(EntityType.policy, "1", Environment.PROD);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
 
         stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -337,6 +343,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("organizationId", organization.getId())
                 .body(policyFromDB)
                 .put("/api/v1/manage/policies")
                 .as(new TypeRef<>() {
@@ -349,7 +356,9 @@ class ManageControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
         // See server/src/main/resources/manage/policy.json
         String manageIdentifier = "1";
-        super.stubForGetProvider(EntityType.policy, manageIdentifier, Environment.PROD);
+        super.stubForGetProvider(EntityType.policy, "1", Environment.PROD);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
 
         String url = String.format("/manage/api/internal/metadata/%s/%s",
                 EntityType.policy.name(), manageIdentifier);
@@ -363,6 +372,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("organizationId", organization.getId())
                 .pathParam("policyId", manageIdentifier)
                 .delete("/api/v1/manage/policies/{policyId}")
                 .then()

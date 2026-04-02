@@ -14,7 +14,7 @@ import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
-export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
+export const PolicyForm = ({policy, setPolicy, isExistingPolicy, currentOrganization, originalName, refreshPolicies}) => {
 
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
@@ -74,7 +74,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                     idp: policy.data.identityProviderIds[0].name, sp: policy.data.serviceProviderIds[0].name
                 })
             );
-            promise(policy)
+            promise(policy, currentOrganization.id)
                 .then(res => {
                     setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.data.name}));
                     refreshPolicies();

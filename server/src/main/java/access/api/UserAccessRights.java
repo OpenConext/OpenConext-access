@@ -99,12 +99,20 @@ public interface UserAccessRights {
         }
     }
 
-    default void confirmInstitutionAdmin(User user) {
-        if (!user.isSuperUser() && !user.isInstitutionAdmin()) {
-            throw new UserRestrictionException(String.format("User %s, %s is no super user or institution admin",
-                    user.getEmail(), user.getAuthenticatingAuthority()));
+    default void confirmInstitutionAdmin(User user, Organization organization) {
+        if (user.isSuperUser()) {
+            return;
         }
+        organization.getOrganizationMemberships().stream()
+                .filter(organizationMembership -> organizationMembership.getUser().getId().equals(user.getId())
+                        && organizationMembership.getAuthority().equals(Authority.ADMIN))
+                .findFirst()
+                .orElseThrow(() -> new UserRestrictionException(
+                        String.format("User %s, %s is no super user or institution admin or admin of %s",
+                                user.getEmail(), user.getAuthenticatingAuthority(), organization.getName())));
 
     }
 
 }
+
+

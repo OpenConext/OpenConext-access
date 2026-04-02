@@ -37,6 +37,7 @@ public class InviteClient {
                 applicationManageId);
     }
 
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> rolesSummary() {
         if (!enabled) {
             return List.of();

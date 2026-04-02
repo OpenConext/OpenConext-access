@@ -186,6 +186,9 @@ class ConnectionControllerTest extends AbstractTest {
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(manageResponse))));
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(manageResponse))));
         super.stubForGetChangeRequests(getChangeRequests());
 
         Map<String, Object> savedConnection = given()

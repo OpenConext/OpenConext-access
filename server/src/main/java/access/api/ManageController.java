@@ -2,14 +2,20 @@ package access.api;
 
 import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
-import access.manage.*;
+import access.manage.ChangeRequest;
+import access.manage.Manage;
+import access.manage.MetaData;
+import access.manage.MetaDataFeedParser;
+import access.manage.PolicyAccessRights;
+import access.manage.PolicyDefinition;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.Organization;
 import access.model.User;
+import access.repository.OrganizationRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
-import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -19,7 +25,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,15 +59,17 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final ObjectMapper objectMapper;
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
+    private final OrganizationRepository organizationRepository;
 
     public ManageController(Manage manage,
-                            ObjectMapper objectMapper) throws IOException {
+                            ObjectMapper objectMapper, OrganizationRepository organizationRepository) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
+        this.organizationRepository = organizationRepository;
     }
 
     @GetMapping("/arp")
@@ -102,23 +119,32 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
 
     @GetMapping("/identity-provider/policies")
+    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    public ResponseEntity<List<Map<String, Object>>> identityProviderPolicies(@Parameter(hidden = true) User user) {
+    public ResponseEntity<List<Map<String, Object>>> identityProviderPolicies(@Parameter(hidden = true) User user,
+                                                                              @RequestParam("organizationId") Long organizationId) {
         LOG.debug("/identityProviderPolicies for " + user.getEmail());
 
-        confirmInstitutionAdmin(user);
-        List<Map<String, Object>> policies = this.manage.policiesByIdentityProvider(user.getAuthenticatingAuthority());
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+
+        confirmInstitutionAdmin(user, organization);
+
+        Map<String, Object> provider = this.manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+
+        List<Map<String, Object>> policies = this.manage.policiesByIdentityProvider((String) getData(provider).get("entityid"));
         return ResponseEntity.ok(policies);
     }
 
 
     @GetMapping("/policies")
+    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public ResponseEntity<List<Map<String, Object>>> policies(@Parameter(hidden = true) User user,
-                                                              @RequestParam("entityId") String entityId) {
+                                                              @RequestParam("entityId") String entityId,
+                                                              @RequestParam("organizationId") Long organizationId) {
         LOG.debug("/policies for " + entityId + " for " + user.getEmail());
-
-        confirmInstitutionAdmin(user);
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+        confirmInstitutionAdmin(user, organization);
         //we need to ensure the application is connected to the IdP of the user - realtime
         if (!user.isSuperUser()) {
             Map<String, Object> data = getIdentityProvider(user);
@@ -138,30 +164,45 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
 
     @PostMapping("/policies")
-    public ResponseEntity<Map<String, Object>> createPolicy(User user, @RequestBody Map<String, Object> policy) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, Object>> createPolicy(User user,
+                                                            @RequestParam("organizationId") Long organizationId,
+                                                            @RequestBody Map<String, Object> policy) {
         LOG.debug("/createPolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy);
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+
+        policyAccessAllowed(user, policy, organization);
         return ResponseEntity.ok(manage.createPolicy(policy));
     }
 
 
     @PutMapping("/policies")
-    public ResponseEntity<Map<String, Object>> updatePolicy(User user, @RequestBody Map<String, Object> policy) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, Object>> updatePolicy(User user,
+                                                            @RequestParam("organizationId") Long organizationId,
+                                                            @RequestBody Map<String, Object> policy) {
         LOG.debug("/updatePolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy);
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+
+        policyAccessAllowed(user, policy, organization);
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
 
     @DeleteMapping("/policies/{policyId}")
-    public ResponseEntity<Void> deletePolicy(User user, @PathVariable String policyId) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<Void> deletePolicy(User user,
+                                             @RequestParam("organizationId") Long organizationId,
+                                             @PathVariable String policyId) {
         Map<String, Object> policy = manage.providerByManageIdentifier(EntityType.policy, policyId, Environment.PROD);
+
+        Organization organization = organizationRepository.getReferenceById(organizationId);
 
         LOG.debug("/deletePolicy for " + policy + " for " + user.getEmail());
 
-        policyAccessAllowed(user, policy);
+        policyAccessAllowed(user, policy, organization);
         manage.deletePolicy(policy);
         return ResponseEntity.noContent().build();
     }
@@ -189,7 +230,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     @GetMapping("/autocomplete/{type}")
     public List<Map<String, Object>> autoCompleteEntities(@PathVariable EntityType type,
-                                                                        @RequestParam("query") String query) {
+                                                          @RequestParam("query") String query) {
         Map<String, List<Map<String, Object>>> entities = manage.autoCompleteEntities(type, query);
         //We concat the suggestions and alternatives
         List<Map<String, Object>> suggestions = entities.getOrDefault("suggestions", new ArrayList<>());
@@ -215,11 +256,11 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return Results.okResult();
     }
 
-    private void policyAccessAllowed(User user, Map<String, Object> policy) {
-        confirmInstitutionAdmin(user);
+    private void policyAccessAllowed(User user, Map<String, Object> policy, Organization organization) {
+        confirmInstitutionAdmin(user, organization);
         //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
         PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy.get("data"), PolicyDefinition.class);
-        confirmPolicyAccess(user, policyDefinition, manage);
+        confirmPolicyAccess(user, policyDefinition, manage, organization);
     }
 
     private Map<String, Object> getIdentityProvider(User user) {

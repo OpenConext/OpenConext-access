@@ -147,7 +147,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             setLoading(false);
                         } else {
                             Promise.all([
-                                getPolicyByServiceProviderEntityId(res.data.entityid),
+                                getPolicyByServiceProviderEntityId(res.data.entityid, currentOrganization.id),
                                 inviteRoles(user.organizationGUID, res.id)])
                                 .then(res => {
                                     res[0].forEach(policy => policy.originalName = policy.name);
@@ -182,7 +182,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const refreshPolicies = () => {
         setLoading(true);
-        getPolicyByServiceProviderEntityId(serviceProvider.data.entityid)
+        getPolicyByServiceProviderEntityId(serviceProvider.data.entityid, currentOrganization.id)
             .then(res => {
                 setPolicies(res);
                 setShowPolicyOverview(true);
@@ -477,6 +477,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     {showPolicyDetails &&
                         <PolicyForm policy={currentPolicy}
                                     setPolicy={setCurrentPolicy}
+                                    currentOrganization={currentOrganization}
                                     isExistingPolicy={!isEmpty(currentPolicy.id)}
                                     originalName={currentPolicy.originalName}
                                     refreshPolicies={refreshPolicies}
@@ -487,6 +488,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             policies={policies}
                             backToAccess={e => backToAccess(e, "")}
                             policyDetails={toPolicyDetail}
+                            currentOrganization={currentOrganization}
                             refreshPolicies={refreshPolicies}
                         />
                     }

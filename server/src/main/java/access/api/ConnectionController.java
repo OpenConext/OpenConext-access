@@ -355,7 +355,7 @@ public class ConnectionController implements UserAccessRights {
                     } else if  (value instanceof List && existingPathUpdates.containsKey(key)) {
                         //three way merge
                         List<String> pathUpdateValue = (List<String>) existingPathUpdates.get(key);
-                        List<String> base = (List<String>) getMetaDataFields(getData(provider)).get(key.substring(key.indexOf(".") + 1));
+                        List<String> base = (List<String>) getMetaDataFields(getData(provider)).getOrDefault(key.substring(key.indexOf(".") + 1), List.of());
                         List<String> newValues = ListMerger.threeWayMerge(base, pathUpdateValue, (List<String>) value);
                         existingPathUpdates.put(key, newValues);
                     } else {
