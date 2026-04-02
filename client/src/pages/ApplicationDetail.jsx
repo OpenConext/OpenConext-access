@@ -86,7 +86,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [showNewPolicyChoice, setShowNewPolicyChoice] = useState(false);
 
     const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
-        setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
             if (isEmpty(policyType)) {
@@ -854,7 +853,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                          question={question}>
                 {confirmationModalChildren()}
             </ConfirmationDialog>}
-            {(!showNewPolicyChoice && accessible) && renderAccessibleApp()}
+            {accessible && renderAccessibleApp()}
             {!accessible && renderNonAccessibleApp()}
         </div>
     );
