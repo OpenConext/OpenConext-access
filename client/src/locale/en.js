@@ -1099,7 +1099,7 @@ const en = {
         noPolicies: "No authorization rules have been configured yet",
         newPolicy: "New authorization rule",
         editPolicy: "Edit authorization rule",
-        new: "New policy",
+        new: "New authorization rule",
         active: "Active",
         paused: "Paused",
         activate: "Activate",
