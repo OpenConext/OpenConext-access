@@ -134,7 +134,7 @@ const Policies = () => {
                                     refreshPolicies={refreshPolicies}
                         />
                     }
-                    {showPolicyOverview &&
+                    {(showPolicyOverview  || showNewPolicyChoice) &&
                         <PolicyOverview
                             policies={policies}
                             currentOrganization={currentOrganization}

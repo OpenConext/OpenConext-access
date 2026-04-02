@@ -11,28 +11,36 @@ class ListMergerTest {
 
     @Test
     void threeWayMerge() {
-        List<String> list1 = List.of("alpha", "beta", "gamma", "delta");
+        List<String> base = List.of("alpha", "beta", "gamma", "delta");
 
-        // list2: changed "beta"→"BETA", removed "delta", added "epsilon"
-        List<String> list2 = List.of("alpha", "BETA", "gamma", "epsilon");
+        // left: changed "beta"→"BETA", removed "delta", added "epsilon"
+        List<String> left = List.of("alpha", "BETA", "gamma", "epsilon");
 
-        // list3: changed "alpha"→"ALPHA", changed "gamma"→"GAMMA"
-        List<String> list3 = List.of("ALPHA", "beta", "GAMMA", "delta");
+        // right: changed "alpha"→"ALPHA", changed "gamma"→"GAMMA"
+        List<String> right = List.of("ALPHA", "beta", "GAMMA", "delta");
 
-        List<String> list4 = ListMerger.threeWayMerge(list1, list2, list3);
-        assertEquals(list4, List.of("ALPHA", "BETA", "GAMMA", "epsilon"));
+        List<String> list4 = ListMerger.threeWayMerge(base, left, right);
+        assertEquals(List.of("ALPHA", "BETA", "GAMMA", "epsilon"), list4);
 
-        list1 = List.of("red1", "red2");
+        base = List.of("red1", "red2");
 
-        // list2: changed "beta"→"BETA", removed "delta", added "epsilon"
-        list2 = List.of("red1", "red2", "red3");
+        // left: changed "beta"→"BETA", removed "delta", added "epsilon"
+        left = List.of("red1", "red2", "red3");
 
-        // list3: changed "alpha"→"ALPHA", changed "gamma"→"GAMMA"
-        list3 = List.of("red1", "red2", "red4");
+        // right: changed "alpha"→"ALPHA", changed "gamma"→"GAMMA"
+        right = List.of("red1", "red2", "red4");
 
-        list4 = ListMerger.threeWayMerge(list1, list2, list3);
-        assertEquals(list4, List.of("red1", "red2", "red3", "red4"));
+        list4 = ListMerger.threeWayMerge(base, left, right);
+        assertEquals(List.of("red1", "red2", "red3", "red4"), list4);
     }
 
+    @Test
+    void threeWayMergeDuplicates() {
+        List<String> base = List.of("a");
+        List<String> left = List.of("a", "b");
+        List<String> right = List.of("c", "b", "b", "b");
 
+        List<String> list4 = ListMerger.threeWayMerge(base, left, right);
+        assertEquals(List.of("c","b"), list4);
+    }
 }
