@@ -31,7 +31,7 @@
     "react-router-dom": "^7.13.2",
     "react-select": "^5.10.2",
     "react-tooltip": "^5.30.0",
-    "use-debounce": "^10.1.0",
+    "use-debounce": "^10.1.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
