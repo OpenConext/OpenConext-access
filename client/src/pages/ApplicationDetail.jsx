@@ -80,6 +80,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
     const [pendingDisconnect, setPendingDisconnect] = useState(true);
+    const [changeRequestTicketKey, setChangeRequestTicketKey] = useState(null);
     const [showPolicyOverview, setShowPolicyOverview] = useState(false);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
@@ -122,11 +123,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     return;
                 }
                 //See if this application is already connected
-                const {isAccessible, isReadOnly, isPendingDisconnect} = deriveAccess(user, res.data.entityid);
+                const {isAccessible, isReadOnly, isPendingDisconnect, ticketKey} = deriveAccess(user, res.data.entityid);
                 const adminUser = isAdmin(user, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
                 setReadOnly(isReadOnly);
+                setChangeRequestTicketKey(ticketKey);
                 setPendingDisconnect(isPendingDisconnect);
                 //Update breadcrumb
                 useAppStore.setState({
@@ -464,13 +466,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     asChild={true}
                                     children={<a href="/" onClick={e => cancelConnectionRequest(true, e)}>
                                         {I18n.t("appAccess.cancelRequest")}</a>}
-                                    message={I18n.t("appAccess.requestedAccessNotification")}/>
+                                    message={I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey})}/>
                 }
                 {pendingDisconnect && <Alert alertType={AlertType.Warning}
                                              asChild={true}
                                              children={<a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
                                                  {I18n.t("appAccess.cancelRequest")}</a>}
-                                             message={I18n.t("appAccess.requestedDisconnectNotification")}/>
+                                             message={I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey})}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     {showPolicyDetails &&
