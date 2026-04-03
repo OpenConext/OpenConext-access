@@ -209,7 +209,7 @@ public class Connection implements NameHolder {
         this.manageVersion = (Integer) provider.get("version");
         Map<String, Object> data = (Map<String, Object>) provider.get("data");
         this.manageEid = (Integer) data.get("eid");
-        this.state = State.valueOf((String) data.get("state"));
+        this.state = State.valueOf((String) data.getOrDefault("state", "testaccepted"));
     }
 
     @JsonIgnore

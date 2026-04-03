@@ -1064,8 +1064,8 @@ const nl = {
     appAccess: {
         title: "Centrale toegang",
         users: "Gebruikers van {{name}}",
-        requestedAccessNotification: "Je hebt toegang tot deze applicatie aangevraagd. Als de leverancier (SP) dit goedkeurt, kun je hieronder de toegang beheren. Wil je toch niet verbinden?",
-        requestedDisconnectNotification: "Je hebt verzocht geen toegang meer te hebben tot deze applicatie. Wil je toch verbonden blijven?",
+        requestedAccessNotification: "Je hebt toegang tot deze applicatie aangevraagd - ticket {{ticketKey}}. Als de leverancier (SP) dit goedkeurt, kun je hieronder de toegang beheren. Wil je toch niet verbinden?",
+        requestedDisconnectNotification: "Je hebt verzocht geen toegang meer te hebben tot deze applicatie - ticket {{ticketKey}}. Wil je toch verbonden blijven?",
         cancelRequest: "Verzoek annuleren.",
         cancelRequestTitle: "Verzoek annuleren.",
         cancelRequestQuestion: "Weet je zeker dat je geen toegang meer wilt tot deze applicatie? Het verzoek om verbinding wordt ingetrokken.",

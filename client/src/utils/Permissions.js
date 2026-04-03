@@ -86,21 +86,26 @@ export const deriveAccess = (user, spEntityId) => {
     const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
     isAccessible = allowedEntities.includes(spEntityId);
     isReadOnly = !isAccessible;
-
+    let ticketKey = null;
     if (!isAccessible) {
-        isAccessible = user.changeRequests.some(cr =>
+        const changeRequestAdd = user.changeRequests.find(cr =>
             cr.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
             cr.pathUpdateType === "ADDITION" &&
             cr.pathUpdates.allowedEntities.name === spEntityId
         );
+        isAccessible = !isEmpty(changeRequestAdd);
+        ticketKey = isEmpty(changeRequestAdd) ? null : changeRequestAdd.ticketKey
     }
-    isPendingDisconnect = user.changeRequests.some(cr =>
-            cr.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
-            cr.pathUpdateType === "REMOVAL" &&
-            cr.pathUpdates.allowedEntities.name === spEntityId
-        );
-
-    return {isAccessible, isReadOnly, isPendingDisconnect};
+    const changeRequestRemoval = user.changeRequests.find(cr =>
+        cr.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
+        cr.pathUpdateType === "REMOVAL" &&
+        cr.pathUpdates.allowedEntities.name === spEntityId
+    );
+    isPendingDisconnect = !isEmpty(changeRequestRemoval);
+    if (ticketKey === null) {
+        ticketKey = isEmpty(changeRequestRemoval) ? null : changeRequestRemoval.ticketKey;
+    }
+    return {isAccessible, isReadOnly, isPendingDisconnect, ticketKey};
 }
 
 export const isAdmin = (user, authorities) => {
