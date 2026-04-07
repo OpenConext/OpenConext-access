@@ -77,11 +77,11 @@ const nl = {
         accessibleApps: "Ingeschakelde apps",
         yourApps: "Onze apps",
         catalogue: "Alle overige apps",
-        externalMaintenance: "BeheerImport toegangopties",
+        externalMaintenance: "Beheer toegangopties",
         invite: "Rollen",
         sram: "Samenwerkingsgroepen",
         allApps: "Alle apps",
-        organizationMaintenance: "BeheerImport organisatie",
+        organizationMaintenance: "Beheer organisatie",
         idp: "Mijn organisatie",
         users: "SURF Access‑gebruikers",
         applications: "Applicaties",
@@ -93,9 +93,9 @@ const nl = {
         tooltips: {
             users: "",
             idp: "",
-            yourApps: "BeheerImport de technische verbinding en metadata van je apps.",
+            yourApps: "Beheer de technische verbinding en metadata van je apps.",
             catalogue: "Ontdek apps die nog niet verbonden zijn.",
-            accessibleApps: "BeheerImport toegang tot ingeschakelde applicaties",
+            accessibleApps: "Beheer toegang tot ingeschakelde applicaties",
             roles: "",
             collaborations: "",
             serviceDesk: "",
@@ -145,23 +145,23 @@ const nl = {
         backToLandingLink: " maak je eigen organisatie aan.",
         central: {
             title: "Centraal toegangsbeheer",
-            subTitle: "BeheerImport toegang tot ingeschakelde applicaties",
+            subTitle: "Beheer toegang tot ingeschakelde applicaties",
             connectedApps: "ingeschakelde apps",
             connectedAppsInfo: "De apps die gekoppeld zijn aan onze IdP",
-            maintainAccess: "BeheerImport toegang",
+            maintainAccess: "Beheer toegang",
             roles: "Toegangsrollen",
-            maintainRoles: "BeheerImport rollen",
+            maintainRoles: "Beheer rollen",
             teamCentral: "Centraal team",
             you: "Jij",
             responsible: "Verantwoordelijke: <a href='mailto:{{mail}}'>{{name}}</a>",
-            maintainTeam: "BeheerImport team",
+            maintainTeam: "Beheer team",
         },
         catalogue: {
             title: "SURF Access‑catalogus",
-            subTitle: "BeheerImport je eigen apps en vind nieuwe",
+            subTitle: "Beheer je eigen apps en vind nieuwe",
             ourApps: "Onze apps",
             ourAppsInfo: "De apps die wij zelf op SURF Access aanbieden",
-            maintainOurApps: "BeheerImport onze apps",
+            maintainOurApps: "Beheer onze apps",
             allApps: "Alle overige apps",
             openCatalogue: "Open de SURF‑app‑catalogus"
         },
@@ -169,10 +169,10 @@ const nl = {
             title: "Gedecentraliseerd toegangsbeheer",
             subTitle: "Delegeer ledenbeheer en applicatietoegang aan samenwerkingsgroepen.",
             collaborations: "Samenwerkingsgroepen",
-            maintainCollaborations: "BeheerImport samenwerkingsgroepen",
+            maintainCollaborations: "Beheer samenwerkingsgroepen",
             teamDecentral: "Gedecentraliseerd team",
             responsible: "verantwoordelijke: <a href='mailto:{{email}}'>{{name}}</a>",
-            maintainTeamDecentral: "BeheerImport team"
+            maintainTeamDecentral: "Beheer team"
         },
         tip: {
             info: "Tips van SURF bij het instellen van toegang",
@@ -326,7 +326,7 @@ const nl = {
         team: {
             name: "Team",
             info: "Geef teamleden of externe gebruikers toegang om deze app te beheren",
-            members: "BeheerImport teamleden"
+            members: "Beheer teamleden"
         },
         production: {
             name: "Productie",
@@ -968,7 +968,7 @@ const nl = {
     myOrganization: {
         title: "Mijn organisatie",
         info: "Voor andere informatie over je organisatie, bezoek <a target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
-        maintenance: "BeheerImport {{name}}",
+        maintenance: "Beheer {{name}}",
         contactPersons: "Contactpersonen",
         general: "Algemene informatie",
         delete: "Organisatie verwijderen",
