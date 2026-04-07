@@ -137,8 +137,7 @@ public class UserController implements UserAccessRights {
 
     @GetMapping("/organization-switch/{organizationId}")
     public ResponseEntity<User> organizationSwitch(@Parameter(hidden = true) User user,
-                                                   @PathVariable("organizationId") Long organizationId,
-                                                   Authentication authentication) {
+                                                   @PathVariable Long organizationId) {
         LOG.debug(String.format("/organization-switch for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())

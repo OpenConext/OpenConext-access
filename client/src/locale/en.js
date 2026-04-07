@@ -1095,8 +1095,11 @@ const en = {
         eduIDOnly: "eduID only",
         everyIdp: "any IdP",
         backToAccess: "← back to access",
-        authorizationRules: "Authorization rules",
-        noPolicies: "No authorization rules have been configured yet",
+        authorizationRules: "Policies",
+        regularPolicies: "Authorization rules",
+        stepUpPolicies: "StepUp policies",
+        noRegularPolicies: "No authorization rules have been configured yet",
+        noStepUpPolicies: "No stepUp policies have been configured yet",
         newPolicy: "New authorization rule",
         editPolicy: "Edit authorization rule",
         new: "New authorization rule",
@@ -1170,6 +1173,9 @@ const en = {
             stepExplanation: "→ Users may access the application, but must log in with a higher LoA or MFA"
         },
         negateApplication: "Select <strong>Negate selection</strong> to apply this policy to all service providers except the ones you chose.",
+        serviceProvidersPlaceholder: "Select application(s) to filter the policies",
+        serviceProvidersPlaceholderPolicy: "Choose application(s) for this policy",
+        serviceProviders: "Applications"
     },
     manage: {
         name: "Name",

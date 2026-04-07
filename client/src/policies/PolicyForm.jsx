@@ -14,7 +14,15 @@ import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
-export const PolicyForm = ({policy, setPolicy, isExistingPolicy, currentOrganization, originalName, refreshPolicies}) => {
+export const PolicyForm = ({
+                               policy,
+                               setPolicy,
+                               isExistingPolicy,
+                               currentOrganization,
+                               originalName,
+                               refreshPolicies,
+                               serviceProviderOptions
+                           }) => {
 
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
@@ -175,6 +183,19 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, currentOrganiza
                 {duplicatePolicyName &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("appAccess.duplicateName", {name: policy.data.name})}/>}
+
+                <SelectField
+                    value={serviceProviderOptions.filter(option => policy.data.serviceProviderIds.some(sp => sp.name === option.value))}
+                    searchable={true}
+                    name={I18n.t("policies.serviceProviders")}
+                    options={serviceProviderOptions}
+                    placeholder={I18n.t("policies.serviceProvidersPlaceholderPolicy")}
+                    onChange={val => internalUpdatePolicy({
+                        serviceProviderIds: isEmpty(val) ? [] :
+                            val.map(sp => ({name: sp.value}))
+                    })}
+                    isMulti={true}/>
+
                 <div className="row">
                     <div className="row-item">
                         <span className="label standalone">{I18n.t("appAccess.allowDeny")}

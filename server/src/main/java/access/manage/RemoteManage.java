@@ -264,10 +264,11 @@ public class RemoteManage implements Manage {
                     String url = String.format("%s/manage/api/internal/search/%s",
                             environmentUrl(activeEnvironment),
                             entityType.name());
-                    List<Map<String, Object>> identityProviders = environmentRestTemplate(activeEnvironment).postForObject(
+                    List<Map<String, Object>> providers = environmentRestTemplate(activeEnvironment).postForObject(
                             url,
-                            baseQuery, List.class);
-                    return identityProviders.stream();
+                            baseQuery,
+                            List.class);
+                    return providers.stream();
                 }).toList();
     }
 

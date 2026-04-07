@@ -13,6 +13,10 @@ div.policies-outer-container {
 
         .top-header {
             margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+            max-width: 600px;
         }
     }
 

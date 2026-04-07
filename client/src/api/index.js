@@ -235,7 +235,7 @@ export function createApplicationMembership(organizationMembershipId, applicatio
     return postPutJson("/api/v1/application_memberships", body, "POST");
 }
 
-//ManageImport
+//Manage
 export function revokeChangeRequest(changeRequest) {
     return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
 }
@@ -250,6 +250,10 @@ export function parseMedaDataUrl(url) {
 
 export function getIdentityProviders(environment) {
     return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
+}
+
+export function getServiceProvidersAllowed(organizationId) {
+    return fetchJson(`/api/v1/manage/allowed-service-providers/${organizationId}`);
 }
 
 export function getPolicyByServiceProviderEntityId(entityId, organizationId) {
