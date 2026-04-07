@@ -1,7 +1,8 @@
 import {expect, test} from 'vitest'
 
-import en from "../../locale/en";
-import nl from "../../locale/nl";
+import en from "../../locale/en.js";
+import nl from "../../locale/nl.js";
+import {isEmpty} from "../../utils/Utils.js";
 
 expect.extend({
     toContainKey(translation, key) {
@@ -13,20 +14,22 @@ expect.extend({
 });
 
 test("All translations exists in all bundles", () => {
-    const disabledTest = true;
+    const disabledTest = false;
     //For now disable this, enable again when translations are more final
     if (disabledTest) {
         return;
     }
     const contains = (translation, translationToVerify, keyCollection, parents) => {
-        Object.keys(translation).forEach(key => {
-            expect(translationToVerify).toContainKey(key);
-            const value = translation[key];
-            keyCollection.push(parents + key);
-            if (typeof value === "object") {
-                contains(value, translationToVerify[key], keyCollection, parents + key + ".")
-            }
-        });
+        if (!isEmpty(translation)) {
+            Object.keys(translation).forEach(key => {
+                expect(translationToVerify).toContainKey(key);
+                const value = translation[key];
+                keyCollection.push(parents + key);
+                if (typeof value === "object") {
+                    contains(value, translationToVerify[key], keyCollection, parents + key + ".")
+                }
+            });
+        }
     };
     const keyCollectionEN = [];
     contains(en, nl, keyCollectionEN, '');

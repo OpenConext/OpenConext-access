@@ -558,7 +558,7 @@ const nl = {
             imageToLarge: "Afbeelding is groter dan 2 MB.",
             confirm: "Nieuwe logo‑afbeelding instellen",
             header: "Bijsnijden van je nieuwe logo‑afbeelding",
-            DISCLAIMERS: [
+            disclaimers: [
                 "png, jpg, svg of gif",
                 "min 100 × 100 pixels",
                 "max 2 MB."
