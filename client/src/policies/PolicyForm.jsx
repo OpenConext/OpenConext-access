@@ -212,6 +212,9 @@ export const PolicyForm = ({
                         })}
                         isMulti={true}/>
                 </div>
+                {(!initial && isEmpty(policy.data.serviceProviderIds)) &&
+                    <ErrorIndicator adjustMargin={true}
+                                    msg={I18n.t("forms.required", {name: I18n.t("policies.serviceProviders")})}/>}
 
                 <span className="label standalone">{I18n.t("appAccess.filters")}</span>
                 <div className="filters">
@@ -272,11 +275,9 @@ export const PolicyForm = ({
                     {(!initial && policy.data.attributes.filter(attr => !isEmpty(attr.name) && !isEmpty(attr.value)).length === 0) &&
                         <ErrorIndicator msg={I18n.t("policies.attributesRequired")}/>}
                     <div className="add-attribute-container">
-                        <SelectField placeholder={I18n.t("appAccess.addAttributePlaceholder")}
-                                     value={null}
-                                     onChange={option => attributeAdded(option)}
-                                     options={policy.data.denyRule ? allowedAttributes
-                                         .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
+                        <Button type={ButtonType.Secondary}
+                                onClick={() => attributeAdded({name: null})}
+                                txt={I18n.t("appAccess.addAttributePlaceholder")}/>
                     </div>
 
                 </div>
