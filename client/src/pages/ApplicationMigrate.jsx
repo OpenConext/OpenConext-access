@@ -18,6 +18,7 @@ const ApplicationMigrate = () => {
     const [application, setApplication] = useState(null);
     const [applications, setApplications] = useState([]);
     const [confirmation, setConfirmation] = useState({});
+    const [refresh, setRefresh] = useState(new Date());
 
     useEffect(() => {
         Promise.all([allAplicationsLight(), organizationsLight()])
@@ -26,7 +27,7 @@ const ApplicationMigrate = () => {
                 setOrganizations(res[1].map(org => ({...org, label: org.name, value: org.id})));
                 setLoading(false);
             });
-    }, []);
+    }, [refresh]);
 
     if (loading) {
         return <Loader/>
@@ -51,8 +52,9 @@ const ApplicationMigrate = () => {
             setConfirmation({});
             migrateApplication(application.id, organization.id)
                 .then(() => {
+                    setApplication(null);
                     setOrganization(null);
-                    setLoading(false);
+                    setRefresh(new Date());
                     setFlash(I18n.t("applicationMigrate.flash.migrated", {
                         application: application.name,
                         organisation: organization.label

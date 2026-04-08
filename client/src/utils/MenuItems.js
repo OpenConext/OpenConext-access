@@ -109,6 +109,11 @@ export const allMenuGroups = [
         label: "externalMaintenance",
         items: [
             {
+                name: mainMenuItems.policies,
+                path: "/policies/overview",
+                Logo: PolicyIcon
+            },
+            {
                 name: mainMenuItems.invite,
                 path: "/external/invite",
                 Logo: TeamIcon
@@ -132,11 +137,6 @@ export const allMenuGroups = [
                 name: mainMenuItems.users,
                 path: "/users/organizationId",
                 Logo: UserIcon
-            },
-            {
-                name: mainMenuItems.policies,
-                path: "/policies/overview",
-                Logo: PolicyIcon
             },
         ]
     },

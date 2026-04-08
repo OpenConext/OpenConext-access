@@ -36,10 +36,6 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
-import {PolicyOverview} from "../policies/PolicyOverview.jsx";
-import {PolicyForm} from "../policies/PolicyForm.jsx";
-import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
-import PolicyChoiceDialog from "../policies/PolicyChoiceDialog.jsx";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -61,7 +57,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     })));
 
     const navigate = useNavigate();
-    const {manageType, manageId, tab = "access", page, policyId} = useParams();
+    const {manageType, manageId, tab = "access"} = useParams();
 
     const [tabNames, setTabNames] = useState(["access", "information"]);
     const [currentTab, setCurrentTab] = useState(tab);
@@ -81,36 +77,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [readOnly, setReadOnly] = useState(true);
     const [pendingDisconnect, setPendingDisconnect] = useState(true);
     const [changeRequestTicketKey, setChangeRequestTicketKey] = useState(null);
-    const [showPolicyOverview, setShowPolicyOverview] = useState(false);
-    const [showPolicyDetails, setShowPolicyDetails] = useState(false);
-    const [currentPolicy, setCurrentPolicy] = useState(null);
-    const [showNewPolicyChoice, setShowNewPolicyChoice] = useState(false);
-
-    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
-        let newCurrentPolicy;
-        if (policyIdentifier === "new") {
-            if (isEmpty(policyType)) {
-                setShowNewPolicyChoice(true);
-                return;
-            } else {
-                newCurrentPolicy = policyType === policyTypes.step ?
-                    policyTemplateStepUp(user.identityProvider.data.entityid, serviceProvider.data.entityid) :
-                    policyTemplateRegular(user.identityProvider.data.entityid, serviceProvider.data.entityid);
-            }
-        } else {
-            newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
-            if (isEmpty(newCurrentPolicy)) {
-                navigate("/404");
-                return;
-            }
-            newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
-        }
-        setShowNewPolicyChoice(false);
-        window.scrollTo({top: 0, behavior: "smooth"});
-        setCurrentPolicy(newCurrentPolicy);
-        setShowPolicyDetails(true);
-        navigate(`/application-detail/${manageType}/${manageId}/details/${policyIdentifier}`);
-    }
 
     useEffect(() => {
         publicServiceProviderByDetail(manageType, manageId)
@@ -123,7 +89,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     return;
                 }
                 //See if this application is already connected
-                const {isAccessible, isReadOnly, isPendingDisconnect, ticketKey} = deriveAccess(user, res.data.entityid);
+                const {
+                    isAccessible,
+                    isReadOnly,
+                    isPendingDisconnect,
+                    ticketKey
+                } = deriveAccess(user, res.data.entityid);
                 const adminUser = isAdmin(user, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
@@ -154,12 +125,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     res[0].forEach(policy => policy.originalName = policy.name);
                                     setPolicies(res[0]);
                                     setAccessRoles(res[1]);
-                                    if (page === "overview") {
-                                        setShowPolicyOverview(true);
-                                    }
-                                    if (page === "details" && !isEmpty(policyId)) {
-                                        toPolicyDetail(policyId, res[0]);
-                                    }
                                     setLoading(false);
                                 })
                         }
@@ -179,18 +144,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     if (loading) {
         return <Loader/>
-    }
-
-    const refreshPolicies = () => {
-        setLoading(true);
-        getPolicyByServiceProviderEntityId(serviceProvider.data.entityid, currentOrganization.id)
-            .then(res => {
-                setPolicies(res);
-                setShowPolicyOverview(true);
-                setShowPolicyDetails(false);
-                setLoading(false);
-                navigate(`/application-detail/${manageType}/${manageId}/overview`);
-            })
     }
 
     const externalLink = (link, metaData, index) => {
@@ -451,14 +404,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         setCurrentTab(name);
     }
 
-    const backToAccess = (e, pageName) => {
-        stopEvent(e);
-        const toOverview = pageName === "/overview";
-        setShowPolicyOverview(toOverview);
-        setShowPolicyDetails(false);
-        navigate(`/application-detail/${manageType}/${manageId}${pageName}`);
-    }
-
     const renderAccessApp = () => {
         return (
             <>
@@ -475,25 +420,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                              message={I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey})}/>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
-                    {showPolicyDetails &&
-                        <PolicyForm policy={currentPolicy}
-                                    setPolicy={setCurrentPolicy}
-                                    currentOrganization={currentOrganization}
-                                    isExistingPolicy={!isEmpty(currentPolicy.id)}
-                                    originalName={currentPolicy.originalName}
-                                    refreshPolicies={refreshPolicies}
-                        />
-                    }
-                    {showPolicyOverview &&
-                        <PolicyOverview
-                            policies={policies}
-                            backToAccess={e => backToAccess(e, "")}
-                            policyDetails={toPolicyDetail}
-                            currentOrganization={currentOrganization}
-                            refreshPolicies={refreshPolicies}
-                        />
-                    }
-                    {(!showPolicyOverview && !showPolicyDetails) && <>
+                    <>
                         <div className="app-access-central">
                             <h2>{I18n.t("appAccess.title")}</h2>
                             <InfoBlock className="no-gap">
@@ -504,8 +431,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     </div>
                                     <Button type={ButtonType.Primary}
                                             onClick={() => {
-                                                setShowPolicyOverview(true);
-                                                navigate(`/application-detail/${manageType}/${manageId}/overview`);
+                                                navigate(`/policies?service=${encodeURIComponent(serviceProvider.data.entityid)}`);
                                             }}
                                             txt={I18n.t("appAccess.edit")}/>
                                 </div>
@@ -572,7 +498,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </div>
                             </InfoBlock>
                         </div>
-                    </>}
+                    </>
                 </div>
             </>
         );
@@ -838,13 +764,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     return (
         <div className={`application-detail-container`}>
-            {showNewPolicyChoice &&
-                <PolicyChoiceDialog policies={policies}
-                                    close={() => {
-                                        setShowNewPolicyChoice(false);
-                                        setShowPolicyOverview(true);
-                                    }}
-                                    confirm={toPolicyDetail}/>}
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          isError={isError}

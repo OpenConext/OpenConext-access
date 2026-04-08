@@ -70,7 +70,7 @@ export const groupByValues = attributes => {
 }
 
 export const defaultAttributes = newAttributes => {
-    return isEmpty(newAttributes) ? [{name: "", value: []}] : newAttributes;
+    return isEmpty(newAttributes) ? [{name: null, value: []}] : newAttributes;
 }
 
 const attributeName = (allowedAttributes, attribute) => {

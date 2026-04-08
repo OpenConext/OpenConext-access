@@ -2,6 +2,7 @@ package access.api;
 
 import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
+import access.jira.JiraClient;
 import access.manage.ChangeRequest;
 import access.manage.Manage;
 import access.manage.MetaData;
@@ -26,6 +27,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +52,7 @@ import static access.manage.ManageData.getData;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@SuppressWarnings("unchecked")
 public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     private static final Log LOG = LogFactory.getLog(ManageController.class);
@@ -60,9 +63,12 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final Map<String, Object> arpInfo;
     private final List<Map<String, Object>> privacyInfo;
     private final OrganizationRepository organizationRepository;
+    private final JiraClient jiraClient;
 
     public ManageController(Manage manage,
-                            ObjectMapper objectMapper, OrganizationRepository organizationRepository) throws IOException {
+                            ObjectMapper objectMapper,
+                            OrganizationRepository organizationRepository,
+                            JiraClient jiraClient) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -70,6 +76,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
         this.organizationRepository = organizationRepository;
+        this.jiraClient = jiraClient;
     }
 
     @GetMapping("/arp")
@@ -117,6 +124,29 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(providers);
     }
 
+    @Transactional(readOnly = true)
+    @GetMapping("/allowed-service-providers/{organizationId}")
+    public ResponseEntity<List<Map<String, Object>>> serviceProviders(@PathVariable Long organizationId) {
+        LOG.debug("/serviceProviders for user %s");
+
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+        boolean isIdentityProvider = StringUtils.hasText(organization.getManageIdentifier());
+        List<Map<String, Object>> serviceProviders = List.of();
+        if (isIdentityProvider) {
+            Map<String, Object> identityProvider = manage.providerByManageIdentifier(
+                    EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            Map<String, Object> data = getData(identityProvider);
+            boolean allowedall = (boolean) data.getOrDefault("allowedall", false);
+            if (allowedall) {
+                serviceProviders = manage.serviceProvidersLight(Environment.PROD);
+            } else {
+                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.get("allowedEntities");
+                List<String> names = allowedEntities.stream().map(allowedEntity -> allowedEntity.get("name")).toList();
+                serviceProviders = manage.serviceProvidersByEntityID(names);
+            }
+        }
+        return ResponseEntity.ok(serviceProviders);
+    }
 
     @GetMapping("/identity-provider/policies")
     @Transactional(readOnly = true)
@@ -253,6 +283,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
         //change request has non guessable identifier
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
+
+        jiraClient.comment(changeRequest.getTicketKey(), "Ticket can be closed by request of the requestor");
+
         return Results.okResult();
     }
 

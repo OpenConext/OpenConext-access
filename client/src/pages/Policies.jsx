@@ -1,19 +1,19 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {Navigate, useNavigate, useParams} from "react-router-dom";
-import {getPolicyByIdentityProvider} from "../api/index.js";
+import {getPolicyByIdentityProvider, getServiceProvidersAllowed} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import "./Policies.scss";
 import I18n from "../locale/I18n";
-import DOMPurify from "dompurify";
 import {authorities} from "../utils/Permissions.js";
 import {Loader} from "@surfnet/sds";
 import {useShallow} from "zustand/react/shallow";
 import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
 import {PolicyOverview} from "../policies/PolicyOverview.jsx";
-import PolicyChoiceDialog from "../policies/PolicyChoiceDialog.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {providerName} from "../utils/Manage.js";
+import SelectField from "../components/SelectField.jsx";
 
 
 const Policies = () => {
@@ -26,12 +26,15 @@ const Policies = () => {
 
     const [loading, setLoading] = useState(true);
     const [policies, setPolicies] = useState({});
+    const [serviceProviders, setServiceProviders] = useState({});
     const [showPolicyOverview, setShowPolicyOverview] = useState(true);
     const [showPolicyDetails, setShowPolicyDetails] = useState(false);
-    const [showNewPolicyChoice, setShowNewPolicyChoice] = useState(false);
     const [currentPolicy, setCurrentPolicy] = useState(null);
+    const [serviceProviderOptions, setServiceProviderOptions] = useState([])
+    const [selectedServiceProviders, setSelectedServiceProviders] = useState([]);
 
     const navigate = useNavigate();
+
 
     const adminUser = useMemo(() => {
         return user.superUser || (user.organizationMemberships
@@ -39,17 +42,12 @@ const Policies = () => {
             && !isEmpty(currentOrganization.manageIdentifier));
     }, [user, currentOrganization]);
 
-    const toPolicyDetail = (policyIdentifier, allPolicies = policies, policyType = null) => {
+    const toPolicyDetail = (policyIdentifier, policyType, allPolicies = policies) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "new") {
-            if (isEmpty(policyType)) {
-                setShowNewPolicyChoice(true);
-                return;
-            } else {
-                newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
-                    policyTemplateRegular(user.identityProvider.data.entityid);
-            }
+            newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
+                policyTemplateRegular(user.identityProvider.data.entityid);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {
@@ -57,8 +55,8 @@ const Policies = () => {
                 return;
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
+            newCurrentPolicy.originalName = newCurrentPolicy.data.name;
         }
-        setShowNewPolicyChoice(false);
         window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
         setShowPolicyDetails(true);
@@ -66,20 +64,30 @@ const Policies = () => {
     }
 
     useEffect(() => {
-        getPolicyByIdentityProvider(currentOrganization.id)
-            .then(res => {
-                setPolicies(res);
-                if (page === "details" && !isEmpty(policyId)) {
-                    toPolicyDetail(policyId, res);
-                }
-                useAppStore.setState({
-                    breadcrumbPaths: [
-                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                        {value: I18n.t("navigation.policies")}
-                    ]
-                });
-                setLoading(false);
-            }).catch(() => {
+        Promise.all([
+            getPolicyByIdentityProvider(currentOrganization.id),
+            getServiceProvidersAllowed(currentOrganization.id)
+        ]).then(res => {
+            setPolicies(res[0]);
+            setServiceProviders(res[1]);
+            if (page === "details" && !isEmpty(policyId)) {
+                toPolicyDetail(policyId, null, res[0]);
+            }
+            useAppStore.setState({
+                breadcrumbPaths: [
+                    {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                    {value: I18n.t("navigation.policies")}
+                ]
+            });
+            const options = res[1].map(sp => ({
+                label: providerName(I18n.locale, sp),
+                value: sp.data.entityid
+            }));
+            setServiceProviderOptions(options);
+            const service = new URLSearchParams(window.location.search).get("service");
+            setSelectedServiceProviders(isEmpty(service) ? [] : [options.find(option => option.value === service)]);
+            setLoading(false);
+        }).catch(() => {
             navigate("/home")
         });
 
@@ -106,40 +114,41 @@ const Policies = () => {
     }
 
     return (
-        <div
-            className="policies-outer-container">
-            {showNewPolicyChoice &&
-                <PolicyChoiceDialog policies={policies}
-                                    close={() => {
-                                        setShowNewPolicyChoice(false);
-                                        setShowPolicyOverview(true);
-                                    }}
-                                    confirm={toPolicyDetail}/>}
-            <div className="policies-header-container">
+        <div className="policies-outer-container">
+            {!showPolicyDetails && <div className="policies-header-container">
                 <div className="top-header">
-                    <h1>{I18n.t("policies.title", {name: currentOrganization.name})}</h1>
+                    <h2>{I18n.t("policies.title", {name: currentOrganization.name})}</h2>
+                    <SelectField value={selectedServiceProviders}
+                                 searchable={true}
+                                 options={serviceProviderOptions}
+                                 placeholder={I18n.t("policies.serviceProvidersPlaceholder")}
+                                 onChange={val => setSelectedServiceProviders(val)}
+                                 isMulti={true}
+                                 clearable={true}/>
                 </div>
-                <p dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
-                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
-                }}/>
-            </div>
+            </div>}
             <div className="policies">
                 <div className="app-policies">
                     {showPolicyDetails &&
                         <PolicyForm policy={currentPolicy}
                                     setPolicy={setCurrentPolicy}
                                     isExistingPolicy={!isEmpty(currentPolicy.id)}
+                                    currentOrganization={currentOrganization}
                                     originalName={currentPolicy.originalName}
                                     refreshPolicies={refreshPolicies}
+                                    serviceProviderOptions={serviceProviderOptions}
                         />
                     }
-                    {(showPolicyOverview  || showNewPolicyChoice) &&
+                    {showPolicyOverview &&
                         <PolicyOverview
-                            policies={policies}
+                            policies={isEmpty(selectedServiceProviders) ? policies :
+                                policies.filter(policy => policy.data.serviceProviderIds
+                                    .some(sp => selectedServiceProviders.some(sel => sp.name === sel.value)))}
                             currentOrganization={currentOrganization}
                             policyDetails={toPolicyDetail}
+                            selectedServiceProviders={selectedServiceProviders}
                             refreshPolicies={refreshPolicies}
+                            serviceProviders={serviceProviders}
                         />
                     }
 
