@@ -9,6 +9,7 @@ import lombok.Setter;
 
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,6 +37,8 @@ public class ChangeRequest implements Serializable {
     private PathUpdateType pathUpdateType;
 
     private RequestType requestType;
+
+    private Instant created;
 
     @Setter
     private String ticketKey;

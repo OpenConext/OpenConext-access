@@ -148,7 +148,7 @@ const App = () => {
                             <Route path="/accept" element={<Invitation refreshUser={refreshUser}/>}/>
                             <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
-                            <Route path="/application-detail/:manageType/:manageId/:page?/:policyId?"
+                            <Route path="/application-detail/:manageType/:manageId/:tab?"
                                    element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>
                             <Route path="/manage/details/:manageType/:manageId"
                                    element={<ManageDetail />}/>

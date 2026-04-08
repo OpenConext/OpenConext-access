@@ -6,6 +6,7 @@ import access.jira.JiraClient;
 import access.jira.JiraIssue;
 import access.manage.ChangeRequest;
 import access.manage.ConnectionProviderConverter;
+import access.manage.ListMerger;
 import access.manage.Manage;
 import access.manage.PathUpdateType;
 import access.manage.RequestType;
@@ -19,6 +20,7 @@ import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
@@ -44,9 +46,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -72,19 +76,22 @@ public class ConnectionController implements UserAccessRights {
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
     private final List<CharacterRule> rules = initPasswordGeneratorRules();
     private final ConnectionProviderConverter connectionProviderConverter;
+    private final ObjectMapper objectMapper;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
                                 UserRepository userRepository,
                                 Manage manage,
                                 JiraClient jiraClient,
-                                ConnectionProviderConverter connectionProviderConverter) {
+                                ConnectionProviderConverter connectionProviderConverter,
+                                ObjectMapper objectMapper) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
         this.connectionProviderConverter = connectionProviderConverter;
+        this.objectMapper = objectMapper;
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -322,11 +329,42 @@ public class ConnectionController implements UserAccessRights {
                 //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not overwrite changes
                 //And therefore we don't create a new change request, but update the existing one
                 Map<String, Object> existingChangeRequest = existingChangeRequests.getFirst();
-                ChangeRequest changeRequest = changeRequestOptional.get();
-                existingChangeRequest.get("pathUpdates");
-                //TODO , add / override all new pathUpdates, except if the value is a List, then sort out the difference
+                ChangeRequest newChangeRequest = changeRequestOptional.get();
+                Map<String, Object> existingPathUpdates = (Map<String, Object>) existingChangeRequest.get("pathUpdates");
+                Map<String, Object> newPathUpdates = newChangeRequest.getPathUpdates();
+                newPathUpdates.forEach((key, value) -> {
+                    if (key.equals("arp") && existingPathUpdates.containsKey(key)) {
+                        //three way merge on the attributes and profile, motivation from the latest change
+                        Map<String, Object> attributes   = (Map<String, Object>) ((Map<String, Object>)value).get("attributes");
+                        List<String> attibuteNames = attributes.keySet().stream().toList();
 
+                        Map<String, Object> arpPath = (Map<String, Object>) existingPathUpdates.get("arp");
+                        Map<String, Object> pathAttributes   = (Map<String, Object>) arpPath.get("attributes");
+                        List<String> pathValues = pathAttributes.keySet().stream().toList();
 
+                        Map<String, Object> baseArp= (Map<String, Object>) getData(provider).get("arp");
+                        Map<String, Object> baseAttributes   = (Map<String, Object>) baseArp.get("attributes");
+                        List<String> baseValues = baseAttributes.keySet().stream().toList();
+
+                        List<String> newValues = ListMerger.threeWayMerge(baseValues, pathValues, attibuteNames);
+                        //Now we need to construct a new attributes Map with all the values from the three attributes Map
+                        Map<String, Object> newAttributes = newValues.stream().collect(Collectors.toMap(
+                                attrName -> attrName,
+                                attrName -> attributes.getOrDefault(attrName, pathAttributes.getOrDefault(attrName, baseAttributes.get(attrName)))));
+                        arpPath.put("attributes", newAttributes);
+                    } else if  (value instanceof List && existingPathUpdates.containsKey(key)) {
+                        //three way merge
+                        List<String> pathUpdateValue = (List<String>) existingPathUpdates.get(key);
+                        List<String> base = (List<String>) getMetaDataFields(getData(provider)).getOrDefault(key.substring(key.indexOf(".") + 1), List.of());
+                        List<String> newValues = ListMerger.threeWayMerge(base, pathUpdateValue, (List<String>) value);
+                        existingPathUpdates.put(key, newValues);
+                    } else {
+                        //simply override
+                        existingPathUpdates.put(key, value);
+                    }
+                });
+                ChangeRequest changeRequest = objectMapper.convertValue(existingChangeRequest, ChangeRequest.class);
+                manage.updateChangeRequest(Environment.PROD, changeRequest);
             }
         }
 

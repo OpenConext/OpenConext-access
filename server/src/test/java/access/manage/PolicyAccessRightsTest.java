@@ -1,7 +1,11 @@
 package access.manage;
 
 import access.exception.UserRestrictionException;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Organization;
 import access.model.User;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,35 +32,46 @@ class PolicyAccessRightsTest {
         PolicyDefinition policyDefinition = new PolicyDefinition();
         policyDefinition.setServiceProviderIds(List.of(new PolicyProvider(policySPIdentifier)));
 
-        when(manage.identityProviderByEntityID(user.getAuthenticatingAuthority()))
+        Organization organization = getOrganization();
+
+        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD))
                 .thenReturn(this.identityProvider());
 
         //The IdP of the Policy is not the same as the IdP of the User
-        assertThrows(UserRestrictionException.class, () -> policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage));
+        assertThrows(UserRestrictionException.class, () -> policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage, organization));
 
         when(manage.identityProviderByEntityID(user.getAuthenticatingAuthority()))
                 .thenReturn(this.identityProvider("nope"));
         //The SP is not linked to the IdP of the user (=authenticatingAuthority of the User)
-        assertThrows(UserRestrictionException.class, () -> policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage));
+        assertThrows(UserRestrictionException.class, () -> policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage, organization));
 
         policyDefinition.setIdentityProviderIds(List.of(new PolicyProvider(user.getAuthenticatingAuthority())));
-        when(manage.identityProviderByEntityID(user.getAuthenticatingAuthority()))
+        policyDefinition.setServiceProviderIds(List.of(new PolicyProvider(policySPIdentifier)));
+        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(),Environment.PROD))
                 .thenReturn(this.identityProvider(policySPIdentifier));
-        policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage);
+        policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage, organization);
     }
+
 
     @Test
     void confirmPolicyAccessSuperUser() {
         User user = new User(true, Map.of());
         PolicyDefinition policyDefinition = new PolicyDefinition();
-        policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage);
+        policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage, getOrganization());
+    }
+
+    private Organization getOrganization() {
+        Organization organization = new Organization();
+        organization.setManageIdentifier("identifier");
+        return organization;
     }
 
     private Map<String, Object> identityProvider(String... allowedEntities) {
         return Map.of("data", Map.of(
                 "allowedEntities", Stream.of(allowedEntities)
                         .map(allowedEntity -> Map.of("name", allowedEntity))
-                        .toList()
+                        .toList(),
+                "entityid", "http://mock-idp"
         ));
     }
 }

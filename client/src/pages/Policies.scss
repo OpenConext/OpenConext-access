@@ -13,6 +13,10 @@ div.policies-outer-container {
 
         .top-header {
             margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+            max-width: 600px;
         }
     }
 
@@ -23,7 +27,8 @@ div.policies-outer-container {
 
     .app-policies {
         display: flex;
-        width: 75%;
+        width: 100%;
+        padding-right: 100px;
         gap: 25px;
         @media (max-width: $medium) {
             width: 100%;

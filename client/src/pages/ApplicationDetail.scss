@@ -64,6 +64,10 @@ div.application-detail-container {
         display: flex;
         flex-direction: column;
         gap: 15px;
+
+        .sds--chips--textual {
+            margin: auto;
+        }
     }
 
     .application-card-container {

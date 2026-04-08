@@ -2,6 +2,9 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.model.EntityType;
+import access.model.Environment;
+import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -220,11 +223,14 @@ class InviteControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
 
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
         List<Map<String, String>> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("organizationId", organization.getId())
                 .get("/api/v1/invite/roles-summary")
                 .as(new TypeRef<>() {
                 });

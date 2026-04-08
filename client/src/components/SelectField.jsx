@@ -11,7 +11,7 @@ export default function SelectField({
                                         toolTip = null, searchable = false, small = false,
                                         clearable = false, isMulti = false, creatable = false,
                                         onInputChange = null, required = false, info = null,
-    className="", isAlert=false
+                                        className = "", isAlert = false
                                     }) {
     return (
         <div className={`select-field ${className}`}>

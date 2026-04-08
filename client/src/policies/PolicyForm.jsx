@@ -1,6 +1,6 @@
 import "./PolicyForm.scss";
-import React, {useState} from "react";
-import {Button, ButtonType, Chip, ChipType, SegmentedControl, Tooltip} from "@surfnet/sds";
+import React, {Fragment, useState} from "react";
+import {Button, ButtonType, Chip, ChipType} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -14,12 +14,25 @@ import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
-export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, refreshPolicies}) => {
+export const PolicyForm = ({
+                               policy,
+                               setPolicy,
+                               isExistingPolicy,
+                               currentOrganization,
+                               originalName,
+                               refreshPolicies,
+                               serviceProviderOptions
+                           }) => {
 
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
     const [confirmation, setConfirmation] = useState({});
     const [attributeValueErrors, setAttributeValueErrors] = useState({});
+
+    const accessOptions = ["allow", "deny"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
+    const conditionalOptions = ["any", "all"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
+    const negatedOptions = ["any", "none"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
+    const orOptions = ["and", "or"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
 
     const required = ["name", "denyAdvice", "denyAdviceNl"];
 
@@ -34,7 +47,8 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
 
     const isValid = () => {
         const allAttributesValuesValid = Object.values(attributeValueErrors).every(values => isEmpty(values));
-        return required.every(attr => !isEmpty(policy.data[attr])) && !duplicatePolicyName && allAttributesValuesValid;
+        const hasAttributes = policy.data.attributes.filter(attr => !isEmpty(attr.name) && !isEmpty(attr.value)).length > 0;
+        return required.every(attr => !isEmpty(policy.data[attr])) && !duplicatePolicyName && allAttributesValuesValid && hasAttributes;
     }
 
     const doDeletePolicy = (confirmationRequired, policy) => {
@@ -60,6 +74,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
 
     const submit = () => {
         setInitial(false);
+
         if (isValid()) {
             const promise = isExistingPolicy ? updatePolicy : newPolicy;
             //We need to destructure the attributes with multiple values, to single attribute / value pairs
@@ -74,7 +89,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                     idp: policy.data.identityProviderIds[0].name, sp: policy.data.serviceProviderIds[0].name
                 })
             );
-            promise(policy)
+            promise(policy, currentOrganization.id)
                 .then(res => {
                     setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.data.name}));
                     refreshPolicies();
@@ -95,11 +110,13 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
     }
 
     const attributeDeleted = index => {
-        const newAttributes = policy.data.attributes.filter((item, i) => i !== index);
-        internalUpdatePolicy({attributes: defaultAttributes(newAttributes)});
         const deletedAttribute = policy.data.attributes[index];
         delete attributeValueErrors[deletedAttribute.name];
         setAttributeValueErrors({...attributeValueErrors});
+
+        const filteredAttributes = policy.data.attributes.filter((item, i) => i !== index);
+        const newAttributes = defaultAttributes(filteredAttributes);
+        internalUpdatePolicy({attributes: newAttributes});
     }
 
     const attributeValueChanged = (values, index) => {
@@ -151,7 +168,7 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
             />}
             <div className="policy-form-header">
                 <div className="header-top">
-                    <h2>{I18n.t(`appAccess.${isExistingPolicy ? "editPolicy" : "newPolicy"}`)}</h2>
+                    <h2>{I18n.t(`appAccess.${isExistingPolicy ? (policy.data.type === "reg" ? "editPolicy" : "editStepUpPolicy") : (policy.data.type === "reg" ? "newPolicy" : "newStepUpPolicy")}`)}</h2>
                     {isExistingPolicy &&
                         <div className="policy-header-actions">
                             <Chip type={ChipType.Status_info}
@@ -175,52 +192,73 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                 {duplicatePolicyName &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("appAccess.duplicateName", {name: policy.data.name})}/>}
-                <div className="row">
-                    <div className="row-item">
-                        <span className="label standalone">{I18n.t("appAccess.allowDeny")}
-                            <Tooltip tip={I18n.t("appAccess.denyRuleTooltip")}/>
-                        </span>
-                        <SegmentedControl onClick={val => denyRuleToggle(val)}
-                                          option={policy.data.denyRule ? "deny" : "allow"}
-                                          options={["deny", "allow"]}
-                                          optionLabelResolver={option => I18n.t(`appAccess.${option}`)}/>
-                    </div>
-                    <div className="row-item">
-                        <span className="label standalone">{I18n.t("appAccess.allAttributesMatch")}
-                            <Tooltip tip={I18n.t("appAccess.allAttributesMatchTooltip")}/>
-                        </span>
-                        <SegmentedControl onClick={val => internalUpdatePolicy({allAttributesMustMatch: val === "all"})}
-                                          option={policy.data.allAttributesMustMatch ? "all" : "any"}
-                                          options={["all", "any"]}
-                                          optionLabelResolver={option => I18n.t(`appAccess.${option}`)}/>
-                    </div>
+
+                <label className="stand-alone">{I18n.t("policies.serviceProviders")}</label>
+                <div className="row-service-providers">
+                    <SelectField value={policy.data.serviceProvidersNegated ? negatedOptions[1] : negatedOptions[0]}
+                                 required={true}
+                                 onChange={() => internalUpdatePolicy({serviceProvidersNegated: !policy.data.serviceProvidersNegated})}
+                                 className="any-of-service-providers"
+                                 options={negatedOptions}/>
+                    <SelectField
+                        value={serviceProviderOptions.filter(option => policy.data.serviceProviderIds.some(sp => sp.name === option.value))}
+                        searchable={true}
+                        options={serviceProviderOptions}
+                        className="service-providers"
+                        placeholder={I18n.t("policies.serviceProvidersPlaceholderPolicy")}
+                        onChange={val => internalUpdatePolicy({
+                            serviceProviderIds: isEmpty(val) ? [] :
+                                val.map(sp => ({name: sp.value}))
+                        })}
+                        isMulti={true}/>
                 </div>
+
                 <span className="label standalone">{I18n.t("appAccess.filters")}</span>
                 <div className="filters">
                     {policy.data.attributes.map((attribute, index) =>
-                        <div key={index} className="attribute">
-                            <div className="attribute-name-wrapper">
-                                <SelectField name={I18n.t("appAccess.attribute")}
-                                             placeholder={I18n.t("appAccess.attributePlaceholder")}
-                                             value={allowedAttributes.find(attr => attr.value === attribute.name)}
+                        <Fragment key={index}>
+                            <div className="deletable-attribute">
+                                {index === 0 &&
+                                    <SelectField value={policy.data.denyRule ? accessOptions[1] : accessOptions[0]}
+                                                 required={true}
+                                                 className="select-access-rule"
+                                                 onChange={option => denyRuleToggle(option.value)}
+                                                 options={accessOptions}/>
+                                }
+                                {index !== 0 &&
+                                    <SelectField
+                                        value={policy.data.allAttributesMustMatch ? orOptions[0] : orOptions[1]}
+                                        required={true}
+                                        className="select-access-rule"
+                                        onChange={() => internalUpdatePolicy({allAttributesMustMatch: !policy.data.allAttributesMustMatch})}
+                                        options={orOptions}/>
+                                }
+                                <SelectField placeholder={I18n.t("appAccess.attributePlaceholder")}
+                                             value={isEmpty(attribute.name) ? null : allowedAttributes.find(attr => attr.value === attribute.name)}
                                              required={true}
+                                             className="attribute-name"
                                              onChange={option => attributeSelected(option, index)}
                                              options={policy.data.denyRule ? allowedAttributes
                                                  .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
-                                {(!isEmpty(attribute.name) && !isEmpty(attribute.value)) &&
-                                    <Button type={ButtonType.Delete}
-                                            onClick={() => attributeDeleted(index)}
-                                    />
-                                }
+
+                                <SelectField value={conditionalOptions[0]}
+                                             required={true}
+                                             disabled={true}
+                                             className="conditional-options"
+                                             options={conditionalOptions}/>
+
+                                <SelectField value={attribute.value}
+                                             creatable={true}
+                                             required={true}
+                                             className="attribute-value"
+                                             error={!initial && isEmpty(attribute.value)}
+                                             placeholder={I18n.t("appAccess.permittedValuesPlaceholder")}
+                                             onChange={values => attributeValueChanged(values, index)}
+                                />
+                                <Button type={ButtonType.Delete}
+                                        onClick={() => attributeDeleted(index)}
+                                />
                             </div>
-                            <SelectField name={I18n.t("appAccess.permittedValues")}
-                                         value={attribute.value}
-                                         creatable={true}
-                                         required={true}
-                                         error={!initial && isEmpty(attribute.value)}
-                                         placeholder={I18n.t("appAccess.permittedValuesPlaceholder")}
-                                         onChange={values => attributeValueChanged(values, index)}
-                            />
                             {!isEmpty(attributeValueErrors[attribute.name]) &&
                                 <ErrorIndicator adjustMargin={false}
                                                 msg={I18n.t("appAccess.attributeValueErrors",
@@ -230,18 +268,19 @@ export const PolicyForm = ({policy, setPolicy, isExistingPolicy, originalName, r
                                                             attributeValueErrors[attribute.name].map(val => `'${val}'`),
                                                             I18n.t("forms.and"))
                                                     })}/>}
-                        </div>)}
-                    {policy.data.attributes.every(attribute => attribute.name && !isEmpty(attribute.value)) &&
-                        <div className="add-attribute-container">
-                            <SelectField placeholder={I18n.t("appAccess.addAttributePlaceholder")}
-                                         value={null}
-                                         onChange={option => attributeAdded(option)}
-                                         options={policy.data.denyRule ? allowedAttributes
-                                             .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
-                        </div>
-                    }
+                        </Fragment>)}
+                    {(!initial && policy.data.attributes.filter(attr => !isEmpty(attr.name) && !isEmpty(attr.value)).length === 0) &&
+                        <ErrorIndicator msg={I18n.t("policies.attributesRequired")}/>}
+                    <div className="add-attribute-container">
+                        <SelectField placeholder={I18n.t("appAccess.addAttributePlaceholder")}
+                                     value={null}
+                                     onChange={option => attributeAdded(option)}
+                                     options={policy.data.denyRule ? allowedAttributes
+                                         .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
+                    </div>
 
                 </div>
+
                 <InputField name={I18n.t("appAccess.denyEn")}
                             value={policy.data.denyAdvice}
                             required={true}

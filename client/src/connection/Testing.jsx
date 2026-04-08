@@ -1226,7 +1226,7 @@ export const Testing = ({
         return (
             <>
                 <div className="testing-header">
-                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`)}</h2>
+                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`, {name: connection.name})}</h2>
                     {(isProduction && application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}

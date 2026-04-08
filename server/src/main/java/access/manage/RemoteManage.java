@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -132,7 +131,7 @@ public class RemoteManage implements Manage {
         RestTemplate restTemplate = environmentRestTemplate(connection.getEnvironment());
         String url = environmentUrl(connection.getEnvironment());
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
-        ResponseEntity<Map<String ,Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
         return checkNoChangeResponse(responseEntity, provider);
     }
@@ -145,7 +144,7 @@ public class RemoteManage implements Manage {
     private Map<String, Object> internalSaveProvider(Map<String, Object> provider) {
         RestTemplate restTemplate = environmentRestTemplate(Environment.PROD);
         String url = environmentUrl(Environment.PROD);
-        ResponseEntity<Map<String ,Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
         return checkNoChangeResponse(responseEntity, provider);
     }
@@ -187,7 +186,7 @@ public class RemoteManage implements Manage {
         return doSaveChangeRequest(environment, changeRequest, HttpMethod.PUT);
     }
 
-    private @Nullable Map<String, Object> doSaveChangeRequest(Environment environment, ChangeRequest changeRequest, HttpMethod post) {
+    private Map<String, Object> doSaveChangeRequest(Environment environment, ChangeRequest changeRequest, HttpMethod post) {
         RestTemplate restTemplate = environmentRestTemplate(environment);
         String url = String.format("%s/manage/api/internal/change-requests", environmentUrl(environment));
         HttpEntity<ChangeRequest> requestEntity = new HttpEntity<>(changeRequest);
@@ -265,10 +264,11 @@ public class RemoteManage implements Manage {
                     String url = String.format("%s/manage/api/internal/search/%s",
                             environmentUrl(activeEnvironment),
                             entityType.name());
-                    List<Map<String, Object>> identityProviders = environmentRestTemplate(activeEnvironment).postForObject(
+                    List<Map<String, Object>> providers = environmentRestTemplate(activeEnvironment).postForObject(
                             url,
-                            baseQuery, List.class);
-                    return identityProviders.stream();
+                            baseQuery,
+                            List.class);
+                    return providers.stream();
                 }).toList();
     }
 

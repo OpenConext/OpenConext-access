@@ -4,8 +4,11 @@ import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
 import access.invite.InviteClient;
 import access.manage.Manage;
+import access.model.Organization;
 import access.model.User;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
+import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.MediaType;
@@ -15,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,13 +37,16 @@ public class InviteController implements UserAccessRights {
     private final InviteClient inviteClient;
     private final Manage manage;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
 
     public InviteController(InviteClient inviteClient,
                             Manage manage,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            OrganizationRepository organizationRepository) {
         this.inviteClient = inviteClient;
         this.manage = manage;
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     /*
@@ -57,6 +64,13 @@ public class InviteController implements UserAccessRights {
         LOG.debug("/rolesPerOrganizationApplicationId");
 
         User userFromDB = reinitializeUser(user, userRepository);
+
+        if (!userFromDB.isSuperUser() &&
+                (!StringUtils.hasText(userFromDB.getOrganizationGUID()) || !StringUtils.hasText(organizationGUID))) {
+            LOG.warn("Not fetching invite roles as there is no institution GUID for user: " + user.getEmail());
+            return ResponseEntity.ok(List.of());
+        }
+
         if (!userFromDB.isSuperUser() && !organizationGUID.equals(userFromDB.getOrganizationGUID())) {
             throw new UserRestrictionException(
                     String.format("User %s is not authorized for organizationGUID %s",
@@ -86,10 +100,12 @@ public class InviteController implements UserAccessRights {
 
 
     @GetMapping("/roles-summary")
-    public ResponseEntity<List<Map<String, Object>>> rolesSummary(User user) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> rolesSummary(User user, @RequestParam("organizationId") Long organizationId) {
         LOG.debug("/rolesSummary called by: " + user.getEmail());
+        Organization organization = organizationRepository.getReferenceById(organizationId);
 
-        confirmInstitutionAdmin(user);
+        confirmInstitutionAdmin(user, organization);
 
         List<Map<String, Object>> inviteRoles = this.inviteClient.rolesSummary();
         return ResponseEntity.ok(inviteRoles);

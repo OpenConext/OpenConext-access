@@ -5,8 +5,10 @@ import access.AccessCookieFilter;
 import access.manage.Contact;
 import access.manage.MetaData;
 import access.model.Application;
+import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
+import access.model.Environment;
 import access.model.Organization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
@@ -17,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +133,7 @@ class ApplicationControllerTest extends AbstractTest {
         Map<String, Object> o = (Map<String, Object>) connections.stream()
                 .filter(connection -> ((Map<String, Object>) connection).get("status").equals(ConnectionStatus.PROD_READY.name()))
                 .findFirst().get();
-        assertEquals(2, ((List)o.get("changeRequests")).size());
+        assertEquals(2, ((List) o.get("changeRequests")).size());
     }
 
     @Test
@@ -158,6 +159,63 @@ class ApplicationControllerTest extends AbstractTest {
 
         Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
         assertEquals(application.getName(), applicationFromDB.getName());
+    }
+
+    @Test
+    void updateSignContractNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        application.setSignedContract(true);
+        Organization organization = application.getOrganization();
+        //Otherwise rest-assured does not deserialize the Organization
+        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
+        });
+        applicationData.put("organization", Map.of("id", organization.getId()));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(applicationData)
+                .put("/api/v1/applications")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateMetaDataChanged() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        application.getMetaData().put("information", Map.of("descriptionEN", "Changed"));
+        Organization organization = application.getOrganization();
+        //Otherwise rest-assured does not deserialize the Organization
+        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
+        });
+        applicationData.put("organization", Map.of("id", organization.getId()));
+
+        //The details of the connections are retrieved
+        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, Environment.PROD, "5");
+        Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connectionProd.setManageIdentifier("5");
+        super.stubForSaveProvider(connectionProd);
+        Connection connectionTest = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
+        super.stubForSaveProvider(connectionTest);
+
+        Application savedApplication = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(applicationData)
+                .put("/api/v1/applications")
+                .as(new TypeRef<>() {
+                });
+        Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
+        assertEquals(application.getMetaData(), applicationFromDB.getMetaData());
+
     }
 
     @Test
