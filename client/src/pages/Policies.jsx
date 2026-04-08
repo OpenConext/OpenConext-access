@@ -55,6 +55,7 @@ const Policies = () => {
                 return;
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
+            newCurrentPolicy.originalName = newCurrentPolicy.data.name;
         }
         window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
@@ -145,6 +146,7 @@ const Policies = () => {
                                     .some(sp => selectedServiceProviders.some(sel => sp.name === sel.value)))}
                             currentOrganization={currentOrganization}
                             policyDetails={toPolicyDetail}
+                            selectedServiceProviders={selectedServiceProviders}
                             refreshPolicies={refreshPolicies}
                             serviceProviders={serviceProviders}
                         />

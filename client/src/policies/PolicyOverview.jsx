@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import {Button, ButtonType, Chip, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, splitListSemantically} from "../utils/Utils.js";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import PauseIcon from "../icons/pause.svg";
@@ -19,6 +19,7 @@ export const PolicyOverview = ({
                                    policies,
                                    currentOrganization,
                                    policyDetails,
+                                   selectedServiceProviders,
                                    refreshPolicies
                                }) => {
 
@@ -62,7 +63,7 @@ export const PolicyOverview = ({
         } else {
             const updates = {active: !policy.data.active}
             const newPolicy = {...policy, data: {...policy.data, ...updates}}
-            updatePolicy(newPolicy)
+            updatePolicy(newPolicy, currentOrganization.id)
                 .then(() => {
                     setConfirmation({});
                     refreshPolicies();
@@ -140,6 +141,13 @@ export const PolicyOverview = ({
                                          question={question}
             />}
             <div className="policy-overview">
+                <p>
+                    {I18n.t(`policies.policiesFound${policies.length === 1 ? "Single":""}${isEmpty(selectedServiceProviders) ? "" : "ForServiceProvider"}`,
+                        {
+                            nbr: policies.length,
+                            names: splitListSemantically(selectedServiceProviders.map(sp => sp.label), I18n.t("forms.and"))
+                        })}
+                </p>
                 <div className="grouped">
                     <h3>{I18n.t("appAccess.regularPolicies")}</h3>
                     <Button type={ButtonType.Primary}

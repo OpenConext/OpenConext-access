@@ -1,10 +1,7 @@
 @use "../styles/vars.scss" as *;
 
 .policy-form-container {
-    width: 60%;
-    @media (max-width: $medium) {
-        width: 100%;
-    }
+    width: 100%;
 
     .policy-form-header {
 
@@ -90,10 +87,92 @@
             }
         }
 
+        label.stand-alone {
+            font-weight: 600;
+            margin-bottom: -6px;
+        }
+
+        .row-service-providers {
+            display: flex;
+
+            .select-field {
+                &.any-of-service-providers {
+                    width: 180px;
+
+                    .input-select-inner {
+                        border-radius: 6px 0 0 6px;
+                        border-right: none;
+                    }
+
+                    .select-inner__control--is-disabled {
+                        border-radius: 6px 0 0 6px !important;
+                    }
+                }
+
+                &.service-providers {
+                    flex-grow: 2;
+
+                    .input-select-inner {
+                        border-radius: 0 6px 6px 0;
+                    }
+                }
+            }
+        }
+
+        .deletable-attribute {
+            display: flex;
+
+            &:not(:first-child) {
+                margin-top: 25px;
+            }
+
+            .select-field {
+                &.select-access-rule {
+                    width: 200px;
+                    margin-right: 25px;
+                }
+
+                &.attribute-value {
+                    flex-grow: 2;
+
+                    .input-select-inner {
+                        border-radius: 0 6px 6px 0;
+                    }
+                }
+
+                &.conditional-options {
+                    .input-select-inner {
+                        border-radius: 0;
+                        border-left: none;
+                        border-right: none;
+                    }
+
+                    .select-inner__control--is-disabled {
+                        border-radius: 0 !important;
+                    }
+                }
+
+                &.attribute-name {
+                    width: 300px;
+
+                    .input-select-inner {
+                        border-radius: 6px 0 0 6px;
+                    }
+                }
+            }
+
+            button.sds--btn--delete {
+                margin-left: 15px;
+                color: var(--sds--color--red--400);
+            }
+
+        }
+
     }
 
     .add-attribute-container {
-        margin-top: 60px;
+        margin-top: 40px;
+        width: 300px;
     }
 
     .actions {
