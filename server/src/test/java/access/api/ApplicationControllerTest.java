@@ -9,7 +9,10 @@ import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.Environment;
+import access.model.ImportEntityRequest;
+import access.model.MigrateApplicationRequest;
 import access.model.Organization;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -238,5 +241,171 @@ class ApplicationControllerTest extends AbstractTest {
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
         assertFalse(optionalApplication.isPresent());
+    }
+
+    @Test
+    void findAll() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        List<Map<String, Object>> applications = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/applications/all")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(3, applications.size());
+    }
+
+    @Test
+    void allLightByOrganization() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+        List<Map<String, Object>> applications = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .get("/api/v1/applications/all/light/{organizationId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(2, applications.size());
+    }
+
+    @Test
+    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+
+        List<Connection> connections = List.of(
+                connection(EntityType.saml20_sp, "4"),
+                connection(EntityType.oidc10_rp, "5")
+        );
+        List<Map<String, Object>> identityProviders = localManage.identityProvidersByAllowedConnections(connections);
+        String body = objectMapper.writeValueAsString(identityProviders);
+        stubFor(post(urlEqualTo("/manage/api/internal/delete-consequences")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+
+        List<Map<String, Object>> providers = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", applicationId)
+                .get("/api/v1/applications/identity-providers-allowed-connections/{applicationId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(2, providers.size());
+    }
+
+    @Test
+    void identityProvidersByAllowedConnectionsTestConnection() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long applicationId = seedIdentifiers.get(NITRO_MAP);
+        List<Map<String, Object>> providers = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", applicationId)
+                .get("/api/v1/applications/identity-providers-allowed-connections/{applicationId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(0, providers.size());
+    }
+
+    @Test
+    void migrate() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Application applicationBuddyCheck = applicationRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        assertEquals(SHARE_LOGICS, applicationBuddyCheck.getOrganization().getName());
+
+        MigrateApplicationRequest migrateApplicationRequest = new MigrateApplicationRequest(
+                seedIdentifiers.get(BUDDY_CHECK),
+                seedIdentifiers.get(FAR_WIND)
+        );
+        stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, Environment.PROD, "5");
+        Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connectionProd.setManageIdentifier("5");
+        super.stubForSaveProvider(connectionProd);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(migrateApplicationRequest)
+                .put("/api/v1/applications/migrate")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        applicationBuddyCheck = applicationRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        assertEquals(FAR_WIND, applicationBuddyCheck.getOrganization().getName());
+
+    }
+
+    @Test
+    void importEntity() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        ImportEntityRequest importEntityRequest = new ImportEntityRequest(
+                seedIdentifiers.get(FAR_WIND),
+                null,
+                provider
+        );
+        super.stubForSaveProvider(connection(EntityType.oidc10_rp, "5"));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(importEntityRequest)
+                .post("/api/v1/applications/import")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        Organization organization = organizationRepository.findApplicationsDetailsOrganizationById(seedIdentifiers.get(FAR_WIND)).get();
+        //See src/main/resources/manage/oidc10_rp.json id="10"
+        Application application = organization.getApplications().stream()
+                .filter(app -> app.getName().equals("OIDC Playground Client")).findFirst().get();
+        assertEquals(1, application.getConnections().size());
+    }
+
+    @Test
+    void importEntityExistingApplication() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        ImportEntityRequest importEntityRequest = new ImportEntityRequest(
+                seedIdentifiers.get(FAR_WIND),
+                seedIdentifiers.get(NITRO_MAP),
+                provider
+        );
+        super.stubForSaveProvider(connection(EntityType.oidc10_rp, "10"));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(importEntityRequest)
+                .post("/api/v1/applications/import")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+        Application application = applicationRepository.findDetailsById(seedIdentifiers.get(NITRO_MAP)).get();
+        assertEquals(1, application.getConnections().size());
     }
 }

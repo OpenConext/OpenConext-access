@@ -60,8 +60,7 @@ import java.util.stream.Collectors;
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.api.Results.deleteResult;
-import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/applications"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -296,6 +295,7 @@ public class ApplicationController implements UserAccessRights {
     }
 
     @PutMapping({"/migrate"})
+    @Transactional
     public ResponseEntity<Map<String, Object>> migrate(User user, @Validated @RequestBody MigrateApplicationRequest migrateApplicationRequest) {
         LOG.debug("/migrate application by " + user.getEmail());
 
@@ -307,7 +307,10 @@ public class ApplicationController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
         application.setOrganization(organization);
         applicationRepository.save(application);
-        application.getConnections().forEach(connection -> {
+        application.getConnections()
+                .stream()
+                .filter(connection -> !isEmpty(connection.getManageIdentifier()))
+                .forEach(connection -> {
             Map<String, Object> provider = manage.providerByConnection(connection);
             Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
             metaDataFields.put("OrganizationName:en", organization.getName());

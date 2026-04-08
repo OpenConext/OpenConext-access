@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.manage.ManageData;
 import access.model.Application;
 import access.model.Connection;
 import access.model.ConnectionStatus;
@@ -9,6 +10,7 @@ import access.model.EntityType;
 import access.model.Environment;
 import access.model.GrantType;
 import access.model.State;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -175,6 +177,9 @@ class ConnectionControllerTest extends AbstractTest {
         redirectUrls.add("https://redirect.nl");
         metaData.put("claimsInIdToken", true);
 
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        metaData.put("arp", ManageData.getData(provider).get("arp"));
+
         //Otherwise rest-assured does not deserialize the Application
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });
@@ -189,7 +194,13 @@ class ConnectionControllerTest extends AbstractTest {
         stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(manageResponse))));
-        super.stubForGetChangeRequests(getChangeRequests());
+
+        List<Map<String, Object>> existingChangeRequests = getChangeRequests();
+        Map<String, Object> existingChangeRequest = existingChangeRequests.getFirst();
+        Map<String, Object> pathUpdates = (Map<String, Object>) existingChangeRequest.get("pathUpdates");
+        pathUpdates.put("arp", ManageData.getData(provider).get("arp"));
+
+        super.stubForGetChangeRequests(existingChangeRequests);
 
         Map<String, Object> savedConnection = given()
                 .when()
@@ -209,6 +220,59 @@ class ConnectionControllerTest extends AbstractTest {
         //Assert the changeRequests
         List<Map<String, Object>> changeRequests = (List<Map<String, Object>>) savedConnection.get("changeRequests");
         assertEquals(2, changeRequests.size());
+    }
+
+    @SneakyThrows
+    @Test
+    void updateAndCreateChangeRequestWithArp() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        //See server/src/main/resources/manage/oidc10_rp.json
+        connection.setManageIdentifier("10");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connectionRepository.save(connection);
+
+        Map<String, Object> metaData = connection.getMetaData();
+        List<String> grantTypes = (List<String>) metaData.get("grantTypes");
+        grantTypes.add(GrantType.DEVICE_CODE.name().toLowerCase());
+        List<String> redirectUrls = (List<String>) metaData.get("redirectUrls");
+        redirectUrls.add("https://redirect.nl");
+        metaData.put("claimsInIdToken", true);
+
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        metaData.put("arp", ManageData .getData(provider).get("arp"));
+
+        //Otherwise rest-assured does not deserialize the Application
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+
+        //Now stub all interaction with Manage (getProvider, saveChangeRequests, getChangeRequests)
+        super.stubForGetProvider(connection);
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(manageResponse))));
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(manageResponse))));
+        //This ensures a new change request is created
+        super.stubForGetChangeRequests(List.of());
+
+        Map<String, Object> savedConnection = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(connectionData)
+                .put("/api/v1/connections")
+                .as(new TypeRef<>() {
+                });
+        String manageIdentifier = (String) savedConnection.get("manageIdentifier");
+        assertNotNull(manageIdentifier);
+        assertEquals(1, savedConnection.get("manageVersion"));
+        assertEquals(ConnectionStatus.PROD_READY.name(), savedConnection.get("status"));
     }
 
     @Test
@@ -337,7 +401,6 @@ class ConnectionControllerTest extends AbstractTest {
     }
 
     @Test
-//    @Disabled
     void deleteConnectionWithManageProvider() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
@@ -405,6 +468,35 @@ class ConnectionControllerTest extends AbstractTest {
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
         assertEquals(State.prodaccepted, connectionFromDB.getState());
         assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
+    }
+
+    @Test
+    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
+
+        List<Connection> connections = List.of(
+                connection(EntityType.saml20_sp, "4"),
+                connection(EntityType.oidc10_rp, "5")
+        );
+        List<Map<String, Object>> identityProviders = localManage.identityProvidersByAllowedConnections(connections);
+        String body = objectMapper.writeValueAsString(identityProviders);
+        stubFor(post(urlEqualTo("/manage/api/internal/delete-consequences")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+
+        List<Map<String, Object>> providers = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("connectionId", connectionId)
+                .get("/api/v1/connections/identity-providers-allowed-connections/{connectionId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(2, providers.size());
     }
 
 }

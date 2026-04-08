@@ -115,12 +115,4 @@ class RemoteManageTest extends AbstractTest {
         assertThrows(HttpClientErrorException.NotFound.class, () -> manage.identityProviderByEntityID("http://mock-idp"));
     }
 
-    private Connection connection(EntityType entityType, String manageIdentifier) {
-        Connection connection = new Connection();
-        connection.setManageIdentifier(manageIdentifier);
-        connection.setProtocol(entityType);
-        connection.setEnvironment(Environment.PROD);
-        connection.setState(State.prodaccepted);
-        return connection;
-    }
 }

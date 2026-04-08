@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -335,15 +334,15 @@ public class ConnectionController implements UserAccessRights {
                 newPathUpdates.forEach((key, value) -> {
                     if (key.equals("arp") && existingPathUpdates.containsKey(key)) {
                         //three way merge on the attributes and profile, motivation from the latest change
-                        Map<String, Object> attributes   = (Map<String, Object>) ((Map<String, Object>)value).get("attributes");
+                        Map<String, Object> attributes = (Map<String, Object>) ((Map<String, Object>) value).getOrDefault("attributes", Map.of());
                         List<String> attibuteNames = attributes.keySet().stream().toList();
 
-                        Map<String, Object> arpPath = (Map<String, Object>) existingPathUpdates.get("arp");
-                        Map<String, Object> pathAttributes   = (Map<String, Object>) arpPath.get("attributes");
+                        Map<String, Object> arpPath = (Map<String, Object>) existingPathUpdates.getOrDefault("arp", Map.of());
+                        Map<String, Object> pathAttributes = (Map<String, Object>) arpPath.getOrDefault("attributes", Map.of());
                         List<String> pathValues = pathAttributes.keySet().stream().toList();
 
-                        Map<String, Object> baseArp= (Map<String, Object>) getData(provider).get("arp");
-                        Map<String, Object> baseAttributes   = (Map<String, Object>) baseArp.get("attributes");
+                        Map<String, Object> baseArp = (Map<String, Object>) getData(provider).getOrDefault("arp", Map.of());
+                        Map<String, Object> baseAttributes = (Map<String, Object>) baseArp.getOrDefault("attributes", Map.of());
                         List<String> baseValues = baseAttributes.keySet().stream().toList();
 
                         List<String> newValues = ListMerger.threeWayMerge(baseValues, pathValues, attibuteNames);
@@ -352,7 +351,7 @@ public class ConnectionController implements UserAccessRights {
                                 attrName -> attrName,
                                 attrName -> attributes.getOrDefault(attrName, pathAttributes.getOrDefault(attrName, baseAttributes.get(attrName)))));
                         arpPath.put("attributes", newAttributes);
-                    } else if  (value instanceof List && existingPathUpdates.containsKey(key)) {
+                    } else if (value instanceof List && existingPathUpdates.containsKey(key)) {
                         //three way merge
                         List<String> pathUpdateValue = (List<String>) existingPathUpdates.get(key);
                         List<String> base = (List<String>) getMetaDataFields(getData(provider)).getOrDefault(key.substring(key.indexOf(".") + 1), List.of());

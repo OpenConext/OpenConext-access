@@ -80,6 +80,7 @@
       "allowedall": true,
       "arp": {
         "enabled": true,
+        "profile": "personalized",
         "attributes": {
           "urn:mace:dir:attribute-def:cn": [
             {

@@ -573,7 +573,15 @@ public abstract class AbstractTest {
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
+    }
 
+    protected Connection connection(EntityType entityType, String manageIdentifier) {
+        Connection connection = new Connection();
+        connection.setManageIdentifier(manageIdentifier);
+        connection.setProtocol(entityType);
+        connection.setEnvironment(Environment.PROD);
+        connection.setState(State.prodaccepted);
+        return connection;
     }
 
     private void doSeed() {
