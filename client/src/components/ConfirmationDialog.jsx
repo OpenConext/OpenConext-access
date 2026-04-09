@@ -13,7 +13,8 @@ export default function ConfirmationDialog({
                                                children = null,
                                                confirmationTxt = null,
                                                largeWidth = false,
-                                               confirmationHeader = null
+                                               confirmationHeader = null,
+                                               className = ""
                                            }) {
     const [busy, setBusy] = useState(false);
 
@@ -34,6 +35,7 @@ export default function ConfirmationDialog({
             confirmationButtonLabel={confirmationTxt}
             confirmDisabled={disabledConfirm || (busy && cancel)}
             subTitle={null}
+            className={className}
             full={largeWidth}/>
     );
 

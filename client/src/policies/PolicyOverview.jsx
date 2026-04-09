@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import {Button, ButtonType, Chip, Tooltip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
-import {isEmpty, splitListSemantically} from "../utils/Utils.js";
+import {capitalize, isEmpty, splitListSemantically} from "../utils/Utils.js";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import PauseIcon from "../icons/pause.svg";
@@ -82,12 +82,20 @@ export const PolicyOverview = ({
         );
     }
 
+    const renderPolicyName = policy => {
+        if (policy.data.type === policyTypes.reg) {
+            return policy.data.name;
+        }
+        const level = policy.data.loas[0].level;
+        return policy.data.name + " - " + capitalize(level.substring(level.lastIndexOf("/") + 1));
+    }
+
     const renderPolicy = (index, type, policy) => {
         return (
             <div key={`${type}_${index}`} className="access-card-container">
                 <div className={`access-card policy-breakdown ${policy.data.active ? "" : "paused"}`}>
                     <div className="policy-name-container">
-                        <p className="policy-name">{policy.data.name}</p>
+                        <p className="policy-name">{renderPolicyName(policy)}</p>
                         <div className="policy-paused-container">
                             {!policy.data.active &&
                                 <p className="policy-paused">
@@ -142,7 +150,7 @@ export const PolicyOverview = ({
             />}
             <div className="policy-overview">
                 <p>
-                    {I18n.t(`policies.policiesFound${policies.length === 1 ? "Single":""}${isEmpty(selectedServiceProviders) ? "" : "ForServiceProvider"}`,
+                    {I18n.t(`policies.policiesFound${policies.length === 1 ? "Single" : ""}${isEmpty(selectedServiceProviders) ? "" : "ForServiceProvider"}`,
                         {
                             nbr: policies.length,
                             names: splitListSemantically(selectedServiceProviders.map(sp => sp.label), I18n.t("forms.and"))
@@ -161,7 +169,7 @@ export const PolicyOverview = ({
                         </div>
                     </>}
                     {!isEmpty(regularPolicies) && <>
-                        {policies.map((policy, index) =>
+                        {regularPolicies.map((policy, index) =>
                             renderPolicy(index, "reg", policy))}
                     </>}
                 </InfoBlock>
@@ -178,7 +186,7 @@ export const PolicyOverview = ({
                         </div>
                     </>}
                     {!isEmpty(stepUpPolicies) && <>
-                        {policies.map((policy, index) =>
+                        {stepUpPolicies.map((policy, index) =>
                             renderPolicy(index, "step", policy))}
                     </>}
                 </InfoBlock>

@@ -966,7 +966,19 @@ const en = {
         flash: "Your feedback has been sent. Thanks!",
         widgetLabel: "Feedback",
         includeScreenshot: "I agree to have a screenshot of the current page automatically included in the feedback message",
-        tooLarge: "The screenshot is too large (max 5MB). It was not attached."
+        tooLarge: "The screenshot is too large (max 5MB). It was not attached.",
+        preview: {
+            to: "To",
+            from: "From",
+            subject: "Subject",
+            date: "Date",
+            subjectLine: "Feedback",
+            messagePlaceholder: "Your message will appear here...",
+            screenshotLabel: "Attached screenshot",
+            greeting: "Hello,",
+            providedFeedback: "{{name}} has provided the following feedback:",
+            followUp: "Follow-up questions can be sent to {{email}}"
+        }
     },
     myOrganization: {
         title: "My organisation",

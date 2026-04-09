@@ -963,7 +963,19 @@ const nl = {
         flash: "Je feedback is verzonden. Bedankt!",
         widgetLabel: "Feedback",
         includeScreenshot: "Ik ga akkoord dat automatisch een screenshot van de huidige pagina wordt bijgevoegd bij het feedback‑bericht",
-        tooLarge: "De screenshot is te groot (max. 5 MB). Hij is niet bijgevoegd."
+        tooLarge: "De screenshot is te groot (max. 5 MB). Hij is niet bijgevoegd.",
+        preview: {
+            to: "Aan",
+            from: "Van",
+            subject: "Onderwerp",
+            date: "Datum",
+            subjectLine: "Feedback",
+            messagePlaceholder: "Je bericht verschijnt hier...",
+            screenshotLabel: "Bijgevoegde screenshot",
+            greeting: "Hallo,",
+            providedFeedback: "{{name}} heeft de volgende feedback gegeven:",
+            followUp: "Vervolgvragen kunnen worden gestuurd naar {{email}}"
+        }
     },
     myOrganization: {
         title: "Mijn organisatie",

@@ -45,3 +45,10 @@ export const distinctValues = (arr, attribute) => {
 export const splitListSemantically = (arr, lastSeparator) => {
     return [arr.slice(0, -1).join(", "), arr.slice(-1)[0]].join(arr.length < 2 ? "" : ` ${lastSeparator} `);
 }
+
+export const capitalize = val => {
+    if (isEmpty(val)) {
+        return "";
+    }
+    return val.substring(0, 1).toUpperCase() + val.substring(1);
+}
