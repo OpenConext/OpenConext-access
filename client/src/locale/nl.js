@@ -969,6 +969,7 @@ const nl = {
             from: "Van",
             subject: "Onderwerp",
             date: "Datum",
+            subjectLineInfo: "Preview feedback mail",
             subjectLine: "Feedback",
             messagePlaceholder: "Je bericht verschijnt hier...",
             screenshotLabel: "Bijgevoegde screenshot",

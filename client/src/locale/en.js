@@ -972,6 +972,7 @@ const en = {
             from: "From",
             subject: "Subject",
             date: "Date",
+            subjectLineInfo: "Preview feedback mail",
             subjectLine: "Feedback",
             messagePlaceholder: "Your message will appear here...",
             screenshotLabel: "Attached screenshot",

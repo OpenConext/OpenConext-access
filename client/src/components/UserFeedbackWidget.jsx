@@ -109,7 +109,7 @@ export const UserFeedbackWidget = () => {
                         <span className="dot green"/>
                     </div>
                     <span className="mail-preview__toolbar-title">
-                        {I18n.t("feedback.preview.subjectLine")}
+                        {I18n.t("feedback.preview.subjectLineInfo")}
                     </span>
                 </div>
                 <div className="mail-preview__header">
