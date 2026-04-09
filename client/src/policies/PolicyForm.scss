@@ -175,6 +175,141 @@
         width: 300px;
     }
 
+    .step-up-settings {
+        background-color: var(--sds--color--gray--background);
+        padding: 20px;
+
+        .input-select-inner.creatable {
+            .select-inner__indicators {
+                display: none;
+            }
+        }
+
+        .loa-selector-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+
+            .select-field.loa-level-select {
+                width: 280px;
+            }
+
+            .when-label {
+                margin-left: 12px;
+                font-weight: 600;
+                color: var(--sds--color--gray--600);
+            }
+        }
+
+        .deletable-attribute {
+            display: flex;
+
+            &:not(:first-child) {
+                margin-top: 25px;
+            }
+
+            .select-field {
+                &.select-access-rule {
+                    width: 200px;
+                    margin-right: 25px;
+                }
+
+                &.attribute-value {
+                    flex-grow: 2;
+
+                    .input-select-inner {
+                        border-radius: 0 6px 6px 0;
+                    }
+                }
+
+                &.conditional-options {
+                    .input-select-inner {
+                        border-radius: 0;
+                        border-left: none;
+                        border-right: none;
+                    }
+
+                    .select-inner__control--is-disabled {
+                        border-radius: 0 !important;
+                    }
+                }
+
+                &.attribute-name {
+                    width: 300px;
+
+                    .input-select-inner {
+                        border-radius: 6px 0 0 6px;
+                    }
+                }
+            }
+
+            button.sds--btn--delete {
+                margin-left: 15px;
+                color: var(--sds--color--red--400);
+            }
+        }
+
+        .cidr-negation-row {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--sds--color--gray--200);
+
+            .select-field.cidr-negation-select {
+                width: 280px;
+            }
+        }
+
+        .cidr-entry {
+            margin-top: 25px;
+            padding: 16px;
+            background-color: white;
+            border: 1px solid var(--sds--color--gray--200);
+            border-radius: 8px;
+
+            .cidr-inputs {
+                display: flex;
+                align-items: flex-end;
+                gap: 12px;
+
+                .input-field {
+                    flex: 1;
+
+                    &:first-child {
+                        flex: 2;
+                    }
+                }
+
+                button.sds--btn--delete {
+                    margin-bottom: 2px;
+                    color: var(--sds--color--red--400);
+                }
+            }
+
+            .cidr-warning {
+                display: block;
+                margin-top: 5px;
+                font-size: 13px;
+                color: var(--sds--color--gray--700);
+            }
+
+            .cidr-info {
+                display: flex;
+                gap: 20px;
+                margin-top: 8px;
+                padding: 8px 0 0 0;
+                border-top: 1px solid var(--sds--color--gray--100);
+                font-size: 13px;
+                color: var(--sds--color--gray--500);
+            }
+        }
+
+        .add-buttons-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 40px;
+        }
+    }
+
     .actions {
         display: flex;
         width: 100%;

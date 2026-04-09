@@ -14,7 +14,7 @@ expect.extend({
 });
 
 test("All translations exists in all bundles", () => {
-    const disabledTest = true;
+    const disabledTest = false;
     //For now disable this, enable again when translations are more final
     if (disabledTest) {
         return;

@@ -13,7 +13,7 @@ const en = {
             login: "Sign in / sign up",
             profile: "Profile",
             logout: "Logout",
-            system: "System"
+            system: "System",
         },
         loginInfo: {
             title: "Sign in / Sign up",
@@ -24,16 +24,15 @@ const en = {
                     "Do you develop software that you want to offer in the education sector? Then sign in with eduID.",
                     "If you don’t have an eduID yet, you can create it right away."
                 ],
-                login: "Continue with eduID"
+                login: "Continue with eduID",
             },
             education: {
                 title: "You work for an institution",
                 info: [
                     "If you are a staff member, student, or researcher at an institution that is already connected to SURF, you can sign in directly using your institutional account."
                 ],
-                login: "Sign in via your institution"
-            }
-
+                login: "Sign in via your institution",
+            },
         },
         tabs: {
             home: "Home",
@@ -47,29 +46,29 @@ const en = {
                 "Make your application securely accessible to education and research through a single SURF Access integration. We take care of authentication, authorisation, and privacy and security agreements.",
                 "Connecting is free and starts in a sandbox environment."
             ],
-            connect: "How to connect"
+            connect: "How to connect",
         },
         institutions: {
             title: "For institutions",
             info: [
                 "Give students, staff and researchers simple access to selected applications using their institutional account.",
-                "SURF Access provides Single Sign-On and central agreements, reducing local management and complexity.",
+                "SURF Access provides Single Sign-On and central agreements, reducing local management and complexity."
             ],
             contact: "Contact us",
-            contactMail: "mailto:info@surfconext.nl"
+            contactMail: "mailto:info@surfconext.nl",
         },
         joining: {
             title: "Connecting demand and supply",
             info: [
-                "SURF Access securely connects over 1 million users to thousands of (web) applications. Institutions and application providers join through one trusted SURF network.",
+                "SURF Access securely connects over 1 million users to thousands of (web) applications. Institutions and application providers join through one trusted SURF network."
             ],
             links: {
                 prefix: "Explore ",
                 institutions: "{{nbr}} institutions",
                 or: " or ",
                 applications: "{{nbr}} applications.",
-            }
-        }
+            },
+        },
     },
     navigation: {
         home: "Home",
@@ -99,8 +98,8 @@ const en = {
             roles: "",
             collaborations: "",
             serviceDesk: "",
-            feedback: ""
-        }
+            feedback: "",
+        },
     },
     breadCrumb: {
         access: "Home",
@@ -117,7 +116,7 @@ const en = {
         organizations: "Organizations",
         organizationPendingApproval: "Pending approval",
         import: "import",
-        migrate: "migrate"
+        migrate: "migrate",
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -134,7 +133,7 @@ const en = {
         confirmation: "Are you sure you want to register a new organisation called {{name}}?",
         confirmationAfter: "Your organisation is created. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
         newOrganization: "New organisation created",
-        flash: "Created organisation {{name}}."
+        flash: "Created organisation {{name}}.",
     },
     userHome: {
         greeting: "{{name}}",
@@ -163,7 +162,7 @@ const en = {
             ourAppsInfo: "The apps we offer ourselves on SURF Access",
             maintainOurApps: "Manage our apps",
             allApps: "All other apps",
-            openCatalogue: "Open the SURF app catalog"
+            openCatalogue: "Open the SURF app catalog",
         },
         decentral: {
             title: "Decentralised access management",
@@ -172,13 +171,12 @@ const en = {
             maintainCollaborations: "Manage collaborative groups",
             teamDecentral: "Decentral team",
             responsible: "responsible: <a href='mailto:{{email}}'>{{name}}</a>",
-            maintainTeamDecentral: "Manage team"
+            maintainTeamDecentral: "Manage team",
         },
         tip: {
             info: "Tips from SURF when setting up access",
-            //Leave empty for no tips
-            tips: []
-        }
+            tips: [],
+        },
     },
     tabs: {
         users: "Users",
@@ -190,7 +188,7 @@ const en = {
         access: "Access",
         information: "App information",
         import: "Manage import",
-        migrate: "App migration"
+        migrate: "App migration",
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -203,8 +201,8 @@ const en = {
         modal: {
             title: "Join request is created",
             success: "Your join request is sent to the admins of <strong>{{name}}</strong>. You will receive an email if the join request is accepted",
-            proceed: "Proceed"
-        }
+            proceed: "Proceed",
+        },
     },
     organizations: {
         tooltip: "SURF will review your organisation registration. You can already register apps on our test environment. Production access becomes available once your organisation is approved.",
@@ -230,11 +228,11 @@ const en = {
         flash: {
             updated: "Organisation {{name}} now has the status {{status}}",
             deleted: "Organisation {{name}} has been deleted",
-            nameChange: "Updated organisation {{name}}"
-        }
+            nameChange: "Updated organisation {{name}}",
+        },
     },
     userMenu: {
-        switchOrganization: "Switch organisation"
+        switchOrganization: "Switch organisation",
     },
     application: {
         new: "New Application",
@@ -248,8 +246,7 @@ const en = {
         contentInfoPre: "Content services receive a ",
         contentInfoLink: "minimum set",
         contentInfoPost: " of attributes.",
-        contentInfoTip: "Attributes for content providers:<ul><li>Persistent or Transient NameID</li><li>schacHomeorganisation</li>" +
-            "<li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
+        contentInfoTip: "Attributes for content providers:<ul><li>Persistent or Transient NameID</li><li>schacHomeorganisation</li><li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
         targetGroup: "Target group",
         targetSURF: "Multiple users managed in a (research) group.",
         targetSURFInfo: "Users are invited to the group individually.",
@@ -261,18 +258,17 @@ const en = {
             duration: "I will not store personal data longer than necessary",
             privacy: "I will not provide personal data to third parties",
             safe: "I will keep my application secure and available",
-            support: "I am available for questions and problems"
+            support: "I am available for questions and problems",
         },
         checksInfo: {
-            //If the check translation is empty, then the toggle is not shown
             personal: "",
             duration: "",
             privacy: "",
             safe: "",
-            support: ""
+            support: "",
         },
         flash: "Application {{name}} saved.",
-        deleteConfirmation: "Are you sure you want to delete this application?"
+        deleteConfirmation: "Are you sure you want to delete this application?",
     },
     organization: {
         alertInfo: "Welcome to SURF Access. Through this Self-Service Portal, you can make your application available to higher education and research institutions in the Netherlands.",
@@ -290,12 +286,12 @@ const en = {
             disclaimer: "<strong>Note</strong>: These conditions only apply to the production environment, you can connect directly to the test environment.",
             fairUseExternal: "Is your app for a specific group of users (such as a single research group)? Then it falls under the <a href='https://surf.nl/fair-use' target='_blank'>Fair Use Policy</a>.",
             agreementExternal: "Is your app intended for use by entire educational institutions? Then you sign a <a href='https://surf.nl/fair-use' target='_blank'>SURF Connection Agreement</a>.",
-            disclaimerExternal: "<strong>Note</strong>: These conditions only apply to the production environment, you can connect directly to the test environment."
+            disclaimerExternal: "<strong>Note</strong>: These conditions only apply to the production environment, you can connect directly to the test environment.",
         },
         applications: "Applications",
     },
     "application-list-view": {
-        searchPlaceHolder: "Search..."
+        searchPlaceHolder: "Search...",
     },
     connection: {
         overview: "Overview",
@@ -321,12 +317,12 @@ const en = {
         units: {
             organization: "organisation",
             application: "application",
-            connection: "connection"
+            connection: "connection",
         },
         team: {
             name: "Team",
             info: "Give team members or external users access to manage this app",
-            members: "Manage team members"
+            members: "Manage team members",
         },
         production: {
             name: "Production",
@@ -403,13 +399,13 @@ const en = {
             chooseFile: "Choose file",
             doPaste: "Paste the metadata",
             parsed: "The metadata has successfully been imported",
-            errorParsed: "Error in parsing the metadata"
+            errorParsed: "Error in parsing the metadata",
         },
         flash: {
             created: "Created connection {{name}}",
             updated: "Updated connection {{name}}",
             deleted: "Deleted connection {{name}}",
-            copied: "Copied connection data from {{name}}"
+            copied: "Copied connection data from {{name}}",
         },
         connections: {
             titleProd: "Connections to the production environment",
@@ -428,9 +424,8 @@ const en = {
             multiple_connections: "Multiple connections",
             no_connections: "No production connections",
             tooltips: {
-                //A null tooltip won't show
                 open: "Your connection has unfinished sections. Please fill in all the required fields.",
-                complete: null,
+                complete: {},
                 pending_prod: "Your production request is under review at <strong>SURF Access</strong>. One of our staff members will review the configuration and let you know as soon as possible whether it's approved.<br><br>After publication, institutions can connect to your application.",
                 prod_ready: "Your application is ready for production and institutions can link to your application.",
             },
@@ -438,7 +433,7 @@ const en = {
             details: "Details",
             requestProductionStatus: "Request production status",
             requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
-            requestProductionStatusPostInfo: "Your request is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>"
+            requestProductionStatusPostInfo: "Your request is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
         },
         informational: {
             disclaimer: "Only process information that is <strong>strictly necessary</strong> for the functioning of your application.",
@@ -448,23 +443,23 @@ const en = {
                 anonymous: {
                     name: "Anonymous",
                     title: "Most privacy-friendly",
-                    info: "This bundle is specifically designed for those who want to work with a high level of privacy awareness. You'll receive a transient NameID, meaning the user will receive a new one each time they log in to the service, etc."
+                    info: "This bundle is specifically designed for those who want to work with a high level of privacy awareness. You'll receive a transient NameID, meaning the user will receive a new one each time they log in to the service, etc.",
                 },
                 pseudonymized: {
                     name: "Pseudonymised",
                     title: "Privacy friendly including reliability",
-                    info: "his bundle is specifically designed for ..."
+                    info: "his bundle is specifically designed for ...",
                 },
                 personalized: {
                     name: "Personalised",
                     title: "Personal data for identification purposes",
-                    info: ""
+                    info: "",
                 },
                 uidOnly: {
                     name: "UID only",
                     title: "For institutions that supplement all personal information internally",
-                    info: ""
-                }
+                    info: "",
+                },
             },
             attributes: "<strong>You will receive the following attributes</strong> (we show example values)",
             additionalAttributes: "I need additional attributes",
@@ -474,7 +469,7 @@ const en = {
             profileMotivationDisclaimer: "This text will be shown to users who want to connect to your service",
             motivation: "Motivation",
             motivationPlaceholder: "Attribute is used to ...",
-            value: "Value"
+            value: "Value",
         },
         testIdPs: {
             info: "You can test whether federated login works using the following IdPs.",
@@ -482,7 +477,7 @@ const en = {
             institutionIdPs: "Institution test IdPs",
             institutionIdPsInfo: "You can also test with accounts and data from institutions. <strong>Note<strong/>: You must contact them yourself for the test login details for their test IdPs.",
             placeholder: "Select one or more institutions",
-            institution: "test IdP or institution IdP"
+            institution: "test IdP or institution IdP",
         },
         visibilities: {
             info: "Your app will become visible in the SURF Access catalog. Institutions or collaborative groups that want to use your app can activate it themselves or request a connection.",
@@ -496,7 +491,7 @@ const en = {
             connect_without_interaction_with_email: "Direct connection, email notification",
             connect_without_interaction_without_email: "Direct connection, no notification",
             placeholder: "Select one or more institutions",
-            institution: "Institution IdP"
+            institution: "Institution IdP",
         },
         connectionOverview: {
             copy: "Copy the login details",
@@ -518,7 +513,7 @@ const en = {
         },
         connectionOverviewSAML: {
             title: "The SAML connection is ready",
-            link: "Follow the <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test instructions</a> to see if everything works."
+            link: "Follow the <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test instructions</a> to see if everything works.",
         },
         appInfo: {
             title: "Information for the catalog",
@@ -527,7 +522,7 @@ const en = {
                 logo: "Logo and description",
                 contact: "Contacts",
                 privacy: "Privacy & Security ",
-                overview: "Overview"
+                overview: "Overview",
             },
             logoUrl: "Logo",
             descriptionEn: "Description in Engels",
@@ -547,9 +542,9 @@ const en = {
                 recommended: "Recommended",
                 repository: "Repository",
                 surf: "SURF",
-                media_video: "Media / Video"
+                media_video: "Media / Video",
             },
-            targetGroup: "Ga door naar de doelgroep"
+            targetGroup: "Ga door naar de doelgroep",
         },
         logo: {
             name: "logo",
@@ -561,8 +556,8 @@ const en = {
             disclaimers: [
                 "png, jpg, svg or gif",
                 "min 100 * 100 pixels",
-                "max 2MB.",
-            ]
+                "max 2MB."
+            ],
         },
         contacts: {
             label: "Contacts",
@@ -578,12 +573,12 @@ const en = {
             support: "Support contact",
             supportDisclaimer: "This will be shown to end users.",
             supportPlaceholder: "support",
-            addTechnicalContact: "+ add another contact"
+            addTechnicalContact: "+ add another contact",
         },
         privacy: {
             label: "Privacy & Security",
             info: "Please fill out the questions below. We will share the answers with institutions connected to SURFconext. This way the institutions interested in your service quickly have an idea of your efforts regarding privacy and security.",
-            answerIsRequired: "Answer to this privacy question is required"
+            answerIsRequired: "Answer to this privacy question is required",
         },
         appOverview: {
             label: "App information completed",
@@ -594,8 +589,8 @@ const en = {
             info: "For apps on SURF Access you must sign a SURF connection agreement.",
             notSigned: "No agreement has been signed yet.",
             signed: "An agreement has been signed.",
-            sign: "Sign the agreement"
-        }
+            sign: "Sign the agreement",
+        },
     },
     testing: {
         newConnection: "Add new connection",
@@ -605,7 +600,7 @@ const en = {
         details: "Details",
         zeroState: "Application <strong>{{name}}</strong> has no {{type}} connections yet.",
         production: "production",
-        test: "test"
+        test: "test",
     },
     confirmationDialog: {
         title: "Confirm",
@@ -617,7 +612,7 @@ const en = {
         cancel: "Cancel",
     },
     userManagement: {
-        title: "User management"
+        title: "User management",
     },
     teamManagement: {
         nameEmail: "Name & Email",
@@ -631,7 +626,7 @@ const en = {
         deleteDemotion: "Are you sure you don't want to be admin anymore? This can not be reverted",
         flash: {
             deleted: "The organisation membership of {{name}} has been removed",
-            updated: "The organisation membership of {{name}} has been updated"
+            updated: "The organisation membership of {{name}} has been updated",
         },
         makeAdmin: "Make admin",
         makeMember: "Make member",
@@ -643,8 +638,8 @@ const en = {
             member: "Member",
             memberRights: "Members belong to the organisation. They can manage their own applications and invite application users.",
             guest: "Guest",
-            guestRights: "Guests are users who do not belong to the organisation but are involved in managing certain applications."
-        }
+            guestRights: "Guests are users who do not belong to the organisation but are involved in managing certain applications.",
+        },
     },
     joinRequestManagement: {
         nameEmail: "Name & Email",
@@ -658,12 +653,12 @@ const en = {
         flash: {
             approved: "The organisation membership of {{name}} has been created.",
             approveAll: "The organisation memberships habe been created.",
-            denied: "The join request of {{name}} has been denied."
+            denied: "The join request of {{name}} has been denied.",
         },
         deny: "Deny",
         approve: "Approve",
         approveAll: "Approve all",
-        approveAllConfirmation: "Are you sure you want to approve all the organisation join requests?"
+        approveAllConfirmation: "Are you sure you want to approve all the organisation join requests?",
     },
     invitationsManagement: {
         email: "Email",
@@ -684,7 +679,7 @@ const en = {
         resend: "Resend",
         revoke: "Revoke",
         resendConfirmation: "Are you sure you want to resend the invitation for {{email}}?",
-        flashReminderSent: "Reminder mail has been sent"
+        flashReminderSent: "Reminder mail has been sent",
     },
     appTeamManagement: {
         name: "Name",
@@ -701,13 +696,13 @@ const en = {
         organizationMembersLink: "organisationusers",
         organizationMembersPost: " to this applicationteam. ",
         flashCreated: "Created application membership for {{name}}",
-        createdBy: "Created by {{name}} on {{date}}"
+        createdBy: "Created by {{name}} on {{date}}",
     },
     roles: {
         admin: "Admin",
         member: "Member",
         guest: "Guest",
-        all: "Roles - all"
+        all: "Roles - all",
     },
     impersonate: {
         exit: "Stop impersonating",
@@ -715,7 +710,7 @@ const en = {
         impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>.",
         flash: {
             startedImpersonation: "You now impersonate {{name}}.",
-            clearedImpersonation: "Cleared your impersonation. You are you again."
+            clearedImpersonation: "Cleared your impersonation. You are you again.",
         },
     },
     users: {
@@ -725,7 +720,7 @@ const en = {
         lastActivity: "Last activity",
         searchPlaceHolder: "Search users...",
         impersonate: "Impersonate user {{name}}",
-        you: "You"
+        you: "You",
     },
     invitation: {
         title: "New invitation for {{name}} membership",
@@ -753,7 +748,7 @@ const en = {
         category: "Category",
         all: "All categories",
         other: "Other",
-        searchPlaceHolder: "Search institutions..."
+        searchPlaceHolder: "Search institutions...",
     },
     applications: {
         title: "Applications",
@@ -763,7 +758,7 @@ const en = {
         allSources: "All federations",
         other: "-",
         searchPlaceHolder: "Search applications...",
-        recent: "Recently added applications"
+        recent: "Recently added applications",
     },
     applicationDetail: {
         title: "Applications",
@@ -798,7 +793,7 @@ const en = {
             entree: "Member of the Kennisnet Entree-federation.",
             clarin: "Member of the Clarin research federation.",
             none: "{{organisation}} refused to sign the SURFconext connection agreement.",
-            "edugain (community)": "Application offered through the international research and education community via eduGAIN."
+            "edugain (community)": "Application offered through the international research and education community via eduGAIN.",
         },
         supportedEntityCategories: "Supported Entity Categories",
         entityCategory: {
@@ -806,12 +801,11 @@ const en = {
             "https://refedsorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
             "http://refedsorg/category/research-and-scholarship": "Research and Scholarship",
             "http://clarineu/category/clarin-member": "Clarin member",
-            "http://refedsorg/category/hide-from-discovery": "Hide from discovery"
+            "http://refedsorg/category/hide-from-discovery": "Hide from discovery",
         },
         none: "None",
         interfedSource: "Federation source",
-        registrationInfo: "This application provider is available in SURFconext through <a href='https://support.surfconext.nl/edugain' target='_blank' rel='noopener noreferrer'>eduGAIN</a>. " +
-            "The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>.",
+        registrationInfo: "This application provider is available in SURFconext through <a href='https://support.surfconext.nl/edugain' target='_blank' rel='noopener noreferrer'>eduGAIN</a>. The application provider is registered by the following federation: <a href='{{url}}' target='_blank' rel='noopener noreferrer'>{{url}}</a>.",
         noArp: "This application will receive all attirbutes that are released by the identity provider",
         noMotivation: "No motivation",
         noPrivacyInfo: "No information supplied",
@@ -826,8 +820,8 @@ const en = {
             orcid: "ORCID organisation",
             sabrest: "SURF SAB",
             voot: "SURF Memberships",
-            institution: "Your IdP"
-        }
+            institution: "Your IdP",
+        },
     },
     connect: {
         title: "How to connect",
@@ -863,7 +857,7 @@ const en = {
         samlOidcInfo: "We use these open standards as they are used in most countries and many sectors.",
         attributes: "Attributes and claims",
         attributesInfo: "Learn more about use these open standards as they are used in most countries and many sectors.",
-        connect: "Connect your application now"
+        connect: "Connect your application now",
     },
     changeRequests: {
         title: "Pending change request(s)",
@@ -905,25 +899,25 @@ const en = {
             array_removed: "Removed",
             array_changed: "Changed",
             oldValue: "Old value",
-            newValue: "New value"
-        }
+            newValue: "New value",
+        },
     },
     external: {
         invite: {
             title: "Roles",
             alert: "Access roles are currently managed in SURF Concext Invite and will be moved to SURF Access in the future.",
-            link: "Open SURFConext <strong>Invite</strong>"
+            link: "Open SURFConext <strong>Invite</strong>",
         },
         sram: {
             title: "Collaborative groups",
             alert: "Collaborative groups are currently managed in SURF Research Access Management and will be moved to SURF Access in the future.",
-            link: "Open <strong>SRAM</strong>"
+            link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
             title: "SURF Servicedesk",
             alert: "The service desk portal is the main customer support website of SURF.",
-            link: "Open <strong>SURF Servicedesk</strong>"
-        }
+            link: "Open <strong>SURF Servicedesk</strong>",
+        },
     },
     forms: {
         cancel: "Cancel",
@@ -952,14 +946,12 @@ const en = {
         moreLabel: "Show me more",
         lessLabel: "Show me less",
         you: "You",
-        copied: "Copied"
+        copied: "Copied",
     },
     feedback: {
         title: "Provide Feedback",
         info: "Like what you see? Have a suggestion? Let us know what you think here.",
-        disclaimer: "We will use this information to fix problems, improve our products and help you. " +
-            "We may follow up with you regarding your feedback. " +
-            "For more information, please review our <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
+        disclaimer: "We will use this information to fix problems, improve our products and help you. We may follow up with you regarding your feedback. For more information, please review our <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
         help: "Need help?",
         helpInfo: "For questions or issues, please reach out to us at <a href='mailto:support@surf.nl'>support@surf.nl</a>",
         send: "Provide feedback",
@@ -978,8 +970,8 @@ const en = {
             screenshotLabel: "Attached screenshot",
             greeting: "Hello,",
             providedFeedback: "{{name}} has provided the following feedback:",
-            followUp: "Follow-up questions can be sent to {{email}}"
-        }
+            followUp: "Follow-up questions can be sent to {{email}}",
+        },
     },
     myOrganization: {
         title: "My organisation",
@@ -1024,7 +1016,7 @@ const en = {
         privacy: "Privacy policy",
         privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
-        select_locale: "Select your preferred language"
+        select_locale: "Select your preferred language",
     },
     profile: {
         title: "Profile",
@@ -1047,7 +1039,7 @@ const en = {
         externalUser: "External user",
         externalUserTooltip: "An external user - as opposed to an internal user - is a user who only has an eduID account and not an institutional account.",
         internalUser: "Internal user",
-        internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account."
+        internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account.",
     },
     applicationConnect: {
         connect: "Connect",
@@ -1066,7 +1058,7 @@ const en = {
         defaultAccessInfo2: "After connecting, access to the application can be set up immediately.",
         memberRequestInfo: {
             info: "In order to connect an application to the SURF Access platform, approval must be given by the SURF Access Manager of {{orgName}}.",
-            subInfo: "Please indicate below why you want to activate this application. We will send the message to them, and you will also receive a copy."
+            subInfo: "Please indicate below why you want to activate this application. We will send the message to them, and you will also receive a copy.",
         },
         messagePlaceholder: "Your message",
         sendMessage: "Send message",
@@ -1074,8 +1066,8 @@ const en = {
             requestConnectionByMember: "Your request has been send",
             makeConnection: "Application access has been set",
             requestConnection: "Application access is requested",
-            cancelConnectionRequest: "Your request has been cancelled"
-        }
+            cancelConnectionRequest: "Your request has been cancelled",
+        },
     },
     appAccess: {
         title: "Central Access",
@@ -1109,6 +1101,7 @@ const en = {
         everyIdp: "any IdP",
         backToAccess: "← back to access",
         authorizationRules: "Policies",
+        noPolicies: "No authorization rules have been configured yet",
         regularPolicies: "Authorization rules",
         stepUpPolicies: "StepUp policies",
         noRegularPolicies: "No authorization rules have been configured yet",
@@ -1153,7 +1146,7 @@ const en = {
             if: "If",
             when: "When",
             allowDescriptionPrefix: "A user from '{{idp}}' is only allowed acces to '{{sp}}'",
-            denyDescriptionPrefix: "A user from '{{idp}}' is denied acces to '{{sp}}'"
+            denyDescriptionPrefix: "A user from '{{idp}}' is denied acces to '{{sp}}'",
         },
         flash: {
             created: "Policy {{name}} has been created and is ready for use",
@@ -1166,12 +1159,12 @@ const en = {
             deleteQuestion: "Are you sure you want to delete this policy?",
             activateQuestion: "Are you sure you want to activate this policy?",
             pauseQuestion: "Are you sure you want to pause this policy? The policy will no longer be evaluated.",
-        }
+        },
     },
     error: {
         title: "Whoops, error!!!",
         unexpected: "An unexpected error occurred. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
-        jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support."
+        jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
     },
     policies: {
         title: "Policies for {{name}}",
@@ -1185,7 +1178,7 @@ const en = {
             stepTitle: "Step-up policy",
             stepInfo: "Defines the required Level of Assurance (LoA) for access to an application.",
             stepChoice: "Choose Step-up authentication policy if:",
-            stepExplanation: "→ Users may access the application, but must log in with a higher LoA or MFA"
+            stepExplanation: "→ Users may access the application, but must log in with a higher LoA or MFA",
         },
         negateApplication: "Select <strong>Negate selection</strong> to apply this policy to all service providers except the ones you chose.",
         serviceProvidersPlaceholder: "Select application(s) to filter the policies",
@@ -1195,7 +1188,7 @@ const en = {
         policiesFoundForServiceProvider: "{{nbr}} policies found for {{names}}",
         policiesFoundSingle: "{{nbr}} policy found",
         policiesFoundSingleForServiceProvider: "{{nbr}} policiy found for {{names}}",
-        attributesRequired:"At least one attribute with one of more valid values is required",
+        attributesRequired: "At least one attribute with one of more valid values is required",
         form: {
             allow: "Allow access when",
             deny: "Deny access when",
@@ -1203,8 +1196,8 @@ const en = {
             all: "is all of",
             none: "is none of",
             and: "and",
-            or: "or"
-        }
+            or: "or",
+        },
     },
     manage: {
         name: "Name",
@@ -1213,44 +1206,37 @@ const en = {
         oidc10_rp: "OIDC Relying Party",
         saml20_sp: "SAML Service Provider",
         searchPlaceHolder: "Search for Manage entities",
-        notFound: "Nothing found"
+        notFound: "Nothing found",
     },
     manageDetail: {
         backToSystem: "← Back to manage apps",
         importAsNewApplication: "Import as new application",
         importAsNewConnection: "Import as new connection",
         import: "Import",
-        notInAccess: "This entity is not known in Access. You can import it by choosing first an organisation. " +
-            "Then choose either an existing application from this organization, or import this entity as a new application.",
-        inAccess: "This entity from Manage is an Access connection named <strong>{{connection}}</strong> in the application <strong>{{application}}</strong>" +
-            " in the organisation <strong>{{organisation}}</strong>. There is nothing to import.",
+        notInAccess: "This entity is not known in Access. You can import it by choosing first an organisation. Then choose either an existing application from this organization, or import this entity as a new application.",
+        inAccess: "This entity from Manage is an Access connection named <strong>{{connection}}</strong> in the application <strong>{{application}}</strong> in the organisation <strong>{{organisation}}</strong>. There is nothing to import.",
         chooseOrganisation: "Choose an organisation",
         chooseImportOrganisationPlaceholder: "Find and choose an organisation to import this entity",
         chooseApplication: "Find and choose an application",
         chooseApplicationPlaceholder: "Optional: find and choose an application",
-        impportApplicationConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
-            "organisation <strong>{{organisation}}</strong> as a new application?",
-        impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to " +
-            "organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
+        impportApplicationConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to organisation <strong>{{organisation}}</strong> as a new application?",
+        impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
         flash: {
             imported: "Entity {{entity}} has been migrated to organisation {{organisation}}",
-        }
+        },
     },
     applicationMigrate: {
         migrate: "Migrate",
-        findApplicationInfo: "An app migration is only changing the organisation name in the Manage metadata and changing the database " +
-            "reference. If contracts need to be changed please refer to SURF klant support",
+        findApplicationInfo: "An app migration is only changing the organisation name in the Manage metadata and changing the database reference. If contracts need to be changed please refer to SURF klant support",
         findApplication: "Find an application to migrate",
         findApplicationPlaceholder: "Find and select an application...",
         chooseOrganisation: "Choose the target organisation",
         chooseOrganisationPlaceholder: "Find and select an organisation to migrate the application to...",
-        migrateConfirmation: "Are you absolutely sure you want to migrate application <strong>{{application}}</strong> from its current " +
-            "organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
+        migrateConfirmation: "Are you absolutely sure you want to migrate application <strong>{{application}}</strong> from its current organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
         flash: {
             migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
-        }
-    }
-
+        },
+    },
 }
 
 export default en;

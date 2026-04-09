@@ -55,6 +55,9 @@ const Policies = () => {
                 return;
             }
             newCurrentPolicy.data.attributes = groupByValues([...newCurrentPolicy.data.attributes]);
+            if (newCurrentPolicy.data.type === policyTypes.step && newCurrentPolicy.data.loas && newCurrentPolicy.data.loas.length > 0) {
+                newCurrentPolicy.data.loas[0].attributes = groupByValues([...newCurrentPolicy.data.loas[0].attributes]);
+            }
             newCurrentPolicy.originalName = newCurrentPolicy.data.name;
         }
         window.scrollTo({top: 0, behavior: "smooth"});
