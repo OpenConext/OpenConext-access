@@ -41,6 +41,9 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+        textarea {
+            border-color: var(--sds--color--gray--300)!important;
+        }
     }
 
     &__options {
@@ -141,7 +144,7 @@
         padding: 2px 0;
         line-height: 1.5;
 
-        .label {
+        .lefty {
             color: #999;
             font-weight: 500;
             white-space: nowrap;

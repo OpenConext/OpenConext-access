@@ -49,10 +49,13 @@ export const UserFeedbackWidget = () => {
 
     const handleOpen = useCallback(() => {
         setOpen(true);
-        setTimeout(() => inputRef.current?.focus(), 25);
         // Capture in background — the modal is hidden from html2canvas
         // via the feedback-capture--hide-modal CSS class.
-        captureScreenshot(true).then(dataUrl => setPreviewScreenshot(dataUrl));
+        // Focus the textarea after capture completes (modal becomes visible again).
+        captureScreenshot(true).then(dataUrl => {
+            setPreviewScreenshot(dataUrl);
+            setTimeout(() => inputRef.current?.focus(), 25);
+        });
     }, [captureScreenshot]);
 
     const handleSubmit = useCallback(async () => {
@@ -111,19 +114,19 @@ export const UserFeedbackWidget = () => {
                 </div>
                 <div className="mail-preview__header">
                     <div className="mail-preview__field">
-                        <span className="label">{I18n.t("feedback.preview.to")}:</span>
+                        <span className="lefty">{I18n.t("feedback.preview.to")}:</span>
                         <span className="value">support@surf.nl</span>
                     </div>
                     <div className="mail-preview__field">
-                        <span className="label">{I18n.t("feedback.preview.from")}:</span>
+                        <span className="lefty">{I18n.t("feedback.preview.from")}:</span>
                         <span className="value">no-reply@surf.nl</span>
                     </div>
                     <div className="mail-preview__field">
-                        <span className="label">{I18n.t("feedback.preview.subject")}:</span>
+                        <span className="lefty">{I18n.t("feedback.preview.subject")}:</span>
                         <span className="value">{I18n.t("feedback.preview.subjectLine")}</span>
                     </div>
                     <div className="mail-preview__field">
-                        <span className="label">{I18n.t("feedback.preview.date")}:</span>
+                        <span className="lefty">{I18n.t("feedback.preview.date")}:</span>
                         <span className="value">{dateStr}</span>
                     </div>
                 </div>
@@ -162,7 +165,7 @@ export const UserFeedbackWidget = () => {
                             name="feedback"
                             id="feedback"
                             value={message}
-                            rows="6"
+                            rows="10"
                             ref={inputRef}
                             onChange={e => setMessage(e.target.value)}
                         />
