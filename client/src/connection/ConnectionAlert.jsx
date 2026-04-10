@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty, splitListSemantically} from "../utils/Utils.js";
-import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import {CONNECTION_STATUSES} from "../utils/Manage.js";
 
 
 export const ConnectionAlert = ({
@@ -23,8 +23,7 @@ export const ConnectionAlert = ({
         let connectionsNeedActivationNames = [];
         if (application.signedContract && !isEmpty(application.connections)) {
             const names = application.connections
-                .filter(conn => conn.environment === ENVIRONMENTS.PROD &&
-                    (conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))
+                .filter(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
                 .map(conn => conn.name);
             connectionsNeedActivationNames = splitListSemantically(names, I18n.t("forms.and"));
         }

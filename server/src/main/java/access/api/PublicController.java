@@ -3,7 +3,6 @@ package access.api;
 import access.config.Config;
 import access.manage.Manage;
 import access.model.EntityType;
-import access.model.Environment;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +42,7 @@ public class PublicController {
     @GetMapping("/service-providers")
     public ResponseEntity<List<Map<String, Object>>> serviceProviders(Authentication authentication) {
         LOG.debug("/serviceProviders");
-        List<Map<String, Object>> providers = manage.serviceProvidersLight(Environment.PROD);
+        List<Map<String, Object>> providers = manage.serviceProvidersLight();
         if (authentication == null) {
             providers.removeIf(provider -> removeNonPublicProvider(provider));
         } else {
@@ -70,7 +69,7 @@ public class PublicController {
     @GetMapping("/identity-providers")
     public ResponseEntity<List<Map<String, Object>>> identityProviders() {
         LOG.debug("/identityProviders");
-        return ResponseEntity.ok(manage.identityProvidersLight(Environment.PROD));
+        return ResponseEntity.ok(manage.identityProvidersLight());
     }
 
     @GetMapping("/service-provider-detail/{type}/{identifier}")
@@ -79,7 +78,7 @@ public class PublicController {
             @PathVariable("identifier") String identifier) {
         LOG.debug("/identityProviders");
         Map<String, Object> provider = manage
-                .providerByManageIdentifier(entityType, identifier, Environment.PROD);
+                .providerByManageIdentifier(entityType, identifier);
         getMetaDataFields(getData(provider)).keySet()
                 .removeIf(key -> key.startsWith("contacts:"));
         return ResponseEntity.ok(provider);

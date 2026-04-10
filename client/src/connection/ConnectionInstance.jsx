@@ -1,4 +1,4 @@
-import "./Testing.scss";
+import "./ConnectionInstance.scss";
 import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
@@ -52,7 +52,6 @@ import {
 } from "../utils/Connection.js";
 import {
     CONNECTION_STATUSES,
-    ENVIRONMENTS,
     identityProviderOption,
     identityProviderOptions,
     PROTOCOLS
@@ -93,7 +92,7 @@ const modals = {
     deletionWarning: "deletionWarning",
 }
 
-export const Testing = ({
+export const ConnectionInstance = ({
                             application,
                             connection,
                             setConnection,
@@ -141,9 +140,8 @@ export const Testing = ({
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
 
-    const connections = useMemo(() => application.connections
-            .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
-        [application, isProduction]);
+    const connections = useMemo(() => application.connections,
+        [application]);
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
@@ -152,7 +150,7 @@ export const Testing = ({
         if (!isEmpty(connectionId)) {
             const conn = application.connections.find(c => c.id === parseInt(connectionId, 10));
             if (isEmpty(conn)) {
-                navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
+                navigate(`/connection/${application.id}/instances`);
             } else {
                 showConnectionDetails(conn);
             }
@@ -204,7 +202,6 @@ export const Testing = ({
             //To prevent update instead of create
             ["id", "manageEid", "manageIdentifier", "manageVersion", "createdAt", "updatedAt"]
                 .forEach(attr => delete convertedConnection[attr]);
-            convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
             convertedConnection.entityID = "";
             if (convertedConnection.protocol.value === PROTOCOLS.OIDC10_RP) {
@@ -247,7 +244,7 @@ export const Testing = ({
     }
 
     const testIdPValid = () => {
-        return connection.environment === ENVIRONMENTS.PROD || !isEmpty(connection.allowedEntities);
+        return isProduction || !isEmpty(connection.allowedEntities);
     }
 
     const changeSection = sectionName => {
@@ -409,7 +406,7 @@ export const Testing = ({
             setLoading(true);
             setAffectedIdentityProviders([]);
             deleteConnectionById(connection.id).then(() => {
-                refresh(isProduction ? "prod" : "testing");
+                refresh("instances");
                 setConfirmation({open: false});
                 setLoading(false);
                 setFlash(I18n.t("connection.flash.deleted", {
@@ -450,7 +447,7 @@ export const Testing = ({
     }
 
     const onBlurEntityID = (e) => {
-        uniqueEntityID(connection.environment, e.target.value).then(res => {
+        uniqueEntityID(e.target.value).then(res => {
             const duplicated = (connection.status === !CONNECTION_STATUSES.OPEN && res.length > 1) ||
                 (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);
@@ -493,8 +490,7 @@ export const Testing = ({
                             isAlert={changeRequestsKeys.includes("name")}
                             placeholder={I18n.t("connection.connectionPlaceholder",
                                 {
-                                    application: application.name,
-                                    environment: connection.environment.toUpperCase()
+                                    application: application.name
                                 })}
                 />
                 {(!initial && isEmpty(connection.name)) &&
@@ -1206,7 +1202,7 @@ export const Testing = ({
     const backToConnections = () => {
         refresh();
         setConnection(null);
-        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
+        navigate(`/connection/${application.id}/instances`);
         window.scrollTo({top: 0, behavior: "smooth"});
         changeSection(sections.technical);
     }
@@ -1225,7 +1221,7 @@ export const Testing = ({
         const submitTxt = requiresChangeRequest ? I18n.t("connection.requiresChangeRequest") : isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
-                <div className="testing-header">
+                <div className="connection-instance-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`, {name: connection.name})}</h2>
                     {(isProduction && application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
@@ -1261,7 +1257,7 @@ export const Testing = ({
                                 </section>}
                         </div>}
                 </div>
-                <div className="testing">
+                <div className="connection-instance">
                     <section className="left">
                         <div className="status-menu">
                             {Object.values(sections)
@@ -1322,7 +1318,7 @@ export const Testing = ({
     }
 
     const showConnectionDetails = (conn, queryParameters = "") => {
-        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
+        navigate(`/connection/${application.id}/instances/${conn.id}${queryParameters}`);
         const section = updateChangeRequestKeys(conn);
         setConnection(conn);
         changeSection(section);
@@ -1406,18 +1402,17 @@ export const Testing = ({
                                                   appInformationComplete={appInformationComplete}
                                                   productionConnectionNeedsActivation={productionConnectionNeedsActivation}/>}
                 <div className="header">
-                    <h3>{I18n.t(`connection.${isProduction ? "production" : "test"}.connections`)}</h3>
+                    <h3>{I18n.t("connection.instances")}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST, true)}/>
+                            onClick={() => initConnection(true)}/>
                 </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&
                     <p dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(I18n.t("testing.zeroState",
                             {
-                                name: application.name,
-                                type: I18n.t(`testing.${isProduction ? "production" : "test"}`)
+                                name: application.name
                             }))
                     }}/>}
             </div>
@@ -1431,7 +1426,7 @@ export const Testing = ({
         && !isEmpty(connection);
     const {open, cancel, action, modal, okButton, question, header} = confirmation;
     return (
-        <div className="testing-container">
+        <div className="connection-instance-container">
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          confirmationHeader={header}

@@ -10,7 +10,6 @@ import access.manage.MetaDataFeedParser;
 import access.manage.PolicyAccessRights;
 import access.manage.PolicyDefinition;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 import access.repository.OrganizationRepository;
@@ -116,11 +115,11 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
 
-    @GetMapping("/identity-providers/{environment}")
-    public ResponseEntity<List<Map<String, Object>>> identityProviders(@PathVariable("environment") Environment environment) {
-        LOG.debug("/identityProviders for " + environment);
+    @GetMapping("/identity-providers")
+    public ResponseEntity<List<Map<String, Object>>> identityProviders() {
+        LOG.debug("/identityProviders");
 
-        List<Map<String, Object>> providers = manage.providers(environment, EntityType.saml20_idp);
+        List<Map<String, Object>> providers = manage.providers(EntityType.saml20_idp);
         return ResponseEntity.ok(providers);
     }
 
@@ -134,11 +133,11 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         List<Map<String, Object>> serviceProviders = List.of();
         if (isIdentityProvider) {
             Map<String, Object> identityProvider = manage.providerByManageIdentifier(
-                    EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+                    EntityType.saml20_idp, organization.getManageIdentifier());
             Map<String, Object> data = getData(identityProvider);
             boolean allowedall = (boolean) data.getOrDefault("allowedall", false);
             if (allowedall) {
-                serviceProviders = manage.serviceProvidersLight(Environment.PROD);
+                serviceProviders = manage.serviceProvidersLight();
             } else {
                 List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.get("allowedEntities");
                 List<String> names = allowedEntities.stream().map(allowedEntity -> allowedEntity.get("name")).toList();
@@ -159,7 +158,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         confirmInstitutionAdmin(user, organization);
 
-        Map<String, Object> provider = this.manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = this.manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
 
         List<Map<String, Object>> policies = this.manage.policiesByIdentityProvider((String) getData(provider).get("entityid"));
         return ResponseEntity.ok(policies);
@@ -226,7 +225,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Void> deletePolicy(User user,
                                              @RequestParam("organizationId") Long organizationId,
                                              @PathVariable String policyId) {
-        Map<String, Object> policy = manage.providerByManageIdentifier(EntityType.policy, policyId, Environment.PROD);
+        Map<String, Object> policy = manage.providerByManageIdentifier(EntityType.policy, policyId);
 
         Organization organization = organizationRepository.getReferenceById(organizationId);
 
@@ -238,14 +237,13 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
 
-    @PostMapping("/unique-entity-id/{environment}")
-    public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@PathVariable("environment") Environment environment,
-                                                                         @RequestBody Map<String, String> data) {
+    @PostMapping("/unique-entity-id")
+    public ResponseEntity<List<Map<String, Object>>> providersByEntityId(@RequestBody Map<String, String> data) {
         LOG.debug("/unique-entity-id for " + data);
 
         String entityID = data.get("entityID");
         //It does not matter which entityType we use, all services will be queried
-        List<Map<String, Object>> providers = manage.uniqueEntityId(environment, EntityType.saml20_sp, entityID);
+        List<Map<String, Object>> providers = manage.uniqueEntityId(EntityType.saml20_sp, entityID);
         return ResponseEntity.ok(providers);
     }
 
@@ -282,7 +280,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
         //change request has non guessable identifier
-        manage.rejectChangeRequest(Environment.PROD, changeRequest);
+        manage.rejectChangeRequest(changeRequest);
 
         jiraClient.comment(changeRequest.getTicketKey(), "Ticket can be closed by request of the requestor");
 

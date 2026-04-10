@@ -4,11 +4,11 @@
 
 $width-percentage: 75%;
 
-.testing-container {
+.connection-instance-container {
     padding: 25px 50px;
     background-color: white;
 
-    .testing-header {
+    .connection-instance-header {
         display: flex;
         align-items: center;
         margin-bottom: 25px;
@@ -48,7 +48,7 @@ $width-percentage: 75%;
         }
     }
 
-    .testing {
+    .connection-instance {
         display: flex;
         gap: 35px;
         width: $width-percentage;

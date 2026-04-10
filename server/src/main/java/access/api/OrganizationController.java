@@ -99,13 +99,13 @@ public class OrganizationController implements UserAccessRights {
                         String.format("User %s is not a member of organization %s", user.getEmail(), id)));
 
         organization.getApplications().forEach(application -> {
-            //We only fetch change-requests for applications with one production status
+            //We only fetch change-requests for applications with one production connection
             List<Connection> prodConnections = application.getConnections().stream()
-                    .filter(conn -> conn.getEnvironment().equals(Environment.PROD))
+                    .filter(Connection::isProductionConnection)
                     .toList();
             if (prodConnections.size() == 1) {
                 prodConnections.forEach(connection ->
-                        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection)));
+                        connection.convertChangeRequests(manage.getChangeRequests(connection)));
             }
         });
 
@@ -152,7 +152,7 @@ public class OrganizationController implements UserAccessRights {
         confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);
 
         if (StringUtils.hasText(organization.getManageIdentifier())) {
-            Map<String, Object> provider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+            Map<String, Object> provider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
             if (organization.mergeMetaData(provider, false)) {
                 organizationRepository.save(organization);
             }

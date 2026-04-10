@@ -3,7 +3,6 @@ package access.manage;
 import access.AbstractTest;
 import access.model.Connection;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.State;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;
@@ -32,12 +31,12 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providers() throws JsonProcessingException {
-        List<Map<String, Object>> serviceProviders = localManage.providers(Environment.TEST, EntityType.saml20_sp);
+        List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.saml20_sp);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        List<Map<String, Object>> remoteServiceProviders = manage.providers(Environment.TEST, EntityType.saml20_sp);
+        List<Map<String, Object>> remoteServiceProviders = manage.providers(EntityType.saml20_sp);
         assertEquals(4, remoteServiceProviders.size());
     }
 
@@ -78,14 +77,14 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void identityProvidersLight() throws JsonProcessingException {
-        List<Map<String, Object>> identityProviders = localManage.providers(Environment.TEST, EntityType.saml20_idp);
+        List<Map<String, Object>> identityProviders = localManage.providers(EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(identityProviders);
 
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
 
-        List<Map<String, Object>> remoteIdentityProviders = manage.identityProvidersLight(Environment.TEST);
+        List<Map<String, Object>> remoteIdentityProviders = manage.identityProvidersLight();
         assertEquals(3, remoteIdentityProviders.size());
     }
 

@@ -5,10 +5,10 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
-import {Testing} from "../connection/Testing.jsx";
+import {ConnectionInstance} from "../connection/ConnectionInstance.jsx";
 import {getApplicationById, getIdentityProviders} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
-import {APPLICATION_STATUSES, CONNECTION_STATUSES, ENVIRONMENTS, PROTOCOLS} from "../utils/Manage.js";
+import {APPLICATION_STATUSES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {
     contactSectionValid,
@@ -23,7 +23,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 
-const tabNames = ["overview", "testing", "prod", "application", "contract", "appteam"]
+const tabNames = ["overview", "instances", "application", "contract", "appteam"]
 
 const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,
@@ -46,7 +46,6 @@ export const Connection = () => {
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
     const [identityProviders, setIdentityProviders] = useState([]);
-    const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dirty, setDirty] = useState(false);
 
@@ -79,13 +78,8 @@ export const Connection = () => {
                         {value: res.name}
                     ]
                 });
-                Promise.all([
-                    getIdentityProviders(ENVIRONMENTS.TEST),
-                    getIdentityProviders(ENVIRONMENTS.PROD)
-                ]).then(providers => {
-                    setIdentityProviders(providers[0]);
-                    setProdIdentityProviders(providers[1]);
-
+                getIdentityProviders().then(providers => {
+                    setIdentityProviders(providers);
                 })
             })
     }, [applicationId, arp]);
@@ -99,17 +93,14 @@ export const Connection = () => {
         return {
             testConnectionComplete: !isEmpty(application.connections) &&
                 application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.TEST)
                     .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
             productionConnectionComplete: !isEmpty(application.connections) &&
                 application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
-                    .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
+                    .some(conn => conn.status === CONNECTION_STATUSES.PENDING_PROD || conn.status === CONNECTION_STATUSES.PROD_READY),
             appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacy, application)
                 && application.status !== APPLICATION_STATUSES.OPEN,
             productionConnectionNeedsActivation: application.signedContract && !isEmpty(application.connections) &&
                 application.connections
-                    .filter(conn => conn.environment === ENVIRONMENTS.PROD)
                     .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
         }
     }, [application, privacy]);
@@ -129,11 +120,10 @@ export const Connection = () => {
             })
     }
 
-    const initConnection = (environment = ENVIRONMENTS.TEST, forceNew = false) => {
+    const initConnection = (forceNew = false) => {
         const iDps = config.identityProviders;
         setConnection({
             new: forceNew,
-            environment: environment,
             protocol: protocolOptions[0],
             grantTypes: ["authorization_code"],
             pkce: false,
@@ -150,16 +140,15 @@ export const Connection = () => {
             visibility: visibilities.visible_to_all,
             connectOption: connectOptions.connect_with_interaction
         });
-        const newTab = environment === ENVIRONMENTS.TEST ? "testing" : "prod";
-        setCurrentTab(newTab);
-        navigate(`/connection/${applicationId}/${newTab}`);
+        setCurrentTab("instances");
+        navigate(`/connection/${applicationId}/instances`);
     }
 
     const changeTab = (newTab, action = null) => {
         if (dirty) {
             refresh()
         }
-        if (currentTab === "testing" || currentTab === "prod") {
+        if (currentTab === "instances") {
             //force the overview
             setConnection(null);
         }
@@ -181,8 +170,8 @@ export const Connection = () => {
                                  productionConnectionNeedsActivation={productionConnectionNeedsActivation}
                 />
             }
-            case  "testing": {
-                return <Testing application={application}
+            case  "instances": {
+                return <ConnectionInstance application={application}
                                 connection={connection}
                                 user={user}
                                 testConnectionComplete={testConnectionComplete}
@@ -197,29 +186,7 @@ export const Connection = () => {
                                 setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
-                                isProduction={false}
-                                setDirty={setDirty}
-                                connectionId={connectionId}
-
-                />
-            }
-            case  "prod": {
-                return <Testing application={application}
-                                connection={connection}
-                                user={user}
-                                testConnectionComplete={testConnectionComplete}
-                                productionConnectionComplete={productionConnectionComplete}
-                                appInformationComplete={appInformationComplete}
-                                productionConnectionNeedsActivation={productionConnectionNeedsActivation}
-                                setConnection={setConnection}
-                                initConnection={initConnection}
-                                refresh={refresh}
-                                protocolOptions={protocolOptions}
-                                setTab={changeTab}
-                                arpInfo={arp}
-                                profileOptions={profileOptions}
-                                identityProviders={prodIdentityProviders}
-                                isProduction={true}
+                                isProduction={connection?.status === CONNECTION_STATUSES.PROD_READY}
                                 setDirty={setDirty}
                                 connectionId={connectionId}
 
@@ -265,7 +232,6 @@ export const Connection = () => {
             <ApplicationConnectionHeader tabs={tabNames.map(name => ({
                 name: name,
                 disabled:
-                    (name === "prod" && !testConnectionComplete) ||
                     (name === "application" && false) || //!testConnectionComplete) ||
                     (name === "contract" && false)//!productionConnectionComplete)
             }))}

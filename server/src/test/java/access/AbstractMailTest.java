@@ -26,9 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
-                "manage.test.url=http://localhost:8081",
+                "manage.url=http://localhost:8081",
                 "manage.enabled=true",
-                "manage.prod.url=http://localhost:8081",
                 "jira.enabled=false",
                 "s3storage.url=http://localhost:8081"
         })

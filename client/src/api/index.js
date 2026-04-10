@@ -248,8 +248,8 @@ export function parseMedaDataUrl(url) {
     return postPutJson("/api/v1/manage/parse", {url: url}, "POST");
 }
 
-export function getIdentityProviders(environment) {
-    return fetchJson(`/api/v1/manage/identity-providers/${environment}`);
+export function getIdentityProviders() {
+    return fetchJson(`/api/v1/manage/identity-providers`);
 }
 
 export function getServiceProvidersAllowed(organizationId) {
@@ -264,8 +264,8 @@ export function getPolicyByIdentityProvider(organizationId) {
     return fetchJson(`/api/v1/manage/identity-provider/policies?organizationId=${organizationId}`);
 }
 
-export function uniqueEntityID(environment, entityID) {
-    return postPutJson(`/api/v1/manage/unique-entity-id/${environment}`, {entityID: entityID}, "POST");
+export function uniqueEntityID(entityID) {
+    return postPutJson(`/api/v1/manage/unique-entity-id`, {entityID: entityID}, "POST");
 }
 
 export function arp() {

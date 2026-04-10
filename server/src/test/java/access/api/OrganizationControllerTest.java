@@ -322,7 +322,7 @@ class OrganizationControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         //See seed for SHARE_LOGICS, which has a manage identifier of "7"
-        stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        stubForGetProvider(EntityType.saml20_idp, "7");
 
         Map<String, Object> organization = given()
                 .when()
@@ -366,7 +366,7 @@ class OrganizationControllerTest extends AbstractTest {
         Map<String, Object> buddyCheckApp = applications.stream().filter(app -> app.get("name").equals(BUDDY_CHECK))
                 .findFirst().get();
         List<Map<String, Object>> connections = (List<Map<String, Object>>) buddyCheckApp.get("connections");
-        Map<String, Object> buddyCheckProd = connections.stream().filter(conn -> conn.get("environment").equals(Environment.PROD.name()))
+        Map<String, Object> buddyCheckProd = connections.stream().filter(conn -> conn.get("status").equals(ConnectionStatus.PENDING_PROD.name()))
                 .findFirst().get();
         List<Map<String, Object>> changeRequests = (List<Map<String, Object>>) buddyCheckProd.get("changeRequests");
         assertEquals(2, changeRequests.size());
@@ -476,7 +476,7 @@ class OrganizationControllerTest extends AbstractTest {
         Long organizationId = seedIdentifiers.get(LOGISTICS);
         Map<String, Object> metaData = objectMapper.readValue(new ClassPathResource("/client-metadata/update-organization.json").getInputStream(), Map.class);
 
-        stubForGetProvider(EntityType.saml20_idp, "8", Environment.PROD);
+        stubForGetProvider(EntityType.saml20_idp, "8");
         stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody("{}")

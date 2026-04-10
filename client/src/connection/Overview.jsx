@@ -2,7 +2,6 @@ import "./Overview.scss";
 import React from "react";
 import I18n from "../locale/I18n";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
-import {ENVIRONMENTS} from "../utils/Manage.js";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 
 
@@ -26,7 +25,7 @@ export const Overview = ({
                 <section className="sub-part">
                     <h2>{I18n.t("connection.test.name")}</h2>
                     <StatusLink info={I18n.t("connection.test.connections")}
-                                action={() => initConnection(ENVIRONMENTS.TEST)}
+                                action={() => initConnection()}
                                 status={testConnectionComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                 </section>
                 <section className="sub-part">
@@ -38,7 +37,7 @@ export const Overview = ({
                 <section className="sub-part">
                     <h2>{I18n.t("connection.production.name")}</h2>
                     <StatusLink info={I18n.t("connection.production.connections")}
-                                action={() => initConnection(ENVIRONMENTS.PROD)}
+                                action={() => initConnection()}
                                 disabled={!testConnectionComplete}
                                 status={!productionConnectionComplete ? STATUS_LINK_TYPE.PENDING :
                                     productionConnectionNeedsActivation ? STATUS_LINK_TYPE.ALERT : STATUS_LINK_TYPE.ACTIVE}/>

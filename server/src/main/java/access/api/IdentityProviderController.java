@@ -14,7 +14,6 @@ import access.model.Authority;
 import access.model.ConnectionRequest;
 import access.model.DisconnectionRequest;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.User;
@@ -82,7 +81,7 @@ public class IdentityProviderController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
         Map<String, Object> serviceProvider = manage.providerByManageIdentifier(connectionRequest.getEntityType(),
-                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+                connectionRequest.getApplicationManageIdentifier());
 
         boolean memberRequest = !user.isSuperUser();
         if (memberRequest) {
@@ -112,7 +111,7 @@ public class IdentityProviderController implements UserAccessRights {
             return Results.createResult();
         }
 
-        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier);
 
         //See https://github.com/OpenConext/OpenConext-access/wiki/Service-Connect-Flow
         //Now check if the connection can be made automatically
@@ -175,7 +174,7 @@ public class IdentityProviderController implements UserAccessRights {
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
 
-        manage.createChangeRequest(Environment.PROD, changeRequest);
+        manage.createChangeRequest(changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
@@ -192,10 +191,10 @@ public class IdentityProviderController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
         Map<String, Object> serviceProvider = manage.providerByManageIdentifier(disconnectionRequest.getEntityType(),
-                disconnectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+                disconnectionRequest.getApplicationManageIdentifier());
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier);
 
         String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
 
@@ -231,7 +230,7 @@ public class IdentityProviderController implements UserAccessRights {
                 RequestType.UnlinkRequest);
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
-        manage.createChangeRequest(Environment.PROD, changeRequest);
+        manage.createChangeRequest(changeRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
@@ -263,10 +262,10 @@ public class IdentityProviderController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Organization with manageIdentifier not found: " + idpManageIdentifier));
 
         Map<String, Object> serviceProvider = manage.providerByManageIdentifier(connectionRequest.getEntityType(),
-                connectionRequest.getApplicationManageIdentifier(), Environment.PROD);
+                connectionRequest.getApplicationManageIdentifier());
 
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
-        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier, Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier);
 
         List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
         String serviceProviderEntityID = getEntityID(serviceProvider);
@@ -280,7 +279,7 @@ public class IdentityProviderController implements UserAccessRights {
                                         .getOrDefault("allowedEntities", Map.of()).get("name")))
                 .toList();
         //First delete all manage change request - this is most likely to succeed
-        openChangeRequests.forEach(changeRequest -> manage.rejectChangeRequest(Environment.PROD, new ChangeRequest(changeRequest)));
+        openChangeRequests.forEach(changeRequest -> manage.rejectChangeRequest(new ChangeRequest(changeRequest)));
         //Then update all Jira comments, this API is not so stable
         String comment = "Ticket can be closed by request of the requestor";
         openChangeRequests.forEach(changeRequest -> jiraClient.comment((String) changeRequest.get("ticketKey"), comment));
