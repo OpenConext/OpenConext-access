@@ -231,9 +231,7 @@ export const Connection = () => {
         <div className="application-connection-container">
             <ApplicationConnectionHeader tabs={tabNames.map(name => ({
                 name: name,
-                disabled:
-                    (name === "application" && false) || //!testConnectionComplete) ||
-                    (name === "contract" && false)//!productionConnectionComplete)
+                disabled: false
             }))}
                                          application={application}
                                          currentTab={currentTab}
