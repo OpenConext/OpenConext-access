@@ -65,7 +65,7 @@ public class Connection implements NameHolder {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private State state = State.prodaccepted;
+    private State state = State.testaccepted;
 
     @Enumerated(EnumType.STRING)
     @Column

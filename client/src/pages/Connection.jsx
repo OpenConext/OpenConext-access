@@ -8,7 +8,7 @@ import {Overview} from "../connection/Overview.jsx";
 import {ConnectionInstance} from "../connection/ConnectionInstance.jsx";
 import {getApplicationById, getIdentityProviders} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
-import {APPLICATION_STATUSES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
+import {APPLICATION_STATUSES, CONNECTION_STATES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {
     contactSectionValid,
@@ -186,10 +186,9 @@ export const Connection = () => {
                                 setTab={changeTab}
                                 profileOptions={profileOptions}
                                 identityProviders={identityProviders}
-                                isProduction={connection?.status === CONNECTION_STATUSES.PROD_READY}
                                 setDirty={setDirty}
+                                isProduction={connection?.state === CONNECTION_STATES.prodaccepted}
                                 connectionId={connectionId}
-
                 />
             }
             case "application": {
@@ -237,6 +236,7 @@ export const Connection = () => {
                                          currentTab={currentTab}
                                          setLoading={setLoading}
                                          user={user}
+                                         currentOrganization={currentOrganization}
                                          setTab={changeTab}/>
             {renderCurrentTab()}
         </div>

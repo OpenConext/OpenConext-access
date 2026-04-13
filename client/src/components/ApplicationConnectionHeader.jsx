@@ -12,7 +12,7 @@ import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 
-export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab}) => {
+export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab, currentOrganization}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -53,11 +53,12 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
         } else {
             setLoading(true);
             setAffectedIdentityProviders([]);
-            deleteApplicationById(application.id).then(() => {
-                setConfirmation({});
-                navigate("/home");
-                setLoading(false);
-            })
+            deleteApplicationById(application.id)
+                .then(() => {
+                    setConfirmation({});
+                    navigate("/organization/" + currentOrganization.id);
+                    setLoading(false);
+                })
         }
     }
 

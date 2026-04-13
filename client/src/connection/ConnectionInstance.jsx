@@ -71,6 +71,7 @@ const sections = {
     technical: "technical",
     informationProfile: "informationProfile",
     testIdP: "testIdP",
+    visibility: "visibility",
     overview: "overview"
 }
 
@@ -177,6 +178,9 @@ export const ConnectionInstance = ({
             case sections.testIdP: {
                 return !connection.id || (!finished || !testIdPValid());
             }
+            case sections.visibility: {
+                return !connection.id;
+            }
             case sections.pendingChanges: {
                 return false;
             }
@@ -244,7 +248,7 @@ export const ConnectionInstance = ({
     }
 
     const testIdPValid = () => {
-        return isProduction || !isEmpty(connection.allowedEntities);
+        return connection.status === CONNECTION_STATUSES.PROD_READY;
     }
 
     const changeSection = sectionName => {
@@ -1078,7 +1082,10 @@ export const ConnectionInstance = ({
                 return renderInformationProfileSection();
             }
             case sections.testIdP: {
-                return isProduction ? renderVisibilitySection() : renderTestIdPSection();
+                return renderTestIdPSection();
+            }
+            case sections.visibility: {
+                return renderVisibilitySection();
             }
             case sections.overview: {
                 return isOidc ? renderOIDCOverview() : renderSAMLOverview();
@@ -1112,6 +1119,9 @@ export const ConnectionInstance = ({
                     return false;
                 }
                 return !testIdPValid();
+            }
+            case sections.visibility: {
+                return true;
             }
             case sections.pendingChanges: {
                 return false;
@@ -1222,7 +1232,7 @@ export const ConnectionInstance = ({
         return (
             <>
                 <div className="connection-instance-header">
-                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`, {name: connection.name})}</h2>
+                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
                     {(isProduction && application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}

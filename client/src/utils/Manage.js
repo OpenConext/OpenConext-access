@@ -52,6 +52,10 @@ export const PROTOCOLS = {
     OIDC10_RP: "oidc10_rp", SAML20_SP: "saml20_sp"
 }
 
+export const CONNECTION_STATES = {
+    testaccepted: "testaccepted", prodaccepted: "prodaccepted"
+}
+
 export const CONNECTION_STATUSES = {
     OPEN: "OPEN", IN_PROGRESS: "IN_PROGRESS", COMPLETE: "COMPLETE", PENDING_PROD: "PENDING_PROD", PROD_READY: "PROD_READY"
 }
