@@ -125,6 +125,7 @@ export const Testing = ({
     const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
     const [section, setSection] = useState(sections.technical);
     const [finishedSections, setFinishedSections] = useState([]);
+    const [invalidLoginUrl, setInvalidLoginUrl] = useState(false);
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
     const [invalidACSLocations, setInvalidACSLocations] = useState({"0": false});
     const [showImport, setShowImport] = useState(false);
@@ -229,6 +230,7 @@ export const Testing = ({
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc) || isDuplicateConnectionName() ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
+            (isEmpty(connection.loginUrl) || invalidLoginUrl) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
             (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
@@ -502,6 +504,24 @@ export const Testing = ({
                                     adjustMargin={true}/>}
                 {isDuplicateConnectionName() &&
                     <ErrorIndicator msg={I18n.t("connection.duplicatedName", {name: connection.name})}
+                                    adjustMargin={true}/>}
+
+                <InputField value={connection.loginUrl || ""}
+                            onChange={e => {
+                                setConnection({...connection, loginUrl: e.target.value});
+                                setInvalidLoginUrl(false);
+                            }}
+                            name={I18n.t("connection.loginUrl")}
+                            required={true}
+                            onBlur={e => setInvalidLoginUrl(!isValidUrl(e.target.value))}
+                            isAlert={changeRequestsKeys.includes("loginUrl")}
+                            placeholder={I18n.t("connection.loginUrlPlaceholder")}
+                />
+                {(!initial && isEmpty(connection.loginUrl)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.loginUrl")})}
+                                    adjustMargin={true}/>}
+                {invalidLoginUrl &&
+                    <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: I18n.t("connection.loginUrl")})}
                                     adjustMargin={true}/>}
 
                 <SelectField name={I18n.t("connection.protocol")}

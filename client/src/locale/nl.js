@@ -353,6 +353,8 @@ const nl = {
         mailToSurf: "mailto:surf@info.nl",
         connectionName: "Verbindingsnaam",
         connectionPlaceholder: "bijv. {{application}}-{{environment}}",
+        loginUrl: "Login URL",
+        loginUrlPlaceholder: "e.g. https://login.org",
         protocol: "Protocol",
         protocolTooltip: "Wanneer een verbinding wordt geregistreerd binnen SURFconext, kan het protocol niet meer worden gewijzigd. Als je een ander protocol wilt, kun je deze verbinding verwijderen en een nieuwe met een ander protocol aanmaken.",
         clientID: "Client‑ID",

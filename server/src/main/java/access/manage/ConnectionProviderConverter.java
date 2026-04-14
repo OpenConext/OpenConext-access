@@ -153,6 +153,9 @@ public class ConnectionProviderConverter {
         metaDataFields.put("coin:ss:idp_visible_only", Visibility.visible_to_idp_only.name().equals(visibility));
         metaDataFields.put("coin:ss:hidden", Visibility.visible_to_none.name().equals(visibility));
 
+        String loginUrl = (String) connectionMetaData.getOrDefault("loginUrl", information.get("webSite"));
+        metaDataFields.put("coin:login_url", loginUrl);
+
         String connectOption = (String) connectionMetaData.getOrDefault("connectOption", ConnectOptions.connect_with_interaction.name());
         metaDataFields.put("coin:dashboard_connect_option", connectOption);
 
