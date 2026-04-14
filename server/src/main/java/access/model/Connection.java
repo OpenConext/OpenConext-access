@@ -270,7 +270,7 @@ public class Connection implements NameHolder {
                                 }
                             });
                     //copy some of the auditData for display purposes and revoke functionality
-                    List.of("id", "metaDataId", "type", "auditData", "created")
+                    List.of("id", "metaDataId", "type", "auditData", "created", "ticketKey")
                             .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
                     return connectionMetaData;
                 })
