@@ -85,6 +85,11 @@ export const APPLICATION_LINKS = [
     },
     {
         locale: "applicationDetail.loginPage",
+        metaData:"coin:login_url",
+        languageProperty: false
+    },
+    {
+        locale: "applicationDetail.applicationPage",
         metaData:"coin:application_url",
         languageProperty: false
     },

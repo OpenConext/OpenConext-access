@@ -34,6 +34,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             connectOption: connection.connectOption,
             refreshTokenValidity: connection.refreshTokenValidity,
             claimsInIdToken: connection.claimsInIdToken,
+            loginUrl: connection.loginUrl,
             arp: {
                 attributes: arpAttributes,
                 profile: currentProfile.name,

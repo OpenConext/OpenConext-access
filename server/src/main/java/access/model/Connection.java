@@ -179,7 +179,7 @@ public class Connection implements NameHolder {
         String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?
                 Visibility.visible_to_idp_only.name() : Visibility.visible_to_all.name();
         this.metaData.put("visibility", visibility);
-
+        this.metaData.put("loginUrl", metaDataFields.get("coin:login_url"));
         String connectOption = (String) metaDataFields
                 .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction.name());
         this.metaData.put("connectOption", connectOption);
