@@ -779,6 +779,7 @@ const nl = {
         quickLinks: "Snelle links",
         website: "Website",
         loginPage: "Login‑pagina",
+        applicationPage: "Applicatie-pagina",
         support: "Support",
         terms: "Voorwaarden",
         registrationPolicy: "Registratie‑beleid",
