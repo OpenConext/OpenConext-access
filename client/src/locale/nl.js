@@ -880,6 +880,7 @@ const nl = {
         redirectUrls: "Redirect‑URL's",
         grantTypes: "OAuth‑granttypes",
         name: "Verbindingsnaam",
+        loginUrl: "Login URL",
         arp: "Informatief profiel",
         profile: "profiel",
         attributes: "attribuut",

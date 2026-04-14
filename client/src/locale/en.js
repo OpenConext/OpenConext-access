@@ -880,6 +880,7 @@ const en = {
         redirectUrls: "Redirect URLs",
         grantTypes: "OAuth Grant types",
         name: "Connection name",
+        loginUrl: "Login URL",
         arp: "Information profile",
         profile: "profile",
         attributes: "attribute",

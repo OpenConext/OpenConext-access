@@ -70,16 +70,17 @@ export const ChangeRequests = ({
 
     const renderChangeRequest = (changeRequest, index) => {
         const auditData = changeRequest.auditData;
-        const jiraIssue = auditData.notes.match(/\b[A-Z]{2,10}-\d+\b/);
         const created = changeRequest.created;
         const delta = diffChangeRequest(changeRequest);
         //We need to sanitize the HTML to avoid XSS
+        const ticketKey = changeRequest.ticketKey;
+        delete changeRequest["ticketKey"];
         const htmlDiff = DOMPurify.sanitize(format(delta, metaData));
         return (
             <div className="card change-request" key={index}>
                 <div className="top-container">
                     <div className="audit-data">
-                        <p className="ticket-number">{jiraIssue[0]}</p>
+                        <p className="ticket-number">{ticketKey}</p>
                         <p className="user">{auditData.user}</p>
                         <p className="created">{formatLongDate(created)}</p>
                     </div>
@@ -258,7 +259,7 @@ export const ChangeRequests = ({
         const changes = extractChanges(delta);
         const grouped = Object.groupBy(changes, change => change.path[0]);
         const keys = Object.keys(grouped).sort();
-        return keys.filter(key => key !== "secret").map(key => formatChange(key, grouped[key]))
+        return keys.filter(key => key !== "secret" && key !== "ticketKey").map(key => formatChange(key, grouped[key]))
     }
 
     return (
