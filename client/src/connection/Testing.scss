@@ -91,6 +91,17 @@ $width-percentage: 75%;
                 padding: 6px 0;
             }
 
+            h3 {
+                position: relative;
+                svg.alert-triangle {
+                    fill: black;
+                    color: white;
+                    position: absolute;
+                    top: 3px;
+                    margin-left: 6px;
+                }
+
+            }
 
             p.disclaimer {
                 margin: 20px 0 18px 0;

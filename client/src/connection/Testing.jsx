@@ -962,7 +962,7 @@ export const Testing = ({
         const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)
         return (
             <section className="inner-right-informational">
-                <h3>{I18n.t("connection.informationProfile")}</h3>
+                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <AlertIcon/>}</h3>
                 {isContentApp && <Alert alertType={AlertType.Warning}
                                         asChild={true}
                                         message={I18n.t("connection.informational.contentAppAlert")}/>
@@ -972,7 +972,6 @@ export const Testing = ({
                 <SelectField
                     name={I18n.t("connection.informationProfile")}
                     options={profileOptions}
-                    isAlert={changeRequestsKeys.includes("arp")}
                     disabled={isContentApp}
                     value={connection.profile}
                     onChange={changeProfile}
