@@ -4,6 +4,7 @@
   "type": "oidc10_rp",
   "note": "Production status requested by Mos Doe for AppTest2 - prod. See Jira CXT-8187",
   "incrementalChange": false,
+  "ticketKey": "CXT-2000",
   "pathUpdates": {
     "metaDataFields.coin:ss:hidden": true,
     "metaDataFields.redirectUrls": [

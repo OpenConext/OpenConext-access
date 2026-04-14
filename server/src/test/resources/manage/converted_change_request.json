@@ -3,6 +3,7 @@
   "visibility": "visible_to_none",
   "created": "2025-10-09T09:03:52.048Z",
   "metaDataId": "b3541475-d0dd-44b8-b166-61226dfc0727",
+  "ticketKey": "CXT-2000",
   "type": "oidc10_rp",
   "claimsInIdToken": true,
   "redirectUrls": [

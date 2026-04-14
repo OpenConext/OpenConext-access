@@ -23,6 +23,7 @@
       "contacts:1:surName": "DPEOOE",
       "contacts:2:surName": "Codo",
       "coin:application_url": "https://website.com",
+      "coin:login_url": "https://website.com",
       "coin:application_name": "WelcomeAPP",
       "contacts:2:emailAddress": "admin@surfconext.nl",
       "OrganizationName:en": "ORG name",

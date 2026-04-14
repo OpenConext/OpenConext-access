@@ -37,6 +37,7 @@
       "logo:0:url": "http://localhost:9000/s3-images/ea597f2d-8632-4d99-b295-a58509fc3689",
       "application_tags": ["education","research"],
       "name:en": "SURFconext TEST EngineBlock",
+      "coin:login_url": "https://website.com",
       "contacts:0:givenName": "Supp",
       "contacts:0:surName": "Doe",
       "contacts:1:emailAddress": "technical@surfconext.nl",
