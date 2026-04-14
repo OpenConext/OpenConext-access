@@ -66,7 +66,7 @@ yarn dev
 ### [Mail](#mail)
 
 In the default `application.properties` the mail host is `localhost` and the port is `1025`. Run mailpit to capture mails.
-See <https://github.com/axllent/mailpit>
+See <https://github.com/axllent/mailpit>.
 
 ### [Local endpoints](#local-endpoints)
 
