@@ -59,7 +59,7 @@ const MyOrganization = ({refreshUser}) => {
         if (isEmpty(organizationId)) {
             navigate("/home");
         } else {
-            organizationMineById(organizationId, true)
+            organizationMineById(organizationId)
                 .then(res => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);

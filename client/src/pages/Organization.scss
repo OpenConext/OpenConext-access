@@ -50,6 +50,12 @@ div.organization-outer-container {
         height: 100%;
         background-color: white;
 
+        .no-app {
+            p:last-child {
+                margin-top: 20px;
+            }
+        }
+
         .mod-entities {
             background-color: white;
 
@@ -87,6 +93,7 @@ div.organization-outer-container {
                     width: 20%;
                 }
             }
+
             td {
                 &.status {
                     text-align: center;

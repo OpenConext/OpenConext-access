@@ -5,7 +5,7 @@ import I18n from "../locale/I18n";
 import {Alert, AlertType, Button, Chip, ChipType, Loader} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router-dom";
-import {organizationApplicationsById} from "../api/index.js";
+import {organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import Divider from "../icons/divider.svg";
@@ -13,7 +13,7 @@ import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 import CardView from "@surfnet/sds/icons/functional-icons/card-view.svg";
 import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg";
 import DOMPurify from "dompurify";
-import {convertServerApplicationToClient} from "../utils/Application.js";
+import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
 import {
     authorities,
@@ -25,6 +25,7 @@ import {
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {isValidEmail} from "../validations/regExps.js";
 
 
 const views = {
@@ -43,7 +44,8 @@ const Organization = () => {
     const [alertClosed, setAlertClosed] = useState(false);
     const [isExternal, setIsExternal] = useState(true);
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
-
+    const [mayCreateApplication, setMayCreateApplication] = useState(false);
+    const [contactEmail, setContactEmail] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -65,7 +67,22 @@ const Organization = () => {
                     const authority = currentUserMembershipAuthority(user, membership);
                     setCurrentUserAuthority(authority);
                     setIsExternal(user.externalUser);
-                    setLoading(false);
+                    const mayCreateApplicationVar = hasCreateApplicationAccess(user, organization);
+                    setMayCreateApplication(mayCreateApplicationVar);
+                    if (!mayCreateApplicationVar) {
+                        //We need to get the admin of this app - if any
+                        organizationMineById(organizationId)
+                            .then(res => {
+                                const technicalEmail = res.metaData.contactPersons
+                                    .find(person => person.type === contactPersonTypes.technical && isValidEmail(person.email));
+                                setContactEmail(technicalEmail?.email);
+                                setLoading(false);
+                            });
+
+                    } else {
+                        setLoading(false);
+                    }
+
                 }).catch(() => {
                 navigate("/home")
             });
@@ -201,7 +218,6 @@ const Organization = () => {
         );
     }
 
-    const mayCreateApplication = hasCreateApplicationAccess(user, organization);
     return (
         <div
             className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
@@ -230,7 +246,11 @@ const Organization = () => {
                                 <Button onClick={() => navigate("/application/new")}
                                         txt={I18n.t("organization.addFirstApplication")}/>}
                             {!mayCreateApplication &&
-                                <p>{I18n.t("organization.guestNoApplicationMessage")}</p>}
+                                <div className="no-app">
+                                    <p>{I18n.t("organization.guestNoApplicationMessage")}</p>
+                                    <p dangerouslySetInnerHTML={{__html: I18n.t("organization.guestNoApplicationMessageInfo", {mail: contactEmail})}}/>
+                                </div>
+                            }
                         </div>
                         <div className="right">
                             <p className="terms">{I18n.t("organization.catalog.terms")}</p>

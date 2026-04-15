@@ -277,6 +277,7 @@ const en = {
         addFirstApplication: "Add your first application",
         addApplication: "Add new application",
         guestNoApplicationMessage: "You do not have access to any of the applications in this organization.",
+        guestNoApplicationMessageInfo: "If this is a suprise, then please contact <a href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Are you sure you want to delete the organisation {{name}}?",
         readOnly: "Your role within the organisation {{orgName}} does not allow you access to the details of this application",
         catalog: {

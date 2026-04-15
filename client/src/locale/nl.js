@@ -277,6 +277,7 @@ const nl = {
         addFirstApplication: "Voeg je eerste applicatie toe",
         addApplication: "Nieuwe applicatie toevoegen",
         guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
+        guestNoApplicationMessageInfo: "If this is a suprise, then please contact <a href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Weet je zeker dat je de organisatie {{name}} wilt verwijderen?",
         readOnly: "Je rol binnen de organisatie {{orgName}} geeft je geen toegang tot de details van deze applicatie",
         catalog: {
