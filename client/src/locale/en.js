@@ -570,12 +570,13 @@ const en = {
             administrativePlaceholder: "admin",
             emailOrWebsite: "Email address or URL",
             technical: "Technical contact",
-            technicalDisclaimer: "Must be different from the administrative contact",
+            technicalDisclaimer: "Must be different from the administrative contact and must contain one real email",
             technicalPlaceholder: "technical",
             support: "Support contact",
             supportDisclaimer: "This will be shown to end users.",
             supportPlaceholder: "support",
             addTechnicalContact: "+ add another contact",
+            oneTechnicalEmail: "One real email is required"
         },
         privacy: {
             label: "Privacy & Security",

@@ -4,9 +4,8 @@ import "./ContactPersons.scss";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
-import {contactPersonTypes} from "../utils/Application.js";
+import {contactPersonTypes, validEmailOrUrl} from "../utils/Application.js";
 import {Button, ButtonType} from "@surfnet/sds";
-import {isValidEmail, isValidUrl} from "../validations/regExps.js";
 import {emailPlaceholder} from "../utils/Forms.js";
 
 
@@ -57,40 +56,49 @@ export const ContactPersons = ({
                 example: emailPlaceholder("support", application?.organization?.name || application.name, I18n.t("forms.or"))
             })}</p>
             {Object.keys(contactPersonsGrouped).map((contactType, index) =>
-                <section key={index} className={`contact-person-section ${readOnly ? "read-only": ""}`}>
+                <section key={index} className={`contact-person-section ${readOnly ? "read-only" : ""}`}>
                     <h4>{I18n.t(`connection.contacts.${contactType}`)}</h4>
                     {!isEmpty(I18n.translations[I18n.locale].connection.contacts[`${contactType}Disclaimer`]) &&
                         <p>{I18n.t(`connection.contacts.${contactType}Disclaimer`)}</p>
                     }
-                    {contactPersonsGrouped[contactType].map((contactPerson, innerIndex) =>
-                        <Fragment key={innerIndex}>
-                            <InputField value={contactPerson.email}
-                                        name={readOnly ? null : I18n.t("connection.contacts.emailOrWebsite")}
-                                        placeholder={emailPlaceholder(
-                                            I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
-                                            I18n.t("forms.or")
-                                        )}
-                                        disabled={readOnly}
-                                        onChange={e => updateContactPerson(contactPerson.id, e)}
-                                        onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
-                                        button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0 && !readOnly) ?
-                                            <Button onClick={() => removeContactPerson(contactPerson.id)}
-                                                    type={ButtonType.Delete}/> : null}
-                            />
-                            {(!initial && isEmpty(contactPerson.email)) &&
-                                <ErrorIndicator
-                                    msg={I18n.t("forms.required", {name: I18n.t("connection.contacts.emailOrWebsite")})}
-                                />}
-                            {(!initial && !(isValidUrl(contactPerson.email) || isValidEmail(contactPerson.email))) &&
-                                <ErrorIndicator
-                                    msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
-                                />}
-                            {(innerIndex === (contactPersonsGrouped[contactType].length - 1) && contactPerson.type === contactPersonTypes.technical
-                                    && contactPersonsGrouped[contactType].length < 2 && !readOnly) &&
-                                <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
-                                    {I18n.t("connection.contacts.addTechnicalContact")}
-                                </a>}
-                        </Fragment>)
+                    {contactPersonsGrouped[contactType].map((contactPerson, innerIndex) => {
+                        const sameContactPersons = contactPersonsGrouped[contactType];
+                        return (
+                            <Fragment key={innerIndex}>
+                                <InputField value={contactPerson.email}
+                                            name={readOnly ? null : I18n.t("connection.contacts.emailOrWebsite")}
+                                            placeholder={emailPlaceholder(
+                                                I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
+                                                I18n.t("forms.or")
+                                            )}
+                                            disabled={readOnly}
+                                            onChange={e => updateContactPerson(contactPerson.id, e)}
+                                            onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
+                                            button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0 && !readOnly) ?
+                                                <Button onClick={() => removeContactPerson(contactPerson.id)}
+                                                        type={ButtonType.Delete}/> : null}
+                                />
+                                {(!initial && isEmpty(contactPerson.email)) &&
+                                    <ErrorIndicator
+                                        msg={I18n.t("forms.required", {name: I18n.t("connection.contacts.emailOrWebsite")})}
+                                    />}
+                                {(!initial && !validEmailOrUrl(contactPerson, contactType, sameContactPersons, true)) &&
+                                    <ErrorIndicator
+                                        msg={I18n.t("forms.invalidEmailURL", {name: contactPerson.email})}
+                                    />}
+                                {(innerIndex === (sameContactPersons.length - 1) && contactPerson.type === contactPersonTypes.technical
+                                        && sameContactPersons.length < 2 && !readOnly) &&
+                                    <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
+                                        {I18n.t("connection.contacts.addTechnicalContact")}
+                                    </a>}
+                                {(!initial && contactPerson.type === contactPersonTypes.technical && !readOnly && (innerIndex > 0 || sameContactPersons.length === 1) &&
+                                        sameContactPersons.some(p => !validEmailOrUrl(p, p.type, sameContactPersons, false))) &&
+                                    <ErrorIndicator
+                                        msg={I18n.t("connection.contacts.oneTechnicalEmail")}
+                                    />}
+                            </Fragment>
+                        )
+                    })
                     }
                 </section>)}
         </section>

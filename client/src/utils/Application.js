@@ -1,5 +1,5 @@
 import {isEmpty} from "./Utils.js";
-import {isValidUrl} from "../validations/regExps.js";
+import {isValidEmail, isValidUrl} from "../validations/regExps.js";
 import {convertServerConnectionToClient} from "./Connection.js";
 
 const parseContactPersonIdentifier = input => {
@@ -21,11 +21,31 @@ export const logoSectionValid = (application) => {
         isValidUrl(application?.information?.webSite)
 };
 
+export const validEmailOrUrl = (contactPerson, contactType, otherSameTypeContactPersons, ignoreTechnicalConstraint) => {
+    const email = contactPerson.email;
+    if (contactType !== "technical" || ignoreTechnicalConstraint) {
+        return isValidUrl(email) || isValidEmail(email);
+    }
+    if (isValidEmail(email)) {
+        return true;
+    }
+    //One the emails must be a real email if the current is not
+    if (isValidUrl(email)) {
+        const otherIsValidEmail = otherSameTypeContactPersons
+            .some(other => other.id !== contactPerson.id && isValidEmail(other.email));
+        return otherIsValidEmail;
+    }
+    return false;
+}
+
+
 export const contactSectionValid = (application) => {
+    const contactPersonsGrouped = Object.groupBy(application.contactPersons, contact => contact.type);
     return Object.values(contactPersonTypes)
         .every(contactType => {
-            const contactPerson = (application?.contactPersons || []).find(c => c.type === contactType);
-            return !isEmpty(contactPerson?.email);
+            const contactPersons = (application?.contactPersons || []).filter(c => c.type === contactType);
+            return contactPersons.every(contactPerson => !isEmpty(contactPerson?.email) &&
+                validEmailOrUrl(contactPerson, contactType, contactPersonsGrouped[contactType], false));
         })
 };
 

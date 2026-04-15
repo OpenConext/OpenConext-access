@@ -570,12 +570,13 @@ const nl = {
             administrativePlaceholder: "admin",
             emailOrWebsite: "E‑mailadres of URL",
             technical: "Technisch contact",
-            technicalDisclaimer: "Moet verschillen van het administratieve contact",
+            technicalDisclaimer: "Moet verschillen van het administratieve contact en 1 moet een echt email zijn",
             technicalPlaceholder: "technisch",
             support: "Support‑contact",
             supportDisclaimer: "Dit wordt getoond aan eindgebruikers.",
             supportPlaceholder: "support",
             addTechnicalContact: "+ nog een contact toevoegen",
+            oneTechnicalEmail: "Eén echte e-mail is verplicht"
         },
         privacy: {
             label: "Privacy & beveiliging",
