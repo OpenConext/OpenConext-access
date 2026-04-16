@@ -7,6 +7,7 @@ import PolicyIcon from "@surfnet/sds/icons/functional-icons/lock.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
+import StatsIcon from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
 import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
@@ -24,7 +25,8 @@ export const mainMenuItems = {
     invite: "invite",
     sram: "sram",
     serviceDesk: "serviceDesk",
-    feedback: "feedback"
+    feedback: "feedback",
+    statistics: "statistics"
 }
 
 const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = useAppStore.getState().config.feedbackWidgetEnabled) => {
@@ -39,11 +41,11 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     }
     //If there is at least one organizationMembership, then we show yourApps
     newMenuItems.push(mainMenuItems.yourApps);
-    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
-        m.organization.id === currentOrganization.id);
     if (user.externalUser) {
         newMenuItems.push(mainMenuItems.idp);
     }
+    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
+        m.organization.id === currentOrganization.id);
     if (onlyGuest) {
         return newMenuItems;
     }
