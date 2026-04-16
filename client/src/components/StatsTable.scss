@@ -1,0 +1,78 @@
+.stats-table {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .stats-table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        h4 {
+            margin: 0;
+        }
+
+        .stats-table-toggles {
+            display: flex;
+            gap: 12px;
+        }
+    }
+
+    .stats-table-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stats-table-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .row-label {
+            flex: 0 0 200px;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .row-bar-container {
+            flex: 1;
+            height: 20px;
+            background-color: var(--sl-color-neutral-100, #f5f5f5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .row-bar {
+            height: 100%;
+            background-color: var(--sds--color--green--400, #00a650);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .row-value {
+            flex: 0 0 80px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    }
+
+    .show-more {
+        background: none;
+        border: none;
+        color: var(--sds--color--blue--400, #0077c8);
+        cursor: pointer;
+        font-size: 13px;
+        padding: 4px 0;
+        text-align: left;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

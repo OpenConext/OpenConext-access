@@ -46,7 +46,7 @@ public class StatisticsMock implements Statistics {
     }
 
     @Override
-    public List<Object> loginAggregated(String period, String idpEntityId, String spEntityId) {
+    public List<Object> loginAggregated(String period, String idpEntityId, String spEntityId, String groupBy) {
         Calendar today = Calendar.getInstance();
         today.set(Calendar.YEAR, Integer.parseInt(period.substring(0, 4)));
         today.set(Calendar.HOUR_OF_DAY, 0);
@@ -75,6 +75,26 @@ public class StatisticsMock implements Statistics {
             today.set(Calendar.MONTH, 0);
         }
         long date = today.getTimeInMillis() / 1000;
+
+        if ("idp_id".equals(groupBy)) {
+            // Return mock data grouped by IdP
+            List<String> mockIdpNames = List.of(
+                    "University of Amsterdam", "Delft University of Technology",
+                    "Erasmus University Rotterdam", "Leiden University",
+                    "HAN University of Applied Sciences", "Amsterdam University of Applied Sciences",
+                    "Utrecht University", "Radboud University");
+            return mockIdpNames.stream()
+                    .map(name -> {
+                        Map<String, Object> point = new HashMap<>();
+                        point.put("count_user_id", countValue() * 100);
+                        point.put("distinct_count_user_id", countValue() * 10);
+                        point.put("idp_entity_id", "https://idp.example.org/" + name.toLowerCase().replace(" ", "-"));
+                        point.put("idp_name", name);
+                        point.put("time", date);
+                        return (Object) point;
+                    }).collect(Collectors.toList());
+        }
+
         Map<String, Object> identityProvider = manage.identityProviderByEntityID(idpEntityId);
         Map<String, Object> data = getData(identityProvider);
         List<String> entityIdentifiers = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))

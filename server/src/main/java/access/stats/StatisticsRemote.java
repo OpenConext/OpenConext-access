@@ -47,10 +47,10 @@ public class StatisticsRemote implements Statistics {
         return URLEncoder.encode(entityID, Charset.defaultCharset());
     }
 
-    public List<Object> loginAggregated(String period, String idpEntityId, String spEntityId) {
+    public List<Object> loginAggregated(String period, String idpEntityId, String spEntityId, String groupBy) {
         StringBuilder url = new StringBuilder(String.format(
-                "%s/public/login_aggregated?period=%s&include_unique=true&idp_id=%s&group_by=sp_id",
-                baseUrl, period, encodeEntityID(idpEntityId)));
+                "%s/public/login_aggregated?period=%s&include_unique=true&idp_id=%s&group_by=%s",
+                baseUrl, period, encodeEntityID(idpEntityId), groupBy));
         if (StringUtils.hasText(spEntityId)) {
             url.append(String.format("&sp_id=%s", encodeEntityID(spEntityId)));
         }

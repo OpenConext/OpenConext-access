@@ -24,7 +24,7 @@ class StatisticsMockTest {
 
     @Test
     void loginAggregated() {
-        List<Object> stats = statistics.loginAggregated("2026Q1", "http://mock-idp", "https://wiki");
+        List<Object> stats = statistics.loginAggregated("2026Q1", "http://mock-idp", "https://wiki", "sp_entity_id");
         assertEquals(1, stats.size());
     }
 

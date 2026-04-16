@@ -7,7 +7,7 @@ public interface Statistics {
 
     List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId);
 
-    List<Object> loginAggregated(String period, String idpEntityId, String spEntityId);
+    List<Object> loginAggregated(String period, String idpEntityId, String spEntityId, String groupBy);
 
     List<Object> uniqueLoginCount(long from, long to, String idpEntityId, String spEntityId);
 

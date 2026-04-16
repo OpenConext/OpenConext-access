@@ -37,9 +37,10 @@ public class StatisticsController {
     @GetMapping("/loginAggregated")
     public List<Object> loginAggregated(User user,
                                         @RequestParam("period") String period,
-                                        @RequestParam(value = "spEntityId", required = false) String spEntityId) {
+                                        @RequestParam(value = "spEntityId", required = false) String spEntityId,
+                                        @RequestParam(value = "groupBy", required = false, defaultValue = "sp_id") String groupBy) {
         String authenticatingAuthority = user.getAuthenticatingAuthority();
-        return statistics.loginAggregated(period, authenticatingAuthority, spEntityId);
+        return statistics.loginAggregated(period, authenticatingAuthority, spEntityId, groupBy);
     }
 
     //Used for retrieval of all logins for one SP without a period

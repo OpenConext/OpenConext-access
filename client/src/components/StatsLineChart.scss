@@ -1,0 +1,17 @@
+.stats-line-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+
+    h4 {
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 320px;
+        width: 100%;
+    }
+}
