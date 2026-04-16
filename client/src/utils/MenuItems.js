@@ -54,7 +54,7 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
             m.organization.id === currentOrganization.id);
 
     if (isMember || isAdmin) {
-        newMenuItems.push(mainMenuItems.idp, mainMenuItems.users);
+        newMenuItems.push(mainMenuItems.idp, mainMenuItems.users, mainMenuItems.yourApps);
     }
     const isInstitution = !isEmpty(currentOrganization.manageIdentifier);
     if (isInstitution) {

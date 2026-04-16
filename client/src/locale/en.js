@@ -1265,6 +1265,15 @@ const en = {
     statistics: {
         title: "Statistics",
         login: "Login data for {{name}}",
+        period: "Period",
+        year: "Year",
+        quarter: "Quarter",
+        month: "Month",
+        week:"Week",
+        custom: "Custom",
+        export:"Export CSV",
+        total: "Total logins",
+        unique: "Unique users"
     },
 }
 

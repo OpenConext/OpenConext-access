@@ -3,7 +3,85 @@
 
 .statistics-container {
     padding: 35px 50px 0 50px;
-
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
     @include index.page-media;
 
+    .statistics-header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        .title {
+            h2 {
+                margin-bottom: 14px;
+            }
+        }
+
+        .statistics-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .statistics-menu-options {
+            display: flex;
+            gap: 36px;
+
+            button.sds--btn--primary.export {
+                border: 1px solid var(--sl-color-neutral-200);
+                border-radius: 12px;
+                background: var(--sl-color-neutral-100);
+                color: var(--sds--color--blue--400);
+
+                svg.export-icon {
+                    width: 20px;
+                    height: auto;
+                    fill: none;
+                }
+            }
+        }
+
+    }
+
+    .main-stats {
+        display: flex;
+        gap: 40px;
+    }
+
+    section.cardy {
+        gap: 8px;
+        border-radius: 12px;
+        display: flex;
+        padding: 24px;
+        background-color: white;
+        border: 1px solid var(--sl-color-neutral-200);
+    }
+
+    .stat {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        h1 {
+            line-height: 2.25rem;
+        }
+        span {
+            &.blue {
+                background-color: var(--sds--color--blue--400);
+                border-radius: 50%;
+                margin-bottom: 8px;
+                width: 16px;
+                height: 16px;
+            }
+
+            &.green {
+                background-color: var(--sds--color--green--400);
+                margin-bottom: 8px;
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
 }

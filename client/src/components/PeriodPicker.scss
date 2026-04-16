@@ -1,0 +1,27 @@
+.access-period-picker-container {
+    display: flex;
+
+    .access-period-picker {
+
+        border: 1px solid var(--sl-color-neutral-200);
+        border-radius: 12px;
+        background: white;
+
+        button.sds--btn.sds--btn--secondary {
+            font-weight: normal;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: black;
+
+            &:first-child, &:last-child {
+                padding: var(--sds--space--1-and-a-half) 14px;
+
+            }
+            &:not(:first-child):not(:last-child) {
+                padding: var(--sds--space--1-and-a-half) 10px;
+            }
+        }
+    }
+
+}

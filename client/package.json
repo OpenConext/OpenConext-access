@@ -17,7 +17,7 @@
     "follow-redirects": "^1.16.0"
   },
   "dependencies": {
-    "@surfnet/sds": "^0.0.162",
+    "@surfnet/sds": "^0.0.163",
     "detect-browser": "^5.3.0",
     "dompurify": "^3.4.0",
     "html2canvas": "^1.4.1",
