@@ -248,7 +248,9 @@ const Organization = () => {
                             {!mayCreateApplication &&
                                 <div className="no-app">
                                     <p>{I18n.t("organization.guestNoApplicationMessage")}</p>
-                                    <p dangerouslySetInnerHTML={{__html: I18n.t("organization.guestNoApplicationMessageInfo", {mail: contactEmail})}}/>
+                                    {!isEmpty(contactEmail) &&
+                                        <p dangerouslySetInnerHTML={{__html: I18n.t("organization.guestNoApplicationMessageInfo", {mail: contactEmail})}}/>
+                                    }
                                 </div>
                             }
                         </div>

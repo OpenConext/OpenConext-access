@@ -39,16 +39,13 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     if (noOrganizationMemberships) {
         return newMenuItems;
     }
-    //If there is at least one organizationMembership, then we show yourApps
-    newMenuItems.push(mainMenuItems.yourApps);
-    if (user.externalUser) {
-        newMenuItems.push(mainMenuItems.idp);
-    }
     const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
         m.organization.id === currentOrganization.id);
-    if (onlyGuest) {
+    if (noOrganizationMemberships || onlyGuest) {
+        newMenuItems.push(mainMenuItems.yourApps);
         return newMenuItems;
     }
+    //If there is at least one organizationMembership, then we show yourApps
     const isMember = user.organizationMemberships
         .some(m => authorities.MEMBER === m.authority &&
             m.organization.id === currentOrganization.id);
@@ -57,13 +54,14 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
             m.organization.id === currentOrganization.id);
 
     if (isMember || isAdmin) {
-        newMenuItems.push(mainMenuItems.users);
+        newMenuItems.push(mainMenuItems.idp, mainMenuItems.users);
     }
-    if (!isEmpty(currentOrganization.manageIdentifier)) {
-        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.idp, mainMenuItems.invite, mainMenuItems.sram);
+    const isInstitution = !isEmpty(currentOrganization.manageIdentifier);
+    if (isInstitution) {
+        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.invite, mainMenuItems.sram);
     }
-    if ((isAdmin || user.superUser) && !isEmpty(currentOrganization.manageIdentifier)) {
-        newMenuItems.push(mainMenuItems.policies);
+    if ((isAdmin || user.superUser) && isInstitution) {
+        newMenuItems.push(mainMenuItems.statistics, mainMenuItems.policies);
     }
     return newMenuItems;
 }
@@ -139,6 +137,11 @@ export const allMenuGroups = [
                 name: mainMenuItems.users,
                 path: "/users/organizationId",
                 Logo: UserIcon
+            },
+            {
+                name: mainMenuItems.statistics,
+                path: "/statistics",
+                Logo: StatsIcon
             },
         ]
     },

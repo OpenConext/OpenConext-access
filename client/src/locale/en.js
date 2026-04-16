@@ -86,6 +86,7 @@ const en = {
         applications: "Applications",
         policies: "Policies",
         teams: "Teams",
+        statistics: "Statistics",
         support: "Support",
         serviceDesk: "SURF Servicedesk",
         feedback: "Help us improve",
@@ -1261,6 +1262,10 @@ const en = {
             migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
         },
     },
+    statistics: {
+        title: "Statistics",
+        login: "Login data for {{name}}"
+    }
 }
 
 export default en;

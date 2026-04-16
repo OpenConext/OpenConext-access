@@ -1,0 +1,9 @@
+@use "../styles/vars" as *;
+@use "../index";
+
+.statistics-container {
+    padding: 35px 50px 0 50px;
+
+    @include index.page-media;
+
+}

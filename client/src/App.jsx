@@ -43,6 +43,7 @@ import Profile from "./pages/Profile.jsx";
 import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
+import Statistics from "./pages/Statistics.jsx";
 
 const App = () => {
 
@@ -159,6 +160,7 @@ const App = () => {
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
                             <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
+                            <Route path="/statistics" element={<Statistics/>}/>
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
