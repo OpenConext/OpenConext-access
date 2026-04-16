@@ -29,7 +29,7 @@ const Statistics = () => {
                     <p>{I18n.t("statistics.login", {name: currentOrganization.name})}</p>
                 </div>
                 <div className="statistics-menu">
-                    
+
                 </div>
 
             </div>

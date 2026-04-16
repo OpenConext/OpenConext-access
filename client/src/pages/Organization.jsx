@@ -87,7 +87,7 @@ const Organization = () => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, user]);
+    }, [navigate, organizationId, user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const alertInfo = () => {
         if (alertClosed || organization.applicationCount > 0) {

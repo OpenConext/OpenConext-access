@@ -578,7 +578,7 @@ const en = {
             supportDisclaimer: "This will be shown to end users.",
             supportPlaceholder: "support",
             addTechnicalContact: "+ add another contact",
-            oneTechnicalEmail: "One real email is required"
+            oneTechnicalEmail: "One real email is required",
         },
         privacy: {
             label: "Privacy & Security",
@@ -1264,8 +1264,8 @@ const en = {
     },
     statistics: {
         title: "Statistics",
-        login: "Login data for {{name}}"
-    }
+        login: "Login data for {{name}}",
+    },
 }
 
 export default en;

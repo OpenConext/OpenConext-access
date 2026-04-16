@@ -86,6 +86,7 @@ const nl = {
         applications: "Applicaties",
         policies: "Beleid",
         teams: "Teams",
+        statistics: "Statistics TODO",
         support: "Support",
         serviceDesk: "SURF Servicedesk",
         feedback: "Help ons verbeteren",
@@ -577,7 +578,7 @@ const nl = {
             supportDisclaimer: "Dit wordt getoond aan eindgebruikers.",
             supportPlaceholder: "support",
             addTechnicalContact: "+ nog een contact toevoegen",
-            oneTechnicalEmail: "Eén echte e-mail is verplicht"
+            oneTechnicalEmail: "Eén echte e-mail is verplicht",
         },
         privacy: {
             label: "Privacy & beveiliging",
@@ -1260,6 +1261,10 @@ const nl = {
         flash: {
             migrated: "Applicatie {{application}} is gemigreerd naar organisatie {{organisation}}",
         },
+    },
+    statistics: {
+        title: "Statistics TODO",
+        login: "Login data for {{name}} TODO",
     },
 }
 
