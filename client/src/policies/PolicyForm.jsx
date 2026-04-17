@@ -41,12 +41,6 @@ export const PolicyForm = ({
     // Reg-only options
     const accessOptions = ["allow", "deny"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
 
-    // Step-only: CIDR negation options
-    const cidrNegationOptions = [
-        {value: "force", label: I18n.t("appAccess.forceLoa")},
-        {value: "doNotForce", label: I18n.t("appAccess.doNotForceLoa")}
-    ];
-
     const {setFlash, allowedAttributes, config} = useAppStore(useShallow(state => ({
         setFlash: state.setFlash,
         allowedAttributes: state.allowedAttributes,
