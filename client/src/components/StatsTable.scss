@@ -37,12 +37,15 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        cursor: pointer;
         border-radius: 6px;
         padding: 2px 0;
 
-        &:hover {
-            opacity: 0.85;
+        &.selectable {
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.85;
+            }
         }
 
         &.selected {

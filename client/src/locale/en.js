@@ -1288,6 +1288,7 @@ const en = {
         from: "From",
         to: "To",
         for: "for",
+        perPeriod: "per period",
     },
 }
 

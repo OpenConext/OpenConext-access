@@ -40,12 +40,8 @@ const buildFromTo = (year) => {
     return {from, to};
 }
 
-const buildChartLabels = (period, year) => {
-    switch (period) {
-        case "year":
-            return [`${year}`];
-        case "quarter":
-            return ["Q1", "Q2", "Q3", "Q4"];
+const buildChartLabels = (scale) => {
+    switch (scale) {
         case "month":
             return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         case "week": {
@@ -55,6 +51,26 @@ const buildChartLabels = (period, year) => {
         }
         default:
             return [];
+    }
+}
+
+const scaleForCustomRange = (from, to) => {
+    const diffDays = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
+    if (diffDays > 365) return "year";
+    if (diffDays > 180) return "month";
+    return "day";
+}
+
+const formatCustomLabel = (timestamp, scale) => {
+    const d = new Date(typeof timestamp === "number" && timestamp < 1e12 ? timestamp * 1000 : timestamp);
+    if (isNaN(d.getTime())) return String(timestamp);
+    switch (scale) {
+        case "year":
+            return `${d.getFullYear()}`;
+        case "month":
+            return d.toLocaleDateString("en-GB", {month: "short", year: "numeric"});
+        default:
+            return d.toLocaleDateString("en-GB", {day: "numeric", month: "short"});
     }
 }
 
@@ -80,11 +96,14 @@ const Statistics = () => {
     const [period, setPeriod] = useState(periods.year);
     const [periodValue, setPeriodValue] = useState(new Date().getFullYear());
     const [customFrom, setCustomFrom] = useState(() => {
-        const d = new Date();
-        d.setMonth(d.getMonth() - 1);
-        return d;
+        const now = new Date();
+        return new Date(now.getFullYear(), 0, 1);
     });
-    const [customTo, setCustomTo] = useState(new Date());
+    const [customTo, setCustomTo] = useState(() => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow;
+    });
 
     const [timeFrameData, setTimeFrameData] = useState([]);
     const [perAppData, setPerAppData] = useState([]);
@@ -126,16 +145,18 @@ const Statistics = () => {
         if (period === "custom") {
             const from = Math.floor(customFrom.getTime() / 1000);
             const to = Math.floor(customTo.getTime() / 1000);
+            const scale = scaleForCustomRange(customFrom, customTo);
             const spFilter = selectedSp || "";
-            uniqueLoginCount(from, to, spFilter)
-                .then(result => {
-                    const arr = Array.isArray(result) ? result : [result];
+
+            loginTimeFrame(from, to, scale, spFilter)
+                .then((data) => {
+                    const arr = Array.isArray(data) ? data : [data];
                     const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
                     const totUnique = arr.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
                     setTotalLogins(totLogins);
                     setTotalUnique(totUnique);
                     setTimeFrameData(arr);
-                    setPerAppData([]);
+                    setPerAppData(arr);
                     setPerInstituteData([]);
                     setLoading(false);
                 })
@@ -184,30 +205,46 @@ const Statistics = () => {
         fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
     }, [fetchData]);
 
-    const chartLabels = useMemo(() => buildChartLabels(period, periodValue), [period, periodValue]);
+    const chartLabels = useMemo(() => {
+        if (period === "custom") {
+            const scale = scaleForCustomRange(customFrom, customTo);
+            return timeFrameData.map(d => formatCustomLabel(d.time, scale));
+        }
+        const scale = scaleForPeriod[period];
+        if (scale === "day") {
+            return timeFrameData.map(d => formatCustomLabel(d.time, "day"));
+        }
+        return buildChartLabels(scale);
+    }, [period, customFrom, customTo, timeFrameData]);
 
     const spNameResolver = useCallback((entityId) => spMap[entityId] || entityId, [spMap]);
     const idpNameResolver = useCallback((entityId) => idpMap[entityId] || entityId, [idpMap]);
+    const customTimeResolver = useCallback((timestamp) => {
+        const scale = scaleForCustomRange(customFrom, customTo);
+        return formatCustomLabel(timestamp, scale);
+    }, [customFrom, customTo]);
 
     const handleExport = () => {
-        // Build CSV from current timeframe data + tables
         const rows = [["Label", "Logins", "Unique Users"]];
         timeFrameData.forEach((d, i) => {
             rows.push([chartLabels[i] || i, d.count_user_id || 0, d.distinct_count_user_id || 0]);
         });
-        rows.push([]);
-        rows.push(["Per App", "Logins", "Unique Users"]);
-        perAppData.forEach(d => {
-            const name = spNameResolver(d.sp_entity_id || "");
-            rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
-        });
-        if (isSurfNet) {
+
+        if (period !== "custom") {
             rows.push([]);
-            rows.push(["Per Institute", "Logins", "Unique Users"]);
-            perInstituteData.forEach(d => {
-                const name = idpNameResolver(d.idp_entity_id || "");
+            rows.push(["Per App", "Logins", "Unique Users"]);
+            perAppData.forEach(d => {
+                const name = spNameResolver(d.sp_entity_id || "");
                 rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
             });
+            if (isSurfNet) {
+                rows.push([]);
+                rows.push(["Per Institute", "Logins", "Unique Users"]);
+                perInstituteData.forEach(d => {
+                    const name = idpNameResolver(d.idp_entity_id || "");
+                    rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
+                });
+            }
         }
 
         const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
@@ -215,7 +252,7 @@ const Statistics = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `statistics_${periodValue}_${period}.csv`;
+        a.download = `statistics_${period === "custom" ? "custom" : periodValue + "_" + period}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -284,7 +321,14 @@ const Statistics = () => {
             </section>
 
             <div className="tables-row">
-                {isSurfNet ? (
+                {period === "custom" ? (
+                    <section className="cardy table-card full-width">
+                        <StatsTable data={perAppData}
+                                    titleKey="perPeriod"
+                                    nameResolver={customTimeResolver}
+                                    selectable={false}/>
+                    </section>
+                ) : isSurfNet ? (
                     <>
                         <section className="cardy table-card">
                             <StatsTable data={perAppData}

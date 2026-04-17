@@ -1288,6 +1288,7 @@ const nl = {
         from: "Van",
         to: "Tot",
         for: "voor",
+        perPeriod: "per periode",
     },
 }
 

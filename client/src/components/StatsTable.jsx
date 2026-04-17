@@ -9,7 +9,7 @@ const PAGE_SIZE = 100;
 const formatNumber = (n) =>
     Number(n).toLocaleString("nl-NL");
 
-const StatsTable = ({data = [], titleKey, nameResolver, selectedId, onSelect, filterLabel, fixedMetric}) => {
+const StatsTable = ({data = [], titleKey, nameResolver, selectedId, onSelect, filterLabel, fixedMetric, selectable = true}) => {
     const [metric, setMetric] = useState(fixedMetric || "logins");
     const [mode, setMode] = useState("absolute");
     const [visibleCount, setVisibleCount] = useState(INITIAL_ROWS);
@@ -23,7 +23,7 @@ const StatsTable = ({data = [], titleKey, nameResolver, selectedId, onSelect, fi
     const remaining = sorted.length - visibleCount;
 
     const handleRowClick = (entityId) => {
-        if (onSelect) {
+        if (selectable && onSelect) {
             onSelect(entityId === selectedId ? null : entityId);
         }
     };
@@ -60,12 +60,12 @@ const StatsTable = ({data = [], titleKey, nameResolver, selectedId, onSelect, fi
                     const val = row[key] || 0;
                     const pct = total > 0 ? (val / total) * 100 : 0;
                     const barWidth = (val / maxVal) * 100;
-                    const entityId = row.sp_entity_id || row.idp_entity_id || "";
+                    const entityId = row.sp_entity_id || row.idp_entity_id || row.time || "";
                     const name = nameResolver ? nameResolver(entityId) : entityId;
-                    const isSelected = entityId === selectedId;
+                    const isSelected = selectable && entityId === selectedId;
                     return (
                         <div key={entityId || idx}
-                             className={`stats-table-row ${activeMetric === "logins" ? "logins" : "unique"} ${isSelected ? "selected" : ""}`}
+                             className={`stats-table-row ${activeMetric === "logins" ? "logins" : "unique"} ${isSelected ? "selected" : ""} ${selectable ? "selectable" : ""}`}
                              onClick={() => handleRowClick(entityId)}>
                             {isSelected && (
                                 <span className="row-deselect"

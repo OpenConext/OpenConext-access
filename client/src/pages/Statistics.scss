@@ -100,6 +100,10 @@
             flex: 1;
             flex-direction: column;
             min-width: 0;
+
+            &.full-width {
+                flex: 1 1 100%;
+            }
         }
 
         @media (max-width: 1024px) {
