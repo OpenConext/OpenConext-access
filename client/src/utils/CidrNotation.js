@@ -1,3 +1,29 @@
+const isValidIPv4 = (ip) => {
+    const parts = ip.split('.');
+    if (parts.length !== 4) return false;
+    return parts.every(part => {
+        if (!/^\d{1,3}$/.test(part)) return false;
+        const num = parseInt(part, 10);
+        return num >= 0 && num <= 255 && String(num) === part;
+    });
+};
+
+const isValidIPv6 = (ip) => {
+    if (ip === '::') return true;
+    const doubleColonCount = (ip.match(/::/g) || []).length;
+    if (doubleColonCount > 1) return false;
+    const segments = ip.split(':');
+    if (doubleColonCount === 1) {
+        const emptyIndex = ip.indexOf('::');
+        const before = ip.slice(0, emptyIndex).split(':').filter(s => s !== '');
+        const after = ip.slice(emptyIndex + 2).split(':').filter(s => s !== '');
+        if (before.length + after.length > 7) return false;
+        return [...before, ...after].every(s => /^[0-9a-fA-F]{1,4}$/.test(s));
+    }
+    if (segments.length !== 8) return false;
+    return segments.every(s => /^[0-9a-fA-F]{1,4}$/.test(s));
+};
+
 const ipToInt = (ip) => {
     return ip.split('.').reduce((int, octet) => {
         return (int << 8) + parseInt(octet, 10);
@@ -74,6 +100,13 @@ const segmentsToIpv6 = (segments) => {
 export const getNetworkInfo = (ipAddress, networkPrefix) => {
     // Detect IP version
     const isIPv6 = ipAddress.includes(':');
+
+    if (isIPv6 && !isValidIPv6(ipAddress)) {
+        throw new Error(`Invalid IPv6 address: ${ipAddress}`);
+    }
+    if (!isIPv6 && !isValidIPv4(ipAddress)) {
+        throw new Error(`Invalid IPv4 address: ${ipAddress}`);
+    }
 
     if (isIPv6) {
         // IPv6 processing

@@ -260,6 +260,7 @@ export const PolicyForm = ({
         newCidrs[index] = entry;
         setCidrErrors(newWarnings);
         internalUpdateLoa({cidrNotations: newCidrs});
+        return true;
     };
 
     // --- Validation ---
@@ -409,11 +410,7 @@ export const PolicyForm = ({
                                          options={policy.data.denyRule ? allowedAttributes
                                              .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
 
-                            <SelectField value={conditionalOptions[0]}
-                                         required={true}
-                                         disabled={true}
-                                         className="conditional-options"
-                                         options={conditionalOptions}/>
+                            <span className="conditional-options">{conditionalOptions[0].label}</span>
 
                             <SelectField value={attribute.value}
                                          creatable={true}
@@ -536,29 +533,35 @@ export const PolicyForm = ({
                                                         I18n.t("forms.and"))
                                                 })}/>}
                     </Fragment>)}
-                {/* CIDR negation + entries */}
-                {loa.cidrNotations.length > 0 &&
-                    <div className="cidr-negation-row">
-                        <SelectField value={loa.negateCidrNotation ? cidrNegationOptions[1] : cidrNegationOptions[0]}
-                                     required={true}
-                                     className="cidr-negation-select"
-                                     onChange={() => internalUpdateLoa({negateCidrNotation: !loa.negateCidrNotation})}
-                                     options={cidrNegationOptions}/>
-                    </div>}
-
                 {/* CIDR notation entries */}
                 {loa.cidrNotations.map((cidr, index) =>
                     <div className="cidr-entry" key={`cidr-${index}`}>
                         <div className="cidr-inputs">
-                            <InputField name={I18n.t("appAccess.ipAddress")}
-                                        value={cidr.ipAddress}
-                                        placeholder="192.168.1.0"
-                                        onChange={e => cidrChanged(index, "ipAddress", e.target.value)}
-                                        onBlur={() => cidrBlurred(index)}
-                            />
-                            <InputField name={I18n.t("appAccess.prefix")}
-                                        value={`${cidr.prefix}`}
+                            <span>{I18n.t("appAccess.andIPAddress")}</span>
+                            <SelectField value={loa.negateCidrNotation ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
+                                         required={true}
+                                         className="conditional-options"
+                                         onChange={() => internalUpdateLoa({negateCidrNotation: !loa.negateCidrNotation})}
+                                         options={negatedConditionalOptions}/>
+                            <div className="input-field-wrapper">
+                                <InputField value={cidr.ipAddress}
+                                            placeholder="192.168.1.0"
+                                            customClassName="ip-address-input-field"
+                                            onChange={e => cidrChanged(index, "ipAddress", e.target.value)}
+                                            onBlur={() => cidrBlurred(index)}
+                                />
+                                {cidr.ipInfo &&
+                                    <div className="cidr-info">
+                                        <span>{I18n.t("appAccess.ipAddress", {type: cidr.ipInfo.ipv4 ? "IPv4" : "IPv6"})}</span>
+                                        <span>{I18n.t("appAccess.networkAddress")}: {cidr.ipInfo.networkAddress}</span>
+                                        <span>{I18n.t("appAccess.broadcastAddress")}: {cidr.ipInfo.broadcastAddress}</span>
+                                        <span>{I18n.t("appAccess.capacity")}: {cidr.ipInfo.capacity}</span>
+                                    </div>}
+                            </div>
+                            <span>{I18n.t("appAccess.prefix")}</span>
+                            <InputField value={`${cidr.prefix}`}
                                         placeholder="24"
+                                        customClassName="prefix-input-field"
                                         onChange={e => cidrChanged(index, "prefix", e.target.value)}
                                         onBlur={() => cidrBlurred(index)}
                             />
@@ -567,14 +570,9 @@ export const PolicyForm = ({
                             />
                         </div>
                         {!isEmpty(cidrErrors[index]) &&
-                            <span className="cidr-warning">{cidrErrors[index]}</span>}
-                        {cidr.ipInfo &&
-                            <div className="cidr-info">
-                                <span>{I18n.t("appAccess.networkAddress")}: {cidr.ipInfo.networkAddress}</span>
-                                <span>{I18n.t("appAccess.broadcastAddress")}: {cidr.ipInfo.broadcastAddress}</span>
-                                <span>{I18n.t("appAccess.capacity")}: {cidr.ipInfo.capacity}</span>
-                                <span>{cidr.ipInfo.ipv4 ? "IPv4" : "IPv6"}</span>
-                            </div>}
+                            <ErrorIndicator msg={cidrErrors[index]}/>
+                            }
+
                     </div>)}
 
                 {/* Add buttons */}

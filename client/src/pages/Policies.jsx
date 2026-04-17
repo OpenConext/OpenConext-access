@@ -45,8 +45,8 @@ const Policies = () => {
     const toPolicyDetail = (policyIdentifier, policyType, allPolicies = policies) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
-        if (policyIdentifier === "new") {
-            newCurrentPolicy = policyType === policyTypes.step ? policyTemplateStepUp(user.identityProvider.data.entityid) :
+        if (policyIdentifier === "reg" || policyIdentifier === "step") {
+            newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(user.identityProvider.data.entityid) :
                 policyTemplateRegular(user.identityProvider.data.entityid);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);

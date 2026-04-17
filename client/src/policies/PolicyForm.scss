@@ -121,6 +121,7 @@
 
         .deletable-attribute {
             display: flex;
+            align-items: center;
 
             &:not(:first-child) {
                 margin-top: 25px;
@@ -159,6 +160,10 @@
                         border-radius: 6px 0 0 6px;
                     }
                 }
+            }
+
+            span.conditional-options {
+                margin: 0 15px;
             }
 
             button.sds--btn--delete {
@@ -260,22 +265,22 @@
         }
 
         .cidr-entry {
-            margin-top: 25px;
-            padding: 16px;
-            background-color: white;
-            border: 1px solid var(--sds--color--gray--200);
-            border-radius: 8px;
+            padding: 16px 0;
 
             .cidr-inputs {
                 display: flex;
-                align-items: flex-end;
+                align-items: center;
                 gap: 12px;
 
-                .input-field {
-                    flex: 1;
+                .input-field-wrapper {
+                    position: relative;
+                    flex: 2;
+                }
 
-                    &:first-child {
-                        flex: 2;
+                .input-field {
+
+                    &.prefix-input-field {
+                        max-width: 120px;
                     }
                 }
 
@@ -285,20 +290,13 @@
                 }
             }
 
-            .cidr-warning {
-                display: block;
-                margin-top: 5px;
-                font-size: 13px;
-                color: var(--sds--color--gray--700);
-            }
-
             .cidr-info {
+                position: absolute;
+                top: 52px;
+                left: 0;
                 display: flex;
-                gap: 20px;
-                margin-top: 8px;
-                padding: 8px 0 0 0;
-                border-top: 1px solid var(--sds--color--gray--100);
-                font-size: 13px;
+                gap: 12px;
+                font-size: 14px;
                 color: var(--sds--color--gray--500);
             }
         }

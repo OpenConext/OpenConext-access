@@ -159,7 +159,7 @@ export const PolicyOverview = ({
                 <div className="grouped">
                     <h3>{I18n.t("appAccess.regularPolicies")}</h3>
                     <Button type={ButtonType.Primary}
-                            onClick={() => policyDetails("new", policyTypes.reg)}
+                            onClick={() => policyDetails("reg", policyTypes.reg)}
                             txt={I18n.t("forms.new")}/>
                 </div>
                 <InfoBlock className="light-grey">
@@ -170,13 +170,13 @@ export const PolicyOverview = ({
                     </>}
                     {!isEmpty(regularPolicies) && <>
                         {regularPolicies.map((policy, index) =>
-                            renderPolicy(index, "reg", policy))}
+                            renderPolicy(index, "step", policy))}
                     </>}
                 </InfoBlock>
                 <div className="grouped">
                     <h3>{I18n.t("appAccess.stepUpPolicies")}</h3>
                     <Button type={ButtonType.Primary}
-                            onClick={() => policyDetails("new", policyTypes.step)}
+                            onClick={() => policyDetails("step", policyTypes.step)}
                             txt={I18n.t("forms.new")}/>
                 </div>
                 <InfoBlock className="light-grey">
