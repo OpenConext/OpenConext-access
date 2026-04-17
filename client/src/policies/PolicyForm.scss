@@ -1,5 +1,61 @@
 @use "../styles/vars.scss" as *;
 
+// Shared mixin for gray background sections (filters, step-up-settings)
+@mixin gray-panel {
+    background-color: var(--sds--color--gray--background);
+    padding: 20px;
+
+    .input-select-inner.creatable {
+        .select-inner__indicators {
+            display: none;
+        }
+    }
+}
+
+// Shared mixin for deletable attribute rows
+@mixin deletable-attribute-base {
+    display: flex;
+
+    &:not(:first-child) {
+        margin-top: 25px;
+    }
+
+    .select-field {
+        &.attribute-value {
+            flex-grow: 2;
+
+            .input-select-inner {
+                border-radius: 0 6px 6px 0;
+            }
+        }
+
+        &.conditional-options {
+            .input-select-inner {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .select-inner__control--is-disabled {
+                border-radius: 0 !important;
+            }
+        }
+
+        &.attribute-name {
+            width: 300px;
+
+            .input-select-inner {
+                border-radius: 6px 0 0 6px;
+            }
+        }
+    }
+
+    button.sds--btn--delete {
+        margin-left: 15px;
+        color: var(--sds--color--red--400);
+    }
+}
+
 .policy-form-container {
     width: 100%;
 
@@ -60,14 +116,7 @@
         }
 
         .filters {
-            background-color: var(--sds--color--gray--background);
-            padding: 20px;
-
-            .input-select-inner.creatable {
-                .select-inner__indicators {
-                    display: none;
-                }
-            }
+            @include gray-panel;
 
             .attribute-name-wrapper {
                 display: flex;
@@ -120,57 +169,19 @@
         }
 
         .deletable-attribute {
-            display: flex;
+            @include deletable-attribute-base;
             align-items: center;
-
-            &:not(:first-child) {
-                margin-top: 25px;
-            }
 
             .select-field {
                 &.select-access-rule {
-                    width: 200px;
+                    width: 120px;
                     margin-right: 25px;
-                }
-
-                &.attribute-value {
-                    flex-grow: 2;
-
-                    .input-select-inner {
-                        border-radius: 0 6px 6px 0;
-                    }
-                }
-
-                &.conditional-options {
-                    .input-select-inner {
-                        border-radius: 0;
-                        border-left: none;
-                        border-right: none;
-                    }
-
-                    .select-inner__control--is-disabled {
-                        border-radius: 0 !important;
-                    }
-                }
-
-                &.attribute-name {
-                    width: 300px;
-
-                    .input-select-inner {
-                        border-radius: 6px 0 0 6px;
-                    }
                 }
             }
 
             span.conditional-options {
                 margin: 0 15px;
             }
-
-            button.sds--btn--delete {
-                margin-left: 15px;
-                color: var(--sds--color--red--400);
-            }
-
         }
 
     }
@@ -181,14 +192,7 @@
     }
 
     .step-up-settings {
-        background-color: var(--sds--color--gray--background);
-        padding: 20px;
-
-        .input-select-inner.creatable {
-            .select-inner__indicators {
-                display: none;
-            }
-        }
+        @include gray-panel;
 
         .loa-selector-row {
             display: flex;
@@ -207,50 +211,13 @@
         }
 
         .deletable-attribute {
-            display: flex;
-
-            &:not(:first-child) {
-                margin-top: 25px;
-            }
+            @include deletable-attribute-base;
 
             .select-field {
                 &.select-access-rule {
-                    width: 200px;
+                    width: 120px;
                     margin-right: 25px;
                 }
-
-                &.attribute-value {
-                    flex-grow: 2;
-
-                    .input-select-inner {
-                        border-radius: 0 6px 6px 0;
-                    }
-                }
-
-                &.conditional-options {
-                    .input-select-inner {
-                        border-radius: 0;
-                        border-left: none;
-                        border-right: none;
-                    }
-
-                    .select-inner__control--is-disabled {
-                        border-radius: 0 !important;
-                    }
-                }
-
-                &.attribute-name {
-                    width: 300px;
-
-                    .input-select-inner {
-                        border-radius: 6px 0 0 6px;
-                    }
-                }
-            }
-
-            button.sds--btn--delete {
-                margin-left: 15px;
-                color: var(--sds--color--red--400);
             }
         }
 
