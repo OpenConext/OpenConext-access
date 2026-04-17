@@ -8,6 +8,7 @@ import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore";
 import {useShallow} from "zustand/react/shallow";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 export const Impersonating = () => {
 
@@ -23,7 +24,13 @@ export const Impersonating = () => {
     const endImpersonation = () => {
         stopImpersonation();
         setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
-        setTimeout(() => navigate("/", {replace: true}), 375);
+        setTimeout(() => {
+            navigate("/", {replace: true});
+            useAppStore.setState(() => ({
+                activeMenuItem: mainMenuItems.home
+            }));
+
+        }, 375);
     }
 
 
