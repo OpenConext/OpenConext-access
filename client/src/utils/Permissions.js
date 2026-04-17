@@ -48,7 +48,7 @@ export const hasApplicationWriteAccess = (user, application) => {
     }
     const currentOrgMembership = user.organizationMemberships
         .find(orgMembership => orgMembership.organization.id === application.organization.id);
-    if (isEmpty(!currentOrgMembership)) {
+    if (isEmpty(currentOrgMembership)) {
         return false;
     }
     if (currentOrgMembership.authority === authorities.ADMIN) {
@@ -68,7 +68,7 @@ export const hasApplicationDeleteAccess = (user, application) => {
     }
     const currentOrgMembership = user.organizationMemberships
         .find(orgMembership => orgMembership.organization.id === application.organization.id);
-    if (isEmpty(!currentOrgMembership)) {
+    if (isEmpty(currentOrgMembership)) {
         return false;
     }
     if (currentOrgMembership.authority === authorities.ADMIN) {

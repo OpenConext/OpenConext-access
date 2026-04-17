@@ -12,6 +12,9 @@ import StatsTable from "../components/StatsTable.jsx";
 import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame, loginAggregated, uniqueLoginCount, publicServiceProviders, publicIdentityProviders} from "../api/index.js";
 import {providerName} from "../utils/Manage.js";
+import {authorities} from "../utils/Permissions.js";
+import {isEmpty} from "../utils/Utils.js";
+import {Navigate} from "react-router-dom";
 
 const periods = {
     year: "year",
@@ -81,10 +84,15 @@ const formatStatNumber = (n) => {
 }
 
 const Statistics = () => {
-    const {user, config} = useAppStore(useShallow(state => ({
+    const {user, config, currentOrganization} = useAppStore(useShallow(state => ({
         user: state.user,
-        config: state.config
+        config: state.config,
+        currentOrganization: state.currentOrganization
     })));
+
+    const isInstitution = !isEmpty(currentOrganization?.manageIdentifier);
+    const isOrgAdmin = (user?.organizationMemberships || [])
+        .some(m => m.authority === authorities.ADMIN && m.organization.id === currentOrganization?.id);
 
     const isSurfNet = useMemo(() => {
         if (user?.superUser) return true;
@@ -255,6 +263,10 @@ const Statistics = () => {
         a.click();
         URL.revokeObjectURL(url);
     };
+
+    if (!(user?.superUser || isOrgAdmin) || !isInstitution) {
+        return <Navigate to="/404" replace/>;
+    }
 
     return (
         <div className="statistics-container">

@@ -830,8 +830,8 @@ export const Testing = ({
                                 //onChange={e => changeAllowedTestEntity(idp, e)}
                             />
                             <div className="idp-info">
-                                <p dangerouslySetInnerHTML={{__html: idp.name}}/>
-                                <p dangerouslySetInnerHTML={{__html: idp[`description${I18n.locale.toUpperCase()}`]}}/>
+                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
+                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
                             </div>
                         </div>
                     )}

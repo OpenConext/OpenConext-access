@@ -249,7 +249,7 @@ const Organization = () => {
                                 <div className="no-app">
                                     <p>{I18n.t("organization.guestNoApplicationMessage")}</p>
                                     {!isEmpty(contactEmail) &&
-                                        <p dangerouslySetInnerHTML={{__html: I18n.t("organization.guestNoApplicationMessageInfo", {mail: contactEmail})}}/>
+                                        <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("organization.guestNoApplicationMessageInfo", {mail: contactEmail}))}}/>
                                     }
                                 </div>
                             }
