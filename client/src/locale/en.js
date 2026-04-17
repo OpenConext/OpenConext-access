@@ -1279,12 +1279,15 @@ const en = {
         uniqueUsers: "Unique users",
         perInstitute: "per institute",
         perApp: "per app",
+        loginsPerApp: "Logins per app",
+        uniquePerApp: "Unique users per app",
         showMore: "Show more",
         absolute: "#",
         percentage: "%",
         successRate: "successful logins",
         from: "From",
         to: "To",
+        for: "for",
     },
 }
 

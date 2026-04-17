@@ -38,7 +38,9 @@ public class StatisticsMock implements Statistics {
             if (StringUtils.hasText(spEntityId)) {
                 point.put("sp_entity_id", spEntityId);
             }
-            point.put("idp_entity_id", idpEntityId);
+            if (StringUtils.hasText(idpEntityId)) {
+                point.put("idp_entity_id", idpEntityId);
+            }
             point.put("time", i * 1000);
             result.add(point);
         }
@@ -95,13 +97,31 @@ public class StatisticsMock implements Statistics {
                     }).collect(Collectors.toList());
         }
 
+        // When idpEntityId is null (SURFnet user), return mock data for a broad set of SPs
+        if (!StringUtils.hasText(idpEntityId)) {
+            List<String> mockSpEntityIds = List.of(
+                    "https://sp.example.org/shibboleth", "https://wiki.surfnet.nl/shibboleth",
+                    "https://teams.surfconext.nl/shibboleth", "https://manage.surfconext.nl/shibboleth",
+                    "https://invite.surfconext.nl/shibboleth", "https://pdp.surfconext.nl/shibboleth",
+                    "https://dashboard.surfconext.nl/shibboleth", "https://monitoring.surfconext.nl/shibboleth");
+            return mockSpEntityIds.stream()
+                    .filter(id -> !StringUtils.hasText(spEntityId) || spEntityId.equals(id))
+                    .map(id -> {
+                        Map<String, Object> point = new HashMap<>();
+                        point.put("count_user_id", countValue());
+                        point.put("distinct_count_user_id", countValue() / 2);
+                        point.put("sp_entity_id", id);
+                        point.put("time", date);
+                        return point;
+                    }).collect(Collectors.toList());
+        }
+
         Map<String, Object> identityProvider = manage.identityProviderByEntityID(idpEntityId);
         Map<String, Object> data = getData(identityProvider);
         List<String> entityIdentifiers = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
                 .stream()
                 .map(sp -> (String) sp.get("name"))
                 .toList();
-
 
         List<Map<String, Object>> serviceProvider = manage.serviceProvidersByEntityID(entityIdentifiers);
         return serviceProvider.stream()
@@ -123,7 +143,9 @@ public class StatisticsMock implements Statistics {
         Map<String, Object> point = new HashMap<>();
         point.put("count_user_id", countValue());
         point.put("sp_entity_id", spEntityId);
-        point.put("idp_entity_id", idpEntityId);
+        if (StringUtils.hasText(idpEntityId)) {
+            point.put("idp_entity_id", idpEntityId);
+        }
         point.put("time", from);
         result.add(point);
         return result;

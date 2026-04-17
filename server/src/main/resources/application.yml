@@ -94,6 +94,7 @@ config:
   client-url: "http://localhost:3002"
   base-url: "test2.surfconext.nl"
   edu_id_schac_home_organization: "eduid.nl"
+  surf_schac_home_organization: "surfnet.nl"
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   invite: "https://invite.test2.surfconext.nl"
   sram: "https://test.sram.surf.nl/"

@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.net.URI;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
@@ -33,36 +33,48 @@ public class StatisticsRemote implements Statistics {
     }
 
     public List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId) {
-        String idp = encodeEntityID(idpEntityId);
-        StringBuilder url = new StringBuilder(String.format(
-                "%s/public/login_time_frame?from=%s&to=%s&include_unique=true&scale=%s&epoch=ms&idp_id=%s",
-                baseUrl, from, to, scale, idp));
+        UriComponentsBuilder builder = baseBuilder("/public/login_time_frame", idpEntityId)
+                .queryParam("from", from)
+                .queryParam("to", to)
+                .queryParam("scale", scale)
+                .queryParam("epoch", "ms");
         if (StringUtils.hasText(spEntityId)) {
-            url.append(String.format("&sp_id=%s", encodeEntityID(spEntityId)));
+            builder.queryParam("sp_id", spEntityId);
         }
-        return restTemplate.getForEntity(url.toString(), List.class).getBody();
-    }
-
-    private String encodeEntityID(String entityID) {
-        return URLEncoder.encode(entityID, Charset.defaultCharset());
+        URI uri = builder.build().encode().toUri();
+        return restTemplate.getForEntity(uri, List.class).getBody();
     }
 
     public List<Object> loginAggregated(String period, String idpEntityId, String spEntityId, String groupBy) {
-        StringBuilder url = new StringBuilder(String.format(
-                "%s/public/login_aggregated?period=%s&include_unique=true&idp_id=%s&group_by=%s",
-                baseUrl, period, encodeEntityID(idpEntityId), groupBy));
+        UriComponentsBuilder builder = baseBuilder("/public/login_aggregated", idpEntityId)
+                .queryParam("period", period)
+                .queryParam("group_by", groupBy);
         if (StringUtils.hasText(spEntityId)) {
-            url.append(String.format("&sp_id=%s", encodeEntityID(spEntityId)));
+            builder.queryParam("sp_id", spEntityId);
         }
-        return restTemplate.getForEntity(url.toString(), List.class).getBody();
+        URI uri = builder.build().encode().toUri();
+        return restTemplate.getForEntity(uri, List.class).getBody();
     }
 
     public List<Object> uniqueLoginCount(long from, long to, String idpEntityId, String spEntityId) {
-        String url = String.format(
-                "%s/public/unique_login_count?from=%s&to=%s&include_unique=true&epoch=ms&idp_id=%s&sp_id=%s",
-                baseUrl, from, to, encodeEntityID(idpEntityId), encodeEntityID(spEntityId));
-        return restTemplate.getForEntity(url, List.class).getBody();
+        UriComponentsBuilder builder = baseBuilder("/public/unique_login_count", idpEntityId)
+                .queryParam("from", from)
+                .queryParam("to", to)
+                .queryParam("epoch", "ms")
+                .queryParam("sp_id", spEntityId);
+        URI uri = builder.build().encode().toUri();
+        return restTemplate.getForEntity(uri, List.class).getBody();
+    }
+
+    private UriComponentsBuilder baseBuilder(String path, String idpEntityId) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(baseUrl)
+                .path(path)
+                .queryParam("include_unique", true);
+        if (StringUtils.hasText(idpEntityId)) {
+            builder.queryParam("idp_id", idpEntityId);
+        }
+        return builder;
     }
 
 }
-

@@ -1279,12 +1279,15 @@ const nl = {
         uniqueUsers: "Unieke gebruikers",
         perInstitute: "per instelling",
         perApp: "per app",
+        loginsPerApp: "Logins per app",
+        uniquePerApp: "Unieke gebruikers per app",
         showMore: "Toon meer",
         absolute: "#",
         percentage: "%",
         successRate: "succesvolle inlogpogingen",
         from: "Van",
         to: "Tot",
+        for: "voor",
     },
 }
 

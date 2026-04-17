@@ -1,7 +1,6 @@
 import "./Statistics.scss";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import I18n from "../locale/I18n";
-import ToggleSegmentButton from "../components/ToggleSegmentButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import SegmentedControl from "../components/SegmentedControl.jsx";
@@ -20,11 +19,6 @@ const periods = {
     month: "month",
     week: "week",
     custom: "custom",
-}
-
-const countOptions = {
-    total: "total",
-    unique: "unique"
 }
 
 const scaleForPeriod = {
@@ -71,13 +65,20 @@ const formatStatNumber = (n) => {
 }
 
 const Statistics = () => {
-    const {currentOrganization} = useAppStore(useShallow(state => ({
-        currentOrganization: state.currentOrganization
+    const {currentOrganization, user, config} = useAppStore(useShallow(state => ({
+        currentOrganization: state.currentOrganization,
+        user: state.user,
+        config: state.config
     })));
+
+    const isSurfNet = useMemo(() => {
+        if (user?.superUser) return true;
+        const surfSchacHome = config?.surfSchacHomeOrganization;
+        return surfSchacHome && user?.schacHomeOrganization === surfSchacHome;
+    }, [user, config]);
 
     const [period, setPeriod] = useState(periods.year);
     const [periodValue, setPeriodValue] = useState(new Date().getFullYear());
-    const [userIdpOption, setUserIdpOption] = useState(countOptions.total);
     const [customFrom, setCustomFrom] = useState(() => {
         const d = new Date();
         d.setMonth(d.getMonth() - 1);
@@ -91,6 +92,10 @@ const Statistics = () => {
     const [totalLogins, setTotalLogins] = useState(0);
     const [totalUnique, setTotalUnique] = useState(0);
     const [loading, setLoading] = useState(true);
+
+    // Selected filters from table row clicks
+    const [selectedSp, setSelectedSp] = useState(null);
+    const [selectedIdp, setSelectedIdp] = useState(null);
 
     // Entity name lookup maps
     const [spMap, setSpMap] = useState({});
@@ -114,16 +119,16 @@ const Statistics = () => {
             });
     }, []);
 
-    // Fetch statistics data when period, year, or custom dates change
-    useEffect(() => {
+    // Fetch statistics data when period, year, custom dates, or filters change
+    const fetchData = useCallback(() => {
         setLoading(true);
 
         if (period === "custom") {
             const from = Math.floor(customFrom.getTime() / 1000);
             const to = Math.floor(customTo.getTime() / 1000);
-            uniqueLoginCount(from, to, "")
+            const spFilter = selectedSp || "";
+            uniqueLoginCount(from, to, spFilter)
                 .then(result => {
-                    // uniqueLoginCount returns a list of objects
                     const arr = Array.isArray(result) ? result : [result];
                     const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
                     const totUnique = arr.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
@@ -141,22 +146,28 @@ const Statistics = () => {
         const {from, to} = buildFromTo(periodValue);
         const scale = scaleForPeriod[period];
         const periodStr = buildPeriodString(period, periodValue);
+        const spFilter = selectedSp || "";
 
-        Promise.all([
-            loginTimeFrame(from, to, scale, ""),
-            loginAggregated(periodStr, "", "sp_entity_id"),
-            loginAggregated(periodStr, "", "idp_entity_id"),
-            uniqueLoginCount(from, to, ""),
-        ]).then(([timeFrame, perApp, perInstitute, uniqueCount]) => {
+        const promises = [
+            loginTimeFrame(from, to, scale, spFilter),
+            loginAggregated(periodStr, spFilter, "sp_entity_id"),
+            uniqueLoginCount(from, to, spFilter),
+        ];
+
+        // Only fetch per-institute data for SURFnet users
+        if (isSurfNet) {
+            promises.push(loginAggregated(periodStr, spFilter, "idp_entity_id"));
+        }
+
+        Promise.all(promises).then(([timeFrame, perApp, uniqueCount, perInstitute]) => {
             setTimeFrameData(timeFrame || []);
             setPerAppData(perApp || []);
-            setPerInstituteData(perInstitute || []);
+            setPerInstituteData(isSurfNet ? (perInstitute || []) : []);
 
             // Compute totals from timeFrame
             const totLogins = (timeFrame || []).reduce((sum, d) => sum + (d.count_user_id || 0), 0);
             setTotalLogins(totLogins);
 
-            // uniqueLoginCount returns a single number or object
             if (typeof uniqueCount === "number") {
                 setTotalUnique(uniqueCount);
             } else if (uniqueCount && uniqueCount.distinct_count_user_id !== undefined) {
@@ -167,7 +178,11 @@ const Statistics = () => {
             }
             setLoading(false);
         }).catch(() => setLoading(false));
-    }, [period, periodValue, customFrom, customTo]);
+    }, [period, periodValue, customFrom, customTo, selectedSp, isSurfNet]);
+
+    useEffect(() => {
+        fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
+    }, [fetchData]);
 
     const chartLabels = useMemo(() => buildChartLabels(period, periodValue), [period, periodValue]);
 
@@ -186,12 +201,14 @@ const Statistics = () => {
             const name = spNameResolver(d.sp_entity_id || "");
             rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
         });
-        rows.push([]);
-        rows.push(["Per Institute", "Logins", "Unique Users"]);
-        perInstituteData.forEach(d => {
-            const name = idpNameResolver(d.idp_entity_id || "");
-            rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
-        });
+        if (isSurfNet) {
+            rows.push([]);
+            rows.push(["Per Institute", "Logins", "Unique Users"]);
+            perInstituteData.forEach(d => {
+                const name = idpNameResolver(d.idp_entity_id || "");
+                rows.push([name, d.count_user_id || 0, d.distinct_count_user_id || 0]);
+            });
+        }
 
         const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
         const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
@@ -267,16 +284,45 @@ const Statistics = () => {
             </section>
 
             <div className="tables-row">
-                <section className="cardy table-card">
-                    <StatsTable data={perAppData}
-                                titleKey="perApp"
-                                nameResolver={spNameResolver}/>
-                </section>
-                <section className="cardy table-card">
-                    <StatsTable data={perInstituteData}
-                                titleKey="perInstitute"
-                                nameResolver={idpNameResolver}/>
-                </section>
+                {isSurfNet ? (
+                    <>
+                        <section className="cardy table-card">
+                            <StatsTable data={perAppData}
+                                        titleKey="perApp"
+                                        nameResolver={spNameResolver}
+                                        selectedId={selectedSp}
+                                        onSelect={setSelectedSp}
+                                        filterLabel={selectedIdp ? idpNameResolver(selectedIdp) : null}/>
+                        </section>
+                        <section className="cardy table-card">
+                            <StatsTable data={perInstituteData}
+                                        titleKey="perInstitute"
+                                        nameResolver={idpNameResolver}
+                                        selectedId={selectedIdp}
+                                        onSelect={setSelectedIdp}
+                                        filterLabel={selectedSp ? spNameResolver(selectedSp) : null}/>
+                        </section>
+                    </>
+                ) : (
+                    <>
+                        <section className="cardy table-card">
+                            <StatsTable data={perAppData}
+                                        titleKey="loginsPerApp"
+                                        nameResolver={spNameResolver}
+                                        selectedId={selectedSp}
+                                        onSelect={setSelectedSp}
+                                        fixedMetric="logins"/>
+                        </section>
+                        <section className="cardy table-card">
+                            <StatsTable data={perAppData}
+                                        titleKey="uniquePerApp"
+                                        nameResolver={spNameResolver}
+                                        selectedId={selectedSp}
+                                        onSelect={setSelectedSp}
+                                        fixedMetric="unique"/>
+                        </section>
+                    </>
+                )}
             </div>
         </div>
     )
