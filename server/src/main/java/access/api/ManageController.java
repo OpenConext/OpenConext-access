@@ -9,11 +9,13 @@ import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
 import access.manage.PolicyAccessRights;
 import access.manage.PolicyDefinition;
+import access.model.Authority;
 import access.model.EntityType;
 import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -64,11 +66,12 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final List<Map<String, Object>> privacyInfo;
     private final OrganizationRepository organizationRepository;
     private final JiraClient jiraClient;
+    private final UserRepository userRepository;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
                             OrganizationRepository organizationRepository,
-                            JiraClient jiraClient) throws IOException {
+                            JiraClient jiraClient, UserRepository userRepository) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -77,6 +80,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         });
         this.organizationRepository = organizationRepository;
         this.jiraClient = jiraClient;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/arp")
@@ -126,10 +130,14 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     @Transactional(readOnly = true)
     @GetMapping("/allowed-service-providers/{organizationId}")
-    public ResponseEntity<List<Map<String, Object>>> serviceProviders(@PathVariable Long organizationId) {
-        LOG.debug("/serviceProviders for user %s");
+    public ResponseEntity<List<Map<String, Object>>> serviceProviders(User user, @PathVariable Long organizationId) {
+        LOG.debug("/serviceProviders for user: " + user.getEmail());
 
         Organization organization = organizationRepository.getReferenceById(organizationId);
+
+        user = reinitializeUser(user ,userRepository);
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+
         boolean isIdentityProvider = StringUtils.hasText(organization.getManageIdentifier());
         List<Map<String, Object>> serviceProviders = List.of();
         if (isIdentityProvider) {
@@ -281,6 +289,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
+
         //change request has non guessable identifier
         manage.rejectChangeRequest(Environment.PROD, changeRequest);
 

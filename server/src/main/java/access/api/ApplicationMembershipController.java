@@ -5,6 +5,7 @@ import access.model.*;
 import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
 import access.repository.OrganizationMembershipRepository;
+import access.repository.UserRepository;
 import access.request.ApplicationMembershipForm;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -34,27 +35,33 @@ public class ApplicationMembershipController implements UserAccessRights {
     private final ApplicationRepository applicationRepository;
     private final ApplicationMembershipRepository applicationMembershipRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final UserRepository userRepository;
 
-    public ApplicationMembershipController(ApplicationRepository applicationRepository, ApplicationMembershipRepository applicationMembershipRepository, OrganizationMembershipRepository organizationMembershipRepository) {
+    public ApplicationMembershipController(ApplicationRepository applicationRepository,
+                                           ApplicationMembershipRepository applicationMembershipRepository,
+                                           OrganizationMembershipRepository organizationMembershipRepository,
+                                           UserRepository userRepository) {
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping({"", "/"})
     public ResponseEntity<ApplicationMembership> create(
             User user, @RequestBody ApplicationMembershipForm applicationMembershipForm) {
         LOG.debug("/create");
-        OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(applicationMembershipForm.getOrganizationMembershipId())
-                .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         Application application = this.applicationRepository.findById(applicationMembershipForm.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
 
-        confirmOrganizationMembership(user, application.getOrganization(), Authority.GUEST);
+        user = reinitializeUser(user ,userRepository);
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
 
-        if (!application.getOrganization().getId().equals(organizationMembership.getOrganization().getId())) {
+        if (!application.getOrganization().getId().equals(applicationMembershipForm.getOrganizationId())) {
             throw new NotFoundException("Organization not found");
         }
+        OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(applicationMembershipForm.getOrganizationMembershipId())
+                .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
 
@@ -66,6 +73,8 @@ public class ApplicationMembershipController implements UserAccessRights {
         LOG.debug("/delete");
         ApplicationMembership applicationMembership = this.applicationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));
+
+        user = reinitializeUser(user ,userRepository);
         confirmOrganizationMembership(user, applicationMembership.getOrganizationMembership().getOrganization(), Authority.GUEST);
         applicationMembershipRepository.delete(applicationMembership);
 

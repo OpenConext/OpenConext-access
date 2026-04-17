@@ -35,25 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ApplicationControllerTest extends AbstractTest {
 
     @Test
-    void allByOrganization() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        List<Application> applications = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
-                .get("/api/v1/applications/all/{organizationId}")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(2, applications.size());
-
-        Application application = applications.stream().filter(app -> app.getName().equals(BUDDY_CHECK)).findFirst().get();
-        assertNotNull(application.getOrganization());
-    }
-
-    @Test
     void create() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();

@@ -80,8 +80,7 @@ public class OrganizationController implements UserAccessRights {
     @GetMapping("/applications/{id}")
     @SuppressWarnings("unchecked")
     public ResponseEntity<Map<String, Object>> findOrganizationDetailById(User user,
-                                             @PathVariable("id") Long id,
-                                             @RequestParam(value = "withIdp", required = false, defaultValue = "false") boolean withIdp) {
+                                                                          @PathVariable Long id) {
         LOG.debug("/find Organization by " + user.getEmail());
 
         User userFromDB = reinitializeUser(user, userRepository);
@@ -182,7 +181,7 @@ public class OrganizationController implements UserAccessRights {
     public ResponseEntity<List<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "query") String query) {
         LOG.debug(String.format("/landing-search for user %s", user.getEduPersonPrincipalName()));
-
+        //We can enforce any authorization rules here, as this is performed on the landing page
         List<Map<String, Object>> organizations = organizationRepository.searchWithKeyword(FullSearchQueryParser.parse(query));
         return ResponseEntity.ok(organizations);
     }
@@ -211,20 +210,22 @@ public class OrganizationController implements UserAccessRights {
     }
 
     @GetMapping("/light/{id}")
-    public ResponseEntity<Organization> light(@PathVariable("id") Long id) {
+    public ResponseEntity<Map<String, String>> light(@PathVariable Long id) {
         LOG.debug("/light");
 
         Organization organization = organizationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
 
-        return ResponseEntity.ok(organization);
+        return ResponseEntity.ok(Map.of("name", organization.getName()));
     }
 
     @GetMapping("/invitation/{id}")
-    public ResponseEntity<Organization> name(@PathVariable("id") Long id) {
+    public ResponseEntity<Organization> name(User user, @PathVariable Long id) {
         LOG.debug("/name");
         Organization organization = organizationRepository.findApplicationsOrganizationById(id)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
+        user = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
         return ResponseEntity.ok(organization);
     }
 
@@ -342,10 +343,14 @@ public class OrganizationController implements UserAccessRights {
 
     @GetMapping("/identity-providers-allowed-connections/{organizationId}")
     public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
-                                                                                   @PathVariable("organizationId") Long organizationId) {
+                                                                                           @PathVariable Long organizationId) {
         LOG.debug("/identityProvidersByAllowedConnections by: "+user.getEmail());
         Organization organization = organizationRepository.findApplicationsOrganizationById(organizationId)
                 .orElseThrow(() -> new NotFoundException("Organisation not found"));
+
+        user = reinitializeUser(user ,userRepository);
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+
         List<Connection> connections = organization.getApplications().stream()
                 .map(Application::getConnections)
                 .flatMap(Collection::stream)

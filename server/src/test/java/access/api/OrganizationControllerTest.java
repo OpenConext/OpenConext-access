@@ -11,6 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,9 +65,9 @@ class OrganizationControllerTest extends AbstractTest {
 
     @Test
     void light() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
-        Organization organization = given()
+        Map<String, String> result = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))
@@ -74,11 +75,11 @@ class OrganizationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("id", seedIdentifiers.get(SHARE_LOGICS))
                 .get("/api/v1/organizations/light/{id}")
-                .as(Organization.class);
+                .as(new TypeRef<>() {
+                });
 
-        assertEquals(3, organization.getMemberCount());
-        assertEquals(2L, organization.getApplicationCount());
-        assertNull(organization.getApplications());
+        assertEquals(1, result.size());
+        assertEquals(SHARE_LOGICS, result.get("name"));
     }
 
     @Test
@@ -103,7 +104,7 @@ class OrganizationControllerTest extends AbstractTest {
 
     @Test
     void invitation() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
         Map<String, Object> map = given()
                 .when()

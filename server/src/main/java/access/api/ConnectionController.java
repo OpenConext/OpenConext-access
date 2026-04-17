@@ -11,6 +11,7 @@ import access.manage.Manage;
 import access.manage.PathUpdateType;
 import access.manage.RequestType;
 import access.model.Application;
+import access.model.Authority;
 import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
@@ -106,6 +107,11 @@ public class ConnectionController implements UserAccessRights {
 
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
+        Application application = connection.getApplication();
+
+        user = reinitializeUser(user ,userRepository);
+        confirmApplicationWriteAccess(user, application, Authority.GUEST);
+
         if (StringUtils.hasText(connection.getManageIdentifier())) {
             Map<String, Object> provider = manage.providerByConnection(connection);
             if (connection.mergeMetaData(provider, false)) {
@@ -127,6 +133,10 @@ public class ConnectionController implements UserAccessRights {
         return connectionRepository.findByProtocolAndManageIdentifier(entityType, manageIdentifier)
                 .map(connection -> {
                     Application application = connection.getApplication();
+
+                    User userFromDB = reinitializeUser(user ,userRepository);
+                    confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);
+
                     Organization organization = application.getOrganization();
                     return ResponseEntity.ok(Map.of(
                             "connection", connection,
@@ -273,6 +283,10 @@ public class ConnectionController implements UserAccessRights {
         LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
+
+        user = reinitializeUser(user, userRepository);
+        confirmApplicationWriteAccess(user, connection.getApplication(), Authority.GUEST);
+
         List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(List.of(connection));
         return ResponseEntity.ok(identityProviders);
     }

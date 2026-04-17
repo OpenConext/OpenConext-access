@@ -113,22 +113,6 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.ok(applications);
     }
 
-    @GetMapping("/all/{organizationId}")
-    public ResponseEntity<List<Application>> allByOrganization(@PathVariable("organizationId") Long id, User user) {
-        LOG.debug("/all");
-
-        Set<OrganizationMembership> organizationMemberships = user.getOrganizationMemberships();
-        Organization organization = organizationMemberships.stream()
-                .map(membership -> membership.getOrganization())
-                .filter(membershipOrganization -> membershipOrganization.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Organisation not found"));
-        List<Application> applications = this.applicationRepository.findByOrganization(organization);
-
-        applications.forEach(application -> ManageData.removeSecrets(application));
-        return ResponseEntity.ok(applications);
-    }
-
     @GetMapping("/all/light/{organizationId}")
     public ResponseEntity<List<Map<String, Object>>> allLightByOrganization(@PathVariable Long organizationId, User user) {
         LOG.debug("/allLightByOrganization");
@@ -289,6 +273,10 @@ public class ApplicationController implements UserAccessRights {
         LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application not found"));
+        user = reinitializeUser(user, userRepository);
+
+        confirmApplicationDeleteAccess(user, application);
+
         List<Connection> connections = new ArrayList<>(application.getConnections());
         List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(connections);
         return ResponseEntity.ok(identityProviders);
