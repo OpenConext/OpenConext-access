@@ -1283,6 +1283,8 @@ const en = {
         absolute: "#",
         percentage: "%",
         successRate: "successful logins",
+        from: "From",
+        to: "To",
     },
 }
 

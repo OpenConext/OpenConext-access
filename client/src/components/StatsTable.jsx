@@ -50,7 +50,7 @@ const StatsTable = ({data = [], titleKey, nameResolver}) => {
                     const entityId = row.sp_entity_id || row.idp_entity_id || "";
                     const name = nameResolver ? nameResolver(entityId) : entityId;
                     return (
-                        <div key={entityId || idx} className="stats-table-row">
+                        <div key={entityId || idx} className={`stats-table-row ${metric === "logins" ? "logins" : "unique"}`}>
                             <div className="row-label">{name}</div>
                             <div className="row-bar-container">
                                 <div className="row-bar" style={{width: `${barWidth}%`}}/>

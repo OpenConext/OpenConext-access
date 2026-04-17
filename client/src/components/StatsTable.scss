@@ -49,9 +49,16 @@
 
         .row-bar {
             height: 100%;
-            background-color: var(--sds--color--green--400, #00a650);
             border-radius: 4px;
             transition: width 0.3s ease;
+        }
+
+        &.logins .row-bar {
+            background-color: var(--sl-color-informative-50);
+        }
+
+        &.unique .row-bar {
+            background-color: var(--sl-color-succes-50);
         }
 
         .row-value {

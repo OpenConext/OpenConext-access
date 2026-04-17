@@ -1283,6 +1283,8 @@ const nl = {
         absolute: "#",
         percentage: "%",
         successRate: "succesvolle inlogpogingen",
+        from: "Van",
+        to: "Tot",
     },
 }
 

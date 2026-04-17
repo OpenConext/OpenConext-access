@@ -1,6 +1,11 @@
 import I18n from "../locale/I18n";
 import {isEmpty} from "./Utils";
 
+export const futureDate = (daysAhead, fromDate = new Date()) => {
+    const time = fromDate.getTime() + (1000 * 60 * 60 * 24 * daysAhead);
+    return new Date(time);
+}
+
 export const formatDate = (date, longMonth = true, includeTime = false) => {
     const options = {month: longMonth ? "long" : "short", day: "numeric", year: "numeric"};
     if (includeTime) {

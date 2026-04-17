@@ -21,10 +21,18 @@ const formatAxisValue = (value) => {
     return value.toString();
 };
 
+const resolveColor = (varName, fallback) => {
+    const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    return val || fallback;
+};
+
 const StatsLineChart = ({data, labels}) => {
     if (!data || data.length === 0) {
         return null;
     }
+
+    const blue = resolveColor("--sds--color--blue--400", "#0077c8");
+    const green = resolveColor("--sds--color--green--400", "#00a650");
 
     const logins = data.map(d => d.count_user_id || 0);
     const unique = data.map(d => d.distinct_count_user_id || 0);
@@ -35,8 +43,8 @@ const StatsLineChart = ({data, labels}) => {
             {
                 label: I18n.t("statistics.logins"),
                 data: logins,
-                borderColor: "var(--sds--color--blue--400, #0077c8)",
-                backgroundColor: "var(--sds--color--blue--400, #0077c8)",
+                borderColor: blue,
+                backgroundColor: blue,
                 pointStyle: "circle",
                 pointRadius: 5,
                 pointHoverRadius: 7,
@@ -46,8 +54,8 @@ const StatsLineChart = ({data, labels}) => {
             {
                 label: I18n.t("statistics.uniqueUsers"),
                 data: unique,
-                borderColor: "var(--sds--color--green--400, #00a650)",
-                backgroundColor: "var(--sds--color--green--400, #00a650)",
+                borderColor: green,
+                backgroundColor: green,
                 pointStyle: "rect",
                 pointRadius: 5,
                 pointHoverRadius: 7,
@@ -66,13 +74,7 @@ const StatsLineChart = ({data, labels}) => {
         },
         plugins: {
             legend: {
-                position: "top",
-                align: "start",
-                labels: {
-                    usePointStyle: true,
-                    padding: 20,
-                    font: {size: 13},
-                },
+                display: false,
             },
             tooltip: {
                 callbacks: {
@@ -104,7 +106,19 @@ const StatsLineChart = ({data, labels}) => {
 
     return (
         <div className="stats-line-chart">
-            <h4>{I18n.t("statistics.overTime")}</h4>
+            <div className="chart-header">
+                <h4>{I18n.t("statistics.overTime")}</h4>
+                <div className="chart-legend">
+                    <span className="legend-item">
+                        <span className="legend-dot blue"/>
+                        {I18n.t("statistics.logins")}
+                    </span>
+                    <span className="legend-item">
+                        <span className="legend-dot green"/>
+                        {I18n.t("statistics.uniqueUsers")}
+                    </span>
+                </div>
+            </div>
             <div className="chart-wrapper">
                 <Line data={chartData} options={options}/>
             </div>

@@ -29,18 +29,45 @@
 
         .statistics-menu-options {
             display: flex;
-            gap: 36px;
+            gap: 16px;
+            align-items: flex-end;
 
             button.sds--btn--primary.export {
                 border: 1px solid var(--sl-color-neutral-200);
                 border-radius: 12px;
                 background: var(--sl-color-neutral-100);
                 color: var(--sds--color--blue--400);
+                white-space: nowrap;
 
                 svg.export-icon {
                     width: 20px;
                     height: auto;
                     fill: none;
+                }
+            }
+
+            .custom-date-range {
+                display: flex;
+                gap: 12px;
+                align-items: flex-end;
+
+                .date-field {
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 8px;
+
+                    label.date-field-label {
+                        min-width: unset;
+                        margin: 0;
+                    }
+
+                    .date-picker-container {
+                        width: 140px;
+                    }
+
+                    .react-datepicker-wrapper {
+                        width: 140px;
+                    }
                 }
             }
         }

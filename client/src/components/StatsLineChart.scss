@@ -4,9 +4,42 @@
     gap: 12px;
     width: 100%;
 
-    h4 {
-        font-weight: 600;
-        margin: 0;
+    .chart-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        h4 {
+            font-weight: 600;
+            margin: 0;
+        }
+    }
+
+    .chart-legend {
+        display: flex;
+        gap: 16px;
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+
+            &.blue {
+                background-color: var(--sds--color--blue--400, #0077c8);
+                border-radius: 50%;
+            }
+
+            &.green {
+                background-color: var(--sds--color--green--400, #00a650);
+            }
+        }
     }
 
     .chart-wrapper {

@@ -10,6 +10,7 @@ import {Button, ButtonIconPlacement} from "@surfnet/sds";
 import ExportIcon from "../icons/export.svg";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import StatsTable from "../components/StatsTable.jsx";
+import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame, loginAggregated, uniqueLoginCount, publicServiceProviders, publicIdentityProviders} from "../api/index.js";
 import {providerName} from "../utils/Manage.js";
 
@@ -18,6 +19,7 @@ const periods = {
     quarter: "quarter",
     month: "month",
     week: "week",
+    custom: "custom",
 }
 
 const countOptions = {
@@ -76,6 +78,12 @@ const Statistics = () => {
     const [period, setPeriod] = useState(periods.year);
     const [periodValue, setPeriodValue] = useState(new Date().getFullYear());
     const [userIdpOption, setUserIdpOption] = useState(countOptions.total);
+    const [customFrom, setCustomFrom] = useState(() => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 1);
+        return d;
+    });
+    const [customTo, setCustomTo] = useState(new Date());
 
     const [timeFrameData, setTimeFrameData] = useState([]);
     const [perAppData, setPerAppData] = useState([]);
@@ -106,9 +114,30 @@ const Statistics = () => {
             });
     }, []);
 
-    // Fetch statistics data when period or year changes
+    // Fetch statistics data when period, year, or custom dates change
     useEffect(() => {
         setLoading(true);
+
+        if (period === "custom") {
+            const from = Math.floor(customFrom.getTime() / 1000);
+            const to = Math.floor(customTo.getTime() / 1000);
+            uniqueLoginCount(from, to, "")
+                .then(result => {
+                    // uniqueLoginCount returns a list of objects
+                    const arr = Array.isArray(result) ? result : [result];
+                    const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
+                    const totUnique = arr.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
+                    setTotalLogins(totLogins);
+                    setTotalUnique(totUnique);
+                    setTimeFrameData(arr);
+                    setPerAppData([]);
+                    setPerInstituteData([]);
+                    setLoading(false);
+                })
+                .catch(() => setLoading(false));
+            return;
+        }
+
         const {from, to} = buildFromTo(periodValue);
         const scale = scaleForPeriod[period];
         const periodStr = buildPeriodString(period, periodValue);
@@ -138,7 +167,7 @@ const Statistics = () => {
             }
             setLoading(false);
         }).catch(() => setLoading(false));
-    }, [period, periodValue]);
+    }, [period, periodValue, customFrom, customTo]);
 
     const chartLabels = useMemo(() => buildChartLabels(period, periodValue), [period, periodValue]);
 
@@ -188,7 +217,24 @@ const Statistics = () => {
                                           options={Object.keys(periods)}
                                           option={period}
                                           optionLabelResolver={option => I18n.t(`statistics.${option}`)}/>
-                        <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
+                        {period !== "custom" && (
+                            <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
+                        )}
+                        <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
+                            <DateField name={I18n.t("statistics.from")}
+                                       value={customFrom}
+                                       onChange={setCustomFrom}
+                                       maxDate={customTo}
+                                       pastDatesAllowed={true}
+                                       allowNull={false}/>
+                            <DateField name={I18n.t("statistics.to")}
+                                       value={customTo}
+                                       onChange={setCustomTo}
+                                       minDate={customFrom}
+                                       maxDate={new Date()}
+                                       pastDatesAllowed={true}
+                                       allowNull={false}/>
+                        </div>
 
                         <Button onClick={handleExport}
                                 className="export"
