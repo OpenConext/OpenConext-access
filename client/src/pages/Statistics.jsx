@@ -81,8 +81,7 @@ const formatStatNumber = (n) => {
 }
 
 const Statistics = () => {
-    const {currentOrganization, user, config} = useAppStore(useShallow(state => ({
-        currentOrganization: state.currentOrganization,
+    const {user, config} = useAppStore(useShallow(state => ({
         user: state.user,
         config: state.config
     })));
@@ -262,7 +261,7 @@ const Statistics = () => {
             <div className="statistics-header">
                 <div className="title">
                     <h2>{I18n.t("statistics.title")}</h2>
-                    <p>{I18n.t("statistics.login", {name: currentOrganization.name})}</p>
+                    <p>{I18n.t(isSurfNet ? "statistics.loginAll" : "statistics.loginOwn")}</p>
                 </div>
                 <div className="statistics-menu">
                     <h5 className="period">{I18n.t("statistics.period")}</h5>

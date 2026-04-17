@@ -1265,6 +1265,8 @@ const en = {
     statistics: {
         title: "Statistics",
         login: "Login data for all institutes and apps.",
+        loginAll: "Login data for all institutes and apps.",
+        loginOwn: "Login data for your institution and all apps.",
         period: "Period",
         year: "Year",
         quarter: "Quarter",

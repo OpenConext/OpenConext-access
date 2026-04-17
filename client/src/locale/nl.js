@@ -1265,6 +1265,8 @@ const nl = {
     statistics: {
         title: "Statistieken",
         login: "Inloggegevens voor alle instellingen en apps.",
+        loginAll: "Inloggegevens voor alle instellingen en apps.",
+        loginOwn: "Inloggegevens voor uw instelling en alle apps.",
         period: "Periode",
         year: "Jaar",
         quarter: "Kwartaal",
