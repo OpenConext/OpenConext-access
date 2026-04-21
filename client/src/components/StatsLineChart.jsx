@@ -36,7 +36,6 @@ const StatsLineChart = ({data, labels}) => {
 
     const logins = data.map(d => d.count_user_id || 0);
     const unique = data.map(d => d.distinct_count_user_id || 0);
-
     const chartData = {
         labels,
         datasets: [

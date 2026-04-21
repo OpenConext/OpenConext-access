@@ -26,9 +26,9 @@ const periods = {
 
 const scaleForPeriod = {
     year: "month",
-    quarter: "week",
-    month: "day",
-    week: "day",
+    quarter: "quarter",
+    month: "month",
+    week: "week",
 }
 
 const buildPeriodString = (period, year) => {
@@ -59,7 +59,8 @@ const buildChartLabels = (scale) => {
 
 const scaleForCustomRange = (from, to) => {
     const diffDays = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
-    if (diffDays > 365) return "year";
+    if (diffDays > 3 * 365) return "year";
+    if (diffDays > 365) return "quarter";
     if (diffDays > 180) return "month";
     return "day";
 }
@@ -70,6 +71,10 @@ const formatCustomLabel = (timestamp, scale) => {
     switch (scale) {
         case "year":
             return `${d.getFullYear()}`;
+        case "quarter": {
+            const quarter = Math.ceil((d.getMonth() + 1) / 3);
+            return `Q${quarter} ${d.getFullYear()}`;
+        }
         case "month":
             return d.toLocaleDateString("en-GB", {month: "short", year: "numeric"});
         default:
@@ -218,8 +223,8 @@ const Statistics = () => {
             return timeFrameData.map(d => formatCustomLabel(d.time, scale));
         }
         const scale = scaleForPeriod[period];
-        if (scale === "day") {
-            return timeFrameData.map(d => formatCustomLabel(d.time, "day"));
+        if (scale === "day" || scale === "quarter") {
+            return timeFrameData.map(d => formatCustomLabel(d.time, scale));
         }
         return buildChartLabels(scale);
     }, [period, customFrom, customTo, timeFrameData]);

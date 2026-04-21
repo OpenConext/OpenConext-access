@@ -71,6 +71,7 @@ export const ContactPersons = ({
                                                 I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
                                                 I18n.t("forms.or")
                                             )}
+                                            required={true}
                                             disabled={readOnly}
                                             onChange={e => updateContactPerson(contactPerson.id, e)}
                                             onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
