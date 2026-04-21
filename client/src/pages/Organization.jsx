@@ -73,7 +73,7 @@ const Organization = () => {
                         //We need to get the admin of this app - if any
                         organizationMineById(organizationId)
                             .then(res => {
-                                const technicalEmail = res.metaData.contactPersons
+                                const technicalEmail = (res.metaData?.contactPersons || [])
                                     .find(person => person.type === contactPersonTypes.technical && isValidEmail(person.email));
                                 setContactEmail(technicalEmail?.email);
                                 setLoading(false);

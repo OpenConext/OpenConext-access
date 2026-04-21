@@ -70,7 +70,7 @@ export const convertServerApplicationToClient = (application, protocolOptions, p
                 id: crypto.randomUUID()
             }
         });
-    if (isEmpty(application.metaData.contactPersons)) {
+    if (isEmpty(application?.metaData?.contactPersons)) {
         application.metaData.contactPersons = Object.keys(contactPersonTypes).map(typeContact => ({
             type: typeContact,
             id: crypto.randomUUID(),
