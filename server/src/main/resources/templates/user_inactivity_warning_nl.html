@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
+    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+        {{> logo-surf.svg}}
+        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Access</span>
+    </div>
+    <div class="head" style="padding: 30px 40px 20px 40px;">
+        {{#environment}}
+        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
+            Deze e-mail is afkomstig uit de {{environment}}-omgeving
+        </p>
+        {{/environment}}
+        <p class="title" style="">Beste {{user.name}},</p>
+
+        <p>Je OpenConext Access-account is niet gebruikt sinds <strong>{{lastActivity}}</strong>.
+            Accounts die inactief blijven, worden verwijderd.</p>
+
+        <p>Als er geen actie wordt ondernomen, wordt je account <strong>verwijderd op {{deletionDate}}</strong>.
+            Je lidmaatschappen bij organisaties en bijbehorende toegangsrechten worden verwijderd.</p>
+
+        <p>Om je account te behouden, log je vóór de verwijderingsdatum in bij OpenConext Access.</p>
+
+        <div style="display: flex;">
+            <a class="button" href="{{{ clientUrl }}}"
+               style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
+                <span style="color: white;margin: auto 0 auto 25px;">Inloggen bij OpenConext Access</span>
+            </a>
+        </div>
+    </div>
+    {{> footer_nl.html}}
+</div>
+</body>
+</html>

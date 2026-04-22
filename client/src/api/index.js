@@ -443,3 +443,8 @@ export function loginAggregated(period, spEntityId, groupBy) {
 export function uniqueLoginCount(from, to, spEntityId) {
     return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
 }
+
+//System
+export function cronCleanup() {
+    return fetchJson("/api/v1/system/cron/cleanup");
+}

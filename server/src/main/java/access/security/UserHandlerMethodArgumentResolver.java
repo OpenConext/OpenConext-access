@@ -69,16 +69,14 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     User user = new User(attributes);
                     userRepository.save(user);
                     return Optional.of(user);
-                })
-                .map(user -> {
-                    String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
-                    if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
-                        return userRepository.findById(Long.valueOf(impersonateId))
-                                .orElseThrow(() -> new UserRestrictionException("Forbidden"));
-                    }
-                    return user;
                 });
-        return optionalUser.orElseThrow(() -> new UserRestrictionException("Forbidden"));
+        User user = optionalUser.orElseThrow(() -> new UserRestrictionException("Forbidden"));
+        String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
+        if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
+            return userRepository.findById(Long.valueOf(impersonateId))
+                    .orElseThrow(() -> new UserRestrictionException("Forbidden"));
+        }
+        return user;
     }
 
 }

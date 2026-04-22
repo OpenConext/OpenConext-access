@@ -1,0 +1,11 @@
+Beste {{user.name}},
+
+Je OpenConext Access-account is niet gebruikt sinds {{lastActivity}}. Accounts die inactief blijven, worden verwijderd.
+
+Als er geen actie wordt ondernomen, wordt je account verwijderd op {{deletionDate}}. Je lidmaatschappen bij organisaties en bijbehorende toegangsrechten worden verwijderd.
+
+Om je account te behouden, log je vóór de verwijderingsdatum in bij OpenConext Access:
+
+{{{ clientUrl }}}
+
+{{> footer_nl.txt}}

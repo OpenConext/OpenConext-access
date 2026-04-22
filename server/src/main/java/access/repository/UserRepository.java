@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,4 +43,7 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
             countQuery = "SELECT count(*) FROM users",
             nativeQuery = true)
     Page<Map<String, Object>> searchByPage(Pageable pageable);
+
+    @Query("SELECT u FROM users u WHERE u.organizationMemberships IS NOT EMPTY AND (u.lastActivity IS NULL OR u.lastActivity < :cutoff)")
+    List<User> findInactiveUsersWithMemberships(@org.springframework.data.repository.query.Param("cutoff") Instant cutoff);
 }

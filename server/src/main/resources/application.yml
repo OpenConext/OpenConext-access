@@ -76,7 +76,10 @@ cron:
   user-cleaner-cron-initial-delay: "PT10S"
   user-cleaner-lock-at-least-for: "PT5M"
   user-cleaner-lock-at-most-for: "PT28M"
-
+  org-contact-reminder-days: 180
+  org-delete-after-days: 365
+  user-inactivity-warn-days: 60
+  user-inactivity-delete-days: 90
 
 lifecycle:
   user: lifecycle
@@ -153,6 +156,7 @@ email:
   contactEmail: "access@surf.nl"
   serviceDeskEmail: "help@surfconext.nl"
   supportEmail: "support@surfconext.nl"
+  jiraErrorEmail: "jira-errors@surf.nl"
   environment: "local"
 
 # The manage section determines if an external Manage is used to integrate with, or that a predefined, static list

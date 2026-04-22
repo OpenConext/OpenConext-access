@@ -1,6 +1,7 @@
 package access.jira;
 
 import access.manage.JSONHeaderInterceptor;
+import access.mail.MailBox;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +36,7 @@ public class JiraClient {
     private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);
 
     private final JiraConfig config;
+    private final MailBox mailBox;
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
@@ -42,8 +44,9 @@ public class JiraClient {
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
-    public JiraClient(JiraConfig config, ObjectMapper objectMapper) {
+    public JiraClient(JiraConfig config, ObjectMapper objectMapper, MailBox mailBox) {
         this.config = config;
+        this.mailBox = mailBox;
         this.mappings = objectMapper.readValue(new ClassPathResource("jira/mappings.json").getInputStream(), new TypeReference<>() {
         });
         this.issueType = this.resolveIssueType();
@@ -100,6 +103,7 @@ public class JiraClient {
                     e.getResponseBodyAsString(),
                     jiraIssue,
                     e);
+            mailBox.sendJiraError("create", jiraIssue.toString(), e.getMessage(), e.getResponseBodyAsString());
             throw e;
         }
     }
@@ -114,9 +118,19 @@ public class JiraClient {
 
         LOG.info("Sending JSON {} to JIRA", body);
 
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(commentUrl, HttpMethod.POST, commentRequestEntity, Map.class);
-
-        LOG.info("Response {} from JIRA", responseEntity.getBody());
+        try {
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(commentUrl, HttpMethod.POST, commentRequestEntity, Map.class);
+            LOG.info("Response {} from JIRA", responseEntity.getBody());
+        } catch (HttpClientErrorException e) {
+            LOG.error("Failed to post Jira comment: {} ({}) with response:{}, JSON Request: {}",
+                    e.getStatusCode(),
+                    e.getStatusText(),
+                    e.getResponseBodyAsString(),
+                    body,
+                    e);
+            mailBox.sendJiraError("comment", body.toString(), e.getMessage(), e.getResponseBodyAsString());
+            throw e;
+        }
     }
 
     private String resolveIssueType() {

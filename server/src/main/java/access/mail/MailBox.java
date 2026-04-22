@@ -1,6 +1,7 @@
 package access.mail;
 
 import access.model.*;
+import access.manage.Contact;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -17,7 +18,9 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +34,7 @@ public class MailBox {
     private final String emailFrom;
     private final String serviceDeskEmail;
     private final String supportEmail;
+    private final String jiraErrorEmail;
     private final String environment;
 
     private final Map<String, Map<String, String>> subjects;
@@ -42,6 +46,7 @@ public class MailBox {
             String emailFrom,
             String serviceDeskEmail,
             String supportEmail,
+            String jiraErrorEmail,
             String clientUrl,
             String environment,
             ObjectMapper objectMapper) throws IOException {
@@ -49,6 +54,7 @@ public class MailBox {
         this.emailFrom = emailFrom;
         this.serviceDeskEmail = serviceDeskEmail;
         this.supportEmail = supportEmail;
+        this.jiraErrorEmail = jiraErrorEmail;
         this.clientUrl = clientUrl;
         this.environment = environment;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
@@ -221,6 +227,51 @@ public class MailBox {
                 variables,
                 attachment,
                 supportEmail);
+    }
+
+    @SneakyThrows
+    public void sendOrgContactReminder(Organization organization, Contact contact, String language) {
+        String lang = language != null ? language : preferredLanguage();
+        String title = String.format(subjects.get(lang).get("orgContactReminder"), organization.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("organization", organization);
+        variables.put("contact", contact);
+        variables.put("title", title);
+        variables.put("url", String.format("%s/organization/%s", clientUrl, organization.getId()));
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("org_contact_reminder_%s", lang), title, variables, contact.getEmail());
+    }
+
+    @SneakyThrows
+    public void sendUserInactivityWarning(User user, Instant deletionDate) {
+        String lang = preferredLanguage();
+        String title = String.format(subjects.get(lang).get("userInactivityWarning"), environment);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy").withZone(ZoneId.systemDefault());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("user", user);
+        variables.put("title", title);
+        variables.put("lastActivity", user.getLastActivity() != null ? formatter.format(user.getLastActivity()) : "unknown");
+        variables.put("deletionDate", formatter.format(deletionDate));
+        variables.put("clientUrl", clientUrl);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("user_inactivity_warning_%s", lang), title, variables, user.getEmail());
+    }
+
+    @SneakyThrows
+    public void sendJiraError(String operation, String requestPayload, String errorMessage, String responseBody) {
+        String title = String.format(subjects.get("en").get("jiraError"), environment, operation);
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("title", title);
+        variables.put("operation", operation);
+        variables.put("requestPayload", requestPayload);
+        variables.put("errorMessage", errorMessage);
+        variables.put("responseBody", responseBody);
+        variables.put("environment", environment);
+        sendMail("jira_error_en", title, variables, jiraErrorEmail);
     }
 
     private String preferredLanguage() {

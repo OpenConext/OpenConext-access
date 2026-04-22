@@ -118,6 +118,7 @@ const en = {
         organizationPendingApproval: "Pending approval",
         import: "import",
         migrate: "migrate",
+        cron: "Cron",
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -190,6 +191,7 @@ const en = {
         information: "App information",
         import: "Manage import",
         migrate: "App migration",
+        cron: "Cron",
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -1190,7 +1192,7 @@ const en = {
     error: {
         title: "Whoops, error!!!",
         unexpected: "An unexpected error occurred. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
-        jiraDown: "Momentarily the backend could not process your request. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> for support.",
+        jiraDown: "There was a backend error processing your request, but it has been registered and will be processed. You will be contacted when it is complete.",
     },
     policies: {
         title: "Policies for {{name}}",
@@ -1292,6 +1294,13 @@ const en = {
         to: "To",
         for: "for",
         perPeriod: "per period",
+    },
+    system: {
+        cron: {
+            info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, warn and delete inactive users.",
+            trigger: "Run",
+            clear: "Clear",
+        },
     },
 }
 

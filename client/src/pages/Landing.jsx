@@ -88,6 +88,15 @@ const Landing = ({refreshUser}) => {
                     okButton: I18n.t("forms.proceed")
                 });
             })
+            .catch(() => {
+                setLoading(false);
+                setConfirmation({
+                    open: true,
+                    action: () => setConfirmation({open: false}),
+                    question: I18n.t("error.jiraDown"),
+                    okButton: I18n.t("forms.ok")
+                });
+            })
     }
     const {open, action, question, okButton} = confirmation;
     const exactMatch = !isEmpty(organizations) && !isEmpty(search) && search.trim().length > 2 && !loading && organizations

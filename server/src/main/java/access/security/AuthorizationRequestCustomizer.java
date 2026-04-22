@@ -30,7 +30,9 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                 return;
             }
             DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-            String[] force = savedRequest.getParameterValues("force");
+            if (savedRequest == null) {
+                return;
+            }            String[] force = savedRequest.getParameterValues("force");
             if (force != null && force.length == 1) {
                 params.put("prompt", "login");
             }

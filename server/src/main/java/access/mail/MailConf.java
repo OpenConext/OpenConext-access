@@ -19,10 +19,11 @@ public class MailConf {
                            @Value("${email.from}") String emailFrom,
                            @Value("${email.serviceDeskEmail}") String serviceDeskEmail,
                            @Value("${email.supportEmail}") String supportEmail,
+                           @Value("${email.jiraErrorEmail}") String jiraErrorEmail,
                            @Value("${email.environment}") String env,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return new MailBox(mailSender, emailFrom, serviceDeskEmail, supportEmail, config.getClientUrl(), env, objectMapper);
+        return new MailBox(mailSender, emailFrom, serviceDeskEmail, supportEmail, jiraErrorEmail, config.getClientUrl(), env, objectMapper);
     }
 
 

@@ -50,6 +50,9 @@ public class Organization implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(name = "last_contact_reminder_at")
+    private Instant lastContactReminderAt;
+
     @Transient
     private Map<String, Object> metaData = new HashMap<>();
 

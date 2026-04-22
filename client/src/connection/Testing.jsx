@@ -1218,6 +1218,18 @@ export const Testing = ({
                         okButton: I18n.t("confirmationDialog.ok")
                     });
                 })
+                .catch(() => {
+                    setBusy(false);
+                    setConfirmation({
+                        open: true,
+                        cancel: null,
+                        modal: null,
+                        header: I18n.t("error.title"),
+                        action: () => setConfirmation({open: false}),
+                        question: I18n.t("error.jiraDown"),
+                        okButton: I18n.t("forms.ok")
+                    });
+                })
         }
     }
 

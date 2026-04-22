@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,6 +81,11 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     @Query(value = "SELECT org.id, org.name FROM organizations org", nativeQuery = true)
     List<Map<String, Object>> findAllLight();
+
+    List<Organization> findByManageIdentifierIsNotNullAndManageIdentifierIsNot(String manageIdentifier);
+
+    @EntityGraph(attributePaths = {"applications.connections"})
+    List<Organization> findByManageIdentifierIsNullAndCreatedAtBefore(Instant cutoff);
 
     @Override
     default String rewrite(String query, Sort sort) {

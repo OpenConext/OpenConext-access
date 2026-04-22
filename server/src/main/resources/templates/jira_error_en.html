@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
+    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+        {{> logo-surf.svg}}
+        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Access</span>
+    </div>
+    <div class="head" style="padding: 30px 40px 20px 40px;">
+        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
+            This mail is from the {{environment}} environment
+        </p>
+        <p class="title" style="font-size: 20px;font-weight: bold;">Jira API error</p>
+        <p>A call to the Jira API failed in the <strong>{{environment}}</strong> environment.</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <tr>
+                <td style="padding: 8px; font-weight: bold; width: 160px; vertical-align: top; background-color: #f5f5f5;">Operation</td>
+                <td style="padding: 8px; vertical-align: top;">{{operation}}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Error</td>
+                <td style="padding: 8px; vertical-align: top; color: #c0392b;">{{errorMessage}}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Request payload</td>
+                <td style="padding: 8px; vertical-align: top;">
+                    <pre style="white-space: pre-wrap; word-break: break-all; background-color: #f5f5f5; padding: 10px; font-size: 13px;">{{requestPayload}}</pre>
+                </td>
+            </tr>
+            {{#responseBody}}
+            <tr>
+                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Jira response</td>
+                <td style="padding: 8px; vertical-align: top;">
+                    <pre style="white-space: pre-wrap; word-break: break-all; background-color: #f5f5f5; padding: 10px; font-size: 13px;">{{responseBody}}</pre>
+                </td>
+            </tr>
+            {{/responseBody}}
+        </table>
+    </div>
+    {{> footer_en.html}}
+</div>
+</body>
+</html>

@@ -295,6 +295,7 @@ const Statistics = () => {
                                        value={customFrom}
                                        onChange={setCustomFrom}
                                        maxDate={customTo}
+                                       showYearDropdown={true}
                                        pastDatesAllowed={true}
                                        allowNull={false}/>
                             <DateField name={I18n.t("statistics.to")}
@@ -302,6 +303,7 @@ const Statistics = () => {
                                        onChange={setCustomTo}
                                        minDate={customFrom}
                                        maxDate={new Date()}
+                                       showYearDropdown={true}
                                        pastDatesAllowed={true}
                                        allowNull={false}/>
                         </div>

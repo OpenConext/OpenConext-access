@@ -1,0 +1,11 @@
+Dear {{contact.givenName}} {{contact.surName}},
+
+We would like to ask you to review and update the contact information for your organisation {{organization.name}} in OpenConext Access.
+
+Keeping contact information up to date ensures that the right people are notified about important changes to your organisation's access configuration.
+
+Review contact information:
+
+{{{ url }}}
+
+{{> footer_en.txt}}

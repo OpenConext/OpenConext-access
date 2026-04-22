@@ -1,0 +1,11 @@
+Dear {{user.name}},
+
+Your OpenConext Access account has not been used since {{lastActivity}}. Accounts that remain inactive will be deleted.
+
+If no action is taken, your account will be deleted on {{deletionDate}}. Your memberships in organisations and any associated access rights will be removed.
+
+To keep your account, simply log in to OpenConext Access before the deletion date:
+
+{{{ clientUrl }}}
+
+{{> footer_en.txt}}

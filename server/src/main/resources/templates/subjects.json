@@ -5,7 +5,10 @@
     "acceptJoinRequest": "Join request for %s accepted",
     "deniedJoinRequest": "Join request for %s denied",
     "connectionRequest": "Connection request for %s",
-    "newConnectionMade": "New Connection for %s with %s"
+    "newConnectionMade": "New Connection for %s with %s",
+    "orgContactReminder": "Please update your contact information for %s",
+    "userInactivityWarning": "Your %s account will be deleted due to inactivity",
+    "jiraError": "Jira API error in %s environment - operation: %s"
   },
   "nl": {
     "newInvitation": "Invitation for %s at OpenConext Access",
@@ -13,6 +16,8 @@
     "acceptJoinRequest": "Join request for %s accepted",
     "deniedJoinRequest": "Join request for %s denied",
     "connectionRequest": "Connection request for %s",
-    "newConnectionMade": "New Connection for %s with %s"
+    "newConnectionMade": "New Connection for %s with %s",
+    "orgContactReminder": "Werk uw contactgegevens bij voor %s",
+    "userInactivityWarning": "Uw %s-account wordt verwijderd wegens inactiviteit"
   }
 }

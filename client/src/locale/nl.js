@@ -118,6 +118,7 @@ const nl = {
         organizationPendingApproval: "In afwachting van goedkeuring",
         import: "importeren",
         migrate: "migreren",
+        cron: "Cron",
     },
     welcome: {
         greeting: "Welkom {{name}}",
@@ -190,6 +191,7 @@ const nl = {
         information: "App‑informatie",
         import: "Import beheren",
         migrate: "App‑migratie",
+        cron: "Cron",
     },
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
@@ -1190,7 +1192,7 @@ const nl = {
     error: {
         title: "Oeps, fout!!!",
         unexpected: "Er is een onverwachte fout opgetreden. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor ondersteuning.",
-        jiraDown: "Even heeft de backend je verzoek niet kunnen verwerken. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor ondersteuning.",
+        jiraDown: "Er is een fout opgetreden in de backend bij het verwerken van je verzoek, maar het is geregistreerd en wordt verwerkt. Je wordt gecontacteerd zodra het klaar is.",
     },
     policies: {
         title: "Beleid voor {{name}}",
@@ -1292,6 +1294,13 @@ const nl = {
         to: "Tot",
         for: "voor",
         perPeriod: "per periode",
+    },
+    system: {
+        cron: {
+            info: "Voer de ResourceCleaner-cronjob handmatig uit. Dit verstuurt contactherinneringen, verwijdert inactieve organisaties en waarschuwt of verwijdert inactieve gebruikers.",
+            trigger: "Uitvoeren",
+            clear: "Wissen",
+        },
     },
 }
 

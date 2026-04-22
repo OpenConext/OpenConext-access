@@ -1,0 +1,11 @@
+Beste {{contact.givenName}} {{contact.surName}},
+
+Wij verzoeken je de contactgegevens van jouw organisatie {{organization.name}} in OpenConext Access te controleren en bij te werken.
+
+Het up-to-date houden van contactgegevens zorgt ervoor dat de juiste personen worden geïnformeerd over belangrijke wijzigingen in de toegangsconfiguratie van jouw organisatie.
+
+Contactgegevens bekijken:
+
+{{{ url }}}
+
+{{> footer_nl.txt}}

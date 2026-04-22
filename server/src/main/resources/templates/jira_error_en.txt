@@ -1,0 +1,16 @@
+Jira API error - {{environment}} environment
+
+A call to the Jira API failed.
+
+Operation:      {{operation}}
+Error:          {{errorMessage}}
+
+Request payload:
+{{requestPayload}}
+
+{{#responseBody}}
+Jira response:
+{{responseBody}}
+{{/responseBody}}
+
+{{> footer_en.txt}}

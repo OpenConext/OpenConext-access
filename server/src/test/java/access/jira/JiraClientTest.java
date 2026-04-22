@@ -1,16 +1,19 @@
 package access.jira;
 
-import access.AbstractTest;
+import access.AbstractMailTest;
 import access.model.EntityType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -23,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
                 "jira.enabled=true",
                 "jira.base-url=http://localhost:8081"
         })
-class JiraClientTest extends AbstractTest {
+class JiraClientTest extends AbstractMailTest {
 
     @Autowired
     private JiraClient jiraClient;
@@ -53,6 +56,42 @@ class JiraClientTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withStatus(200)));
 
-        jiraClient.comment(jiraKey,"Comment");
+        jiraClient.comment(jiraKey, "Comment");
+    }
+
+    @SneakyThrows
+    @Test
+    void createSendsErrorMail() {
+        stubFor(post(urlPathMatching("/issue")).willReturn(aResponse()
+                .withStatus(400)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"errorMessages\":[\"Invalid field\"]}")));
+
+        assertThrows(HttpClientErrorException.class, () -> jiraClient.create(new JiraIssue(
+                "serviceProviderEntityID",
+                "identityProviderEntityID",
+                "description",
+                "summary",
+                EntityType.saml20_sp,
+                "mail@to.org")));
+
+        var mail = mailMessage();
+        assertTrue(mail.getHtmlContent().contains("create"));
+        assertTrue(mail.getHtmlContent().contains("Invalid field"));
+    }
+
+    @Test
+    void commentSendsErrorMail() {
+        String jiraKey = "CTX-1000";
+        stubFor(post(urlPathMatching("/issue/" + jiraKey + "/comment")).willReturn(aResponse()
+                .withStatus(400)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"errorMessages\":[\"Comment error\"]}")));
+
+        assertThrows(HttpClientErrorException.class, () -> jiraClient.comment(jiraKey, "Comment"));
+
+        var mail = mailMessage();
+        assertTrue(mail.getHtmlContent().contains("comment"));
+        assertTrue(mail.getHtmlContent().contains("Comment error"));
     }
 }

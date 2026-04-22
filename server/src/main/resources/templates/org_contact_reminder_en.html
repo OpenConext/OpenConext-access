@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
+    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+        {{> logo-surf.svg}}
+        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Access</span>
+    </div>
+    <div class="head" style="padding: 30px 40px 20px 40px;">
+        {{#environment}}
+        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
+            This mail is from the {{environment}} environment
+        </p>
+        {{/environment}}
+        <p class="title" style="">Dear {{contact.givenName}} {{contact.surName}},</p>
+
+        <p>We would like to ask you to review and update the contact information for your organisation
+            <strong>{{organization.name}}</strong> in OpenConext Access.</p>
+
+        <p>Keeping contact information up to date ensures that the right people are notified about important changes
+            to your organisation's access configuration.</p>
+
+        <div style="display: flex;">
+            <a class="button" href="{{{ url }}}"
+               style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
+                <span style="color: white;margin: auto 0 auto 25px;">Review contact information</span>
+            </a>
+        </div>
+    </div>
+    {{> footer_en.html}}
+</div>
+</body>
+</html>
