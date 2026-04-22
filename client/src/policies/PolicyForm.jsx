@@ -131,17 +131,27 @@ export const PolicyForm = ({
         internalUpdatePolicy({attributes: newAttributes});
     };
 
+    const enumOptionsFor = (attributeName) => {
+        const attr = allowedAttributes.find(a => a.value === attributeName);
+        if (!attr?.enum) return null;
+        const match = attr.validationRegex.match(/^\^\(([^)]+)\)\$$/);
+        if (!match) return null;
+        return match[1].split("|").map(v => ({value: v, label: v}));
+    };
+
     const attributeValueChanged = (values, index) => {
         const newAttributes = [...policy.data.attributes];
         const attribute = newAttributes[index];
         attribute.value = values;
         internalUpdatePolicy({attributes: newAttributes});
-        const validationRegex = allowedAttributes.find(attr => attr.value === attribute.name).validationRegex;
-        const regex = new RegExp(validationRegex);
-        const invalidValues = values
-            .map(value => value.value)
-            .filter(value => !regex.test(value));
-        setAttributeValueErrors({...attributeValueErrors, [attribute.name]: invalidValues});
+        const allowedAttr = allowedAttributes.find(attr => attr.value === attribute.name);
+        if (!allowedAttr?.enum) {
+            const regex = new RegExp(allowedAttr.validationRegex);
+            const invalidValues = values
+                .map(value => value.value)
+                .filter(value => !regex.test(value));
+            setAttributeValueErrors({...attributeValueErrors, [attribute.name]: invalidValues});
+        }
     };
 
     const denyRuleToggle = val => {
@@ -183,7 +193,7 @@ export const PolicyForm = ({
         attribute.value = values;
         internalUpdateLoa({attributes: newAttributes});
         const allowedAttr = allowedAttributes.find(attr => attr.value === attribute.name);
-        if (allowedAttr) {
+        if (allowedAttr && !allowedAttr.enum) {
             const regex = new RegExp(allowedAttr.validationRegex);
             const invalidValues = values
                 .map(value => value.value)
@@ -407,7 +417,9 @@ export const PolicyForm = ({
                             <span className="conditional-options">{conditionalOptions[0].label}</span>
 
                             <SelectField value={attribute.value}
-                                         creatable={true}
+                                         creatable={!enumOptionsFor(attribute.name)}
+                                         isMulti={!!enumOptionsFor(attribute.name)}
+                                         options={enumOptionsFor(attribute.name) || undefined}
                                          required={true}
                                          className="attribute-value"
                                          error={!initial && isEmpty(attribute.value)}
@@ -506,7 +518,9 @@ export const PolicyForm = ({
                                          options={negatedConditionalOptions}/>
 
                             <SelectField value={attribute.value}
-                                         creatable={true}
+                                         creatable={!enumOptionsFor(attribute.name)}
+                                         isMulti={!!enumOptionsFor(attribute.name)}
+                                         options={enumOptionsFor(attribute.name) || undefined}
                                          required={true}
                                          className="attribute-value"
                                          error={!initial && isEmpty(attribute.value)}
