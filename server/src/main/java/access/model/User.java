@@ -73,6 +73,9 @@ public class User implements Serializable, NameHolder {
     @Column(name = "last_activity")
     private Instant lastActivity;
 
+    @Column(name = "inactivity_warning_sent_at")
+    private Instant inactivityWarningSentAt;
+
     @Column(name = "organization_guid")
     private String organizationGUID;
 
@@ -189,6 +192,7 @@ public class User implements Serializable, NameHolder {
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.eduId = (String) attributes.get("eduid");
         this.lastActivity = Instant.now();
+        this.inactivityWarningSentAt = null;
 
         this.nameInvariant(attributes);
 

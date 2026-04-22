@@ -70,9 +70,9 @@ public class ResourceCleaner {
     public Map<String, Object> doClean() {
         Instant now = Instant.now();
 
-        int orgReminders = sendOrgContactReminders(now);
-        int orgsDeleted = deleteOrgsWithNoConnections(now);
-        Map<String, Integer> userResults = cleanInactiveUsers(now);
+        List<String> orgReminders = sendOrgContactReminders(now);
+        List<String> orgsDeleted = deleteOrgsWithNoConnections(now);
+        Map<String, List<String>> userResults = cleanInactiveUsers(now);
 
         return Map.of(
                 "orgReminders", orgReminders,
@@ -82,12 +82,12 @@ public class ResourceCleaner {
         );
     }
 
-    private int sendOrgContactReminders(Instant now) {
+    private List<String> sendOrgContactReminders(Instant now) {
         Instant reminderCutoff = now.minus(orgContactReminderDays, ChronoUnit.DAYS);
         List<Organization> orgs = organizationRepository
                 .findByManageIdentifierIsNotNullAndManageIdentifierIsNot("");
 
-        int count = 0;
+        LinkedHashSet<String> reminded = new LinkedHashSet<>();
         for (Organization org : orgs) {
             if (org.getLastContactReminderAt() != null && org.getLastContactReminderAt().isAfter(reminderCutoff)) {
                 continue; // reminder sent recently enough
@@ -106,59 +106,68 @@ public class ResourceCleaner {
                 if (contacts == null) {
                     continue;
                 }
+                boolean sent = false;
                 for (Contact contact : contacts) {
                     if ("administrative".equalsIgnoreCase(contact.getType())) {
                         mailBox.sendOrgContactReminder(org, contact, "en");
-                        count++;
+                        sent = true;
                     }
                 }
-                org.setLastContactReminderAt(now);
-                organizationRepository.save(org);
+                if (sent) {
+                    reminded.add(org.getName());
+                    org.setLastContactReminderAt(now);
+                    organizationRepository.save(org);
+                }
             } catch (Exception e) {
                 LOG.warn("Failed to send contact reminder for org " + org.getId() + ": " + e.getMessage());
             }
         }
-        return count;
+        return new ArrayList<>(reminded);
     }
 
-    private int deleteOrgsWithNoConnections(Instant now) {
+    private List<String> deleteOrgsWithNoConnections(Instant now) {
         Instant deleteCutoff = now.minus(orgDeleteAfterDays, ChronoUnit.DAYS);
         List<Organization> orgs = organizationRepository
                 .findByManageIdentifierIsNullAndCreatedAtBefore(deleteCutoff);
 
-        int count = 0;
+        List<String> deleted = new ArrayList<>();
         for (Organization org : orgs) {
             boolean hasConnections = org.getApplications().stream()
                     .anyMatch(app -> !app.getConnections().isEmpty());
             if (!hasConnections) {
                 LOG.info("CRON: Deleting org with no connections: " + org.getId() + " (" + org.getName() + ")");
                 organizationRepository.deleteOrganizationById(org.getId());
-                count++;
+                deleted.add(org.getName());
             }
         }
-        return count;
+        return deleted;
     }
 
-    private Map<String, Integer> cleanInactiveUsers(Instant now) {
+    private Map<String, List<String>> cleanInactiveUsers(Instant now) {
         Instant warnCutoff = now.minus(userInactivityWarnDays, ChronoUnit.DAYS);
         Instant deleteCutoff = now.minus(userInactivityDeleteDays, ChronoUnit.DAYS);
 
         List<User> inactiveUsers = userRepository.findInactiveUsersWithMemberships(warnCutoff);
 
-        int warned = 0;
-        int deleted = 0;
+        List<String> warned = new ArrayList<>();
+        List<String> deleted = new ArrayList<>();
         for (User user : inactiveUsers) {
             Instant activity = user.getLastActivity();
             boolean shouldDelete = activity == null || activity.isBefore(deleteCutoff);
             if (shouldDelete) {
                 LOG.info("CRON: Deleting inactive user: " + user.getId() + " (" + user.getEmail() + ")");
                 userRepository.deleteById(user.getId());
-                deleted++;
+                deleted.add(user.getEmail());
             } else {
-                // between warn cutoff and delete cutoff — send warning
+                // between warn cutoff and delete cutoff — send warning (once only)
+                if (user.getInactivityWarningSentAt() != null) {
+                    continue; // warning already sent; don't spam
+                }
                 Instant deletionDate = activity.plus(userInactivityDeleteDays, ChronoUnit.DAYS);
                 mailBox.sendUserInactivityWarning(user, deletionDate);
-                warned++;
+                user.setInactivityWarningSentAt(now);
+                userRepository.save(user);
+                warned.add(user.getEmail());
             }
         }
         return Map.of("usersWarned", warned, "usersDeleted", deleted);

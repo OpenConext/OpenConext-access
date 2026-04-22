@@ -45,7 +45,7 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(2, results.get("orgReminders")); // shareLogics + logistics each have one admin contact
+        assertEquals(2, ((List<?>) results.get("orgReminders")).size()); // shareLogics + logistics each have one admin contact
 
         MimeMessageParser parser = mailMessage(); // waits for at least one mail
         assertNotNull(parser.getHtmlContent());
@@ -65,7 +65,7 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(0, results.get("orgReminders"));
+        assertTrue(((List<?>) results.get("orgReminders")).isEmpty());
         confirmNoMailMessages();
     }
 
@@ -78,7 +78,7 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(1, results.get("orgsDeleted"));
+        assertEquals(List.of("StaleOrg"), results.get("orgsDeleted"));
         assertFalse(organizationRepository.findById(staleOrg.getId()).isPresent());
     }
 
@@ -93,7 +93,7 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(0, results.get("orgsDeleted"));
+        assertTrue(((List<?>) results.get("orgsDeleted")).isEmpty());
         assertEquals(countBefore, organizationRepository.count());
     }
 
@@ -118,7 +118,7 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(0, results.get("orgsDeleted"));
+        assertTrue(((List<?>) results.get("orgsDeleted")).isEmpty());
         assertTrue(organizationRepository.findById(farWind.getId()).isPresent());
     }
 
@@ -138,8 +138,8 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(1, results.get("usersWarned"));
-        assertEquals(0, results.get("usersDeleted"));
+        assertEquals(List.of("warn.user@example.com"), results.get("usersWarned"));
+        assertTrue(((List<?>) results.get("usersDeleted")).isEmpty());
 
         MimeMessageParser parser = mailMessage();
         assertNotNull(parser.getHtmlContent());
@@ -159,8 +159,8 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(0, results.get("usersWarned"));
-        assertEquals(1, results.get("usersDeleted"));
+        assertTrue(((List<?>) results.get("usersWarned")).isEmpty());
+        assertEquals(List.of("delete.user@example.com"), results.get("usersDeleted"));
         assertFalse(userRepository.findById(inactiveUser.getId()).isPresent());
     }
 
@@ -178,9 +178,31 @@ class ResourceCleanerTest extends AbstractMailTest {
 
         Map<String, Object> results = resourceCleaner.doClean();
 
-        assertEquals(0, results.get("usersWarned"));
-        assertEquals(0, results.get("usersDeleted"));
+        assertTrue(((List<?>) results.get("usersWarned")).isEmpty());
+        assertTrue(((List<?>) results.get("usersDeleted")).isEmpty());
         assertTrue(userRepository.findById(activeUser.getId()).isPresent());
+    }
+
+    @Test
+    @SneakyThrows
+    void doClean_warnsInactiveUserOnlyOnce() {
+        // Running the cron twice should only produce one warning email per user
+        User inactiveUser = new User(false, "urn:inactive:once", "urn:inactive:once",
+                "example.com", "Once", "User", "once.user@example.com", "http://mock-idp");
+        inactiveUser.setLastActivity(Instant.now().minus(70, ChronoUnit.DAYS));
+        userRepository.save(inactiveUser);
+
+        Organization shareLogics = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        OrganizationMembership membership = new OrganizationMembership(inactiveUser, shareLogics, Authority.MEMBER);
+        organizationMembershipRepository.save(membership);
+
+        // First run — should warn
+        Map<String, Object> first = resourceCleaner.doClean();
+        assertEquals(List.of("once.user@example.com"), first.get("usersWarned"));
+
+        // Second run — inactivityWarningSentAt is now set, so user must be skipped
+        Map<String, Object> second = resourceCleaner.doClean();
+        assertTrue(((List<?>) second.get("usersWarned")).isEmpty());
     }
 
     /**
