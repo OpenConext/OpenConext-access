@@ -199,6 +199,8 @@ class ResourceCleanerTest extends AbstractMailTest {
         // First run — should warn
         Map<String, Object> first = resourceCleaner.doClean();
         assertEquals(List.of("once.user@example.com"), first.get("usersWarned"));
+        // Wait for the background mail thread to complete before proceeding
+        mailMessage();
 
         // Second run — inactivityWarningSentAt is now set, so user must be skipped
         Map<String, Object> second = resourceCleaner.doClean();

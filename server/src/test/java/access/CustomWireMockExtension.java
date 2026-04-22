@@ -16,8 +16,8 @@ public class CustomWireMockExtension extends WireMockServer implements BeforeAll
     public void beforeAll(ExtensionContext context) {
         if (!this.isRunning()) {
             this.start();
-            WireMock.configureFor("localhost", port());
         }
+        WireMock.configureFor("localhost", port());
     }
 
     @Override
