@@ -23,8 +23,6 @@ class ResourceCleanerTest extends AbstractMailTest {
     @Autowired
     private ResourceCleaner resourceCleaner;
 
-    // ── Feature 1: org contact reminder ──────────────────────────────────────
-
     @Test
     @SneakyThrows
     void doClean_sendsOrgContactReminder() {
@@ -70,8 +68,6 @@ class ResourceCleanerTest extends AbstractMailTest {
         assertEquals(0, results.get("orgReminders"));
         confirmNoMailMessages();
     }
-
-    // ── Feature 2: delete orgs with no connections ────────────────────────────
 
     @Test
     void doClean_deletesOrgWithNoConnectionsWhenOldEnough() {
@@ -125,8 +121,6 @@ class ResourceCleanerTest extends AbstractMailTest {
         assertEquals(0, results.get("orgsDeleted"));
         assertTrue(organizationRepository.findById(farWind.getId()).isPresent());
     }
-
-    // ── Feature 3: inactive user cleanup ─────────────────────────────────────
 
     @Test
     @SneakyThrows
@@ -188,8 +182,6 @@ class ResourceCleanerTest extends AbstractMailTest {
         assertEquals(0, results.get("usersDeleted"));
         assertTrue(userRepository.findById(activeUser.getId()).isPresent());
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     /**
      * Build a fake Manage provider response that contains one administrative contact,
