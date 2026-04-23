@@ -79,7 +79,7 @@ To become an institution admin in access, add the following values as `eduPerson
 
 ### [Add attribute](#add-attribute)
 
-If the GUI for maintaining a connection, needs an additional attribute, then the following source files need to be
+If the GUI for maintaining a connection, needs any additional attributes, then the following source files need to be
 altered:
 
 - `access.manage.ConnectionProviderConverter.java#convert`
