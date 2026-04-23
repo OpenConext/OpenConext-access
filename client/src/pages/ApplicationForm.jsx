@@ -22,18 +22,17 @@ export const ApplicationForm = () => {
     const {applicationId} = useParams();
     const navigate = useNavigate();
 
-    const [isNew, setIsNew] = useState(true);
-    const [loading, setLoading] = useState(true);
+    const isNew = applicationId === "new";
+    const [loading, setLoading] = useState(!isNew);
     const [application, setApplication] = useState({type: "APP", target: "SURF"});
-    const [checks, setChecks] = useState({});
-
-    useEffect(() => {
-        const newApp = applicationId === "new";
-        setIsNew(newApp);
+    const [checks, setChecks] = useState(() => {
         const newChecks = {};
         const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
         Object.keys(translationChecks).forEach(check => newChecks[check] = false);
-        setChecks(newChecks);
+        return newChecks;
+    });
+
+    useEffect(() => {
         useAppStore.setState({
             breadcrumbPaths: [
                 {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
@@ -41,16 +40,14 @@ export const ApplicationForm = () => {
                 {value: I18n.t("breadCrumb.applications")}
             ]
         });
-        if (!newApp) {
+        if (!isNew) {
             getApplicationById(applicationId)
                 .then(res => {
                     setApplication(res);
                     setLoading(false)
                 })
-        } else {
-            setLoading(false);
         }
-    }, [applicationId, currentOrganization]);
+    }, [applicationId, currentOrganization, isNew]);
 
     // const targetGroupLabel = label => {
     //     const upperText = I18n.t(`application.target${label.toUpperCase()}`);

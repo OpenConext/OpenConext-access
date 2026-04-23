@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import I18n from "../locale/I18n";
 import "./Navigation.scss"
 import {stopEvent} from "../utils/Utils.js";
@@ -9,13 +9,9 @@ const tabNames = ["home", "connect", "institutions", "applications"];
 
 export const Navigation = ({mobile, path}) => {
 
-    const [tab, setTab] = useState("");
+    const [tab, setTab] = useState(() => path.substring(1));
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        setTab(path.substring(1));
-    }, [path]);
 
     const doNavigate = (e, tabName) => {
         stopEvent(e);

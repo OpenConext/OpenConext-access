@@ -1,24 +1,18 @@
-import React, {Fragment, useEffect, useState} from "react";
+import React, {Fragment, useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import "./Profile.scss";
 import I18n from "../locale/I18n";
-import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
-import {Button, ButtonType, Checkbox, Tooltip} from "@surfnet/sds";
+import {Checkbox, Tooltip} from "@surfnet/sds";
 import {dateFromEpoch} from "../utils/Date.js";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
-import {deleteUser} from "../api/index.js";
+import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import {providerName} from "../utils/Manage.js";
-import {useLogout} from "../hooks/UseLogout.jsx";
 
-const Profile = ({setIsAuthenticated}) => {
+const Profile = () => {
 
     const user = useAppStore(state => state.user);
-
-    const [confirmation, setConfirmation] = useState({});
-    const logoutUser = useLogout();
 
     useEffect(() => {
         useAppStore.setState({
@@ -29,25 +23,25 @@ const Profile = ({setIsAuthenticated}) => {
         });
     }, []);
 
-    const doDelete = (e, confirmationRequired) => {
-        stopEvent(e);
-        if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doDelete(null, false),
-                question: I18n.t("profile.deleteConfirmation"),
-                okButton: I18n.t("forms.delete")
-            });
-        } else {
-            deleteUser().then(() => {
-                setConfirmation({});
-                logoutUser(null, setIsAuthenticated);
-            })
-        }
-    }
+    // const doDelete = (e, confirmationRequired) => {
+    //     stopEvent(e);
+    //     if (confirmationRequired) {
+    //         setConfirmation({
+    //             open: true,
+    //             cancel: () => setConfirmation({open: false}),
+    //             action: () => doDelete(null, false),
+    //             question: I18n.t("profile.deleteConfirmation"),
+    //             okButton: I18n.t("forms.delete")
+    //         });
+    //     } else {
+    //         deleteUser().then(() => {
+    //             setConfirmation({});
+    //             logoutUser(null, setIsAuthenticated);
+    //         })
+    //     }
+    // }
 
-    const {open, cancel, action, question, okButton} = confirmation;
+    // const {open, cancel, action, question, okButton} = confirmation;
     const applicationMemberships = (user.organizationMemberships || [])
         .map(orgMembership => orgMembership.applicationMemberships
             .map(applicationMembership => ({
@@ -59,25 +53,18 @@ const Profile = ({setIsAuthenticated}) => {
     return (
         <div
             className="profile-outer-container">
-            {open && <ConfirmationDialog confirm={action}
-                                         cancel={cancel}
-                                         confirmationHeader={I18n.t("forms.delete")}
-                                         confirmationTxt={okButton}
-                                         isDeleteAction={true}
-                                         question={question}
-            />}
-            <div className="profile-header-container">
-                <div className="top-header">
-                    <h1>{user.name}</h1>
-                </div>
-                <p dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("profile.info",
-                        {
-                            createdAt: dateFromEpoch(user.createdAt),
-                            lastActivity: dateFromEpoch(user.lastActivity)
-                        }))
-                }}/>
+            ¬ <div className="profile-header-container">
+            <div className="top-header">
+                <h1>{user.name}</h1>
             </div>
+            <p dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(I18n.t("profile.info",
+                    {
+                        createdAt: dateFromEpoch(user.createdAt),
+                        lastActivity: dateFromEpoch(user.lastActivity)
+                    }))
+            }}/>
+        </div>
             <div className="profile">
                 {user.superUser &&
                     <InputField value={I18n.t("profile.superUser")}
@@ -147,12 +134,12 @@ const Profile = ({setIsAuthenticated}) => {
                             </ul>
                         </div>}
                 </div>
-                <div className="delete-container">
-                    <Button onClick={e => doDelete(e, true)}
-                            type={ButtonType.DestructiveSecondary}
-                            txt={I18n.t("profile.delete")}
-                    />
-                </div>
+                {/*<div className="delete-container">*/}
+                {/*    <Button onClick={e => doDelete(e, true)}*/}
+                {/*            type={ButtonType.DestructiveSecondary}*/}
+                {/*            txt={I18n.t("profile.delete")}*/}
+                {/*    />*/}
+                {/*</div>*/}
             </div>
         </div>
 

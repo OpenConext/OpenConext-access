@@ -51,12 +51,9 @@ const StatsTable = ({
         }
     }, [searchActive]);
 
-    useEffect(() => {
-        setVisibleCount(INITIAL_ROWS);
-    }, [searchQuery]);
-
     const openSearch = () => {
         setSearchQuery("");
+        setVisibleCount(INITIAL_ROWS);
         setSearchActive(!searchActive);
     };
 
@@ -97,7 +94,7 @@ const StatsTable = ({
                             onRef={searchInputRef}
                             value={searchQuery}
                             placeholder={searchPlaceholder}
-                            onChange={e => setSearchQuery(e.target.value)}
+                            onChange={e => { setSearchQuery(e.target.value); setVisibleCount(INITIAL_ROWS); }}
                             displayLabel={false}
                         />
                     </div>
