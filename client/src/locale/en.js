@@ -1294,6 +1294,12 @@ const en = {
         to: "To",
         for: "for",
         perPeriod: "per period",
+        searchInstitutes: "Search institutions…",
+        searchApps: "Search applications…",
+        results: "{{count}} results",
+        clearSearch: "Clear search",
+        showingResultsFor: "Showing results for '{{label}}'",
+        removeFilter: "Remove filter",
     },
     system: {
         cron: {

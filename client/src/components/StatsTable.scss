@@ -14,6 +14,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
 
             h4 {
                 margin: 0;
@@ -23,6 +24,105 @@
                     font-size: 13px;
                     color: var(--sds--color--gray--500, #666);
                 }
+            }
+        }
+
+        .stats-table-search-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+
+            div.input-field {
+                width: 100%;
+
+                .sds--text-field input.sds--text-field--input {
+                    padding: 6px 4px;
+                }
+            }
+        }
+
+        .stats-table-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .search-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: 1px solid var(--sl-color-neutral-200);
+            border-radius: 12px;
+            padding: 4px 8px;
+            cursor: pointer;
+            line-height: 0;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                fill: transparent;
+            }
+
+            &:hover {
+                border-color: var(--sds--color--blue--400, #0077c8);
+
+                svg path {
+                    stroke: var(--sds--color--blue--400, #0077c8);
+                }
+            }
+        }
+    }
+
+    .filter-label-row {
+        color: var(--sds--color--gray--500, #666);
+        display: flex;
+        gap: 12px;
+
+        .filter-label-text {
+            color: var(--sds--color--gray--500, #666);
+        }
+
+        .clear-search {
+            color: var(--sds--color--blue--400, #0077c8);
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .search-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--sds--color--gray--500, #666);
+        min-height: 20px;
+
+        .search-meta {
+            .search-results {
+                margin-right: 20px;
+            }
+        }
+
+        .clear-search {
+            color: var(--sds--color--blue--400, #0077c8);
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .search-filter-label {
+            color: var(--sds--color--gray--500, #666);
+
+            strong {
+                font-weight: 600;
+                color: var(--sds--color--gray--700, #333);
             }
         }
     }

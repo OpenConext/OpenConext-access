@@ -1294,6 +1294,12 @@ const nl = {
         to: "Tot",
         for: "voor",
         perPeriod: "per periode",
+        searchInstitutes: "Zoek instellingen…",
+        searchApps: "Zoek applicaties…",
+        results: "{{count}} resultaten",
+        clearSearch: "Zoekopdracht wissen",
+        showingResultsFor: "Resultaten voor '{{label}}'",
+        removeFilter: "Filter verwijderen",
     },
     system: {
         cron: {
