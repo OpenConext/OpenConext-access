@@ -5,7 +5,7 @@
 $width-percentage: 75%;
 
 .testing-container {
-    padding: 25px 50px;
+    padding: $page-padding;
     background-color: white;
 
     .testing-header {

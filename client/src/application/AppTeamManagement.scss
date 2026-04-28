@@ -6,7 +6,7 @@ $page_width: 60%;
 
 .application-memberships {
     background-color: white;
-    padding: 25px 50px;
+    padding: $page-padding;
 
     .application-header {
         display: flex;

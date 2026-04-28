@@ -1,6 +1,7 @@
 @use "../styles/mixins" as *;
 @use "../index";
 @use "../styles/application";
+@use "../styles/vars" as *;
 
 div.organization-outer-container {
     width: 100%;
@@ -60,7 +61,7 @@ div.organization-outer-container {
             background-color: white;
 
             .entities-search {
-                padding: 25px 50px;
+                padding: $page-padding;
                 background-color: var(--sds--color--gray--background);
                 justify-content: normal;
 

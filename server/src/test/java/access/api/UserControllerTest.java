@@ -78,8 +78,10 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void deleteUser() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
         stubForIdentityProviderByEntityId("http://mock-idp");
+
+        User guest = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
 
         given()
                 .when()
@@ -87,12 +89,34 @@ class UserControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .delete("/api/v1/users")
+                .pathParam("userId", guest.getId())
+                .delete("/api/v1/users/{userId}")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
 
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(GUEST_SUB);
         assertTrue(optionalUser.isEmpty());
+    }
+
+    @Test
+    void deleteUserNotAllowed() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+        stubForIdentityProviderByEntityId("http://mock-idp");
+
+        User guest = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", guest.getId())
+                .delete("/api/v1/users/{userId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(GUEST_SUB);
+        assertTrue(optionalUser.isPresent());
     }
 
     @Test

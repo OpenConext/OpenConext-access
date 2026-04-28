@@ -173,13 +173,14 @@ public class UserController implements UserAccessRights {
         return ResponseEntity.ok(other);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Map<String, Object>> deleteMe(@Parameter(hidden = true) User user) {
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Map<String, Object>> deleteMe(@Parameter(hidden = true) User user, @PathVariable Long userId) {
         LOG.debug(String.format("/delete for user %s", user.getEduPersonPrincipalName()));
 
-        User userFromDB = userRepository.findDetailsById(user.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        confirmSuperUser(user);
 
+        User userFromDB = userRepository.findDetailsById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.delete(userFromDB);
 
         return Results.deleteResult();

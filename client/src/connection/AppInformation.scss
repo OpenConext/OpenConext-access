@@ -1,12 +1,13 @@
 @use "../styles/mixins" as *;
 @use "../index";
 @use "../styles/application";
+@use "../styles/vars" as *;
 
 $width-percentage: 75%;
 
 .app-information-container {
     background-color: white;
-    padding: 25px 50px;
+    padding: $page-padding;
 
     .app-header {
         display: flex;

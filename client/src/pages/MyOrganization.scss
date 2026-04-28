@@ -1,5 +1,6 @@
 @use "../styles/mixins" as *;
 @use "../index";
+@use "../styles/vars" as *;
 
 div.my-organization-outer-container {
     width: 100%;
@@ -17,7 +18,7 @@ div.my-organization-outer-container {
     }
 
     div.my-organization {
-        padding: 25px 50px;
+        padding: $page-padding;
         background-color: white;
     }
 

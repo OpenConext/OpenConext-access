@@ -1,6 +1,7 @@
 @use "../styles/mixins" as *;
 @use "../index";
 @use "../styles/application";
+@use "../styles/vars" as *;
 
 div.user-management-outer-container {
     width: 100%;
@@ -15,7 +16,6 @@ div.user-management-outer-container {
     div.user-management-container {
         background-color: white;
         height: 100%;
-        padding: 25px 50px;
-
+        padding: $page-padding;
     }
 }

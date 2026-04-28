@@ -1,3 +1,5 @@
+@use "../styles/vars" as *;
+
 .feedback-content-container {
     width: 100%;
     display: flex;
@@ -15,7 +17,7 @@
         flex-direction: column;
         color: black;
         margin: 0;
-        padding: 25px 50px;
+        padding: $page-padding;
         max-width: 50%;
 
         .sds--toaster {

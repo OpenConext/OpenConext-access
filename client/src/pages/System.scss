@@ -1,6 +1,7 @@
 @use "../styles/mixins" as *;
 @use "../index";
 @use "../styles/application";
+@use "../styles/vars" as *;
 
 div.system-outer-container {
     width: 100%;
@@ -11,7 +12,6 @@ div.system-outer-container {
     div.system-container {
         background-color: white;
         height: 100%;
-        padding: 25px 50px;
-
+        padding: $page-padding;
     }
 }

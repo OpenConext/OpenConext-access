@@ -1,9 +1,10 @@
 @use "../styles/mixins" as *;
 @use "../index";
+@use "../styles/vars" as *;
 
 .application-connection-form {
     background-color: white;
-    padding: 25px 50px;
+    padding: $page-padding;
 
     .application-connection {
         @include form;

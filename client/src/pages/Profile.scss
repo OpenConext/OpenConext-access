@@ -1,5 +1,6 @@
 @use "../styles/mixins" as *;
 @use "../index";
+@use "../styles/vars" as *;
 
 div.profile-outer-container {
     width: 100%;
@@ -18,7 +19,7 @@ div.profile-outer-container {
     }
 
     div.profile {
-        padding: 25px 50px;
+        padding: $page-padding;
         width: 75%;
 
     }
