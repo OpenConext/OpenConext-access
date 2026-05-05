@@ -5,6 +5,7 @@ import access.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 @EnableScheduling
 @Configuration
 @EnableMethodSecurity
+@EnableCaching
 public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";

@@ -16,6 +16,8 @@ server:
 spring:
   main:
     banner-mode: "off"
+  cache:
+    type: simple
   session:
     jdbc:
       cleanup-cron: "-"
@@ -207,6 +209,10 @@ s3storage:
   key: "minioadmin"
   secret: "minioadmin"
   bucket: "s3-images"
+
+ohdear:
+  apiKey: secret
+  baseUrl: "http://localhost:8081"
 
 springdoc:
   pathsToMatch: "/api/v1/**"
