@@ -16,11 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OhDearServiceTest {
 
     @RegisterExtension
-    protected static CustomWireMockExtension mockServer = new CustomWireMockExtension(8081);
+    protected static CustomWireMockExtension mockServer = new CustomWireMockExtension(8089);
 
     protected OhDearService ohDearService = new OhDearService(
             "test-token",
-            "http://localhost:8081/api",
+            "http://localhost:8089/api",
             true
     );
 
