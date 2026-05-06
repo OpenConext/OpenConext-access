@@ -211,8 +211,8 @@ s3storage:
   bucket: "s3-images"
 
 ohdear:
-  apiKey: secret
-  baseUrl: "http://localhost:8081"
+  apiKey: "test-token"
+  baseUrl: http://localhost:8081/api
 
 springdoc:
   pathsToMatch: "/api/v1/**"

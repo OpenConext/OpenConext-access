@@ -1,0 +1,11 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "API",
+      "url": "https://api",
+      "status": "up",
+      "group_name": "API"
+    }
+  ]
+}
