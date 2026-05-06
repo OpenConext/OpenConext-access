@@ -68,7 +68,7 @@ public class StatisticsRemote implements Statistics {
 
     private UriComponentsBuilder baseBuilder(String path, String idpEntityId) {
         UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .path(path)
                 .queryParam("include_unique", true);
         if (StringUtils.hasText(idpEntityId)) {

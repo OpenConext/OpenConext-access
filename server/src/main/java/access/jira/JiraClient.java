@@ -1,23 +1,18 @@
 package access.jira;
 
-import access.manage.JSONHeaderInterceptor;
 import access.mail.MailBox;
+import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.nimbusds.jose.util.IOUtils;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -26,7 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @EnableConfigurationProperties(JiraConfig.class)
@@ -37,10 +34,9 @@ public class JiraClient {
 
     private final JiraConfig config;
     private final MailBox mailBox;
-    private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
-    private  HttpHeaders defaultHeaders;
+    private RestTemplate restTemplate;
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
@@ -51,18 +47,7 @@ public class JiraClient {
         });
         this.issueType = this.resolveIssueType();
         if (config.isEnabled()) {
-            //Must do this before adding the interceptors
-            SimpleClientHttpRequestFactory requestFactory = (SimpleClientHttpRequestFactory) this.restTemplate.getRequestFactory();
-            requestFactory.setReadTimeout(config.getConnectionTimeout());
-            requestFactory.setConnectTimeout(config.getConnectionTimeout());
-
-            this.defaultHeaders = new HttpHeaders();
-            this.defaultHeaders.setContentType(MediaType.APPLICATION_JSON);
-            this.defaultHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + config.getApiKey());
-
-            List<ClientHttpRequestInterceptor> interceptors = this.restTemplate.getInterceptors();
-            interceptors.add(new APITokenHeaderInterceptor(config.getApiKey()));
-            interceptors.add(new JSONHeaderInterceptor());
+            this.restTemplate = RestTemplateFactory.buildRestTemplate(config.getApiKey());
         }
     }
 
@@ -90,8 +75,7 @@ public class JiraClient {
         LOG.info("Sending JSON {} to JIRA", jiraIssue);
 
         try {
-            HttpEntity<Map<String, Map<String, Object>>> entity = new HttpEntity<>(jiraIssue, defaultHeaders);
-            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", entity, Map.class);
+            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
 
             LOG.info("Response {} from JIRA", result);
 
@@ -110,11 +94,11 @@ public class JiraClient {
 
     public void comment(String jiraKey, String comment) {
         if (!config.isEnabled()) {
-            return ;
+            return;
         }
         String commentUrl = config.getBaseUrl() + "/issue/" + jiraKey + "/comment";
         Map<String, String> body = Map.of("body", comment);
-        HttpEntity<Object> commentRequestEntity = new HttpEntity<>(body, defaultHeaders);
+        HttpEntity<Object> commentRequestEntity = new HttpEntity<>(body);
 
         LOG.info("Sending JSON {} to JIRA", body);
 

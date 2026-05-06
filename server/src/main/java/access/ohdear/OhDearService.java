@@ -1,5 +1,8 @@
 package access.ohdear;
 
+import access.jira.APITokenHeaderInterceptor;
+import access.manage.JSONHeaderInterceptor;
+import access.remote.RestTemplateFactory;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
@@ -11,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -31,7 +36,7 @@ public class OhDearService {
 
     private final String apiToken;
     private final String baseUrl;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
 
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
@@ -43,6 +48,9 @@ public class OhDearService {
         this.apiToken = apiToken;
         this.baseUrl = baseUrl;
         this.enabled = enabled;
+        if (enabled) {
+            restTemplate = RestTemplateFactory.buildRestTemplate(apiToken);
+        }
     }
 
     private HttpHeaders headers() {
