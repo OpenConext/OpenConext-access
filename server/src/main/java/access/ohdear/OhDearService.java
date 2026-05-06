@@ -31,18 +31,18 @@ public class OhDearService {
 
     private final String apiToken;
     private final String baseUrl;
-    private final Environment environment;
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
+    private final boolean enabled;
 
     public OhDearService(@Value("${ohdear.apiKey}") String apiToken,
                          @Value("${ohdear.baseUrl}") String baseUrl,
-                         Environment environment) {
+                         @Value("${ohdear.enabled}") boolean enabled) {
         this.apiToken = apiToken;
         this.baseUrl = baseUrl;
-        this.environment = environment;
+        this.enabled = enabled;
     }
 
     private HttpHeaders headers() {
@@ -58,14 +58,7 @@ public class OhDearService {
         return response.getBody();
     }
 
-    @PostConstruct
-    public void init() {
-        if (!environment.acceptsProfiles(Profiles.of("test", "locale"))) {
-            refreshStatus();
-        }
-    }
-
-    @Scheduled(fixedRate = 30, initialDelay = 10, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
     @CachePut("status")
     public StatusResponse refreshStatus() {
         return getAggregatedStatusInternal();
@@ -77,6 +70,9 @@ public class OhDearService {
     }
 
     private StatusResponse getAggregatedStatusInternal() {
+        if (!enabled) {
+            return new StatusResponse("operational", Instant.now().toString(), List.of());
+        }
         Map<String, Object> monitorsResponse = get(baseUrl + "/monitors");
         List<Map<String, Object>> monitors = (List<Map<String, Object>>) monitorsResponse.get("data");
 

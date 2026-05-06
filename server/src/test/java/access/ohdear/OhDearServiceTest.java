@@ -21,7 +21,7 @@ class OhDearServiceTest {
     protected OhDearService ohDearService = new OhDearService(
             "test-token",
             "http://localhost:8081/api",
-            new MockEnvironment()
+            true
     );
 
     @Test
