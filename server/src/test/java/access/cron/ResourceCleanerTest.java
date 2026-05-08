@@ -107,8 +107,7 @@ class ResourceCleanerTest extends AbstractMailTest {
                 "NitroMap-Test",
                 nitroMap,
                 Map.of("entityID", "https://nitromo.test"),
-                EntityType.saml20_sp,
-                Environment.TEST);
+                EntityType.saml20_sp);
         connectionRepository.save(connection);
 
         // Make farWind old enough to be eligible for deletion

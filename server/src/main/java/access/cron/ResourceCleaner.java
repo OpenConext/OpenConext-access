@@ -4,7 +4,6 @@ package access.cron;
 import access.mail.MailBox;
 import access.manage.Contact;
 import access.model.EntityType;
-import access.model.Environment;
 import access.manage.Manage;
 import access.model.Application;
 import access.model.Organization;
@@ -94,7 +93,7 @@ public class ResourceCleaner {
             }
             try {
                 Map<String, Object> provider = manage.providerByManageIdentifier(
-                        EntityType.saml20_idp, org.getManageIdentifier(), Environment.PROD);
+                        EntityType.saml20_idp, org.getManageIdentifier());
                 if (provider == null || provider.isEmpty()) {
                     continue;
                 }

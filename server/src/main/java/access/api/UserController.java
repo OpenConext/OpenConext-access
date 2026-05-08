@@ -154,7 +154,7 @@ public class UserController implements UserAccessRights {
         userFromDB.setExternalUser(!isInternalUserFromOrganization);
         if (isInternalUserFromOrganization) {
             Map<String, Object> identityProvider = manage.providerByManageIdentifier(
-                    EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+                    EntityType.saml20_idp, organization.getManageIdentifier());
             userFromDB.setIdentityProvider(identityProvider);
             List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
             userFromDB.setChangeRequests(changeRequests);

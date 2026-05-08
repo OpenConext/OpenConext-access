@@ -68,6 +68,10 @@ export const ENVIRONMENTS = {
     TEST: "TEST", PROD: "PROD"
 }
 
+export const STATE = {
+    testaccepted: "testaccepted", prodaccepted: "prodaccepted"
+}
+
 export const CHANGE_REQUEST_TYPE = {
     PRODUCTION_STATUS_REQUEST: "ProductionStatusRequest",
     LINK_REQUEST: "LinkRequest",

@@ -45,8 +45,7 @@ export const Connection = () => {
     const [profileOptions, setProfileOptions] = useState([]);
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
-    const [identityProviders, setIdentityProviders] = useState([]);
-    const [prodIdentityProviders, setProdIdentityProviders] = useState([]);
+   const [identityProviders, setIdentityProviders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dirty, setDirty] = useState(false);
 
@@ -80,12 +79,9 @@ export const Connection = () => {
                     ]
                 });
                 Promise.all([
-                    getIdentityProviders(ENVIRONMENTS.TEST),
-                    getIdentityProviders(ENVIRONMENTS.PROD)
+                    getIdentityProviders()
                 ]).then(providers => {
                     setIdentityProviders(providers[0]);
-                    setProdIdentityProviders(providers[1]);
-
                 })
             })
     }, [applicationId, arp]);
@@ -218,7 +214,7 @@ export const Connection = () => {
                                 setTab={changeTab}
                                 arpInfo={arp}
                                 profileOptions={profileOptions}
-                                identityProviders={prodIdentityProviders}
+                                identityProviders={identityProviders}
                                 isProduction={true}
                                 setDirty={setDirty}
                                 connectionId={connectionId}

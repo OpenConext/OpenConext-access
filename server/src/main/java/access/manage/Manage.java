@@ -6,11 +6,11 @@ import java.util.*;
 
 public interface Manage {
 
-    List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes);
+    List<Map<String, Object>> providers(EntityType... entityTypes);
 
     Map<String, Object> providerByConnection(Connection connection);
 
-    Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier, Environment environment);
+    Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier);
 
     Map<String, Object> saveIdentityProvider(Organization organization);
 
@@ -24,29 +24,29 @@ public interface Manage {
 
     List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers);
 
-    List<Map<String, Object>> uniqueEntityId(Environment environment, EntityType entityType, String entityID);
+    List<Map<String, Object>> uniqueEntityId(EntityType entityType, String entityID);
 
-    Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest);
+    Map<String, Object> createChangeRequest(ChangeRequest changeRequest);
 
-    void rejectChangeRequest(Environment environment, ChangeRequest changeRequest);
+    void rejectChangeRequest(ChangeRequest changeRequest);
 
-    Map<String, Object> updateChangeRequest(Environment environment, ChangeRequest changeRequest);
+    Map<String, Object> updateChangeRequest(ChangeRequest changeRequest);
 
-    List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection);
+    List<Map<String, Object>> getChangeRequests(Connection connection);
 
     List<Map<String, Object>> getChangeRequestsIdentityProvider(Map<String, Object> identityProvider);
 
-    String changeRequestURL(Environment environment, Connection connection);
+    String changeRequestURL(Connection connection);
 
     String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier);
 
-    List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID);
+    List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID);
 
     Map<String, Integer> stats();
 
-    List<Map<String, Object>> identityProvidersLight(Environment environment);
+    List<Map<String, Object>> identityProvidersLight();
 
-    List<Map<String, Object>> serviceProvidersLight(Environment environment);
+    List<Map<String, Object>> serviceProvidersLight();
 
     List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections);
 

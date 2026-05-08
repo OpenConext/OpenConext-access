@@ -2,7 +2,6 @@ package access.manage;
 
 import access.exception.UserRestrictionException;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 
@@ -22,7 +21,7 @@ public interface PolicyAccessRights {
         if (user.isSuperUser()) {
             return;
         }
-        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
         Map<String, Object> data = getData(identityProvider);
         List<String> entityId = List.of((String) data.get("entityid"));
         //Is the IdP of the Policy the same as the IdP of the User?

@@ -4,7 +4,6 @@ import access.model.Application;
 import access.model.ConnectOptions;
 import access.model.Connection;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.State;
 import access.model.Visibility;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,14 +36,12 @@ public class ConnectionProviderConverter {
     private final List<String> excludedAttributes = List.of("revisionnote");
     private final List<String> excludedMergeAttributesPaths = List.of("arp.attributes");
 
-    private final State defaultTestState;
-    private final State defaultProdState;
+    private final State defaultState;
     private final ObjectMapper objectMapper;
 
     @SneakyThrows
-    public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultTestState, State defaultProdState) {
-        this.defaultTestState = defaultTestState;
-        this.defaultProdState = defaultProdState;
+    public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultState) {
+        this.defaultState = defaultState;
         this.objectMapper = objectMapper;
         this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
         });
@@ -84,10 +81,9 @@ public class ConnectionProviderConverter {
         putIf(remoteProvider, "eid", connection.getManageEid());
 
         data.put("entityid", connectionMetaData.get("entityID"));
-        //Don't override the state, if previously set
-        if (!StringUtils.hasText((String) data.get("state"))) {
-            data.put("state", (connection.getEnvironment().equals(Environment.TEST) ? defaultTestState : defaultProdState).name());
-        }
+        //Use connection's state if set, otherwise fall back to defaultState
+        State connectionState = connection.getState();
+        data.put("state", connectionState != null ? connectionState.name() : defaultState.name());
 
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
@@ -118,9 +114,7 @@ public class ConnectionProviderConverter {
         }
         mergeAttributeReleasePolicies(connectionMetaData, data);
 
-        if (connection.getEnvironment().equals(Environment.TEST)) {
-            mergeAllowedEntities(data, connectionMetaData);
-        }
+        mergeAllowedEntities(data, connectionMetaData);
 
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");

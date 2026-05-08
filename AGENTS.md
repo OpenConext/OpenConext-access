@@ -1,4 +1,4 @@
-# PROJECT_CONTEXT.md — SURF Access (OpenConext-Access)
+# AGENTS.md — SURF Access (OpenConext-Access)
 
 > AI rehydration document. Not for human onboarding. Optimized for density.
 
@@ -57,7 +57,7 @@
 | Lib | Purpose |
 |-----|---------|
 | Spring Data JPA + Hibernate | ORM, `@EntityGraph` for eager loading |
-| Flyway 11.20.3 | DB migrations (`db/mysql/migration/V1_0` through `V13_0`) |
+| Flyway 11.20.3 | DB migrations (`db/mysql/migration/V1_0` through `V15_0`) |
 | MariaDB 10.11 | Primary database (via `mariadb-java-client` 3.5.8) |
 | Spring Session JDBC | Server-side sessions |
 | Spring Security OAuth2 Client + Resource Server | OIDC login + Bearer token introspection |
@@ -71,8 +71,8 @@
 
 - **Layered**: Controller → Service → Repository. No hexagonal/ports-adapters.
 - **Programmatic authorization**: `UserAccessRights` default interface methods, NOT `@PreAuthorize`. All controllers implement this interface.
-- **Manage abstraction**: `Manage` interface with `RemoteManage` (HTTP to SURFconext) and `LocalManage` (static JSON files) implementations. Toggled by `manage.manageEnabled` property.
-- **Auto-provisioning**: Users and org memberships created on first login.
+- **Manage abstraction**: `Manage` interface with `RemoteManage` (HTTP to SURFconext) and `LocalManage` (static JSON files) implementations. Single `manage.url`; no TEST/PROD split.
+- **Auto-provisioning**: Users and org memberships created on first login via `UserController.me()`.
 - **JSON columns**: `Application.metaData` and `Connection.metaData` stored as `jsonb` via Hypersistence `JsonType`.
 - **`@JsonProperty(WRITE_ONLY)`** on all `@ManyToOne` fields; custom `@JsonProperty(READ_ONLY)` getters return flat maps to prevent cyclic serialization.
 
@@ -120,7 +120,7 @@ Two route trees based on `isAuthenticated`:
 - **Sub-views**: `policies/`, `organization/`, `connection/`, `application/` — domain-specific sub-components.
 - **Shared components** (`components/`): `Entities` (generic table), `SelectField` (wraps react-select), `ConfirmationDialog`, `InputField`, `SwitchField`, `Tabs`/`Tab`, `BreadCrumb`, `Flash`, `AuthorizedHeader`, `SharedMenu`, `UserFeedbackWidget`, etc.
 - **SCSS co-located**: Every component has a `.scss` sibling. No CSS modules. Global vars in `styles/vars.scss`.
-- **SDS**: `@surfnet/sds` provides base UI components (Modal, Checkbox, Button, Chip, Tooltip, icons).
+- **SDS**: `@surfnet/sds` provides base UI components (Modal, Checkbox, Button, Chip, Tooltip, icons). External — cannot modify internals. SDS Checkbox must NOT be wrapped in `<label>` (causes double-toggle).
 
 ### Integration
 
@@ -155,7 +155,7 @@ Vite dev proxy: `/api/v1` and `/config` → `http://localhost:8886`
 | System | Integration | Config |
 |--------|------------|--------|
 | **SURFconext OIDC** | OAuth2 login provider | `spring.security.oauth2.client` → `connect.test2.surfconext.nl` |
-| **Manage** | REST API for IdP/SP metadata, policies, change requests | `manage.*` → `manage.test2.surfconext.nl` |
+| **Manage** | REST API for IdP/SP metadata, policies, change requests | `manage.url` → `manage.test2.surfconext.nl` |
 | **Invite (SRAM)** | REST API for role-based access | `invite.*` → `invite.test2.surfconext.nl` |
 | **JIRA** | Ticket creation for org approvals, connection requests | `jira.*` (disabled by default) |
 | **S3/MinIO** | Logo image storage | `s3storage.*` → `localhost:9000` |
@@ -209,11 +209,12 @@ Organization 1──* Invitation *──1 User (invitee)
 
 #### `Connection` (table: `connections`)
 - `id`, `name`, `metaData` (JSON column), `manageIdentifier`, `manageVersion`, `manageEid`
-- `protocol` (enum: `saml20_sp`, `oidc10_rp`), `environment` (`TEST`, `PROD`), `state` (`testaccepted`, `prodaccepted`)
-- `status` (enum: `OPEN`, `IN_PROGRESS`, `COMPLETE`, `PENDING_PROD`, `PROD_READY`), `secretSet`
+- `protocol` (enum: `saml20_sp`, `oidc10_rp`), `state` (`testaccepted`, `prodaccepted`), `status` (enum: `OPEN`, `IN_PROGRESS`, `COMPLETE`, `PENDING_PROD`, `PROD_READY`), `secretSet`
 - `createdAt`, `updatedAt` (`@PreUpdate` auto-set)
 - **Relationship**: `application` (ManyToOne)
 - **Transient**: `changeRequests`
+- **`state` vs `status`**: these are two different fields. `state` is the Manage environment signal — `testaccepted` (default) or `prodaccepted`. `status` is the internal workflow state. Do not confuse them. `changeRequestRequired()` = `state.equals(State.prodaccepted)`.
+- **Note**: `environment` field was removed — `state` is the sole source of truth for TEST/PROD. No DB migration was needed.
 
 #### `OrganizationMembership` (table: `organization_memberships`)
 - `id`, `authority` (enum: `ADMIN`=2, `MEMBER`=1, `GUEST`=0), `createdAt`
@@ -262,21 +263,28 @@ Organization 1──* Invitation *──1 User (invitee)
 | `ApplicationStatus` | `OPEN`, `COMPLETE` |
 | `ConnectionStatus` | `OPEN`, `IN_PROGRESS`, `COMPLETE`, `PENDING_PROD`, `PROD_READY` |
 | `EntityType` | `saml20_sp`, `oidc10_rp`, `saml20_idp`, `policy` |
-| `Environment` | `TEST`, `PROD` |
 | `FeatureName` | `idp`, `invite`, `sram`, `mfa` |
 
 ---
 
 ## 4. Important Code Paths
 
-### User Login Flow
+### User Login & Auto-Provisioning Flow
 
 1. Browser → `/api/v1/users/login` → Spring redirects to OIDC authorization endpoint
 2. SURFconext authenticates → callback to `/login/oauth2/code/oidcng`
-3. `CustomOidcUserService.loadUser()` → looks up user by `sub` → checks institution admin entitlement → updates/creates user in DB
+3. `CustomOidcUserService.loadUser()` → looks up user by `sub` → checks institution admin entitlement → if institution admin with `organizationGUID`, calls `manage.identityProvidersByInstitutionalGUID()` and stores `Institution` in OIDC claims → updates/creates user in DB
 4. `UserHandlerMethodArgumentResolver` resolves `User` for subsequent requests
-5. Client calls `GET /api/v1/users/me` → `UserController.me()` → auto-provisions org membership if `schacHomeOrganization` matches an org → returns enriched User (with transient `identityProvider`, `institution`, `changeRequests`)
+5. Client calls `GET /api/v1/users/me` → `UserController.me()`:
+   - Calls `manage.identityProviderByEntityID(authenticatingAuthority)` to get the IdP map
+   - Derives `manageIdentifier` (`_id`) from the IdP map
+   - If user has no membership matching that `manageIdentifier`: looks up org by `manageIdentifier`
+     - **Found**: joins existing org
+     - **Not found**: creates new org named `"<idp name:en> (<idp OrganizationName:en>)"`, status `APPROVED`
+   - Sets transient fields: `identityProvider`, `institution` (from OIDC claims), `changeRequests`, `loaLevel`
 6. Client stores user in Zustand, computes menu items based on roles
+
+**Key implication**: `UserController.me()` always calls `manage.identityProviderByEntityID` for non-external users. In tests, this requires a WireMock stub for `POST /manage/api/internal/search/saml20_idp` to be registered and available at the time of the `/me` call.
 
 ### Policy Evaluation (client-side flow)
 
@@ -300,85 +308,80 @@ Organization 1──* Invitation *──1 User (invitee)
 - **Server → Client** (`Policies.jsx:toPolicyDetail`): For step policies, `loas[0].attributes` is run through `groupByValues()` to merge same-name attributes into `{name, value: [...], negated}` objects
 - **Client → Server** (`PolicyForm.jsx:submit`): `flatMapByValues()` expands back to per-value `{name, value, negated}` entries
 
-### Involved Classes
+---
 
-| Flow | Backend | Frontend |
-|------|---------|----------|
-| Login | `SecurityConfig`, `CustomOidcUserService`, `UserHandlerMethodArgumentResolver`, `UserController.me()` | `App.jsx`, `api/index.js:me()` |
-| Policies | `ManageController`, `PolicyAccessRights`, `Manage` interface | `Policies.jsx`, `PolicyForm.jsx`, `PolicyOverview.jsx`, `PolicyChoiceDialog.jsx`, `Policy.js` |
-| Connections | `ConnectionController`, `Manage.saveProvider()` | `Connection.jsx`, `connection/Overview.jsx`, `Connection.js` (utils) |
-| Organizations | `OrganizationController`, `OrganizationRepository` | `Organization.jsx`, `organization/UserManagement.jsx` |
+## 5. Architecture Decisions (permanent, not in-flight)
+
+These are baked into the codebase. Do not revisit without good reason.
+
+| Decision | Detail |
+|----------|--------|
+| **Single Manage URL** | `manage.url` only. No TEST/PROD split. `Connection.state` (`testaccepted`/`prodaccepted`) is the sole environment signal. |
+| **`Connection.state` default** | `testaccepted`. `changeRequestRequired()` = `state.equals(State.prodaccepted)`. |
+| **`mergeAllowedEntities` always runs** | Previously skipped for non-TEST connections; now unconditional. |
+| **`ConnectionProviderConverter` state priority** | `connection.getState()` if non-null, else `defaultState`. |
+| **Step-up policies always use `loas[0]`** | Single LoA entry per policy. |
+| **No deny advice fields for step-up** | Step-up policies do not use `denyAdvice`/`denyAdviceNl`. |
+| **LoA defaults to first `acrValues` entry** | loa1.5 for new step-up policies. |
+| **Per-attribute negation** | "is any of"/"is none of" dropdown toggles `attribute.negated`. |
+| **CIDR negation** | Single dropdown controls `loa.negateCidrNotation` for all CIDR entries. |
+| **CIDR validation** | IPv4 prefix 8–32, IPv6 prefix 32–128, auto-correct on blur. |
+| **Screenshot capture** | Runs in background via `html2canvas`, does not block modal open. |
+| **Manage API contract fixed** | Policy structure must match Manage's expected format exactly. |
+| **`Config.java` copy constructor** | Must include any new config fields added. |
 
 ---
 
-## 5. Current Work Focus
+## 6. Codebase State
 
-### What Was Built (recent commits on `main`)
+**As of the last session: all work is complete, no in-flight changes, full test suite green.**
 
-1. **Step-up policy support** in `PolicyForm.jsx` — LoA selection from `config.acrValues`, per-attribute negation, CIDR with validation/auto-correct, separate step-up validation rules
-2. **Mac Mail-style feedback widget** — `UserFeedbackWidget.jsx` captures screenshot via `html2canvas`, displays in a two-column preview modal
-3. **Locale sync** — enabled the locale test, added missing i18n keys to both `en.js` and `nl.js`, created `sync-locales.js` script
+- Backend: **262 tests, 0 failures, 2 skipped**
+- Frontend: **7 tests, all pass** (`yarn test`)
+- `mvn` binary is at `/usr/local/bin/mvn` (not always in `PATH` — use the full path or add it)
 
-### Key Modified Files
+### What Has Been Built
 
-| File | Lines | What changed |
-|------|-------|-------------|
-| `client/src/policies/PolicyForm.jsx` | ~635 | Full step-up policy editing (LoA, attributes+negation, CIDR+validation) |
-| `client/src/policies/PolicyForm.scss` | ~340 | Step-up styling sections |
-| `client/src/utils/Policy.js` | ~159 | `groupByValues`/`flatMapByValues` preserve `negated`; `policyBreakDowwn`/`policyDesscription` handle step policies |
-| `client/src/pages/Policies.jsx` | ~166 | `toPolicyDetail` groups step-up attributes |
-| `client/src/components/UserFeedbackWidget.jsx` | ~234 | Screenshot capture + Mac Mail preview |
-| `client/src/locale/en.js` | ~1242 | Added step-up + policy i18n keys |
-| `client/src/locale/nl.js` | ~1242 | Same keys with Dutch translations |
-| `client/sync-locales.js` | ~253 | Locale sync utility script |
-
-### Decisions Already Made
-
-- **Step-up policies always operate on `loas[0]`** — single LoA entry per policy
-- **No MFA toggle dropdown** — explicitly skipped
-- **No deny advice fields** for step-up policies
-- **No server changes** for step-up — reuses existing `config.acrValues` and Manage policy API
-- **LoA defaults to first `acrValues` entry** (loa1.5) for new step-up policies
-- **Per-attribute negation** via "is any of"/"is none of" dropdown toggling `attribute.negated`
-- **CIDR negation** via single dropdown controlling `loa.negateCidrNotation` for all CIDR entries
-- **CIDR validation**: IPv4 prefix 8-32, IPv6 prefix 32-128, auto-correct on blur
-- **SDS Checkbox** must NOT be wrapped in `<label>` (causes double-toggle)
-- **Screenshot capture** runs in background, not blocking modal open
-
-### Constraints
-
-- `@surfnet/sds` component library is external — cannot modify its internals
-- Manage API contract is fixed — policy structure must match Manage's expected format
-- `Config.java` copy constructor must include any new config fields
+| Feature | Where |
+|---------|-------|
+| Step-up policy editing (LoA, per-attribute negation, CIDR) | `PolicyForm.jsx`, `Policy.js`, `Policies.jsx` |
+| Mac Mail-style feedback widget with screenshot | `UserFeedbackWidget.jsx` |
+| Locale sync script + key parity test | `sync-locales.js`, `en.test.js` |
+| Single-Manage-URL refactor (`Environment` enum removed) | `RemoteManage`, `LocalManage`, `ManageConf`, `Connection`, `ConnectionProviderConverter`, `application.yml`, `Testing.jsx`, `Manage.js` |
+| Flaky test fix (`createOrganizationForInstitutionAdmin`) | `UserControllerTest.java` |
 
 ---
 
-## 6. Known Issues / Tech Debt
+## 7. Known Issues / Tech Debt
 
 ### Typos in Production Code
 - `policyDesscription` (double 's') — `Policy.js:135`, imported in `PolicyForm.jsx`
 - `policyBreakDowwn` (double 'w') — `Policy.js:85`, imported in `PolicyOverview.jsx`
-- These are exported function names, so renaming requires updating all import sites.
+- These are exported function names — renaming requires updating all import sites.
 
 ### Formatting
-- `sync-locales.js` normalizes file formatting when rewriting (strips comments, joins multi-line string concatenation, normalizes trailing commas). One comment `//Leave empty for no tips` in locale files will be lost on sync-rewrite.
+- `sync-locales.js` normalizes file formatting when rewriting (strips comments, joins multi-line string concatenation, normalizes trailing commas). The comment `//Leave empty for no tips` in locale files will be lost on sync-rewrite.
 
 ### Pre-existing Java LSP Errors
 - Multiple LSP errors in server files (`UserAccessRights.java`, `UserController.java`, `ApplicationController.java`, `ApplicationControllerTest.java`, etc.) — these are Lombok-generated method references that the LSP doesn't resolve. Not actual compilation errors.
 
 ### Test Coverage
 - Only 5 test files / 7 tests on frontend (locale sync, utils, store). No component/integration tests.
-- Backend tests exist in `server/src/test/java/access/` (JaCoCo configured).
 
 ### Database
-- Flyway migration `V2` is missing (skipped from V1 to V3).
+- Flyway migration `V2` is missing (skipped from V1 to V3). Intentional or historical accident — do not fill in.
+
+### Open Questions
+- Whether to rename the typo'd functions (`policyDesscription`, `policyBreakDowwn`)
+- Whether `sync-locales.js` should be integrated into CI (fail build if locales are out of sync)
+- Frontend test coverage is minimal — no component or integration tests exist
 
 ---
 
-## 7. Setup & Run
+## 8. Setup & Run
 
 ### Prerequisites
-- Java 21, Maven >= 3.9, Node 24.12 (`.nvmrc`), Yarn, Docker
+- Java 21, Maven >= 3.9 (binary at `/usr/local/bin/mvn`), Node 24.12 (`.nvmrc`), Yarn, Docker
 
 ### Start
 
@@ -393,10 +396,16 @@ mysql -uroot -h127.0.0.1 -psecret -e \
   "CREATE USER 'access'@'%' IDENTIFIED BY 'secret'; GRANT ALL ON access.* TO 'access'@'%';"
 
 # 3. Server (port 8886)
-cd server && mvn spring-boot:run
+cd server && /usr/local/bin/mvn spring-boot:run
 
 # 4. Client (port 3002, proxies API to 8886)
 cd client && nvm use && yarn install && yarn dev
+
+# Run backend tests
+cd server && /usr/local/bin/mvn test
+
+# Run frontend tests
+cd client && yarn test
 ```
 
 ### Profiles
@@ -410,12 +419,13 @@ cd client && nvm use && yarn install && yarn dev
 ### Config Highlights
 
 - `application.yml`: `config.acrValues` (3 LoA URIs), `config.features` (idp, invite, sram, mfa), `config.clientUrl`, `config.feedbackWidgetEnabled`
+- `manage.url` is a single URL — no `manage.test.url` or `manage.prod.url`
 - No `.env` files — all config via Spring YAML profiles
 - Docker images: `ghcr.io/openconext/openconext-access/{accessclient,accessserver}` (multi-arch)
 
 ---
 
-## 8. Conventions
+## 9. Conventions
 
 ### Naming
 - **Backend**: Standard Java/Spring naming. Entities in `model/`, DTOs in `manage/`. Enums are top-level in `model/`.
@@ -431,21 +441,86 @@ cd client && nvm use && yarn install && yarn dev
 
 ### Testing
 - **Frontend**: Vitest 4.1.3. Tests in `__tests__/` subdirs. Run: `yarn test`
-- **Backend**: JUnit 5 + Spring Boot Test + WireMock + Testcontainers (MariaDB). JaCoCo for coverage. Run: `mvn test`
+- **Backend**: JUnit 5 + Spring Boot Test + WireMock + real MariaDB (Testcontainers config in `testcontainers.properties`). JaCoCo for coverage. Run: `/usr/local/bin/mvn test`
 - **Locale test**: Verifies en/nl have identical keys in identical order. `sync-locales.js` for automated sync.
 - **CI**: GitHub Actions on push/PR to `main` — builds both server and client, runs tests.
 
 ---
 
-## 9. Open Questions
+## 10. WireMock Stub Patterns (critical for test correctness)
 
-- Whether to rename the typo'd functions (`policyDesscription`, `policyBreakDowwn`) — requires coordinated rename across all import sites
-- Whether `sync-locales.js` should be integrated into CI (e.g., fail build if locales are out of sync)
-- Frontend test coverage is minimal — no component or integration tests exist
+### `openIDConnectFlow` consumes stubs
+
+`openIDConnectFlow(path, sub, userInfoEnhancer)` drives the full Spring Security OIDC handshake. When the user has institution admin entitlements (`institutionalAdminEntitlementOperator`), Spring calls `CustomOidcUserService.loadUser()` which calls `manage.identityProvidersByInstitutionalGUID(organizationGuid)` — this hits `POST /manage/api/internal/search/saml20_idp` and **consumes** any WireMock stub registered for that URL.
+
+After `openIDConnectFlow` returns, any explicit call to `GET /api/v1/users/me` will trigger `UserController.me()` which calls `manage.identityProviderByEntityID(authenticatingAuthority)` — also `POST /manage/api/internal/search/saml20_idp`. If no stub remains, WireMock returns 404 and the chain fails (or silently creates a wrong org in the DB).
+
+### Required stub pattern for institution admin tests
+
+```java
+// Before openIDConnectFlow: stub for CustomOidcUserService (consumed during OIDC auth)
+super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
+super.stubForGetChangeRequests(getChangeRequests());
+
+AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+        institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+
+// After openIDConnectFlow: re-register stubs consumed during OIDC auth
+super.stubForIdentityProviderByEntityId("http://mock-idp");
+super.stubForGetChangeRequests(getChangeRequests());
+
+// Now safe to call /me explicitly
+Map<String, Object> res = given()...get("/api/v1/users/me")...;
+```
+
+### Stub URL note
+
+Both `stubForIdentityProviderByInstitutionalGUID` and `stubForIdentityProviderByEntityId` stub `POST /manage/api/internal/search/saml20_idp`. They are **not** differentiated by body matching — last registered wins. This is intentional: the `identityProvidersByInstitutionalGUID` stub serves the OIDC phase; the `identityProviderByEntityId` stub serves the explicit `/me` phase.
+
+### WireMock reset
+
+`CustomWireMockExtension.afterEach` calls `this.resetAll()` — all stubs are wiped between tests. Any state leak is due to missing stub registrations, not missing resets.
+
+### Test seed data (`doSeed()`) — delete ordering
+
+`AbstractTest.doSeed()` deletes in this order: `users` → `applications` → `organizations` → `joinRequests`. All FK constraints in the schema use `ON DELETE CASCADE`, so deletion of parent rows cascades to child rows. `invitationRepository` is NOT explicitly deleted — it relies on cascade from `users` and `organizations`. This is intentional.
 
 ---
 
-## 10. Useful File Map
+## 11. Test Fixture Quick Reference
+
+### Seeded Users (`AbstractTest`)
+
+| Constant | `sub` | Role | Notes |
+|----------|-------|------|-------|
+| `SUPER_SUB` | `urn:collab:person:example.com:super` | superUser | |
+| `ADMIN_SUB` / `MANAGE_SUB` | `urn:collab:person:example.com:admin` | ADMIN of ShareLogics | |
+| `GUEST_SUB` | `urn:collab:person:example.com:guest` | MEMBER of FarWind | `schacHomeOrganization=eduid.nl` |
+| `EXTERNAL_USER_SUB` | `urn:collab:person:example.com:external` | GUEST of ShareLogics | `schacHomeOrganization=eduid.nl` |
+| `MULTIPLE_ORG_SUB` | `urn:collab:person:example.com:multiple` | MEMBER of ShareLogics + Logistics | superUser=true |
+| `INSTITUTION_ADMIN` | `urn:collab:person:example.com:institution_admin` | institutionAdmin | `organizationGUID=ORGANISATION_GUID` |
+
+### Seeded Organizations
+
+| Name | `manageIdentifier` | `schacHomeOrganization` |
+|------|--------------------|------------------------|
+| `ShareLogics` | `7` | `sharelogics.org` |
+| `Logistics` | `8` | `logistics.org` |
+| `FarWind` | (none) | `farwind.org` |
+
+### Key Mock IdP/SP Fixtures (`server/src/main/resources/manage/`)
+
+| File `_id` | `entityid` | `name:en` | `OrganizationName:en` | `coin:institution_guid` |
+|-----------|-----------|----------|----------------------|------------------------|
+| `saml20_idp.json` id=`7` | `http://mock-idp` | `Mock IdP EN` | `SURF bv` | `ad93daef-0911-e511-80d0-005056956c1a` (`ORGANISATION_GUID`) |
+| `saml20_idp.json` id=`8` | `http://eduid-idp` | `eduID IdP EN` | `SURF bv` | (none) |
+| `saml20_idp.json` id=`9` | `http://uu-idp` | `Idp UU EN` | `SURF bv` | `test_institution_guid` |
+
+`ORGANISATION_GUID` = `ad93daef-0911-e511-80d0-005056956c1a`
+
+---
+
+## 12. Useful File Map
 
 ### Backend
 
@@ -454,12 +529,13 @@ cd client && nvm use && yarn install && yarn dev
 | `server/pom.xml` | Maven config, all dependencies with versions |
 | `server/src/main/resources/application.yml` | Main config (DB, OIDC, Manage, features, acrValues) |
 | `server/src/main/resources/application-local.yml` | Local dev overrides |
-| `server/src/main/resources/db/mysql/migration/` | Flyway migrations V1-V13 |
+| `server/src/main/resources/db/mysql/migration/` | Flyway migrations V1–V15 |
+| `server/src/main/resources/manage/` | Static JSON fixtures used by `LocalManage` (saml20_idp, saml20_sp, policies, etc.) |
 | `server/src/main/java/access/security/SecurityConfig.java` | Two filter chains, CSRF config, public endpoints |
-| `server/src/main/java/access/security/CustomOidcUserService.java` | OIDC user enrichment + DB sync |
+| `server/src/main/java/access/security/CustomOidcUserService.java` | OIDC user enrichment + DB sync; calls `identityProvidersByInstitutionalGUID` for institution admins |
 | `server/src/main/java/access/security/UserHandlerMethodArgumentResolver.java` | Resolves `User` from security context, handles impersonation |
 | `server/src/main/java/access/api/UserAccessRights.java` | Programmatic authorization methods (default interface) |
-| `server/src/main/java/access/api/UserController.java` | `/users/config`, `/users/me`, `/users/login`, user CRUD |
+| `server/src/main/java/access/api/UserController.java` | `/users/config`, `/users/me`, `/users/login`, user CRUD; auto-provisions org on `/me` |
 | `server/src/main/java/access/api/ManageController.java` | Policy CRUD, SP/IdP lookups, ARP/attributes |
 | `server/src/main/java/access/api/ApplicationController.java` | Application CRUD, import, migrate |
 | `server/src/main/java/access/api/ConnectionController.java` | Connection CRUD, secret reset, production status |
@@ -468,15 +544,19 @@ cd client && nvm use && yarn install && yarn dev
 | `server/src/main/java/access/api/InvitationController.java` | Invitation CRUD, accept, resend |
 | `server/src/main/java/access/api/FeedbackController.java` | Feedback with screenshot submission |
 | `server/src/main/java/access/manage/Manage.java` | Interface for Manage metadata registry |
-| `server/src/main/java/access/manage/RemoteManage.java` | HTTP implementation of Manage |
+| `server/src/main/java/access/manage/RemoteManage.java` | HTTP implementation of Manage (single URL, single RestTemplate) |
+| `server/src/main/java/access/manage/LocalManage.java` | Static-JSON implementation used in tests and `devconf` profile |
+| `server/src/main/java/access/manage/ConnectionProviderConverter.java` | Converts Connection entities to/from Manage provider format |
 | `server/src/main/java/access/manage/PolicyDefinition.java` | Policy DTO (reg + step-up) |
 | `server/src/main/java/access/manage/LoA.java` | LoA model (level, attributes, cidrNotations) |
 | `server/src/main/java/access/model/User.java` | User entity |
 | `server/src/main/java/access/model/Organization.java` | Organization entity |
 | `server/src/main/java/access/model/Application.java` | Application entity (has JSON metaData column) |
-| `server/src/main/java/access/model/Connection.java` | Connection entity (has JSON metaData column) |
+| `server/src/main/java/access/model/Connection.java` | Connection entity; `state` default=`testaccepted`; `environment` field removed |
 | `server/src/main/java/access/model/Authority.java` | ADMIN/MEMBER/GUEST enum with rights hierarchy |
 | `server/src/main/java/access/config/Config.java` | `@ConfigurationProperties` — acrValues, features, clientUrl, etc. |
+| `server/src/test/java/access/AbstractTest.java` | Base test class: WireMock wiring, seed data, `openIDConnectFlow`, stub helpers |
+| `server/src/test/java/access/AbstractMailTest.java` | Extends AbstractTest; adds Mailpit/SMTP support |
 
 ### Frontend
 
@@ -498,7 +578,8 @@ cd client && nvm use && yarn install && yarn dev
 | `client/src/utils/MenuItems.js` | Menu structure, role-based filtering |
 | `client/src/utils/Connection.js` | Connection data transform between client/server formats |
 | `client/src/utils/Application.js` | Application data transform & validation |
-| `client/src/utils/Manage.js` | Manage metadata helpers, protocol/status constants |
+| `client/src/utils/Manage.js` | Manage metadata helpers, protocol/status constants; `STATE` constant for `connection.state` |
+| `client/src/connection/Testing.jsx` | Connection test/prod toggle UI; line 252 uses `connection.state === STATE.prodaccepted` |
 | `client/src/components/UserFeedbackWidget.jsx` | Feedback modal with html2canvas screenshot |
 | `client/src/components/ConfirmationDialog.jsx` | Reusable modal confirmation (supports `className`, `full` props) |
 | `client/src/components/Entities.jsx` | Generic sortable/searchable entity table |
@@ -511,7 +592,7 @@ cd client && nvm use && yarn install && yarn dev
 
 ---
 
-## 11. If you only read this (TL;DR)
+## 13. TL;DR
 
 - Federated access management platform connecting IdPs to SPs via `Manage` (SURFconext metadata registry)
 - Spring Boot 3.5 backend (`server/`), React 19 + Zustand frontend (`client/`), MariaDB, Flyway migrations
@@ -520,6 +601,9 @@ cd client && nvm use && yarn install && yarn dev
 - Policies (reg + step-up) live in Manage, CRUD via `ManageController.java`, edited in `PolicyForm.jsx`
 - Step-up policies use `loas[0]` with per-attribute `negated` flag; LoA options from `Config.acrValues`
 - `Application.metaData` and `Connection.metaData` are JSON columns synced bidirectionally with Manage
+- `Environment` enum is **gone** — single `manage.url`, `Connection.state` is the sole TEST/PROD signal
+- `Connection.state` ≠ `Connection.status` — `state` is the Manage environment; `status` is the workflow stage
 - `policyDesscription` and `policyBreakDowwn` in `Policy.js` have typos baked into all import sites
-- Frontend has only 7 tests (`client/src/__tests__/`); backend uses JUnit + WireMock + Testcontainers
+- Backend: 262 tests, 0 failures, 2 skipped. Frontend: 7 tests. `mvn` is at `/usr/local/bin/mvn`
 - Locale files (`en.js`/`nl.js`) must stay key-synced; run `node sync-locales.js` after adding i18n keys
+- WireMock: `POST /manage/api/internal/search/saml20_idp` stubs are consumed by `CustomOidcUserService` during OIDC auth for institution admins — must re-register after `openIDConnectFlow` returns (see Section 10)

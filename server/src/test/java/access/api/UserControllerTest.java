@@ -5,7 +5,6 @@ import access.AccessCookieFilter;
 import access.UserInfoEnhancer;
 import access.model.Authority;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Institution;
 import access.model.Organization;
 import access.model.OrganizationMembership;
@@ -142,7 +141,7 @@ class UserControllerTest extends AbstractTest {
     void swichOrganizationManagerWithMockLogin() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 
-        super.stubForGetProvider(EntityType.saml20_idp, "7", Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
         super.stubForGetChangeRequests(getChangeRequests());
 
         User user = given()
@@ -379,6 +378,9 @@ class UserControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        // Re-register stubs consumed during OIDC auth by CustomOidcUserService
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
         Map<String, Object> res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

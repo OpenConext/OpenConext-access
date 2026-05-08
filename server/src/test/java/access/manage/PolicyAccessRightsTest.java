@@ -2,7 +2,6 @@ package access.manage;
 
 import access.exception.UserRestrictionException;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 import org.jspecify.annotations.NonNull;
@@ -34,7 +33,7 @@ class PolicyAccessRightsTest {
 
         Organization organization = getOrganization();
 
-        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD))
+        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier()))
                 .thenReturn(this.identityProvider());
 
         //The IdP of the Policy is not the same as the IdP of the User
@@ -47,7 +46,7 @@ class PolicyAccessRightsTest {
 
         policyDefinition.setIdentityProviderIds(List.of(new PolicyProvider(user.getAuthenticatingAuthority())));
         policyDefinition.setServiceProviderIds(List.of(new PolicyProvider(policySPIdentifier)));
-        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(),Environment.PROD))
+        when(manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier()))
                 .thenReturn(this.identityProvider(policySPIdentifier));
         policyAccessRights.confirmPolicyAccess(user, policyDefinition, manage, organization);
     }

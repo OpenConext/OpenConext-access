@@ -8,7 +8,6 @@ import access.model.Application;
 import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
 import access.model.Organization;
@@ -180,7 +179,7 @@ class ApplicationControllerTest extends AbstractTest {
         applicationData.put("organization", Map.of("id", organization.getId()));
 
         //The details of the connections are retrieved
-        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, Environment.PROD, "5");
+        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
         Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
         connectionProd.setManageIdentifier("5");
         super.stubForSaveProvider(connectionProd);
@@ -315,7 +314,7 @@ class ApplicationControllerTest extends AbstractTest {
                 seedIdentifiers.get(BUDDY_CHECK),
                 seedIdentifiers.get(FAR_WIND)
         );
-        stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, Environment.PROD, "5");
+        stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
         Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
         connectionProd.setManageIdentifier("5");
         super.stubForSaveProvider(connectionProd);
@@ -340,7 +339,7 @@ class ApplicationControllerTest extends AbstractTest {
     void importEntity() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
         ImportEntityRequest importEntityRequest = new ImportEntityRequest(
                 seedIdentifiers.get(FAR_WIND),
                 null,
@@ -369,7 +368,7 @@ class ApplicationControllerTest extends AbstractTest {
     void importEntityExistingApplication() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
         ImportEntityRequest importEntityRequest = new ImportEntityRequest(
                 seedIdentifiers.get(FAR_WIND),
                 seedIdentifiers.get(NITRO_MAP),

@@ -1,7 +1,6 @@
 package access.security;
 
 import access.manage.Manage;
-import access.model.Environment;
 import access.model.Institution;
 import access.model.User;
 import access.repository.UserRepository;
@@ -68,7 +67,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
             String authenticatingAuthority = (String) claims.get("authenticating_authority");
-            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(Environment.PROD, organizationGuid);
+            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(organizationGuid);
             //If there are multiple identityProviders with the same organizationGuid, we pick the one that was used to login
             Optional<Map<String, Object>> optionalIdentityProvider = identityProviders.isEmpty() ? Optional.empty() :
                     Optional.of(identityProviders.stream()

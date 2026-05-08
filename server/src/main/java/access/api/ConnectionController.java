@@ -15,7 +15,6 @@ import access.model.Authority;
 import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 import access.repository.ApplicationRepository;
@@ -118,7 +117,7 @@ public class ConnectionController implements UserAccessRights {
                 connectionRepository.save(connection);
             }
             if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+                connection.convertChangeRequests(manage.getChangeRequests(connection));
             }
         }
         return ResponseEntity.ok(connection);
@@ -181,7 +180,7 @@ public class ConnectionController implements UserAccessRights {
         if (connection.changeRequestRequired()) {
             //Not allowed to sync the connection to Manage. Create ChangeRequests
             connection = this.productionReadyChangeRequests(connection, user);
-            connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+            connection.convertChangeRequests(manage.getChangeRequests(connection));
         } else {
             connection = saveConnection(connection);
         }
@@ -193,7 +192,7 @@ public class ConnectionController implements UserAccessRights {
     public ResponseEntity<List<Map<String, Object>>> changeRequests(User user, @PathVariable("connectionId") Long connectionId) {
         Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
-        List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection.getEnvironment(), connection);
+        List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
         return ResponseEntity.ok(changeRequests);
     }
 
@@ -214,7 +213,7 @@ public class ConnectionController implements UserAccessRights {
                                                                        @PathVariable("connectionId") Long connectionId) {
         Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
-        String changeRequestURL = manage.changeRequestURL(connection.getEnvironment(), connection);
+        String changeRequestURL = manage.changeRequestURL(connection);
 
         Map<String, Object> provider = manage.providerByConnection(connection);
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
@@ -244,7 +243,7 @@ public class ConnectionController implements UserAccessRights {
                 RequestType.ProductionStatusRequest);
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
-        Map<String, Object> changeRequestResponse = manage.createChangeRequest(connection.getEnvironment(), changeRequest);
+        Map<String, Object> changeRequestResponse = manage.createChangeRequest(changeRequest);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);
 
@@ -305,11 +304,10 @@ public class ConnectionController implements UserAccessRights {
 
     @SuppressWarnings("unchecked")
     private Connection productionReadyChangeRequests(Connection connection, User user) {
-        Environment environment = connection.getEnvironment();
-        String changeRequestURL = manage.changeRequestURL(environment, connection);
+        String changeRequestURL = manage.changeRequestURL(connection);
         Map<String, Object> provider = manage.providerByConnection(connection);
         connection.updateRemoteManageData(provider);
-        List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(Environment.PROD, connection);
+        List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(connection);
         Optional<ChangeRequest> changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);
         boolean isDuplicate = isNewChangeRequestDuplicate(existingChangeRequests, changeRequestOptional);
         if (changeRequestOptional.isPresent() && !isDuplicate) {
@@ -337,7 +335,7 @@ public class ConnectionController implements UserAccessRights {
                 ChangeRequest changeRequest = changeRequestOptional.get();
                 changeRequest.setTicketKey(jiraKey);
                 changeRequest.setAuditData(auditData);
-                manage.createChangeRequest(environment, changeRequest);
+                manage.createChangeRequest(changeRequest);
             } else {
                 //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not overwrite changes
                 //And therefore we don't create a new change request, but update the existing one
@@ -377,14 +375,14 @@ public class ConnectionController implements UserAccessRights {
                     }
                 });
                 ChangeRequest changeRequest = objectMapper.convertValue(existingChangeRequest, ChangeRequest.class);
-                manage.updateChangeRequest(Environment.PROD, changeRequest);
+                manage.updateChangeRequest(changeRequest);
             }
         }
 
         //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
         connection.mergeMetaData(provider, true);
         connection = connectionRepository.save(connection);
-        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+        connection.convertChangeRequests(manage.getChangeRequests(connection));
         return connection;
     }
 

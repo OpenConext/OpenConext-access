@@ -65,12 +65,7 @@ public class Connection implements NameHolder {
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
-    private Environment environment = Environment.TEST;
-
-    @Enumerated(EnumType.STRING)
-    @Column
-    @NotNull
-    private State state = State.prodaccepted;
+    private State state = State.testaccepted;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -98,12 +93,11 @@ public class Connection implements NameHolder {
     @Transient
     private List<Map<String, Object>> changeRequests = new ArrayList<>();
 
-    public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol, Environment environment) {
+    public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol) {
         this.name = name;
         this.application = application;
         this.metaData = new HashMap<>(metaData);
         this.protocol = protocol;
-        this.environment = environment;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
         this.manageVersion = 0;
@@ -134,7 +128,6 @@ public class Connection implements NameHolder {
         this.name = connectionData.name;
         this.metaData = connectionData.metaData;
         this.protocol = connectionData.protocol;
-        this.environment = connectionData.environment;
         this.status = connectionData.status;
     }
 
@@ -195,8 +188,7 @@ public class Connection implements NameHolder {
          * to prodaccepted, then we set the status to production ready
          */
         this.state = State.valueOf((String) data.getOrDefault("state", "testaccepted"));
-        if (this.environment.equals(Environment.PROD) &&
-                ConnectionStatus.PENDING_PROD.equals(this.status) &&
+        if (ConnectionStatus.PENDING_PROD.equals(this.status) &&
                 this.state.equals(State.prodaccepted)) {
             this.status = ConnectionStatus.PROD_READY;
         }
@@ -214,8 +206,7 @@ public class Connection implements NameHolder {
 
     @JsonIgnore
     public boolean changeRequestRequired() {
-        return this.environment.equals(Environment.PROD) &&
-                this.status.equals(ConnectionStatus.PROD_READY);
+        return this.state.equals(State.prodaccepted);
     }
 
     @PreUpdate

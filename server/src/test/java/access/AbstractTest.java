@@ -82,9 +82,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
-                "manage.test.url=http://localhost:8081",
+                "manage.url=http://localhost:8081",
                 "manage.enabled=true",
-                "manage.prod.url=http://localhost:8081",
                 "jira.enabled=false",
                 "s3storage.url=http://localhost:8081",
                 "invite.enabled=true",
@@ -183,7 +182,7 @@ public abstract class AbstractTest {
             this.doSeed();
         }
         if (this.localManage == null) {
-            ConnectionProviderConverter converter = new ConnectionProviderConverter(objectMapper, State.testaccepted, State.prodaccepted);
+            ConnectionProviderConverter converter = new ConnectionProviderConverter(objectMapper, State.testaccepted);
             this.localManage = new LocalManage(converter, objectMapper, staticManageDirectory);
         }
     }
@@ -453,8 +452,8 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
-    protected Map<String, Object> stubForGetProvider(EntityType entityType, String manageIdentifier, Environment environment) {
-        Map<String, Object> provider = localManage.providerByManageIdentifier(entityType, manageIdentifier, environment);
+    protected Map<String, Object> stubForGetProvider(EntityType entityType, String manageIdentifier) {
+        Map<String, Object> provider = localManage.providerByManageIdentifier(entityType, manageIdentifier);
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 entityType.name(),
@@ -466,9 +465,9 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
-    protected Map<String, Object> stubForGetProvider(EntityType entityType, String manageIdentifier, Environment environment,
+    protected Map<String, Object> stubForGetProvider(EntityType entityType, String manageIdentifier,
                                                      String actualManageIdentifier) {
-        Map<String, Object> provider = localManage.providerByManageIdentifier(entityType, actualManageIdentifier, environment);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(entityType, actualManageIdentifier);
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 entityType.name(),
@@ -507,7 +506,7 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForIdentityProviderByInstitutionalGUID(String organisationGuid) {
-        List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID(Environment.PROD, organisationGuid);
+        List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID(organisationGuid);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
                 .willReturn(aResponse()
@@ -530,7 +529,7 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForIdentityProviders() {
-        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_idp);
+        List<Map<String, Object>> providers = localManage.providers(EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -562,8 +561,8 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForServiceProviders() {
-        List<Map<String, Object>> providers = localManage.providers(Environment.TEST, EntityType.saml20_sp);
-        List<Map<String, Object>> relyingParties = localManage.providers(Environment.TEST, EntityType.oidc10_rp);
+        List<Map<String, Object>> providers = localManage.providers(EntityType.saml20_sp);
+        List<Map<String, Object>> relyingParties = localManage.providers(EntityType.oidc10_rp);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -580,7 +579,6 @@ public abstract class AbstractTest {
         Connection connection = new Connection();
         connection.setManageIdentifier(manageIdentifier);
         connection.setProtocol(entityType);
-        connection.setEnvironment(Environment.PROD);
         connection.setState(State.prodaccepted);
         return connection;
     }
@@ -644,8 +642,7 @@ public abstract class AbstractTest {
                                 List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
                         ),
                         "motivation", "Please")),
-                EntityType.oidc10_rp,
-                Environment.TEST);
+                EntityType.oidc10_rp);
         Connection buddyCheckConnectionProd = new Connection(BUDDY_CHECK_PROD, buddyCheck, Map.of(
                 "contactPersons", List.of(new Contact("technical", "John", "Doe", "jdoe@example.com")),
                 "entityID", "https://engine.test.surfconext.nl",
@@ -658,8 +655,7 @@ public abstract class AbstractTest {
                                 List.of(Map.of("value", "*", "source", "idp", "motivation", "Default for profile"))
                         ),
                         "motivation", "Please")),
-                EntityType.oidc10_rp,
-                Environment.PROD);
+                EntityType.oidc10_rp);
         //Need to mimic a pending production connection
         buddyCheckConnectionProd.setManageIdentifier(MANAGE_IDENTIFIER);
         buddyCheckConnectionProd.setManageVersion(1);

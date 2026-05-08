@@ -55,7 +55,8 @@ import {
     ENVIRONMENTS,
     identityProviderOption,
     identityProviderOptions,
-    PROTOCOLS
+    PROTOCOLS,
+    STATE
 } from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -249,7 +250,7 @@ export const Testing = ({
     }
 
     const testIdPValid = () => {
-        return connection.environment === ENVIRONMENTS.PROD || !isEmpty(connection.allowedEntities);
+        return connection.state === STATE.prodaccepted || !isEmpty(connection.allowedEntities);
     }
 
     const changeSection = sectionName => {
@@ -452,7 +453,7 @@ export const Testing = ({
     }
 
     const onBlurEntityID = (e) => {
-        uniqueEntityID(connection.environment, e.target.value).then(res => {
+        uniqueEntityID(e.target.value).then(res => {
             const duplicated = (connection.status === !CONNECTION_STATUSES.OPEN && res.length > 1) ||
                 (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);

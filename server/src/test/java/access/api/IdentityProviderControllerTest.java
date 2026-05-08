@@ -37,8 +37,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         given()
                 .when()
@@ -74,8 +74,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         given()
                 .when()
@@ -107,8 +107,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         given()
                 .when()
@@ -155,8 +155,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         /// Stub for POST new change request
         Map<String, String> manageResponse = Map.of("id", "1");
@@ -189,8 +189,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval - see src/main/resources/manage/*.json
-        super.stubForGetProvider(EntityType.oidc10_rp, "5", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.oidc10_rp, "5");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         /// Stub for POST connectWithoutInteraction
         stubFor(put(urlPathMatching("/manage/api/internal/connectWithoutInteraction")).willReturn(aResponse()
@@ -229,8 +229,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval - see src/main/resources/manage/*.json
-        super.stubForGetProvider(EntityType.oidc10_rp, "6", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.oidc10_rp, "6");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         /// Stub for POST connectWithoutInteraction
         stubFor(put(urlPathMatching("/manage/api/internal/connectWithoutInteraction")).willReturn(aResponse()
@@ -263,8 +263,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
 
         /// Stub for POST new change request
         Map<String, String> manageResponse = Map.of("id", "1");
@@ -297,8 +297,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
         /// Stub for GET all change requests
         ChangeRequest changeRequest = new ChangeRequest(
                 UUID.randomUUID().toString(),
@@ -336,8 +336,8 @@ class IdentityProviderControllerTest extends AbstractMailTest {
                 "Connect..."
         );
         //Need to stub manage calls for SP and IdP retrieval
-        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3", Environment.PROD);
-        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = super.stubForGetProvider(EntityType.saml20_sp, "3");
+        super.stubForGetProvider(EntityType.saml20_idp, organization.getManageIdentifier());
         /// Stub for GET all change requests
         ChangeRequest changeRequest = new ChangeRequest(
                 UUID.randomUUID().toString(),

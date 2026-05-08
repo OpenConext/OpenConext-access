@@ -173,20 +173,11 @@ email:
 manage:
   enabled: True
 #  enabled: False
-  # which manage environment do we use the fetch the identity provider of the user, either TEST or PROD
-  activeManage: TEST
-  test:
-    url: "https://manage.test2.surfconext.nl"
-#    url: "http://localhost:8081"
-    user: openconextaccess
-    password: secret
-    defaultState: prodaccepted
-  prod:
-    url: "https://manage.test2.surfconext.nl"
-#    url: "http://localhost:8081"
-    user: openconextaccess
-    password: secret
-    defaultState: testaccepted
+  url: "https://manage.test2.surfconext.nl"
+#  url: "http://localhost:8081"
+  user: openconextaccess
+  password: secret
+  defaultState: testaccepted
   # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
   # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage

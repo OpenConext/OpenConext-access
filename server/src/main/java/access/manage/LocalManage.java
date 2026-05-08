@@ -3,7 +3,6 @@ package access.manage;
 import access.exception.NotFoundException;
 import access.model.Connection;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.Organization;
 import access.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -60,7 +59,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providers(Environment environment, EntityType... entityTypes) {
+    public List<Map<String, Object>> providers(EntityType... entityTypes) {
         LOG.debug("providers for : " + List.of(entityTypes));
 
         //Ensure it is mutable
@@ -73,11 +72,10 @@ public final class LocalManage implements Manage {
     public Map<String, Object> providerByConnection(Connection connection) {
         String manageIdentifier = connection.getManageIdentifier();
         EntityType protocol = connection.getProtocol();
-        Environment environment = connection.getEnvironment();
 
         LOG.debug("providerById for : " + protocol);
 
-        List<Map<String, Object>> providers = providers(environment, protocol);
+        List<Map<String, Object>> providers = providers(protocol);
         return providers.stream()
                 .filter(provider -> provider.get("id").equals(manageIdentifier))
                 .findFirst()
@@ -85,10 +83,10 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier, Environment environment) {
+    public Map<String, Object> providerByManageIdentifier(EntityType entityType, String manageIdentifier) {
         LOG.debug("providerById for : " + entityType);
 
-        List<Map<String, Object>> providers = providers(environment, entityType);
+        List<Map<String, Object>> providers = providers(entityType);
         return providers.stream()
                 .filter(provider -> provider.get("id").equals(manageIdentifier))
                 .findFirst()
@@ -97,7 +95,7 @@ public final class LocalManage implements Manage {
 
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
-        Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier(), Environment.PROD);
+        Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
         Map<String, Object> data = getData(provider);
         Map<String, Object> metaDataFields = getMetaDataFields(data);
         converter.convertContactPersons(organization.getMetaData(), metaDataFields);
@@ -167,7 +165,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> uniqueEntityId(Environment environment, EntityType entityType, String entityID) {
+    public List<Map<String, Object>> uniqueEntityId(EntityType entityType, String entityID) {
         return Stream.of(EntityType.values())
                 .flatMap(type -> this.allProviders.get(type).stream())
                 .filter(provider -> ((Map) provider.get("data")).get("entityid").equals(entityID))
@@ -175,22 +173,22 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> createChangeRequest(Environment environment, ChangeRequest changeRequest) {
+    public Map<String, Object> createChangeRequest(ChangeRequest changeRequest) {
         return Map.of();
     }
 
     @Override
-    public Map<String, Object> updateChangeRequest(Environment environment, ChangeRequest changeRequest) {
+    public Map<String, Object> updateChangeRequest(ChangeRequest changeRequest) {
         return Map.of();
     }
 
     @Override
-    public void rejectChangeRequest(Environment environment, ChangeRequest changeRequest) {
+    public void rejectChangeRequest(ChangeRequest changeRequest) {
         //noop
     }
 
     @Override
-    public List<Map<String, Object>> getChangeRequests(Environment environment, Connection connection) {
+    public List<Map<String, Object>> getChangeRequests(Connection connection) {
         return List.of();
     }
 
@@ -200,7 +198,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public String changeRequestURL(Environment environment, Connection connection) {
+    public String changeRequestURL(Connection connection) {
         return String.format("http://localhost:8088/metadata/%s/%s", connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
@@ -210,7 +208,7 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> identityProvidersByInstitutionalGUID(Environment environment, String organisationGUID) {
+    public List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID) {
         return this.allProviders.get(EntityType.saml20_idp).stream()
                 .filter(provider -> {
                     Map<String, Object> data = getData(provider);
@@ -221,12 +219,12 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> identityProvidersLight(Environment environment) {
+    public List<Map<String, Object>> identityProvidersLight() {
         return this.allProviders.get(EntityType.saml20_idp);
     }
 
     @Override
-    public List<Map<String, Object>> serviceProvidersLight(Environment environment) {
+    public List<Map<String, Object>> serviceProvidersLight() {
         List<Map<String, Object>> providers = new ArrayList<>();
         providers.addAll(this.allProviders.get(EntityType.saml20_sp));
         providers.addAll(this.allProviders.get(EntityType.oidc10_rp));
@@ -245,8 +243,7 @@ public final class LocalManage implements Manage {
     @Override
     public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
         List<String> entityIdentifiers = connections.stream()
-                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
-                        connection.getEnvironment().equals(Environment.PROD))
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
                 .map(connection -> {
                     Map<String, Object> provider = this.providerByConnection(connection);
                     Map<String, Object> data = (Map<String, Object>) provider.get("data");

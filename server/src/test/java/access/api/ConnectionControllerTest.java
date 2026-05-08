@@ -7,7 +7,6 @@ import access.model.Application;
 import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.GrantType;
 import access.model.State;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,7 +43,7 @@ class ConnectionControllerTest extends AbstractTest {
                 "grantTypes", List.of("authorization_code")
         );
 
-        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
+        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp);
         //Otherwise rest-assured does not deserialize the Application
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });
@@ -74,7 +73,7 @@ class ConnectionControllerTest extends AbstractTest {
                 "grants", List.of("authorization_code")
         );
 
-        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp, Environment.TEST);
+        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp);
         //Otherwise rest-assured does not deserialize the Application
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });
@@ -177,7 +176,7 @@ class ConnectionControllerTest extends AbstractTest {
         redirectUrls.add("https://redirect.nl");
         metaData.put("claimsInIdToken", true);
 
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
         metaData.put("arp", ManageData.getData(provider).get("arp"));
 
         //Otherwise rest-assured does not deserialize the Application
@@ -239,7 +238,7 @@ class ConnectionControllerTest extends AbstractTest {
         redirectUrls.add("https://redirect.nl");
         metaData.put("claimsInIdToken", true);
 
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
         metaData.put("arp", ManageData .getData(provider).get("arp"));
 
         //Otherwise rest-assured does not deserialize the Application

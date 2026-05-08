@@ -12,7 +12,6 @@ import access.model.Authority;
 import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
-import access.model.Environment;
 import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
 import access.model.Organization;
@@ -149,7 +148,7 @@ public class ApplicationController implements UserAccessRights {
                         connectionRepository.save(connection);
                     }
                     if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                        connection.convertChangeRequests(manage.getChangeRequests(Environment.PROD, connection));
+                        connection.convertChangeRequests(manage.getChangeRequests(connection));
                     }
                 });
         Map<String, Object> provider = latestChangedProvider.get();
@@ -341,8 +340,7 @@ public class ApplicationController implements UserAccessRights {
                 (String) metaDataFields.get("name:en"),
                 application,
                 new HashMap<>(),// We will fill the metadata later
-                EntityType.valueOf((String) serviceProvider.get("type")),
-                Environment.PROD
+                EntityType.valueOf((String) serviceProvider.get("type"))
         );
         connection.setSecretSet(true);
         connection.setStatus(ConnectionStatus.PENDING_PROD);

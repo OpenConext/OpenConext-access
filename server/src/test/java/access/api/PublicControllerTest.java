@@ -3,7 +3,6 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
-import access.model.Environment;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
@@ -85,7 +84,7 @@ class PublicControllerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void serviceProviderDetail() {
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.saml20_sp, "1", Environment.PROD);
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.saml20_sp, "1");
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
                 EntityType.saml20_sp.name(),

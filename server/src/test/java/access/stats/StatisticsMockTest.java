@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StatisticsMockTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final StatisticsMock statistics = new StatisticsMock(new LocalManage(new ConnectionProviderConverter(objectMapper, State.testaccepted, State.prodaccepted),
+    private final StatisticsMock statistics = new StatisticsMock(new LocalManage(new ConnectionProviderConverter(objectMapper, State.testaccepted),
             objectMapper, "classpath:/manage"));
 
     @Test
