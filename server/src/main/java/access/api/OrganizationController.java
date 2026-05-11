@@ -98,14 +98,11 @@ public class OrganizationController implements UserAccessRights {
                         String.format("User %s is not a member of organization %s", user.getEmail(), id)));
 
         organization.getApplications().forEach(application -> {
-            //We only fetch change-requests for applications with one production status
-            List<Connection> prodConnections = application.getConnections().stream()
+            //We only fetch change-requests for applications with production status
+            application.getConnections().stream()
                     .filter(conn -> conn.changeRequestRequired())
-                    .toList();
-            if (prodConnections.size() == 1) {
-                prodConnections.forEach(connection ->
+                    .forEach(connection ->
                         connection.convertChangeRequests(manage.getChangeRequests(connection)));
-            }
         });
 
         Map<String, Object> organizationMap = objectMapper.convertValue(organization, new TypeReference<>() {

@@ -93,12 +93,6 @@ public class User implements Serializable, NameHolder {
     private Institution institution = null;
 
     @Transient
-    private Map<String, Object> identityProvider = null;
-
-    @Transient
-    private List<Map<String, Object>> changeRequests = null;
-
-    @Transient
     private int loaLevel = 1;
 
     @Transient
@@ -215,11 +209,6 @@ public class User implements Serializable, NameHolder {
     }
 
     @JsonProperty
-    public Map<String, Object> getIdentityProvider() {
-        return identityProvider;
-    }
-
-    @JsonProperty
     public int getLoaLevel() {
         return loaLevel;
     }
@@ -229,8 +218,4 @@ public class User implements Serializable, NameHolder {
         return externalUser;
     }
 
-    @JsonProperty
-    public List<Map<String, Object>> getChangeRequests() {
-        return changeRequests;
-    }
 }

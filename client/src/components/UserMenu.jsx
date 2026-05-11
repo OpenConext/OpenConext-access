@@ -1,22 +1,18 @@
 import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {isEmpty} from "../utils/Utils";
 import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
-import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {useLogout} from '../hooks/UseLogout.jsx';
-import {organizationSwitch} from "../api/index.js";
 
 export const UserMenu = ({setIsAuthenticated}) => {
 
     const user = useAppStore(state => state.user);
     const currentOrganization = useAppStore(state => state.currentOrganization);
-
-    const navigate = useNavigate();
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [isSwitchOrganizationOpen, setIsSwitchOrganizationOpen] = useState(false);
@@ -24,17 +20,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const logoutUser = useLogout();
 
     const switchOrganization = organization => {
-        organizationSwitch(organization)
-            .then(newUser => {
-                const newMenuItems = menuItemsForUser(newUser, organization);
-                useAppStore.setState(() => ({
-                    currentOrganization: organization,
-                    menuItems: newMenuItems,
-                    user: newUser,
-                    activeMenuItem: mainMenuItems.home,
-                }));
-                navigate("/home");
-            });
+        window.location.href = `/organization/${organization.id}`
     }
 
     const renderOrganizationSwitch = () => {

@@ -94,8 +94,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     isReadOnly,
                     isPendingDisconnect,
                     ticketKey
-                } = deriveAccess(user, res.data.entityid);
-                const adminUser = isAdmin(user, authorities);
+                } = deriveAccess(currentOrganization, res.data.entityid);
+                const adminUser = isAdmin(user, currentOrganization, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
                 setReadOnly(isReadOnly);
@@ -233,7 +233,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else {
             cancelConfirmation();
             setLoading(true);
-            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            const manageIdentifierOrg = currentOrganization.manageIdentifier;
             cancelServiceProviderConnectionRequest(
                 serviceProvider.id,
                 serviceProvider.type,
@@ -273,7 +273,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else {
             cancelConfirmation();
             setLoading(true);
-            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            const manageIdentifierOrg = currentOrganization.manageIdentifier;
             connectServiceProviderToIdentityProvider(
                 serviceProvider.id,
                 serviceProvider.type,
@@ -323,7 +323,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else {
             cancelConfirmation();
             setLoading(true);
-            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            const manageIdentifierOrg = currentOrganization.manageIdentifier;
             cancelServiceProviderDisconnectionRequest(
                 serviceProvider.id,
                 serviceProvider.type,
@@ -355,7 +355,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else {
             cancelConfirmation();
             setLoading(true);
-            const manageIdentifierOrg = user.identityProvider?.id || currentOrganization.manageIdentifier;
+            const manageIdentifierOrg = currentOrganization.manageIdentifier;
             disconnectServiceProviderToIdentityProvider(
                 serviceProvider.id,
                 serviceProvider.type,
@@ -431,6 +431,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     </div>
                                     <Button type={ButtonType.Primary}
                                             onClick={() => {
+                                                useAppStore.setState({
+                                                    activeMenuItem: mainMenuItems.policies
+                                                });
                                                 navigate(`/policies?service=${encodeURIComponent(serviceProvider.data.entityid)}`);
                                             }}
                                             txt={I18n.t("appAccess.edit")}/>
@@ -443,7 +446,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                               label={I18n.t("appAccess.policies", {nbr: policies.length})}
                                               className={"policies-active"}/>
                                     }
-                                    {renderLogo(user.identityProvider.data.metaDataFields)}
+                                    {renderLogo(currentOrganization?.identityProvider?.data?.metaDataFields)}
                                 </div>
                             </InfoBlock>
                             <InfoBlock className="no-gap">

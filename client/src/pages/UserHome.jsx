@@ -8,11 +8,14 @@ import {Navigate, useNavigate} from "react-router-dom";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import DOMPurify from "dompurify";
 import {InfoBlock} from "../components/InfoBlock.jsx";
+import {useShallow} from "zustand/react/shallow";
 
 const UserHome = () => {
 
-    const user = useAppStore(state => state.user);
-    const currentOrganization = useAppStore(state => state.currentOrganization);
+    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+        user: state.user,
+        currentOrganization: state.currentOrganization
+    })));
 
     const navigate = useNavigate();
 

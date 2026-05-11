@@ -63,7 +63,6 @@ const Landing = ({refreshUser}) => {
         }
     }
 
-
     const afterOrgCreate = organization => {
         useAppStore.setState({
             currentOrganization: organization

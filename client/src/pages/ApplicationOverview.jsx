@@ -40,17 +40,17 @@ const ApplicationOverview = ({accessible}) => {
             publicServiceProviders()
                 .then(res => {
                     //Scope the services on the allowed-entities of the IdP of the user
-                    const openConnectionRequests = (user.changeRequests || [])
+                    const openConnectionRequests = (currentOrganization.changeRequests || [])
                         .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
                             changeRequest.pathUpdateType === "ADDITION")
                         .map(changeRequest => changeRequest.pathUpdates.allowedEntities.name);
                     if (accessible) {
-                        const allowedAll = user.identityProvider.data.allowedall;
-                        const allowedEntities = user.identityProvider.data.allowedEntities.map(entity => entity.name);
+                        const allowedAll = currentOrganization.identityProvider.data.allowedall;
+                        const allowedEntities = currentOrganization.identityProvider.data.allowedEntities.map(entity => entity.name);
                         res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid))
                     } else {
                         //In the case of eduID / external user, we don't have an identityProvider
-                        const allowedEntities = (user.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
+                        const allowedEntities = (currentOrganization.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
                         res = res.filter(entity => !allowedEntities.includes(entity.data.entityid) && !openConnectionRequests.includes(entity.data.entityid))
                     }
                     res.forEach(entity => {
@@ -116,7 +116,8 @@ const ApplicationOverview = ({accessible}) => {
                     setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
-                .catch(() => {
+                .catch(e => {
+                    debugger;
                     navigate("/404");
                 });
         }, [accessible]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -202,7 +203,7 @@ const ApplicationOverview = ({accessible}) => {
                 <div className="accessible-apps-header-container">
                     {accessible && <div className="accessible-apps-header">
                         <h2 className="large">{I18n.t("accessibleApps.title")}</h2>
-                        <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, user.identityProvider)})}</p>
+                        <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
                     </div>}
                     {!accessible && <div className="accessible-apps-header">
                         <h2 className="large">{I18n.t("userHome.catalogue.title")}</h2>

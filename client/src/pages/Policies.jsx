@@ -46,8 +46,8 @@ const Policies = () => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "reg" || policyIdentifier === "step") {
-            newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(user.identityProvider.data.entityid) :
-                policyTemplateRegular(user.identityProvider.data.entityid);
+            newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(currentOrganization.identityProvider.data.entityid) :
+                policyTemplateRegular(currentOrganization.identityProvider.data.entityid);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {

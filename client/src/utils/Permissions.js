@@ -77,18 +77,18 @@ export const hasApplicationDeleteAccess = (user, application) => {
     return application.ownerIdentifier === user.id && currentOrgMembership.authority !== authorities.GUEST;
 }
 
-export const deriveAccess = (user, spEntityId) => {
+export const deriveAccess = (currentOrganization, spEntityId) => {
     let isAccessible = false, isReadOnly = false, isPendingDisconnect = false;
-    if (isEmpty(user.identityProvider)) {
+    if (isEmpty(currentOrganization.identityProvider)) {
         //External user
         return {isAccessible, isReadOnly, isPendingDisconnect};
     }
-    const allowedEntities = user.identityProvider.data.allowedEntities.map(e => e.name);
+    const allowedEntities = currentOrganization.identityProvider.data.allowedEntities.map(e => e.name);
     isAccessible = allowedEntities.includes(spEntityId);
     isReadOnly = !isAccessible;
     let ticketKey = null;
     if (!isAccessible) {
-        const changeRequestAdd = user.changeRequests.find(cr =>
+        const changeRequestAdd = currentOrganization.changeRequests.find(cr =>
             cr.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
             cr.pathUpdateType === "ADDITION" &&
             cr.pathUpdates.allowedEntities.name === spEntityId
@@ -96,7 +96,7 @@ export const deriveAccess = (user, spEntityId) => {
         isAccessible = !isEmpty(changeRequestAdd);
         ticketKey = isEmpty(changeRequestAdd) ? null : changeRequestAdd.ticketKey
     }
-    const changeRequestRemoval = user.changeRequests.find(cr =>
+    const changeRequestRemoval = currentOrganization.changeRequests.find(cr =>
         cr.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
         cr.pathUpdateType === "REMOVAL" &&
         cr.pathUpdates.allowedEntities.name === spEntityId
@@ -108,14 +108,13 @@ export const deriveAccess = (user, spEntityId) => {
     return {isAccessible, isReadOnly, isPendingDisconnect, ticketKey};
 }
 
-export const isAdmin = (user, authorities) => {
-    if (isEmpty(user.identityProvider)) {
+export const isAdmin = (user, currentOrganization, authorities) => {
+    if (isEmpty(currentOrganization.identityProvider)) {
         //External user
         return false;
     }
-    const idpId = user.identityProvider.id;
     const orgMembership = user.organizationMemberships.find(
-        m => m.organization.manageIdentifier === idpId
+        m => m.organization.id === currentOrganization.id
     );
     return user.superUser || (orgMembership && orgMembership.authority === authorities.ADMIN);
 }

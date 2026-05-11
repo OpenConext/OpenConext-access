@@ -1,4 +1,4 @@
-import React, {Fragment, useEffect} from "react";
+import React, {Fragment} from "react";
 import {useAppStore} from "../stores/AppStore";
 import "./Profile.scss";
 import I18n from "../locale/I18n";
@@ -9,19 +9,22 @@ import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import {providerName} from "../utils/Manage.js";
+import {useShallow} from "zustand/react/shallow";
 
 const Profile = () => {
 
-    const user = useAppStore(state => state.user);
+    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+        user: state.user,
+        currentOrganization: state.currentOrganization
+    })));
 
-    useEffect(() => {
-        useAppStore.setState({
-            breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home},
-                {value: I18n.t("breadCrumb.profile")}
-            ]
-        });
-    }, []);
+    useAppStore.setState({
+        breadcrumbPaths: [
+            {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home},
+            {value: I18n.t("breadCrumb.profile")}
+        ]
+    });
+
 
     // const doDelete = (e, confirmationRequired) => {
     //     stopEvent(e);
@@ -73,7 +76,7 @@ const Profile = () => {
                 }
                 {user.institutionAdmin &&
                     <InputField
-                        name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, user.identityProvider)})}
+                        name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, currentOrganization.identityProvider)})}
                         noInput={true}
                     />
                 }

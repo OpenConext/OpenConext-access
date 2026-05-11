@@ -12,6 +12,7 @@ import {InvitationManagement} from "./InvitationManagement.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {currentOrganizationFromUser} from "../utils/Organization.js";
 
 const tabNames = ["team", "invitations", "joins"]
 
@@ -35,8 +36,10 @@ export const UserManagement = () => {
             organizationUserManagementById(organizationId)
                 .then(res => {
                     setOrganization(res);
+                    //the URL may be bookmarked
+                    const organization = currentOrganizationFromUser(user, organizationId)
                     useAppStore.setState({
-                        currentOrganization: res,
+                        currentOrganization: organization,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                             {value: I18n.t("navigation.users")}

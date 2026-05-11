@@ -21,6 +21,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
+import {currentOrganizationFromUser} from "../utils/Organization.js";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -67,17 +68,19 @@ const MyOrganization = ({refreshUser}) => {
                     setExternalOrganization(isEmpty(res.manageIdentifier));
                     setSection(isEmpty(res.manageIdentifier) ? sections.general : sections.contactPersons);
                     setLoading(false);
+                    const organization = currentOrganizationFromUser(user, organizationId)
+                    useAppStore.setState({
+                        currentOrganization: organization,
+                        breadcrumbPaths: [
+                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                            {value: I18n.t("navigation.idp")}
+                        ],
+                        activeMenuItem: mainMenuItems.idp
+                    });
                 }).catch(() => {
                 navigate("/home")
             });
         }
-        useAppStore.setState({
-            breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                {value: I18n.t("navigation.idp")}
-            ],
-            activeMenuItem: mainMenuItems.idp
-        });
     }, [navigate, organizationId, dirty]);
 
     useEffect(() => {
@@ -209,7 +212,6 @@ const MyOrganization = ({refreshUser}) => {
                     setLoading(false);
                     setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
                 });
-
         }
     }
 

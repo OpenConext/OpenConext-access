@@ -138,61 +138,6 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void swichOrganizationManagerWithMockLogin() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-
-        super.stubForGetProvider(EntityType.saml20_idp, "7");
-        super.stubForGetChangeRequests(getChangeRequests());
-
-        User user = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
-                .get("/api/v1/users/organization-switch/{organizationId}")
-                .as(User.class);
-        assertEquals(1, user.getOrganizationMemberships().size());
-
-        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
-        assertEquals("ShareLogics", organization.getName());
-
-        assertEquals("7", user.getIdentityProvider().get("id"));
-    }
-
-    @Test
-    void swichOrganizationGuestWithoutIdP() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
-
-        User user = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("organizationId", seedIdentifiers.get(FAR_WIND))
-                .get("/api/v1/users/organization-switch/{organizationId}")
-                .as(User.class);
-        assertEquals(1, user.getOrganizationMemberships().size());
-
-        assertNull(user.getIdentityProvider());
-    }
-
-    @Test
-    void swichOrganizationGuestNoAccess() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
-
-        given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("organizationId", -1L)
-                .get("/api/v1/users/organization-switch/{organizationId}")
-                .then()
-                .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     void meMissingAttributes() throws Exception {
         this.stubForStats();
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "",

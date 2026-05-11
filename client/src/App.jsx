@@ -81,11 +81,11 @@ const App = () => {
                     setIsAuthenticated(res[0].authenticated);
                     if (res[0].authenticated) {
                         me().then(user => {
-                            //If there are multiple organization memberships, we default to the one which is used to login
-                            const identityProviderId = (user.identityProvider || {}).id;
+                            //If there are multiple organization memberships, we default to the one which was used to login
                             const orgMembership = (user.organizationMemberships || [])
-                                .find(organizationMembership => !isEmpty(identityProviderId) &&
-                                    organizationMembership.organization.manageIdentifier === identityProviderId);
+                                .find(organizationMembership => !isEmpty(organizationMembership.organization.identityProvider) &&
+                                    organizationMembership.organization.identityProvider.data.entityid ===
+                                    user.authenticatingAuthority);
                             const currentOrganization = orgMembership?.organization || user.organizationMemberships.map(om => om.organization)[0] || {name: ""};
                             const newMenuItems = menuItemsForUser(user, currentOrganization);
                             useAppStore.setState(() => ({

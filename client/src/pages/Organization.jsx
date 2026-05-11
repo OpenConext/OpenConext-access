@@ -24,8 +24,10 @@ import {
 } from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
-import {mainMenuItems} from "../utils/MenuItems.js";
+import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
+import {useShallow} from "zustand/react/shallow";
+import {currentOrganizationFromUser} from "../utils/Organization.js";
 
 
 const views = {
@@ -34,7 +36,10 @@ const views = {
 }
 
 const Organization = () => {
-    const user = useAppStore(state => state.user);
+    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+        user: state.user,
+        currentOrganization: state.currentOrganization
+    })));
 
     const {organizationId} = useParams();
 
@@ -56,8 +61,12 @@ const Organization = () => {
                 .then(res => {
                     res.applications = res.applications.map(application => convertServerApplicationToClient(application))
                     setOrganization(res);
+                    const newMenuItems = menuItemsForUser(user, res);
+                    //the URL may be bookmarked
+                    const organization = currentOrganizationFromUser(user, organizationId)
                     useAppStore.setState({
-                        currentOrganization: res,
+                        currentOrganization: organization,
+                        menuItems: newMenuItems,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                             {value: I18n.t("navigation.yourApps")}
@@ -67,7 +76,7 @@ const Organization = () => {
                     const authority = currentUserMembershipAuthority(user, membership);
                     setCurrentUserAuthority(authority);
                     setIsExternal(user.externalUser);
-                    const mayCreateApplicationVar = hasCreateApplicationAccess(user, organization);
+                    const mayCreateApplicationVar = hasCreateApplicationAccess(user, res);
                     setMayCreateApplication(mayCreateApplicationVar);
                     if (!mayCreateApplicationVar) {
                         //We need to get the admin of this app - if any

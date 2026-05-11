@@ -3,13 +3,20 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
-import access.exception.UserRestrictionException;
 import access.mail.MailBox;
 import access.manage.Manage;
-import access.model.*;
+import access.model.Authority;
+import access.model.EntityType;
+import access.model.Institution;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.OrganizationStatus;
+import access.model.User;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import access.security.InstitutionAdmin;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,11 +36,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -44,6 +62,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+@SuppressWarnings("unchecked")
 public class UserController implements UserAccessRights {
 
     private static final Log LOG = LogFactory.getLog(UserController.class);
@@ -53,16 +72,18 @@ public class UserController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final Manage manage;
     private final MailBox mailBox;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox) {
+                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox, ObjectMapper objectMapper) {
         this.config = config;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.manage = manage;
         this.mailBox = mailBox;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/config")
@@ -86,7 +107,7 @@ public class UserController implements UserAccessRights {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> me(@Parameter(hidden = true) User user, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> me(@Parameter(hidden = true) User user, Authentication authentication) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())
@@ -101,13 +122,10 @@ public class UserController implements UserAccessRights {
             String authenticatingAuthority = (String) claims.get("authenticating_authority");
             Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
             String manageIdentifier = (String) identityProvider.get("_id");
-            userFromDB.setIdentityProvider(identityProvider);
             String obtainedAcr = (String) claims.getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
             userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
-            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
-            userFromDB.setChangeRequests(changeRequests);
 
-            // Provision the user into the organization, if no organization is created yet, create it on the fly
+            // Provision the user into the organization, this is only done once for a user.
             if (userFromDB.getOrganizationMemberships().stream()
                     .noneMatch(organizationMembership -> organizationMembership.getOrganization()
                             .getManageIdentifier().equals(manageIdentifier))) {
@@ -119,6 +137,7 @@ public class UserController implements UserAccessRights {
                         organization -> {
                             userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
                         }, () -> {
+                            // If no organization is created yet, create it on the fly. This is only done once per organization
                             Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;
                             String organizationName = String.format("%s (%s)", institutionForOrg.getName(), institutionForOrg.getOrganizationName());
                             Integer manageVersion = (Integer) identityProvider.get("version");
@@ -132,34 +151,21 @@ public class UserController implements UserAccessRights {
             }
         }
         userRepository.save(userFromDB);
-        return ResponseEntity.ok(userFromDB);
-    }
+        Map<String, Object> userMap = objectMapper.convertValue(userFromDB, new TypeReference<>() {
+        });
+        List<Map<String, Object>> organizationMemberships = (List<Map<String, Object>>) userMap.getOrDefault("organizationMemberships", List.of());
+        organizationMemberships.forEach(organizationMembership -> {
+            Map<String, Object> organization = (Map<String, Object>) organizationMembership.get("organization");
+            String manageIdentifier = (String) organization.get("manageIdentifier");
+            if (StringUtils.hasText(manageIdentifier)) {
+                Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
+                organization.put("identityProvider", identityProvider);
+                List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
+                organization.put("changeRequests", changeRequests);
+            }
+        });
 
-    @GetMapping("/organization-switch/{organizationId}")
-    public ResponseEntity<User> organizationSwitch(@Parameter(hidden = true) User user,
-                                                   @PathVariable Long organizationId) {
-        LOG.debug(String.format("/organization-switch for user %s", user.getEduPersonPrincipalName()));
-
-        User userFromDB = userRepository.findDetailsById(user.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        Organization organization = userFromDB.getOrganizationMemberships().stream()
-                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organizationId))
-                .map(organizationMembership -> organizationMembership.getOrganization())
-                .findFirst()
-                .orElseThrow(() -> new UserRestrictionException((String.format("User %s is not a member of organization %s",
-                        user.getEmail(), organizationId))));
-
-        boolean isInternalUserFromOrganization = StringUtils.hasText(organization.getManageIdentifier());
-        userFromDB.setExternalUser(!isInternalUserFromOrganization);
-        if (isInternalUserFromOrganization) {
-            Map<String, Object> identityProvider = manage.providerByManageIdentifier(
-                    EntityType.saml20_idp, organization.getManageIdentifier());
-            userFromDB.setIdentityProvider(identityProvider);
-            List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
-            userFromDB.setChangeRequests(changeRequests);
-        }
-        return ResponseEntity.ok(userFromDB);
+        return ResponseEntity.ok(userMap);
     }
 
     @GetMapping("/other/{id}")
@@ -219,7 +225,7 @@ public class UserController implements UserAccessRights {
         confirmSuperUser(user);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable):
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
                 userRepository.searchByPage(pageable);
         return ResponseEntity.ok(usersPage);
     }
@@ -255,7 +261,6 @@ public class UserController implements UserAccessRights {
             return 1;
         }
     }
-
 
 
 }

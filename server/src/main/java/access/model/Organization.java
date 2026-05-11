@@ -79,9 +79,6 @@ public class Organization implements NameHolder {
     @Formula(value = "(SELECT COUNT(*) FROM applications a WHERE a.organization_id=id)")
     private Long applicationCount;
 
-    @Transient
-    private List<Map<String, Object>> changeRequests;
-
     public Organization(String name, String schacHomeOrganization) {
         this.name = name;
         this.schacHomeOrganization = schacHomeOrganization;
@@ -119,11 +116,6 @@ public class Organization implements NameHolder {
                 .stream().filter(jr -> !jr.getId().equals(joinRequest.getId())).collect(Collectors.toSet());
         this.joinRequests.clear();
         this.joinRequests.addAll(newJoinRequests);
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public List<Map<String, Object>> getChangeRequests() {
-        return this.changeRequests;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
