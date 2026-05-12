@@ -21,7 +21,7 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
         label: I18n.t(`roles.${authority.toLowerCase()}`)
     })));
 
-export const TeamManagement = ({organization, currentUserAuthority, setRefresh}) => {
+export const TeamManagement = ({organization, currentUserAuthority, refreshState}) => {
 
     const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
         user: state.user,
@@ -33,10 +33,6 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
     const [dropDownActive, setDropDownActive] = useState(-1);
-
-    const refreshMemberships = () => {
-        setRefresh(new Date().getTime());
-    }
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {
@@ -51,7 +47,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
             deleteOrganizationMembershipById(membership).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("teamManagement.flash.deleted", {name: membership.user.name}));
-                refreshMemberships();
+                refreshState();
             })
         }
     }
@@ -69,7 +65,7 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("teamManagement.flash.updated", {name: membership.user.name}));
-                refreshMemberships();
+                refreshState();
             })
         }
     }
@@ -77,12 +73,12 @@ export const TeamManagement = ({organization, currentUserAuthority, setRefresh})
     const changeOrganizationMembership = (membership, authority) => {
         if (membership.user.id === currentUser.id && authority !== authorities.ADMIN) {
             doDemoteCurrentUser(membership, authority, true);
-            refreshMemberships();
+            refreshState();
         } else {
             changeOrganizationMembershipById(membership, authority).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("teamManagement.flash.updated", {name: membership.user.name}));
-                refreshMemberships();
+                refreshState();
             })
         }
     }

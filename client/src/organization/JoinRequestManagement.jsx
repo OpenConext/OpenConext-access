@@ -15,7 +15,7 @@ import {useShallow} from "zustand/react/shallow";
 import CheckIcon from "@surfnet/sds/icons/functional-icons/checkbox-check.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 
-export const JoinRequestManagement = ({organization, currentUserAuthority, setRefresh}) => {
+export const JoinRequestManagement = ({organization, currentUserAuthority, refreshState}) => {
 
     const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
         user: state.user,
@@ -24,10 +24,6 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
 
     const [confirmation, setConfirmation] = useState({});
     const [dropDownActive, setDropDownActive] = useState(-1);
-
-    const refreshJoinRequests = () => {
-        setRefresh(new Date().getTime())
-    }
 
     const doApprove = (joinRequest, approved, confirmationRequired) => {
         if (confirmationRequired) {
@@ -42,7 +38,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
             approvalJoinRequest(joinRequest.id, approved, authorities.GUEST).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t(`joinRequestManagement.flash.${approved ? "approved" : "denied"}`, {name: joinRequest.user.name}));
-                refreshJoinRequests();
+                refreshState();
             })
         }
     }
@@ -62,7 +58,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, setRe
             Promise.all(promises).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("joinRequestManagement.flash.approveAll"));
-                refreshJoinRequests();
+                refreshState();
             })
         }
     }

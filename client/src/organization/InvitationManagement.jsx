@@ -21,7 +21,7 @@ const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
         label: I18n.t(`roles.${authority.toLowerCase()}`)
     })));
 
-export const InvitationManagement = ({organization, currentUserAuthority, setRefresh}) => {
+export const InvitationManagement = ({organization, currentUserAuthority, refreshState}) => {
 
     const {user: currentUser, setFlash} = useAppStore(useShallow(state => ({
         user: state.user,
@@ -31,10 +31,6 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
     const [dropDownActive, setDropDownActive] = useState(-1);
-
-    const refreshMemberships = () => {
-        setRefresh(new Date().getTime());
-    }
 
     const doDelete = (invitation, confirmationRequired) => {
         if (confirmationRequired) {
@@ -49,7 +45,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
             deleteInvitation(invitation).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("invitationsManagement.flashReminderSent"));
-                refreshMemberships();
+                refreshState();
             })
         }
     }
@@ -67,7 +63,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
             deleteAllInvitations(organization).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("invitationsManagement.flashDeleteAll"));
-                refreshMemberships();
+                refreshState();
             })
         }
     }
@@ -85,7 +81,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, setRef
             resendInvitation(invitation).then(() => {
                 setConfirmation({});
                 setFlash(I18n.t("invitationsManagement.flashReminderSent"));
-                refreshMemberships();
+                refreshState();
             })
         }
     }

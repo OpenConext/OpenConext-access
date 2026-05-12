@@ -78,6 +78,9 @@ public class Connection implements NameHolder {
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 
+    @Column(name = "sections_complete")
+    private int sectionsComplete;
+
     @Column(name = "manage_version")
     private Integer manageVersion;
 

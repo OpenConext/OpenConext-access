@@ -1,12 +1,11 @@
-import "./Testing.scss";
-import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
+import "./Connections.scss";
+import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {
     Alert,
     AlertType,
     Button,
     ButtonType,
-    Checkbox,
     Chip,
     ChipType,
     Loader,
@@ -50,14 +49,7 @@ import {
     generateOIDCClientID,
     visibilities
 } from "../utils/Connection.js";
-import {
-    CONNECTION_STATUSES,
-    ENVIRONMENTS,
-    identityProviderOption,
-    identityProviderOptions,
-    PROTOCOLS,
-    STATE
-} from "../utils/Manage.js";
+import {CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
@@ -72,8 +64,8 @@ const sections = {
     pendingChanges: "pendingChanges",
     technical: "technical",
     informationProfile: "informationProfile",
-    testIdP: "testIdP",
-    overview: "overview"
+    visibility: "visibility",
+    overview: "overview",
 }
 
 const metaData = {
@@ -94,26 +86,24 @@ const modals = {
     deletionWarning: "deletionWarning",
 }
 
-export const Testing = ({
-                            application,
-                            connection,
-                            setConnection,
-                            initConnection,
-                            refresh,
-                            user,
-                            testConnectionComplete,
-                            productionConnectionComplete,
-                            appInformationComplete,
-                            productionConnectionNeedsActivation,
-                            protocolOptions,
-                            arpInfo,
-                            setTab,
-                            profileOptions,
-                            identityProviders,
-                            isProduction,
-                            setDirty,
-                            connectionId
-                        }) => {
+export const Connections = ({
+                                application,
+                                connection,
+                                setConnection,
+                                initConnection,
+                                refresh,
+                                user,
+                                connectionComplete,
+                                appInformationComplete,
+                                connectionNeedsApproval,
+                                protocolOptions,
+                                arpInfo,
+                                setTab,
+                                profileOptions,
+                                identityProviders,
+                                setDirty,
+                                connectionId
+                            }) => {
 
     const {config, setFlash} = useAppStore(useShallow(state => ({
         config: state.config,
@@ -143,9 +133,7 @@ export const Testing = ({
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
 
-    const connections = useMemo(() => application.connections
-            .filter(conn => isProduction ? conn.environment === ENVIRONMENTS.PROD : conn.environment === ENVIRONMENTS.TEST),
-        [application, isProduction]);
+    const connections = application.connections;
 
     const redirectUrlRefs = useRef([]);
     const acsLocationRefs = useRef([]);
@@ -154,7 +142,7 @@ export const Testing = ({
         if (!isEmpty(connectionId)) {
             const conn = application.connections.find(c => c.id === parseInt(connectionId, 10));
             if (isEmpty(conn)) {
-                navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
+                navigate(`/connection/${application.id}`);
             } else {
                 showConnectionDetails(conn);
             }
@@ -177,9 +165,6 @@ export const Testing = ({
             }
             case sections.informationProfile: {
                 return !connection.id || (!finished || !informationProfileValid());
-            }
-            case sections.testIdP: {
-                return !connection.id || (!finished || !testIdPValid());
             }
             case sections.pendingChanges: {
                 return false;
@@ -206,7 +191,6 @@ export const Testing = ({
             //To prevent update instead of create
             ["id", "manageEid", "manageIdentifier", "manageVersion", "createdAt", "updatedAt"]
                 .forEach(attr => delete convertedConnection[attr]);
-            convertedConnection.environment = isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST
             convertedConnection.status = CONNECTION_STATUSES.OPEN;
             convertedConnection.entityID = "";
             if (convertedConnection.protocol.value === PROTOCOLS.OIDC10_RP) {
@@ -405,14 +389,14 @@ export const Testing = ({
                         question: I18n.t("connection.deleteConfirmation"),
                         action: () => doDeleteConnection(false),
                         modal: modals.deletionWarning,
-                        okButton: I18n.t((isProduction && !isEmpty(res)) ? "forms.deleteAnyway" : "forms.delete")
+                        okButton: I18n.t((connection.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(res)) ? "forms.deleteAnyway" : "forms.delete")
                     });
                 })
         } else {
             setLoading(true);
             setAffectedIdentityProviders([]);
             deleteConnectionById(connection.id).then(() => {
-                refresh(isProduction ? "prod" : "testing");
+                refresh("allConnections");
                 setConfirmation({open: false});
                 setLoading(false);
                 setFlash(I18n.t("connection.flash.deleted", {
@@ -496,8 +480,7 @@ export const Testing = ({
                             isAlert={changeRequestsKeys.includes("name")}
                             placeholder={I18n.t("connection.connectionPlaceholder",
                                 {
-                                    application: application.name,
-                                    environment: connection.environment.toUpperCase()
+                                    application: application.name
                                 })}
                 />
                 {(!initial && isEmpty(connection.name)) &&
@@ -776,7 +759,7 @@ export const Testing = ({
                                     <p className="saml-test"
                                        dangerouslySetInnerHTML={{
                                            __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"] })
+                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
                                        }}/>
                                 </div>
                             </div>
@@ -801,65 +784,66 @@ export const Testing = ({
     //     }
     // };
 
-    const changeAllowedEntity = options => {
-        const iDps = config.identityProviders;
-        const allowedEntities = connection.allowedEntities || [];
-        const testEntityIdentifiers = iDps.map(idp => idp.entityid)
-            .filter(entityID => allowedEntities.includes(entityID));
+    // const changeAllowedEntity = options => {
+    //     const iDps = config.identityProviders;
+    //     const allowedEntities = connection.allowedEntities || [];
+    //     const testEntityIdentifiers = iDps.map(idp => idp.entityid)
+    //         .filter(entityID => allowedEntities.includes(entityID));
+    //
+    //     setConnection({
+    //         ...connection,
+    //         allowedEntities: options.map(option => option.value).concat(testEntityIdentifiers)
+    //     });
+    // };
 
-        setConnection({
-            ...connection,
-            allowedEntities: options.map(option => option.value).concat(testEntityIdentifiers)
-        });
-    };
-
-    const renderTestIdPSection = () => {
-        const iDps = config.identityProviders;
-        const allowedEntities = connection.allowedEntities || [];
-        const testEntityIdentifiers = iDps.map(idp => idp.entityid);
-        return (
-            <section className="inner-right-idp">
-                <h3>{I18n.t("connection.testIdP")}</h3>
-                <p>{I18n.t("connection.testIdPs.info")}</p>
-                <h3>{I18n.t("connection.testIdPs.subTitle")}</h3>
-                <section className="identity-providers">
-                    {iDps.map((idp, index) =>
-                        <div key={index} className="idp">
-                            <Checkbox name={idp.name}
-                                      readOnly={true}
-                                      value={allowedEntities.includes(idp.entityid)}
-                                //onChange={e => changeAllowedTestEntity(idp, e)}
-                            />
-                            <div className="idp-info">
-                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
-                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
-                            </div>
-                        </div>
-                    )}
-                </section>
-                <h3>{I18n.t("connection.testIdPs.institutionIdPs")}</h3>
-                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.testIdPs.institutionIdPsInfo"))}}/>
-                <SelectField
-                    options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
-                    value={allowedEntities
-                        .filter(entityID => !testEntityIdentifiers.includes(entityID))
-                        .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))
-                        .filter(option => !isEmpty(option))}
-                    isMulti={true}
-                    searchable={true}
-                    placeholder={I18n.t("connection.testIdPs.placeholder")}
-                    onChange={options => changeAllowedEntity(options)}
-                />
-                {(!initial && isEmpty(connection.allowedEntities)) &&
-                    <ErrorIndicator
-                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.testIdPs.institution")})}
-                    />}
-
-            </section>
-        );
-    }
+    // const renderTestIdPSection = () => {
+    //     const iDps = config.identityProviders;
+    //     const allowedEntities = connection.allowedEntities || [];
+    //     const testEntityIdentifiers = iDps.map(idp => idp.entityid);
+    //     return (
+    //         <section className="inner-right-idp">
+    //             <h3>{I18n.t("connection.testIdP")}</h3>
+    //             <p>{I18n.t("connection.testIdPs.info")}</p>
+    //             <h3>{I18n.t("connection.testIdPs.subTitle")}</h3>
+    //             <section className="identity-providers">
+    //                 {iDps.map((idp, index) =>
+    //                     <div key={index} className="idp">
+    //                         <Checkbox name={idp.name}
+    //                                   readOnly={true}
+    //                                   value={allowedEntities.includes(idp.entityid)}
+    //                             //onChange={e => changeAllowedTestEntity(idp, e)}
+    //                         />
+    //                         <div className="idp-info">
+    //                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
+    //                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
+    //                         </div>
+    //                     </div>
+    //                 )}
+    //             </section>
+    //             <h3>{I18n.t("connection.testIdPs.institutionIdPs")}</h3>
+    //             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.testIdPs.institutionIdPsInfo"))}}/>
+    //             <SelectField
+    //                 options={identityProviderOptions(identityProviders.filter(idp => !allowedEntities.includes(idp.data.entityid)), I18n.locale)}
+    //                 value={allowedEntities
+    //                     .filter(entityID => !testEntityIdentifiers.includes(entityID))
+    //                     .map(entityId => identityProviderOption(identityProviders, entityId, I18n.locale))
+    //                     .filter(option => !isEmpty(option))}
+    //                 isMulti={true}
+    //                 searchable={true}
+    //                 placeholder={I18n.t("connection.testIdPs.placeholder")}
+    //                 onChange={options => changeAllowedEntity(options)}
+    //             />
+    //             {(!initial && isEmpty(connection.allowedEntities)) &&
+    //                 <ErrorIndicator
+    //                     msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.testIdPs.institution")})}
+    //                 />}
+    //
+    //         </section>
+    //     );
+    // }
 
     const renderVisibilitySection = () => {
+        //TODO combine with renderTestIdPSection
         return (
             <section className="inner-right-idp">
                 <h3>{I18n.t("connection.visibility")}</h3>
@@ -1101,8 +1085,8 @@ export const Testing = ({
             case sections.informationProfile: {
                 return renderInformationProfileSection();
             }
-            case sections.testIdP: {
-                return isProduction ? renderVisibilitySection() : renderTestIdPSection();
+            case sections.visibility: {
+                return renderVisibilitySection();
             }
             case sections.overview: {
                 return isOidc ? renderOIDCOverview() : renderSAMLOverview();
@@ -1131,11 +1115,8 @@ export const Testing = ({
             case sections.informationProfile: {
                 return !informationProfileValid();
             }
-            case sections.testIdP: {
-                if (isProduction) {
-                    return false;
-                }
-                return !testIdPValid();
+            case sections.visibility: {
+                return false;
             }
             case sections.pendingChanges: {
                 return false;
@@ -1152,20 +1133,35 @@ export const Testing = ({
             nextSection = section;
         } else {
             nextSection = section === sections.technical ? sections.informationProfile :
-                section === sections.informationProfile ? sections.testIdP : sections.overview;
+                section === sections.informationProfile ? sections.visibility : sections.overview;
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
-            (section === sections.testIdP && (isProduction || testIdPValid()));
+            (section === sections.visibility && (connection.status === CONNECTION_STATUSES.PROD_READY || testIdPValid()));
         if (proceed) {
             setLoading(true);
             const promise = connection.id ? updateConnection : newConnection
             const body = convertClientConnectionToServer(application, connection, arpInfo);
+            switch (section) {
+                case sections.technical: {
+                    connection.sectionsComplete = connection.sectionsComplete | 1;
+                    break;
+                }
+                case sections.informationProfile: {
+                    connection.sectionsComplete = connection.sectionsComplete | 2;
+                    break;
+                }
+                case sections.visibility: {
+                    connection.sectionsComplete = connection.sectionsComplete | 4;
+                    break;
+                }
+
+            }
             if (finished && isOpen) {
                 if (isOidc) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
-                body.status = isProduction ? CONNECTION_STATUSES.IN_PROGRESS : CONNECTION_STATUSES.COMPLETE;
+                body.status = CONNECTION_STATUSES.COMPLETE;
             }
             promise(body)
                 .then(res => {
@@ -1238,7 +1234,7 @@ export const Testing = ({
     const backToConnections = () => {
         refresh();
         setConnection(null);
-        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}`);
+        navigate(`/connection/allConnections`);
         window.scrollTo({top: 0, behavior: "smooth"});
         changeSection(sections.technical);
     }
@@ -1249,17 +1245,17 @@ export const Testing = ({
     }
 
     const renderInitialConnection = () => {
-        const lastSection = section === sections.testIdP;
+        const lastSection = section === sections.visibility;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
-        const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY && isProduction;
+        const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
         const showOverviewButton = section === sections.overview;
         const submitTxt = requiresChangeRequest ? I18n.t("connection.requiresChangeRequest") : isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
                 <div className="testing-header">
-                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection${isProduction ? "Prod" : ""}`, {name: connection.name})}</h2>
-                    {(isProduction && application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
+                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
+                    {(application.signedContract && (connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}
                                     onClick={() => doRequestProduction(true, connection)}
@@ -1306,37 +1302,38 @@ export const Testing = ({
                                                     disabled={isDisabled(sectionValue)}
                                                     isAlert={sectionValue === sections.pendingChanges}
                                                     action={() => changeSection(sectionValue)}
-                                                    info={I18n.t(`connection.${(sectionValue !== sections.testIdP || !isProduction) ? sectionValue : "visibility"}`)}
+                                                    info={I18n.t(`connection.${sectionValue}`)}
                                                     active={section === sectionValue}/>)}
                         </div>
                     </section>
                     <section className="right">
                         {renderSection()}
                         {section !== sections.pendingChanges &&
-                        <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
-                            {!showOverviewButton &&
-                                <>
-                                    <div className="sub-actions">
-                                        <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
-                                                type={ButtonType.Secondary}
-                                                onClick={backToConnections}/>
-                                        <div className="delete-connection">
-                                            <Button type={ButtonType.Delete} onClick={() => doDeleteConnection(true)}/>
+                            <div className={`actions ${showOverviewButton ? "orphan" : ""}`}>
+                                {!showOverviewButton &&
+                                    <>
+                                        <div className="sub-actions">
+                                            <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
+                                                    type={ButtonType.Secondary}
+                                                    onClick={backToConnections}/>
+                                            <div className="delete-connection">
+                                                <Button type={ButtonType.Delete}
+                                                        onClick={() => doDeleteConnection(true)}/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <Button txt={submitTxt}
-                                            disabled={!valid}
-                                            onClick={() => storeAndNext(lastSection)}/>
-                                </>
-                            }
+                                        <Button txt={submitTxt}
+                                                disabled={!valid}
+                                                onClick={() => storeAndNext(lastSection)}/>
+                                    </>
+                                }
 
-                            {showOverviewButton &&
-                                <Button txt={I18n.t("forms.overview")}
-                                        type={ButtonType.Secondary}
-                                        icon={<ArrowRight/>}
-                                        onClick={backToMainOverview}/>
-                            }
-                        </div>}
+                                {showOverviewButton &&
+                                    <Button txt={I18n.t("forms.overview")}
+                                            type={ButtonType.Secondary}
+                                            icon={<ArrowRight/>}
+                                            onClick={backToMainOverview}/>
+                                }
+                            </div>}
 
                     </section>
                 </div>
@@ -1354,7 +1351,7 @@ export const Testing = ({
     }
 
     const showConnectionDetails = (conn, queryParameters = "") => {
-        navigate(`/connection/${application.id}/${isProduction ? "prod" : "testing"}/${conn.id}${queryParameters}`);
+        navigate(`/connection/allConnections/${conn.id}${queryParameters}`);
         const section = updateChangeRequestKeys(conn);
         setConnection(conn);
         changeSection(section);
@@ -1377,7 +1374,7 @@ export const Testing = ({
                 key: "status",
                 header: I18n.t("connection.connections.status"),
                 mapper: conn => {
-                    const productionConnectionNeedsActivation = isProduction && application.signedContract && (
+                    const productionConnectionNeedsActivation = application.signedContract && (
                         conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS);
                     const toolTip = null;//I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
                     const status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
@@ -1426,30 +1423,28 @@ export const Testing = ({
     const renderConnections = () => {
         return (
             <div className="connections">
-                {isProduction && <ConnectionAlert application={application}
-                                                  user={user}
-                                                  productionOnly={true}
-                                                  setTab={setTab}
-                                                  fullWidth={true}
-                                                  customProdTabAction={() => showConnectionDetails(connections
-                                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))}
-                                                  testConnectionComplete={testConnectionComplete}
-                                                  productionConnectionComplete={productionConnectionComplete}
-                                                  appInformationComplete={appInformationComplete}
-                                                  productionConnectionNeedsActivation={productionConnectionNeedsActivation}/>}
+                {<ConnectionAlert application={application}
+                                  user={user}
+                                  setTab={setTab}
+                                  fullWidth={true}
+                                  customProdTabAction={() => showConnectionDetails(connections
+                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))}
+                                  connectionComplete={connectionComplete}
+                                  appInformationComplete={appInformationComplete}
+                                  connectionNeedsApproval={connectionNeedsApproval}
+                />}
                 <div className="header">
-                    <h3>{I18n.t(`connection.${isProduction ? "production" : "test"}.connections`)}</h3>
+                    <h3>{I18n.t(`connection.allConnections`)}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={() => initConnection(isProduction ? ENVIRONMENTS.PROD : ENVIRONMENTS.TEST, true)}/>
+                            onClick={() => initConnection(true)}/>
                 </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&
                     <p dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(I18n.t("testing.zeroState",
                             {
-                                name: application.name,
-                                type: I18n.t(`testing.${isProduction ? "production" : "test"}`)
+                                name: application.name
                             }))
                     }}/>}
             </div>

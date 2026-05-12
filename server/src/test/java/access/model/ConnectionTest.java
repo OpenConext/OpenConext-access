@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
@@ -17,6 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConnectionTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private Connection connection;
+
+    @BeforeEach
+    void setUp() {
+        connection = new Connection();
+    }
 
     @Test
     void isValid() {
@@ -62,4 +70,132 @@ class ConnectionTest {
 
         assertEquals(changeRequest, convertedChangeRequest);
     }
-}
+    // --- complete() ---
+
+    @Test
+    void testCompleteOneSection() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+    }
+
+    @Test
+    void testCompleteMultipleSections() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION)
+        );
+
+        assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+        assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+    }
+
+    @Test
+    void testCompleteAlreadyCompletedSectionIsIdempotent() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertEquals(ConnectionSectionFlags.TECHNICAL.getValue(), connection.getSectionsComplete());
+    }
+
+    // --- uncomplete() ---
+
+    @Test
+    void testUncompleteOneSection() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.uncomplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+    }
+
+    @Test
+    void testUncompleteOneSectionLeavesOthersIntact() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.uncomplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+        assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
+    }
+
+    @Test
+    void testUncompleteAlreadyIncompleteSectionIsIdempotent() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.uncomplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+        assertEquals(0, connection.getSectionsComplete());
+    }
+
+    // --- isComplete() ---
+
+    @Test
+    void testIsCompleteReturnsFalseOnEmptyFlags() {
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+    }
+
+    @Test
+    void testIsCompleteDoesNotCrossContaminate() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+    }
+
+    // --- allComplete() ---
+
+    @Test
+    void testAllCompleteReturnsFalseWhenEmpty() {
+        assertFalse(ConnectionSectionFlags.allComplete(connection.getSectionsComplete()));
+    }
+
+    @Test
+    void testAllCompleteReturnsFalseWhenPartial() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION)
+        );
+
+        assertFalse(ConnectionSectionFlags.allComplete(connection.getSectionsComplete()));
+    }
+
+    @Test
+    void testAllCompleteReturnsTrueWhenAllSet() {
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS)
+        );
+
+        assertTrue(ConnectionSectionFlags.allComplete(connection.getSectionsComplete()));
+    }}

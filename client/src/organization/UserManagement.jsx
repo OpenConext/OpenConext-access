@@ -1,5 +1,5 @@
 import "./UserManagement.scss";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
@@ -16,7 +16,7 @@ import {currentOrganizationFromUser} from "../utils/Organization.js";
 
 const tabNames = ["team", "invitations", "joins"]
 
-export const UserManagement = () => {
+export const UserManagement = ({refreshUser}) => {
     const user = useAppStore(state => state.user);
 
     const {tab = "team"} = useParams();
@@ -25,37 +25,43 @@ export const UserManagement = () => {
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
-    const [refresh, setRefresh] = useState(-1);
     const [currentTab, setCurrentTab] = useState(tab);
     const navigate = useNavigate();
+
+    const fetchOrganization = useCallback(() => {
+        organizationUserManagementById(organizationId)
+            .then(res => {
+                setOrganization(res);
+                const organization = currentOrganizationFromUser(user, organizationId);
+                useAppStore.setState({
+                    currentOrganization: organization,
+                    breadcrumbPaths: [
+                        {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                        {
+                            path: `/users/${organizationId}`,
+                            value: I18n.t("navigation.users"),
+                            menuItemName: mainMenuItems.users
+                        },
+                        {value: I18n.t(`breadCrumb.${currentTab}`)}
+                    ]
+                });
+                const membership = (user.organizationMemberships || []).find(
+                    membership => membership.organization.id === res.id
+                );
+                const authority = currentUserMembershipAuthority(user, membership);
+                setCurrentUserAuthority(authority);
+                setLoading(false);
+            })
+            .catch(() => navigate("/home"));
+    }, [organizationId, user, currentTab, navigate]);
 
     useEffect(() => {
         if (isEmpty(organizationId)) {
             navigate("/home");
         } else {
-            organizationUserManagementById(organizationId)
-                .then(res => {
-                    setOrganization(res);
-                    //the URL may be bookmarked
-                    const organization = currentOrganizationFromUser(user, organizationId)
-                    useAppStore.setState({
-                        currentOrganization: organization,
-                        breadcrumbPaths: [
-                            {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                            {value: I18n.t("navigation.users")}
-                        ]
-                    });
-                    const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
-                    const authority = currentUserMembershipAuthority(user, membership);
-                    setCurrentUserAuthority(authority);
-                    tabChanged(currentTab);
-                    setLoading(false);
-                }).catch(() => {
-                navigate("/home")
-            });
-
+            fetchOrganization();
         }
-    }, [organizationId, refresh]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [fetchOrganization, navigate, organizationId]);
 
     const tabChanged = name => {
         setCurrentTab(name);
@@ -73,22 +79,26 @@ export const UserManagement = () => {
         navigate(`/users/${organizationId}/${name}`);
     }
 
+    const refreshState = () => {
+        refreshUser(() => fetchOrganization())
+    }
+
     const renderCurrentTab = () => {
         switch (currentTab) {
             case  "team": {
                 return <TeamManagement organization={organization}
                                        currentUserAuthority={currentUserAuthority}
-                                       setRefresh={setRefresh}/>;
+                                       refreshState={refreshState}/>;
             }
             case  "joins": {
                 return <JoinRequestManagement organization={organization}
                                               currentUserAuthority={currentUserAuthority}
-                                              setRefresh={setRefresh}/>;
+                                              refreshState={refreshState}/>;
             }
             case  "invitations": {
                 return <InvitationManagement organization={organization}
                                              currentUserAuthority={currentUserAuthority}
-                                             setRefresh={setRefresh}/>;
+                                             refreshState={refreshState}/>;
             }
         }
     }

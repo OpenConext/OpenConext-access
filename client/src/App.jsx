@@ -44,6 +44,7 @@ import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
 import Statistics from "./pages/Statistics.jsx";
+import {currentOrganizationFromUser} from "./utils/Organization.js";
 
 const App = () => {
 
@@ -58,9 +59,11 @@ const App = () => {
         me()
             .then(user => {
                 const currentOrganization = useAppStore.getState().currentOrganization;
+                const organization = currentOrganizationFromUser(user, currentOrganization.id);
                 const newMenuItems = menuItemsForUser(user, currentOrganization);
                 useAppStore.setState(() => ({
                     user: user,
+                    currentOrganization: organization,
                     menuItems: newMenuItems
                 }));
                 callback && callback();
@@ -140,8 +143,8 @@ const App = () => {
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<UserHome/>}/>
                             <Route path="/relax" element={<Relax/>}/>
-                            <Route path="/users/:organizationId/:tab?" element={<UserManagement/>}/>
-                            <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
+                            <Route path="/users/:organizationId/:tab?" element={<UserManagement refreshUser={refreshUser}/>}/>
+                            <Route path="/organization/:organizationId/:tab?" element={<Organization />}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>

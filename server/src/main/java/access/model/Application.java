@@ -45,6 +45,9 @@ public class Application implements NameHolder {
     @NotNull
     private ApplicationStatus status = ApplicationStatus.OPEN;
 
+    @Column(name = "sections_complete")
+    private int sectionsComplete;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

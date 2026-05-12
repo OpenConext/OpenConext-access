@@ -14,7 +14,7 @@ import CardView from "@surfnet/sds/icons/functional-icons/card-view.svg";
 import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
-import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import {CONNECTION_STATUSES} from "../utils/Manage.js";
 import {
     authorities,
     currentUserMembershipAuthority,
@@ -110,15 +110,15 @@ const Organization = () => {
     }
 
     const renderApplicationStatus = application => {
-        const prodConnections = (application.connections || []).filter(conn => conn.environment === ENVIRONMENTS.PROD);
+        const connections = application.connections || [];
         // eslint-disable-next-line no-useless-assignment
         let status = "";
-        if (prodConnections.length === 0) {
+        if (connections.length === 0) {
             status = "in_progress";
-        } else if (prodConnections.length > 1) {
+        } else if (connections.length > 1) {
             status = "multiple_connections"
         } else {
-            const connection = prodConnections[0];
+            const connection = connections[0];
             if (!application.signedContract) {
                 status = "in_progress";
             } else if (application.signedContract && (

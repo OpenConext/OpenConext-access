@@ -3,15 +3,16 @@ import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
 import {isEmpty, splitListSemantically} from "../utils/Utils.js";
-import {CONNECTION_STATUSES, ENVIRONMENTS} from "../utils/Manage.js";
+import {CONNECTION_STATUSES} from "../utils/Manage.js";
 
 
 export const ConnectionAlert = ({
-                                    user, application, setTab, testConnectionComplete,
-                                    productionConnectionComplete, appInformationComplete,
-                                    productionConnectionNeedsActivation,
-                                    productionOnly,
-                                    customProdTabAction = null, fullWidth = false
+                                    user, application, setTab,
+                                    connectionComplete,
+                                    appInformationComplete,
+                                    connectionNeedsApproval,
+                                    customProdTabAction = null,
+                                    fullWidth = false
                                 }) => {
 
     const [alertClosed, setAlertClosed] = useState(false);
@@ -23,12 +24,12 @@ export const ConnectionAlert = ({
         let connectionsNeedActivationNames = [];
         if (application.signedContract && !isEmpty(application.connections)) {
             const names = application.connections
-                .filter(conn => conn.environment === ENVIRONMENTS.PROD &&
-                    (conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS))
+                .filter(conn =>
+                    conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
                 .map(conn => conn.name);
             connectionsNeedActivationNames = splitListSemantically(names, I18n.t("forms.and"));
         }
-        if (isEmpty(application.connections) && !productionOnly) {
+        if (isEmpty(application.connections)) {
             return (
                 <Alert close={() => setAlertClosed(true)}
                        alertType={AlertType.Info}
@@ -36,7 +37,7 @@ export const ConnectionAlert = ({
                        message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
             )
         }
-        if (testConnectionComplete && !productionConnectionComplete && !productionOnly) {
+        if (connectionComplete) {
             return (
                 <Alert close={() => setAlertClosed(true)}
                        alertType={AlertType.Info}
@@ -44,7 +45,7 @@ export const ConnectionAlert = ({
                        message={I18n.t("connection.productionConnectionHint")}/>
             )
         }
-        if (productionConnectionComplete && !appInformationComplete) {
+        if (connectionNeedsApproval && !appInformationComplete) {
             return (
                 <Alert close={() => setAlertClosed(true)}
                        alertType={AlertType.Warning}
@@ -52,7 +53,7 @@ export const ConnectionAlert = ({
                        message={I18n.t("connection.applicationInformationHint")}/>
             )
         }
-        if (productionConnectionComplete && productionConnectionNeedsActivation)
+        if (connectionComplete && connectionNeedsApproval)
             return (
                 <Alert close={() => setAlertClosed(true)}
                        alertType={AlertType.Warning}
