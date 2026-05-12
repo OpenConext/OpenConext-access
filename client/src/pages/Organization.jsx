@@ -36,9 +36,8 @@ const views = {
 }
 
 const Organization = () => {
-    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+    const {user} = useAppStore(useShallow(state => ({
         user: state.user,
-        currentOrganization: state.currentOrganization
     })));
 
     const {organizationId} = useParams();
@@ -96,7 +95,7 @@ const Organization = () => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, user]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [navigate, organizationId, user]);
 
     const alertInfo = () => {
         if (alertClosed || organization.applicationCount > 0) {

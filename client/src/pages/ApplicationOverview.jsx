@@ -116,8 +116,7 @@ const ApplicationOverview = ({accessible}) => {
                     setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
-                .catch(e => {
-                    debugger;
+                .catch(() => {
                     navigate("/404");
                 });
         }, [accessible]);// eslint-disable-line react-hooks/exhaustive-deps

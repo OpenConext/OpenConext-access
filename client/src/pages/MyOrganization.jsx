@@ -81,7 +81,7 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, dirty]);
+    }, [navigate, organizationId, dirty, user]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -225,7 +225,6 @@ const MyOrganization = ({refreshUser}) => {
                     setLoading(false);
                     setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
                 });
-
         }
     }
 

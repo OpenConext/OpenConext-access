@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 import static io.restassured.RestAssured.given;
@@ -107,6 +108,7 @@ class InvitationControllerTest extends AbstractMailTest {
 
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         User user = given()
                 .when()
@@ -140,15 +142,18 @@ class InvitationControllerTest extends AbstractMailTest {
         //Lookup for identity provider by authenticating authority
         super.stubForIdentityProviderByEntityId(authenticatingAuthority);
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "9");
 
-        User user = given()
+        Map<String, Object> res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
-                .as(User.class);
+                .as(new TypeRef<>() {
+                });
         //User has been provisioned to organization authenticatingAuthority
+        User user = objectMapper.convertValue(res, User.class);
         assertEquals(1, user.getOrganizationMemberships().size());
         Organization organization = user.getOrganizationMemberships().iterator().next().getOrganization();
         assertEquals(schacHomeOrganization, organization.getSchacHomeOrganization());
