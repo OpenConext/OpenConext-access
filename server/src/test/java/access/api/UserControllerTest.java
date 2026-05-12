@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,7 @@ class UserControllerTest extends AbstractTest {
 
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         User user = given()
                 .when()
@@ -60,6 +62,7 @@ class UserControllerTest extends AbstractTest {
         );
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         User user = given()
                 .when()
@@ -123,6 +126,7 @@ class UserControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         User user = given()
                 .when()
@@ -268,15 +272,20 @@ class UserControllerTest extends AbstractTest {
     @Test
     void meWithMockLoginMultipleOrganizations() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
-        stubForIdentityProviderByEntityId("http://mock-idp");
 
-        User user = given()
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+        super.stubForGetProvider(EntityType.saml20_idp, "8");
+
+        Map<String, Object> res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/users/me")
-                .as(User.class);
+                .as(new TypeRef<>() {});
+        User user = objectMapper.convertValue(res, User.class);
         assertEquals(2, user.getOrganizationMemberships().size());
 
         List<String> names = user.getOrganizationMemberships().stream()
@@ -300,6 +309,7 @@ class UserControllerTest extends AbstractTest {
 
         super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         User user = given()
                 .when()
@@ -320,11 +330,13 @@ class UserControllerTest extends AbstractTest {
     void createOrganizationForInstitutionAdmin() throws Exception {
         super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
         super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         // Re-register stubs consumed during OIDC auth by CustomOidcUserService
         super.stubForIdentityProviderByEntityId("http://mock-idp");
+
         super.stubForGetChangeRequests(getChangeRequests());
         Map<String, Object> res = given()
                 .when()
