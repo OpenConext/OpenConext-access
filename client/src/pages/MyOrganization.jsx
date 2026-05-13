@@ -44,7 +44,6 @@ const MyOrganization = ({refreshUser}) => {
     const [initial, setInitial] = useState(true);
     const [originalOrganizationName, setOriginalOrganizationName] = useState("");
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
-    const [dirty, setDirty] = useState(new Date());
 
     const inputRef = useRef(null);
 
@@ -81,7 +80,7 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, dirty, user]);
+    }, [navigate, organizationId, user]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -208,8 +207,7 @@ const MyOrganization = ({refreshUser}) => {
                 keyWords: organization.metaData.keyWords
             })
                 .then(() => {
-                    setDirty(new Date());
-                    setLoading(false);
+                    refreshUser(() => setLoading(false));
                     setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
                 });
         }
@@ -221,8 +219,7 @@ const MyOrganization = ({refreshUser}) => {
             setLoading(true);
             updateOrganizationName(organization.id, organization.name)
                 .then(() => {
-                    setDirty(new Date());
-                    setLoading(false);
+                    refreshUser(() => setLoading(false));
                     setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
                 });
         }
