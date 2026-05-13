@@ -600,8 +600,6 @@ const nl = {
         protocol: "Protocol",
         details: "Details",
         zeroState: "Applicatie <strong>{{name}}</strong> heeft nog geen {{type}}‑verbindingen.",
-        production: "productie",
-        test: "test",
     },
     confirmationDialog: {
         title: "Bevestigen",

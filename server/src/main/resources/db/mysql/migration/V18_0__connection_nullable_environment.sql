@@ -1,0 +1,1 @@
+ALTER TABLE connections MODIFY COLUMN environment VARCHAR(255) NULL;
