@@ -24,6 +24,7 @@ public class Config {
     private String serviceDesk;
     private String discovery;
     private boolean authenticated;
+    private boolean testEnvironment;
     private List<String> missingAttributes;
     private Map<String, Integer> stats;
     private List<Map<String, String>> identityProviders;
