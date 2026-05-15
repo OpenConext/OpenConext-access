@@ -26,6 +26,6 @@ class EnvironmentControllerTest extends AbstractTest {
                 .get("/api/v1/disclaimer")
                 .asInputStream();
         String css = IOUtils.toString(inputStream, Charset.defaultCharset());
-        assertEquals(css, "body::after {background: red;content: \"LOCAL\";}");
+        assertEquals("body::after {background: red;content: \"LOCAL\";}", css);
     }
 }

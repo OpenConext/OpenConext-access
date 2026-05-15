@@ -4,9 +4,9 @@ import lombok.Getter;
 
 public enum ConnectionSectionFlags {
 
-    TECHNICAL(1),       // 0001
-    INFORMATION(1 << 1),  // 0010
-    PRODUCTION_STATUS (1 << 2);  // 0100
+    TECHNICAL(1),
+    INFORMATION(2),
+    PRODUCTION_STATUS(4);
 
     @Getter
     private final int value;

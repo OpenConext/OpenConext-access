@@ -30,7 +30,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             allowedEntities: connection.allowedEntities,
             pkce: connection.pkce,
             secret: connection.secret,
-            visibility: connection.visibility,
+            productionStatus: connection.productionStatus,
             connectOption: connection.connectOption,
             refreshTokenValidity: connection.refreshTokenValidity,
             claimsInIdToken: connection.claimsInIdToken,
@@ -92,4 +92,42 @@ export const connectOptions = {
     connect_without_interaction_with_email: "connect_without_interaction_with_email",
     connect_without_interaction_without_email: "connect_without_interaction_without_email"
 }
+
+export const sections = {
+    pendingChanges: "pendingChanges",
+    technical: "technical",
+    informationProfile: "informationProfile",
+    productionStatus: "productionStatus",
+    overview: "overview",
+
+    complete(connection, section) {
+        connection.sectionsComplete = connection.sectionsComplete | getSectionValue(section);
+    },
+
+    isComplete(connection, section) {
+        return (connection.sectionsComplete  & getSectionValue(section)) !== 0;
+    },
+
+    allCompleted(connection) {
+        const all = getSectionValue(sections.technical) | getSectionValue(sections.informationProfile) | getSectionValue(sections.productionStatus);
+        return (connection.sectionsComplete & all) === all;
+    },
+
+}
+
+const getSectionValue = section => {
+    switch (section) {
+        case sections.technical: {
+            return 1;
+        }
+        case sections.informationProfile: {
+            return 2;
+        }
+        case sections.productionStatus: {
+            return 4;
+        }
+    }
+    return 0;
+};
+
 

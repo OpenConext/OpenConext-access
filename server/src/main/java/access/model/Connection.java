@@ -132,6 +132,7 @@ public class Connection implements NameHolder {
         this.metaData = connectionData.metaData;
         this.protocol = connectionData.protocol;
         this.status = connectionData.status;
+        this.sectionsComplete = connectionData.sectionsComplete;
     }
 
 

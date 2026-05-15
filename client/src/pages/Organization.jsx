@@ -122,7 +122,7 @@ const Organization = () => {
             if (!application.signedContract) {
                 status = "in_progress";
             } else if (application.signedContract && (
-                connection.status === CONNECTION_STATUSES.COMPLETE || connection.status === CONNECTION_STATUSES.IN_PROGRESS)) {
+                connection.status === CONNECTION_STATUSES.COMPLETE)) {
                 status = "ready_for_prod"
             } else if (!isEmpty(connection.changeRequests)) {
                 status = "open_change_requests";

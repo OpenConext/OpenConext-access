@@ -345,6 +345,7 @@ const en = {
         pendingChanges: "Pending change requests",
         testIdP: "Test IdP's",
         visibility: "Visibility in the catalog",
+        productionStatus: "Production Status",
         help: "Need help?",
         callSurf: "Plan a call with SURF",
         supportTicket: "Create a support ticket",
@@ -591,6 +592,16 @@ const en = {
             notSigned: "No agreement has been signed yet.",
             signed: "An agreement has been signed.",
             sign: "Sign the agreement",
+        },
+        productionStatusSection: {
+            proceedHow: "How do you want to proceed?",
+            testConnection: "First test this connection",
+            prodConnection: "Directly request production-ready status",
+            dummyIdP: "Activate dummy IdP's after comfirmation",
+            next: "Save and try out",
+            appInformationIncomplete: "Before requesting production-ready status, all the application information must be filled in",
+            pendingProdDisclaimer:"This connection is pending production-ready status. If you want to test connections, create a new connection",
+            prodDisclaimer:"This connection has production-ready status. If you want to test connections, create a new connection"
         },
     },
     testing: {

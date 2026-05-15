@@ -6,12 +6,14 @@ import access.model.Connection;
 import access.model.EntityType;
 import access.model.State;
 import access.model.Visibility;
+import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +45,8 @@ public class ConnectionProviderConverter {
     public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultState) {
         this.defaultState = defaultState;
         this.objectMapper = objectMapper;
-        this.privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
+        InputStream inputStream = new ClassPathResource("/metadata/Privacy.json").getInputStream();
+        this.privacyInfo = objectMapper.readValue(inputStream, new TypeReference<>() {
         });
         Map<String, List<Map<String, Object>>> arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
@@ -65,6 +68,7 @@ public class ConnectionProviderConverter {
     public Map<String, Object> convert(Connection connection,
                                        Map<String, Object> remoteProvider,
                                        boolean changeRequestRequired) {
+
         Application application = connection.getApplication();
         //We need data both from the connection and the application
         Map<String, Object> connectionMetaData = connection.getMetaData();

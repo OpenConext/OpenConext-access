@@ -93,6 +93,7 @@ $width-percentage: 75%;
 
             h3 {
                 position: relative;
+
                 svg.alert-triangle {
                     fill: black;
                     color: white;
@@ -195,22 +196,28 @@ $width-percentage: 75%;
 
         }
 
-        .inner-right-idp {
-            @include card(25px);
+        .identity-providers {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--sds--color--gray--100);
+            border-radius: 6px;
+        }
 
-            .identity-providers {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
+        .test-idp-section {
+
+            .switch-field {
+                padding: 15px;
+                border: 1px solid var(--sds--color--gray--200);
+                border-radius: 6px;
+                margin-top: 0;
             }
 
             .idp {
                 display: flex;
                 align-items: center;
-
-                .idp-info {
-                    margin-left: 25px;
-                }
 
                 .idp-info p:first-child {
                     font-weight: 600;
@@ -435,6 +442,10 @@ $width-percentage: 75%;
         }
     }
 
+}
+.disclaimer-pending-prod {
+    font-style: italic;
+    margin-top: 20px;
 }
 
 .actions {

@@ -95,9 +95,9 @@ export const Connection = () => {
                     .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
             appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacy, application)
                 && application.status !== APPLICATION_STATUSES.OPEN,
-            connectionNeedsApproval: application.signedContract && !isEmpty(application.connections) &&
+            connectionNeedsApproval: (application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections) &&
                 application.connections
-                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
         }
     }, [application, privacy]);
 
@@ -133,8 +133,9 @@ export const Connection = () => {
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid),
-            visibility: visibilities.visible_to_all,
-            connectOption: connectOptions.connect_with_interaction
+            productionStatus: visibilities.visible_to_all,
+            connectOption: connectOptions.connect_with_interaction,
+            sectionsComplete: 0
         });
         const newTab = "allConnections";
         setCurrentTab(newTab);
@@ -159,6 +160,7 @@ export const Connection = () => {
             case "overview": {
                 return <Overview application={application}
                                  user={user}
+                                 currentOrganization={currentOrganization}
                                  initConnection={initConnection}
                                  setTab={changeTab}
                                  connectionComplete={connectionComplete}
@@ -170,6 +172,7 @@ export const Connection = () => {
                 return <Connections application={application}
                                     connection={connection}
                                     user={user}
+                                    currentOrganization={currentOrganization}
                                     connectionComplete={connectionComplete}
                                     appInformationComplete={appInformationComplete}
                                     connectionNeedsApproval={connectionNeedsApproval}
@@ -224,10 +227,12 @@ export const Connection = () => {
 
     return (
         <div className="application-connection-container">
-            <ApplicationConnectionHeader tabs={tabNames.map(name => ({
-                name: name,
-                disabled: false
-            }))}
+            <ApplicationConnectionHeader tabs={tabNames
+                .filter(name => name !== "contract" || isEmpty(currentOrganization.manageIdentifier))
+                .map(name => ({
+                    name: name,
+                    disabled: false
+                }))}
                                          application={application}
                                          currentTab={currentTab}
                                          setLoading={setLoading}

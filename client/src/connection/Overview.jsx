@@ -3,11 +3,18 @@ import React from "react";
 import I18n from "../locale/I18n";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
+import {isEmpty} from "../utils/Utils.js";
 
 
 export const Overview = ({
-                             user, application, setTab, initConnection, connectionComplete,
-                             appInformationComplete, connectionNeedsApproval,
+                             user,
+                             application,
+                             currentOrganization,
+                             setTab,
+                             initConnection,
+                             connectionComplete,
+                             appInformationComplete,
+                             connectionNeedsApproval,
                          }) => {
 
     return (
@@ -15,6 +22,7 @@ export const Overview = ({
             <ConnectionAlert application={application}
                              user={user}
                              setTab={setTab}
+                             currentOrganization={currentOrganization}
                              connectionComplete={connectionComplete}
                              connectionNeedsApproval={connectionNeedsApproval}
                              appInformationComplete={appInformationComplete}/>
@@ -28,11 +36,12 @@ export const Overview = ({
                                 action={() => setTab("application")}
                                 disabled={false}
                                 status={appInformationComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
+                    {isEmpty(currentOrganization.manageIdentifier) &&
                     <StatusLink info={I18n.t("connection.production.contract")}
                                 action={() => setTab("contract")}
                         // disabled={!appInformationComplete || !testConnectionComplete}
                                 disabled={false}
-                                status={application.signedContract ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
+                                status={application.signedContract ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>}
                     <p className={`${connectionNeedsApproval} ? "":"pending`}>
                         {I18n.t("connection.production.disclaimer")}
                     </p>

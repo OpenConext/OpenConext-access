@@ -7,10 +7,13 @@ import {CONNECTION_STATUSES} from "../utils/Manage.js";
 
 
 export const ConnectionAlert = ({
-                                    user, application, setTab,
+                                    user,
+                                    application,
+                                    setTab,
                                     connectionComplete,
                                     appInformationComplete,
                                     connectionNeedsApproval,
+                                    currentOrganization,
                                     customProdTabAction = null,
                                     fullWidth = false
                                 }) => {
@@ -22,10 +25,10 @@ export const ConnectionAlert = ({
             return null;
         }
         let connectionsNeedActivationNames = [];
-        if (application.signedContract && !isEmpty(application.connections)) {
+        if ((application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections)) {
             const names = application.connections
                 .filter(conn =>
-                    conn.status === CONNECTION_STATUSES.COMPLETE || conn.status === CONNECTION_STATUSES.IN_PROGRESS)
+                    conn.status === CONNECTION_STATUSES.COMPLETE)
                 .map(conn => conn.name);
             connectionsNeedActivationNames = splitListSemantically(names, I18n.t("forms.and"));
         }
@@ -35,14 +38,6 @@ export const ConnectionAlert = ({
                        alertType={AlertType.Info}
                        asChild={true}
                        message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
-            )
-        }
-        if (connectionComplete) {
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Info}
-                       asChild={true}
-                       message={I18n.t("connection.productionConnectionHint")}/>
             )
         }
         if (connectionNeedsApproval && !appInformationComplete) {
@@ -59,7 +54,7 @@ export const ConnectionAlert = ({
                        alertType={AlertType.Warning}
                        asChild={true}
                        message={I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames})}
-                       action={() => customProdTabAction ? customProdTabAction() : setTab("prod", "activate")}
+                       action={() => customProdTabAction ? customProdTabAction() : setTab("allConnections", "activate")}
                        actionLabel={I18n.t("connection.productionActivationAction")}/>
             )
     }
