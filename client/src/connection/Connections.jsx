@@ -176,6 +176,8 @@ export const Connections = ({
             const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
             const originalName = convertedConnection.name;
             convertedConnection.name = originalName + " COPY";
+            convertedConnection.sectionsComplete = 0;
+            convertedConnection.state = STATE.testaccepted;
             //Filter out all unknown entityIDs
             convertedConnection.allowedEntities = convertedConnection.allowedEntities
                 .filter(entityID => identityProviders.some(idp => idp.data.entityid === entityID));
@@ -1222,8 +1224,12 @@ export const Connections = ({
                     {((application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && (connection.status === CONNECTION_STATUSES.COMPLETE)) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.connections.requestProductionStatus")}
+                                    disabled={!appInformationComplete}
                                     onClick={() => doRequestProduction(true, connection)}
                             />
+                            {!appInformationComplete &&
+                                <ErrorIndicator msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
+                                                standalone={true}/>}
                         </div>
                     }
                     {!isEmpty(connection.changeRequests) &&

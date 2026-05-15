@@ -18,10 +18,17 @@ $width-percentage: 75%;
         .action-button {
             margin-left: auto;
             position: relative;
+            max-width: 240px;
 
             button {
                 background-color: var(--sl-color-warning-100);
                 color: black;
+
+                &:disabled {
+                    background-color: var(--sl-color-warning-50);
+                    cursor: not-allowed;
+                    color: var(--sds--color--gray--300);
+                }
             }
         }
 
@@ -443,6 +450,7 @@ $width-percentage: 75%;
     }
 
 }
+
 .disclaimer-pending-prod {
     font-style: italic;
     margin-top: 20px;
