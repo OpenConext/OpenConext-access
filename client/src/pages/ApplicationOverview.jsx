@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router-dom";
-import {Loader, Chip, ChipType} from "@surfnet/sds";
+import {Chip, ChipType, Loader} from "@surfnet/sds";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerName, providerOrganizationName} from "../utils/Manage.js";
@@ -13,13 +13,17 @@ import {isOrganizationAdmin} from "../utils/Permissions.js";
 import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {useShallow} from "zustand/react/shallow";
 
 const ApplicationOverview = ({accessible}) => {
 
         const navigate = useNavigate();
 
-        const user = useAppStore(state => state.user);
-        const currentOrganization = useAppStore(state => state.currentOrganization);
+        const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
+            user: state.user,
+            currentOrganization: state.currentOrganization,
+            config: state.config
+        })));
 
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
@@ -27,6 +31,10 @@ const ApplicationOverview = ({accessible}) => {
         const [tagOptions, setTagOptions] = useState([]);
         const [source, setSource] = useState(null);
         const [sourceOptions, setSourceOptions] = useState([]);
+        const [consent, setConsent] = useState(null);
+        const [consentOptions, setConsentOptions] = useState([]);
+        const [loa, setLoa] = useState(null);
+        const [loaOptions, setLoaOptions] = useState([]);
 
         useEffect(() => {
             useAppStore.setState({
@@ -114,7 +122,38 @@ const ApplicationOverview = ({accessible}) => {
                         })));
                     setSource(defaultSource.value);
                     setSourceOptions(newSourceOptions);
-                    setLoading(false);
+                    const isVendor = isEmpty(currentOrganization.manageIdentifier);
+                    if (isVendor || !accessible) {
+                        setLoading(false);
+                    } else {
+                        // LoA options from config.acrValues
+                        const stepupEntities = currentOrganization.identityProvider?.data?.stepupEntities || [];
+                        const defaultLoa = {value: "all", label: `${I18n.t("accessibleApps.allLoa")} (${res.length})`};
+                        const newLoaOptions = [defaultLoa].concat(
+                            (config.acrValues || []).map(uri => {
+                                const key = uri.substring(uri.lastIndexOf("/") + 1).replace(".", "_");
+                                const count = stepupEntities.filter(e => e.level === uri).length;
+                                return {value: uri, label: `${I18n.t(`accessibleApps.loa.${key}`)} (${count})`};
+                            })
+                        );
+                        setLoa(defaultLoa.value);
+                        setLoaOptions(newLoaOptions);
+
+                        // Consent options from disableConsent types (deduplicated)
+                        const disableConsent = currentOrganization.identityProvider?.data?.disableConsent || [];
+                        const consentTypes = [...new Set(disableConsent.map(e => e.type))];
+                        const defaultConsent = {value: "all", label: `${I18n.t("accessibleApps.allConsent")} (${res.length})`};
+                        const newConsentOptions = [defaultConsent].concat(
+                            consentTypes.map(type => {
+                                const count = disableConsent.filter(e => e.type === type).length;
+                                return {value: type, label: `${I18n.t(`accessibleApps.consent.${type}`)} (${count})`};
+                            })
+                        );
+                        setConsent(defaultConsent.value);
+                        setConsentOptions(newConsentOptions);
+                        setLoading(false);
+                    }
+
                 })
                 .catch(() => {
                     navigate("/404");
@@ -132,7 +171,17 @@ const ApplicationOverview = ({accessible}) => {
             if (source !== "all") {
                 sourceHit = !isEmpty(fed) && fed === source;
             }
-            return tagHit && sourceHit;
+            let loaHit = true;
+            if (loa !== "all") {
+                const stepupEntities = currentOrganization.identityProvider?.data?.stepupEntities || [];
+                loaHit = stepupEntities.some(e => e.name === sp.data.entityid && e.level === loa);
+            }
+            let consentHit = true;
+            if (consent !== "all") {
+                const disableConsent = currentOrganization.identityProvider?.data?.disableConsent || [];
+                consentHit = disableConsent.some(e => e.name === sp.data.entityid && e.type === consent);
+            }
+            return tagHit && sourceHit && loaHit && consentHit;
         }
 
         if (loading) {
@@ -142,18 +191,34 @@ const ApplicationOverview = ({accessible}) => {
         const filters = () => {
             return (
                 <>
-                    <SelectField
+                    <SelectField className="select-sources"
                         value={sourceOptions.find(option => option.value === source)}
                         options={sourceOptions}
                         searchable={false}
                         onChange={option => setSource(option.value)}
                     />
-                    <SelectField
+                    <SelectField className="select-tags"
                         value={tagOptions.find(option => option.value === tag)}
                         options={tagOptions}
                         searchable={false}
                         onChange={option => setTag(option.value)}
                     />
+                    {accessible && !isEmpty(currentOrganization.manageIdentifier) &&
+                    <>
+                        <SelectField className="select-loas"
+                            value={loaOptions.find(option => option.value === loa)}
+                            options={loaOptions}
+                            searchable={false}
+                            onChange={option => setLoa(option.value)}
+                        />
+                        <SelectField className="select-consent"
+                            value={consentOptions.find(option => option.value === consent)}
+                            options={consentOptions}
+                            searchable={false}
+                            onChange={option => setConsent(option.value)}
+                        />
+
+                    </>}
                 </>
             );
         }
@@ -211,7 +276,7 @@ const ApplicationOverview = ({accessible}) => {
                 </div>
                 <div className="accessible-apps">
                     <Entities
-                        entities={(tag === "all" && source === "all") ? serviceProviders : serviceProviders.filter(filterSP)}
+                        entities={(tag === "all" && source === "all" && loa === "all" && consent === "all") ? serviceProviders : serviceProviders.filter(filterSP)}
                         modelName="accessibleApps"
                         defaultSort="name"
                         columns={columns}

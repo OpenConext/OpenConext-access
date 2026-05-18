@@ -617,6 +617,15 @@ export const PolicyForm = ({
         </div>
     );
 
+    const renderPolicyChip = policy => {
+        const active = policy.data.active;
+        const activeTranslation = active ? "active" : "paused";
+        return (
+            <Chip className={`policy-chip-${active ? "active" : "paused"}`}
+                  label={I18n.t(`appAccess.${activeTranslation}`)}/>
+        );
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
 
     return (
@@ -632,8 +641,7 @@ export const PolicyForm = ({
                     <h2>{I18n.t(`appAccess.${isExistingPolicy ? (isStep ? "editStepUpPolicy" : "editPolicy") : (isStep ? "newStepUpPolicy" : "newPolicy")}`)}</h2>
                     {isExistingPolicy &&
                         <div className="policy-header-actions">
-                            <Chip type={ChipType.Status_info}
-                                  label={I18n.t(`appAccess.${policy.data.active ? "active" : "paused"}`)}/>
+                            {renderPolicyChip(policy)}
                         </div>}
                 </div>
             </div>

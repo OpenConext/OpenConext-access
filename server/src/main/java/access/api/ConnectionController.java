@@ -279,9 +279,6 @@ public class ConnectionController implements UserAccessRights {
 
         Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
-        if (StringUtils.hasText(connection.getManageIdentifier())) {
-            manage.deleteProvider(connection);
-        }
         //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
         Application application = connection.getApplication();
         application.removeConnection(connection);

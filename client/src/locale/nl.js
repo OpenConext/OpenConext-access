@@ -1019,6 +1019,18 @@ const nl = {
         searchPlaceHolder: "Zoeken...",
         all: "Alle categorieën",
         allSources: "Alle federaties",
+        allLoa: "Alle LoA-niveaus",
+        allConsent: "Alle toestemmingstypen",
+        loa: {
+            loa1_5: "LoA 1.5",
+            loa2: "LoA 2",
+            loa3: "LoA 3",
+        },
+        consent: {
+            default_consent: "Standaard toestemming",
+            no_consent: "Geen toestemming",
+            minimal_consent: "Minimale toestemming",
+        },
         other: "-",
     },
     tooltips: {

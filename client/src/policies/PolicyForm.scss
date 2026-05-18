@@ -80,6 +80,19 @@
                 gap: 18px;
                 align-items: center;
                 margin-left: auto;
+
+                .sds--chips {
+                    color: black;
+
+
+                    &.policy-chip-active {
+                        background-color: var(--sds--color--green--200);
+                    }
+
+                    &.policy-chip-paused {
+                        background-color: var(--sds--color--gray--250);
+                    }
+                }
             }
         }
 
