@@ -92,7 +92,8 @@ export const ContactPersons = ({
                                     <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                         {I18n.t("connection.contacts.addTechnicalContact")}
                                     </a>}
-                                {(!initial && contactPerson.type === contactPersonTypes.technical && !readOnly && (innerIndex > 0 || sameContactPersons.length === 1) &&
+                                {(!initial && contactPerson.type === contactPersonTypes.technical && !readOnly &&
+                                        (innerIndex > 0 || sameContactPersons.length === 1) &&
                                         sameContactPersons.some(p => !validEmailOrUrl(p, p.type, sameContactPersons, false))) &&
                                     <ErrorIndicator
                                         msg={I18n.t("connection.contacts.oneTechnicalEmail")}

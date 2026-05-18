@@ -30,7 +30,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             allowedEntities: connection.allowedEntities,
             pkce: connection.pkce,
             secret: connection.secret,
-            productionStatus: connection.productionStatus,
+            visibility: connection.visibility,
             connectOption: connection.connectOption,
             refreshTokenValidity: connection.refreshTokenValidity,
             claimsInIdToken: connection.claimsInIdToken,

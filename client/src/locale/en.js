@@ -434,7 +434,7 @@ const en = {
             details: "Details",
             requestProductionStatus: "Request production status",
             requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
-            requestProductionStatusPostInfo: "Your request is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
+            requestProductionStatusPostInfo: "Your request for production-ready status is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
         },
         informational: {
             disclaimer: "Only process information that is <strong>strictly necessary</strong> for the functioning of your application.",
@@ -497,7 +497,7 @@ const en = {
         connectionOverview: {
             copy: "Copy the login details",
             disclaimer: "The client secret is displayed once below. Make sure you copy it now, otherwise a new secret will have to be requested.",
-            test: "Use the following login details to connect to the production environment. Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructies</a> om te kijken of alles werkt.",
+            test: "Use the following login details to connect to the production environment. Follow the <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructions</a> to see if everything works.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
             secret: "Client secret",
@@ -515,6 +515,9 @@ const en = {
         connectionOverviewSAML: {
             title: "The SAML connection is ready",
             link: "Follow the <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test instructions</a> to see if everything works.",
+        },
+        productionStatusRequested: {
+            info: "Production status",
         },
         appInfo: {
             title: "Information for the catalog",

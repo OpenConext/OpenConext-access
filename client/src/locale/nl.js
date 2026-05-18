@@ -434,7 +434,7 @@ const nl = {
             details: "Details",
             requestProductionStatus: "Productiestatus aanvragen",
             requestProductionStatusConfirmation: "Weet je zeker dat je productiestatus wilt aanvragen voor {{name}}?",
-            requestProductionStatusPostInfo: "Je verzoek is verzonden en je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong></strong",
+            requestProductionStatusPostInfo: "Je verzoek voor productiestatus is verzonden en je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong></strong",
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
@@ -515,6 +515,9 @@ const nl = {
         connectionOverviewSAML: {
             title: "De SAML‑koppeling is klaar",
             link: "Volg de <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test‑instructies</a> om te zien of alles werkt.",
+        },
+        productionStatusRequested: {
+            info: "Productie status",
         },
         appInfo: {
             title: "Informatie voor de catalogus",

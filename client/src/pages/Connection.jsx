@@ -133,7 +133,7 @@ export const Connection = () => {
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid),
-            productionStatus: visibilities.visible_to_all,
+            visibility: visibilities.visible_to_all,
             connectOption: connectOptions.connect_with_interaction,
             sectionsComplete: 0
         });

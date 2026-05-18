@@ -108,7 +108,7 @@ public class ConnectionController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
 
-        user = reinitializeUser(user ,userRepository);
+        user = reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, application, Authority.GUEST);
 
         if (StringUtils.hasText(connection.getManageIdentifier())) {
@@ -133,7 +133,7 @@ public class ConnectionController implements UserAccessRights {
                 .map(connection -> {
                     Application application = connection.getApplication();
 
-                    User userFromDB = reinitializeUser(user ,userRepository);
+                    User userFromDB = reinitializeUser(user, userRepository);
                     confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);
 
                     Organization organization = application.getOrganization();
@@ -170,6 +170,20 @@ public class ConnectionController implements UserAccessRights {
     @PutMapping({"", "/"})
     public ResponseEntity<Connection> update(User user, @Validated @RequestBody Connection connectionData) {
         LOG.debug("/update connection by " + user.getEmail());
+        Connection connection = doUpdateConnection(user, connectionData);
+        return ResponseEntity.status(HttpStatus.CREATED).body(connection);
+    }
+
+    @PutMapping("/update-request-production-status")
+    public ResponseEntity<Map<String, Object>> updateWithProductionReadyRequest(User user, @Validated @RequestBody Connection connectionData) {
+        LOG.debug("/update connection by " + user.getEmail());
+        Connection connection = doUpdateConnection(user, connectionData);
+        String jiraKey = this.doRequestProductionStatus(user, connection);
+        Map<String, Object> body = Map.of("connection", connection, "jiraKey", jiraKey);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    private Connection doUpdateConnection(User user, Connection connectionData) {
         if (!connectionData.isValid()) {
             throw new InvalidInputException("Connection is not valid");
         }
@@ -184,7 +198,7 @@ public class ConnectionController implements UserAccessRights {
         } else {
             connection = saveConnection(connection);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(connection);
+        return connection;
     }
 
     @SneakyThrows
@@ -213,6 +227,13 @@ public class ConnectionController implements UserAccessRights {
                                                                        @PathVariable("connectionId") Long connectionId) {
         Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
+        String jiraKey = doRequestProductionStatus(user, connection);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
+    }
+
+    private String doRequestProductionStatus(User user, Connection connection) {
         String changeRequestURL = manage.changeRequestURL(connection);
 
         Map<String, Object> provider = manage.providerByConnection(connection);
@@ -249,9 +270,7 @@ public class ConnectionController implements UserAccessRights {
 
         connection.setStatus(ConnectionStatus.PENDING_PROD);
         saveConnection(connection);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
+        return jiraKey;
     }
 
     @DeleteMapping({"", "/{connectionId}"})

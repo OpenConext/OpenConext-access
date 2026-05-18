@@ -34,7 +34,7 @@ import {
     requestConnectionProductionStatus,
     resetConnectionSecret,
     uniqueEntityID,
-    updateConnection
+    updateConnection, uppdateAndRequestConnectionProductionStatus
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -125,7 +125,9 @@ export const Connections = ({
     const [busy, setBusy] = useState(false);
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
-    const [proceedWithProduction, setProceedWithProduction] = useState(connection?.status === CONNECTION_STATUSES.PENDING_PROD);
+    const [jiraKey, setJiraKey] = useState(null);
+    const [proceedWithProduction, setProceedWithProduction] = useState(connection?.status === CONNECTION_STATUSES.PENDING_PROD ||
+        connection?.status === CONNECTION_STATUSES.PROD_READY);
 
     const connections = application.connections;
 
@@ -795,23 +797,28 @@ export const Connections = ({
 
     const renderProductionStatusSection = () => {
         const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
-        const prodConnection= connection.status === CONNECTION_STATUSES.PROD_READY;
+        const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.productionStatus")}</h3>
                 <div className="visibility-options">
-                    <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
-                    <RadioOptions name={"proceedWithProduction"}
-                                  value={proceedWithProduction ? "prodConnection" : "testConnection"}
-                                  onChange={() => setProceedWithProduction(!proceedWithProduction)}
-                                  isMultiple={true}
-                                  disabled={!appInformationComplete || pendingProd || prodConnection}
-                                  labels={["testConnection", "prodConnection"]}
-                                  labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
-                                  orientation={RadioOptionsOrientation.column}/>
-                    {!appInformationComplete &&
-                        <ErrorIndicator msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
-                                        standalone={true}/>}
+                    {(!pendingProd && !prodConnection) &&
+                        <>
+                            <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
+                            <RadioOptions name={"proceedWithProduction"}
+                                          value={proceedWithProduction ? "prodConnection" : "testConnection"}
+                                          onChange={() => setProceedWithProduction(!proceedWithProduction)}
+                                          isMultiple={true}
+                                          disabled={!appInformationComplete}
+                                          labels={["testConnection", "prodConnection"]}
+                                          labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
+                                          orientation={RadioOptionsOrientation.column}/>
+                            {!appInformationComplete &&
+                                <ErrorIndicator
+                                    msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
+                                    standalone={true}/>}
+                        </>
+                    }
                     {pendingProd && <p className={"disclaimer-pending-prod"}>
                         {I18n.t("connection.productionStatusSection.pendingProdDisclaimer")}
                     </p>}
@@ -820,43 +827,46 @@ export const Connections = ({
                     </p>}
                 </div>
                 {proceedWithProduction &&
-                    <div className="identity-providers">
-                        <div className="visibility-options">
-                            <p className="question">{I18n.t("connection.visibilities.who")}
-                                {changeRequestsKeys.includes("visibility") && <AlertIcon/>}
-                            </p>
-                            <RadioOptions name={"visibility"}
-                                          value={connection.productionStatus}
-                                          onChange={e => setConnection({
-                                              ...connection,
-                                              productionStatus: e.target.id.replace("visibility_", "")
-                                          })}
-                                          isMultiple={true}
-                                          labels={[visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none]}
-                                          labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                                          orientation={RadioOptionsOrientation.column}/>
+                    <>
+                        <h4>{I18n.t("connection.production.access")}</h4>
+                        <div className="identity-providers">
+                            <div className="visibility-options">
+                                <p className="question">{I18n.t("connection.visibilities.who")}
+                                    {changeRequestsKeys.includes("visibility") && <AlertIcon/>}
+                                </p>
+                                <RadioOptions name={"visibility"}
+                                              value={connection.visibility}
+                                              onChange={e => setConnection({
+                                                  ...connection,
+                                                  visibility: e.target.id.replace("visibility_", "")
+                                              })}
+                                              isMultiple={true}
+                                              labels={[visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none]}
+                                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                                              orientation={RadioOptionsOrientation.column}/>
+                            </div>
+                            <div className="visibility-options">
+                                <p className="question">{I18n.t("connection.visibilities.connect")}
+                                    {changeRequestsKeys.includes("connectOption") && <AlertIcon/>}
+                                </p>
+                                <RadioOptions name={"connectOption"}
+                                              value={connection.connectOption}
+                                              onChange={e => setConnection({
+                                                  ...connection,
+                                                  connectOption: e.target.id.replace("connectOption_", "")
+                                              })}
+                                              isMultiple={true}
+                                              labels={[
+                                                  connectOptions.connect_without_interaction_without_email,
+                                                  connectOptions.connect_without_interaction_with_email,
+                                                  connectOptions.connect_with_interaction
+                                              ]}
+                                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
+                                              orientation={RadioOptionsOrientation.column}/>
+                            </div>
+                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
-                        <div className="visibility-options">
-                            <p className="question">{I18n.t("connection.visibilities.connect")}
-                                {changeRequestsKeys.includes("connectOption") && <AlertIcon/>}
-                            </p>
-                            <RadioOptions name={"connectOption"}
-                                          value={connection.connectOption}
-                                          onChange={e => setConnection({
-                                              ...connection,
-                                              connectOption: e.target.id.replace("connectOption_", "")
-                                          })}
-                                          isMultiple={true}
-                                          labels={[
-                                              connectOptions.connect_without_interaction_without_email,
-                                              connectOptions.connect_without_interaction_with_email,
-                                              connectOptions.connect_with_interaction
-                                          ]}
-                                          labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                                          orientation={RadioOptionsOrientation.column}/>
-                        </div>
-                        <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
-                    </div>}
+                    </>}
                 {!proceedWithProduction && renderTestIdPSection()}
             </section>
         );
@@ -865,6 +875,7 @@ export const Connections = ({
     const renderSAMLOverview = () => {
         return (
             <section className="inner-right-overview">
+                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
                 <h3>{I18n.t("connection.connectionOverviewSAML.title")}</h3>
                 <p className="test"
                    dangerouslySetInnerHTML={{
@@ -878,6 +889,7 @@ export const Connections = ({
     const renderOIDCOverview = () => {
         return (
             <section className="inner-right-overview">
+                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
                 <Alert alertType={AlertType.Warning}
                        asChild={true}
@@ -901,6 +913,18 @@ export const Connections = ({
                             copyClipBoard={true}/>
             </section>
         )
+    }
+
+    const renderProductionStatusRequested = () => {
+        return (
+            <div className="production-status-requested">
+                <h3>{I18n.t("connection.productionStatusRequested.info")}</h3>
+                <p dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostInfo",
+                        {jiraKey: jiraKey}))
+                }}/>
+            </div>
+        );
     }
 
     const toggleAdditionalAttributes = val => {
@@ -1115,7 +1139,7 @@ export const Connections = ({
             (section === sections.productionStatus && (connection.status === CONNECTION_STATUSES.PROD_READY || testIdPValid()));
         if (proceed) {
             setLoading(true);
-            const promise = connection.id ? updateConnection : newConnection
+            const promise = connection.id ? (proceedWithProduction ? uppdateAndRequestConnectionProductionStatus : updateConnection) : newConnection;
             const body = convertClientConnectionToServer(application, connection, arpInfo);
             if (!sections.allCompleted(body)) {
                 sections.complete(body, section);
@@ -1133,15 +1157,15 @@ export const Connections = ({
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
-                    const convertedConnection = convertServerConnectionToClient(res, protocolOptions, profileOptions, arpInfo);
+                    const resultFromServer = proceedWithProduction ? res.connection : res;
+                    if (proceedWithProduction) {
+                        setJiraKey(res.jiraKey);
+                    }
+                    const convertedConnection = convertServerConnectionToClient(resultFromServer, protocolOptions, profileOptions, arpInfo);
                     setConnection(convertedConnection);
                     updateChangeRequestKeys(convertedConnection);
                     setLoading(false);
                     changeSection(nextSection);
-                    if (proceedWithProduction) {
-                        doRequestProduction(true, connection);
-                    }
-
                 })
                 .catch(() => {
                     setLoading(false);
@@ -1228,8 +1252,9 @@ export const Connections = ({
                                     onClick={() => doRequestProduction(true, connection)}
                             />
                             {!appInformationComplete &&
-                                <ErrorIndicator msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
-                                                standalone={true}/>}
+                                <ErrorIndicator
+                                    msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
+                                    standalone={true}/>}
                         </div>
                     }
                     {!isEmpty(connection.changeRequests) &&
@@ -1325,7 +1350,8 @@ export const Connections = ({
         navigate(`/connection/${application.id}/allConnections/${conn.id}${queryParameters}`);
         const section = updateChangeRequestKeys(conn);
         setConnection(conn);
-        setProceedWithProduction(conn.status === CONNECTION_STATUSES.PENDING_PROD);
+        setProceedWithProduction(conn.status === CONNECTION_STATUSES.PENDING_PROD ||
+            conn.status === CONNECTION_STATUSES.PROD_READY);
         changeSection(section);
     }
 
