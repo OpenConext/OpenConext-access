@@ -14,13 +14,15 @@ import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {policyBreakDowwn, policyTypes} from "../utils/Policy.js";
+import {providerName} from "../utils/Manage.js";
 
 export const PolicyOverview = ({
                                    policies,
                                    currentOrganization,
                                    policyDetails,
                                    selectedServiceProviders,
-                                   refreshPolicies
+                                   refreshPolicies,
+                                   serviceProviders
                                }) => {
 
     const {setFlash, allowedAttributes} = useAppStore(useShallow(state => ({
@@ -75,19 +77,44 @@ export const PolicyOverview = ({
     }
 
     const renderPolicyChip = policy => {
-        const policyType = policy.data.type === "step" ? "step" : policy.data.denyRule ? "deny" : "allow"
+        const active = policy.data.active;
+        const activeTranslation = active ? "active" : "paused";
         return (
-            <Chip className={`policy-chip-${policyType}`}
-                  label={I18n.t(`appAccess.${policyType}`)}/>
+            <Chip className={`policy-chip-${active ? "active" : "paused"}`}
+                  label={I18n.t(`appAccess.${activeTranslation}`)}/>
         );
     }
 
+
     const renderPolicyName = policy => {
+        let policyName;
         if (policy.data.type === policyTypes.reg) {
-            return policy.data.name;
+            policyName = policy.data.name;
+        } else {
+            const level = policy.data.loas[0].level;
+            policyName = policy.data.name + " - " + capitalize(level.substring(level.lastIndexOf("/") + 1));
         }
-        const level = policy.data.loas[0].level;
-        return policy.data.name + " - " + capitalize(level.substring(level.lastIndexOf("/") + 1));
+        return (
+            <p className="policy-name">
+                {policyName}
+            </p>
+        );
+
+    }
+
+    const renderPolicyServiceProviders = policy => {
+        const serviceProviderIds = policy.data.serviceProviderIds.map(sp => sp.name);
+        const serviceProviderNames = serviceProviders
+            .filter(sp => serviceProviderIds.includes(sp.data.entityid))
+            .map(sp => providerName(I18n.locale, sp));
+        const splittedNames = splitListSemantically(serviceProviderNames, I18n.t("forms.and"))
+        return (
+            <p className="policy-name">
+                {I18n.t("appAccess.applications")}
+                <span>{splittedNames}</span>
+            </p>
+        );
+
     }
 
     const renderPolicy = (index, type, policy) => {
@@ -95,28 +122,27 @@ export const PolicyOverview = ({
             <div key={`${type}_${index}`} className="access-card-container">
                 <div className={`access-card policy-breakdown ${policy.data.active ? "" : "paused"}`}>
                     <div className="policy-name-container">
-                        <p className="policy-name">{renderPolicyName(policy)}</p>
-                        <div className="policy-paused-container">
-                            {!policy.data.active &&
-                                <p className="policy-paused">
-                                    {I18n.t("appAccess.paused")}
-                                </p>}
-                            {renderPolicyChip(policy)}
+                        {renderPolicyName(policy)}
+                        {renderPolicyServiceProviders(policy)}
+
+                        <div className="policy-attributes-container">
+                            {policyBreakDowwn(
+                                allowedAttributes,
+                                policy,
+                                I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`),
+                                I18n.t("forms.or"),
+                                I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`))
+                                .map((sentence, index) => <p key={index}
+                                                             className={index % 2 === 1 ? "logic" : "rule"}>
+                                    {sentence}
+                                </p>)}
+
                         </div>
                     </div>
-                    <div className="policy-attributes-container">
-                        {policyBreakDowwn(
-                            allowedAttributes,
-                            policy,
-                            I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`),
-                            I18n.t("forms.or"),
-                            I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`))
-                            .map((sentence, index) => <p key={index}
-                                                         className={index % 2 === 1 ? "logic" : "rule"}>
-                                {sentence}
-                            </p>)}
-
+                    <div className="policy-paused-container">
+                        {renderPolicyChip(policy)}
                     </div>
+
                 </div>
                 <div className="policy-actions">
                     <Tooltip tip={I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`)}
@@ -170,7 +196,7 @@ export const PolicyOverview = ({
                     </>}
                     {!isEmpty(regularPolicies) && <>
                         {regularPolicies.map((policy, index) =>
-                            renderPolicy(index, "step", policy))}
+                            renderPolicy(index, "reg", policy))}
                     </>}
                 </InfoBlock>
                 <div className="grouped">

@@ -228,7 +228,7 @@ public class RemoteManage implements Manage {
     public List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers) {
         LOG.debug("serviceProvidersByEntityID for : " + entityIdentifiers);
 
-        Map<String, Object> baseQuery = getBaseQuery(true);
+        Map<String, Object> baseQuery = getBaseQuery(false);
         baseQuery.put("entityid", entityIdentifiers);
         return Stream.of(EntityType.oidc10_rp, EntityType.saml20_sp)
                 .flatMap(entityType -> {

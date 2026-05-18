@@ -34,7 +34,10 @@ export const PolicyForm = ({
     const isStep = policy.data.type === policyTypes.step;
 
     const conditionalOptions = ["any", "all"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
-    const negatedConditionalOptions = ["any", "none"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
+    const negatedConditionalOptions = ["any", "none"].map(name => ({
+        value: name,
+        label: I18n.t(`policies.form.${name}`)
+    }));
     const negatedOptions = ["any", "none"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
     const orOptions = ["and", "or"].map(name => ({value: name, label: I18n.t(`policies.form.${name}`)}));
 
@@ -423,7 +426,7 @@ export const PolicyForm = ({
                                          required={true}
                                          className="attribute-value"
                                          error={!initial && isEmpty(attribute.value)}
-                                         placeholder={I18n.t("appAccess.permittedValuesPlaceholder")}
+                                         placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
                             <Button type={ButtonType.Delete}
@@ -511,11 +514,12 @@ export const PolicyForm = ({
                                          onChange={option => stepAttributeSelected(option, index)}
                                          options={allowedAttributes}/>
 
-                            <SelectField value={attribute.negated ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
-                                         required={true}
-                                         className="conditional-options"
-                                         onChange={() => stepAttributeNegatedChanged(index)}
-                                         options={negatedConditionalOptions}/>
+                            <SelectField
+                                value={attribute.negated ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
+                                required={true}
+                                className="conditional-options"
+                                onChange={() => stepAttributeNegatedChanged(index)}
+                                options={negatedConditionalOptions}/>
 
                             <SelectField value={attribute.value}
                                          creatable={!enumOptionsFor(attribute.name)}
@@ -524,7 +528,7 @@ export const PolicyForm = ({
                                          required={true}
                                          className="attribute-value"
                                          error={!initial && isEmpty(attribute.value)}
-                                         placeholder={I18n.t("appAccess.permittedValuesPlaceholder")}
+                                         placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => stepAttributeValueChanged(values, index)}
                             />
                             <Button type={ButtonType.Delete}
@@ -546,11 +550,12 @@ export const PolicyForm = ({
                     <div className="cidr-entry" key={`cidr-${index}`}>
                         <div className="cidr-inputs">
                             <span>{I18n.t("appAccess.andIPAddress")}</span>
-                            <SelectField value={loa.negateCidrNotation ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
-                                         required={true}
-                                         className="conditional-options"
-                                         onChange={() => internalUpdateLoa({negateCidrNotation: !loa.negateCidrNotation})}
-                                         options={negatedConditionalOptions}/>
+                            <SelectField
+                                value={loa.negateCidrNotation ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
+                                required={true}
+                                className="conditional-options"
+                                onChange={() => internalUpdateLoa({negateCidrNotation: !loa.negateCidrNotation})}
+                                options={negatedConditionalOptions}/>
                             <div className="input-field-wrapper">
                                 <InputField value={cidr.ipAddress}
                                             placeholder="192.168.1.0"
@@ -579,7 +584,7 @@ export const PolicyForm = ({
                         </div>
                         {!isEmpty(cidrErrors[index]) &&
                             <ErrorIndicator msg={cidrErrors[index]}/>
-                            }
+                        }
 
                     </div>)}
 
@@ -598,7 +603,10 @@ export const PolicyForm = ({
 
     const renderActions = () => (
         <div className="actions">
-            {!isEmpty(policy.id) && <TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}
+            {!isEmpty(policy.id) &&
+                <span className="delete-can" onClick={() => doDeletePolicy(true, policy)}>
+                    <TrashIcon />{I18n.t("forms.delete")}
+                </span>}
             <Button type={ButtonType.Secondary}
                     onClick={refreshPolicies}
                     txt={I18n.t("forms.cancel")}/>

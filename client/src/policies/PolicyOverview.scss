@@ -34,6 +34,7 @@
                 fill: transparent;
                 cursor: pointer;
                 color: var(--sds--color--gray--500);
+
                 &:hover {
                     color: black;
                 }
@@ -43,8 +44,8 @@
                 margin-right: 15px;
 
                 &.policy-breakdown {
-                    flex-direction: column;
-                    align-items: normal;
+                    flex-direction: row;
+                    align-items: center;
 
                     &.paused {
                         background-color: var(--sds--color--gray--background);
@@ -52,55 +53,54 @@
 
                     .policy-name-container {
                         display: flex;
-                        align-items: center;
+                        flex-direction: column;
+
 
                         p.policy-name {
                             font-weight: 600;
-                        }
-
-                        .policy-paused-container {
-                            display: flex;
-                            gap: 20px;
-                            align-items: center;
-                            margin: 0 15px 0 auto;
-                        }
-
-                        p.policy-paused {
-                            color: var(--sl-color-warning-600);
-                            font-weight: 600;
-                        }
-
-                        .sds--chips {
-                            color: white;
-
-                            &.policy-chip-deny {
-                                background-color: var(--sds--color--red--400);
-                            }
-
-                            &.policy-chip-allow {
-                                background-color: var(--sds--color--green--400);
-                            }
-                            &.policy-chip-step {
-                                background-color: var(--sds--color--blue--400);
+                            span {
+                                font-weight: normal;
                             }
                         }
+
                     }
 
                     .policy-attributes-container {
                         display: flex;
                         flex-direction: column;
                         margin-top: 6px;
+
                         p {
                             line-height: 20px;
                             font-size: 16px;
+
                             &.logic {
                                 font-weight: 600;
                             }
                         }
                     }
+
+                    .sds--chips {
+                        color: black;
+
+
+                        &.policy-chip-active {
+                            background-color: var(--sds--color--green--200);
+                        }
+
+                        &.policy-chip-paused {
+                            background-color: var(--sds--color--gray--250);
+                        }
+                    }
+
+                    .policy-paused-container {
+                        margin: 0 10px 0 auto;
+                    }
+
                 }
 
             }
+
             .policy-actions {
                 display: flex;
                 gap: 15px;

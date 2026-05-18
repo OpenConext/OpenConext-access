@@ -21,6 +21,11 @@
     }
 
     .select-field {
+        &.select-access-rule {
+            width: 260px;
+            margin-right: 25px;
+        }
+
         &.attribute-value {
             flex-grow: 2;
 
@@ -172,13 +177,6 @@
             @include deletable-attribute-base;
             align-items: center;
 
-            .select-field {
-                &.select-access-rule {
-                    width: 120px;
-                    margin-right: 25px;
-                }
-            }
-
             span.conditional-options {
                 margin: 0 15px;
             }
@@ -212,13 +210,6 @@
 
         .deletable-attribute {
             @include deletable-attribute-base;
-
-            .select-field {
-                &.select-access-rule {
-                    width: 120px;
-                    margin-right: 25px;
-                }
-            }
         }
 
         .cidr-negation-row {
@@ -284,16 +275,17 @@
         border-top: 1px solid var(--sds--color--gray--200);
 
         svg {
-            fill: var(--sl-color-neutral-400);
-            color: var(--sl-color-neutral-400);
+            fill: var(--sds--color--red--400);
+            color: var(--sds--color--red--400);
+        }
 
-            &.bin-svg {
-                cursor: pointer;
-
-                &:hover {
-                    color: var(--sds--color--red--500);
-                }
-            }
+        span.delete-can {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--sds--color--red--400);
+            font-weight: 600;
+            cursor: pointer;
         }
 
         button.sds--btn--secondary {
