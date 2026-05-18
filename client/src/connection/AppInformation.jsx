@@ -258,6 +258,7 @@ export const AppInformation = ({
                         {isEmpty(p.enum) &&
                             <InputField value={application.privacy[p.name] || ""}
                                         name={p[`info_${I18n.locale}`]}
+                                        required={p.required}
                                         onChange={e => updatePrivacy(p.name, e.target.value)}
                                         placeholder={p[`placeholder_${I18n.locale}`]}
                                         toolTip={isEmpty(p.tooltip_en) ? null : p[`tooltip_${I18n.locale}`]}
@@ -265,6 +266,7 @@ export const AppInformation = ({
                         {!isEmpty(p.enum) &&
                             <SelectField
                                 name={p[`info_${I18n.locale}`]}
+                                required={p.required}
                                 options={p.enum.filter(val => val !== application.privacy[p.name]).map(val => enumOption(val))}
                                 value={enumOption(p.enum.find(val => application.privacy[p.name] === val.name || val.name === p.default))}
                                 onChange={option => updatePrivacy(p.name, option.value)}
