@@ -34,7 +34,8 @@ import {
     requestConnectionProductionStatus,
     resetConnectionSecret,
     uniqueEntityID,
-    updateConnection, uppdateAndRequestConnectionProductionStatus
+    updateConnection,
+    uppdateAndRequestConnectionProductionStatus
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -126,8 +127,7 @@ export const Connections = ({
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [jiraKey, setJiraKey] = useState(null);
-    const [proceedWithProduction, setProceedWithProduction] = useState(connection?.status === CONNECTION_STATUSES.PENDING_PROD ||
-        connection?.status === CONNECTION_STATUSES.PROD_READY);
+    const [proceedWithProduction, setProceedWithProduction] = useState(false);
 
     const connections = application.connections;
 
@@ -826,7 +826,7 @@ export const Connections = ({
                         {I18n.t("connection.productionStatusSection.prodDisclaimer")}
                     </p>}
                 </div>
-                {proceedWithProduction &&
+                {(pendingProd || prodConnection) &&
                     <>
                         <h4>{I18n.t("connection.production.access")}</h4>
                         <div className="identity-providers">
@@ -867,7 +867,7 @@ export const Connections = ({
                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
                     </>}
-                {!proceedWithProduction && renderTestIdPSection()}
+                {(!pendingProd && !prodConnection) && renderTestIdPSection()}
             </section>
         );
     }
@@ -1224,6 +1224,7 @@ export const Connections = ({
     const backToConnections = () => {
         refresh();
         setConnection(null);
+        setJiraKey(null);
         navigate(`/connection/allConnections`);
         window.scrollTo({top: 0, behavior: "smooth"});
         changeSection(sections.technical);
@@ -1350,8 +1351,6 @@ export const Connections = ({
         navigate(`/connection/${application.id}/allConnections/${conn.id}${queryParameters}`);
         const section = updateChangeRequestKeys(conn);
         setConnection(conn);
-        setProceedWithProduction(conn.status === CONNECTION_STATUSES.PENDING_PROD ||
-            conn.status === CONNECTION_STATUSES.PROD_READY);
         changeSection(section);
     }
 
