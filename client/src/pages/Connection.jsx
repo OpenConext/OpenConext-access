@@ -99,7 +99,7 @@ export const Connection = () => {
                 application.connections
                     .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
         }
-    }, [application, privacy]);
+    }, [application, privacy, currentOrganization.manageIdentifier]);
 
 
     const refresh = (newTab = null) => {

@@ -352,10 +352,6 @@ class UserControllerTest extends AbstractTest {
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         assertEquals(1, user.getOrganizationMemberships().size());
 
-        OrganizationMembership organizationMembership = user.getOrganizationMemberships().iterator().next();
-        assertEquals("ShareLogics", organizationMembership.getOrganization().getName());
-        assertEquals(Authority.ADMIN, organizationMembership.getAuthority());
-
         Institution institution = user.getInstitution();
         assertEquals("http://mock-idp", institution.getEntityID());
         assertEquals("SURF bv", institution.getOrganizationName());

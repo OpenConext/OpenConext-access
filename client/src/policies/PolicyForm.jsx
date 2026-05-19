@@ -1,6 +1,6 @@
 import "./PolicyForm.scss";
 import React, {Fragment, useState} from "react";
-import {Button, ButtonType, Chip, ChipType} from "@surfnet/sds";
+import {Button, ButtonType, Chip} from "@surfnet/sds";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -605,7 +605,7 @@ export const PolicyForm = ({
         <div className="actions">
             {!isEmpty(policy.id) &&
                 <span className="delete-can" onClick={() => doDeletePolicy(true, policy)}>
-                    <TrashIcon />{I18n.t("forms.delete")}
+                    <TrashIcon/>{I18n.t("forms.delete")}
                 </span>}
             <Button type={ButtonType.Secondary}
                     onClick={refreshPolicies}
