@@ -9,7 +9,6 @@ import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
-import {isOrganizationAdmin} from "../utils/Permissions.js";
 import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -19,8 +18,7 @@ const ApplicationOverview = ({accessible}) => {
 
         const navigate = useNavigate();
 
-        const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
-            user: state.user,
+        const {currentOrganization, config} = useAppStore(useShallow(state => ({
             currentOrganization: state.currentOrganization,
             config: state.config
         })));
@@ -142,7 +140,10 @@ const ApplicationOverview = ({accessible}) => {
                         // Consent options from disableConsent types (deduplicated)
                         const disableConsent = currentOrganization.identityProvider?.data?.disableConsent || [];
                         const consentTypes = [...new Set(disableConsent.map(e => e.type))];
-                        const defaultConsent = {value: "all", label: `${I18n.t("accessibleApps.allConsent")} (${res.length})`};
+                        const defaultConsent = {
+                            value: "all",
+                            label: `${I18n.t("accessibleApps.allConsent")} (${res.length})`
+                        };
                         const newConsentOptions = [defaultConsent].concat(
                             consentTypes.map(type => {
                                 const count = disableConsent.filter(e => e.type === type).length;
@@ -192,33 +193,33 @@ const ApplicationOverview = ({accessible}) => {
             return (
                 <>
                     <SelectField className="select-sources"
-                        value={sourceOptions.find(option => option.value === source)}
-                        options={sourceOptions}
-                        searchable={false}
-                        onChange={option => setSource(option.value)}
+                                 value={sourceOptions.find(option => option.value === source)}
+                                 options={sourceOptions}
+                                 searchable={false}
+                                 onChange={option => setSource(option.value)}
                     />
                     <SelectField className="select-tags"
-                        value={tagOptions.find(option => option.value === tag)}
-                        options={tagOptions}
-                        searchable={false}
-                        onChange={option => setTag(option.value)}
+                                 value={tagOptions.find(option => option.value === tag)}
+                                 options={tagOptions}
+                                 searchable={false}
+                                 onChange={option => setTag(option.value)}
                     />
                     {accessible && !isEmpty(currentOrganization.manageIdentifier) &&
-                    <>
-                        <SelectField className="select-loas"
-                            value={loaOptions.find(option => option.value === loa)}
-                            options={loaOptions}
-                            searchable={false}
-                            onChange={option => setLoa(option.value)}
-                        />
-                        <SelectField className="select-consent"
-                            value={consentOptions.find(option => option.value === consent)}
-                            options={consentOptions}
-                            searchable={false}
-                            onChange={option => setConsent(option.value)}
-                        />
+                        <>
+                            <SelectField className="select-loas"
+                                         value={loaOptions.find(option => option.value === loa)}
+                                         options={loaOptions}
+                                         searchable={false}
+                                         onChange={option => setLoa(option.value)}
+                            />
+                            <SelectField className="select-consent"
+                                         value={consentOptions.find(option => option.value === consent)}
+                                         options={consentOptions}
+                                         searchable={false}
+                                         onChange={option => setConsent(option.value)}
+                            />
 
-                    </>}
+                        </>}
                 </>
             );
         }
@@ -282,7 +283,7 @@ const ApplicationOverview = ({accessible}) => {
                         columns={columns}
                         filters={filters()}
                         hideTitle={true}
-                        showNew={user.superUser || isOrganizationAdmin(user, currentOrganization)}
+                        showNew={false}
                         displaySearch={true}
                         searchAttributes={["name", "vendor"]}
                         rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
