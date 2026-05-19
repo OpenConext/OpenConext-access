@@ -1,5 +1,5 @@
 import "./ApplicationForm.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
 import {useNavigate, useParams} from "react-router-dom";
@@ -21,6 +21,8 @@ export const ApplicationForm = () => {
 
     const {applicationId} = useParams();
     const navigate = useNavigate();
+
+    const searchRef = useRef();
 
     const isNew = applicationId === "new";
     const [loading, setLoading] = useState(!isNew);
@@ -45,8 +47,12 @@ export const ApplicationForm = () => {
                 .then(res => {
                     setApplication(res);
                     setLoading(false)
+                    searchRef.current && searchRef.current.focus();
                 })
+        } else {
+            searchRef.current && searchRef.current.focus();
         }
+
     }, [applicationId, currentOrganization, isNew]);
 
     // const targetGroupLabel = label => {
@@ -76,6 +82,7 @@ export const ApplicationForm = () => {
                 <InputField name={I18n.t("application.name")}
                             value={application.name || ""}
                             required={true}
+                            onRef={searchRef}
                             onChange={e => setApplication({...application, name: e.target.value})}
                             info={I18n.t("application.nameInfo")}/>
                 <RadioOptions label={I18n.t("application.type")}

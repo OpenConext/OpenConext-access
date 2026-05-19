@@ -15,6 +15,7 @@ import {
     Tooltip
 } from "@surfnet/sds";
 import 'jsondiffpatch/formatters/styles/html.css';
+
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import ArrowRightIcon from "../icons/details-right.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
@@ -31,7 +32,6 @@ import {
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
-    requestConnectionProductionStatus,
     resetConnectionSecret,
     uniqueEntityID,
     updateConnection,
@@ -123,11 +123,11 @@ export const Connections = ({
     const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
     const [confirmation, setConfirmation] = useState({});
-    const [busy, setBusy] = useState(false);
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [jiraKey, setJiraKey] = useState(null);
     const [proceedWithProduction, setProceedWithProduction] = useState(false);
+    const [alertClosed, setAlertClosed] = useState(false);
 
     const connections = application.connections;
 
@@ -769,10 +769,12 @@ export const Connections = ({
         const iDps = config.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
         const testEntityIdentifiers = iDps.map(idp => idp.entityid);
+        const dummyIdpsActive = !isEmpty(connection.allowedEntities)
         return (
             <section className="test-idp-section">
                 <SwitchField name={"activateTest"}
                              value={!isEmpty(allowedEntities)}
+                             className={dummyIdpsActive ? "active" : ""}
                              onChange={val => {
                                  setConnection({
                                      ...connection,
@@ -781,16 +783,17 @@ export const Connections = ({
                              }}
                              label={I18n.t("connection.productionStatusSection.dummyIdP")}
                 />
-                <section className="identity-providers">
-                    {iDps.map((idp, index) =>
-                        <div key={index} className="idp">
-                            <div className="idp-info">
-                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
-                                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
+                {dummyIdpsActive &&
+                    <section className={`identity-providers ${dummyIdpsActive ? "active" : ""}`}>
+                        {iDps.map((idp, index) =>
+                            <div key={index} className="idp">
+                                <div className="idp-info">
+                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
+                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </section>
+                        )}
+                    </section>}
             </section>
         );
     }
@@ -801,32 +804,26 @@ export const Connections = ({
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.productionStatus")}</h3>
-                <div className="visibility-options">
-                    {(!pendingProd && !prodConnection) &&
-                        <>
-                            <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
-                            <RadioOptions name={"proceedWithProduction"}
-                                          value={proceedWithProduction ? "prodConnection" : "testConnection"}
-                                          onChange={() => setProceedWithProduction(!proceedWithProduction)}
-                                          isMultiple={true}
-                                          disabled={!appInformationComplete}
-                                          labels={["testConnection", "prodConnection"]}
-                                          labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
-                                          orientation={RadioOptionsOrientation.column}/>
-                            {!appInformationComplete &&
-                                <ErrorIndicator
-                                    msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
-                                    standalone={true}/>}
-                        </>
-                    }
-                    {pendingProd && <p className={"disclaimer-pending-prod"}>
-                        {I18n.t("connection.productionStatusSection.pendingProdDisclaimer")}
-                    </p>}
-                    {prodConnection && <p className={"disclaimer-pending-prod"}>
-                        {I18n.t("connection.productionStatusSection.prodDisclaimer")}
-                    </p>}
-                </div>
-                {(pendingProd || prodConnection) &&
+                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
+                {(!pendingProd && !prodConnection) &&
+                    <div className="visibility-options">
+                        <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
+                        <RadioOptions name={"proceedWithProduction"}
+                                      value={proceedWithProduction ? "prodConnection" : "testConnection"}
+                                      onChange={() => setProceedWithProduction(!proceedWithProduction)}
+                                      isMultiple={true}
+                                      labels={["testConnection", "prodConnection"]}
+                                      labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
+                                      orientation={RadioOptionsOrientation.column}/>
+                        {(!appInformationComplete && !alertClosed && proceedWithProduction) &&
+                            alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
+                                () => setTab("application"),
+                                I18n.t("connection.productionStatusSection.fillAppInformation"),
+                                AlertType.Warning)}
+                    </div>}
+                {(pendingProd && isEmpty(jiraKey)) &&
+                    alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimer"))}
+                {((proceedWithProduction && appInformationComplete) || prodConnection) &&
                     <>
                         <h4>{I18n.t("connection.production.access")}</h4>
                         <div className="identity-providers">
@@ -867,7 +864,7 @@ export const Connections = ({
                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
                     </>}
-                {(!pendingProd && !prodConnection) && renderTestIdPSection()}
+                {(!pendingProd && !prodConnection && !proceedWithProduction) && renderTestIdPSection()}
             </section>
         );
     }
@@ -1075,6 +1072,17 @@ export const Connections = ({
         );
     }
 
+    const alertInfo = (message, action, actionLabel, alertType = AlertType.Info) => {
+        return (
+            <Alert close={() => setAlertClosed(true)}
+                   alertType={alertType}
+                   asChild={true}
+                   action={action}
+                   actionLabel={actionLabel}
+                   message={message}/>
+        )
+    }
+
     const renderSection = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         switch (section) {
@@ -1104,6 +1112,9 @@ export const Connections = ({
     }
 
     const storeAndNextDisabled = () => {
+        if (section === sections.productionStatus && proceedWithProduction && !appInformationComplete) {
+            return true;
+        }
         if (initial) {
             return false;
         }
@@ -1115,7 +1126,7 @@ export const Connections = ({
                 return !informationProfileValid();
             }
             case sections.productionStatus: {
-                return false;
+                return proceedWithProduction && !appInformationComplete;
             }
             case sections.pendingChanges: {
                 return false;
@@ -1175,52 +1186,6 @@ export const Connections = ({
         }
     };
 
-    const doRequestProduction = (confirmationRequired, connection) => {
-        if (confirmationRequired) {
-            setConfirmation({
-                open: true,
-                cancel: () => setConfirmation({open: false}),
-                action: () => doRequestProduction(false, connection),
-                modal: null,
-                header: I18n.t("confirmationDialog.confirm"),
-                question: I18n.t("connection.connections.requestProductionStatusConfirmation", {name: connection.name}),
-                okButton: I18n.t("connection.connections.requestProductionStatus")
-            });
-        } else {
-            setBusy(true);
-            requestConnectionProductionStatus(connection.id)
-                .then(res => {
-                    setBusy(false);
-                    setConfirmation({
-                        open: true,
-                        cancel: null,
-                        modal: null,
-                        header: I18n.t("confirmationDialog.ok"),
-                        action: () => {
-                            refresh();
-                            setConfirmation({open: false});
-                        },
-                        question: I18n.t("connection.connections.requestProductionStatusPostInfo",
-                            {jiraKey: res.jiraKey}),
-                        okButton: I18n.t("confirmationDialog.ok")
-                    });
-                })
-                .catch(() => {
-                    setBusy(false);
-                    setConfirmation({
-                        open: true,
-                        cancel: null,
-                        modal: null,
-                        header: I18n.t("error.title"),
-                        action: () => setConfirmation({open: false}),
-                        question: I18n.t("error.jiraDown"),
-                        okButton: I18n.t("forms.ok")
-                    });
-                })
-        }
-    }
-
-
     const backToConnections = () => {
         refresh();
         setConnection(null);
@@ -1246,18 +1211,6 @@ export const Connections = ({
             <>
                 <div className="testing-header">
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
-                    {((application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && (connection.status === CONNECTION_STATUSES.COMPLETE)) &&
-                        <div className="action-button">
-                            <Button txt={I18n.t("connection.connections.requestProductionStatus")}
-                                    disabled={!appInformationComplete}
-                                    onClick={() => doRequestProduction(true, connection)}
-                            />
-                            {!appInformationComplete &&
-                                <ErrorIndicator
-                                    msg={I18n.t("connection.productionStatusSection.appInformationIncomplete")}
-                                    standalone={true}/>}
-                        </div>
-                    }
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
                             <Button txt={I18n.t("connection.pendingChanges")}
@@ -1300,6 +1253,7 @@ export const Connections = ({
                                                     isAlert={sectionValue === sections.pendingChanges}
                                                     action={() => changeSection(sectionValue)}
                                                     info={I18n.t(`connection.${sectionValue}`)}
+                                                    CustomIcon={sectionValue === sections.productionStatus && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertIcon : null}
                                                     active={section === sectionValue}/>)}
                         </div>
                     </section>
@@ -1337,19 +1291,19 @@ export const Connections = ({
             </>);
     }
 
-    const updateChangeRequestKeys = (convertedConnection) => {
+    const updateChangeRequestKeys = (convertedConnection, queryParameters = "") => {
         if (!isEmpty(convertedConnection.changeRequests)) {
             const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
                 .flatMap(changeRequest => Object.keys(changeRequest)))];
             setChangeRequestsKeys(newChangeRequestKeys);
             return sections.pendingChanges;
         }
-        return sections.technical;
+        return queryParameters.indexOf("activate") > 1 ? sections.productionStatus : sections.technical;
     }
 
     const showConnectionDetails = (conn, queryParameters = "") => {
         navigate(`/connection/${application.id}/allConnections/${conn.id}${queryParameters}`);
-        const section = updateChangeRequestKeys(conn);
+        const section = updateChangeRequestKeys(conn, queryParameters);
         setConnection(conn);
         changeSection(section);
     }
@@ -1426,7 +1380,7 @@ export const Connections = ({
                                   fullWidth={true}
                                   currentOrganization={currentOrganization}
                                   customProdTabAction={() => showConnectionDetails(connections
-                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE))}
+                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE), "?action=activate")}
                                   connectionComplete={connectionComplete}
                                   appInformationComplete={appInformationComplete}
                                   connectionNeedsApproval={connectionNeedsApproval}
@@ -1461,7 +1415,6 @@ export const Connections = ({
                                          cancel={cancel}
                                          confirmationHeader={header}
                                          confirmationTxt={okButton}
-                                         disabledConfirm={busy}
                                          question={question}
                                          isDeleteAction={modal === modals.deletionWarning}
                                          children={modal === modals.resetSecretDisclaimer ?

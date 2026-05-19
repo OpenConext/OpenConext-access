@@ -23,7 +23,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 
-const tabNames = ["overview", "allConnections", "application", "contract", "appteam"]
+const tabNames = ["overview", "application", "allConnections", "contract", "appteam"]
 
 const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,

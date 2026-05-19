@@ -3,7 +3,7 @@ import PendingIcon from "../icons/pending.svg";
 import CompletedIcon from "../icons/completed.svg";
 import AlertIcon from "../icons/alert-triangle.svg";
 
-export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert = false, hideIcon = false}) => {
+export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert = false, hideIcon = false, CustomIcon = null}) => {
 
     const icon = isAlert ? <AlertIcon/> : pending ? <PendingIcon/> : <CompletedIcon/>;
 
@@ -14,7 +14,8 @@ export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert
         <div className={`status-menu-item ${isActive} ${isDisabled}`}
              onClick={() => !disabled && action()}>
             <span className="info">{info}</span>
-            {!hideIcon && icon}
+            {(!hideIcon && !CustomIcon) && icon}
+            {CustomIcon && <CustomIcon/>}
         </div>
     );
 }

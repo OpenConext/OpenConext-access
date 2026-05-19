@@ -223,7 +223,10 @@ public class ApplicationController implements UserAccessRights {
             metaDataHasChanged = true;
         }
         if (metaDataHasChanged) {
-            application.getConnections().forEach(connection -> {
+            application.getConnections()
+                    .stream()
+                    .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+                    .forEach(connection -> {
                 Map<String, Object> provider = manage.saveProvider(connection);
                 connection.updateRemoteManageData(provider);
                 connectionRepository.save(connection);

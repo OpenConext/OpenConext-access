@@ -309,7 +309,7 @@ const nl = {
         teamSection: "Team",
         duplicatedName: "Een koppeling met naam {{name}} bestaat al voor deze applicatie.",
         duplicateEntityID: "Een koppeling met entityID {{entityID}} bestaat al",
-        alllConnections: "Koppelingen",
+        alllConnections: "App informatie & koppelingen",
         alllConnectionsInfo: "Alle koppelingen van de applicatie {{name}}",
         inUseWarning: "Alle leden van de volgende instelling(en) zullen toegang verliezen tot <strong>{{name}}</strong>:",
         inUseWarningOrg: "Alle leden van de volgende instelling(en) verliezen toegang tot alle applicaties van deze organisatie:",
@@ -333,7 +333,8 @@ const nl = {
             disclaimer: "Een productie--ready koppeling met de SURF Access‑omgeving vereist goedkeuring van het SURF Access‑team. Alle bovenstaande informatie is verplicht.",
         },
         productionConnectionHint: "Verbind met onze productieomgeving. Om de applicatie te activeren moeten alle aanvullende gegevens worden verstrekt.",
-        applicationInformationHint: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd en moet het contract worden getekend.",
+        applicationInformationHint: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd.",
+        applicationInformationHintVendor: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd en moet het contract worden getekend.",
         productionActivationHint: "Vraag activering aan voor {{name}}.",
         productionActivationAction: "Doe het nu",
         productActivationPending: "Het verzoek voor activering van je productieloppeling is ontvangen. SURF neemt binnen drie werkdagen contact met je op.",
@@ -604,7 +605,8 @@ const nl = {
             next: "Opslaan en uitproberen",
             appInformationIncomplete: "Voordat de status 'productieklaar' wordt aangevraagd, moet alle applicatie-informatie zijn ingevuld",
             pendingProdDisclaimer: "Deze koppeling wacht op de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
-            prodDisclaimer:"Deze koppeling heeft de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
+            prodDisclaimer: "Deze koppeling heeft de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
+            fillAppInformation: "Do it now"
         },
     },
     testing: {
@@ -1028,7 +1030,7 @@ const nl = {
             loa3: "LoA 3",
         },
         consent: {
-            default_consent: "Standaard toestemming",
+            default_consent: "Aangepaste toestemming",
             no_consent: "Geen toestemming",
             minimal_consent: "Minimale toestemming",
         },

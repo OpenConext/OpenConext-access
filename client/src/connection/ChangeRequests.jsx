@@ -269,7 +269,7 @@ export const ChangeRequests = ({
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("changeRequests.info1"))}}/>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("changeRequests.info2"))}}/>
             </div>
-            {changeRequests
+            {(changeRequests || [])
                 .sort((cr1, cr2) => new Date(cr2.created) - new Date(cr1.created))
                 .map((changeRequest, index) => renderChangeRequest(changeRequest, index))}
         </section>

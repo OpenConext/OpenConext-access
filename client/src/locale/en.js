@@ -309,7 +309,7 @@ const en = {
         teamSection: "Team",
         duplicatedName: "A connection with name {{name}} already exists for this Application.",
         duplicateEntityID: "A connection with entityID {{entityID}} already exists",
-        alllConnections: "Connections",
+        alllConnections: "App details & connections",
         alllConnectionsInfo: "All connections of the application {{name}}",
         inUseWarning: "All the members of the following institution(s) will lose access to  <strong>{{name}}</strong>:",
         inUseWarningOrg: "All of the members of the following institution(s) will lose access to all of the applications of this organisation:",
@@ -333,7 +333,8 @@ const en = {
             disclaimer: "A production ready connection to the SURF Access environment requires approval from the SURF Access team. All of the above information is mandatory.",
         },
         productionConnectionHint: "Connect to our production environment. To activate the application, all additional information must be provided.",
-        applicationInformationHint: "Before a connection to production can be activated, all additional information must be added and the contract must be signed.",
+        applicationInformationHint: "Before a connection to production can be activated, all additional information must be added.",
+        applicationInformationHintVendor: "Before a connection to production can be activated, all additional information must be added and the contract must be signed.",
         productionActivationHint: "Request activation for {{name}}.",
         productionActivationAction: "Do it now",
         productActivationPending: "The request for activation of your production connection has been received. SURF will contact you within three business days.",
@@ -604,7 +605,8 @@ const en = {
             next: "Save and try out",
             appInformationIncomplete: "Before requesting production-ready status, all the application information must be filled in",
             pendingProdDisclaimer:"This connection is pending production-ready status. If you want to test connections, create a new connection",
-            prodDisclaimer:"This connection has production-ready status. If you want to test connections, create a new connection"
+            prodDisclaimer:"This connection has production-ready status. If you want to test connections, create a new connection",
+            fillAppInformation: "Do it now"
         },
     },
     testing: {
@@ -1028,7 +1030,7 @@ const en = {
             loa3: "LoA 3",
         },
         consent: {
-            default_consent: "Default consent",
+            default_consent: "Custom consent",
             no_consent: "No consent",
             minimal_consent: "Minimal consent",
         },

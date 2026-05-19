@@ -77,6 +77,9 @@ $width-percentage: 75%;
         .inner-right {
             @include card();
         }
+        .sds--alert.sds--alert--status-info {
+            margin: 25px 0 15px 0;
+        }
 
         .sds--alert.sds--alert--status-warning {
             margin: 25px 0 15px 0;
@@ -210,6 +213,12 @@ $width-percentage: 75%;
             padding: 15px;
             background-color: var(--sds--color--gray--100);
             border-radius: 6px;
+
+            &.active {
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+
         }
 
         .test-idp-section {
@@ -219,6 +228,11 @@ $width-percentage: 75%;
                 border: 1px solid var(--sds--color--gray--200);
                 border-radius: 6px;
                 margin-top: 0;
+
+                &.active {
+                    border-bottom-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                }
             }
 
             .idp {
@@ -455,10 +469,6 @@ $width-percentage: 75%;
         }
     }
 
-}
-
-.disclaimer-pending-prod {
-    font-style: italic;
 }
 
 .actions {

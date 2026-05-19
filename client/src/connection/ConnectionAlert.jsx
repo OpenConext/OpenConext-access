@@ -45,7 +45,7 @@ export const ConnectionAlert = ({
                 <Alert close={() => setAlertClosed(true)}
                        alertType={AlertType.Warning}
                        asChild={true}
-                       message={I18n.t("connection.applicationInformationHint")}/>
+                       message={I18n.t(`connection.applicationInformationHint${currentOrganization.manageIdentifier ? "" : "Vendor"}`)}/>
             )
         }
         if (connectionComplete && connectionNeedsApproval)

@@ -29,13 +29,13 @@ export const Overview = ({
             <div className="application-connection">
                 <section className="sub-part">
                     <h2>{I18n.t("connection.alllConnections")}</h2>
-                    <StatusLink info={I18n.t("connection.alllConnectionsInfo", {name: application.name})}
-                                action={() => initConnection()}
-                                status={connectionComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                     <StatusLink info={I18n.t("connection.production.catalogue")}
                                 action={() => setTab("application")}
                                 disabled={false}
                                 status={appInformationComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
+                    <StatusLink info={I18n.t("connection.alllConnectionsInfo", {name: application.name})}
+                                action={() => initConnection()}
+                                status={connectionComplete ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                     {isEmpty(currentOrganization.manageIdentifier) &&
                     <StatusLink info={I18n.t("connection.production.contract")}
                                 action={() => setTab("contract")}
