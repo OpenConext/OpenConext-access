@@ -1022,6 +1022,7 @@ const nl = {
         allLoa: "Alle LoA-niveaus",
         allConsent: "Alle toestemmingstypen",
         loa: {
+            loa1: "LoA 1",
             loa1_5: "LoA 1.5",
             loa2: "LoA 2",
             loa3: "LoA 3",

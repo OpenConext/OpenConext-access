@@ -1022,6 +1022,7 @@ const en = {
         allLoa: "All LoA levels",
         allConsent: "All consent types",
         loa: {
+            loa1: "LoA 1",
             loa1_5: "LoA 1.5",
             loa2: "LoA 2",
             loa3: "LoA 3",
