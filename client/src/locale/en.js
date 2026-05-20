@@ -193,7 +193,7 @@ const en = {
         migrate: "App migration",
         cron: "Cron",
         consent: "Consent",
-        assurance: "Assurance"
+        assurance: "Assurance",
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -606,9 +606,9 @@ const en = {
             dummyIdP: "Activate dummy IdP's after comfirmation",
             next: "Save and try out",
             appInformationIncomplete: "Before requesting production-ready status, all the application information must be filled in",
-            pendingProdDisclaimer:"This connection is pending production-ready status. If you want to test connections, create a new connection",
-            prodDisclaimer:"This connection has production-ready status. If you want to test connections, create a new connection",
-            fillAppInformation: "Do it now"
+            pendingProdDisclaimer: "This connection is pending production-ready status. If you want to test connections, create a new connection",
+            prodDisclaimer: "This connection has production-ready status. If you want to test connections, create a new connection",
+            fillAppInformation: "Do it now",
         },
     },
     testing: {
@@ -1227,9 +1227,8 @@ const en = {
         warningEN: "Warning (English)",
         warningNL: "Warning (Dutch)",
         flash: {
-            consentUpdated: "Consent has been updated"
-        }
-
+            consentUpdated: "Consent has been updated",
+        },
     },
     error: {
         title: "Whoops, error!!!",

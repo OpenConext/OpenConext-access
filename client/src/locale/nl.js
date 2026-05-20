@@ -193,7 +193,7 @@ const nl = {
         migrate: "App‑migratie",
         cron: "Cron",
         consent: "Consent",
-        assurance: "Assurance"
+        assurance: "Assurance",
     },
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
@@ -608,7 +608,7 @@ const nl = {
             appInformationIncomplete: "Voordat de status 'productieklaar' wordt aangevraagd, moet alle applicatie-informatie zijn ingevuld",
             pendingProdDisclaimer: "Deze koppeling wacht op de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
             prodDisclaimer: "Deze koppeling heeft de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
-            fillAppInformation: "Do it now"
+            fillAppInformation: "Do it now",
         },
     },
     testing: {
@@ -1213,6 +1213,21 @@ const nl = {
             deleteQuestion: "Weet je zeker dat je deze policy wilt verwijderen?",
             activateQuestion: "Weet je zeker dat je deze policy wilt activeren?",
             pauseQuestion: "Weet je zeker dat je deze policy wilt pauzeren? Deze policy wordt dan niet meer geëvalueerd.",
+        },
+    },
+    consent: {
+        title: "Toestemming",
+        example: "Voorbeeld",
+        info: "Standaard wordt nieuwe gebruikers om toestemming gevraagd voor het versturen van persoonsgegevens naar deze applicatie.",
+        type: "Type toestemming",
+        default_consent: "Vraag gebruikers expliciet om toestemming voor het vrijgeven van hun attributen",
+        minimal_consent: "Minimale toestemming zonder attributen",
+        no_consent: "Vraag gebruikers niet om toestemming",
+        warnings: "U kunt optioneel een waarschuwing toevoegen aan het toestemmingsscherm waarin staat dat de applicatie geen officiële institutionele app is en er geen ondersteuning verwacht mag worden. Zie onze <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74220197/Inloggen+via+SURFconext' target='_blank'>wiki</a> voor meer informatie.",
+        warningEN: "Waarschuwing (Engels)",
+        warningNL: "Waarschuwing (Nederlands)",
+        flash: {
+            consentUpdated: "Toestemming is bijgewerkt",
         },
     },
     error: {
