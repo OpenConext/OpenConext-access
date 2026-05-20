@@ -1,6 +1,7 @@
 package access.manage;
 
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Organization;
@@ -26,9 +27,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static access.manage.ManageData.getData;
@@ -105,12 +108,8 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> saveIdentityProvider(Map<String, Object> provider) {
-        Map<String, Object> providerFromManage = providerByManageIdentifier(EntityType.saml20_idp, (String) provider.get("id"));
-        //Prevent optimistic locking exception
-        provider.put("version", providerFromManage.get("version"));
-
-        return internalSaveProvider(provider);
+    public Map<String, Object>  saveIdentityProvider(Map<String, Object> identityProvider) {
+        return internalSaveProvider(identityProvider);
     }
 
     @SneakyThrows

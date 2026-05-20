@@ -103,8 +103,8 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> saveIdentityProvider(Map<String, Object> provider) {
-        return provider;
+    public Map<String, Object>  saveIdentityProvider(Map<String, Object> identityProvider) {
+        return identityProvider;
     }
 
     @SneakyThrows

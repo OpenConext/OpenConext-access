@@ -14,7 +14,7 @@ public interface Manage {
 
     Map<String, Object> saveIdentityProvider(Organization organization);
 
-    Map<String, Object> saveIdentityProvider(Map<String, Object> provider);
+    Map<String, Object> saveIdentityProvider(Map<String, Object> identityProvider);
 
     Map<String, Object> saveProvider(Connection connection);
 

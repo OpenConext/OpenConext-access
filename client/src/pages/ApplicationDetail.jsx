@@ -9,7 +9,7 @@ import {
     getPolicyByServiceProviderEntityId,
     inviteRoles,
     publicServiceProviderByDetail,
-    saveIdentityProvider
+    saveIdentityProviderConsent
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
@@ -551,18 +551,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     }
     const submitConsentChanges = () => {
-        const identityProvider = currentOrganization.identityProvider;
-        const disableConsent = (identityProvider.data.disableConsent || []);
-        const currentConsent = disableConsent.find(entry => entry.name === consent.name);
-        if (currentConsent) {
-            currentConsent.type = consent.type;
-            currentConsent["explanation:nl"] = consent["explanation:nl"];
-            currentConsent["explanation:en"] = consent["explanation:en"];
-        } else {
-            disableConsent.push(consent);
-        }
+        const newConsent = {...consent, identityProviderId: currentOrganization.identityProvider.id}
         setLoading(true);
-        saveIdentityProvider(identityProvider)
+        saveIdentityProviderConsent(newConsent)
             .then(() => {
                 setFlash(I18n.t("consent.flash.consentUpdated"));
                 setLoading(false);
@@ -571,7 +562,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderConsent = () => {
-
         return (
             <div className="consent-container">
                 <div className="consent-left">

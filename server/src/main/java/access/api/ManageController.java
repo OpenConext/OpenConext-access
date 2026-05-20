@@ -5,6 +5,7 @@ import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
 import access.manage.ChangeRequest;
+import access.manage.Consent;
 import access.manage.Manage;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
@@ -26,7 +27,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static access.api.Results.createResult;
 import static access.manage.ManageData.getData;
 
 @RestController
@@ -229,18 +231,41 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
-    @PutMapping("/metadata")
-    public ResponseEntity<Map<String, Object>> updateMetaData(User user,
-                                                              @RequestBody Map<String, Object> metaData) {
-        Organization organization = organizationRepository.findByManageIdentifier((String) metaData.get("id"))
+    @PutMapping("/update/consent")
+    public ResponseEntity<Map<String, Object>> updateMetaDataConsent(User user,
+                                                                     @RequestBody Consent consent) {
+        LOG.debug("/updateMetaDataConsent for " + consent + " for " + user.getEmail());
+
+        Organization organization = organizationRepository.findByManageIdentifier(consent.identityProviderId())
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
         User userFromDB = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
-        manage.saveIdentityProvider(metaData);
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, consent.identityProviderId());
+        Map<String, Object> data = getData(identityProvider);
+        //Ensure the application is connected to this IdP
+        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.get("allowedEntities");
+        if (allowedEntities.stream()
+                .noneMatch(entity -> consent.name().equals(entity.get("name")))) {
+            throw new UserRestrictionException(String.format("%s is not allowed to uppdate consent for %s because this application is not connected to %s",
+                    user.getEmail(),
+                    consent.name(),
+                    consent.identityProviderId()
+            ));
+        }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(metaData);
+        List<Map<String, String>> disableConsent = (List<Map<String, String>>) data.computeIfAbsent("disableConsent", key -> new ArrayList<>());
+        Optional<Map<String, String>> optionalCurrentConsent = disableConsent.stream()
+                .filter(entry -> consent.name().equals(entry.get("name")))
+                .findFirst();
+        optionalCurrentConsent.ifPresentOrElse(
+                currentConsent -> consent.updateManageMap(currentConsent),
+                () -> disableConsent.add(consent.toManageMap()));
+
+        manage.saveIdentityProvider(identityProvider);
+
+        return createResult();
     }
 
     @DeleteMapping("/policies/{policyId}")

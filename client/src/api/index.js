@@ -232,8 +232,8 @@ export function createApplicationMembership(organizationMembershipId, applicatio
 }
 
 //Manage
-export function saveIdentityProvider(identityProvider) {
-    return postPutJson("/api/v1/manage/metadata", identityProvider, "PUT");
+export function saveIdentityProviderConsent(consent) {
+    return postPutJson("/api/v1/manage/update/consent", consent, "PUT");
 }
 
 export function revokeChangeRequest(changeRequest) {
