@@ -172,6 +172,10 @@ const ApplicationOverview = ({accessible}) => {
             if (source !== "all") {
                 sourceHit = !isEmpty(fed) && fed === source;
             }
+            const isVendor = isEmpty(currentOrganization.manageIdentifier);
+            if (isVendor || !accessible) {
+                return tagHit && sourceHit;
+            }
             let loaHit = true;
             if (loa !== "all") {
                 const stepupEntities = currentOrganization.identityProvider?.data?.stepupEntities || [];

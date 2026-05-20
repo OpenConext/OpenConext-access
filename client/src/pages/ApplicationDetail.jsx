@@ -162,12 +162,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const toggleShowAttributes = e => {
         stopEvent(e);
-        setShowAttributes(true);
+        setShowAttributes(!showAttributes);
     }
 
     const toggleShowPrivacy = e => {
         stopEvent(e);
-        setShowPrivacy(true);
+        setShowPrivacy(!showPrivacy);
     }
 
     const findArpEntry = urn => {
@@ -604,6 +604,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         </>
                     }
                 </div>}
+                {showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                    {I18n.t("applicationDetail.hide")}
+                </a>}
             </div>
         );
     }
@@ -633,6 +636,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         }
                     )}
                 </div>}
+            {showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+                {I18n.t("applicationDetail.hide")}
+            </a>}
+
         </div>;
     }
 

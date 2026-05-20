@@ -397,6 +397,58 @@
         "nl": "UID"
       },
       "example": "urn:collab:person:example.com:admin"
+    },
+    {
+      "name": "eduPersonTargetedID",
+      "urn": "urn:mace:dir:attribute-def:eduPersonTargetedID",
+      "info": {
+        "en": "eduPersonTargetedID",
+        "nl": "eduPersonTargetedID"
+      },
+      "friendlyNames": {
+        "en": "Edu person targeted ID",
+        "nl": "Edu person targeted ID"
+      },
+      "example": "64e6432e09d018d5a3bf40683f97ec392fec9d5d"
+    },
+    {
+      "name": "nlEduPersonOrgUnit",
+      "urn": "urn:mace:surffederatie.nl:attribute-def:nlEduPersonOrgUnit",
+      "info": {
+        "en": "nlEduPersonOrgUnit",
+        "nl": "nlEduPersonOrgUnit"
+      },
+      "friendlyNames": {
+        "en": "Edu person organisation unit",
+        "nl": "Edu persoon organisatie unit"
+      },
+      "example": "teachers"
+    },
+    {
+      "name": "nlEduPersonStudyBranch",
+      "urn": "urn:mace:surffederatie.nl:attribute-def:nlEduPersonStudyBranch",
+      "info": {
+        "en": "nlEduPersonStudyBranch",
+        "nl": "nlEduPersonStudyBranch"
+      },
+      "friendlyNames": {
+        "en": "Edu person study branch",
+        "nl": "Edu persoon studie branch"
+      },
+      "example": "teachers"
+    },
+    {
+      "name": "nlStudielinkNummer",
+      "urn": "urn:mace:surffederatie.nl:attribute-def:nlStudielinkNummer",
+      "info": {
+        "en": "nlStudielinkNummer",
+        "nl": "nlStudielinkNummer"
+      },
+      "friendlyNames": {
+        "en": "nlStudielinkNummer",
+        "nl": "nlStudielinkNummer"
+      },
+      "example": "teachers"
     }
   ]
 }

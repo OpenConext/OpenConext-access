@@ -787,6 +787,7 @@ const nl = {
         attributes: "Attributen",
         attributesInfo: "De applicatie heeft attributen nodig om correct te functioneren.",
         details: "Toon details",
+        hide: "Verberg details",
         privacy: "Privacy",
         privacyInfo: "SURF vraagt leveranciers informatie over hun GDPR‑beleid. Voor ontbrekende gegevens neem je contact op met de leverancier.",
         quickLinks: "Snelle links",

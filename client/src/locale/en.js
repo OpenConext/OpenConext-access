@@ -787,6 +787,7 @@ const en = {
         attributes: "Attributes",
         attributesInfo: "The application needs to receive attributes to function correctly.",
         details: "Show details",
+        hide: "Hide details",
         privacy: "Privacy",
         privacyInfo: "SURF asks suppliers to provide information about their GDPR (AVG) policies. For anything missing, please contact the supplier.",
         quickLinks: "Quick links",
