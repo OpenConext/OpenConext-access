@@ -8,7 +8,8 @@ import {
     disconnectServiceProviderToIdentityProvider,
     getPolicyByServiceProviderEntityId,
     inviteRoles,
-    publicServiceProviderByDetail
+    publicServiceProviderByDetail,
+    saveIdentityProvider
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
@@ -18,9 +19,12 @@ import {Alert, AlertType, Button, ButtonIconPlacement, ButtonType, Chip, ChipTyp
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
+
+import ExampleSVG from "../icons/wayf.svg";
 import {
     APPLICATION_LINKS,
     connectWithoutInteraction,
+    CONSENT,
     isAccessRoleReady,
     providerDescription,
     providerName,
@@ -36,6 +40,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
+import SelectField from "../components/SelectField.jsx";
 
 const confirmationModalOptions = {
     makeConnection: "makeConnection",
@@ -44,6 +49,15 @@ const confirmationModalOptions = {
     cancelConnection: "cancelConnection",
     requestDisconnectConnection: "requestDisconnectConnection",
 }
+
+const tabs = {
+    access: "access",
+    information: "information",
+    consent: "consent",
+    assurance: "assurance"
+}
+
+const consentOptions = Object.keys(CONSENT).map(k => ({label: I18n.t(`consent.${k}`), value: k}));
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
@@ -57,9 +71,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     })));
 
     const navigate = useNavigate();
-    const {manageType, manageId, tab = "access"} = useParams();
+    const {manageType, manageId, tab = tabs.access} = useParams();
 
-    const [tabNames, setTabNames] = useState(["access", "information"]);
+    const [tabNames, setTabNames] = useState(Object.values(tabs));
     const [currentTab, setCurrentTab] = useState(tab);
     const [loading, setLoading] = useState(true);
     const [serviceProvider, setServiceProvider] = useState({});
@@ -72,6 +86,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [confirmation, setConfirmation] = useState({});
     const [confirmationModalOption, setConfirmationModalOption] = useState(null);
     const [message, setMessage] = useState("");
+    const [consent, setConsent] = useState({type: CONSENT.default_consent});
     const [memberRequestSend, setMemberRequestSend] = useState(false);
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
@@ -88,13 +103,14 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     setLoading(false);
                     return;
                 }
+                const entityId = res.data.entityid;
                 //See if this application is already connected
                 const {
                     isAccessible,
                     isReadOnly,
                     isPendingDisconnect,
                     ticketKey
-                } = deriveAccess(currentOrganization, res.data.entityid);
+                } = deriveAccess(currentOrganization, entityId);
                 const adminUser = isAdmin(user, currentOrganization, authorities);
                 setAccessible(isAccessible);
                 setIsAdminUser(adminUser);
@@ -116,21 +132,30 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 if (isAccessible) {
                     if (adminUser) {
                         if (isReadOnly) {
+                            setTabNames([tabs.access, tabs.information]);
                             setLoading(false);
                         } else {
                             Promise.all([
-                                getPolicyByServiceProviderEntityId(res.data.entityid, currentOrganization.id),
+                                getPolicyByServiceProviderEntityId(entityId, currentOrganization.id),
                                 inviteRoles(user.organizationGUID, res.id)])
                                 .then(res => {
                                     res[0].forEach(policy => policy.originalName = policy.name);
                                     setPolicies(res[0]);
                                     setAccessRoles(res[1]);
                                     setLoading(false);
+                                    const currentConsent = (currentOrganization.identityProvider.data.disableConsent || [])
+                                        .find(entry => entry.name === entityId);
+                                    setConsent(isEmpty(currentConsent) ? {
+                                        name: entityId,
+                                        type: CONSENT.default_consent,
+                                        "explanation:nl": "",
+                                        "explanation:en": ""
+                                    } : currentConsent)
                                 })
                         }
                     } else {
-                        setTabNames(["information"]);
-                        setCurrentTab("information");
+                        setTabNames([tabs.information]);
+                        setCurrentTab(tabs.information);
                         setLoading(false);
                     }
                 } else {
@@ -391,10 +416,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const renderCurrentTab = () => {
         switch (currentTab) {
-            case  "access": {
+            case  tabs.access: {
                 return renderAccessApp();
             }
-            case  "information": {
+            case  tabs.information: {
+                return renderInformation();
+            }
+            case  tabs.consent: {
+                return renderConsent();
+            }
+            case  tabs.assurance: {
                 return renderInformation();
             }
         }
@@ -504,6 +535,81 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </>
                 </div>
             </>
+        );
+    }
+
+    const cancelConsentChanges = () => {
+        const entityId = serviceProvider.data.entityid;
+        const currentConsent = (currentOrganization.identityProvider.data.disableConsent || [])
+            .find(entry => entry.name === entityId);
+        setConsent(isEmpty(currentConsent) ? {
+            name: entityId,
+            type: CONSENT.default_consent,
+            "explanation:nl": "",
+            "explanation:en": ""
+        } : currentConsent)
+
+    }
+    const submitConsentChanges = () => {
+        const identityProvider = currentOrganization.identityProvider;
+        const disableConsent = (identityProvider.data.disableConsent || []);
+        const currentConsent = disableConsent.find(entry => entry.name === consent.name);
+        if (currentConsent) {
+            currentConsent.type = consent.type;
+            currentConsent["explanation:nl"] = consent["explanation:nl"];
+            currentConsent["explanation:en"] = consent["explanation:en"];
+        } else {
+            disableConsent.push(consent);
+        }
+        setLoading(true);
+        saveIdentityProvider(identityProvider)
+            .then(() => {
+                setFlash(I18n.t("consent.flash.consentUpdated"));
+                setLoading(false);
+                refreshUser();
+            })
+    }
+
+    const renderConsent = () => {
+
+        return (
+            <div className="consent-container">
+                <div className="consent-left">
+                    <h2>{I18n.t("consent.title")}</h2>
+                    <p className="info" dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("consent.info"))
+                    }}/>
+                    <SelectField name={I18n.t("consent.type")}
+                                 className="select-consent"
+                                 value={consentOptions.find(option => option.value === consent.type)}
+                                 options={consentOptions}
+                                 searchable={false}
+                                 clearable={false}
+                                 onChange={option => setConsent({...consent, type: option.value})}
+                    />
+                    <p className="warnings" dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("consent.warnings"))
+                    }}/>
+                    <InputField name={I18n.t("consent.warningEN")}
+                                value={consent["explanation:en"]}
+                                onChange={e => setConsent({...consent, ["explanation:en"]: e.target.value})}/>
+                    <InputField name={I18n.t("consent.warningNL")}
+                                value={consent["explanation:nl"]}
+                                onChange={e => setConsent({...consent, ["explanation:nl"]: e.target.value})}/>
+                    <div className="consent-actions">
+                        <Button onClick={() => cancelConsentChanges()}
+                                type={ButtonType.Secondary}
+                                txt={I18n.t("forms.cancel")}/>
+                        <Button onClick={() => submitConsentChanges()}
+                                txt={I18n.t("forms.save")}/>
+                    </div>
+
+                </div>
+                <div className="consent-right">
+                    <h2>{I18n.t("consent.example")}</h2>
+                    <ExampleSVG/>
+                </div>
+            </div>
         );
     }
 

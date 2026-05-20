@@ -102,6 +102,11 @@ public final class LocalManage implements Manage {
         return provider;
     }
 
+    @Override
+    public Map<String, Object> saveIdentityProvider(Map<String, Object> provider) {
+        return provider;
+    }
+
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {

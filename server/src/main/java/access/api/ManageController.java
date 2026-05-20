@@ -1,6 +1,7 @@
 package access.api;
 
 import access.exception.InvalidInputException;
+import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
 import access.manage.ChangeRequest;
@@ -25,6 +26,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,7 +136,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         Organization organization = organizationRepository.getReferenceById(organizationId);
 
-        user = reinitializeUser(user ,userRepository);
+        user = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
         boolean isIdentityProvider = StringUtils.hasText(organization.getManageIdentifier());
@@ -227,6 +229,19 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 
+    @PutMapping("/metadata")
+    public ResponseEntity<Map<String, Object>> updateMetaData(User user,
+                                                              @RequestBody Map<String, Object> metaData) {
+        Organization organization = organizationRepository.findByManageIdentifier((String) metaData.get("id"))
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+
+        manage.saveIdentityProvider(metaData);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(metaData);
+    }
 
     @DeleteMapping("/policies/{policyId}")
     @Transactional(readOnly = true)

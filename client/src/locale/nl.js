@@ -192,6 +192,8 @@ const nl = {
         import: "Import beheren",
         migrate: "App‑migratie",
         cron: "Cron",
+        consent: "Consent",
+        assurance: "Assurance"
     },
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",

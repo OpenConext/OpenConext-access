@@ -361,4 +361,43 @@ div.application-detail-container {
 
     }
 
+    .consent-container {
+        display: flex;
+        width: 75%;
+        gap: 80px;
+
+        .consent-left {
+            display: flex;
+            flex-direction: column;
+
+            p {
+                &.info {
+                    margin-top: 20px;
+                }
+
+                &.warnings {
+                    margin-top: 40px;
+                }
+            }
+        }
+
+        .consent-actions {
+            display: flex;
+            margin-top: 40px;
+            gap: 25px;
+            button:first-child {
+                margin-left: auto;
+            }
+        }
+
+        .consent-right {
+            margin-left: auto;
+
+            svg {
+                margin-top: 20px;
+                width: 360px;
+                height: auto;
+            }
+        }
+    }
 }

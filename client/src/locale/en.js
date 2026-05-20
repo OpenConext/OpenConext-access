@@ -188,10 +188,12 @@ const en = {
         joins: "Join Requests",
         invitations: "Invitations",
         access: "Access",
-        information: "App information",
+        information: "Overview",
         import: "Manage import",
         migrate: "App migration",
         cron: "Cron",
+        consent: "Consent",
+        assurance: "Assurance"
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -1212,6 +1214,22 @@ const en = {
             activateQuestion: "Are you sure you want to activate this policy?",
             pauseQuestion: "Are you sure you want to pause this policy? The policy will no longer be evaluated.",
         },
+    },
+    consent: {
+        title: "Consent",
+        example: "Example",
+        info: "By default new users will be asked permission for sending personal data to this application.",
+        type: "Type of consent",
+        default_consent: "Explicitly ask users for consent to release their attributes",
+        minimal_consent: "Minimal consent without attributes",
+        no_consent: "Do not ask users for consent",
+        warnings: "You can optionally add a warning to the consent screen stating the application is not an official institutional app and no support should be expected. See our <a href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74220197/Inloggen+via+SURFconext' target='_blank'>wiki</a> (Dutch) for details.",
+        warningEN: "Warning (English)",
+        warningNL: "Warning (Dutch)",
+        flash: {
+            consentUpdated: "Consent has been updated"
+        }
+
     },
     error: {
         title: "Whoops, error!!!",

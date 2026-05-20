@@ -104,6 +104,15 @@ public class RemoteManage implements Manage {
         return internalSaveProvider(provider);
     }
 
+    @Override
+    public Map<String, Object> saveIdentityProvider(Map<String, Object> provider) {
+        Map<String, Object> providerFromManage = providerByManageIdentifier(EntityType.saml20_idp, (String) provider.get("id"));
+        //Prevent optimistic locking exception
+        provider.put("version", providerFromManage.get("version"));
+
+        return internalSaveProvider(provider);
+    }
+
     @SneakyThrows
     @Override
     public Map<String, Object> saveProvider(Connection connection) {

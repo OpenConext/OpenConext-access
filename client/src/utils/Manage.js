@@ -128,3 +128,9 @@ export const connectWithoutInteraction = (metaData, user) => {
     return connectOption !== "connect_with_interaction" || sameInstitution;
 
 }
+
+export const CONSENT = {
+    no_consent: "no_consent",
+    minimal_consent: "minimal_consent",
+    default_consent: "default_consent"
+}
