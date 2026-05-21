@@ -266,7 +266,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                 currentConsent -> consent.updateManageMap(currentConsent),
                 () -> disableConsent.add(consent.toManageMap()));
         String revisionNote = this.revisionNote("Consent", user, identityProvider, consent.name());
-        identityProvider.put("revisionnote", revisionNote);
+        data.put("revisionnote", revisionNote);
         manage.saveIdentityProvider(identityProvider);
 
         return createResult();
@@ -331,7 +331,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                     });
         }
         String revisionNote = this.revisionNote("Assurance", user, identityProvider, assurance.stepupEntity().name());
-        identityProvider.put("revisionnote", revisionNote);
+        data.put("revisionnote", revisionNote);
         manage.saveIdentityProvider(identityProvider);
         return createResult();
     }
