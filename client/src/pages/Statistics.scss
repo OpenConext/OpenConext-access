@@ -118,6 +118,10 @@
         h1 {
             line-height: 2.25rem;
         }
+        p.no-comparison {
+            color: var(--sl-color-neutral-500);
+            align-self: center;
+        }
         span {
             &.blue {
                 background-color: var(--sds--color--blue--400);

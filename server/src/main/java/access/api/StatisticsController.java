@@ -31,10 +31,10 @@ public class StatisticsController {
      * Non-SURFnet users are restricted to their own IdP — always enforced server-side.
      */
     private String resolveIdpEntityId(User user) {
-        String surfSchacHome = config.getSurfSchacHomeOrganization();
-        if (user.isSuperUser()) {
+        if (user == null || user.isSuperUser()) {
             return null;
         }
+        String surfSchacHome = config.getSurfSchacHomeOrganization();
         if (StringUtils.hasText(surfSchacHome) && surfSchacHome.equals(user.getSchacHomeOrganization())) {
             return null;
         }
@@ -47,8 +47,9 @@ public class StatisticsController {
                                        @RequestParam("from") long from,
                                        @RequestParam("to") long to,
                                        @RequestParam("scale") Scale scale,
-                                       @RequestParam(value = "spEntityId", required = false) String spEntityId) {
-        return statistics.loginTimeFrame(from, to, scale.name(), resolveIdpEntityId(user), spEntityId);
+                                       @RequestParam(value = "spEntityId", required = false) String spEntityId,
+                                       @RequestParam(value = "includeUnique", required = false, defaultValue = "true") boolean includeUnique) {
+        return statistics.loginTimeFrame(from, to, scale.name(), resolveIdpEntityId(user), spEntityId, includeUnique);
     }
 
     //Used for retrieval of all logins for all SPs

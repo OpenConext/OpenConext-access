@@ -116,6 +116,7 @@ public class SecurityConfig {
                                 "/api/v1/test/login",
                                 "/api/v1/public/**",
                                 "/api/v1/manage/arp",
+                                "/api/v1/stats/loginTimeFrame",
                                 "/api/v1/manage/allowed-attributes",
                                 "/api/v1/manage/privacy",
                                 "/ui/**",
@@ -136,7 +137,7 @@ public class SecurityConfig {
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
                 .securityContext(securityContextConfigurer ->
                         securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
-        if (environment.acceptsProfiles(Profiles.of("local"))) {
+        if (environment.acceptsProfiles(Profiles.of("dev"))) {
             //Thus avoiding an oauth2 login for local development
             http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
         }

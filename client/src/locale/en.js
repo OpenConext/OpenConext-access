@@ -39,6 +39,7 @@ const en = {
             connect: "How to connect",
             institutions: "Institutions",
             applications: "Applications",
+            stats: "Statistics"
         },
         applicationProviders: {
             title: "For application providers",
@@ -1372,6 +1373,11 @@ const en = {
         clearSearch: "Clear search",
         showingResultsFor: "Showing results for '{{label}}'",
         removeFilter: "Remove filter",
+        loginPublic: "Login data of SURFconext applications.",
+        comparedToLastPeriod: "compared to last period",
+        comparedToLast3Periods: "compared to last 3 periods",
+        minute: "Minute",
+        hour: "Hour",
     },
     system: {
         cron: {

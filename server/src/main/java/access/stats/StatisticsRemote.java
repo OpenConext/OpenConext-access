@@ -32,11 +32,12 @@ public class StatisticsRemote implements Statistics {
         this.baseUrl = baseUrl;
     }
 
-    public List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId) {
+    public List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId, boolean includeUnique) {
         UriComponentsBuilder builder = baseBuilder("/public/login_time_frame", idpEntityId)
                 .queryParam("from", from)
                 .queryParam("to", to)
                 .queryParam("scale", scale)
+                .queryParam("include_unique", includeUnique)
                 .queryParam("epoch", "ms");
         if (StringUtils.hasText(spEntityId)) {
             builder.queryParam("sp_id", spEntityId);
@@ -69,8 +70,7 @@ public class StatisticsRemote implements Statistics {
     private UriComponentsBuilder baseBuilder(String path, String idpEntityId) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(baseUrl)
-                .path(path)
-                .queryParam("include_unique", true);
+                .path(path);
         if (StringUtils.hasText(idpEntityId)) {
             builder.queryParam("idp_id", idpEntityId);
         }

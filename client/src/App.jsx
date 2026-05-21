@@ -45,6 +45,7 @@ import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
 import Statistics from "./pages/Statistics.jsx";
 import {currentOrganizationFromUser} from "./utils/Organization.js";
+import PublicStats from "./pages/PublicStats.jsx";
 
 const App = () => {
 
@@ -181,6 +182,7 @@ const App = () => {
                         <Route path="/institutions" element={<Institutions/>}/>
                         <Route path="/connect" element={<Connect/>}/>
                         <Route path="/applications" element={<Applications/>}/>
+                        <Route path="/stats" element={<PublicStats/>}/>
                         <Route path="/login-info" element={<LoginInfo/>}/>
                         <Route path="/application-detail/:manageType/:manageId"
                                element={<ApplicationDetail anonymous={true}/>}/>

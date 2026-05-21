@@ -50,7 +50,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             //The user has logged in with OpenIDConnect. Access is acting as a backend server
             attributes = authenticationToken.getPrincipal().getAttributes();
-        } else if (requestURI.equals("/api/v1/users/config")) {
+        } else if (requestURI.equals("/api/v1/users/config") || requestURI.startsWith("/api/v1/stats/loginTimeFrame")) {
             //This call is always allowed
             return null;
         } else {

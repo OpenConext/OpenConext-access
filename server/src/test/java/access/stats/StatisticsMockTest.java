@@ -18,7 +18,7 @@ class StatisticsMockTest {
 
     @Test
     void loginTimeFrame() {
-        List<Object> stats = statistics.loginTimeFrame(oneMonthAgo(), now(), Scale.month.name(), "http://mock-idp", "http://mock-sp");
+        List<Object> stats = statistics.loginTimeFrame(oneMonthAgo(), now(), Scale.month.name(), "http://mock-idp", "http://mock-sp", true);
         assertEquals(1001, stats.size());
     }
 

@@ -26,13 +26,13 @@ public class StatisticsMock implements Statistics {
     }
 
     @Override
-    public List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId) {
+    public List<Object> loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId, boolean includeUnique) {
         long step = step(scale);
         List<Object> result = new ArrayList<>();
         for (long i = from; i <= to; i += step) {
             Map<String, Object> point = new HashMap<>();
             point.put("count_user_id", countValue());
-            if (!"minute".equals(scale) && !"hour".equals(scale)) {
+            if (includeUnique) {
                 point.put("distinct_count_user_id", countValue());
             }
             if (StringUtils.hasText(spEntityId)) {

@@ -437,9 +437,9 @@ export function publicServiceProviderByDetail(type, identifier) {
 }
 
 //Stats
-export function loginTimeFrame(from, to, scale, spEntityId) {
+export function loginTimeFrame(from, to, scale, spEntityId, includeUnique = true) {
     const sp = !isEmpty(spEntityId) ? `&spEntityId=${encodeURIComponent(spEntityId)}` : ''
-    return fetchJson(`/api/v1/stats/loginTimeFrame?from=${from}&to=${to}&scale=${scale}&${sp}`)
+    return fetchJson(`/api/v1/stats/loginTimeFrame?from=${from}&to=${to}&scale=${scale}&includeUnique=${includeUnique}${sp}`)
 }
 
 export function loginAggregated(period, spEntityId, groupBy) {

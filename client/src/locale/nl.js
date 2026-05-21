@@ -39,6 +39,7 @@ const nl = {
             connect: "Hoe koppelen",
             institutions: "Instellingen",
             applications: "Applicaties",
+            stats: "Statistieken",
         },
         applicationProviders: {
             title: "Voor applicatie‑aanbieders",
@@ -1372,6 +1373,11 @@ const nl = {
         clearSearch: "Zoekopdracht wissen",
         showingResultsFor: "Resultaten voor '{{label}}'",
         removeFilter: "Filter verwijderen",
+        loginPublic: "Inloggegevens van SURFconext applicaties.",
+        comparedToLastPeriod: "ten opzichte van vorige periode",
+        comparedToLast3Periods: "ten opzichte van 3 periodes geleden",
+        minute: "Minuut",
+        hour: "Uur",
     },
     system: {
         cron: {

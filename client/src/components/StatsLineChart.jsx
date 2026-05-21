@@ -26,7 +26,7 @@ const resolveColor = (varName, fallback) => {
     return val || fallback;
 };
 
-const StatsLineChart = ({data, labels}) => {
+const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
     if (!data || data.length === 0) {
         return null;
     }
@@ -34,35 +34,42 @@ const StatsLineChart = ({data, labels}) => {
     const blue = resolveColor("--sds--color--blue--400", "#0077c8");
     const green = resolveColor("--sds--color--green--400", "#00a650");
 
+    const pointRadius = fluent ? 0 : 5;
+    const pointHoverRadius = fluent ? 4 : 7;
+    const tension = fluent ? 0.3 : 0.1;
+
     const logins = data.map(d => d.count_user_id || 0);
     const unique = data.map(d => d.distinct_count_user_id || 0);
-    const chartData = {
-        labels,
-        datasets: [
-            {
-                label: I18n.t("statistics.logins"),
-                data: logins,
-                borderColor: blue,
-                backgroundColor: blue,
-                pointStyle: "circle",
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                tension: 0.1,
-                borderWidth: 2,
-            },
-            {
-                label: I18n.t("statistics.uniqueUsers"),
-                data: unique,
-                borderColor: green,
-                backgroundColor: green,
-                pointStyle: "rect",
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                tension: 0.1,
-                borderWidth: 2,
-            },
-        ],
-    };
+
+    const datasets = [
+        {
+            label: I18n.t("statistics.logins"),
+            data: logins,
+            borderColor: blue,
+            backgroundColor: blue,
+            pointStyle: "circle",
+            pointRadius,
+            pointHoverRadius,
+            tension,
+            borderWidth: 2,
+        },
+    ];
+
+    if (showUnique) {
+        datasets.push({
+            label: I18n.t("statistics.uniqueUsers"),
+            data: unique,
+            borderColor: green,
+            backgroundColor: green,
+            pointStyle: "rect",
+            pointRadius,
+            pointHoverRadius,
+            tension,
+            borderWidth: 2,
+        });
+    }
+
+    const chartData = {labels, datasets};
 
     const options = {
         responsive: true,
@@ -112,10 +119,12 @@ const StatsLineChart = ({data, labels}) => {
                         <span className="legend-dot blue"/>
                         {I18n.t("statistics.logins")}
                     </span>
-                    <span className="legend-item">
-                        <span className="legend-dot green"/>
-                        {I18n.t("statistics.uniqueUsers")}
-                    </span>
+                    {showUnique && (
+                        <span className="legend-item">
+                            <span className="legend-dot green"/>
+                            {I18n.t("statistics.uniqueUsers")}
+                        </span>
+                    )}
                 </div>
             </div>
             <div className="chart-wrapper">

@@ -28,7 +28,7 @@ class StatisticsRemoteTest {
                 .withQueryParam("to", equalTo("2000"))
                 .willReturn(okJson("[]")));
 
-        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", IDP, null);
+        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", IDP, null, true);
 
         assertNotNull(result);
 
@@ -38,7 +38,7 @@ class StatisticsRemoteTest {
         List<ServeEvent> events = wireMock.getAllServeEvents();
         String rawUrl = events.get(0).getRequest().getUrl();
         // = and & inside the idp_id value must be encoded, but ? / : must NOT be double-encoded
-        assertEquals("/public/login_time_frame?include_unique=true&idp_id=http://login.surf.nl/adfs/services/trust?q%3D1%26k%3D2&from=1000&to=2000&scale=day&epoch=ms", rawUrl);
+        assertEquals("/public/login_time_frame?idp_id=http://login.surf.nl/adfs/services/trust?q%3D1%26k%3D2&from=1000&to=2000&scale=day&include_unique=true&epoch=ms", rawUrl);
     }
 
     @Test
@@ -46,7 +46,7 @@ class StatisticsRemoteTest {
         stubFor(get(urlPathEqualTo("/public/login_time_frame"))
                 .willReturn(okJson("[]")));
 
-        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", IDP, "https://sp.example.org/shibboleth");
+        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", IDP, "https://sp.example.org/shibboleth", true);
 
         assertNotNull(result);
 
@@ -59,7 +59,7 @@ class StatisticsRemoteTest {
         stubFor(get(urlPathEqualTo("/public/login_time_frame"))
                 .willReturn(okJson("[]")));
 
-        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", null, null);
+        List<Object> result = stats.loginTimeFrame(1000, 2000, "day", null, null, true);
 
         assertNotNull(result);
 
