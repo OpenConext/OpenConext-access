@@ -4,9 +4,11 @@ import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
+import access.manage.Assurance;
 import access.manage.ChangeRequest;
 import access.manage.Consent;
 import access.manage.Manage;
+import access.manage.StepUpType;
 import access.manage.MetaData;
 import access.manage.MetaDataFeedParser;
 import access.manage.PolicyAccessRights;
@@ -48,6 +50,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -265,6 +268,69 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         manage.saveIdentityProvider(identityProvider);
 
+        return createResult();
+    }
+
+    @PutMapping("/update/assurance")
+    public ResponseEntity<Map<String, Object>> updateMetaDataAssurance(User user,
+                                                                       @RequestBody Assurance assurance) {
+        LOG.debug("/updateMetaDataAssurance for " + assurance + " for " + user.getEmail());
+
+        Organization organization = organizationRepository.findByManageIdentifier(assurance.identityProviderId())
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        int loaLevel = user.getLoaLevel();
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
+
+        if (assurance.stepupEntity().level() != null) {
+            StepUpType stepUpType = StepUpType.fromLevel(assurance.stepupEntity().level());
+            if (loaLevel < stepUpType.getRequiredLoaLevel()) {
+                throw new UserRestrictionException(String.format(
+                        "User %s has loaLevel %d but stepUpType %s requires loaLevel %d",
+                        user.getEmail(), loaLevel,
+                        stepUpType, stepUpType.getRequiredLoaLevel()));
+            }
+        }
+
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, assurance.identityProviderId());
+        Map<String, Object> data = getData(identityProvider);
+
+        List<Map<String, String>> mfaEntities = (List<Map<String, String>>) data.computeIfAbsent("mfaEntities", key -> new ArrayList<>());
+        if (assurance.mfaEntity().level() == null) {
+            mfaEntities.removeIf(e -> assurance.mfaEntity().name().equals(e.get("name")));
+        } else {
+            Optional<Map<String, String>> existingMfa = mfaEntities.stream()
+                    .filter(e -> assurance.mfaEntity().name().equals(e.get("name")))
+                    .findFirst();
+            existingMfa.ifPresentOrElse(
+                    e -> e.put("level", assurance.mfaEntity().level()),
+                    () -> {
+                        Map<String, String> entry = new HashMap<>();
+                        entry.put("name", assurance.mfaEntity().name());
+                        entry.put("level", assurance.mfaEntity().level());
+                        mfaEntities.add(entry);
+                    });
+        }
+
+        List<Map<String, String>> stepupEntities = (List<Map<String, String>>) data.computeIfAbsent("stepupEntities", key -> new ArrayList<>());
+        if (assurance.stepupEntity().level() == null) {
+            stepupEntities.removeIf(e -> assurance.stepupEntity().name().equals(e.get("name")));
+        } else {
+            Optional<Map<String, String>> existingStepup = stepupEntities.stream()
+                    .filter(e -> assurance.stepupEntity().name().equals(e.get("name")))
+                    .findFirst();
+            existingStepup.ifPresentOrElse(
+                    e -> e.put("level", assurance.stepupEntity().level()),
+                    () -> {
+                        Map<String, String> entry = new HashMap<>();
+                        entry.put("name", assurance.stepupEntity().name());
+                        entry.put("level", assurance.stepupEntity().level());
+                        stepupEntities.add(entry);
+                    });
+        }
+
+        manage.saveIdentityProvider(identityProvider);
         return createResult();
     }
 

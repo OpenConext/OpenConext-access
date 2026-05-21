@@ -9,6 +9,7 @@ import {
     getPolicyByServiceProviderEntityId,
     inviteRoles,
     publicServiceProviderByDetail,
+    saveIdentityProviderAssurance,
     saveIdentityProviderConsent
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
@@ -26,14 +27,17 @@ import {
     connectWithoutInteraction,
     CONSENT,
     isAccessRoleReady,
+    MFA_LEVELS,
     providerDescription,
     providerName,
-    providerOrganizationName
+    providerOrganizationName,
+    STEPUP_LEVELS
 } from "../utils/Manage.js";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -58,6 +62,18 @@ const tabs = {
 }
 
 const consentOptions = Object.keys(CONSENT).map(k => ({label: I18n.t(`consent.${k}`), value: k}));
+
+const mfaOptions = Object.keys(MFA_LEVELS).map(k => ({label: I18n.t(`assurance.mfa.${k}`), value: MFA_LEVELS[k]}));
+const stepupOptions = Object.keys(STEPUP_LEVELS).map(k => ({label: I18n.t(`assurance.stepup.${k}`), value: STEPUP_LEVELS[k]}));
+
+const MFA_DEFAULT    = MFA_LEVELS.multipleauthn;
+const STEPUP_DEFAULT = STEPUP_LEVELS.loa1_5;
+
+const stepupLoaInteger = level => {
+    if (level === STEPUP_LEVELS.loa2) return 2;
+    if (level === STEPUP_LEVELS.loa3) return 3;
+    return 1; // loa1_5
+};
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
@@ -87,6 +103,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [confirmationModalOption, setConfirmationModalOption] = useState(null);
     const [message, setMessage] = useState("");
     const [consent, setConsent] = useState({type: CONSENT.default_consent});
+    const [mfaEntity, setMfaEntity] = useState({level: MFA_DEFAULT});
+    const [stepupEntity, setStepupEntity] = useState({level: STEPUP_DEFAULT});
     const [memberRequestSend, setMemberRequestSend] = useState(false);
     const [accessible, setAccessible] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
@@ -151,6 +169,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         "explanation:nl": "",
                                         "explanation:en": ""
                                     } : currentConsent)
+                                    const currentMfa = (currentOrganization.identityProvider.data.mfaEntities || [])
+                                        .find(entry => entry.name === entityId);
+                                    setMfaEntity(isEmpty(currentMfa)
+                                        ? {name: entityId, level: null}
+                                        : currentMfa);
+                                    const currentStepup = (currentOrganization.identityProvider.data.stepupEntities || [])
+                                        .find(entry => entry.name === entityId);
+                                    setStepupEntity(isEmpty(currentStepup)
+                                        ? {name: entityId, level: null}
+                                        : currentStepup);
                                 })
                         }
                     } else {
@@ -426,7 +454,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 return renderConsent();
             }
             case  tabs.assurance: {
-                return renderInformation();
+                return renderAssurance();
             }
         }
     }
@@ -559,6 +587,76 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 setLoading(false);
                 refreshUser();
             })
+    }
+
+    const cancelAssuranceChanges = () => {
+        const entityId = serviceProvider.data.entityid;
+        const currentMfa = (currentOrganization.identityProvider.data.mfaEntities || [])
+            .find(entry => entry.name === entityId);
+        setMfaEntity(isEmpty(currentMfa) ? {name: entityId, level: null} : currentMfa);
+        const currentStepup = (currentOrganization.identityProvider.data.stepupEntities || [])
+            .find(entry => entry.name === entityId);
+        setStepupEntity(isEmpty(currentStepup) ? {name: entityId, level: null} : currentStepup);
+    }
+
+    const submitAssuranceChanges = () => {
+        if (stepupLoaInteger(stepupEntity.level) > user.loaLevel) {
+            return;
+        }
+        const payload = {
+            identityProviderId: currentOrganization.identityProvider.id,
+            mfaEntity,
+            stepupEntity,
+        };
+        setLoading(true);
+        saveIdentityProviderAssurance(payload)
+            .then(() => {
+                setFlash(I18n.t("assurance.flash.assuranceUpdated"));
+                setLoading(false);
+                refreshUser();
+            })
+    }
+
+    const renderAssurance = () => {
+        const loaTooLow = stepupEntity.level !== null && stepupLoaInteger(stepupEntity.level) > user.loaLevel;
+        return (
+            <div className="assurance-container">
+                <div className="assurance-left">
+                    <h2>{I18n.t("assurance.mfaTitle")}</h2>
+                    <p className="info">{I18n.t("assurance.mfaInfo")}</p>
+                <SelectField name={I18n.t("assurance.mfaLevel")}
+                             className="select-assurance"
+                             value={mfaOptions.find(o => o.value === mfaEntity.level) || null}
+                             options={mfaOptions}
+                             placeholder={I18n.t("assurance.mfaSelectPlaceholder")}
+                             searchable={false}
+                             clearable={true}
+                             onChange={option => setMfaEntity({...mfaEntity, level: option ? option.value : null})}
+                />
+                <h2>{I18n.t("assurance.stepupTitle")}</h2>
+                <p className="info">{I18n.t("assurance.stepupInfo")}</p>
+                <SelectField name={I18n.t("assurance.stepupLevel")}
+                             className="select-assurance"
+                             value={stepupOptions.find(o => o.value === stepupEntity.level) || null}
+                             options={stepupOptions}
+                             placeholder={I18n.t("assurance.stepupSelectPlaceholder")}
+                             searchable={false}
+                             clearable={true}
+                             onChange={option => setStepupEntity({...stepupEntity, level: option ? option.value : null})}
+                />
+                    {loaTooLow && <ErrorIndicator standalone={true}
+                                                  msg={I18n.t("assurance.loaTooLow")}/>}
+                    <div className="assurance-actions">
+                        <Button onClick={() => cancelAssuranceChanges()}
+                                type={ButtonType.Secondary}
+                                txt={I18n.t("forms.cancel")}/>
+                        <Button onClick={() => submitAssuranceChanges()}
+                                disabled={loaTooLow}
+                                txt={I18n.t("forms.save")}/>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const renderConsent = () => {

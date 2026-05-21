@@ -236,6 +236,10 @@ export function saveIdentityProviderConsent(consent) {
     return postPutJson("/api/v1/manage/update/consent", consent, "PUT");
 }
 
+export function saveIdentityProviderAssurance(assurance) {
+    return postPutJson("/api/v1/manage/update/assurance", assurance, "PUT");
+}
+
 export function revokeChangeRequest(changeRequest) {
     return postPutJson("/api/v1/manage/reject-change-request", changeRequest, "PUT");
 }

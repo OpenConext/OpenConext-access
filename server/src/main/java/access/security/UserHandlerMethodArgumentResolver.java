@@ -71,12 +71,30 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     return Optional.of(user);
                 });
         User user = optionalUser.orElseThrow(() -> new UserRestrictionException("Forbidden"));
+        if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
+            String acr = (String) authenticationToken.getPrincipal().getAttributes()
+                    .getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
+            user.setLoaLevel(convertLoaLevel(acr));
+        }
         String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
         if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
             return userRepository.findById(Long.valueOf(impersonateId))
                     .orElseThrow(() -> new UserRestrictionException("Forbidden"));
         }
         return user;
+    }
+
+    private int convertLoaLevel(String acr) {
+        if (!StringUtils.hasText(acr) || acr.trim().toLowerCase().endsWith("password")) {
+            return 1;
+        }
+        try {
+            int loa = Integer.parseInt(acr.substring(acr.length() - 1));
+            //Corner case for 1.5
+            return loa == 5 ? 1 : loa;
+        } catch (NumberFormatException e) {
+            return 1;
+        }
     }
 
 }

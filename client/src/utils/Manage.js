@@ -134,3 +134,22 @@ export const CONSENT = {
     minimal_consent: "minimal_consent",
     default_consent: "default_consent"
 }
+
+export const STEPUP_LEVELS = {
+    loa1_5: "http://test2.surfconext.nl/assurance/loa1.5",
+    loa2:   "http://test2.surfconext.nl/assurance/loa2",
+    loa3:   "http://test2.surfconext.nl/assurance/loa3",
+};
+
+export const MFA_LEVELS = {
+    multipleauthn:               "http://schemas.microsoft.com/claims/multipleauthn",
+    mfa:                         "https://refeds.org/profile/mfa",
+    mobileOneFactorContract:     "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorContract",
+    mobileOneFactorUnregistered: "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorUnregistered",
+    password:                    "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+    transparentAuthnContext:     "transparent_authn_context",
+    linkedInstitution:           "https://eduid.nl/trust/linked-institution",
+    validateNames:               "https://eduid.nl/trust/validate-names",
+    validateNamesExternal:       "https://eduid.nl/trust/validate-names-external",
+    affiliationStudent:          "https://eduid.nl/trust/affiliation-student",
+};

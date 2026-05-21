@@ -399,5 +399,270 @@ class ManageControllerTest extends AbstractTest {
         return attributes.stream().anyMatch(attr -> attr.get("name").equals(attribute));
     }
 
+    @Test
+    void updateMetaDataConsent() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        Map<String, Object> identityProvider = stubForGetProvider(EntityType.saml20_idp, "7");
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(identityProvider))
+                        .withStatus(200)));
+
+        Map<String, Object> consent = Map.of(
+                "identityProviderId", "7",
+                "name", "https://wiki",
+                "type", "no_consent",
+                "explanation:en", "Test EN",
+                "explanation:nl", "Test NL"
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(consent)
+                .put("/api/v1/manage/update/consent")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    void updateMetaDataConsentForbiddenForGuest() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+
+        Map<String, Object> consent = Map.of(
+                "identityProviderId", "7",
+                "name", "https://wiki",
+                "type", "no_consent",
+                "explanation:en", "Test EN",
+                "explanation:nl", "Test NL"
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(consent)
+                .put("/api/v1/manage/update/consent")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateMetaDataAssurance() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        Map<String, Object> identityProvider = stubForGetProvider(EntityType.saml20_idp, "7");
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(identityProvider))
+                        .withStatus(200)));
+
+        Map<String, Object> assurance = Map.of(
+                "identityProviderId", "7",
+                "mfaEntity", Map.of("name", "https://wiki", "level", "http://schemas.microsoft.com/claims/multipleauthn"),
+                "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa1.5")
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceLoaTooLow() throws Exception {
+        // ADMIN_SUB has no acr claim → loaLevel defaults to 1; loa2 requires loaLevel 2 → 403
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        stubForGetProvider(EntityType.saml20_idp, "7");
+
+        Map<String, Object> assurance = Map.of(
+                "identityProviderId", "7",
+                "mfaEntity", Map.of("name", "https://wiki", "level", "http://schemas.microsoft.com/claims/multipleauthn"),
+                "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa2")
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceWithSufficientLoaLevel() throws Exception {
+        // Inject acr claim so loaLevel is resolved to 2, allowing loa2 step-up
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB,
+                userInfo -> {
+                    userInfo.put("acr", "http://test2.surfconext.nl/assurance/loa2");
+                    return userInfo;
+                });
+
+        Map<String, Object> identityProvider = stubForGetProvider(EntityType.saml20_idp, "7");
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(identityProvider))
+                        .withStatus(200)));
+
+        Map<String, Object> assurance = Map.of(
+                "identityProviderId", "7",
+                "mfaEntity", Map.of("name", "https://wiki", "level", "https://refeds.org/profile/mfa"),
+                "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa2")
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceForbiddenForGuest() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+
+        Map<String, Object> assurance = Map.of(
+                "identityProviderId", "7",
+                "mfaEntity", Map.of("name", "https://wiki", "level", "http://schemas.microsoft.com/claims/multipleauthn"),
+                "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa1.5")
+        );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceClearsMfaAndStepup() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        Map<String, Object> identityProvider = stubForGetProvider(EntityType.saml20_idp, "7");
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(identityProvider))
+                        .withStatus(200)));
+
+        // Sending null levels signals "clear this entry"
+        Map<String, Object> assurance = new java.util.HashMap<>();
+        assurance.put("identityProviderId", "7");
+        Map<String, Object> mfaEntity = new java.util.HashMap<>();
+        mfaEntity.put("name", "https://wiki");
+        mfaEntity.put("level", null);
+        assurance.put("mfaEntity", mfaEntity);
+        Map<String, Object> stepupEntity = new java.util.HashMap<>();
+        stepupEntity.put("name", "https://wiki");
+        stepupEntity.put("level", null);
+        assurance.put("stepupEntity", stepupEntity);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceNullStepupSkipsLoaCheck() throws Exception {
+        // ADMIN_SUB has loaLevel=1; loa2 would normally be blocked, but null stepup skips the LoA check
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        Map<String, Object> identityProvider = stubForGetProvider(EntityType.saml20_idp, "7");
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(identityProvider))
+                        .withStatus(200)));
+
+        Map<String, Object> assurance = new java.util.HashMap<>();
+        assurance.put("identityProviderId", "7");
+        Map<String, Object> mfaEntity = new java.util.HashMap<>();
+        mfaEntity.put("name", "https://wiki");
+        mfaEntity.put("level", "https://refeds.org/profile/mfa");
+        assurance.put("mfaEntity", mfaEntity);
+        Map<String, Object> stepupEntity = new java.util.HashMap<>();
+        stepupEntity.put("name", "https://wiki");
+        stepupEntity.put("level", null);
+        assurance.put("stepupEntity", stepupEntity);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    void serviceProviders() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        // ShareLogics org has manageIdentifier="7"; seed IdP has explicit allowedEntities, not allowedall
+        stubForGetProvider(EntityType.saml20_idp, "7");
+        // serviceProvidersByEntityID posts to both saml20_sp and oidc10_rp search endpoints
+        stubForServiceProviders();
+
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+
+        List<Map<String, Object>> serviceProviders = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organization.getId())
+                .get("/api/v1/manage/allowed-service-providers/{organizationId}")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(serviceProviders.size() > 0);
+    }
+
+    @Test
+    void serviceProvidersForbiddenForGuest() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB);
+
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organization.getId())
+                .get("/api/v1/manage/allowed-service-providers/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
 
 }

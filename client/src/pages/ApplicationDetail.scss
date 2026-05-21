@@ -400,4 +400,40 @@ div.application-detail-container {
             }
         }
     }
+
+    .assurance-container {
+        width: 70%;
+
+        .assurance-left {
+            display: flex;
+            flex-direction: column;
+
+            h2 {
+                margin-top: 40px;
+
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+
+            p {
+                &.info {
+                    margin-top: 20px;
+                }
+            }
+
+            .select-assurance {
+                margin-top: 20px;
+            }
+        }
+
+        .assurance-actions {
+            display: flex;
+            margin-top: 40px;
+            gap: 25px;
+            button:first-child {
+                margin-left: auto;
+            }
+        }
+    }
 }
