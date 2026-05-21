@@ -300,6 +300,13 @@ const PublicStats = () => {
     const isFluent = rollingPeriods.has(period) ||
         (period === "custom" && (customScale === "minute" || customScale === "hour"));
 
+    // Limit x-axis tick density for high-density scales to avoid a crowded axis.
+    const maxXTicks = (() => {
+        if (period === "minute" || (period === "custom" && customScale === "minute")) return 24;
+        if (period === "hour"   || (period === "custom" && customScale === "hour"))   return 14;
+        return undefined;
+    })();
+
     const handleExport = () => {
         const rows = [["Label", "Logins"]];
         timeFrameData.forEach((d, i) => {
@@ -401,7 +408,8 @@ const PublicStats = () => {
                     data={timeFrameData}
                     labels={chartLabels}
                     showUnique={false}
-                    fluent={isFluent}/>
+                    fluent={isFluent}
+                    maxXTicks={maxXTicks}/>
             </section>
         </div>
     );

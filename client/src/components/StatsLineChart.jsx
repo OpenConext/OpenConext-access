@@ -26,7 +26,7 @@ const resolveColor = (varName, fallback) => {
     return val || fallback;
 };
 
-const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
+const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTicks = undefined}) => {
     if (!data || data.length === 0) {
         return null;
     }
@@ -36,7 +36,8 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
 
     const pointRadius = fluent ? 0 : 5;
     const pointHoverRadius = fluent ? 4 : 7;
-    const tension = fluent ? 0.3 : 0.1;
+    const tension = fluent ? 0.2 : 0.1;
+    const borderWidth = fluent ? 1.5 : 2;
 
     const logins = data.map(d => d.count_user_id || 0);
     const unique = data.map(d => d.distinct_count_user_id || 0);
@@ -51,7 +52,7 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
             pointRadius,
             pointHoverRadius,
             tension,
-            borderWidth: 2,
+            borderWidth,
         },
     ];
 
@@ -65,7 +66,7 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
             pointRadius,
             pointHoverRadius,
             tension,
-            borderWidth: 2,
+            borderWidth,
         });
     }
 
@@ -95,6 +96,7 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false}) => {
                 },
                 ticks: {
                     font: {size: 12},
+                    ...(maxXTicks !== undefined ? {maxTicksLimit: maxXTicks} : {}),
                 },
             },
             y: {
