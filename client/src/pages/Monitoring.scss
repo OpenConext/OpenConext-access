@@ -56,14 +56,13 @@
         .period-control {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
             gap: 6px;
             flex-shrink: 0;
 
             .period-label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: var(--sl-color-neutral-700);
+                font-size: 1rem;
+                font-weight: 700;
+                color: var(--sl-color-neutral-900);
             }
         }
     }
@@ -272,8 +271,16 @@
                             background: #a8dfc0;
                         }
 
-                        &.incident {
-                            background: #f5c6cb;
+                        &.warn-light {
+                            background: var(--sl-color-warning-50);
+                        }
+
+                        &.warn-heavy {
+                            background: var(--sl-color-warning-600);
+                        }
+
+                        &.critical {
+                            background: var(--sds--color--red--400);
                         }
 
                         &:hover {
@@ -332,34 +339,78 @@
                     }
                 }
 
-                // Single event row (resolved / started)
-                .event {
+                // Timeline incident entry
+                .incident-entry {
                     display: flex;
+                    flex-direction: row;
                     gap: 12px;
-                    align-items: flex-start;
+                    align-items: stretch;
 
-                    .event-icon {
-                        flex-shrink: 0;
-                        display: flex;
-                        align-items: center;
-                        padding-top: 1px;
-                    }
-
-                    .event-body {
+                    // Left column: icons stacked with connector between them
+                    .entry-icons {
                         display: flex;
                         flex-direction: column;
-                        gap: 2px;
+                        align-items: center;
+                        flex-shrink: 0;
 
-                        .event-message {
-                            font-size: 0.9rem;
-                            font-weight: 500;
-                            color: var(--sl-color-neutral-800);
+                        .event-connector {
+                            width: 2px;
+                            background: #d0d0d0;
+                            flex: 1;
+                            min-height: 12px;
                         }
+                    }
 
-                        .event-time {
-                            font-size: 0.8rem;
-                            color: var(--sl-color-neutral-500);
-                        }
+                    // Right column: text rows aligned to each icon
+                    .entry-texts {
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+                        gap: 0;
+                    }
+                }
+
+                .event-circle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    flex-shrink: 0;
+                    width: 36px;
+                    height: 36px;
+
+                    svg {
+                        width: 60%;
+                        height: 60%;
+                    }
+
+                    &--ok {
+                        background: #c8e6c9;
+                        color: #2e7d32;
+                    }
+
+                    &--incident {
+                        background: #fff9c4;
+                        color: #a37a00;
+                    }
+                }
+
+                .event-body {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    justify-content: center;
+                    min-height: 36px; // match icon height so text aligns to circle centre
+
+                    .event-message {
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        color: var(--sl-color-neutral-800);
+                    }
+
+                    .event-time {
+                        font-size: 0.8rem;
+                        color: var(--sl-color-neutral-500);
                     }
                 }
             }

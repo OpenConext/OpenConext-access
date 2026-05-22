@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.core.io.ClassPathResource;
 
 import java.nio.charset.Charset;
@@ -21,7 +22,8 @@ class OhDearServiceTest {
             "test-token",
             "http://localhost:8089/api",
             true,
-            new ObjectMapper()
+            new ObjectMapper(),
+            new NoOpCacheManager()
     );
 
     @Test

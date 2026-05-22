@@ -4,20 +4,27 @@ import "./Monitoring.scss";
 import {monitoring} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
+import CheckPlainIcon from "../icons/check-plain.svg";
+import MonitoringIncidentIcon from "../icons/monitoring_incident.svg";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import {formatDate} from "../utils/Date.js";
-
-// Configurable: incidents shorter than this many minutes are ignored
-const MIN_INCIDENT_MINUTES = 10;
 
 // Period constants
 const PERIOD_DEFAULT = 60;
 const PERIOD_ALL = 364;
 
-// Number of bar segments in the uptime chart
-const SEGMENT_COUNT = 90;
+// Severity thresholds (downtime minutes) and their CSS classes + bar colors.
+// Evaluated in order — first match wins. Segments with no downtime use "ok".
+const SEVERITY_LEVELS = [
+    {minMinutes: 0,  maxMinutes: 1,        cls: "ok",         color: "#a8dfc0"},
+    {minMinutes: 1,  maxMinutes: 5,        cls: "warn-light", color: "var(--sl-color-warning-50)"},
+    {minMinutes: 5,  maxMinutes: 15,       cls: "warn-heavy", color: "var(--sl-color-warning-600)"},
+    {minMinutes: 15, maxMinutes: Infinity, cls: "critical",   color: "var(--sds--color--red--400)"},
+];
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
+// Incidents shorter than the first non-ok severity threshold (minutes) are ignored.
+// Derived from SEVERITY_LEVELS so there is a single source of truth.
+const MIN_INCIDENT_MINUTES = SEVERITY_LEVELS.find(l => l.cls !== "ok")?.minMinutes ?? 1;
 
 function isSignificant(incident) {
     if (!incident.resolvedAt) return true;
@@ -30,9 +37,9 @@ function buildUptimeSegments(incidents, period) {
     const significant = incidents.filter(isSignificant);
     const now = Date.now();
     const startMs = now - period * 24 * 60 * 60 * 1000;
-    const segMs = (now - startMs) / SEGMENT_COUNT;
+    const segMs = (now - startMs) / period;
 
-    return Array.from({length: SEGMENT_COUNT}, (_, i) => {
+    return Array.from({length: period}, (_, i) => {
         const segStart = startMs + i * segMs;
         const segEnd = startMs + (i + 1) * segMs;
 
@@ -50,7 +57,6 @@ function buildUptimeSegments(incidents, period) {
             }
         }
 
-        const hasIncident = downtimeMs > 0;
         const uptimePct = 100 - (downtimeMs / segMs) * 100;
 
         // Tooltip date: use the midpoint of the segment
@@ -62,7 +68,9 @@ function buildUptimeSegments(incidents, period) {
         const downtimeMin = Math.floor(downtimeSec / 60);
         const downtimeRemSec = downtimeSec % 60;
 
-        return {hasIncident, uptimePct, segDate, downtimeMin, downtimeRemSec};
+        const severity = SEVERITY_LEVELS.find(l => downtimeMin >= l.minMinutes && downtimeMin < l.maxMinutes)?.cls ?? "ok";
+
+        return {severity, uptimePct, segDate, downtimeMin, downtimeRemSec};
     });
 }
 
@@ -103,23 +111,19 @@ function groupIncidentsByDate(incidents) {
 
 // ─── icons ────────────────────────────────────────────────────────────────────
 
-function CheckCircleIcon({small}) {
-    const size = small ? 22 : 28;
+function CheckCircleIcon() {
     return (
-        <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="14" cy="14" r="14" fill="#d4edda"/>
-            <path d="M8 14.5l4 4 8-8" stroke="#2e7d32" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <span className="event-circle event-circle--ok">
+            <CheckPlainIcon/>
+        </span>
     );
 }
 
 function WarningCircleIcon() {
     return (
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="11" cy="11" r="11" fill="#fff3cd"/>
-            <path d="M11 6v6" stroke="#856404" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="11" cy="15.5" r="1.2" fill="#856404"/>
-        </svg>
+        <span className="event-circle event-circle--incident">
+            <MonitoringIncidentIcon/>
+        </span>
     );
 }
 
@@ -328,7 +332,7 @@ export const Monitoring = () => {
                                 {uptimeSegments.map((seg, i) => (
                                     <div
                                         key={i}
-                                        className={`bar-segment ${seg.hasIncident ? "incident" : "ok"}`}
+                                        className={`bar-segment ${seg.severity}`}
                                         onMouseEnter={e => handleSegmentMouseEnter(e, seg)}
                                         onMouseLeave={handleSegmentMouseLeave}
                                     />
@@ -352,7 +356,7 @@ export const Monitoring = () => {
                                         <strong>{tooltip.seg.uptimePct.toFixed(2)}%</strong>&nbsp;
                                         {I18n.t("monitoring.tooltipOfTheTime")}
                                     </div>
-                                    {tooltip.seg.hasIncident && (
+                                    {tooltip.seg.severity !== "ok" && (
                                         <div className="bar-tooltip--downtime">
                                             {I18n.t("monitoring.tooltipDowntime")}&nbsp;
                                             <strong>
@@ -394,32 +398,47 @@ export const Monitoring = () => {
                                             <span className="incident-date">{group.date}</span>
                                             <div className="incident-events">
                                                 {group.incidents.map((inc, idx) => (
-                                                    <React.Fragment key={idx}>
-                                                        {inc.resolvedTime && (
-                                                            <div className="event resolved">
-                                                                <span className="event-icon">
-                                                                    <CheckCircleIcon small/>
-                                                                </span>
-                                                                <div className="event-body">
-                                                                    <span className="event-message">
-                                                                        {I18n.t("monitoring.resolvedMessage", {name: selectedService.name})}
-                                                                    </span>
-                                                                    <span className="event-time">{inc.resolvedTime}</span>
+                                                    <div key={idx} className="incident-entry">
+                                                        {inc.resolvedTime ? (
+                                                            <>
+                                                                {/* Left: icons + connector */}
+                                                                <div className="entry-icons">
+                                                                    <CheckCircleIcon/>
+                                                                    <div className="event-connector"/>
+                                                                    <WarningCircleIcon/>
                                                                 </div>
-                                                            </div>
+                                                                {/* Right: text rows */}
+                                                                <div className="entry-texts">
+                                                                    <div className="event-body">
+                                                                        <span className="event-message">
+                                                                            {I18n.t("monitoring.resolvedMessage", {name: selectedService.name})}
+                                                                        </span>
+                                                                        <span className="event-time">{inc.resolvedTime}</span>
+                                                                    </div>
+                                                                    <div className="event-body">
+                                                                        <span className="event-message">
+                                                                            {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
+                                                                        </span>
+                                                                        <span className="event-time">{inc.startedTime}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="entry-icons">
+                                                                    <WarningCircleIcon/>
+                                                                </div>
+                                                                <div className="entry-texts">
+                                                                    <div className="event-body">
+                                                                        <span className="event-message">
+                                                                            {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
+                                                                        </span>
+                                                                        <span className="event-time">{inc.startedTime}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </>
                                                         )}
-                                                        <div className="event started">
-                                                            <span className="event-icon">
-                                                                <WarningCircleIcon/>
-                                                            </span>
-                                                            <div className="event-body">
-                                                                <span className="event-message">
-                                                                    {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
-                                                                </span>
-                                                                <span className="event-time">{inc.startedTime}</span>
-                                                            </div>
-                                                        </div>
-                                                    </React.Fragment>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>

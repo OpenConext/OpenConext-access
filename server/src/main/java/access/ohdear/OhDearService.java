@@ -3,7 +3,7 @@ package access.ohdear;
 import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -31,10 +32,12 @@ import java.util.concurrent.TimeUnit;
 public class OhDearService {
 
     private static final int PERIOD = 60;
+    private static final int PERIOD_ALL = 364;
 
     private final String apiToken;
     private final String baseUrl;
     private RestTemplate restTemplate;
+    private final CacheManager cacheManager;
 
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
@@ -44,11 +47,13 @@ public class OhDearService {
     public OhDearService(@Value("${ohdear.apiKey}") String apiToken,
                          @Value("${ohdear.baseUrl}") String baseUrl,
                          @Value("${ohdear.enabled}") boolean enabled,
-                         ObjectMapper objectMapper) {
+                         ObjectMapper objectMapper,
+                         CacheManager cacheManager) {
         this.apiToken = apiToken;
         this.baseUrl = baseUrl;
         this.enabled = enabled;
         this.objectMapper = objectMapper;
+        this.cacheManager = cacheManager;
         if (enabled) {
             restTemplate = RestTemplateFactory.buildRestTemplate(apiToken);
         }
@@ -68,12 +73,14 @@ public class OhDearService {
     }
 
     @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
-    @CachePut("status")
-    public StatusResponse refreshStatus() {
-        return getAggregatedStatus(PERIOD);
+    public void refreshStatus() {
+        for (int period : List.of(PERIOD, PERIOD_ALL)) {
+            StatusResponse result = getAggregatedStatusInternal(period);
+            Objects.requireNonNull(cacheManager.getCache("status")).put(period, result);
+        }
     }
 
-    @Cacheable("status")
+    @Cacheable(value = "status", key = "#period")
     public StatusResponse getAggregatedStatus(int period) {
         return getAggregatedStatusInternal(period);
     }
