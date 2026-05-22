@@ -1260,6 +1260,7 @@ const nl = {
             assuranceUpdated: "Betrouwbaarheidsinstellingen zijn bijgewerkt",
         },
         loaTooLow: "Je huidige authenticatieniveau is te laag om dit step-up niveau in te stellen. Log uit en log opnieuw in met een hoger betrouwbaarheidsniveau.",
+        mfaLoaTooLow: "Je huidige authenticatieniveau is te laag om dit MFA niveau in te stellen. Log uit en log opnieuw in met een hoger betrouwbaarheidsniveau.",
         mfaSelectPlaceholder: "Selecteer een MFA niveau",
         stepupSelectPlaceholder: "Selecteer een step-up LOA niveau",
     },
@@ -1414,6 +1415,8 @@ const nl = {
         tooltipDowntime: "Totale downtime:",
         tooltipDuration: "{{min}} minuten {{sec}} seconden",
         tooltipDurationSec: "{{sec}} seconden",
+        showMoreIncidents: "Toon alle incidenten",
+        showLessIncidents: "Toon alleen recente incidenten"
     },
 }
 

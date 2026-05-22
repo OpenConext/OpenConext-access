@@ -64,14 +64,28 @@ const tabs = {
 const consentOptions = Object.keys(CONSENT).map(k => ({label: I18n.t(`consent.${k}`), value: k}));
 
 const mfaOptions = Object.keys(MFA_LEVELS).map(k => ({label: I18n.t(`assurance.mfa.${k}`), value: MFA_LEVELS[k]}));
-const stepupOptions = Object.keys(STEPUP_LEVELS).map(k => ({label: I18n.t(`assurance.stepup.${k}`), value: STEPUP_LEVELS[k]}));
+const stepupOptions = Object.keys(STEPUP_LEVELS).map(k => ({
+    label: I18n.t(`assurance.stepup.${k}`),
+    value: STEPUP_LEVELS[k]
+}));
 
-const MFA_DEFAULT    = MFA_LEVELS.multipleauthn;
+const MFA_DEFAULT = MFA_LEVELS.multipleauthn;
 const STEPUP_DEFAULT = STEPUP_LEVELS.loa1_5;
 
+const mfaLoaInteger = level => {
+    if ([MFA_LEVELS.password, MFA_LEVELS.transparentAuthnContext].includes(level)) {
+        return 1;
+    }
+    return 2;
+};
+
 const stepupLoaInteger = level => {
-    if (level === STEPUP_LEVELS.loa2) return 2;
-    if (level === STEPUP_LEVELS.loa3) return 3;
+    if (level === STEPUP_LEVELS.loa2) {
+        return 2;
+    }
+    if (level === STEPUP_LEVELS.loa3) {
+        return 3;
+    }
     return 1; // loa1_5
 };
 
@@ -600,7 +614,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const submitAssuranceChanges = () => {
-        if (stepupLoaInteger(stepupEntity.level) > user.loaLevel) {
+        if (stepupLoaInteger(stepupEntity.level) > user.loaLevel || mfaLoaInteger(mfaEntity.level > user.loaLevel)) {
             return;
         }
         const payload = {
@@ -618,40 +632,46 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderAssurance = () => {
-        const loaTooLow = stepupEntity.level !== null && stepupLoaInteger(stepupEntity.level) > user.loaLevel;
+        const stepupLoaTooLow = stepupEntity.level !== null && stepupLoaInteger(stepupEntity.level) > user.loaLevel;
+        const mfaLoaTooLow = mfaEntity.level !== null && mfaLoaInteger(mfaEntity.level) > user.loaLevel;
         return (
             <div className="assurance-container">
                 <div className="assurance-left">
                     <h2>{I18n.t("assurance.mfaTitle")}</h2>
                     <p className="info">{I18n.t("assurance.mfaInfo")}</p>
-                <SelectField name={I18n.t("assurance.mfaLevel")}
-                             className="select-assurance"
-                             value={mfaOptions.find(o => o.value === mfaEntity.level) || null}
-                             options={mfaOptions}
-                             placeholder={I18n.t("assurance.mfaSelectPlaceholder")}
-                             searchable={false}
-                             clearable={true}
-                             onChange={option => setMfaEntity({...mfaEntity, level: option ? option.value : null})}
-                />
-                <h2>{I18n.t("assurance.stepupTitle")}</h2>
-                <p className="info">{I18n.t("assurance.stepupInfo")}</p>
-                <SelectField name={I18n.t("assurance.stepupLevel")}
-                             className="select-assurance"
-                             value={stepupOptions.find(o => o.value === stepupEntity.level) || null}
-                             options={stepupOptions}
-                             placeholder={I18n.t("assurance.stepupSelectPlaceholder")}
-                             searchable={false}
-                             clearable={true}
-                             onChange={option => setStepupEntity({...stepupEntity, level: option ? option.value : null})}
-                />
-                    {loaTooLow && <ErrorIndicator standalone={true}
+                    <SelectField name={I18n.t("assurance.mfaLevel")}
+                                 className="select-assurance"
+                                 value={mfaOptions.find(o => o.value === mfaEntity.level) || null}
+                                 options={mfaOptions}
+                                 placeholder={I18n.t("assurance.mfaSelectPlaceholder")}
+                                 searchable={false}
+                                 clearable={true}
+                                 onChange={option => setMfaEntity({...mfaEntity, level: option ? option.value : null})}
+                    />
+                    {mfaLoaTooLow && <ErrorIndicator standalone={true}
+                                                  msg={I18n.t("assurance.mfaLoaTooLow")}/>}
+                    <h2>{I18n.t("assurance.stepupTitle")}</h2>
+                    <p className="info">{I18n.t("assurance.stepupInfo")}</p>
+                    <SelectField name={I18n.t("assurance.stepupLevel")}
+                                 className="select-assurance"
+                                 value={stepupOptions.find(o => o.value === stepupEntity.level) || null}
+                                 options={stepupOptions}
+                                 placeholder={I18n.t("assurance.stepupSelectPlaceholder")}
+                                 searchable={false}
+                                 clearable={true}
+                                 onChange={option => setStepupEntity({
+                                     ...stepupEntity,
+                                     level: option ? option.value : null
+                                 })}
+                    />
+                    {stepupLoaTooLow && <ErrorIndicator standalone={true}
                                                   msg={I18n.t("assurance.loaTooLow")}/>}
                     <div className="assurance-actions">
                         <Button onClick={() => cancelAssuranceChanges()}
                                 type={ButtonType.Secondary}
                                 txt={I18n.t("forms.cancel")}/>
                         <Button onClick={() => submitAssuranceChanges()}
-                                disabled={loaTooLow}
+                                disabled={mfaLoaTooLow || stepupLoaTooLow}
                                 txt={I18n.t("forms.save")}/>
                     </div>
                 </div>

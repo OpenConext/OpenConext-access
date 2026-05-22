@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {createPortal} from "react-dom";
 import "./Monitoring.scss";
 import {monitoring} from "../api/index.js";
@@ -8,18 +8,22 @@ import CheckPlainIcon from "../icons/check-plain.svg";
 import MonitoringIncidentIcon from "../icons/monitoring_incident.svg";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import {formatDate} from "../utils/Date.js";
+import {stopEvent} from "../utils/Utils.js";
 
 // Period constants
 const PERIOD_DEFAULT = 60;
 const PERIOD_ALL = 364;
 
+//Slice number for large incidentGroups
+const INCIDENT_GROUPS_NUMBER_SLICE = 10;
+
 // Severity thresholds (downtime minutes) and their CSS classes + bar colors.
 // Evaluated in order — first match wins. Segments with no downtime use "ok".
 const SEVERITY_LEVELS = [
-    {minMinutes: 0,  maxMinutes: 1,        cls: "ok",         color: "#a8dfc0"},
-    {minMinutes: 1,  maxMinutes: 5,        cls: "warn-light", color: "var(--sl-color-warning-50)"},
-    {minMinutes: 5,  maxMinutes: 15,       cls: "warn-heavy", color: "var(--sl-color-warning-600)"},
-    {minMinutes: 15, maxMinutes: Infinity, cls: "critical",   color: "var(--sds--color--red--400)"},
+    {minMinutes: 0, maxMinutes: 1, cls: "ok", color: "#a8dfc0"},
+    {minMinutes: 1, maxMinutes: 5, cls: "warn-light", color: "var(--sl-color-warning-50)"},
+    {minMinutes: 5, maxMinutes: 15, cls: "warn-heavy", color: "var(--sl-color-warning-600)"},
+    {minMinutes: 15, maxMinutes: Infinity, cls: "critical", color: "var(--sds--color--red--400)"},
 ];
 
 // Incidents shorter than the first non-ok severity threshold (minutes) are ignored.
@@ -136,6 +140,7 @@ export const Monitoring = () => {
     const [period, setPeriod] = useState(PERIOD_DEFAULT);
     const [search, setSearch] = useState("");
     const [tooltip, setTooltip] = useState(null);
+    const [showMore, setShowMore] = useState(false);
 
     const loading = loadedPeriod !== period;
 
@@ -181,6 +186,8 @@ export const Monitoring = () => {
         return groupIncidentsByDate(selectedService.incidents);
     }, [selectedService]);
 
+    const visibleIncidentGroups = showMore ? incidentGroups : incidentGroups.slice(0, INCIDENT_GROUPS_NUMBER_SLICE);
+
     const lastUpdatedText = status
         ? formatRelativeTime(status.lastUpdated)
         : "—";
@@ -195,6 +202,11 @@ export const Monitoring = () => {
     };
 
     const handleSegmentMouseLeave = () => setTooltip(null);
+
+    const toggleShowMore = e => {
+        stopEvent(e);
+        setShowMore(!showMore);
+    };
 
     return (
         <div className="monitoring-container">
@@ -393,7 +405,7 @@ export const Monitoring = () => {
                                 </p>
                             ) : (
                                 <div className="incident-list">
-                                    {incidentGroups.map(group => (
+                                    {visibleIncidentGroups.map(group => (
                                         <div key={group.date} className="incident-day">
                                             <span className="incident-date">{group.date}</span>
                                             <div className="incident-events">
@@ -413,13 +425,15 @@ export const Monitoring = () => {
                                                                         <span className="event-message">
                                                                             {I18n.t("monitoring.resolvedMessage", {name: selectedService.name})}
                                                                         </span>
-                                                                        <span className="event-time">{inc.resolvedTime}</span>
+                                                                        <span
+                                                                            className="event-time">{inc.resolvedTime}</span>
                                                                     </div>
                                                                     <div className="event-body">
                                                                         <span className="event-message">
                                                                             {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
                                                                         </span>
-                                                                        <span className="event-time">{inc.startedTime}</span>
+                                                                        <span
+                                                                            className="event-time">{inc.startedTime}</span>
                                                                     </div>
                                                                 </div>
                                                             </>
@@ -433,7 +447,8 @@ export const Monitoring = () => {
                                                                         <span className="event-message">
                                                                             {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
                                                                         </span>
-                                                                        <span className="event-time">{inc.startedTime}</span>
+                                                                        <span
+                                                                            className="event-time">{inc.startedTime}</span>
                                                                     </div>
                                                                 </div>
                                                             </>
@@ -444,7 +459,15 @@ export const Monitoring = () => {
                                         </div>
                                     ))}
                                 </div>
+
                             )}
+                            {incidentGroups.length > INCIDENT_GROUPS_NUMBER_SLICE &&
+                                <a href="/#"
+                                   className="show-more-toggle"
+                                   onClick={e => toggleShowMore(e)}>
+                                    {I18n.t(`monitoring.${showMore ? "showLess" : "showMore"}Incidents`)}
+                                </a>
+                            }
                         </div>
                     )}
                 </div>

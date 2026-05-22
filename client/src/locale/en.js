@@ -1260,6 +1260,7 @@ const en = {
             assuranceUpdated: "Assurance settings have been updated",
         },
         loaTooLow: "Your current authentication level is too low to set this step-up level. Please log out and log in again with a higher Level of Assurance.",
+        mfaLoaTooLow: "Your current authentication level is too low to set this MFA level. Please log out and log in again with a higher Level of Assurance.",
         mfaSelectPlaceholder: "Select a MFA level",
         stepupSelectPlaceholder: "Select a stepup LOA level",
     },
@@ -1414,6 +1415,8 @@ const en = {
         tooltipDowntime: "Total downtime:",
         tooltipDuration: "{{min}} minutes {{sec}} seconds",
         tooltipDurationSec: "{{sec}} seconds",
+        showMoreIncidents: "Show all incidents",
+        showLessIncidents: "Show only recent incidents"
     },
 }
 
