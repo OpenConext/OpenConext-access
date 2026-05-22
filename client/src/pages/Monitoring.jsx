@@ -127,33 +127,32 @@ function WarningCircleIcon() {
 
 export const Monitoring = () => {
     const [status, setStatus] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedService, setSelectedService] = useState(null);
+    const [loadedPeriod, setLoadedPeriod] = useState(null);
+    const [selectedServiceId, setSelectedServiceId] = useState(null);
     const [period, setPeriod] = useState(PERIOD_DEFAULT);
     const [search, setSearch] = useState("");
     const [tooltip, setTooltip] = useState(null);
 
+    const loading = loadedPeriod !== period;
+
     useEffect(() => {
-        setLoading(true);
-        setSelectedService(null);
         monitoring(period)
             .then(data => {
                 setStatus(data);
-                setLoading(false);
+                setSelectedServiceId(null);
+                setLoadedPeriod(period);
             })
-            .catch(() => setLoading(false));
+            .catch(() => setLoadedPeriod(period));
     }, [period]);
 
-    useEffect(() => {
-        if (!status || !selectedService) return;
+    const selectedService = useMemo(() => {
+        if (!status || !selectedServiceId) return null;
         for (const group of status.groups) {
-            const found = group.services.find(s => s.id === selectedService.id);
-            if (found) {
-                setSelectedService(found);
-                return;
-            }
+            const found = group.services.find(s => s.id === selectedServiceId);
+            if (found) return found;
         }
-    }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
+        return null;
+    }, [status, selectedServiceId]);
 
     const filteredGroups = useMemo(() => {
         if (!status) return [];
@@ -270,7 +269,7 @@ export const Monitoring = () => {
                                     <div
                                         key={service.id}
                                         className={`service-item${isSelected ? " selected" : ""}`}
-                                        onClick={() => setSelectedService(isSelected ? null : service)}
+                                        onClick={() => setSelectedServiceId(isSelected ? null : service.id)}
                                     >
                                         <span className={`status-dot ${service.status}`}/>
                                         <div className="service-info">
@@ -284,7 +283,7 @@ export const Monitoring = () => {
                                                 className="deselect-btn"
                                                 onClick={e => {
                                                     e.stopPropagation();
-                                                    setSelectedService(null);
+                                                    setSelectedServiceId(null);
                                                     setSearch("");
                                                 }}
                                             >
