@@ -181,6 +181,44 @@ const Statistics = () => {
         const periodStr = buildPeriodString(period, periodValue);
         const spFilter = selectedSp || "";
 
+        // When "year" period is selected, make one call spanning 5 years (one point per year);
+        // loginAggregated still uses only the selected year.
+        if (period === "year") {
+            const from5 = new Date(periodValue - 4, 0, 1).getTime() / 1000;
+            const to5   = new Date(periodValue + 1, 0, 1).getTime() / 1000;
+
+            const aggregatedPromises = [
+                loginAggregated(periodStr, spFilter, "sp_entity_id"),
+                uniqueLoginCount(from, to, spFilter),
+            ];
+            if (isSurfNet) {
+                aggregatedPromises.push(loginAggregated(periodStr, spFilter, "idp_entity_id"));
+            }
+
+            Promise.all([
+                loginTimeFrame(from5, to5, "year", spFilter),
+                Promise.all(aggregatedPromises),
+            ]).then(([timeFrame, [perApp, uniqueCount, perInstitute]]) => {
+                const arr = Array.isArray(timeFrame) ? timeFrame : [timeFrame];
+                setTimeFrameData(arr);
+                setPerAppData(perApp || []);
+                setPerInstituteData(isSurfNet ? (perInstitute || []) : []);
+
+                const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
+                setTotalLogins(totLogins);
+
+                if (typeof uniqueCount === "number") {
+                    setTotalUnique(uniqueCount);
+                } else if (uniqueCount && uniqueCount.distinct_count_user_id !== undefined) {
+                    setTotalUnique(uniqueCount.distinct_count_user_id);
+                } else {
+                    setTotalUnique(arr.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0));
+                }
+                setLoading(false);
+            }).catch(() => setLoading(false));
+            return;
+        }
+
         const promises = [
             loginTimeFrame(from, to, scale, spFilter),
             loginAggregated(periodStr, spFilter, "sp_entity_id"),
@@ -221,6 +259,10 @@ const Statistics = () => {
         if (period === "custom") {
             const scale = scaleForCustomRange(customFrom, customTo);
             return timeFrameData.map(d => formatCustomLabel(d.time, scale));
+        }
+        // For "year", data has one point per year — derive labels from timestamps
+        if (period === "year") {
+            return timeFrameData.map(d => formatCustomLabel(d.time, "year"));
         }
         const scale = scaleForPeriod[period];
         if (scale === "day" || scale === "quarter") {

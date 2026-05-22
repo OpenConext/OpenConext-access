@@ -5,6 +5,8 @@ import ArrowLeft from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 
 const PeriodPicker = ({value, onClick}) => {
+    const currentYear = new Date().getFullYear();
+    const atCurrentYear = value >= currentYear;
 
     return (
         <div className="access-period-picker-container">
@@ -16,7 +18,8 @@ const PeriodPicker = ({value, onClick}) => {
                         active={true}
                         disabled={true}
                         type={ButtonType.Secondary}/>
-                <Button onClick={() => onClick(value + 1)}
+                <Button onClick={atCurrentYear ? undefined : () => onClick(value + 1)}
+                        disabled={atCurrentYear}
                         type={ButtonType.Secondary}
                         icon={<ArrowRight/>}/>
             </div>

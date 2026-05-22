@@ -21,6 +21,9 @@
             &:not(:first-child):not(:last-child) {
                 padding: var(--sds--space--1-and-a-half) 10px;
             }
+            &:last-child:disabled svg {
+                color: var(--sds--color--gray--300);
+            }
         }
     }
 

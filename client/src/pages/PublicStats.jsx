@@ -239,6 +239,23 @@ const PublicStats = () => {
         const prev = shiftYearPeriod(periodValue, 1);
         const three = shiftYearPeriod(periodValue, 3);
 
+        // When "year" period is selected, make one call spanning 5 years (one point per year)
+        if (period === "year") {
+            const from5 = new Date(periodValue - 4, 0, 1).getTime() / 1000;
+            const to5   = new Date(periodValue + 1, 0, 1).getTime() / 1000;
+            loginTimeFrame(from5, to5, "year", "", false)
+                .then(data => {
+                    const arr = Array.isArray(data) ? data : [data];
+                    setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
+                    setPrevPeriodTotal(null);
+                    setThreePeriodTotal(null);
+                    setTimeFrameData(arr);
+                    setLoading(false);
+                })
+                .catch(() => setLoading(false));
+            return;
+        }
+
         Promise.all([
             loginTimeFrame(from, to, scale, "", false),
             loginTimeFrame(prev.from, prev.to, scale, "", false),
