@@ -20,6 +20,6 @@ public class StatusController {
 
     @GetMapping
     public StatusResponse getStatus() {
-        return service.getAggregatedStatus();
+        return service.getAggregatedStatus(60);
     }
 }

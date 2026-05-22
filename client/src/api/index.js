@@ -452,6 +452,11 @@ export function uniqueLoginCount(from, to, spEntityId) {
     return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
 }
 
+//Monitoring
+export function monitoring(period = 60) {
+    return fetchJson(`/api/v1/monitoring?period=${period}`);
+}
+
 //System
 export function cronCleanup() {
     return fetchJson("/api/v1/system/cron/cleanup");

@@ -1,11 +1,11 @@
 {
   "data": [
     {
-      "id": 1,
-      "name": "API",
-      "url": "https://api",
-      "status": "up",
-      "group_name": "API"
+      "id": 76071,
+      "label": "SURFconext Engine",
+      "url": "https://engine.surfconext.nl/authentication/sp/metadata",
+      "summarized_check_result": "succeeded",
+      "group_name": "SURFconext"
     }
   ]
 }

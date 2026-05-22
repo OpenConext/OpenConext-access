@@ -46,6 +46,7 @@ import ManageDetail from "./pages/ManageDetail.jsx";
 import Statistics from "./pages/Statistics.jsx";
 import {currentOrganizationFromUser} from "./utils/Organization.js";
 import PublicStats from "./pages/PublicStats.jsx";
+import {Monitoring} from "./pages/Monitoring.jsx";
 
 const App = () => {
 
@@ -183,6 +184,7 @@ const App = () => {
                         <Route path="/connect" element={<Connect/>}/>
                         <Route path="/applications" element={<Applications/>}/>
                         <Route path="/stats" element={<PublicStats/>}/>
+                        <Route path="/monitoring" element={<Monitoring/>}/>
                         <Route path="/login-info" element={<LoginInfo/>}/>
                         <Route path="/application-detail/:manageType/:manageId"
                                element={<ApplicationDetail anonymous={true}/>}/>

@@ -1,25 +1,21 @@
 package access.ohdear;
 
-import access.jira.APITokenHeaderInterceptor;
-import access.manage.JSONHeaderInterceptor;
 import access.remote.RestTemplateFactory;
-import jakarta.annotation.PostConstruct;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public class OhDearService {
 
+    private static final int PERIOD = 60;
+
     private final String apiToken;
     private final String baseUrl;
     private RestTemplate restTemplate;
@@ -41,13 +39,16 @@ public class OhDearService {
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
     private final boolean enabled;
+    private final ObjectMapper objectMapper;
 
     public OhDearService(@Value("${ohdear.apiKey}") String apiToken,
                          @Value("${ohdear.baseUrl}") String baseUrl,
-                         @Value("${ohdear.enabled}") boolean enabled) {
+                         @Value("${ohdear.enabled}") boolean enabled,
+                         ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.baseUrl = baseUrl;
         this.enabled = enabled;
+        this.objectMapper = objectMapper;
         if (enabled) {
             restTemplate = RestTemplateFactory.buildRestTemplate(apiToken);
         }
@@ -69,17 +70,23 @@ public class OhDearService {
     @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
     @CachePut("status")
     public StatusResponse refreshStatus() {
-        return getAggregatedStatusInternal();
+        return getAggregatedStatus(PERIOD);
     }
 
     @Cacheable("status")
-    public StatusResponse getAggregatedStatus() {
-        return getAggregatedStatusInternal();
+    public StatusResponse getAggregatedStatus(int period) {
+        return getAggregatedStatusInternal(period);
     }
 
-    private StatusResponse getAggregatedStatusInternal() {
+    private StatusResponse getAggregatedStatusInternal(int period) {
         if (!enabled) {
-            return new StatusResponse("operational", Instant.now().toString(), List.of());
+            try {
+                return objectMapper.readValue(
+                        new ClassPathResource("ohdear/ohdear.json").getInputStream(),
+                        StatusResponse.class);
+            } catch (IOException e) {
+                return new StatusResponse("operational", Instant.now().toString(), List.of());
+            }
         }
         Map<String, Object> monitorsResponse = get(baseUrl + "/monitors");
         List<Map<String, Object>> monitors = (List<Map<String, Object>>) monitorsResponse.get("data");
@@ -93,9 +100,9 @@ public class OhDearService {
 
             String status = deriveStatus(monitor);
 
-            Double uptimePercentage = fetchUptime(id);
+            Double uptimePercentage = fetchUptime(id, period);
 
-            List<Incident> incidents = fetchIncidentsFromDowntime(id);
+            List<Incident> incidents = fetchIncidentsFromDowntime(id, period);
 
             ServiceStatus service = new ServiceStatus(id, name, url, status, uptimePercentage, incidents);
 
@@ -112,10 +119,10 @@ public class OhDearService {
         return new StatusResponse(deriveOverallStatus(groups), Instant.now().toString(), groups);
     }
 
-    private Double fetchUptime(Long id) {
+    private Double fetchUptime(Long id, int period) {
         try {
             Instant now = Instant.now();
-            Instant start = now.minus(90, ChronoUnit.DAYS);
+            Instant start = now.minus(period, ChronoUnit.DAYS);
 
             String startedAt = OHDEAR_FORMAT.format(start);
             String endedAt = OHDEAR_FORMAT.format(now);
@@ -162,10 +169,10 @@ public class OhDearService {
         }
     }
 
-    private List<Incident> fetchIncidentsFromDowntime(Long id) {
+    private List<Incident> fetchIncidentsFromDowntime(Long id, int period) {
         try {
             Instant now = Instant.now();
-            Instant start = now.minus(90, ChronoUnit.DAYS);
+            Instant start = now.minus(period, ChronoUnit.DAYS);
 
             String startedAt = OHDEAR_FORMAT.format(start);
             String endedAt = OHDEAR_FORMAT.format(now);

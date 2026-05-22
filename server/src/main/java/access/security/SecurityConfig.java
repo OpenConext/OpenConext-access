@@ -117,6 +117,7 @@ public class SecurityConfig {
                                 "/api/v1/public/**",
                                 "/api/v1/manage/arp",
                                 "/api/v1/stats/loginTimeFrame",
+                                "/api/v1/monitoring",
                                 "/api/v1/manage/allowed-attributes",
                                 "/api/v1/manage/privacy",
                                 "/ui/**",

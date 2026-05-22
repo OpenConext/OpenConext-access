@@ -5,7 +5,7 @@ import {stopEvent} from "../utils/Utils.js";
 import {useNavigate} from "react-router";
 import {Button} from "@surfnet/sds";
 
-const tabNames = ["home", "connect", "institutions", "applications", "stats"];
+const tabNames = ["home", "connect", "institutions", "applications", "stats", "monitoring"];
 
 export const Navigation = ({mobile, path}) => {
 

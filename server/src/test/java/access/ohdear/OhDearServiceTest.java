@@ -1,12 +1,11 @@
 package access.ohdear;
 
 import access.CustomWireMockExtension;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.env.MockEnvironment;
 
 import java.nio.charset.Charset;
 
@@ -21,7 +20,8 @@ class OhDearServiceTest {
     protected OhDearService ohDearService = new OhDearService(
             "test-token",
             "http://localhost:8089/api",
-            true
+            true,
+            new ObjectMapper()
     );
 
     @Test
@@ -39,7 +39,7 @@ class OhDearServiceTest {
         stubFor(get(urlPathMatching("/api/monitors/2/uptime.*"))
                 .willReturn(okJson(json("uptime_array.json"))));
 
-        StatusResponse response = ohDearService.getAggregatedStatus();
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
 
         assertThat(response).isNotNull();
         assertThat(response.groups()).hasSize(2);
@@ -77,7 +77,7 @@ class OhDearServiceTest {
         stubFor(get(urlPathMatching("/api/monitors/.*/uptime.*"))
                 .willReturn(serverError()));
 
-        StatusResponse response = ohDearService.getAggregatedStatus();
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
 
         ServiceStatus serviceStatus = response.groups().stream()
                 .flatMap(g -> g.services().stream())
@@ -102,7 +102,7 @@ class OhDearServiceTest {
         stubFor(get(urlPathMatching("/api/monitors/.*/downtime.*"))
                 .willReturn(okJson(json("downtime.json"))));
 
-        StatusResponse response = ohDearService.getAggregatedStatus();
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
 
         ServiceStatus service = response.groups().stream()
                 .flatMap(g -> g.services().stream())
@@ -134,7 +134,7 @@ class OhDearServiceTest {
         stubFor(get(urlPathMatching("/api/monitors/.*/uptime.*"))
                 .willReturn(okJson(json("uptime_array.json"))));
 
-        StatusResponse response = ohDearService.getAggregatedStatus();
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
 
         assertThat(response.groups())
                 .anyMatch(g -> g.name().equals("Other"));

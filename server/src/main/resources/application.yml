@@ -204,7 +204,7 @@ s3storage:
 
 ohdear:
   apiKey: "test-token"
-  baseUrl: http://localhost:8089/api
+  baseUrl: http://localhost:8081
   enabled: false
 
 springdoc:

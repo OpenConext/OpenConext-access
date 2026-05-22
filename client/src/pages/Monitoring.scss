@@ -1,0 +1,447 @@
+@use "../styles/vars" as *;
+@use "../index";
+
+.monitoring-container {
+    padding: 35px 50px 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    @include index.page-media;
+
+    // ── Header ──────────────────────────────────────────────────────────────
+    .monitoring-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+
+        .monitoring-title {
+            flex: 1 1 auto;
+
+            h2 {
+                margin-bottom: 8px;
+            }
+
+            p {
+                color: var(--sl-color-neutral-600);
+                margin: 0;
+            }
+        }
+
+        // Shown only when a service is selected
+        .overall-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+
+            .status-label {
+                font-size: 0.9rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            strong {
+                font-size: 0.95rem;
+            }
+
+            .last-update-small {
+                font-size: 0.8rem;
+                color: var(--sl-color-neutral-500);
+            }
+        }
+
+        // Period toggle — uses SegmentedControl
+        .period-control {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+
+            .period-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--sl-color-neutral-700);
+            }
+        }
+    }
+
+    // ── Two-column body card ─────────────────────────────────────────────────
+    .monitoring-body {
+        display: flex;
+        background: white;
+        border: 1px solid var(--sl-color-neutral-200);
+        border-radius: 12px;
+        overflow: visible;
+        min-height: 520px;
+
+        // ── Left: service list ─────────────────────────────────────────────
+        .service-list {
+            width: 360px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--sl-color-neutral-200);
+            overflow-y: auto;
+            max-height: 72vh;
+            border-radius: 12px 0 0 12px;
+
+            // Search bar wrapper — SDS classes handle the input styling
+            .search-bar {
+                padding: 12px 14px;
+                border-bottom: 1px solid var(--sl-color-neutral-200);
+            }
+
+            // Loading spinner
+            .list-loading {
+                display: flex;
+                justify-content: center;
+                padding: 32px;
+
+                .spinner {
+                    width: 24px;
+                    height: 24px;
+                    border: 3px solid var(--sl-color-neutral-200);
+                    border-top-color: var(--sds--color--blue--400);
+                    border-radius: 50%;
+                    animation: spin 0.7s linear infinite;
+                }
+            }
+
+            // Group heading (e.g. "SAB", "SURFconext")
+            .group-header {
+                padding: 6px 16px;
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--sl-color-neutral-500);
+                background: var(--sl-color-neutral-100);
+                border-bottom: 1px solid var(--sl-color-neutral-150, #eee);
+                letter-spacing: 0.01em;
+            }
+
+            // Individual service row
+            .service-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid var(--sl-color-neutral-100);
+                transition: background 0.1s;
+
+                &:hover:not(.selected) {
+                    background: var(--sl-color-neutral-50);
+                }
+
+                &.selected {
+                    background: var(--sds--color--blue--700, #1565c0);
+                    color: white;
+
+                    .service-info span {
+                        color: rgba(255, 255, 255, 0.8);
+                    }
+                }
+
+                .service-info {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    min-width: 0;
+
+                    strong {
+                        font-weight: 600;
+                        font-size: 0.92rem;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    span {
+                        font-size: 0.8rem;
+                        color: var(--sl-color-neutral-500);
+                    }
+                }
+
+                .deselect-btn {
+                    background: transparent;
+                    border: none;
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 0.9rem;
+                    cursor: pointer;
+                    padding: 2px 4px;
+                    line-height: 1;
+                    flex-shrink: 0;
+
+                    &:hover {
+                        color: white;
+                    }
+                }
+            }
+        }
+
+        // ── Right: service detail / empty state ────────────────────────────
+        .service-detail {
+            flex: 1;
+            min-width: 0;
+            overflow-y: auto;
+            border-radius: 0 12px 12px 0;
+
+            // Empty state (no service selected)
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                min-height: 400px;
+                gap: 10px;
+                padding: 32px;
+                text-align: center;
+
+                .check-circle-large {
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 50%;
+                    background: #d4edda;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 4px;
+
+                    svg {
+                        circle {
+                            fill: transparent;
+                        }
+                    }
+                }
+
+                h3 {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                }
+
+                .last-update-text {
+                    color: var(--sl-color-neutral-500);
+                    margin: 0;
+                    font-size: 0.88rem;
+                }
+
+                .select-hint {
+                    color: var(--sl-color-neutral-500);
+                    font-style: italic;
+                    margin: 4px 0 0;
+                    font-size: 0.9rem;
+                }
+            }
+
+            // Detail view (service selected)
+            .detail-view {
+                padding: 32px 36px;
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+
+                // "Uptime {name} XX.XX%"
+                .uptime-heading {
+                    font-size: 1.05rem;
+                    font-weight: 700;
+                    margin: 0 0 16px;
+
+                    .uptime-pct {
+                        color: var(--sds--color--green--500, #2e7d32);
+                    }
+                }
+
+                // Bar chart
+                .uptime-bar {
+                    position: relative;
+                    display: flex;
+                    gap: 2px;
+                    height: 32px;
+                    margin-bottom: 6px;
+
+                    .bar-segment {
+                        flex: 1;
+                        border-radius: 2px;
+                        min-width: 0;
+                        cursor: default;
+
+                        &.ok {
+                            background: #a8dfc0;
+                        }
+
+                        &.incident {
+                            background: #f5c6cb;
+                        }
+
+                        &:hover {
+                            filter: brightness(0.9);
+                        }
+                    }
+                }
+
+                .bar-axis {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 0.78rem;
+                    color: var(--sl-color-neutral-500);
+                    margin-bottom: 36px;
+                }
+
+                // Incident history heading
+                .incidents-heading {
+                    font-size: 1.05rem;
+                    font-weight: 700;
+                    margin: 0 0 20px;
+                }
+
+                .no-incidents {
+                    color: var(--sl-color-neutral-500);
+                    font-style: italic;
+                    margin: 0;
+                }
+
+                // Incident list
+                .incident-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 28px;
+                }
+
+                .incident-day {
+                    display: flex;
+                    gap: 28px;
+                    align-items: flex-start;
+
+                    .incident-date {
+                        min-width: 110px;
+                        flex-shrink: 0;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        color: var(--sl-color-neutral-700);
+                        padding-top: 2px;
+                    }
+
+                    .incident-events {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        flex: 1;
+                    }
+                }
+
+                // Single event row (resolved / started)
+                .event {
+                    display: flex;
+                    gap: 12px;
+                    align-items: flex-start;
+
+                    .event-icon {
+                        flex-shrink: 0;
+                        display: flex;
+                        align-items: center;
+                        padding-top: 1px;
+                    }
+
+                    .event-body {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+
+                        .event-message {
+                            font-size: 0.9rem;
+                            font-weight: 500;
+                            color: var(--sl-color-neutral-800);
+                        }
+
+                        .event-time {
+                            font-size: 0.8rem;
+                            color: var(--sl-color-neutral-500);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Status dot (shared: list + overall status badge) ────────────────────
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-block;
+
+        &.operational {
+            background: #2ecc71;
+        }
+
+        &.degraded {
+            background: #f39c12;
+        }
+
+        &.down {
+            background: #e74c3c;
+        }
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Tooltip rendered via React portal onto document.body — must be top-level
+.bar-tooltip {
+    background: white;
+    border: 1px solid var(--sl-color-neutral-200);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    padding: 10px 14px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    min-width: 200px;
+
+    .bar-tooltip--date {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--sl-color-neutral-800);
+        margin-bottom: 4px;
+    }
+
+    .bar-tooltip--uptime {
+        font-size: 0.88rem;
+        color: var(--sl-color-neutral-700);
+        margin-bottom: 2px;
+
+        strong {
+            color: var(--sl-color-neutral-900);
+        }
+    }
+
+    .bar-tooltip--downtime {
+        font-size: 0.88rem;
+        color: var(--sl-color-neutral-700);
+
+        strong {
+            color: var(--sl-color-neutral-900);
+        }
+    }
+
+    // Arrow pointing down
+    .bar-tooltip--arrow {
+        position: absolute;
+        bottom: -7px;
+        left: 50%;
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-right: 1px solid var(--sl-color-neutral-200);
+        border-bottom: 1px solid var(--sl-color-neutral-200);
+        transform: translateX(-50%) rotate(45deg);
+    }
+}
