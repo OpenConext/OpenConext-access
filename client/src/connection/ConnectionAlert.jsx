@@ -34,16 +34,14 @@ export const ConnectionAlert = ({
         }
         if (isEmpty(application.connections)) {
             return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Info}
+                <Alert alertType={AlertType.Info}
                        asChild={true}
                        message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
             )
         }
         if (connectionNeedsApproval && !appInformationComplete) {
             return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Warning}
+                <Alert alertType={AlertType.Warning}
                        asChild={true}
                        message={I18n.t(`connection.applicationInformationHint${currentOrganization.manageIdentifier ? "" : "Vendor"}`)}/>
             )

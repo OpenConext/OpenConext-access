@@ -88,7 +88,7 @@ const nl = {
         applications: "Applicaties",
         policies: "Beleid",
         teams: "Teams",
-        statistics: "Statistics TODO",
+        statistics: "Statistieken",
         support: "Support",
         serviceDesk: "SURF Servicedesk",
         feedback: "Help ons verbeteren",

@@ -1,8 +1,7 @@
-{{requester.name}}</strong>
-            has requested to connect service {{serviceProviderName} to your organization {{organization.name}}
+{{requester.name}} heeft verzocht om dienst {{serviceProviderName}} te koppelen aan jouw organisatie {{organization.name}}
 
-Visit service:
+Bekijk de dienst:
 
 {{{ deepLink }}}
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}

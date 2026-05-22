@@ -1,7 +1,7 @@
-As a service provider, you allow institutions on SURFconext to connect your service automatically.
-You receive this email because you have chosen to receive notifications for new connections.
+Als dienstverlener sta je instellingen op SURFconext toe om jouw dienst automatisch te koppelen.
+Je ontvangt deze e-mail omdat je hebt gekozen om meldingen te ontvangen bij nieuwe koppelingen.
 
-{{user}} from Institution {{idpName}} has initiated the connection between their institution and your
-service {{spName}} (with entityID="{{spEntityID}}").
+{{user}} van instelling {{idpName}} heeft de koppeling geïnitieerd tussen hun instelling en jouw
+dienst {{spName}} (met entityID="{{spEntityID}}").
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}

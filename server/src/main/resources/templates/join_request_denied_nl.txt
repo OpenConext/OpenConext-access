@@ -1,3 +1,3 @@
-Your join request for <strong>{{joinRequest.organization.name}}</strong> has been denied.
+Jouw aansluitverzoek voor {{joinRequest.organization.name}} is afgewezen.
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}

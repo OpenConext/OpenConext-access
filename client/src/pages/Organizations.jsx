@@ -253,7 +253,7 @@ export const Organizations = ({pendingApproval}) => {
         {
             key: "manageIdentifier",
             header: I18n.t("organizations.isInternal"),
-            mapper: org => <div className="wrapper"><Checkbox value={!isEmpty(org.manageIdentifier)} disabled={true}/></div>
+            mapper: org => <div className="wrapper"><Checkbox value={!isEmpty(org.manageIdentifier)} readOnly={true}/></div>
         },
         {
             key: "adminEmail",

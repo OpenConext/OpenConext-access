@@ -1,8 +1,8 @@
-{{joinRequest.user.name}} (from {{joinRequest.user.schacHomeOrganization}})
-            has requested access to your organization {{joinRequest.organization.name}}
+{{joinRequest.user.name}} (van {{joinRequest.user.schacHomeOrganization}})
+heeft toegang aangevraagd voor jouw organisatie {{joinRequest.organization.name}}
 
-Accept joinRequest:
+Aansluitverzoek accepteren:
 
 {{{ url }}}
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}

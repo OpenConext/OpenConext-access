@@ -127,7 +127,6 @@ export const Connections = ({
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [jiraKey, setJiraKey] = useState(null);
     const [proceedWithProduction, setProceedWithProduction] = useState(false);
-    const [alertClosed, setAlertClosed] = useState(false);
 
     const connections = application.connections;
 
@@ -815,7 +814,7 @@ export const Connections = ({
                                       labels={["testConnection", "prodConnection"]}
                                       labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
                                       orientation={RadioOptionsOrientation.column}/>
-                        {(!appInformationComplete && !alertClosed && proceedWithProduction) &&
+                        {(!appInformationComplete && proceedWithProduction) &&
                             alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
                                 () => setTab("application"),
                                 I18n.t("connection.productionStatusSection.fillAppInformation"),
@@ -1074,8 +1073,7 @@ export const Connections = ({
 
     const alertInfo = (message, action, actionLabel, alertType = AlertType.Info) => {
         return (
-            <Alert close={() => setAlertClosed(true)}
-                   alertType={alertType}
+            <Alert alertType={alertType}
                    asChild={true}
                    action={action}
                    actionLabel={actionLabel}

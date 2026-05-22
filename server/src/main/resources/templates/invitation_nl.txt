@@ -1,8 +1,8 @@
-{{invitation.invitee.name}} (from {{invitation.invitee.schacHomeOrganization}})
-            has invited you to organization {{invitation.organization.name}}
+{{invitation.invitee.name}} (van {{invitation.invitee.schacHomeOrganization}})
+heeft je uitgenodigd voor organisatie {{invitation.organization.name}}
 
-Accept invitation:
+Uitnodiging accepteren:
 
 {{{ url }}}
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}
