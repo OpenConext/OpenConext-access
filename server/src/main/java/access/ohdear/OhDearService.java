@@ -3,6 +3,8 @@ package access.ohdear;
 import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,6 +31,8 @@ import static org.springframework.http.HttpEntity.EMPTY;
 @Service
 @SuppressWarnings("unchecked")
 public class OhDearService {
+
+    private static final Log LOG = LogFactory.getLog(OhDearService.class);
 
     private static final int PERIOD = 60;
     private static final int PERIOD_ALL = 364;
@@ -68,7 +72,13 @@ public class OhDearService {
     @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void refreshStatus() {
         List.of(PERIOD, PERIOD_ALL)
-                .forEach(period -> Objects.requireNonNull(cacheManager.getCache("status")).put(period, getAggregatedStatusInternal(period)));
+                .forEach(period -> {
+                    long time = System.currentTimeMillis();
+                    StatusResponse aggregatedStatusInternal = getAggregatedStatusInternal(period);
+                    Objects.requireNonNull(cacheManager.getCache("status")).put(period, aggregatedStatusInternal);
+                    LOG.info(String.format("Refreshed all ohDear stats for period %s in %s ms",
+                            period, System.currentTimeMillis() - time));
+                });
     }
 
     @Cacheable(value = "status", key = "#period")
@@ -155,6 +165,7 @@ public class OhDearService {
             return count[0] > 0 ? total[0] / count[0] : null;
 
         } catch (Exception e) {
+            LOG.error("Exception in fetchUptime", e);
             return null;
         }
     }
@@ -190,6 +201,7 @@ public class OhDearService {
 
             return incidents;
         } catch (Exception e) {
+            LOG.error("Exception in fetchIncidentsFromDowntime", e);
             return List.of();
         }
     }
@@ -200,10 +212,12 @@ public class OhDearService {
     }
 
     private String deriveStatus(Map<String, Object> monitor) {
-        String status = (String) monitor.get("status");
-        if ("down".equalsIgnoreCase(status)) return "down";
-        if ("degraded".equalsIgnoreCase(status)) return "degraded";
-        return "operational";
+        String status = ((String) monitor.getOrDefault("status", "operational")).toLowerCase();
+
+        return switch (status) {
+            case "down", "degraded" -> status;
+            default -> "operational";
+        };
     }
 
     private String deriveOverallStatus(List<Group> groups) {
