@@ -2,20 +2,17 @@ package access.ohdear;
 
 import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static org.springframework.http.HttpEntity.EMPTY;
+
 @Service
 @SuppressWarnings("unchecked")
 public class OhDearService {
@@ -34,7 +33,6 @@ public class OhDearService {
     private static final int PERIOD = 60;
     private static final int PERIOD_ALL = 364;
 
-    private final String apiToken;
     private final String baseUrl;
     private RestTemplate restTemplate;
     private final CacheManager cacheManager;
@@ -42,42 +40,35 @@ public class OhDearService {
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
     private final boolean enabled;
-    private final ObjectMapper objectMapper;
+    private StatusResponse disabledResponse;
 
+    @SneakyThrows
     public OhDearService(@Value("${ohdear.apiKey}") String apiToken,
                          @Value("${ohdear.baseUrl}") String baseUrl,
                          @Value("${ohdear.enabled}") boolean enabled,
                          ObjectMapper objectMapper,
                          CacheManager cacheManager) {
-        this.apiToken = apiToken;
         this.baseUrl = baseUrl;
         this.enabled = enabled;
-        this.objectMapper = objectMapper;
         this.cacheManager = cacheManager;
         if (enabled) {
             restTemplate = RestTemplateFactory.buildRestTemplate(apiToken);
+        } else {
+            disabledResponse = objectMapper.readValue(
+                    new ClassPathResource("ohdear/ohdear.json").getInputStream(),
+                    StatusResponse.class);
         }
     }
 
-    private HttpHeaders headers() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(apiToken);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        return headers;
-    }
-
     private Map<String, Object> get(String url) {
-        HttpEntity<Void> entity = new HttpEntity<>(headers());
-        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, EMPTY, Map.class);
         return response.getBody();
     }
 
     @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void refreshStatus() {
-        for (int period : List.of(PERIOD, PERIOD_ALL)) {
-            StatusResponse result = getAggregatedStatusInternal(period);
-            Objects.requireNonNull(cacheManager.getCache("status")).put(period, result);
-        }
+        List.of(PERIOD, PERIOD_ALL)
+                .forEach(period -> Objects.requireNonNull(cacheManager.getCache("status")).put(period, getAggregatedStatusInternal(period)));
     }
 
     @Cacheable(value = "status", key = "#period")
@@ -87,20 +78,14 @@ public class OhDearService {
 
     private StatusResponse getAggregatedStatusInternal(int period) {
         if (!enabled) {
-            try {
-                return objectMapper.readValue(
-                        new ClassPathResource("ohdear/ohdear.json").getInputStream(),
-                        StatusResponse.class);
-            } catch (IOException e) {
-                return new StatusResponse("operational", Instant.now().toString(), List.of());
-            }
+            return disabledResponse;
         }
         Map<String, Object> monitorsResponse = get(baseUrl + "/monitors");
         List<Map<String, Object>> monitors = (List<Map<String, Object>>) monitorsResponse.get("data");
 
         Map<String, List<ServiceStatus>> grouped = new HashMap<>();
 
-        for (Map<String, Object> monitor : monitors) {
+        monitors.forEach(monitor -> {
             Long id = ((Number) monitor.get("id")).longValue();
             String name = (String) monitor.get("label");
             String url = (String) monitor.get("url");
@@ -116,12 +101,10 @@ public class OhDearService {
             String groupName = (String) monitor.getOrDefault("group_name", "Other");
 
             grouped.computeIfAbsent(groupName, k -> new ArrayList<>()).add(service);
-        }
+        });
 
         List<Group> groups = new ArrayList<>();
-        for (Map.Entry<String, List<ServiceStatus>> e : grouped.entrySet()) {
-            groups.add(new Group(e.getKey(), e.getValue()));
-        }
+        grouped.forEach((groupName, services) -> groups.add(new Group(groupName, services)));
 
         return new StatusResponse(deriveOverallStatus(groups), Instant.now().toString(), groups);
     }
@@ -158,18 +141,18 @@ public class OhDearService {
 
             if (data == null || data.isEmpty()) return null;
 
-            double total = 0;
-            int count = 0;
+            double[] total = {0};
+            int[] count = {0};
 
-            for (Map<String, Object> entry : data) {
+            data.forEach(entry -> {
                 Object uptime = entry.get("uptime_percentage");
                 if (uptime instanceof Number) {
-                    total += ((Number) uptime).doubleValue();
-                    count++;
+                    total[0] += ((Number) uptime).doubleValue();
+                    count[0]++;
                 }
-            }
+            });
 
-            return count > 0 ? total / count : null;
+            return count[0] > 0 ? total[0] / count[0] : null;
 
         } catch (Exception e) {
             return null;
@@ -197,10 +180,10 @@ public class OhDearService {
 
             List<Incident> incidents = new ArrayList<>();
 
-            for (Map<String, Object> downtime : data) {
+            data.forEach(downtime -> {
                 String message = (String) downtime.getOrDefault("notes_markdown", downtime.getOrDefault("notes_html", "Service disruption detected"));
                 incidents.add(new Incident((String) downtime.get("started_at"), (String) downtime.get("ended_at"), message));
-            }
+            });
 
             // sort newest first (better for UI)
             incidents.sort((a, b) -> b.getStartedAt().compareTo(a.getStartedAt()));
@@ -212,8 +195,7 @@ public class OhDearService {
     }
 
     private Object getRaw(String url) {
-        HttpEntity<Void> entity = new HttpEntity<>(headers());
-        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, EMPTY, Object.class);
         return response.getBody();
     }
 
@@ -227,11 +209,15 @@ public class OhDearService {
     private String deriveOverallStatus(List<Group> groups) {
         boolean hasDown = groups.stream().flatMap(g -> g.services().stream())
                 .anyMatch(s -> "down".equals(s.status()));
-        if (hasDown) return "down";
+        if (hasDown) {
+            return "down";
+        }
 
         boolean hasDegraded = groups.stream().flatMap(g -> g.services().stream())
                 .anyMatch(s -> "degraded".equals(s.status()));
-        if (hasDegraded) return "degraded";
+        if (hasDegraded) {
+            return "degraded";
+        }
 
         return "operational";
     }
