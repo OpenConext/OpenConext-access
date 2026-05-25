@@ -8,6 +8,7 @@ import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
 import {useNavigate} from "react-router-dom";
 import AlertIcon from "../icons/alert-triangle.svg";
+import I18n from "../locale/I18n.js";
 
 export default function InputField({
                                        onChange,
@@ -51,7 +52,9 @@ export default function InputField({
     return (
         <div className={topClassName}>
             {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
-                {isAlert && <AlertIcon/>}
+                {isAlert && <Tooltip standalone={true}
+                                     children={<AlertIcon/>}
+                                     tip={I18n.t("forms.changeRequest")}/>}
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>}
             <div className="inner-input-field">

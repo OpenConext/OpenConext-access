@@ -512,7 +512,9 @@ export const Connections = ({
                     <>
                         <div>
                             <span className="label">{I18n.t("connection.grantTypes")}
-                                {changeRequestsKeys.includes("grantTypes") && <AlertIcon/>}
+                                {changeRequestsKeys.includes("grantTypes") && <Tooltip standalone={true}
+                                                                                       children={<AlertIcon/>}
+                                                                                       tip={I18n.t("forms.changeRequest")}/>}
                             </span>
                             <div className="grant-types">
                                 {Object.keys(grantTypes).map(grantType =>
@@ -564,7 +566,9 @@ export const Connections = ({
                         </div>
                         <div className="redirect-urls-container">
                             <span className="label">{I18n.t("connection.redirectUrls")}
-                                {changeRequestsKeys.includes("redirectUrls") && <AlertIcon/>}</span>
+                                {changeRequestsKeys.includes("redirectUrls") && <Tooltip standalone={true}
+                                                                                         children={<AlertIcon/>}
+                                                                                         tip={I18n.t("forms.changeRequest")}/>}</span>
                             <div className="redirect-urls">
                                 {connection.redirectUrls.map((value, index) =>
                                     <div className="redirect-url" key={index}>
@@ -828,7 +832,9 @@ export const Connections = ({
                         <div className="identity-providers">
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.who")}
-                                    {changeRequestsKeys.includes("visibility") && <AlertIcon/>}
+                                    {changeRequestsKeys.includes("visibility") && <Tooltip standalone={true}
+                                                                                           children={<AlertIcon/>}
+                                                                                           tip={I18n.t("forms.changeRequest")}/>}
                                 </p>
                                 <RadioOptions name={"visibility"}
                                               value={connection.visibility}
@@ -843,7 +849,9 @@ export const Connections = ({
                             </div>
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.connect")}
-                                    {changeRequestsKeys.includes("connectOption") && <AlertIcon/>}
+                                    {changeRequestsKeys.includes("connectOption") && <Tooltip standalone={true}
+                                                                                              children={<AlertIcon/>}
+                                                                                              tip={I18n.t("forms.changeRequest")}/>}
                                 </p>
                                 <RadioOptions name={"connectOption"}
                                               value={connection.connectOption}
@@ -962,7 +970,9 @@ export const Connections = ({
         const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)
         return (
             <section className="inner-right-informational">
-                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <AlertIcon/>}</h3>
+                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip standalone={true}
+                                                                                                             children={<AlertIcon/>}
+                                                                                                             tip={I18n.t("forms.changeRequest")}/>}</h3>
                 {isContentApp && <Alert alertType={AlertType.Warning}
                                         asChild={true}
                                         message={I18n.t("connection.informational.contentAppAlert")}/>

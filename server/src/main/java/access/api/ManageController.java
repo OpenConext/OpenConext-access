@@ -14,9 +14,11 @@ import access.manage.MetaDataFeedParser;
 import access.manage.PolicyAccessRights;
 import access.manage.PolicyDefinition;
 import access.model.Authority;
+import access.model.Connection;
 import access.model.EntityType;
 import access.model.Organization;
 import access.model.User;
+import access.repository.ConnectionRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -73,11 +75,12 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final OrganizationRepository organizationRepository;
     private final JiraClient jiraClient;
     private final UserRepository userRepository;
+    private final ConnectionRepository connectionRepository;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
                             OrganizationRepository organizationRepository,
-                            JiraClient jiraClient, UserRepository userRepository) throws IOException {
+                            JiraClient jiraClient, UserRepository userRepository, ConnectionRepository connectionRepository) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -87,6 +90,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         this.organizationRepository = organizationRepository;
         this.jiraClient = jiraClient;
         this.userRepository = userRepository;
+        this.connectionRepository = connectionRepository;
     }
 
     @GetMapping("/arp")
@@ -395,6 +399,12 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
+
+        String metaDataId = changeRequest.getMetaDataId();
+        Connection connection = connectionRepository.findByProtocolAndManageIdentifier(EntityType.valueOf(changeRequest.getType()), metaDataId)
+                .orElseThrow(() -> new NotFoundException("No connection found for " + metaDataId));
+        User userFromDB = reinitializeUser(user, userRepository);
+        confirmApplicationWriteAccess(userFromDB, connection.getApplication());
 
         //change request has non guessable identifier
         manage.rejectChangeRequest(changeRequest);

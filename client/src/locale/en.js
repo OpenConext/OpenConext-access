@@ -969,6 +969,7 @@ const en = {
         lessLabel: "Show me less",
         you: "You",
         copied: "Copied",
+        changeRequest: "There is an outstanding change request for this attribute.<br/><br/>The displayed value is the current value. See the outstanding changes for the requested value."
     },
     feedback: {
         title: "Provide Feedback",

@@ -192,7 +192,7 @@ public class ConnectionController implements UserAccessRights {
         connection.merge(connectionData);
 
         if (connection.changeRequestRequired()) {
-            //Not allowed to sync the connection to Manage. Create ChangeRequests
+            //Not allowed to sync the connection to Manage. Create or update outstanding ChangeRequest
             connection = this.productionReadyChangeRequests(connection, user);
             connection.convertChangeRequests(manage.getChangeRequests(connection));
         } else {
@@ -346,8 +346,10 @@ public class ConnectionController implements UserAccessRights {
                         user.getEmail()
                 ));
                 Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                        "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                                user.getName(), connection.getName(), jiraKey));
+                        "notes", String.format("Data change requested by %s for %s. See Jira %s",
+                                user.getName(),
+                                connection.getName(),
+                                jiraKey));
                 ChangeRequest changeRequest = changeRequestOptional.get();
                 changeRequest.setTicketKey(jiraKey);
                 changeRequest.setAuditData(auditData);

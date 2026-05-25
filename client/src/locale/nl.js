@@ -969,6 +969,7 @@ const nl = {
         lessLabel: "Toon minder",
         you: "Jij",
         copied: "Gekopieerd",
+        changeRequest: "Er is een openstaand wijzigingsverzoek voor dit attribuut.<br/><br/>De weergegeven waarde is de huidige waarde. Bekijk de openstaande wijzigingen voor de aangevraagde waarde."
     },
     feedback: {
         title: "Feedback geven",
