@@ -377,7 +377,7 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
-    void rejectChangeRequest() throws Exception {
+    void rejectChangeRequest() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
         stubFor(put(urlPathMatching("/manage/api/internal/change-requests/reject"))
                 .willReturn(aResponse().withStatus(200)));
@@ -388,7 +388,7 @@ class ManageControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(Map.of("id", "id", "type", EntityType.saml20_idp.name(), "metaDataId", "12"))
+                .body(Map.of("id", "id", "type", EntityType.oidc10_rp.name(), "metaDataId", "MANAGE_IDENTIFIER"))
                 .put("/api/v1/manage/reject-change-request")
                 .then()
                 .statusCode(200);
