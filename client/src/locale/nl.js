@@ -907,6 +907,7 @@ const nl = {
         refreshTokenValidity: "Refresh‑token‑geldigheid in seconden",
         visible_to_all: "Alle organisaties",
         visible_to_none: "Niemand (app nu verbergen)",
+        visible_to_idp_only: "Alleen medewerkers van gekoppelde instellingen",
         connect_with_interaction: "Nee, een koppeling moet worden goedgekeurd",
         connect_without_interaction_with_email: "Ja, maar met een notificatie‑e‑mail",
         connect_without_interaction_without_email: "Ja, zonder notificatie‑e‑mail",

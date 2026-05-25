@@ -194,8 +194,11 @@ export const Connections = ({
             convertedConnection.new = true;
             convertedConnection.changeRequests = [];
             setConnection(convertedConnection);
-            //Need to some time, otherwise the view goed back to the overview
-            setTimeout(() => setLoading(false), 275);
+            if (section === sections.pendingChanges) {
+                setSection(sections.technical);
+            }
+            //Need to some time, otherwise the view goes back to the overview
+            setTimeout(() => setLoading(false), 175);
             setFlash(I18n.t("connection.flash.copied", {name: originalName}))
         })
     }
@@ -1188,7 +1191,12 @@ export const Connections = ({
                 })
                 .catch(() => {
                     setLoading(false);
-                    setFlash(I18n.t("forms.error"), "error")
+                    setConfirmation({
+                        open: true,
+                        action: () => setConfirmation({open: false}),
+                        question: I18n.t("error.jiraDown"),
+                        okButton: I18n.t("forms.ok")
+                    });
                 });
 
         }
@@ -1397,7 +1405,11 @@ export const Connections = ({
                     <h3>{I18n.t(`connection.allConnections`)}</h3>
                     <Button txt={I18n.t("testing.newConnection")}
                             type={ButtonType.Secondary}
-                            onClick={() => initConnection(true)}/>
+                            onClick={() => {
+                                setSection(sections.technical);
+                                setChangeRequestsKeys([]);
+                                initConnection(true);
+                            }}/>
                 </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&

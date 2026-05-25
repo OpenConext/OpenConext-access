@@ -130,6 +130,7 @@ export const Connection = () => {
             status: CONNECTION_STATUSES.OPEN,
             motivations: {},
             additionalAttributes: [],
+            changeRequests: [],
             profile: application.type === "APP" ? profileOptions[0] : profileOptions[1],
             profileMotivation: "",
             allowedEntities: iDps.map(idp => idp.entityid),

@@ -907,6 +907,7 @@ const en = {
         refreshTokenValidity: "Refresh token validity in seconds",
         visible_to_all: "All organisations",
         visible_to_none: "No one (hide the app for now)",
+        visible_to_idp_only: "Only employees of linked institutions ",
         connect_with_interaction: "No, a connection must be approved",
         connect_without_interaction_with_email: "Yes, but with a notification email",
         connect_without_interaction_without_email: "Yes, without notification email",
