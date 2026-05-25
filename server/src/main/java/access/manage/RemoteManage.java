@@ -269,6 +269,7 @@ public class RemoteManage implements Manage {
         LOG.debug("identityProvidersLight");
 
         Map<String, Object> baseQuery = getBaseQuery(false);
+        baseQuery.put("state", "prodaccepted");
         ((List) baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
 
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
@@ -282,11 +283,13 @@ public class RemoteManage implements Manage {
         LOG.debug("serviceProvidersLight");
 
         Map<String, Object> baseQuery = getBaseQuery(false);
+        baseQuery.put("state", "prodaccepted");
         List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
         requestedAttributes.add("metaDataFields.coin:interfed_source");
         requestedAttributes.add("metaDataFields.coin:ss:hidden");
         requestedAttributes.add("metaDataFields.coin:ss:idp_visible_only");
         requestedAttributes.add("metaDataFields.application_tags");
+
 
         String spUrl = String.format("%s/manage/api/internal/search/%s", url, EntityType.saml20_sp.name());
         List<Map<String, Object>> serviceProviders = restTemplate.postForObject(spUrl, baseQuery, List.class);
