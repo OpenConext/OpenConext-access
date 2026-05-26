@@ -45,7 +45,6 @@ const Organization = () => {
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState(views.card);
     const [organization, setOrganization] = useState({});
-    const [alertClosed, setAlertClosed] = useState(false);
     const [isExternal, setIsExternal] = useState(true);
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [mayCreateApplication, setMayCreateApplication] = useState(false);
@@ -98,12 +97,11 @@ const Organization = () => {
     }, [navigate, organizationId, user]);
 
     const alertInfo = () => {
-        if (alertClosed || organization.applicationCount > 0) {
+        if (organization.applicationCount > 0) {
             return null;
         }
         return (
-            <Alert close={() => setAlertClosed(true)}
-                   alertType={AlertType.Info}
+            <Alert alertType={AlertType.Info}
                    asChild={true}
                    message={I18n.t("organization.alertInfo")}/>
         )
