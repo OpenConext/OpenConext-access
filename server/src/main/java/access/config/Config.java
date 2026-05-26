@@ -33,6 +33,7 @@ public class Config {
     private List<String> acrValues;
     private String minimalStepupAcrLevel;
     private boolean feedbackWidgetEnabled;
+    private boolean demoSeedEnabled;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -49,6 +50,7 @@ public class Config {
         this.acrValues = base.acrValues;
         this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
+        this.demoSeedEnabled = base.demoSeedEnabled;
     }
 
     public Config withAuthenticated(boolean authenticated) {

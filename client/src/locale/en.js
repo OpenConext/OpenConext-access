@@ -121,6 +121,7 @@ const en = {
         import: "import",
         migrate: "migrate",
         cron: "Cron",
+        seed: "Seed",
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -194,6 +195,7 @@ const en = {
         import: "Manage import",
         migrate: "App migration",
         cron: "Cron",
+        seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
     },
@@ -1388,6 +1390,13 @@ const en = {
             info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, warn and delete inactive users.",
             trigger: "Run",
             clear: "Clear",
+        },
+        seed: {
+            info: "Load demo data into the system. This creates two organisations with users, applications and connections, ready for a demonstration.",
+            trigger: "Run demo seed",
+            confirmationHeader: "Run demo seed",
+            confirmationQuestion: "Are you sure you want to run the demo seed? All existing data will be permanently removed and replaced with demo data.",
+            success: "The demo seed has been successfully loaded.",
         },
     },
     monitoring: {

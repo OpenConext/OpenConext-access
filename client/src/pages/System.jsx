@@ -11,8 +11,9 @@ import {useShallow} from "zustand/react/shallow";
 import {ManageImport} from "./ManageImport.jsx";
 import ApplicationMigrate from "./ApplicationMigrate.jsx";
 import {Cron} from "./Cron.jsx";
+import {Seed} from "./Seed.jsx";
 
-const tabNames = ["users", "organizations", "organizationPendingApproval", "import", "migrate", "cron"]
+const tabNames = ["users", "organizations", "organizationPendingApproval", "import", "migrate", "cron", "seed"]
 
 const organizationTabs = ["organizations", "organizationPendingApproval"];
 
@@ -75,6 +76,9 @@ const System = () => {
             }
             case "cron": {
                 return <Cron />
+            }
+            case "seed": {
+                return <Seed />
             }
         }
     }

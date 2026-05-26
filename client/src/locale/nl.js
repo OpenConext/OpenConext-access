@@ -121,6 +121,7 @@ const nl = {
         import: "importeren",
         migrate: "migreren",
         cron: "Cron",
+        seed: "Seed",
     },
     welcome: {
         greeting: "Welkom {{name}}",
@@ -194,6 +195,7 @@ const nl = {
         import: "Import beheren",
         migrate: "App‑migratie",
         cron: "Cron",
+        seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
     },
@@ -1388,6 +1390,13 @@ const nl = {
             info: "Voer de ResourceCleaner-cronjob handmatig uit. Dit verstuurt contactherinneringen, verwijdert inactieve organisaties en waarschuwt of verwijdert inactieve gebruikers.",
             trigger: "Uitvoeren",
             clear: "Wissen",
+        },
+        seed: {
+            info: "Laad demogegevens in het systeem. Dit maakt twee organisaties aan met gebruikers, applicaties en koppelingen, klaar voor een demonstratie.",
+            trigger: "Demoseed uitvoeren",
+            confirmationHeader: "Demoseed uitvoeren",
+            confirmationQuestion: "Weet je zeker dat je de demoseed wilt uitvoeren? Alle bestaande gegevens worden permanent verwijderd en vervangen door demogegevens.",
+            success: "De demoseed is succesvol geladen.",
         },
     },
     monitoring: {

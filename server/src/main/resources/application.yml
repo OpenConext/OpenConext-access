@@ -112,6 +112,7 @@ config:
   sram: "https://test.sram.surf.nl/"
   service_desk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
   feedback_widget_enabled: true
+  demo_seed_enabled: false
   test_environment: false
   identity_providers:
       - name: "SXS IdP"

@@ -465,3 +465,7 @@ export function monitoring(period = 60) {
 export function cronCleanup() {
     return fetchJson("/api/v1/system/cron/cleanup");
 }
+
+export function demoSeed() {
+    return postPutJson("/api/v1/system/seed/demo", {}, "POST");
+}

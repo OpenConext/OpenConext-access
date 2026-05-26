@@ -15,3 +15,30 @@ div.system-outer-container {
         padding: $page-padding;
     }
 }
+
+.seed-loading {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+
+    .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid var(--sl-color-neutral-200);
+        border-top-color: var(--sds--color--blue--400);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.seed-success {
+    margin-top: var(--sds--space--3);
+    color: var(--sds--color--green--500, #2e7d32);
+    font-weight: 500;
+}
