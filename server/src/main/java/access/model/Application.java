@@ -83,6 +83,9 @@ public class Application implements NameHolder {
     @NotNull
     private ApplicationType type = ApplicationType.APP;
 
+    @OneToOne(mappedBy = "application", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Contract contract;
+
     public Application(String name, Organization organization, String createdBy, Map<String, Object> metaData) {
         this.name = name;
         this.organization = organization;
