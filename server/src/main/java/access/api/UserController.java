@@ -127,8 +127,8 @@ public class UserController implements UserAccessRights {
 
             // Provision the user into the organization, this is only done once for a user.
             if (userFromDB.getOrganizationMemberships().stream()
-                    .noneMatch(organizationMembership -> organizationMembership.getOrganization()
-                            .getManageIdentifier().equals(manageIdentifier))) {
+                    .noneMatch(organizationMembership -> Objects.equals(organizationMembership.getOrganization()
+                            .getManageIdentifier(), manageIdentifier))) {
                 Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
                 Institution institution = (Institution) claims.getOrDefault(InstitutionAdmin.INSTITUTION, null);
                 userFromDB.setInstitution(institution);
