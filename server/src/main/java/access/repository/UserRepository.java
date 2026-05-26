@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -45,5 +46,23 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
     Page<Map<String, Object>> searchByPage(Pageable pageable);
 
     @Query("SELECT u FROM users u WHERE u.organizationMemberships IS NOT EMPTY AND (u.lastActivity IS NULL OR u.lastActivity < :cutoff)")
-    List<User> findInactiveUsersWithMemberships(@org.springframework.data.repository.query.Param("cutoff") Instant cutoff);
+    List<User> findInactiveUsersWithMemberships(@Param("cutoff") Instant cutoff);
+
+    @Query(value = """
+            SELECT u.email, u.name
+            FROM users u
+            INNER JOIN organization_memberships om_admin
+                ON om_admin.user_id = u.id
+                AND om_admin.organization_id = :organizationId
+                AND om_admin.authority = 'ADMIN'
+            WHERE EXISTS (
+                SELECT 1
+                FROM organization_memberships om_member
+                WHERE om_member.user_id = :userId
+                  AND om_member.organization_id = :organizationId
+            )
+            LIMIT 1
+            """, nativeQuery = true)
+    Map<String, Object> findAdminByOrganizationAndMember(@Param("organizationId") Long organizationId,
+                                                                   @Param("userId") Long userId);
 }

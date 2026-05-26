@@ -338,6 +338,14 @@ public class OrganizationController implements UserAccessRights {
         return deleteResult();
     }
 
+    @GetMapping("/admin-email/{organizationId}")
+    public ResponseEntity<Map<String, Object>> adminEmail(User user, @PathVariable Long organizationId) {
+        LOG.debug("/admin-email by: " + user.getEmail());
+
+        Map<String, Object> admin = userRepository.findAdminByOrganizationAndMember(organizationId, user.getId());
+        return ResponseEntity.ok(admin);
+    }
+
     @GetMapping("/identity-providers-allowed-connections/{organizationId}")
     public ResponseEntity<List<Map<String, Object>>> identityProvidersByAllowedConnections(User user,
                                                                                            @PathVariable Long organizationId) {

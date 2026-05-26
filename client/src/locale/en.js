@@ -156,7 +156,7 @@ const en = {
             maintainRoles: "Manage roles",
             teamCentral: "Central team",
             you: "You",
-            responsible: "Responsible: <a href='mailto:{{mail}}'>{{name}}</a>",
+            responsible: "Responsible: <a href='mailto:{{email}}'>{{name}}</a>",
             maintainTeam: "Manage team",
         },
         catalogue: {

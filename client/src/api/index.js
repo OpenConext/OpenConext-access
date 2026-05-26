@@ -172,6 +172,10 @@ export function identityProvidersByUsedConnectionsForOrganization(organizationId
     return fetchJson(`/api/v1/organizations/identity-providers-allowed-connections/${organizationId}`);
 }
 
+export function organizationAdminByOrganizationId(organizationId) {
+    return fetchJson(`/api/v1/organizations/admin-email/${organizationId}`);
+}
+
 //JoinRequest
 export function newJoinRequest(joinRequest) {
     return postPutJson("/api/v1/join/", joinRequest, "POST");

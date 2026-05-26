@@ -1,5 +1,5 @@
 import "./UserHome.scss";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {Button, ButtonType} from "@surfnet/sds";
 import I18n from "../locale/I18n";
@@ -9,6 +9,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import DOMPurify from "dompurify";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 import {useShallow} from "zustand/react/shallow";
+import {organizationAdminByOrganizationId} from "../api/index.js";
 
 const UserHome = () => {
 
@@ -18,6 +19,7 @@ const UserHome = () => {
     })));
 
     const navigate = useNavigate();
+    const [admin, setAdmin] = useState(null);
 
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
@@ -33,8 +35,14 @@ const UserHome = () => {
                     {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
                 ]
             });
+            if (currentOrganization?.id) {
+                organizationAdminByOrganizationId(currentOrganization.id)
+                    .then(res => {
+                        setAdmin(isEmpty(res) ? null : {email: res.email, name: res.name});
+                    });
+            }
         }
-    }, [newLocation]);
+    }, [currentOrganization, newLocation]);
 
     if (newLocation !== null) {
         return <Navigate to={newLocation} replace/>;
@@ -65,12 +73,12 @@ const UserHome = () => {
                                 type={ButtonType.GhostLight}/>
                         <div className="sds--divider largest"/>
                         <h5>{I18n.t("userHome.central.teamCentral")}</h5>
-                        <p dangerouslySetInnerHTML={{
+                       {!isEmpty(admin) && <p dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(I18n.t("userHome.central.responsible", {
-                                email: "todo@example.com",
-                                name: "todo-name",
+                                email: admin.email,
+                                name: admin.name,
                             }))
-                        }}/>
+                        }}/>}
                         <Button onClick={() => navigateInner(mainMenuItems.users, `/users/${currentOrganization.id}`)}
                                 txt={I18n.t("userHome.central.maintainTeam")}
                                 type={ButtonType.GhostLight}/>
@@ -100,12 +108,12 @@ const UserHome = () => {
                                 type={ButtonType.GhostLight}/>
                         <div className="sds--divider"/>
                         <h5>{I18n.t("userHome.decentral.teamDecentral")}</h5>
-                        <p dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(I18n.t("userHome.decentral.responsible", {
-                                email: "todo@example.com",
-                                name: "todo-name",
-                            }))
-                        }}/>
+                        {/*<p dangerouslySetInnerHTML={{*/}
+                        {/*    __html: DOMPurify.sanitize(I18n.t("userHome.decentral.responsible", {*/}
+                        {/*        email: "todo@example.com",*/}
+                        {/*        name: "todo-name",*/}
+                        {/*    }))*/}
+                        {/*}}/>*/}
                         <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
                                 txt={I18n.t("userHome.decentral.maintainTeamDecentral")}
                                 type={ButtonType.GhostLight}/>

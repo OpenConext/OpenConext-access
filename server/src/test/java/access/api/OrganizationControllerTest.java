@@ -517,4 +517,41 @@ class OrganizationControllerTest extends AbstractTest {
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
+
+    @Test
+    void adminEmail() {
+        // EXTERNAL_USER_SUB is seeded as GUEST of ShareLogics; manager (MANAGE_SUB) is the ADMIN
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+
+        Map<String, Object> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
+                .get("/api/v1/organizations/admin-email/{organizationId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals("mary.doe@example.com", result.get("email"));
+        assertEquals("Mary Doe", result.get("name"));
+    }
+
+    @Test
+    void adminEmailNotMember() {
+        // EXTERNAL_USER_SUB is not a member of Logistics → expects empty map
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+
+        Map<String, String> res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", seedIdentifiers.get(LOGISTICS))
+                .get("/api/v1/organizations/admin-email/{organizationId}")
+                .as(new TypeRef<>() {});
+        assertTrue(res.isEmpty());
+    }
 }

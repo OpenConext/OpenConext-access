@@ -156,7 +156,7 @@ const nl = {
             maintainRoles: "Beheer rollen",
             teamCentral: "Centraal team",
             you: "Jij",
-            responsible: "Verantwoordelijke: <a href='mailto:{{mail}}'>{{name}}</a>",
+            responsible: "Verantwoordelijke: <a href='mailto:{{email}}'>{{name}}</a>",
             maintainTeam: "Beheer team",
         },
         catalogue: {
