@@ -25,9 +25,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
+import org.passay.data.EnglishCharacterData;
+import org.passay.generate.PasswordGenerator;
+import org.passay.rule.CharacterRule;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,8 +72,8 @@ public class ConnectionController implements UserAccessRights {
     private final UserRepository userRepository;
     private final Manage manage;
     private final JiraClient jiraClient;
-    private final PasswordGenerator passwordGenerator = new PasswordGenerator();
-    private final List<CharacterRule> rules = initPasswordGeneratorRules();
+    private final List<CharacterRule> passwordGeneratorRules = initPasswordGeneratorRules();
+    private final PasswordGenerator passwordGenerator = new PasswordGenerator(SECRET_LENGTH, passwordGeneratorRules);
     private final ConnectionProviderConverter connectionProviderConverter;
     private final ObjectMapper objectMapper;
 
@@ -214,7 +214,7 @@ public class ConnectionController implements UserAccessRights {
     public Map<String, String> secret(User user, @PathVariable("connectionId") Long connectionId) {
         Connection connection = findConnectionForAuthorizedUser(user, connectionId);
 
-        String secret = passwordGenerator.generatePassword(SECRET_LENGTH, rules);
+        String secret = passwordGenerator.generate().toString();
         connection.getMetaData().put("secret", secret);
         connection.setSecretSet(false);
         saveConnection(connection);
@@ -414,7 +414,7 @@ public class ConnectionController implements UserAccessRights {
             boolean secretNotSet = !connection.isSecretSet();
             if (isPrivateRelyingParty && secretNotSet) {
                 //generate secret if it is not already set, but store the raw-text variant, because Manage encodes it
-                String secret = (String) connection.getMetaData().getOrDefault("secret", passwordGenerator.generatePassword(SECRET_LENGTH, rules));
+                String secret = (String) connection.getMetaData().getOrDefault("secret", passwordGenerator.generate().toString());
                 connection.getMetaData().put("secret", secret);
                 connection.setSecretSet(true);
             }
