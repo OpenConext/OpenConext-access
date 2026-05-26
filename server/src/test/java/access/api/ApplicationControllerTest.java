@@ -336,6 +336,43 @@ class ApplicationControllerTest extends AbstractTest {
     }
 
     @Test
+    void migrateWithIdentityProviderChange() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Application applicationBuddyCheck = applicationRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        assertEquals(SHARE_LOGICS, applicationBuddyCheck.getOrganization().getName());
+
+        Organization newOrganization = organizationRepository.findById(seedIdentifiers.get(FAR_WIND)).get();
+        newOrganization.setManageIdentifier("7");
+        organizationRepository.save(newOrganization);
+        //Will be called to migrate the coin:institution_guid
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+
+        MigrateApplicationRequest migrateApplicationRequest = new MigrateApplicationRequest(
+                seedIdentifiers.get(BUDDY_CHECK),
+                seedIdentifiers.get(FAR_WIND)
+        );
+        stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
+        Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connectionProd.setManageIdentifier("5");
+        super.stubForSaveProvider(connectionProd);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(migrateApplicationRequest)
+                .put("/api/v1/applications/migrate")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        applicationBuddyCheck = applicationRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        assertEquals(FAR_WIND, applicationBuddyCheck.getOrganization().getName());
+
+    }
+
+    @Test
     void importEntity() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
 

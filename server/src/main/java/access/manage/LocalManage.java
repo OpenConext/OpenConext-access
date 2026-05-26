@@ -218,7 +218,7 @@ public final class LocalManage implements Manage {
                 .filter(provider -> {
                     Map<String, Object> data = getData(provider);
                     Map<String, Object> metaDataFields = getMetaDataFields(data);
-                    return organisationGUID.equalsIgnoreCase((String) metaDataFields.get("coin:institution_guid"));
+                    return organisationGUID.equalsIgnoreCase((String) metaDataFields.get(INSTITUTION_GUID));
                 })
                 .toList();
     }

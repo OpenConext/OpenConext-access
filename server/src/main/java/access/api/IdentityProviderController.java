@@ -39,6 +39,7 @@ import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.manage.Manage.INSTITUTION_GUID;
 import static access.manage.ManageData.*;
 
 @RestController
@@ -118,9 +119,9 @@ public class IdentityProviderController implements UserAccessRights {
         Map<String, Object> spMetaDataFields = getMetaDataFields(getData(serviceProvider));
         DashBoardConnectionOption connectOption = DashBoardConnectionOption
                 .fromValue((String) spMetaDataFields.getOrDefault("coin:dashboard_connect_option", "connect_with_interaction"));
-        String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get("coin:institution_guid");
+        String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get(INSTITUTION_GUID);
 
-        boolean idpAndSpShareInstitution = spMetaDataFields.getOrDefault("coin:institution_guid", "nope")
+        boolean idpAndSpShareInstitution = spMetaDataFields.getOrDefault(INSTITUTION_GUID, "nope")
                 .equals(idpInstitutionGUID);
         boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals(DashBoardConnectionOption.connectWithInteraction);
         if (connectWithoutInteraction) {

@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.api.Results.deleteResult;
+import static access.manage.Manage.INSTITUTION_GUID;
 import static access.manage.ManageData.*;
 
 @RestController
@@ -293,18 +294,33 @@ public class ApplicationController implements UserAccessRights {
 
         Application application = applicationRepository.findById(migrateApplicationRequest.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Application not found"));
-        Organization organization = organizationRepository.findById(migrateApplicationRequest.getNewOrganizationId())
+        Organization newOrganization = organizationRepository.findById(migrateApplicationRequest.getNewOrganizationId())
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
-        application.setOrganization(organization);
+        application.setOrganization(newOrganization);
         applicationRepository.save(application);
+
+        AtomicReference<String> institutionGuid = new AtomicReference<>();
+        if (StringUtils.hasText(newOrganization.getManageIdentifier())) {
+            Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, newOrganization.getManageIdentifier());
+            Map<String, Object> metaDataFields = getMetaDataFields(getData(identityProvider));
+            institutionGuid.set((String) metaDataFields.get(INSTITUTION_GUID));
+        }
+
         application.getConnections()
                 .stream()
                 .filter(connection -> !isEmpty(connection.getManageIdentifier()))
                 .forEach(connection -> {
             Map<String, Object> provider = manage.providerByConnection(connection);
             Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-            metaDataFields.put("OrganizationName:en", organization.getName());
-            metaDataFields.put("OrganizationName:nl", organization.getName());
+            metaDataFields.put("OrganizationName:en", newOrganization.getName());
+            metaDataFields.put("OrganizationName:nl", newOrganization.getName());
+            //The connections need to be linked to the new identityProvider - if the new Organization is a known IdP in Manage
+            if (StringUtils.hasText(institutionGuid.get())) {
+                metaDataFields.put(INSTITUTION_GUID, institutionGuid.get());
+            } else {
+                metaDataFields.remove(INSTITUTION_GUID);
+            }
+
             Map<String, Object> updatedProvider = manage.updateProvider(provider);
             Integer version = (Integer) updatedProvider.get("version");
             connection.setManageVersion(version);

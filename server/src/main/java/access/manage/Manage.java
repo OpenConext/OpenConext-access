@@ -6,6 +6,8 @@ import java.util.*;
 
 public interface Manage {
 
+    String INSTITUTION_GUID = "coin:institution_guid";
+
     List<Map<String, Object>> providers(EntityType... entityTypes);
 
     Map<String, Object> providerByConnection(Connection connection);

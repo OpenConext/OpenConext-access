@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import static access.manage.Manage.INSTITUTION_GUID;
 import static access.manage.ManageData.getData;
 import static access.manage.ManageData.getMetaDataFields;
 
@@ -81,7 +82,7 @@ public class InviteController implements UserAccessRights {
         if (noOrganizationGUID && userFromDB.isSuperUser()) {
             //We use the authenticating authority
             Map<String, Object> identityProvider = manage.identityProviderByEntityID(userFromDB.getAuthenticatingAuthority());
-            String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get("coin:institution_guid");
+            String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get(INSTITUTION_GUID);
             if (StringUtils.hasText(idpInstitutionGUID)) {
                 organizationGUID = idpInstitutionGUID;
             } else {
