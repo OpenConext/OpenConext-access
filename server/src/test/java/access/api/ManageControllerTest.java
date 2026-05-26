@@ -2,6 +2,8 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.manage.MFAType;
+import access.manage.StepUpType;
 import access.model.EntityType;
 import access.model.Organization;
 import access.security.InstitutionAdmin;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -463,7 +466,7 @@ class ManageControllerTest extends AbstractTest {
 
         Map<String, Object> assurance = Map.of(
                 "identityProviderId", "7",
-                "mfaEntity", Map.of("name", "https://wiki", "level", "http://schemas.microsoft.com/claims/multipleauthn"),
+                "mfaEntity", Map.of("name", "https://wiki", "level", MFAType.transparentAuthnContext.getValue()),
                 "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa1.5")
         );
         given()
@@ -479,7 +482,7 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
-    void updateMetaDataAssuranceLoaTooLow() throws Exception {
+    void updateMetaDataAssuranceStepUpLoaTooLow() throws Exception {
         // ADMIN_SUB has no acr claim → loaLevel defaults to 1; loa2 requires loaLevel 2 → 403
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
 
@@ -487,9 +490,37 @@ class ManageControllerTest extends AbstractTest {
 
         Map<String, Object> assurance = Map.of(
                 "identityProviderId", "7",
-                "mfaEntity", Map.of("name", "https://wiki", "level", "http://schemas.microsoft.com/claims/multipleauthn"),
+                "mfaEntity", Map.of("name", "https://wiki", "level", MFAType.transparentAuthnContext.getValue()),
                 "stepupEntity", Map.of("name", "https://wiki", "level", "http://test2.surfconext.nl/assurance/loa2")
         );
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(assurance)
+                .put("/api/v1/manage/update/assurance")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void updateMetaDataAssuranceMfaLoaTooLow() throws Exception {
+        // ADMIN_SUB has no acr claim → loaLevel defaults to 1; loa2 requires loaLevel 2 → 403
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+
+        stubForGetProvider(EntityType.saml20_idp, "7");
+
+
+        Map<String, Object> stepupEntity = new HashMap<>();
+        stepupEntity.put("name", "https://wiki");
+        stepupEntity.put("level", null);
+        Map<String, Object> assurance = Map.of(
+                "identityProviderId", "7",
+                "mfaEntity", Map.of("name", "https://wiki", "level", MFAType.mfa.getValue()),
+                "stepupEntity", stepupEntity);
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -604,7 +635,7 @@ class ManageControllerTest extends AbstractTest {
         assurance.put("identityProviderId", "7");
         Map<String, Object> mfaEntity = new java.util.HashMap<>();
         mfaEntity.put("name", "https://wiki");
-        mfaEntity.put("level", "https://refeds.org/profile/mfa");
+        mfaEntity.put("level", MFAType.transparentAuthnContext.getValue());
         assurance.put("mfaEntity", mfaEntity);
         Map<String, Object> stepupEntity = new java.util.HashMap<>();
         stepupEntity.put("name", "https://wiki");

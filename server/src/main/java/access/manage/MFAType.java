@@ -2,10 +2,12 @@ package access.manage;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 public enum MFAType {
 
     multipleauthn("http://schemas.microsoft.com/claims/multipleauthn"),
-           mfa( "https://refeds.org/profile/mfa"),
+    mfa("https://refeds.org/profile/mfa"),
     mobileOneFactorContract("urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorContract"),
     mobileOneFactorUnregistered("urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorUnregistered"),
     password("urn:oasis:names:tc:SAML:2.0:ac:classes:Password"),
@@ -21,4 +23,19 @@ public enum MFAType {
     MFAType(String value) {
         this.value = value;
     }
+
+    public int getRequiredLoaLevel() {
+        if (this.equals(password) || this.equals(transparentAuthnContext)) {
+            return 1;
+        }
+        return 2;
+    }
+
+    public static MFAType fromValue(String value) {
+        return Arrays.stream(values())
+                .filter(t -> t.value.equals(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown MFAType level: " + value));
+    }
+
 }

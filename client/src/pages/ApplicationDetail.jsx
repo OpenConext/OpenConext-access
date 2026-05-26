@@ -614,7 +614,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const submitAssuranceChanges = () => {
-        if (stepupLoaInteger(stepupEntity.level) > user.loaLevel || mfaLoaInteger(mfaEntity.level > user.loaLevel)) {
+        const stepUpLoa = stepupLoaInteger(stepupEntity.level);
+        const mfaLoa = mfaLoaInteger(mfaEntity.level);
+        if (stepUpLoa > user.loaLevel || mfaLoa > user.loaLevel) {
             return;
         }
         const payload = {

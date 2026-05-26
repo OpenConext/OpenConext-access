@@ -1,5 +1,6 @@
 package access.api;
 
+import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
@@ -7,6 +8,7 @@ import access.jira.JiraClient;
 import access.manage.Assurance;
 import access.manage.ChangeRequest;
 import access.manage.Consent;
+import access.manage.MFAType;
 import access.manage.Manage;
 import access.manage.StepUpType;
 import access.manage.MetaData;
@@ -27,6 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -62,6 +65,7 @@ import static access.manage.ManageData.getData;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@EnableConfigurationProperties(Config.class)
 @SuppressWarnings("unchecked")
 public class ManageController implements UserAccessRights, PolicyAccessRights {
 
@@ -76,11 +80,15 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final JiraClient jiraClient;
     private final UserRepository userRepository;
     private final ConnectionRepository connectionRepository;
+    private final Config config;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
                             OrganizationRepository organizationRepository,
-                            JiraClient jiraClient, UserRepository userRepository, ConnectionRepository connectionRepository) throws IOException {
+                            JiraClient jiraClient,
+                            UserRepository userRepository,
+                            ConnectionRepository connectionRepository,
+                            Config config) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -91,6 +99,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         this.jiraClient = jiraClient;
         this.userRepository = userRepository;
         this.connectionRepository = connectionRepository;
+        this.config = config;
     }
 
     @GetMapping("/arp")
@@ -289,12 +298,22 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
         if (assurance.stepupEntity().level() != null) {
-            StepUpType stepUpType = StepUpType.fromLevel(assurance.stepupEntity().level());
+            StepUpType stepUpType = StepUpType.fromLevel(config.getAcrValues(), assurance.stepupEntity().level());
             if (loaLevel < stepUpType.getRequiredLoaLevel()) {
                 throw new UserRestrictionException(String.format(
                         "User %s has loaLevel %d but stepUpType %s requires loaLevel %d",
                         user.getEmail(), loaLevel,
                         stepUpType, stepUpType.getRequiredLoaLevel()));
+            }
+        }
+
+        if (assurance.mfaEntity().level() != null) {
+            MFAType mfaType = MFAType.fromValue(assurance.mfaEntity().level());
+            if (loaLevel < mfaType.getRequiredLoaLevel()) {
+                throw new UserRestrictionException(String.format(
+                        "User %s has loaLevel %d but mfaType %s requires loaLevel %d",
+                        user.getEmail(), loaLevel,
+                        mfaType, mfaType.getRequiredLoaLevel()));
             }
         }
 
