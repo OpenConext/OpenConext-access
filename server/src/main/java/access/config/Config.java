@@ -34,6 +34,7 @@ public class Config {
     private String minimalStepupAcrLevel;
     private boolean feedbackWidgetEnabled;
     private boolean demoSeedEnabled;
+    private String jiraBrowseBaseUrl;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -51,6 +52,7 @@ public class Config {
         this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
         this.demoSeedEnabled = base.demoSeedEnabled;
+        this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;
     }
 
     public Config withAuthenticated(boolean authenticated) {

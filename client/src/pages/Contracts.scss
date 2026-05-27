@@ -1,0 +1,64 @@
+@use "../index";
+
+.mod-contracts {
+    position: relative;
+    max-width: 100%;
+
+    .menu.drop-down {
+        position: relative;
+    }
+
+    @include index.menu-header;
+
+    ul li {
+        padding: 12px 0 12px 0;
+    }
+
+    table.contracts {
+
+        thead {
+            th {
+                &.signee {
+                    width: 28%;
+                }
+
+                &.providerName {
+                    width: 20%;
+                }
+
+                &.applicationName {
+                    width: 20%;
+                }
+
+                &.country {
+                    width: 14%;
+                }
+
+                &.buttons {
+                    width: 10%;
+                }
+            }
+        }
+
+        tbody {
+            td {
+                &.signee {
+                    .signee-name {
+                        display: block;
+                        font-weight: 600;
+                    }
+
+                    .signee-email {
+                        display: block;
+                        font-size: 0.875em;
+                        color: var(--sds--color--gray--600, #666);
+                    }
+                }
+
+                &.buttons {
+                    text-align: right;
+                }
+            }
+        }
+    }
+}

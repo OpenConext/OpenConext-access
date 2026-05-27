@@ -14,7 +14,7 @@ import {
     Switch,
     Tooltip
 } from "@surfnet/sds";
-import 'jsondiffpatch/formatters/styles/html.css';
+import "jsondiffpatch/formatters/styles/html.css";
 
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import ArrowRightIcon from "../icons/details-right.svg";
@@ -795,7 +795,8 @@ export const Connections = ({
                             <div key={index} className="idp">
                                 <div className="idp-info">
                                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
-                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`])}}/>
+                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`],
+                                            {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})}}/>
                                 </div>
                             </div>
                         )}
@@ -887,7 +888,7 @@ export const Connections = ({
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverviewSAML.link",
-                           {ADD_ATTR: ["target"], ADD_TAGS: ['rel']}))
+                           {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]}))
                    }}/>
             </section>
         )

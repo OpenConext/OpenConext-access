@@ -456,6 +456,23 @@ export function uniqueLoginCount(from, to, spEntityId) {
     return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
 }
 
+//Contract
+export function contractByApplication(applicationId) {
+    return fetchJson(`/api/v1/contracts/${applicationId}`);
+}
+
+export function createContract(applicationId, contract) {
+    return postPutJson(`/api/v1/contracts/${applicationId}`, contract, "POST");
+}
+
+export function updateContract(applicationId, contract) {
+    return postPutJson(`/api/v1/contracts/${applicationId}`, contract, "PUT");
+}
+
+export function unsignedContracts() {
+    return fetchJson("/api/v1/contracts/unsigned");
+}
+
 //Monitoring
 export function monitoring(period = 60) {
     return fetchJson(`/api/v1/monitoring?period=${period}`);

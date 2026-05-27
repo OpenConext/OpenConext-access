@@ -3,8 +3,6 @@
 @use "../styles/application";
 @use "../styles/vars" as *;
 
-$width-percentage: 75%;
-
 .contract-container {
     background-color: white;
     padding: $page-padding;
@@ -12,19 +10,30 @@ $width-percentage: 75%;
     .contract-inner {
         max-width: 60%;
     }
+
     .app-header {
         display: flex;
         align-items: center;
         margin-bottom: 25px;
     }
-    .contract-information {
+
+    .readonly-notice {
+        padding: 12px 16px;
+        background-color: var(--sds--color--gray--100, #f5f5f5);
+        border-left: 4px solid var(--sds--color--gray--400, #bbb);
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-style: italic;
+        color: var(--sds--color--gray--700, #555);
+    }
+
+    .contract-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
         max-width: 100%;
     }
-    .happy svg {
-        margin: 25px;
-        width: 285px;
-        height: auto;
-    }
+
     .actions {
         display: flex;
         margin: 25px 0;
@@ -34,7 +43,6 @@ $width-percentage: 75%;
         &.orphan {
             justify-content: flex-end;
         }
-
 
         button svg {
             width: 16px;

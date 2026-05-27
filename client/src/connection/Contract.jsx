@@ -1,90 +1,254 @@
 import "./Contract.scss";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
-import {updateApplication} from "../api/index.js";
-import {convertClientApplicationToServer, convertServerApplicationToClient} from "../utils/Application.js";
+import {contractByApplication, createContract, updateContract} from "../api/index.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
-import ContractSignedIcon from "../icons/undraw/contract_signed.svg";
-import {isOrganizationAdmin} from "../utils/Permissions.js";
+import InputField from "../components/InputField.jsx";
+import SelectField from "../components/SelectField.jsx";
+import {countryOptions} from "../utils/countries.js";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {isEmpty} from "../utils/Utils.js";
+import ErrorIndicator from "../components/ErrorIndicator.jsx";
+
+const KNOWN_TITLES = ["mr", "mrs", "dr", "prof"];
+const OTHER_TITLE = "other";
+const REQUIRED_FIELDS = ["providerName", "applicationName", "signeeName", "email"];
 
 export const Contract = ({
                              application,
-                             setApplication,
                              user,
                              currentOrganization,
                              changeTab,
-                             refresh,
-                             protocolOptions,
-                             profileOptions,
-                             arpInfo
                          }) => {
 
     const setFlash = useAppStore(state => state.setFlash);
-    const [loading, setLoading] = useState(false);
 
-    const submit = () => {
+    const [contract, setContract] = useState(null);
+    const [isNew, setIsNew] = useState(true);
+    const [customTitle, setCustomTitle] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [initial, setInitial] = useState(true);
+    const [jiraModal, setJiraModal] = useState({open: false, ticketKey: null});
+
+    const isFormValid = () => contract && REQUIRED_FIELDS.every(field => !isEmpty(contract[field]));
+
+    const signeeTitleOptions = ["mr", "mrs", "dr", "prof", OTHER_TITLE].map(k => ({
+        value: k,
+        label: I18n.t(`contracts.signeeTitles.${k}`),
+    }));
+
+    const defaultContract = () => ({
+        signeeName: user.name || "",
+        signeeTitle: "",
+        email: user.email || "",
+        telephone: "",
+        address: "",
+        country: "",
+        providerName: (application.organization && application.organization.name)
+            ? application.organization.name
+            : (currentOrganization && currentOrganization.name ? currentOrganization.name : ""),
+        applicationName: application.name || "",
+    });
+
+    useEffect(() => {
         setLoading(true);
-        const body = convertClientApplicationToServer(application);
-        body.signedContract = true;
-        updateApplication(body)
+        contractByApplication(application.id)
+            .then(res => {
+                // Detect if stored signeeTitle is a known key or a custom value
+                const storedTitle = res.signeeTitle || "";
+                if (!KNOWN_TITLES.includes(storedTitle) && storedTitle !== "" && storedTitle !== OTHER_TITLE) {
+                    setCustomTitle(storedTitle);
+                    setContract({...res, signeeTitle: OTHER_TITLE});
+                } else {
+                    setContract(res);
+                }
+                setIsNew(false);
+                setLoading(false);
+            })
+            .catch(() => {
+                setContract(defaultContract());
+                setIsNew(true);
+                setLoading(false);
+            });
+    }, [application.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const updateField = (field, value) => {
+        setContract(prev => ({...prev, [field]: value}));
+    };
+
+    const doUpdate = () => {
+        setInitial(false);
+        if (!isFormValid()) return;
+        setLoading(true);
+        const resolvedTitle = contract.signeeTitle === OTHER_TITLE ? customTitle : contract.signeeTitle;
+        const body = {
+            ...contract,
+            signeeTitle: resolvedTitle,
+            // never touch signedContract here — omit it entirely for create, preserve for update
+        };
+        if (isNew) {
+            delete body.signedContract;
+        }
+        const call = isNew
+            ? createContract(application.id, body)
+            : updateContract(application.id, body);
+        call
             .then(res => {
                 setLoading(false);
-                setFlash(I18n.t("application.flash", {name: res.name}));
-                setApplication(convertServerApplicationToClient(res, protocolOptions, profileOptions, arpInfo));
+                if (isNew && res.ticketKey) {
+                    setJiraModal({open: true, ticketKey: res.ticketKey});
+                } else {
+                    setFlash(I18n.t("contracts.flash.saved", {name: application.name}));
+                    changeTab("overview");
+                }
             })
             .catch(() => {
                 setLoading(false);
-                setFlash(I18n.t("forms.error"), "error")
+                setFlash(I18n.t("forms.error"), "error");
             });
     };
 
-    const backToOverview = () => {
-        refresh();
+    const doCancel = () => {
         changeTab("overview");
+    };
+
+    if (loading || contract === null) {
+        return <Loader/>;
     }
 
-    if (loading) {
-        return <Loader/>
-    }
+    const signed = !!application.signedContract;
+    const isOtherTitle = contract.signeeTitle === OTHER_TITLE;
 
-    const maySignContract = user.superUser || isOrganizationAdmin(user, currentOrganization);
+    const selectedTitleOption = signeeTitleOptions.find(o => o.value === contract.signeeTitle) || null;
+    const selectedCountryOption = countryOptions(I18n.locale).find(o => o.value === contract.country) || null;
 
     return (
         <div className="contract-container">
+            {jiraModal.open && (
+                <ConfirmationDialog
+                    confirm={() => {
+                        setJiraModal({open: false, ticketKey: null});
+                        setFlash(I18n.t("contracts.flash.saved", {name: application.name}));
+                        changeTab("overview");
+                    }}
+                    confirmationHeader={I18n.t("contracts.jiraModal.title")}
+                    confirmationTxt={I18n.t("confirmationDialog.ok")}
+                    question={I18n.t("contracts.jiraModal.message", {jiraKey: jiraModal.ticketKey})}
+                />
+
+            )}
             <div className="contract-inner">
                 <div className="app-header">
                     <h2>{I18n.t("connection.contractSection.title")}</h2>
                 </div>
-                <div className="contract-information card">
-                    <h4>{I18n.t("connection.contractSection.title")}</h4>
-                    <p>{I18n.t("connection.contractSection.info")}</p>
-                    {!maySignContract && <p>{I18n.t("connection.applicationInformationHint")}</p>}
-                    <p>{I18n.t(`connection.contractSection.${application.signedContract ? "signed" : "notSigned"}`)}</p>
-                    {application.signedContract &&
-                        <div className="happy">
-                            <ContractSignedIcon/>
-                        </div>
-                    }
-                </div>
-                <div className={`actions orphan`}>
-                    {!application.signedContract &&
-                        <>
-                            <Button txt={I18n.t("connection.contractSection.sign")}
-                                    disabled={!maySignContract}
-                                    onClick={() => submit()}/>
-                        </>
-                    }
-                    {application.signedContract &&
-                        <>
-                            <Button txt={I18n.t("forms.backToOverview")}
-                                    type={ButtonType.Secondary}
-                                    onClick={() => backToOverview()}/>
-                        </>
-                    }
+
+                {signed && (
+                    <p className="readonly-notice">{I18n.t("contracts.signedReadonly")}</p>
+                )}
+
+                <div className="contract-form">
+                    <InputField
+                        name={I18n.t("contracts.providerName")}
+                        value={contract.providerName || ""}
+                        disabled={signed}
+                        onChange={e => updateField("providerName", e.target.value)}
+                        required={true}
+                    />
+                    {(!initial && isEmpty(contract.providerName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.providerName")})}/>}
+
+                    <InputField
+                        name={I18n.t("contracts.applicationName")}
+                        value={contract.applicationName || ""}
+                        disabled={signed}
+                        onChange={e => updateField("applicationName", e.target.value)}
+                        required={true}
+                    />
+                    {(!initial && isEmpty(contract.applicationName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.applicationName")})}/>}
+
+                    <InputField
+                        name={I18n.t("contracts.signeeName")}
+                        value={contract.signeeName || ""}
+                        disabled={signed}
+                        onChange={e => updateField("signeeName", e.target.value)}
+                        required={true}
+                    />
+                    {(!initial && isEmpty(contract.signeeName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.signeeName")})}/>}
+
+                    <InputField
+                        name={I18n.t("contracts.email")}
+                        value={contract.email || ""}
+                        disabled={signed}
+                        onChange={e => updateField("email", e.target.value)}
+                        required={true}
+                    />
+                    {(!initial && isEmpty(contract.email)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.email")})}/>}
+
+                    <SelectField
+                        name={I18n.t("contracts.signeeTitle")}
+                        options={signeeTitleOptions}
+                        value={selectedTitleOption}
+                        disabled={signed}
+                        onChange={option => updateField("signeeTitle", option ? option.value : "")}
+                        clearable={true}
+                    />
+
+                    {isOtherTitle && (
+                        <InputField
+                            name={I18n.t("contracts.signeeTitleCustom")}
+                            value={customTitle}
+                            disabled={signed}
+                            onChange={e => setCustomTitle(e.target.value)}
+                        />
+                    )}
+
+                    <InputField
+                        name={I18n.t("contracts.telephone")}
+                        value={contract.telephone || ""}
+                        disabled={signed}
+                        onChange={e => updateField("telephone", e.target.value)}
+                    />
+
+                    <InputField
+                        name={I18n.t("contracts.address")}
+                        value={contract.address || ""}
+                        disabled={signed}
+                        onChange={e => updateField("address", e.target.value)}
+                    />
+
+                    <SelectField
+                        name={I18n.t("contracts.country")}
+                        options={countryOptions(I18n.locale)}
+                        value={selectedCountryOption}
+                        disabled={signed}
+                        onChange={option => updateField("country", option ? option.value : "")}
+                        searchable={true}
+                        clearable={true}
+                    />
                 </div>
 
+                <div className="actions">
+                    {!signed && (
+                        <>
+                            <Button txt={I18n.t("forms.cancel")}
+                                    type={ButtonType.Secondary}
+                                    onClick={doCancel}/>
+                            <Button txt={I18n.t("contracts.update")}
+                                    disabled={!initial && !isFormValid()}
+                                    onClick={doUpdate}/>
+                        </>
+                    )}
+                    {signed && (
+                        <Button txt={I18n.t("forms.backToOverview")}
+                                type={ButtonType.Secondary}
+                                onClick={doCancel}/>
+                    )}
+                </div>
             </div>
         </div>
     );
-}
+};

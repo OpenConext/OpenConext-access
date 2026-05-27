@@ -122,6 +122,7 @@ const en = {
         migrate: "migrate",
         cron: "Cron",
         seed: "Seed",
+        contracts: "Contracts",
     },
     welcome: {
         greeting: "Welcome {{name}}",
@@ -136,7 +137,7 @@ const en = {
         zeroState: "No organisations found",
         register: "Register new organisation: ‘<strong>{{name}}</strong>’",
         confirmation: "Are you sure you want to register a new organisation called {{name}}?",
-        confirmationAfter: "Your organisation is created. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
+        confirmationAfter: "Your organisation is created. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
         newOrganization: "New organisation created",
         flash: "Created organisation {{name}}.",
     },
@@ -198,6 +199,7 @@ const en = {
         seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
+        contracts: "Contracts"
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -441,7 +443,7 @@ const en = {
             details: "Details",
             requestProductionStatus: "Request production status",
             requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
-            requestProductionStatusPostInfo: "Your request for production-ready status is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong></strong>",
+            requestProductionStatusPostInfo: "Your request for production-ready status is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
         },
         informational: {
             disclaimer: "Only process information that is <strong>strictly necessary</strong> for the functioning of your application.",
@@ -1385,8 +1387,41 @@ const en = {
         minute: "Minute",
         hour: "Hour",
     },
-    system: {
-        cron: {
+    contracts: {
+        title: "Unsigned contracts",
+        searchPlaceholder: "Search contracts...",
+        signee: "Signee",
+        signeeName: "Signee name",
+        signeeTitle: "Title",
+        signeeTitles: {
+            mr: "Mr.",
+            mrs: "Mrs.",
+            dr: "Dr.",
+            prof: "Prof.",
+            other: "Other",
+        },
+        signeeTitleCustom: "Specify title",
+        email: "Email",
+        telephone: "Telephone",
+        address: "Address",
+        providerName: "Provider name",
+        applicationName: "Application name",
+        country: "Country",
+        update: "Update",
+        signedReadonly: "This contract has been signed and is read-only.",
+        sign: "Sign contract",
+        confirmation: "Are you sure you want to sign the contract for {{name}}?",
+        ticketKey: "Jira ticket",
+        jiraModal: {
+            title: "Contract submitted",
+            message: "The contract information has been send. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
+        },
+        flash: {
+            signed: "The contract for {{name}} has been signed.",
+            saved: "Contract for {{name}} has been saved.",
+        },
+    },
+    system: {        cron: {
             info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, warn and delete inactive users.",
             trigger: "Run",
             clear: "Clear",

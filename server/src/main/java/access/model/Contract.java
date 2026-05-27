@@ -22,6 +22,14 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "provider_name")
+    @NotNull
+    private String providerName;
+
+    @Column(name = "application_name")
+    @NotNull
+    private String applicationName;
+
     @Column(name = "signee_name")
     @NotNull
     private String signeeName;
@@ -40,10 +48,13 @@ public class Contract {
 
     @Column
     @NotNull
-    private String email;
+        private String email;
 
     @Column(name = "signed_contract")
     private boolean signedContract;
+
+    @Column(name = "ticket_key")
+    private String ticketKey;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")

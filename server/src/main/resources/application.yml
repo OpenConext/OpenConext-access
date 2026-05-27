@@ -24,7 +24,6 @@ spring:
       cleanup-cron: "0 */5 * * * *"
       flush-mode: on_save
       save-mode: on_set_attribute
-    store-type: jdbc
     timeout: 8h
   mvc:
     log-request-details: false
@@ -114,6 +113,7 @@ config:
   feedback_widget_enabled: true
   demo_seed_enabled: true
   test_environment: false
+  jira_browse_base_url: "https://sd-jira-staging.surf.nl/jira/browse"
   identity_providers:
       - name: "SXS IdP"
         entityid: "http://mock-idp"

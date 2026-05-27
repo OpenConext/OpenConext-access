@@ -12,8 +12,9 @@ import {ManageImport} from "./ManageImport.jsx";
 import ApplicationMigrate from "./ApplicationMigrate.jsx";
 import {Cron} from "./Cron.jsx";
 import {Seed} from "./Seed.jsx";
+import {Contracts} from "./Contracts.jsx";
 
-const tabNames = ["users", "organizations", "organizationPendingApproval", "import", "migrate", "cron", "seed"]
+const tabNames = ["users", "organizations", "organizationPendingApproval", "contracts", "import", "migrate", "cron", "seed"]
 
 const organizationTabs = ["organizations", "organizationPendingApproval"];
 
@@ -69,6 +70,9 @@ const System = () => {
             case  "organizationPendingApproval": {
                 return <Organizations pendingApproval={true}/>
             }
+            case "contracts": {
+                return <Contracts/>
+            }
             case "import": {
                 return <ManageImport />
             }
@@ -98,7 +102,6 @@ const System = () => {
                 {renderCurrentTab()}
             </div>
         </div>
-
     )
 };
 export default System;

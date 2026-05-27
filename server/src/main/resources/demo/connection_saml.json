@@ -1,0 +1,91 @@
+{
+  "arp": {
+    "enabled": true,
+    "profile": "personalized",
+    "attributes": {
+      "urn:mace:dir:attribute-def:cn": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:sn": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:mail": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:givenName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:displayName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAssurance": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ]
+    },
+    "motivation": "Please"
+  },
+  "pkce": false,
+  "entityID": "https://engine.test2.surfconext.nl/authentication/sp/metadata",
+  "loginUrl": "https://login.com",
+  "visibility": "visible_to_all",
+  "acsLocations": [
+    "https://engine.test2.surfconext.nl/authentication/sp/consume-assertion"
+  ],
+  "connectOption": "connect_with_interaction",
+  "allowedEntities": [
+    "http://mock-idp",
+    "https://idp.diy.surfconext.nl"
+  ]
+}

@@ -122,6 +122,7 @@ const nl = {
         migrate: "migreren",
         cron: "Cron",
         seed: "Seed",
+        contracts: "Contracten",
     },
     welcome: {
         greeting: "Welkom {{name}}",
@@ -198,6 +199,7 @@ const nl = {
         seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
+        contracts: "Contracten"
     },
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
@@ -1384,6 +1386,40 @@ const nl = {
         comparedToLast3Periods: "ten opzichte van 3 periodes geleden",
         minute: "Minuut",
         hour: "Uur",
+    },
+    contracts: {
+        title: "Niet-ondertekende contracten",
+        searchPlaceholder: "Zoek contracten...",
+        signee: "Ondertekenaar",
+        signeeName: "Naam ondertekenaar",
+        signeeTitle: "Titel",
+        signeeTitles: {
+            mr: "Dhr.",
+            mrs: "Mevr.",
+            dr: "Dr.",
+            prof: "Prof.",
+            other: "Anders",
+        },
+        signeeTitleCustom: "Geef titel op",
+        email: "E-mail",
+        telephone: "Telefoonnummer",
+        address: "Adres",
+        providerName: "Naam provider",
+        applicationName: "Naam applicatie",
+        country: "Land",
+        update: "Opslaan",
+        signedReadonly: "Dit contract is ondertekend en kan niet meer worden gewijzigd.",
+        sign: "Contract ondertekenen",
+        confirmation: "Weet je zeker dat je het contract voor {{name}} wilt ondertekenen?",
+        ticketKey: "Jira-ticket",
+        jiraModal: {
+            title: "Contract ingediend",
+            message: "Uw contract is ingediend. Uw Jira-ticket:",
+        },
+        flash: {
+            signed: "Het contract voor {{name}} is ondertekend.",
+            saved: "Contract voor {{name}} is opgeslagen.",
+        },
     },
     system: {
         cron: {

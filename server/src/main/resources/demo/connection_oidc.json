@@ -1,0 +1,95 @@
+{
+  "arp": {
+    "enabled": true,
+    "profile": "personalized",
+    "attributes": {
+      "urn:mace:dir:attribute-def:cn": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:sn": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:mail": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:givenName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:displayName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAssurance": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonAffiliation": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonPrincipalName": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:dir:attribute-def:eduPersonScopedAffiliation": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ],
+      "urn:mace:terena.org:attribute-def:schacHomeOrganization": [
+        {
+          "value": "*",
+          "source": "idp",
+          "motivation": "Default for profile"
+        }
+      ]
+    },
+    "motivation": "Please"
+  },
+  "pkce": false,
+  "entityID": "SURFACCESS-061d3db6-5e10-40ea-9407-797361671681",
+  "loginUrl": "https://login.demoapp.nl",
+  "grantTypes": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "visibility": "visible_to_all",
+  "redirectUrls": [
+    "https://redirect.demoapp.nl"
+  ],
+  "connectOption": "connect_with_interaction",
+  "allowedEntities": [
+    "http://mock-idp",
+    "https://idp.diy.surfconext.nl"
+  ]
+}

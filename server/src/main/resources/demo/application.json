@@ -1,0 +1,47 @@
+{
+  "privacy": {
+    "country": "NL",
+    "dpa_type": "dpa_supplied_by_service",
+    "what_data": "All",
+    "other_info": "None",
+    "access_data": "Everybody",
+    "security_measures": "Fort Knox",
+    "privacy_policy_url_en": "https://demoapp.privacy.en",
+    "privacy_policy_url_nl": "https://demoapp.privacy.nl"
+  },
+  "information": {
+    "tags": [
+      "business_management",
+      "content_library"
+    ],
+    "webSite": "https://website.com",
+    "descriptionEN": "Description EN",
+    "descriptionNL": "Description NL"
+  },
+  "contactPersons": [
+    {
+      "type": "administrative",
+      "email": "admin@demoapp.nl",
+      "surName": "administrative",
+      "givenName": "admin"
+    },
+    {
+      "type": "technical",
+      "email": "tech@demoapp.nl",
+      "surName": "technical",
+      "givenName": "tech"
+    },
+    {
+      "type": "support",
+      "email": "support@demoapp.nl",
+      "surName": "support",
+      "givenName": "support"
+    },
+    {
+      "type": "technical",
+      "email": "https://demoapp.tech.nl",
+      "surName": "technical",
+      "givenName": "demoapp.tech.nl"
+    }
+  ]
+}

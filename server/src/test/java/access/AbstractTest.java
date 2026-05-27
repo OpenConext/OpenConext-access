@@ -156,6 +156,9 @@ public abstract class AbstractTest {
     protected OrganizationMembershipRepository organizationMembershipRepository;
 
     @Autowired
+    protected ContractRepository contractRepository;
+
+    @Autowired
     protected DataSource dataSource;
 
     protected LocalManage localManage;
@@ -625,6 +628,15 @@ public abstract class AbstractTest {
 
         Application nitroMap = new Application(NITRO_MAP, farWind, "System", Map.of());
         doSave(this.applicationRepository, buddyCheck, techno, nitroMap);
+
+        Contract buddyCheckContract = new Contract();
+        buddyCheckContract.setApplication(buddyCheck);
+        buddyCheckContract.setProviderName("SURF bv");
+        buddyCheckContract.setApplicationName(BUDDY_CHECK);
+        buddyCheckContract.setSigneeName("John Doe");
+        buddyCheckContract.setEmail("jdoe@example.com");
+        buddyCheckContract.setSignedContract(false);
+        contractRepository.save(buddyCheckContract);
 
         ApplicationMembership applicationMembershipBuddyCheck = new ApplicationMembership(buddyCheck, adminOfShareLogics);
         ApplicationMembership applicationMembershipGuest = new ApplicationMembership(buddyCheck, guestOfShareLogics);
