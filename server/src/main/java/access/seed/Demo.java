@@ -1,5 +1,6 @@
 package access.seed;
 
+import access.api.ConnectionController;
 import access.manage.Contact;
 import access.manage.Manage;
 import access.model.*;
@@ -24,6 +25,7 @@ public class Demo {
     private final ApplicationMembershipRepository applicationMembershipRepository;
     private final JoinRequestRepository joinRequestRepository;
     private final Manage manage;
+    private final ConnectionController connectionController;
 
     public Demo(UserRepository userRepository,
                 OrganizationRepository organizationRepository,
@@ -32,7 +34,8 @@ public class Demo {
                 OrganizationMembershipRepository organizationMembershipRepository,
                 ApplicationMembershipRepository applicationMembershipRepository,
                 JoinRequestRepository joinRequestRepository,
-                Manage manage) {
+                Manage manage,
+                ConnectionController connectionController) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.applicationRepository = applicationRepository;
@@ -41,6 +44,7 @@ public class Demo {
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.joinRequestRepository = joinRequestRepository;
         this.manage = manage;
+        this.connectionController = connectionController;
     }
 
     public Map<String, Object> seed() {
@@ -61,11 +65,11 @@ public class Demo {
         organizationRepository.save(dummyIdp);
 
         // Users for Dummy IdP
-        User adminExample = new User(false, "admin@example.com", "admin@example.com",
+        User adminExample = new User(true, "admin@example.com", "urn:collab:person:example.com:admin",
                 "example.com", "Admin", "Mock", "admin@example.com", "http://mock-idp");
-        User memberExample = new User(false, "member@example.com", "member@example.com",
+        User memberExample = new User(false, "member@example.com", "urn:collab:person:example.com:member",
                 "example.com", "Member", "Mock", "member@example.com", "http://mock-idp");
-        User guestExample = new User(false, "guest@example.com", "guest@example.com",
+        User guestExample = new User(false, "guest@example.com", "urn:collab:person:example.com:guest",
                 "example.com", "Guest", "Mock", "guest@example.com", "http://mock-idp");
         userRepository.saveAll(List.of(adminExample, memberExample, guestExample));
 
@@ -87,24 +91,20 @@ public class Demo {
         Connection prodAppOidc = new Connection("Prod App OIDC", prodApp, Map.of(
                 "entityID", "https://prod-app.example.com",
                 "redirectUrls", List.of("https://prod-app.example.com/redirect"),
-                "grantTypes", List.of("authorization_code"),
-                "contactPersons", List.of(new Contact("technical", "Admin", "Mock", "admin@example.com"))
+                "grantTypes", List.of("authorization_code")
         ), EntityType.oidc10_rp);
         prodAppOidc.setStatus(ConnectionStatus.PROD_READY);
         prodAppOidc.setState(State.prodaccepted);
-        connectionRepository.save(prodAppOidc);
-        manage.saveProvider(prodAppOidc);
+        connectionController.create(adminExample, prodAppOidc);
 
         // SAML connection — PENDING_PROD
         Connection prodAppSaml = new Connection("Prod App SAML", prodApp, Map.of(
                 "entityID", "https://prod-app-saml.example.com",
                 "acsLocations", List.of("https://prod-app-saml.example.com/acs"),
-                "contactPersons", List.of(new Contact("technical", "Admin", "Mock", "admin@example.com")),
                 "arp", Map.of("attributes", Map.of(), "enabled", true)
         ), EntityType.saml20_sp);
         prodAppSaml.setStatus(ConnectionStatus.PENDING_PROD);
-        connectionRepository.save(prodAppSaml);
-        manage.saveProvider(prodAppSaml);
+        connectionController.create(adminExample, prodAppSaml);
 
         // ApplicationMembership: guest on Prod App
         ApplicationMembership guestAppMembership =

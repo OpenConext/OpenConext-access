@@ -1392,11 +1392,12 @@ const en = {
             clear: "Clear",
         },
         seed: {
-            info: "Load demo data into the system. This creates two organisations with users, applications and connections, ready for a demonstration.",
+            info: "Load demo data into the system. This creates various organisations with different users, applications and connections, ready for a demonstration.",
             trigger: "Run demo seed",
             confirmationHeader: "Run demo seed",
             confirmationQuestion: "Are you sure you want to run the demo seed? All existing data will be permanently removed and replaced with demo data.",
             success: "The demo seed has been successfully loaded.",
+            error: "Something went wrong, check the logs"
         },
     },
     monitoring: {

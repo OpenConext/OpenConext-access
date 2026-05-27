@@ -20,8 +20,8 @@ spring:
     type: simple
   session:
     jdbc:
-      cleanup-cron: "-"
-      initialize-schema: always
+      initialize-schema: never
+      cleanup-cron: "0 */5 * * * *"
       flush-mode: on_save
       save-mode: on_set_attribute
     store-type: jdbc
@@ -112,7 +112,7 @@ config:
   sram: "https://test.sram.surf.nl/"
   service_desk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
   feedback_widget_enabled: true
-  demo_seed_enabled: false
+  demo_seed_enabled: true
   test_environment: false
   identity_providers:
       - name: "SXS IdP"

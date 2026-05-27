@@ -1397,6 +1397,7 @@ const nl = {
             confirmationHeader: "Demoseed uitvoeren",
             confirmationQuestion: "Weet je zeker dat je de demoseed wilt uitvoeren? Alle bestaande gegevens worden permanent verwijderd en vervangen door demogegevens.",
             success: "De demoseed is succesvol geladen.",
+            error: "Something went wrong, check the logs"
         },
     },
     monitoring: {

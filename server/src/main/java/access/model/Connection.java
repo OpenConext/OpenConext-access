@@ -210,7 +210,7 @@ public class Connection implements NameHolder {
 
     @JsonIgnore
     public boolean changeRequestRequired() {
-        return this.state.equals(State.prodaccepted);
+        return this.state.equals(State.prodaccepted) && StringUtils.hasText(this.manageIdentifier);
     }
 
     @PreUpdate

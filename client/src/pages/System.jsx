@@ -23,8 +23,9 @@ const System = () => {
 
     const navigate = useNavigate();
 
-    const {user} = useAppStore(useShallow(state => ({
-        user: state.user
+    const {user, config} = useAppStore(useShallow(state => ({
+        user: state.user,
+        config: state.config
     })));
 
     if (!user.superUser) {
@@ -88,7 +89,7 @@ const System = () => {
         <div className="system-outer-container">
             <TabHeader tab={currentTab}
                        setTab={tabChanged}
-                       tabNames={tabNames}
+                       tabNames={config.demoSeedEnabled ? tabNames : tabNames.filter(tab => tab !== "seed")}
                        fullWidth={true}
             >
                 <h3>{I18n.t("landing.header.system")}</h3>

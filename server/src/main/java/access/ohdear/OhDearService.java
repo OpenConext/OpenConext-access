@@ -69,7 +69,7 @@ public class OhDearService {
         return response.getBody();
     }
 
-    @Scheduled(fixedRate = 30, initialDelay = 1, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedRate = 30, initialDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void refreshStatus() {
         List.of(PERIOD, PERIOD_ALL)
                 .forEach(period -> {
