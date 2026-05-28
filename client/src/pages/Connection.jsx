@@ -22,6 +22,7 @@ import {connectOptions, visibilities} from "../utils/Connection.js";
 import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
+import {isOrganizationAdmin} from "../utils/Permissions.js";
 
 const tabNames = ["overview", "application", "allConnections", "contract", "appteam"]
 
@@ -229,7 +230,9 @@ export const Connection = () => {
     return (
         <div className="application-connection-container">
             <ApplicationConnectionHeader tabs={tabNames
-                .filter(name => name !== "contract" || isEmpty(currentOrganization.manageIdentifier))
+                .filter(name => name !== "contract" || (isEmpty(currentOrganization.manageIdentifier)) && (
+                    user.superUser || isOrganizationAdmin(user, currentOrganization)
+                ))
                 .map(name => ({
                     name: name,
                     disabled: false
