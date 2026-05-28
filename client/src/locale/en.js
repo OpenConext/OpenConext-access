@@ -1393,6 +1393,9 @@ const en = {
         signee: "Signee",
         signeeName: "Signee name",
         signeeTitle: "Title",
+        searchPlaceHolder: "Search contracts...",
+        unsigned: "All unsigned contracts",
+        noContracts: "There are no unsigned contracts",
         signeeTitles: {
             mr: "Mr.",
             mrs: "Mrs.",

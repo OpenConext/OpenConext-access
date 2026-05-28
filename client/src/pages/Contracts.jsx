@@ -9,6 +9,7 @@ import MenuIcon from "../icons/menu.svg";
 import SignIcon from "@surfnet/sds/icons/functional-icons/success.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {unsignedContracts, updateContract} from "../api";
+import {isEmpty} from "../utils/Utils.js";
 
 export const Contracts = () => {
 
@@ -125,10 +126,10 @@ export const Contracts = () => {
     return (
         <div className="mod-contracts">
             {open && <ConfirmationDialog confirm={action}
-                                        cancel={cancel}
-                                        confirmationHeader={I18n.t("confirmationDialog.confirm")}
-                                        confirmationTxt={okButton}
-                                        question={question}
+                                         cancel={cancel}
+                                         confirmationHeader={I18n.t("confirmationDialog.confirm")}
+                                         confirmationTxt={okButton}
+                                         question={question}
             />}
             <Entities entities={contracts}
                       modelName="contracts"
@@ -136,9 +137,11 @@ export const Contracts = () => {
                       columns={columns}
                       showNew={false}
                       inputFocus={true}
-                      hideTitle={true}
+                      hideTitle={false}
+                      title={I18n.t("contracts.unsigned")}
                       searchAttributes={["signeeName", "email", "providerName", "applicationName"]}
                       totalElements={contracts.length}
+                      children={isEmpty(contracts) ? <p>{I18n.t("contracts.noContracts")}</p> : null}
                       loading={loading}/>
         </div>
     );

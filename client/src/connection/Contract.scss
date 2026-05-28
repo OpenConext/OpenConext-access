@@ -28,25 +28,20 @@
     }
 
     .contract-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 20px;
+        column-gap: 50px;
         max-width: 100%;
     }
 
     .actions {
         display: flex;
         margin: 25px 0;
-        align-items: flex-end;
-        justify-content: space-between;
+        gap: 40px;
 
-        &.orphan {
-            justify-content: flex-end;
-        }
-
-        button svg {
-            width: 16px;
-            height: auto;
+        button.sds--btn--secondary {
+            margin-left: auto;
         }
     }
 }

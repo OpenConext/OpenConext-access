@@ -104,8 +104,8 @@ public class ContractController implements UserAccessRights {
         String jiraKey = jiraClient.create(new JiraIssue(
                 application.getName(),
                 null,
-                String.format("%s%nVisit: %s/organization/%d/contract",
-                        summary, config.getClientUrl(), application.getOrganization().getId()),
+                String.format("%s%nVisit: %s/system/contracts",
+                        summary, config.getClientUrl()),
                 summary,
                 EntityType.oidc10_rp,
                 user.getEmail()

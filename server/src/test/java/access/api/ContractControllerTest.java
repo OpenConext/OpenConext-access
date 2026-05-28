@@ -76,7 +76,9 @@ class ContractControllerTest extends AbstractTest {
                 });
 
         assertEquals(1, contracts.size());
-        assertEquals("John Doe", contracts.get(0).getSigneeName());
+        Contract contract = contracts.getFirst();
+        assertEquals("John Doe",contract.getSigneeName());
+        assertNotNull(contract.getApplication().getId());
     }
 
     @Test

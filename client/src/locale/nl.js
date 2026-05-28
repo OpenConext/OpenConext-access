@@ -1393,6 +1393,9 @@ const nl = {
         signee: "Ondertekenaar",
         signeeName: "Naam ondertekenaar",
         signeeTitle: "Titel",
+        searchPlaceHolder: "Zoek contracten...",
+        unsigned: "Alle niet-ondertekende contracten",
+        noContracts: "Er zijn geen niet-ondertekende contracten",
         signeeTitles: {
             mr: "Dhr.",
             mrs: "Mevr.",
