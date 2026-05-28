@@ -57,7 +57,7 @@
         }
 
         &[disabled] {
-            background-color: $background;
+            background-color: var(--sds--color--gray--100);
             cursor: not-allowed;
         }
 
@@ -69,10 +69,12 @@
 
     .select-inner--is-disabled {
         cursor: not-allowed;
+        border: 1px solid var(--sds--color--gray--100);
     }
 
     .select-inner__control--is-disabled {
-        background-color: $background;
+        background-color: var(--sds--color--gray--100);
+        border: 1px solid var(--sds--color--gray--100);
         border-radius: 6px;
     }
 
