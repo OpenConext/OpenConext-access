@@ -1254,7 +1254,7 @@ const en = {
             level2: "Level 2: any type of token is allowed, identity is verified",
             level3: "Level 3: Only hardware tokens are allowed, identity is verified"
         },
-        stepupLevel: "Step-up level",
+        stepupLevel: "Activate SURFSecureID",
         mfa: {
             multipleauthn: "Microsoft MFA (ADFS/Azure AD)",
             mfa: "REFEDS MFA",
@@ -1274,10 +1274,12 @@ const en = {
         },
         tipsInfo: "Tips from SURF",
         tips: {
-            practice: "Be careful not to create confusion by enabling multiple MFA mechanisms unless you understand the authentication flows.",
-            setup: "A common setup is:",
-            optionMfa: "Microsoft MFA when using Entra, otherwise REFEDS MFA",
-            optionSurf: "Use SURFsecureID only when MFA is not available at the IdP or when stronger assurance is required."
+            practice: "SURF Access supports two two-factor authentication systems:",
+            optionMfa: "via your organisation’s identity provider.",
+            optionSurf: "via SURFSecureID.",
+            independant: "Both systems operate independently of one another.",
+            warning: "<strong>Please note</strong>: if you enable <em>both</em> systems, users will be required to perform two-factor authentication using <em>both</em> systems.",
+            authentication: "The two-factor authentication you set up here will be used for all user authentications from this organisation to the selected application."
         },
         flash: {
             assuranceUpdated: "Assurance settings have been updated",

@@ -20,6 +20,7 @@ import {Alert, AlertType, Button, ButtonIconPlacement, ButtonType, Chip, ChipTyp
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
+import AlertIcon from "../icons/alert-triangle.svg";
 
 import ExampleSVG from "../icons/wayf.svg";
 import {
@@ -698,11 +699,20 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <InfoBlock className="assurance-info-block">
                         <h2>{I18n.t("assurance.tipsInfo")}</h2>
                         <p>{I18n.t("assurance.tips.practice")}</p>
-                        <p>{I18n.t("assurance.tips.setup")}</p>
-                        <ul>
+                        <ol>
                             <li>{I18n.t("assurance.tips.optionMfa")}</li>
                             <li>{I18n.t("assurance.tips.optionSurf")}</li>
-                        </ul>
+                        </ol>
+                        <p className="info" dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(I18n.t("consent.info"))
+                        }}/>
+                        <p className="warning">
+                            <AlertIcon/>
+                            <span dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
+                        }}/>
+                        </p>
+                        <p>{I18n.t("assurance.tips.authentication")}</p>
                     </InfoBlock>
                 </div>
 

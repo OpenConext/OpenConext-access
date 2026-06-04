@@ -1274,10 +1274,12 @@ const nl = {
         },
         tipsInfo: "Tips van SURF",
         tips: {
-            practice: "Voorkom verwarring door niet meerdere MFA-mechanismen tegelijk in te schakelen, tenzij je de authenticatiestromen goed begrijpt.",
-            setup: "Een veelgebruikte configuratie is:",
-            optionMfa: "Microsoft MFA bij gebruik van Entra, anders REFEDS MFA",
-            optionSurf: "Gebruik SURFsecureID alleen wanneer MFA niet beschikbaar is bij de Identity Provider (IdP) of wanneer een hoger betrouwbaarheidsniveau vereist is."
+            practice: "SURF Access ondersteunt twee tweestapsverificatie systemen:",
+            optionMfa: "via de identity provider van de eigen organisatie.",
+            optionSurf: "via SURFSecureID.",
+            independant: "Beide systemen werken onafhankelijk van elkaar.",
+            warning: "<strong>Let op</strong>: zet je <em>beide</em> systemen aan, dan moeten gebruikers met <em>beide</em> systemen een tweestapsverificatie uitvoeren.",
+            authentication: "De tweestapsverificatie die je hier instelt wordt gebruikt voor alle authenticaties van gebruikers van deze organisatie naar de geselecteerde applicatie."
         },
         flash: {
             assuranceUpdated: "Betrouwbaarheidsinstellingen zijn bijgewerkt",
