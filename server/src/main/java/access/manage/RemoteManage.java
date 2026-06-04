@@ -352,6 +352,18 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> policiesByServiceProviders(List<String> serviceProviderEntityIds) {
+        if (serviceProviderEntityIds.isEmpty()) {
+            return List.of();
+        }
+        Map<String, Object> query = Map.of(
+                "data.serviceProviderIds.name", Map.of("$in", serviceProviderEntityIds)
+        );
+        String policyUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.policy);
+        return restTemplate.postForEntity(policyUrl, query, List.class).getBody();
+    }
+
+    @Override
     public List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId) {
         Map<String, Object> query = Map.of(
                 "data.identityProviderIds.name", identityProviderEntityId

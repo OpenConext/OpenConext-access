@@ -152,6 +152,25 @@ class ManageControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void policiesByServiceProviders() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
+        stubForPoliciesByServiceProviders();
+
+        List<Map<String, Object>> policies = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(List.of("SURFACCESS-c85b455c-3f42-4945-b224-3ae433f2be0b"))
+                .post("/api/v1/manage/policies/by-service-providers")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, policies.size());
+    }
+
+    @SneakyThrows
+    @Test
     void policyByIdentityProvider() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
 

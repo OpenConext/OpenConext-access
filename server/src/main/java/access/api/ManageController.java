@@ -175,6 +175,14 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(serviceProviders);
     }
 
+    @PostMapping("/policies/by-service-providers")
+    public ResponseEntity<List<Map<String, Object>>> policiesByServiceProviders(
+            @Parameter(hidden = true) User user,
+            @RequestBody List<String> serviceProviderEntityIds) {
+        LOG.debug("/policiesByServiceProviders for " + serviceProviderEntityIds);
+        return ResponseEntity.ok(manage.policiesByServiceProviders(serviceProviderEntityIds));
+    }
+
     @GetMapping("/identity-provider/policies")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")

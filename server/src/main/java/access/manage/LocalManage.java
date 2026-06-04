@@ -285,6 +285,21 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> policiesByServiceProviders(List<String> serviceProviderEntityIds) {
+        if (serviceProviderEntityIds.isEmpty()) {
+            return List.of();
+        }
+        return this.allProviders.get(EntityType.policy).stream()
+                .filter(policy -> {
+                    List<Map<String, String>> serviceProviderIds = (List<Map<String, String>>)
+                            getData(policy).getOrDefault("serviceProviderIds", List.of());
+                    return serviceProviderIds.stream()
+                            .anyMatch(m -> serviceProviderEntityIds.contains(m.get("name")));
+                })
+                .toList();
+    }
+
+    @Override
     public List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId) {
         return this.allProviders.get(EntityType.policy).stream()
                 .filter(policy -> {

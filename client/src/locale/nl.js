@@ -40,7 +40,7 @@ const nl = {
             institutions: "Instellingen",
             applications: "Applicaties",
             stats: "Statistieken",
-            monitoring: "Monitoring"
+            monitoring: "Monitoring",
         },
         applicationProviders: {
             title: "Voor applicatie‑aanbieders",
@@ -199,7 +199,7 @@ const nl = {
         seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
-        contracts: "Contracten"
+        contracts: "Contracten",
     },
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
@@ -280,6 +280,7 @@ const nl = {
         },
         flash: "Applicatie {{name}} opgeslagen.",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
+        outstandingPolicies: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
     },
     organization: {
         alertInfo: "Welkom bij SURF Access. Via dit self‑service‑portaal kun je je applicatie beschikbaar maken voor hoger onderwijs‑ en onderzoeksinstellingen in Nederland.",
@@ -399,6 +400,7 @@ const nl = {
         saveAndNext: "Opslaan en doorgaan",
         requiresChangeRequest: "Wijzigingsverzoek aanvragen",
         deleteConfirmation: "Weet je zeker dat je deze koppeling wilt verwijderen?",
+        outstandingPolicies: "Deze verbinding kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "Metadata ophalen van URL",
@@ -974,7 +976,7 @@ const nl = {
         lessLabel: "Toon minder",
         you: "Jij",
         copied: "Gekopieerd",
-        changeRequest: "Er is een openstaand wijzigingsverzoek voor dit attribuut.<br/><br/>De weergegeven waarde is de huidige waarde. Bekijk de openstaande wijzigingen voor de aangevraagde waarde."
+        changeRequest: "Er is een openstaand wijzigingsverzoek voor dit attribuut.<br/><br/>De weergegeven waarde is de huidige waarde. Bekijk de openstaande wijzigingen voor de aangevraagde waarde.",
     },
     feedback: {
         title: "Feedback geven",
@@ -1243,7 +1245,7 @@ const nl = {
         mfaInfo: "Deze optie kun je gebruiken als de identity provider van je organisatie zelf tweestapsverificatie kan uitvoeren voor deze applicatie.",
         mfaBlock: {
             refeds: "Gebruik je Microsoft EntraID en hebben je gebruikers de Microsoft Authenticator gekoppeld, kies dan Microsoft MFA.",
-            microSoft: "Gebruik je een identity provider die het REFEDS MFA profiel ondersteund en hebben de accounts van je gebruikers een MFA middel. Kies dan REFEDS MFA."
+            microSoft: "Gebruik je een identity provider die het REFEDS MFA profiel ondersteund en hebben de accounts van je gebruikers een MFA middel. Kies dan REFEDS MFA.",
         },
         mfaLevel: "Zet tweestapsverificatie via de organisatie aan",
         stepupTitle: "Tweestapsverificatie via SURFsecureID",
@@ -1252,7 +1254,7 @@ const nl = {
             choose: "Kies het minimale betrouwbaarheidsniveau waarop de authenticatie plaat moet vinden. Een hoger niveau stelt hogere eisen.",
             level1: "Niveau 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
             level2: "Niveau 2: ieder type token is toegestaan, identiteit wel geverifieerd",
-            level3: "Niveau 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd"
+            level3: "Niveau 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd",
         },
         stepupLevel: "Zet tweestapsverificatie via SURFsecureID aan",
         mfa: {
@@ -1279,7 +1281,7 @@ const nl = {
             optionSurf: "via SURFSecureID.",
             independant: "Beide systemen werken onafhankelijk van elkaar.",
             warning: "<strong>Let op</strong>: zet je <em>beide</em> systemen aan, dan moeten gebruikers met <em>beide</em> systemen een tweestapsverificatie uitvoeren.",
-            authentication: "De tweestapsverificatie die je hier instelt wordt gebruikt voor alle authenticaties van gebruikers van deze organisatie naar de geselecteerde applicatie."
+            authentication: "De tweestapsverificatie die je hier instelt wordt gebruikt voor alle authenticaties van gebruikers van deze organisatie naar de geselecteerde applicatie.",
         },
         flash: {
             assuranceUpdated: "Betrouwbaarheidsinstellingen zijn bijgewerkt",
@@ -1455,7 +1457,7 @@ const nl = {
             confirmationHeader: "Demoseed uitvoeren",
             confirmationQuestion: "Weet je zeker dat je de demoseed wilt uitvoeren? Alle bestaande gegevens worden permanent verwijderd en vervangen door demogegevens.",
             success: "De demoseed is succesvol geladen.",
-            error: "Something went wrong, check the logs"
+            error: "Something went wrong, check the logs",
         },
     },
     monitoring: {
@@ -1486,7 +1488,7 @@ const nl = {
         tooltipDuration: "{{min}} minuten {{sec}} seconden",
         tooltipDurationSec: "{{sec}} seconden",
         showMoreIncidents: "Toon alle incidenten",
-        showLessIncidents: "Toon alleen recente incidenten"
+        showLessIncidents: "Toon alleen recente incidenten",
     },
 }
 

@@ -541,6 +541,16 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForPoliciesByServiceProviders() {
+        String body = new String(getClass().getClassLoader()
+                .getResourceAsStream("manage/policies.json").readAllBytes());
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/policy"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForPolicyByServiceProvider(String identityProviderEntityId, String serviceProviderEntityId) {
         List<Map<String, Object>> policies = localManage
                 .policiesByServiceProvider(identityProviderEntityId, serviceProviderEntityId);

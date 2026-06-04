@@ -6,11 +6,12 @@ import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication} from "../api/index.js";
+import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
+import DOMPurify from "dompurify";
 
 export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab}) => {
 
@@ -37,19 +38,36 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
         stopEvent(e);
         if (confirmationRequired) {
             setLoading(true);
-            //First, fetch all the possible identityProvers affected by the deletion of this application
-            identityProvidersByUsedConnectionsForApplication(application.id)
-                .then(res => {
-                    setLoading(false);
-                    setAffectedIdentityProviders(res);
+            //First, fetch all the possible identityProviders affected by the deletion of this application,
+            //and check if any of its connections have outstanding policies that block deletion
+            const entityIDs = (application.connections || [])
+                .map(c => c.entityID)
+                .filter(Boolean);
+            Promise.all([
+                identityProvidersByUsedConnectionsForApplication(application.id),
+                policiesByServiceProviders(entityIDs)
+            ]).then(([idpRes, policiesRes]) => {
+                setLoading(false);
+                if (policiesRes.length > 0) {
+                    setConfirmation({
+                        open: true,
+                        cancel: null,
+                        outstandingPolicies: true,
+                        action: () => setConfirmation({open: false}),
+                        question: null,
+                        okButton: I18n.t("forms.ok")
+                    });
+                } else {
+                    setAffectedIdentityProviders(idpRes);
                     setConfirmation({
                         open: true,
                         cancel: () => setConfirmation({open: false}),
                         action: () => doDelete(null, false),
                         question: I18n.t("application.deleteConfirmation", {name: application.name}),
-                        okButton: I18n.t(isEmpty(res) ? "forms.delete" : "forms.deleteAnyway")
+                        okButton: I18n.t(isEmpty(idpRes) ? "forms.delete" : "forms.deleteAnyway")
                     });
-                })
+                }
+            });
         } else {
             setLoading(true);
             setAffectedIdentityProviders([]);
@@ -87,18 +105,22 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
         return <Loader/>
     }
 
-    const {open, cancel, action, question, okButton} = confirmation;
+    const {open, cancel, action, question, okButton, outstandingPolicies} = confirmation;
     return (
         <div className="application-connection-header-container">
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          confirmationHeader={I18n.t("forms.delete")}
                                          confirmationTxt={okButton}
-                                         isDeleteAction={true}
-                                         children={<ConnectionInUseWarning
-                                             identityProviders={affectedIdentityProviders}
-                                             unit={units.application}
-                                             applicationName={application.name}/>}
+                                         isDeleteAction={!outstandingPolicies}
+                                         children={outstandingPolicies ?
+                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("application.outstandingPolicies"),
+                                                 {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})}}/> :
+                                             <ConnectionInUseWarning
+                                                 identityProviders={affectedIdentityProviders}
+                                                 unit={units.application}
+                                                 applicationName={application.name}/>
+                                         }
                                          question={question}
             />}
 

@@ -32,6 +32,7 @@ import {
     newConnection,
     parseMedaData,
     parseMedaDataUrl,
+    policiesByServiceProviders,
     resetConnectionSecret,
     uniqueEntityID,
     updateConnection,
@@ -370,11 +371,25 @@ export const Connections = ({
     const doDeleteConnection = confirmationRequired => {
         if (confirmationRequired) {
             setLoading(true);
-            //First, fetch all the possible identityProvers affected by the deletion of this organization
-            identityProvidersByUsedConnection(connection.id)
-                .then(res => {
-                    setLoading(false);
-                    setAffectedIdentityProviders(res);
+            //First, fetch all the possible identityProviders affected by the deletion of this connection,
+            //and check if there are any outstanding policies that block deletion
+            Promise.all([
+                identityProvidersByUsedConnection(connection.id),
+                policiesByServiceProviders(connection.entityID ? [connection.entityID] : [])
+            ]).then(([idpRes, policiesRes]) => {
+                setLoading(false);
+                if (policiesRes.length > 0) {
+                    setConfirmation({
+                        open: true,
+                        cancel: null,
+                        header: I18n.t("forms.delete"),
+                        question: null,
+                        outstandingPolicies: true,
+                        action: () => setConfirmation({open: false}),
+                        okButton: I18n.t("forms.ok")
+                    });
+                } else {
+                    setAffectedIdentityProviders(idpRes);
                     setConfirmation({
                         open: true,
                         cancel: () => {
@@ -385,9 +400,10 @@ export const Connections = ({
                         question: I18n.t("connection.deleteConfirmation"),
                         action: () => doDeleteConnection(false),
                         modal: modals.deletionWarning,
-                        okButton: I18n.t((connection.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(res)) ? "forms.deleteAnyway" : "forms.delete")
+                        okButton: I18n.t((connection.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(idpRes)) ? "forms.deleteAnyway" : "forms.delete")
                     });
-                })
+                }
+            });
         } else {
             setLoading(true);
             setAffectedIdentityProviders([]);
@@ -1429,7 +1445,7 @@ export const Connections = ({
     }
     const showInitialConnection = (isEmpty(connections) || connection?.new || connection?.id)
         && !isEmpty(connection);
-    const {open, cancel, action, modal, okButton, question, header} = confirmation;
+    const {open, cancel, action, modal, okButton, question, header, outstandingPolicies} = confirmation;
     return (
         <div className="testing-container">
             {open && <ConfirmationDialog confirm={action}
@@ -1438,7 +1454,10 @@ export const Connections = ({
                                          confirmationTxt={okButton}
                                          question={question}
                                          isDeleteAction={modal === modals.deletionWarning}
-                                         children={modal === modals.resetSecretDisclaimer ?
+                                         children={outstandingPolicies ?
+                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.outstandingPolicies"),
+                                                 {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})}}/> :
+                                             modal === modals.resetSecretDisclaimer ?
                                              <Alert alertType={AlertType.Error}
                                                     asChild={true}
                                                     message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :

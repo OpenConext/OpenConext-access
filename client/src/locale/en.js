@@ -40,7 +40,7 @@ const en = {
             institutions: "Institutions",
             applications: "Applications",
             stats: "Statistics",
-            monitoring: "Monitoring"
+            monitoring: "Monitoring",
         },
         applicationProviders: {
             title: "For application providers",
@@ -199,7 +199,7 @@ const en = {
         seed: "Seed",
         consent: "Consent",
         assurance: "Assurance",
-        contracts: "Contracts"
+        contracts: "Contracts",
     },
     joinRequest: {
         info: "You do not have access to <strong>{{name}}</strong>'s environment. You can request access from the administrator.",
@@ -280,6 +280,7 @@ const en = {
         },
         flash: "Application {{name}} saved.",
         deleteConfirmation: "Are you sure you want to delete this application?",
+        outstandingPolicies: "This application cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you want this application deleted.",
     },
     organization: {
         alertInfo: "Welcome to SURF Access. Through this self-service portal, you can make your application available to higher education and research institutions in the Netherlands.",
@@ -399,6 +400,7 @@ const en = {
         saveAndNext: "Save and continu",
         requiresChangeRequest: "Request change",
         deleteConfirmation: "Are you sure you want to delete this connection?",
+        outstandingPolicies: "This connection cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you need this connection to be deleted.",
         metadata: {
             how: "How do you want to import the metadata?",
             url: "Extract metadata from url",
@@ -974,7 +976,7 @@ const en = {
         lessLabel: "Show me less",
         you: "You",
         copied: "Copied",
-        changeRequest: "There is an outstanding change request for this attribute.<br/><br/>The displayed value is the current value. See the outstanding changes for the requested value."
+        changeRequest: "There is an outstanding change request for this attribute.<br/><br/>The displayed value is the current value. See the outstanding changes for the requested value.",
     },
     feedback: {
         title: "Provide Feedback",
@@ -1243,7 +1245,7 @@ const en = {
         mfaInfo: "Use this option if your Identity Provider can execute two-step verification for this application",
         mfaBlock: {
             refeds: "Choose REFEDS MFA if you use an identity provider that supports the REFEDS MFA profile and your user accounts have MFA, choose REFEDS MFA.",
-            microSoft: "Choose Microsoft MFA if you use Microsoft EntraID and users have a linked Microsoft Authenticator"
+            microSoft: "Choose Microsoft MFA if you use Microsoft EntraID and users have a linked Microsoft Authenticator",
         },
         mfaLevel: "Activate two-step verification via the organisation",
         stepupTitle: "Two-step verification via SURFsecureID",
@@ -1252,7 +1254,7 @@ const en = {
             choose: "Choose the minimum assurance level at which the authentication should take place. A higher level makes higher demands.",
             level1: "Level 1.5: Any type of token is allowed, identity not verified",
             level2: "Level 2: any type of token is allowed, identity is verified",
-            level3: "Level 3: Only hardware tokens are allowed, identity is verified"
+            level3: "Level 3: Only hardware tokens are allowed, identity is verified",
         },
         stepupLevel: "Activate SURFSecureID",
         mfa: {
@@ -1279,7 +1281,7 @@ const en = {
             optionSurf: "via SURFSecureID.",
             independant: "Both systems operate independently of one another.",
             warning: "<strong>Please note</strong>: if you enable <em>both</em> systems, users will be required to perform two-factor authentication using <em>both</em> systems.",
-            authentication: "The two-factor authentication you set up here will be used for all user authentications from this organisation to the selected application."
+            authentication: "The two-factor authentication you set up here will be used for all user authentications from this organisation to the selected application.",
         },
         flash: {
             assuranceUpdated: "Assurance settings have been updated",
@@ -1455,7 +1457,7 @@ const en = {
             confirmationHeader: "Run demo seed",
             confirmationQuestion: "Are you sure you want to run the demo seed? All existing data will be permanently removed and replaced with demo data.",
             success: "The demo seed has been successfully loaded.",
-            error: "Something went wrong, check the logs"
+            error: "Something went wrong, check the logs",
         },
     },
     monitoring: {
@@ -1486,7 +1488,7 @@ const en = {
         tooltipDuration: "{{min}} minutes {{sec}} seconds",
         tooltipDurationSec: "{{sec}} seconds",
         showMoreIncidents: "Show all incidents",
-        showLessIncidents: "Show only recent incidents"
+        showLessIncidents: "Show only recent incidents",
     },
 }
 

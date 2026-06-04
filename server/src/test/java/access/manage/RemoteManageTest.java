@@ -114,4 +114,17 @@ class RemoteManageTest extends AbstractTest {
         assertThrows(HttpClientErrorException.NotFound.class, () -> manage.identityProviderByEntityID("http://mock-idp"));
     }
 
+    @SneakyThrows
+    @Test
+    void policiesByServiceProviders() {
+        String body = new String(getClass().getClassLoader()
+                .getResourceAsStream("manage/policies.json").readAllBytes());
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/policy")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        List<Map<String, Object>> policies = manage.policiesByServiceProviders(
+                List.of("SURFACCESS-c85b455c-3f42-4945-b224-3ae433f2be0b"));
+        assertEquals(1, policies.size());
+    }
+
 }

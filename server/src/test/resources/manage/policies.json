@@ -1,0 +1,41 @@
+[
+  {
+    "type": "policy",
+    "data": {
+      "active": true,
+      "allAttributesMustMatch": false,
+      "attributes": [
+        {
+          "name": "urn:mace:dir:attribute-def:eduPersonScopedAffiliation",
+          "value": "aaf1"
+        },
+        {
+          "name": "urn:mace:dir:attribute-def:eduPersonScopedAffiliation",
+          "value": "aff2"
+        },
+        {
+          "name": "urn:mace:dir:attribute-def:eduPersonScopedAffiliation",
+          "value": "aff3"
+        }
+      ],
+      "denyAdvice": "EN",
+      "denyAdviceNl": "NL",
+      "denyRule": false,
+      "description": "Description",
+      "entityid": "",
+      "identityProviderIds": [
+        {
+          "name": "http://mock-idp"
+        }
+      ],
+      "metaDataFields": {},
+      "name": "Target group",
+      "serviceProviderIds": [
+        {
+          "name": "SURFACCESS-c85b455c-3f42-4945-b224-3ae433f2be0b"
+        }
+      ],
+      "type": "reg"
+    }
+  }
+]

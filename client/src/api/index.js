@@ -300,6 +300,10 @@ export function deletePolicy(policy, organizationId) {
     return fetchDelete(`/api/v1/manage/policies/${policy.id}?organizationId=${organizationId}`);
 }
 
+export function policiesByServiceProviders(manageIdentifiers) {
+    return postPutJson("/api/v1/manage/policies/by-service-providers", manageIdentifiers, "POST");
+}
+
 export function allowedAttributes() {
     return fetchJson("/api/v1/manage/allowed-attributes", {}, {}, false);
 }
