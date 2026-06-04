@@ -52,7 +52,6 @@ export const Contract = ({
     });
 
     useEffect(() => {
-        setLoading(true);
         contractByApplication(application.id)
             .then(res => {
                 // Detect if stored signeeTitle is a known key or a custom value

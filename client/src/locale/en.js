@@ -1239,17 +1239,21 @@ const en = {
         },
     },
     assurance: {
-        mfaTitle: "Two-step verification via the identity provider of your organisation",
-        mfaInfo: "Use this option if the identity provider of your organisation can execute two-step verification for this application",
-        "Choose REFEDS MFA if you use an identity provider that supports the REFEDS MFA profile and your user accounts have MFA, choose REFEDS MFA.", 
-        "Choose Microsoft MFA if you use Microsoft EntraID and users have a linked Microsoft Authenticator",
+        mfaTitle: "Two-step verification via your Identity Provider",
+        mfaInfo: "Use this option if your Identity Provider can execute two-step verification for this application",
+        mfaBlock: {
+            refeds: "Choose REFEDS MFA if you use an identity provider that supports the REFEDS MFA profile and your user accounts have MFA, choose REFEDS MFA.",
+            microSoft: "Choose Microsoft MFA if you use Microsoft EntraID and users have a linked Microsoft Authenticator"
+        },
         mfaLevel: "Activate two-step verification via the organisation",
         stepupTitle: "Two-step verification via SURFsecureID",
         stepupInfo: "You can use this option if your organisation has set up SURFsecureID for this application and the users of the application have a second factor via SURFsecureID. Users can add a second factor in the SURFsecureID self-service portal.",
-        "Choose the minimum assurance level at which the authentication should take place. A higher level makes higher demands.", 
-        "Level 1.5: Any type of token is allowed, identity not verified", 
-        "Level 2: any type of token is allowed, identity is verified", 
-        "Level 3: Only hardware tokens are allowed, identity is verified"",
+        stepupBlock: {
+            choose: "Choose the minimum assurance level at which the authentication should take place. A higher level makes higher demands.",
+            level1: "Level 1.5: Any type of token is allowed, identity not verified",
+            level2: "Level 2: any type of token is allowed, identity is verified",
+            level3: "Level 3: Only hardware tokens are allowed, identity is verified"
+        },
         stepupLevel: "Step-up level",
         mfa: {
             multipleauthn: "Microsoft MFA (ADFS/Azure AD)",
@@ -1267,6 +1271,13 @@ const en = {
             loa1_5: "Level 1.5",
             loa2: "Level 2",
             loa3: "Level 3",
+        },
+        tipsInfo: "Tips from SURF",
+        tips: {
+            practice: "Be careful not to create confusion by enabling multiple MFA mechanisms unless you understand the authentication flows.",
+            setup: "A common setup is:",
+            optionMfa: "Microsoft MFA when using Entra, otherwise REFEDS MFA",
+            optionSurf: "Use SURFsecureID only when MFA is not available at the IdP or when stronger assurance is required."
         },
         flash: {
             assuranceUpdated: "Assurance settings have been updated",
@@ -1430,7 +1441,8 @@ const en = {
             saved: "Contract for {{name}} has been saved.",
         },
     },
-    system: {        cron: {
+    system: {
+        cron: {
             info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, warn and delete inactive users.",
             trigger: "Run",
             clear: "Clear",

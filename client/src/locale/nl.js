@@ -1239,17 +1239,21 @@ const nl = {
         },
     },
     assurance: {
-        mfaTitle: "Tweestapsverificatie door de identity provider van je organisatie",
-        mfaInfo: "Deze optie kun je gebruiken als de identity provider van je organisatie zelf tweestapsverificatie kan uitvoeren voor deze applicatie.", 
-        "Gebruik je Microsoft EntraID en hebben je gebruikers de Microsoft Authenticator gekoppeld, kies dan Microsoft MFA.", 
-        "Gebruik je een identity provider die het REFEDS MFA profiel ondersteund en hebben de accounts van je gebruikers een MFA middel. Kies dan REFEDS MFA.", 
+        mfaTitle: "Tweestapsverificatie door je identity provider",
+        mfaInfo: "Deze optie kun je gebruiken als de identity provider van je organisatie zelf tweestapsverificatie kan uitvoeren voor deze applicatie.",
+        mfaBlock: {
+            refeds: "Gebruik je Microsoft EntraID en hebben je gebruikers de Microsoft Authenticator gekoppeld, kies dan Microsoft MFA.",
+            microSoft: "Gebruik je een identity provider die het REFEDS MFA profiel ondersteund en hebben de accounts van je gebruikers een MFA middel. Kies dan REFEDS MFA."
+        },
         mfaLevel: "Zet tweestapsverificatie via de organisatie aan",
         stepupTitle: "Tweestapsverificatie via SURFsecureID",
         stepupInfo: "Deze optie gebruik je als je organisatie SURFsecureID heeft ingericht voor deze applicatie en de gebruikers van de applicatie een tweede factor via SURFsecureID hebben. Gebruikers voegen een tweede factor toe in het self-service portal van SURFsecureID.",
-        "Kies het minimale betrouwbaarheidsniveau waarop de authenticatie plaat moet vinden. Een hoger niveau stelt hogere eisen.",
-        "Niveau 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
-        "Niveau 2: ieder type token is toegestaan, identiteit wel geverifieerd",
-        "Niveau 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd",
+        stepupBlock: {
+            choose: "Kies het minimale betrouwbaarheidsniveau waarop de authenticatie plaat moet vinden. Een hoger niveau stelt hogere eisen.",
+            level1: "Niveau 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
+            level2: "Niveau 2: ieder type token is toegestaan, identiteit wel geverifieerd",
+            level3: "Niveau 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd"
+        },
         stepupLevel: "Zet tweestapsverificatie via SURFsecureID aan",
         mfa: {
             multipleauthn: "Microsoft MFA (ADFS/Azure AD)",
@@ -1267,6 +1271,13 @@ const nl = {
             loa1_5: "Niveau 1.5",
             loa2: "Niveau 2",
             loa3: "Niveau 3",
+        },
+        tipsInfo: "Tips van SURF",
+        tips: {
+            practice: "Voorkom verwarring door niet meerdere MFA-mechanismen tegelijk in te schakelen, tenzij je de authenticatiestromen goed begrijpt.",
+            setup: "Een veelgebruikte configuratie is:",
+            optionMfa: "Microsoft MFA bij gebruik van Entra, anders REFEDS MFA",
+            optionSurf: "Gebruik SURFsecureID alleen wanneer MFA niet beschikbaar is bij de Identity Provider (IdP) of wanneer een hoger betrouwbaarheidsniveau vereist is."
         },
         flash: {
             assuranceUpdated: "Betrouwbaarheidsinstellingen zijn bijgewerkt",

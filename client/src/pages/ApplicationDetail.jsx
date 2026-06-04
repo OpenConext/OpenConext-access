@@ -641,6 +641,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 <div className="assurance-left">
                     <h2>{I18n.t("assurance.mfaTitle")}</h2>
                     <p className="info">{I18n.t("assurance.mfaInfo")}</p>
+                    <div className="assurance-info">
+                        <ul>
+                            <li>{I18n.t("assurance.mfaBlock.refeds")}</li>
+                            <li>{I18n.t("assurance.mfaBlock.microSoft")}</li>
+                        </ul>
+
+                    </div>
                     <SelectField name={I18n.t("assurance.mfaLevel")}
                                  className="select-assurance"
                                  value={mfaOptions.find(o => o.value === mfaEntity.level) || null}
@@ -651,9 +658,19 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                  onChange={option => setMfaEntity({...mfaEntity, level: option ? option.value : null})}
                     />
                     {mfaLoaTooLow && <ErrorIndicator standalone={true}
-                                                  msg={I18n.t("assurance.mfaLoaTooLow")}/>}
+                                                     msg={I18n.t("assurance.mfaLoaTooLow")}/>}
                     <h2>{I18n.t("assurance.stepupTitle")}</h2>
                     <p className="info">{I18n.t("assurance.stepupInfo")}</p>
+                    <div className="assurance-info">
+                        <p>{I18n.t("assurance.stepupBlock.choose")}</p>
+                        <ul>
+                            <li>{I18n.t("assurance.stepupBlock.level1")}</li>
+                            <li>{I18n.t("assurance.stepupBlock.level2")}</li>
+                            <li>{I18n.t("assurance.stepupBlock.level3")}</li>
+                        </ul>
+
+                    </div>
+
                     <SelectField name={I18n.t("assurance.stepupLevel")}
                                  className="select-assurance"
                                  value={stepupOptions.find(o => o.value === stepupEntity.level) || null}
@@ -667,7 +684,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                  })}
                     />
                     {stepupLoaTooLow && <ErrorIndicator standalone={true}
-                                                  msg={I18n.t("assurance.loaTooLow")}/>}
+                                                        msg={I18n.t("assurance.loaTooLow")}/>}
                     <div className="assurance-actions">
                         <Button onClick={() => cancelAssuranceChanges()}
                                 type={ButtonType.Secondary}
@@ -677,6 +694,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 txt={I18n.t("forms.save")}/>
                     </div>
                 </div>
+                <div className="assurance-right">
+                    <h2>{I18n.t("assurance.tipsInfo")}</h2>
+                    <p>{I18n.t("assurance.tips.practice")}</p>
+                    <p>{I18n.t("assurance.tips.setup")}</p>
+                    <ul>
+                        <li>{I18n.t("assurance.tips.optionMfa")}</li>
+                        <li>{I18n.t("assurance.tips.optionSurf")}</li>
+                    </ul>
+                </div>
+
             </div>
         );
     }

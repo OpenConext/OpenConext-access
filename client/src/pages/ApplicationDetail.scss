@@ -385,6 +385,7 @@ div.application-detail-container {
             display: flex;
             margin-top: 40px;
             gap: 25px;
+
             button:first-child {
                 margin-left: auto;
             }
@@ -402,11 +403,14 @@ div.application-detail-container {
     }
 
     .assurance-container {
-        width: 70%;
+        display: flex;
+        width: 75%;
+        gap: 80px;
 
         .assurance-left {
             display: flex;
             flex-direction: column;
+            width: 70%;
 
             h2 {
                 margin-top: 40px;
@@ -427,13 +431,38 @@ div.application-detail-container {
             }
         }
 
+        .assurance-info {
+            margin-top: 20px;
+
+            p {
+                margin-bottom: 10px;
+            }
+        }
+
         .assurance-actions {
             display: flex;
             margin-top: 40px;
             gap: 25px;
+
             button:first-child {
                 margin-left: auto;
             }
+        }
+
+        ul {
+            list-style: initial;
+
+            li {
+                margin-left: 15px;
+            }
+        }
+
+        .assurance-right {
+            width: 30%;
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
     }
 }
