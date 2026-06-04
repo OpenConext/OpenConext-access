@@ -38,7 +38,7 @@
     "info_nl": "4. What security measures have you taken?",
     "tooltip_en": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
     "tooltip_nl": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
-    "required": false,
+    "required": true,
     "placeholder_en": "Fort knox",
     "placeholder_nl": "Fort knox",
     "manage": "coin:privacy:security_measures"
