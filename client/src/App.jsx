@@ -61,8 +61,13 @@ const App = () => {
         me()
             .then(user => {
                 const currentOrganization = useAppStore.getState().currentOrganization;
-                const organization = currentOrganizationFromUser(user, currentOrganization.id);
-                const newMenuItems = menuItemsForUser(user, currentOrganization);
+                let organization;
+                if (currentOrganization.id) {
+                    organization = currentOrganizationFromUser(user, currentOrganization.id);
+                } else {
+                    organization = user.organizationMemberships[0].organization;
+                }
+                const newMenuItems = menuItemsForUser(user, organization);
                 useAppStore.setState(() => ({
                     user: user,
                     currentOrganization: organization,
@@ -146,7 +151,7 @@ const App = () => {
                             <Route path="/home" element={<UserHome/>}/>
                             <Route path="/relax" element={<Relax/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement refreshUser={refreshUser}/>}/>
-                            <Route path="/organization/:organizationId/:tab?" element={<Organization />}/>
+                            <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
                             <Route path="/join/:organisationId" element={<JoinRequest refreshUser={refreshUser}/>}/>
                             <Route path="/connection/:applicationId/:tab?/:connectionId?" element={<Connection/>}/>
@@ -157,7 +162,7 @@ const App = () => {
                             <Route path="/application-detail/:manageType/:manageId/:tab?"
                                    element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>
                             <Route path="/manage/details/:manageType/:manageId"
-                                   element={<ManageDetail />}/>
+                                   element={<ManageDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
                             <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>

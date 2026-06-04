@@ -41,8 +41,10 @@ export const Invitation = ({refreshUser}) => {
         setLoading(true);
         acceptInvitation(invitation).then(() => {
             setFlash(I18n.t("invitation.acceptedFlash", {name: invitation.organization.name}));
-            refreshUser();
-            navigate(`/organization/${invitation.organization.id}/team`);
+            refreshUser(() => {
+                navigate(`/organization/${invitation.organization.id}/team`);
+            });
+
         })
     }
 

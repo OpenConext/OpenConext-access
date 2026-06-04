@@ -15,13 +15,7 @@ import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
-import {
-    authorities,
-    currentUserMembershipAuthority,
-    hasApplicationWriteAccess,
-    hasCreateApplicationAccess,
-    isOrganizationMember
-} from "../utils/Permissions.js";
+import {authorities, currentUserMembershipAuthority, hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
@@ -36,6 +30,7 @@ const views = {
 }
 
 const Organization = () => {
+
     const {user} = useAppStore(useShallow(state => ({
         user: state.user,
     })));
@@ -64,6 +59,7 @@ const Organization = () => {
                     const organization = currentOrganizationFromUser(user, organizationId)
                     useAppStore.setState({
                         currentOrganization: organization,
+                        activeMenuItem: mainMenuItems.yourApps,
                         menuItems: newMenuItems,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
