@@ -695,13 +695,15 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>
                 </div>
                 <div className="assurance-right">
-                    <h2>{I18n.t("assurance.tipsInfo")}</h2>
-                    <p>{I18n.t("assurance.tips.practice")}</p>
-                    <p>{I18n.t("assurance.tips.setup")}</p>
-                    <ul>
-                        <li>{I18n.t("assurance.tips.optionMfa")}</li>
-                        <li>{I18n.t("assurance.tips.optionSurf")}</li>
-                    </ul>
+                    <InfoBlock className="assurance-info-block">
+                        <h2>{I18n.t("assurance.tipsInfo")}</h2>
+                        <p>{I18n.t("assurance.tips.practice")}</p>
+                        <p>{I18n.t("assurance.tips.setup")}</p>
+                        <ul>
+                            <li>{I18n.t("assurance.tips.optionMfa")}</li>
+                            <li>{I18n.t("assurance.tips.optionSurf")}</li>
+                        </ul>
+                    </InfoBlock>
                 </div>
 
             </div>
