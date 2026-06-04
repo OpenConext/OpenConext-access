@@ -156,7 +156,7 @@ class ManageControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
         stubForPoliciesByServiceProviders();
 
-        List<Map<String, Object>> policies = given()
+        List<String> policies = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(csrfHeader(accessCookieFilter))

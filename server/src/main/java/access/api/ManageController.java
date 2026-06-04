@@ -176,11 +176,13 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
     @PostMapping("/policies/by-service-providers")
-    public ResponseEntity<List<Map<String, Object>>> policiesByServiceProviders(
+    public ResponseEntity<List<String>> policiesByServiceProviders(
             @Parameter(hidden = true) User user,
             @RequestBody List<String> serviceProviderEntityIds) {
         LOG.debug("/policiesByServiceProviders for " + serviceProviderEntityIds);
-        return ResponseEntity.ok(manage.policiesByServiceProviders(serviceProviderEntityIds));
+        List<Map<String, Object>> policies = manage.policiesByServiceProviders(serviceProviderEntityIds);
+        List<String> policyNames = policies.stream().map(policy -> (String) getData(policy).get("name")).toList();
+        return ResponseEntity.ok(policyNames);
     }
 
     @GetMapping("/identity-provider/policies")
