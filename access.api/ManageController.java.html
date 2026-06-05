@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManageController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">ManageController.java</span></div><h1>ManageController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.Config;
+import access.exception.InvalidInputException;
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.jira.JiraClient;
+import access.manage.Assurance;
+import access.manage.ChangeRequest;
+import access.manage.Consent;
+import access.manage.MFAType;
+import access.manage.Manage;
+import access.manage.StepUpType;
+import access.manage.MetaData;
+import access.manage.MetaDataFeedParser;
+import access.manage.PolicyAccessRights;
+import access.manage.PolicyDefinition;
+import access.model.Authority;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Organization;
+import access.model.User;
+import access.repository.ConnectionRepository;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static access.api.Results.createResult;
+import static access.manage.ManageData.getData;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/manage&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@EnableConfigurationProperties(Config.class)
+@SuppressWarnings(&quot;unchecked&quot;)
+public class ManageController implements UserAccessRights, PolicyAccessRights {
+
+<span class="fc" id="L72">    private static final Log LOG = LogFactory.getLog(ManageController.class);</span>
+
+<span class="fc" id="L74">    private final MetaDataFeedParser metaDataFeedParser = new MetaDataFeedParser();</span>
+    private final Manage manage;
+    private final ObjectMapper objectMapper;
+    private final Map&lt;String, Object&gt; arpInfo;
+    private final List&lt;Map&lt;String, Object&gt;&gt; privacyInfo;
+    private final OrganizationRepository organizationRepository;
+    private final JiraClient jiraClient;
+    private final UserRepository userRepository;
+    private final ConnectionRepository connectionRepository;
+    private final Config config;
+
+    public ManageController(Manage manage,
+                            ObjectMapper objectMapper,
+                            OrganizationRepository organizationRepository,
+                            JiraClient jiraClient,
+                            UserRepository userRepository,
+                            ConnectionRepository connectionRepository,
+<span class="fc" id="L91">                            Config config) throws IOException {</span>
+<span class="fc" id="L92">        this.manage = manage;</span>
+<span class="fc" id="L93">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L94">        this.arpInfo = objectMapper.readValue(new ClassPathResource(&quot;/metadata/ARP.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L96">        this.privacyInfo = objectMapper.readValue(new ClassPathResource(&quot;/metadata/Privacy.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L98">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L99">        this.jiraClient = jiraClient;</span>
+<span class="fc" id="L100">        this.userRepository = userRepository;</span>
+<span class="fc" id="L101">        this.connectionRepository = connectionRepository;</span>
+<span class="fc" id="L102">        this.config = config;</span>
+<span class="fc" id="L103">    }</span>
+
+    @GetMapping(&quot;/arp&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; arp() {
+<span class="fc" id="L107">        LOG.debug(&quot;/arp&quot;);</span>
+
+<span class="fc" id="L109">        return ResponseEntity.ok(this.arpInfo);</span>
+    }
+
+    @GetMapping(&quot;/privacy&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; privacy() {
+<span class="fc" id="L114">        LOG.debug(&quot;/privacy&quot;);</span>
+
+<span class="fc" id="L116">        return ResponseEntity.ok(this.privacyInfo);</span>
+    }
+
+
+    @PostMapping(&quot;/parse&quot;)
+    public ResponseEntity&lt;List&lt;MetaData&gt;&gt; parse(@RequestBody Map&lt;String, String&gt; requestBody) throws URISyntaxException, MalformedURLException {
+<span class="fc" id="L122">        LOG.debug(&quot;/parse&quot;);</span>
+
+        List&lt;EntityDescriptor&gt; entityDescriptors;
+        Resource resource;
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (requestBody.containsKey(&quot;url&quot;)) {</span>
+<span class="fc" id="L127">            URL url = new URI(requestBody.get(&quot;url&quot;)).toURL();</span>
+<span class="fc" id="L128">            String protocol = url.getProtocol().toLowerCase();</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            if (!List.of(&quot;http&quot;, &quot;https&quot;).contains(protocol)) {</span>
+<span class="nc" id="L130">                throw new InvalidInputException(&quot;Not allowed protocol: &quot; + protocol);</span>
+            }
+<span class="fc" id="L132">            resource = new UrlResource(url);</span>
+<span class="fc" id="L133">        } else {</span>
+<span class="fc" id="L134">            String xml = requestBody.get(&quot;xml&quot;);</span>
+<span class="fc" id="L135">            resource = new ByteArrayResource(xml.getBytes(Charset.defaultCharset()));</span>
+        }
+<span class="fc" id="L137">        entityDescriptors = metaDataFeedParser.importXML(resource);</span>
+<span class="fc" id="L138">        return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());</span>
+    }
+
+
+    @GetMapping(&quot;/identity-providers&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProviders() {
+<span class="fc" id="L144">        LOG.debug(&quot;/identityProviders&quot;);</span>
+
+<span class="fc" id="L146">        List&lt;Map&lt;String, Object&gt;&gt; providers = manage.providers(EntityType.saml20_idp);</span>
+<span class="fc" id="L147">        return ResponseEntity.ok(providers);</span>
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping(&quot;/allowed-service-providers/{organizationId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; serviceProviders(User user, @PathVariable Long organizationId) {
+<span class="fc" id="L153">        LOG.debug(&quot;/serviceProviders for user: &quot; + user.getEmail());</span>
+
+<span class="fc" id="L155">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L157">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L158">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+
+<span class="fc" id="L160">        boolean isIdentityProvider = StringUtils.hasText(organization.getManageIdentifier());</span>
+<span class="fc" id="L161">        List&lt;Map&lt;String, Object&gt;&gt; serviceProviders = List.of();</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (isIdentityProvider) {</span>
+<span class="fc" id="L163">            Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(</span>
+<span class="fc" id="L164">                    EntityType.saml20_idp, organization.getManageIdentifier());</span>
+<span class="fc" id="L165">            Map&lt;String, Object&gt; data = getData(identityProvider);</span>
+<span class="fc" id="L166">            boolean allowedall = (boolean) data.getOrDefault(&quot;allowedall&quot;, false);</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (allowedall) {</span>
+<span class="nc" id="L168">                serviceProviders = manage.serviceProvidersLight();</span>
+            } else {
+<span class="fc" id="L170">                List&lt;Map&lt;String, String&gt;&gt; allowedEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.get(&quot;allowedEntities&quot;);</span>
+<span class="fc" id="L171">                List&lt;String&gt; names = allowedEntities.stream().map(allowedEntity -&gt; allowedEntity.get(&quot;name&quot;)).toList();</span>
+<span class="fc" id="L172">                serviceProviders = manage.serviceProvidersByEntityID(names);</span>
+            }
+        }
+<span class="fc" id="L175">        return ResponseEntity.ok(serviceProviders);</span>
+    }
+
+    @PostMapping(&quot;/policies/by-service-providers&quot;)
+    public ResponseEntity&lt;List&lt;String&gt;&gt; policiesByServiceProviders(
+            @Parameter(hidden = true) User user,
+            @RequestBody List&lt;String&gt; serviceProviderEntityIds) {
+<span class="fc" id="L182">        LOG.debug(&quot;/policiesByServiceProviders for &quot; + serviceProviderEntityIds);</span>
+<span class="fc" id="L183">        List&lt;Map&lt;String, Object&gt;&gt; policies = manage.policiesByServiceProviders(serviceProviderEntityIds);</span>
+<span class="fc" id="L184">        List&lt;String&gt; policyNames = policies.stream().map(policy -&gt; (String) getData(policy).get(&quot;name&quot;)).toList();</span>
+<span class="fc" id="L185">        return ResponseEntity.ok(policyNames);</span>
+    }
+
+    @GetMapping(&quot;/identity-provider/policies&quot;)
+    @Transactional(readOnly = true)
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProviderPolicies(@Parameter(hidden = true) User user,
+                                                                              @RequestParam(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L193">        LOG.debug(&quot;/identityProviderPolicies for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L195">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L197">        confirmInstitutionAdmin(user, organization);</span>
+
+<span class="fc" id="L199">        Map&lt;String, Object&gt; provider = this.manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());</span>
+
+<span class="fc" id="L201">        List&lt;Map&lt;String, Object&gt;&gt; policies = this.manage.policiesByIdentityProvider((String) getData(provider).get(&quot;entityid&quot;));</span>
+<span class="fc" id="L202">        return ResponseEntity.ok(policies);</span>
+    }
+
+
+    @GetMapping(&quot;/policies&quot;)
+    @Transactional(readOnly = true)
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; policies(@Parameter(hidden = true) User user,
+                                                              @RequestParam(&quot;entityId&quot;) String entityId,
+                                                              @RequestParam(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L212">        LOG.debug(&quot;/policies for &quot; + entityId + &quot; for &quot; + user.getEmail());</span>
+<span class="fc" id="L213">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+<span class="fc" id="L214">        confirmInstitutionAdmin(user, organization);</span>
+        //we need to ensure the application is connected to the IdP of the user - realtime
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (!user.isSuperUser()) {</span>
+<span class="nc" id="L217">            Map&lt;String, Object&gt; data = getIdentityProvider(user);</span>
+<span class="nc" id="L218">            boolean noneMatch = ((List&lt;Map&lt;String, String&gt;&gt;) data.getOrDefault(&quot;allowedEntities&quot;, List.of()))</span>
+<span class="nc" id="L219">                    .stream()</span>
+<span class="nc" id="L220">                    .noneMatch(allowedEntity -&gt; allowedEntity.get(&quot;name&quot;).equals(entityId));</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            if (noneMatch) {</span>
+<span class="nc" id="L223">                throw new UserRestrictionException(String.format(&quot;User %s is not allowed to request policies for %s&quot;,</span>
+<span class="nc" id="L224">                        user.getEmail(), entityId));</span>
+            }
+        }
+<span class="fc" id="L227">        List&lt;Map&lt;String, Object&gt;&gt; policies = this.manage</span>
+<span class="fc" id="L228">                .policiesByServiceProvider(user.getAuthenticatingAuthority(), entityId);</span>
+<span class="fc" id="L229">        return ResponseEntity.ok(policies);</span>
+    }
+
+
+    @PostMapping(&quot;/policies&quot;)
+    @Transactional(readOnly = true)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; createPolicy(User user,
+                                                            @RequestParam(&quot;organizationId&quot;) Long organizationId,
+                                                            @RequestBody Map&lt;String, Object&gt; policy) {
+<span class="fc" id="L238">        LOG.debug(&quot;/createPolicy for &quot; + policy + &quot; for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L240">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L242">        policyAccessAllowed(user, policy, organization);</span>
+<span class="fc" id="L243">        return ResponseEntity.ok(manage.createPolicy(policy));</span>
+    }
+
+
+    @PutMapping(&quot;/policies&quot;)
+    @Transactional(readOnly = true)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; updatePolicy(User user,
+                                                            @RequestParam(&quot;organizationId&quot;) Long organizationId,
+                                                            @RequestBody Map&lt;String, Object&gt; policy) {
+<span class="fc" id="L252">        LOG.debug(&quot;/updatePolicy for &quot; + policy + &quot; for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L254">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L256">        policyAccessAllowed(user, policy, organization);</span>
+<span class="fc" id="L257">        return ResponseEntity.ok(manage.updatePolicy(policy));</span>
+    }
+
+    @PutMapping(&quot;/update/consent&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; updateMetaDataConsent(User user,
+                                                                     @RequestBody Consent consent) {
+<span class="fc" id="L263">        LOG.debug(&quot;/updateMetaDataConsent for &quot; + consent + &quot; for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L265">        Organization organization = organizationRepository.findByManageIdentifier(consent.identityProviderId())</span>
+<span class="pc" id="L266">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+
+<span class="fc" id="L268">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L269">        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);</span>
+
+<span class="fc" id="L271">        Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, consent.identityProviderId());</span>
+<span class="fc" id="L272">        Map&lt;String, Object&gt; data = getData(identityProvider);</span>
+        //Ensure the application is connected to this IdP
+<span class="fc" id="L274">        List&lt;Map&lt;String, String&gt;&gt; allowedEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.get(&quot;allowedEntities&quot;);</span>
+<span class="fc" id="L275">        if (allowedEntities.stream()</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">                .noneMatch(entity -&gt; consent.name().equals(entity.get(&quot;name&quot;)))) {</span>
+<span class="nc" id="L277">            throw new UserRestrictionException(String.format(&quot;%s is not allowed to uppdate consent for %s because this application is not connected to %s&quot;,</span>
+<span class="nc" id="L278">                    user.getEmail(),</span>
+<span class="nc" id="L279">                    consent.name(),</span>
+<span class="nc" id="L280">                    consent.identityProviderId()</span>
+            ));
+        }
+
+<span class="fc" id="L284">        List&lt;Map&lt;String, String&gt;&gt; disableConsent = (List&lt;Map&lt;String, String&gt;&gt;) data.computeIfAbsent(&quot;disableConsent&quot;, key -&gt; new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L285">        Optional&lt;Map&lt;String, String&gt;&gt; optionalCurrentConsent = disableConsent.stream()</span>
+<span class="pc" id="L286">                .filter(entry -&gt; consent.name().equals(entry.get(&quot;name&quot;)))</span>
+<span class="fc" id="L287">                .findFirst();</span>
+<span class="fc" id="L288">        optionalCurrentConsent.ifPresentOrElse(</span>
+<span class="nc" id="L289">                currentConsent -&gt; consent.updateManageMap(currentConsent),</span>
+<span class="fc" id="L290">                () -&gt; disableConsent.add(consent.toManageMap()));</span>
+<span class="fc" id="L291">        String revisionNote = this.revisionNote(&quot;Consent&quot;, user, identityProvider, consent.name());</span>
+<span class="fc" id="L292">        data.put(&quot;revisionnote&quot;, revisionNote);</span>
+<span class="fc" id="L293">        manage.saveIdentityProvider(identityProvider);</span>
+
+<span class="fc" id="L295">        return createResult();</span>
+    }
+
+    @PutMapping(&quot;/update/assurance&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; updateMetaDataAssurance(User user,
+                                                                       @RequestBody Assurance assurance) {
+<span class="fc" id="L301">        LOG.debug(&quot;/updateMetaDataAssurance for &quot; + assurance + &quot; for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L303">        Organization organization = organizationRepository.findByManageIdentifier(assurance.identityProviderId())</span>
+<span class="pc" id="L304">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+
+<span class="fc" id="L306">        int loaLevel = user.getLoaLevel();</span>
+<span class="fc" id="L307">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L308">        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);</span>
+
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        if (assurance.stepupEntity().level() != null) {</span>
+<span class="fc" id="L311">            StepUpType stepUpType = StepUpType.fromLevel(config.getAcrValues(), assurance.stepupEntity().level());</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            if (loaLevel &lt; stepUpType.getRequiredLoaLevel()) {</span>
+<span class="fc" id="L313">                throw new UserRestrictionException(String.format(</span>
+                        &quot;User %s has loaLevel %d but stepUpType %s requires loaLevel %d&quot;,
+<span class="fc" id="L315">                        user.getEmail(), loaLevel,</span>
+<span class="fc" id="L316">                        stepUpType, stepUpType.getRequiredLoaLevel()));</span>
+            }
+        }
+
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (assurance.mfaEntity().level() != null) {</span>
+<span class="fc" id="L321">            MFAType mfaType = MFAType.fromValue(assurance.mfaEntity().level());</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">            if (loaLevel &lt; mfaType.getRequiredLoaLevel()) {</span>
+<span class="fc" id="L323">                throw new UserRestrictionException(String.format(</span>
+                        &quot;User %s has loaLevel %d but mfaType %s requires loaLevel %d&quot;,
+<span class="fc" id="L325">                        user.getEmail(), loaLevel,</span>
+<span class="fc" id="L326">                        mfaType, mfaType.getRequiredLoaLevel()));</span>
+            }
+        }
+
+<span class="fc" id="L330">        Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, assurance.identityProviderId());</span>
+<span class="fc" id="L331">        Map&lt;String, Object&gt; data = getData(identityProvider);</span>
+
+<span class="fc" id="L333">        List&lt;Map&lt;String, String&gt;&gt; mfaEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.computeIfAbsent(&quot;mfaEntities&quot;, key -&gt; new ArrayList&lt;&gt;());</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        if (assurance.mfaEntity().level() == null) {</span>
+<span class="pc" id="L335">            mfaEntities.removeIf(e -&gt; assurance.mfaEntity().name().equals(e.get(&quot;name&quot;)));</span>
+        } else {
+<span class="fc" id="L337">            Optional&lt;Map&lt;String, String&gt;&gt; existingMfa = mfaEntities.stream()</span>
+<span class="pc" id="L338">                    .filter(e -&gt; assurance.mfaEntity().name().equals(e.get(&quot;name&quot;)))</span>
+<span class="fc" id="L339">                    .findFirst();</span>
+<span class="fc" id="L340">            existingMfa.ifPresentOrElse(</span>
+<span class="nc" id="L341">                    e -&gt; e.put(&quot;level&quot;, assurance.mfaEntity().level()),</span>
+                    () -&gt; {
+<span class="fc" id="L343">                        Map&lt;String, String&gt; entry = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L344">                        entry.put(&quot;name&quot;, assurance.mfaEntity().name());</span>
+<span class="fc" id="L345">                        entry.put(&quot;level&quot;, assurance.mfaEntity().level());</span>
+<span class="fc" id="L346">                        mfaEntities.add(entry);</span>
+<span class="fc" id="L347">                    });</span>
+        }
+
+<span class="fc" id="L350">        List&lt;Map&lt;String, String&gt;&gt; stepupEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.computeIfAbsent(&quot;stepupEntities&quot;, key -&gt; new ArrayList&lt;&gt;());</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        if (assurance.stepupEntity().level() == null) {</span>
+<span class="pc" id="L352">            stepupEntities.removeIf(e -&gt; assurance.stepupEntity().name().equals(e.get(&quot;name&quot;)));</span>
+        } else {
+<span class="fc" id="L354">            Optional&lt;Map&lt;String, String&gt;&gt; existingStepup = stepupEntities.stream()</span>
+<span class="pc" id="L355">                    .filter(e -&gt; assurance.stepupEntity().name().equals(e.get(&quot;name&quot;)))</span>
+<span class="fc" id="L356">                    .findFirst();</span>
+<span class="fc" id="L357">            existingStepup.ifPresentOrElse(</span>
+<span class="nc" id="L358">                    e -&gt; e.put(&quot;level&quot;, assurance.stepupEntity().level()),</span>
+                    () -&gt; {
+<span class="fc" id="L360">                        Map&lt;String, String&gt; entry = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L361">                        entry.put(&quot;name&quot;, assurance.stepupEntity().name());</span>
+<span class="fc" id="L362">                        entry.put(&quot;level&quot;, assurance.stepupEntity().level());</span>
+<span class="fc" id="L363">                        stepupEntities.add(entry);</span>
+<span class="fc" id="L364">                    });</span>
+        }
+<span class="fc" id="L366">        String revisionNote = this.revisionNote(&quot;Assurance&quot;, user, identityProvider, assurance.stepupEntity().name());</span>
+<span class="fc" id="L367">        data.put(&quot;revisionnote&quot;, revisionNote);</span>
+<span class="fc" id="L368">        manage.saveIdentityProvider(identityProvider);</span>
+<span class="fc" id="L369">        return createResult();</span>
+    }
+
+    @DeleteMapping(&quot;/policies/{policyId}&quot;)
+    @Transactional(readOnly = true)
+    public ResponseEntity&lt;Void&gt; deletePolicy(User user,
+                                             @RequestParam(&quot;organizationId&quot;) Long organizationId,
+                                             @PathVariable String policyId) {
+<span class="fc" id="L377">        Map&lt;String, Object&gt; policy = manage.providerByManageIdentifier(EntityType.policy, policyId);</span>
+
+<span class="fc" id="L379">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L381">        LOG.debug(&quot;/deletePolicy for &quot; + policy + &quot; for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L383">        policyAccessAllowed(user, policy, organization);</span>
+<span class="fc" id="L384">        manage.deletePolicy(policy);</span>
+<span class="fc" id="L385">        return ResponseEntity.noContent().build();</span>
+    }
+
+
+    @PostMapping(&quot;/unique-entity-id&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; providersByEntityId(@RequestBody Map&lt;String, String&gt; data) {
+<span class="fc" id="L391">        LOG.debug(&quot;/unique-entity-id for &quot; + data);</span>
+
+<span class="fc" id="L393">        String entityID = data.get(&quot;entityID&quot;);</span>
+        //It does not matter which entityType we use, all services will be queried
+<span class="fc" id="L395">        List&lt;Map&lt;String, Object&gt;&gt; providers = manage.uniqueEntityId(EntityType.saml20_sp, entityID);</span>
+<span class="fc" id="L396">        return ResponseEntity.ok(providers);</span>
+    }
+
+
+    @PostMapping(&quot;/unique-policy-name&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; uniquePolicyName(@RequestBody Map&lt;String, Object&gt; properties) {
+<span class="fc" id="L402">        LOG.debug(&quot;/unique-entity-id for &quot; + properties);</span>
+
+<span class="fc" id="L404">        List&lt;Map&lt;String, Object&gt;&gt; policies = manage.uniquePolicyName(properties);</span>
+<span class="fc" id="L405">        return ResponseEntity.ok(policies);</span>
+    }
+
+    @GetMapping(&quot;/autocomplete/{type}&quot;)
+    public List&lt;Map&lt;String, Object&gt;&gt; autoCompleteEntities(@PathVariable EntityType type,
+                                                          @RequestParam(&quot;query&quot;) String query) {
+<span class="fc" id="L411">        Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; entities = manage.autoCompleteEntities(type, query);</span>
+        //We concat the suggestions and alternatives
+<span class="fc" id="L413">        List&lt;Map&lt;String, Object&gt;&gt; suggestions = entities.getOrDefault(&quot;suggestions&quot;, new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L414">        List&lt;Map&lt;String, Object&gt;&gt; alternatives = entities.getOrDefault(&quot;alternatives&quot;, new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L415">        suggestions.addAll(alternatives);</span>
+<span class="fc" id="L416">        return suggestions;</span>
+    }
+
+
+    @GetMapping(&quot;/allowed-attributes&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; allowedAttributes() {
+<span class="fc" id="L422">        LOG.debug(&quot;/allowedAttributes&quot;);</span>
+
+<span class="fc" id="L424">        return ResponseEntity.ok(manage.allowedAttributes());</span>
+    }
+
+
+    @PutMapping(&quot;/reject-change-request&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
+<span class="fc" id="L430">        LOG.debug(&quot;/reject-change-request &quot; + changeRequest + &quot; by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L432">        String metaDataId = changeRequest.getMetaDataId();</span>
+<span class="fc" id="L433">        Connection connection = connectionRepository.findByProtocolAndManageIdentifier(EntityType.valueOf(changeRequest.getType()), metaDataId)</span>
+<span class="pc" id="L434">                .orElseThrow(() -&gt; new NotFoundException(&quot;No connection found for &quot; + metaDataId));</span>
+<span class="fc" id="L435">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L436">        confirmApplicationWriteAccess(userFromDB, connection.getApplication());</span>
+
+        //change request has non guessable identifier
+<span class="fc" id="L439">        manage.rejectChangeRequest(changeRequest);</span>
+
+<span class="fc" id="L441">        jiraClient.comment(changeRequest.getTicketKey(), &quot;Ticket can be closed by request of the requestor&quot;);</span>
+
+<span class="fc" id="L443">        return Results.okResult();</span>
+    }
+
+    private void policyAccessAllowed(User user, Map&lt;String, Object&gt; policy, Organization organization) {
+<span class="fc" id="L447">        confirmInstitutionAdmin(user, organization);</span>
+        //We don't want to use PolicyDefinition as @RequestBody, because the template from Manage is leading
+<span class="fc" id="L449">        PolicyDefinition policyDefinition = this.objectMapper.convertValue(policy.get(&quot;data&quot;), PolicyDefinition.class);</span>
+<span class="fc" id="L450">        confirmPolicyAccess(user, policyDefinition, manage, organization);</span>
+<span class="fc" id="L451">    }</span>
+
+    private Map&lt;String, Object&gt; getIdentityProvider(User user) {
+        //We can't use any cache as this method is called right after automatic connection allowed
+<span class="nc" id="L455">        Map&lt;String, Object&gt; identityProvider = manage.identityProviderByEntityID(user.getAuthenticatingAuthority());</span>
+<span class="nc" id="L456">        return getData(identityProvider);</span>
+    }
+
+    private String revisionNote(String section, User user, Map&lt;String, Object&gt; identityProvider, String applicationEntityId) {
+<span class="fc" id="L460">        return String.format(&quot;Update in %s settings by %s from %s for %s.&quot;,</span>
+                section,
+<span class="fc" id="L462">                user.getName(),</span>
+<span class="fc" id="L463">                getData(identityProvider).get(&quot;entityid&quot;),</span>
+                applicationEntityId);
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConnectionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">ConnectionController.java</span></div><h1>ConnectionController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.InvalidInputException;
+import access.exception.NotFoundException;
+import access.jira.JiraClient;
+import access.jira.JiraIssue;
+import access.manage.ChangeRequest;
+import access.manage.ConnectionProviderConverter;
+import access.manage.ListMerger;
+import access.manage.Manage;
+import access.manage.PathUpdateType;
+import access.manage.RequestType;
+import access.model.Application;
+import access.model.Authority;
+import access.model.Connection;
+import access.model.ConnectionStatus;
+import access.model.EntityType;
+import access.model.Organization;
+import access.model.User;
+import access.repository.ApplicationRepository;
+import access.repository.ConnectionRepository;
+import access.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.passay.data.EnglishCharacterData;
+import org.passay.generate.PasswordGenerator;
+import org.passay.rule.CharacterRule;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
+import static access.manage.ManageData.*;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/connections&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class ConnectionController implements UserAccessRights {
+
+    public static final int SECRET_LENGTH = 36;
+
+<span class="fc" id="L68">    private static final Log LOG = LogFactory.getLog(ConnectionController.class);</span>
+
+    private final ConnectionRepository connectionRepository;
+    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
+    private final Manage manage;
+    private final JiraClient jiraClient;
+<span class="fc" id="L75">    private final List&lt;CharacterRule&gt; passwordGeneratorRules = initPasswordGeneratorRules();</span>
+<span class="fc" id="L76">    private final PasswordGenerator passwordGenerator = new PasswordGenerator(SECRET_LENGTH, passwordGeneratorRules);</span>
+    private final ConnectionProviderConverter connectionProviderConverter;
+    private final ObjectMapper objectMapper;
+
+    public ConnectionController(ConnectionRepository connectionRepository,
+                                ApplicationRepository applicationRepository,
+                                UserRepository userRepository,
+                                Manage manage,
+                                JiraClient jiraClient,
+                                ConnectionProviderConverter connectionProviderConverter,
+<span class="fc" id="L86">                                ObjectMapper objectMapper) {</span>
+<span class="fc" id="L87">        this.connectionRepository = connectionRepository;</span>
+<span class="fc" id="L88">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L89">        this.userRepository = userRepository;</span>
+<span class="fc" id="L90">        this.manage = manage;</span>
+<span class="fc" id="L91">        this.jiraClient = jiraClient;</span>
+<span class="fc" id="L92">        this.connectionProviderConverter = connectionProviderConverter;</span>
+<span class="fc" id="L93">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L94">    }</span>
+
+    private List&lt;CharacterRule&gt; initPasswordGeneratorRules() {
+<span class="fc" id="L97">        return List.of(</span>
+                new CharacterRule(EnglishCharacterData.LowerCase, 8),
+                new CharacterRule(EnglishCharacterData.UpperCase, 8),
+                new CharacterRule(EnglishCharacterData.Digit, 8));
+    }
+
+    @GetMapping({&quot;/{connectionId}&quot;})
+    public ResponseEntity&lt;Connection&gt; find(User user, @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L105">        LOG.debug(&quot;/find connection for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L107">        Connection connection = connectionRepository.findById(connectionId)</span>
+<span class="pc" id="L108">                .orElseThrow(() -&gt; new NotFoundException(&quot;Connection not found&quot;));</span>
+<span class="fc" id="L109">        Application application = connection.getApplication();</span>
+
+<span class="fc" id="L111">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L112">        confirmApplicationWriteAccess(user, application, Authority.GUEST);</span>
+
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (StringUtils.hasText(connection.getManageIdentifier())) {</span>
+<span class="fc" id="L115">            Map&lt;String, Object&gt; provider = manage.providerByConnection(connection);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            if (connection.mergeMetaData(provider, false)) {</span>
+<span class="fc" id="L117">                connectionRepository.save(connection);</span>
+            }
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {</span>
+<span class="fc" id="L120">                connection.convertChangeRequests(manage.getChangeRequests(connection));</span>
+            }
+        }
+<span class="fc" id="L123">        return ResponseEntity.ok(connection);</span>
+    }
+
+    @GetMapping({&quot;/{manageType}/{manageIdentifier}&quot;})
+    public ResponseEntity&lt;?&gt; findByManage(User user,
+                                          @PathVariable(&quot;manageType&quot;) EntityType entityType,
+                                          @PathVariable String manageIdentifier) {
+<span class="fc" id="L130">        LOG.debug(&quot;/find findByManage for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L132">        return connectionRepository.findByProtocolAndManageIdentifier(entityType, manageIdentifier)</span>
+<span class="fc" id="L133">                .map(connection -&gt; {</span>
+<span class="fc" id="L134">                    Application application = connection.getApplication();</span>
+
+<span class="fc" id="L136">                    User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L137">                    confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);</span>
+
+<span class="fc" id="L139">                    Organization organization = application.getOrganization();</span>
+<span class="fc" id="L140">                    return ResponseEntity.ok(Map.of(</span>
+                            &quot;connection&quot;, connection,
+                            &quot;application&quot;, application,
+                            &quot;organisation&quot;, organization
+                    ));
+                })
+<span class="fc" id="L146">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Connection&gt; create(User user, @Validated @RequestBody Connection connection) {
+<span class="fc" id="L151">        LOG.debug(&quot;/create connection by &quot; + user.getEmail());</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (!connection.isValid()) {</span>
+<span class="fc" id="L153">            throw new InvalidInputException(&quot;Connection is not valid&quot;);</span>
+        }
+
+<span class="fc" id="L156">        Long applicationID = connection.getApplication().getId();</span>
+<span class="fc" id="L157">        Application application = applicationRepository.findById(applicationID)</span>
+<span class="pc" id="L158">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+
+<span class="fc" id="L160">        user = this.reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L161">        confirmApplicationWriteAccess(user, application);</span>
+
+<span class="fc" id="L163">        connection.setCreatedAt(Instant.now());</span>
+<span class="fc" id="L164">        connection.setApplication(application);</span>
+<span class="fc" id="L165">        connection = saveConnection(connection);</span>
+
+<span class="fc" id="L167">        return ResponseEntity.status(HttpStatus.CREATED).body(connection);</span>
+    }
+
+    @PutMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Connection&gt; update(User user, @Validated @RequestBody Connection connectionData) {
+<span class="fc" id="L172">        LOG.debug(&quot;/update connection by &quot; + user.getEmail());</span>
+<span class="fc" id="L173">        Connection connection = doUpdateConnection(user, connectionData);</span>
+<span class="fc" id="L174">        return ResponseEntity.status(HttpStatus.CREATED).body(connection);</span>
+    }
+
+    @PutMapping(&quot;/update-request-production-status&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; updateWithProductionReadyRequest(User user, @Validated @RequestBody Connection connectionData) {
+<span class="fc" id="L179">        LOG.debug(&quot;/update connection by &quot; + user.getEmail());</span>
+<span class="fc" id="L180">        Connection connection = doUpdateConnection(user, connectionData);</span>
+<span class="fc" id="L181">        String jiraKey = this.doRequestProductionStatus(user, connection);</span>
+<span class="fc" id="L182">        Map&lt;String, Object&gt; body = Map.of(&quot;connection&quot;, connection, &quot;jiraKey&quot;, jiraKey);</span>
+<span class="fc" id="L183">        return ResponseEntity.status(HttpStatus.CREATED).body(body);</span>
+    }
+
+    private Connection doUpdateConnection(User user, Connection connectionData) {
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">        if (!connectionData.isValid()) {</span>
+<span class="nc" id="L188">            throw new InvalidInputException(&quot;Connection is not valid&quot;);</span>
+        }
+<span class="fc" id="L190">        Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());</span>
+
+<span class="fc" id="L192">        connection.merge(connectionData);</span>
+
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (connection.changeRequestRequired()) {</span>
+            //Not allowed to sync the connection to Manage. Create or update outstanding ChangeRequest
+<span class="fc" id="L196">            connection = this.productionReadyChangeRequests(connection, user);</span>
+<span class="fc" id="L197">            connection.convertChangeRequests(manage.getChangeRequests(connection));</span>
+        } else {
+<span class="fc" id="L199">            connection = saveConnection(connection);</span>
+        }
+<span class="fc" id="L201">        return connection;</span>
+    }
+
+<span class="nc" id="L204">    @SneakyThrows</span>
+    @GetMapping(value = &quot;/change-requests/{connectionId}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; changeRequests(User user, @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L207">        Connection connection = findConnectionForAuthorizedUser(user, connectionId);</span>
+
+<span class="fc" id="L209">        List&lt;Map&lt;String, Object&gt;&gt; changeRequests = manage.getChangeRequests(connection);</span>
+<span class="fc" id="L210">        return ResponseEntity.ok(changeRequests);</span>
+    }
+
+    @PutMapping(value = &quot;/reset-secret/{connectionId}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map&lt;String, String&gt; secret(User user, @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L215">        Connection connection = findConnectionForAuthorizedUser(user, connectionId);</span>
+
+<span class="fc" id="L217">        String secret = passwordGenerator.generate().toString();</span>
+<span class="fc" id="L218">        connection.getMetaData().put(&quot;secret&quot;, secret);</span>
+<span class="fc" id="L219">        connection.setSecretSet(false);</span>
+<span class="fc" id="L220">        saveConnection(connection);</span>
+
+<span class="fc" id="L222">        return Collections.singletonMap(&quot;secret&quot;, secret);</span>
+    }
+
+    @PutMapping(value = &quot;/request-production-status/{connectionId}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; requestProductionStatus(User user,
+                                                                       @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L228">        Connection connection = findConnectionForAuthorizedUser(user, connectionId);</span>
+
+<span class="fc" id="L230">        String jiraKey = doRequestProductionStatus(user, connection);</span>
+
+<span class="fc" id="L232">        return ResponseEntity.status(HttpStatus.CREATED).body(</span>
+<span class="fc" id="L233">                Map.of(&quot;status&quot;, HttpStatus.CREATED.value(), &quot;jiraKey&quot;, jiraKey));</span>
+    }
+
+    private String doRequestProductionStatus(User user, Connection connection) {
+<span class="fc" id="L237">        String changeRequestURL = manage.changeRequestURL(connection);</span>
+
+<span class="fc" id="L239">        Map&lt;String, Object&gt; provider = manage.providerByConnection(connection);</span>
+<span class="fc" id="L240">        String entityId = (String) ((Map) provider.get(&quot;data&quot;)).get(&quot;entityid&quot;);</span>
+<span class="fc" id="L241">        String lineSeparator = System.lineSeparator();</span>
+<span class="fc" id="L242">        String summary = String.format(&quot;Production status requested by %s for %s.&quot;,</span>
+<span class="fc" id="L243">                user.getName(), connection.getName());</span>
+<span class="fc" id="L244">        String jiraKey = jiraClient.create(new JiraIssue(</span>
+                entityId,
+                null,// There is no identity provider for requesting production status
+<span class="fc" id="L247">                String.format(&quot;%s A change request in manage has been created to merge this user request. See:%s%s&quot;,</span>
+                        summary,
+                        lineSeparator,
+                        changeRequestURL),
+                summary,
+<span class="fc" id="L252">                connection.getProtocol(),</span>
+<span class="fc" id="L253">                user.getEmail()</span>
+        ));
+<span class="fc" id="L255">        Map&lt;String, Object&gt; auditData = Map.of(&quot;user&quot;, user.getEmail(),</span>
+<span class="fc" id="L256">                &quot;notes&quot;, String.format(&quot;Production status requested by %s for %s. See Jira %s&quot;,</span>
+<span class="fc" id="L257">                        user.getName(), connection.getName(), jiraKey));</span>
+<span class="fc" id="L258">        ChangeRequest changeRequest = new ChangeRequest(</span>
+<span class="fc" id="L259">                connection.getManageIdentifier(),</span>
+<span class="fc" id="L260">                connection.getProtocol(),</span>
+<span class="fc" id="L261">                Map.of(&quot;state&quot;, &quot;prodaccepted&quot;),</span>
+                false,
+                PathUpdateType.ADDITION,
+                RequestType.ProductionStatusRequest);
+<span class="fc" id="L265">        changeRequest.setTicketKey(jiraKey);</span>
+<span class="fc" id="L266">        changeRequest.setAuditData(auditData);</span>
+<span class="fc" id="L267">        Map&lt;String, Object&gt; changeRequestResponse = manage.createChangeRequest(changeRequest);</span>
+
+<span class="fc" id="L269">        LOG.debug(&quot;Change request response from manage: &quot; + changeRequestResponse);</span>
+
+<span class="fc" id="L271">        connection.setStatus(ConnectionStatus.PENDING_PROD);</span>
+<span class="fc" id="L272">        saveConnection(connection);</span>
+<span class="fc" id="L273">        return jiraKey;</span>
+    }
+
+    @DeleteMapping({&quot;&quot;, &quot;/{connectionId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; delete(User user, @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L278">        LOG.debug(&quot;/delete connection by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L280">        Connection connection = findConnectionForAuthorizedUser(user, connectionId);</span>
+
+        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+<span class="fc" id="L283">        Application application = connection.getApplication();</span>
+<span class="fc" id="L284">        application.removeConnection(connection);</span>
+
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        if (StringUtils.hasText(connection.getManageIdentifier())) {</span>
+<span class="fc" id="L287">            manage.deleteProvider(connection);</span>
+        }
+
+<span class="fc" id="L290">        connectionRepository.deleteConnectionById(connectionId);</span>
+
+<span class="fc" id="L292">        return deleteResult();</span>
+    }
+
+    @GetMapping(&quot;/identity-providers-allowed-connections/{connectionId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProvidersByAllowedConnections(User user,
+                                                                                           @PathVariable(&quot;connectionId&quot;) Long connectionId) {
+<span class="fc" id="L298">        LOG.debug(&quot;/identityProvidersByAllowedConnections by: &quot; + user.getEmail());</span>
+<span class="fc" id="L299">        Connection connection = connectionRepository.findById(connectionId)</span>
+<span class="pc" id="L300">                .orElseThrow(() -&gt; new NotFoundException(&quot;Connection not found&quot;));</span>
+
+<span class="fc" id="L302">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L303">        confirmApplicationWriteAccess(user, connection.getApplication(), Authority.GUEST);</span>
+
+<span class="fc" id="L305">        List&lt;Map&lt;String, Object&gt;&gt; identityProviders = manage.identityProvidersByAllowedConnections(List.of(connection));</span>
+<span class="fc" id="L306">        return ResponseEntity.ok(identityProviders);</span>
+    }
+
+    private boolean isNewChangeRequestDuplicate(List&lt;Map&lt;String, Object&gt;&gt; existingChangeRequests,
+                                                Optional&lt;ChangeRequest&gt; newChangeRequest) {
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        if (isEmpty(existingChangeRequests)) {</span>
+<span class="fc" id="L312">            return false;</span>
+        }
+<span class="fc" id="L314">        return newChangeRequest</span>
+<span class="fc" id="L315">                .map(changeRequest -&gt;</span>
+<span class="fc" id="L316">                        existingChangeRequests.stream().anyMatch(changeRequestMap -&gt; changeRequest.matches(changeRequestMap)))</span>
+<span class="fc" id="L317">                .orElse(false);</span>
+
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private Connection productionReadyChangeRequests(Connection connection, User user) {
+<span class="fc" id="L323">        String changeRequestURL = manage.changeRequestURL(connection);</span>
+<span class="fc" id="L324">        Map&lt;String, Object&gt; provider = manage.providerByConnection(connection);</span>
+<span class="fc" id="L325">        connection.updateRemoteManageData(provider);</span>
+<span class="fc" id="L326">        List&lt;Map&lt;String, Object&gt;&gt; existingChangeRequests = manage.getChangeRequests(connection);</span>
+<span class="fc" id="L327">        Optional&lt;ChangeRequest&gt; changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);</span>
+<span class="fc" id="L328">        boolean isDuplicate = isNewChangeRequestDuplicate(existingChangeRequests, changeRequestOptional);</span>
+<span class="pc bpc" id="L329" title="2 of 4 branches missed.">        if (changeRequestOptional.isPresent() &amp;&amp; !isDuplicate) {</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">            if (existingChangeRequests.isEmpty()) {</span>
+                //No existing change requests, proceed as normal and create a ticket
+<span class="fc" id="L332">                String entityId = (String) ((Map) provider.get(&quot;data&quot;)).get(&quot;entityid&quot;);</span>
+<span class="fc" id="L333">                String summary = String.format(&quot;Data change requested by %s for %s with entityID %s&quot;,</span>
+<span class="fc" id="L334">                        user.getName(),</span>
+<span class="fc" id="L335">                        connection.getName(),</span>
+                        entityId);
+<span class="fc" id="L337">                String jiraKey = jiraClient.create(new JiraIssue(</span>
+                        entityId,
+                        null,// There is no identity provider for change requests
+<span class="fc" id="L340">                        String.format(&quot;%s A change request in manage has been created to merge this user request. See:%s%s&quot;,</span>
+                                summary,
+<span class="fc" id="L342">                                System.lineSeparator(),</span>
+                                changeRequestURL),
+                        summary,
+<span class="fc" id="L345">                        connection.getProtocol(),</span>
+<span class="fc" id="L346">                        user.getEmail()</span>
+                ));
+<span class="fc" id="L348">                Map&lt;String, Object&gt; auditData = Map.of(&quot;user&quot;, user.getEmail(),</span>
+<span class="fc" id="L349">                        &quot;notes&quot;, String.format(&quot;Data change requested by %s for %s. See Jira %s&quot;,</span>
+<span class="fc" id="L350">                                user.getName(),</span>
+<span class="fc" id="L351">                                connection.getName(),</span>
+                                jiraKey));
+<span class="fc" id="L353">                ChangeRequest changeRequest = changeRequestOptional.get();</span>
+<span class="fc" id="L354">                changeRequest.setTicketKey(jiraKey);</span>
+<span class="fc" id="L355">                changeRequest.setAuditData(auditData);</span>
+<span class="fc" id="L356">                manage.createChangeRequest(changeRequest);</span>
+<span class="fc" id="L357">            } else {</span>
+                //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not overwrite changes
+                //And therefore we don't create a new change request, but update the existing one
+<span class="fc" id="L360">                Map&lt;String, Object&gt; existingChangeRequest = existingChangeRequests.getFirst();</span>
+<span class="fc" id="L361">                ChangeRequest newChangeRequest = changeRequestOptional.get();</span>
+<span class="fc" id="L362">                Map&lt;String, Object&gt; existingPathUpdates = (Map&lt;String, Object&gt;) existingChangeRequest.get(&quot;pathUpdates&quot;);</span>
+<span class="fc" id="L363">                Map&lt;String, Object&gt; newPathUpdates = newChangeRequest.getPathUpdates();</span>
+<span class="fc" id="L364">                newPathUpdates.forEach((key, value) -&gt; {</span>
+<span class="pc bpc" id="L365" title="1 of 4 branches missed.">                    if (key.equals(&quot;arp&quot;) &amp;&amp; existingPathUpdates.containsKey(key)) {</span>
+                        //three way merge on the attributes and profile, motivation from the latest change
+<span class="fc" id="L367">                        Map&lt;String, Object&gt; attributes = (Map&lt;String, Object&gt;) ((Map&lt;String, Object&gt;) value).getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L368">                        List&lt;String&gt; attibuteNames = attributes.keySet().stream().toList();</span>
+
+<span class="fc" id="L370">                        Map&lt;String, Object&gt; arpPath = (Map&lt;String, Object&gt;) existingPathUpdates.getOrDefault(&quot;arp&quot;, Map.of());</span>
+<span class="fc" id="L371">                        Map&lt;String, Object&gt; pathAttributes = (Map&lt;String, Object&gt;) arpPath.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L372">                        List&lt;String&gt; pathValues = pathAttributes.keySet().stream().toList();</span>
+
+<span class="fc" id="L374">                        Map&lt;String, Object&gt; baseArp = (Map&lt;String, Object&gt;) getData(provider).getOrDefault(&quot;arp&quot;, Map.of());</span>
+<span class="fc" id="L375">                        Map&lt;String, Object&gt; baseAttributes = (Map&lt;String, Object&gt;) baseArp.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L376">                        List&lt;String&gt; baseValues = baseAttributes.keySet().stream().toList();</span>
+
+<span class="fc" id="L378">                        List&lt;String&gt; newValues = ListMerger.threeWayMerge(baseValues, pathValues, attibuteNames);</span>
+                        //Now we need to construct a new attributes Map with all the values from the three attributes Map
+<span class="fc" id="L380">                        Map&lt;String, Object&gt; newAttributes = newValues.stream().collect(Collectors.toMap(</span>
+<span class="fc" id="L381">                                attrName -&gt; attrName,</span>
+<span class="fc" id="L382">                                attrName -&gt; attributes.getOrDefault(attrName, pathAttributes.getOrDefault(attrName, baseAttributes.get(attrName)))));</span>
+<span class="fc" id="L383">                        arpPath.put(&quot;attributes&quot;, newAttributes);</span>
+<span class="fc bfc" id="L384" title="All 4 branches covered.">                    } else if (value instanceof List &amp;&amp; existingPathUpdates.containsKey(key)) {</span>
+                        //three way merge
+<span class="fc" id="L386">                        List&lt;String&gt; pathUpdateValue = (List&lt;String&gt;) existingPathUpdates.get(key);</span>
+<span class="fc" id="L387">                        List&lt;String&gt; base = (List&lt;String&gt;) getMetaDataFields(getData(provider)).getOrDefault(key.substring(key.indexOf(&quot;.&quot;) + 1), List.of());</span>
+<span class="fc" id="L388">                        List&lt;String&gt; newValues = ListMerger.threeWayMerge(base, pathUpdateValue, (List&lt;String&gt;) value);</span>
+<span class="fc" id="L389">                        existingPathUpdates.put(key, newValues);</span>
+<span class="fc" id="L390">                    } else {</span>
+                        //simply override
+<span class="fc" id="L392">                        existingPathUpdates.put(key, value);</span>
+                    }
+<span class="fc" id="L394">                });</span>
+<span class="fc" id="L395">                ChangeRequest changeRequest = objectMapper.convertValue(existingChangeRequest, ChangeRequest.class);</span>
+<span class="fc" id="L396">                manage.updateChangeRequest(changeRequest);</span>
+            }
+        }
+
+        //Now the tricky bit, we must fetch the changeRequest after they are created and return the data based on the provider
+<span class="fc" id="L401">        connection.mergeMetaData(provider, true);</span>
+<span class="fc" id="L402">        connection = connectionRepository.save(connection);</span>
+<span class="fc" id="L403">        connection.convertChangeRequests(manage.getChangeRequests(connection));</span>
+<span class="fc" id="L404">        return connection;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private Connection saveConnection(Connection connection) {
+        //Put / Post to Manage only if the status is not OPEN
+<span class="fc bfc" id="L410" title="All 2 branches covered.">        if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {</span>
+<span class="fc bfc" id="L411" title="All 2 branches covered.">            boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &amp;&amp;</span>
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">                    connection.getMetaData().getOrDefault(&quot;pkce&quot;, false) == Boolean.FALSE;</span>
+
+<span class="pc bpc" id="L414" title="1 of 2 branches missed.">            boolean secretNotSet = !connection.isSecretSet();</span>
+<span class="pc bpc" id="L415" title="1 of 4 branches missed.">            if (isPrivateRelyingParty &amp;&amp; secretNotSet) {</span>
+                //generate secret if it is not already set, but store the raw-text variant, because Manage encodes it
+<span class="fc" id="L417">                String secret = (String) connection.getMetaData().getOrDefault(&quot;secret&quot;, passwordGenerator.generate().toString());</span>
+<span class="fc" id="L418">                connection.getMetaData().put(&quot;secret&quot;, secret);</span>
+<span class="fc" id="L419">                connection.setSecretSet(true);</span>
+            }
+            //Now sync the Connection to Manage.
+<span class="fc" id="L422">            Map&lt;String, Object&gt; provider = manage.saveProvider(connection);</span>
+<span class="fc" id="L423">            connection.updateRemoteManageData(provider);</span>
+
+<span class="pc bpc" id="L425" title="1 of 4 branches missed.">            if (isPrivateRelyingParty &amp;&amp; secretNotSet) {</span>
+                //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
+<span class="fc" id="L427">                Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="fc" id="L428">                Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L429">                String secretFromManage = (String) metaDataFields.get(&quot;secret&quot;);</span>
+<span class="pc bpc" id="L430" title="1 of 4 branches missed.">                if (StringUtils.hasText(secretFromManage) &amp;&amp; secretFromManage.length() != SECRET_LENGTH) {</span>
+<span class="fc" id="L431">                    String originalSecret = (String) connection.getMetaData().get(&quot;secret&quot;);</span>
+<span class="fc" id="L432">                    connection.getMetaData().put(&quot;secret&quot;, secretFromManage);</span>
+                    //To display in the client
+<span class="pc bpc" id="L434" title="1 of 2 branches missed.">                    if (originalSecret.length() == SECRET_LENGTH) {</span>
+<span class="fc" id="L435">                        connection.getMetaData().put(&quot;originalSecret&quot;, originalSecret);</span>
+                    }
+                }
+            }
+
+<span class="fc" id="L440">            List&lt;Map&lt;String, Object&gt;&gt; contactPersons = (List&lt;Map&lt;String, Object&gt;&gt;) connection.getMetaData().get(&quot;contactPersons&quot;);</span>
+<span class="fc bfc" id="L441" title="All 2 branches covered.">            if (!CollectionUtils.isEmpty(contactPersons)) {</span>
+<span class="fc" id="L442">                Application application = connection.getApplication();</span>
+<span class="fc" id="L443">                application.getMetaData().put(&quot;contactPersons&quot;, contactPersons);</span>
+<span class="fc" id="L444">                applicationRepository.save(application);</span>
+                //No need to store redundant data
+<span class="fc" id="L446">                connection.getMetaData().remove(&quot;contactPersons&quot;);</span>
+            }
+        }
+<span class="fc" id="L449">        return connectionRepository.save(connection);</span>
+    }
+
+    private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
+<span class="fc" id="L453">        Connection connection = connectionRepository.findById(connectionId)</span>
+<span class="pc" id="L454">                .orElseThrow(() -&gt; new NotFoundException(&quot;Connection not found&quot;));</span>
+<span class="fc" id="L455">        Application application = connection.getApplication();</span>
+<span class="fc" id="L456">        user = this.reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L457">        confirmApplicationWriteAccess(user, application);</span>
+<span class="fc" id="L458">        return connection;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

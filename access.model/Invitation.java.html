@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Invitation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">Invitation.java</span></div><h1>Invitation.java</h1><pre class="source lang-java linenums">package access.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.Hibernate;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
+@Entity(name = &quot;invitations&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+public class Invitation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Language language;
+
+<span class="fc" id="L32">    @Enumerated(EnumType.STRING)</span>
+    private InvitationStatus status = InvitationStatus.OPEN;
+
+    @Column
+    private String hash;
+
+    @Column
+    @NotNull
+    private String email;
+
+    @Column
+    private String message;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @Column(name = &quot;expiry_date&quot;)
+    private Instant expiryDate;
+
+    @Column(name = &quot;accepted_at&quot;)
+    private Instant acceptedAt;
+
+<span class="fc" id="L54">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;intended_authority&quot;)
+    @NotNull
+    private Authority intendedAuthority = Authority.MEMBER;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;organization_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;invitee_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User invitee;
+
+<span class="fc" id="L69">    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)</span>
+    @JoinTable(name = &quot;invitations_applications&quot;,
+            joinColumns = @JoinColumn(name = &quot;invitation_id&quot;),
+            inverseJoinColumns = @JoinColumn(name = &quot;application_id&quot;))
+    private Set&lt;Application&gt; applications = new HashSet&lt;&gt;();
+
+
+    public Invitation(Language language,
+                      String hash,
+                      String email,
+                      String message,
+                      Authority intendedAuthority,
+                      Organization organization,
+                      User invitee,
+<span class="fc" id="L83">                      Set&lt;Application&gt; applications) {</span>
+<span class="fc" id="L84">        this.language = language;</span>
+<span class="fc" id="L85">        this.hash = hash;</span>
+<span class="fc" id="L86">        this.email = email;</span>
+<span class="fc" id="L87">        this.message = message;</span>
+<span class="fc" id="L88">        this.intendedAuthority = intendedAuthority;</span>
+<span class="fc" id="L89">        this.organization = organization;</span>
+<span class="fc" id="L90">        this.invitee = invitee;</span>
+<span class="fc" id="L91">        this.applications = applications;</span>
+<span class="fc" id="L92">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L93">        this.expiryDate = this.createdAt.plus(30, ChronoUnit.DAYS);</span>
+<span class="fc" id="L94">    }</span>
+
+
+    //used in the mustache templates
+    @JsonIgnore
+    public List&lt;String&gt; anyApplications() {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        return CollectionUtils.isEmpty(this.applications) ? Collections.emptyList() : Arrays.asList(&quot;will-iterate-once&quot;);</span>
+    }
+
+    @JsonProperty(value = &quot;inviter&quot;, access = JsonProperty.Access.READ_ONLY)
+    public Map&lt;String, Object&gt; getInviterEmail() {
+<span class="fc" id="L105">        User inviter = this.getInvitee();</span>
+<span class="fc" id="L106">        Map&lt;String, Object&gt; info = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L107" title="2 of 4 branches missed.">        if (inviter != null &amp;&amp; Hibernate.isInitialized(inviter)) {</span>
+<span class="fc" id="L108">            info.put(&quot;email&quot;, inviter.getEmail());</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            info.put(&quot;name&quot;, StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail());</span>
+<span class="fc" id="L110">            info.put(&quot;user_id&quot;, inviter.getId());</span>
+        }
+<span class="fc" id="L112">        return info;</span>
+    }
+
+    @JsonProperty(value = &quot;organization&quot;, access = JsonProperty.Access.READ_ONLY)
+    public Map&lt;String, Object&gt; getOrganizationInfo() {
+<span class="fc" id="L117">        Organization organization = this.getOrganization();</span>
+<span class="fc" id="L118">        Map&lt;String, Object&gt; info = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L119" title="2 of 4 branches missed.">        if (organization != null &amp;&amp; Hibernate.isInitialized(organization)) {</span>
+<span class="fc" id="L120">            info.put(&quot;name&quot;, organization.getName());</span>
+<span class="fc" id="L121">            info.put(&quot;id&quot;, organization.getId());</span>
+        }
+<span class="fc" id="L123">        return info;</span>
+    }
+
+    @JsonIgnore
+    public void accept() {
+<span class="fc" id="L128">        this.status = InvitationStatus.ACCEPTED;</span>
+<span class="fc" id="L129">        this.hash = null;</span>
+<span class="fc" id="L130">        this.acceptedAt = Instant.now();</span>
+<span class="fc" id="L131">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JoinRequestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">JoinRequestController.java</span></div><h1>JoinRequestController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.DuplicateJoinRequestException;
+import access.exception.NotFoundException;
+import access.mail.MailBox;
+import access.model.*;
+import access.repository.JoinRequestRepository;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.OrganizationRepository;
+import access.request.JoinRequestApproval;
+import access.request.JoinRequestForm;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/join&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class JoinRequestController implements UserAccessRights {
+
+<span class="fc" id="L34">    private static final Log LOG = LogFactory.getLog(JoinRequestController.class);</span>
+
+    private final JoinRequestRepository joinRequestRepository;
+    private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final MailBox mailBox;
+
+    public JoinRequestController(JoinRequestRepository joinRequestRepository,
+                                 OrganizationRepository organizationRepository,
+                                 OrganizationMembershipRepository organizationMembershipRepository,
+<span class="fc" id="L44">                                 MailBox mailBox) {</span>
+<span class="fc" id="L45">        this.joinRequestRepository = joinRequestRepository;</span>
+<span class="fc" id="L46">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L47">        this.organizationMembershipRepository = organizationMembershipRepository;</span>
+<span class="fc" id="L48">        this.mailBox = mailBox;</span>
+<span class="fc" id="L49">    }</span>
+
+
+    @GetMapping(&quot;/all/{organizationId}&quot;)
+    public ResponseEntity&lt;List&lt;JoinRequest&gt;&gt; allByOrganization(@PathVariable(&quot;organizationId&quot;) Long organizationId, User user) {
+<span class="fc" id="L54">        LOG.debug(&quot;/all&quot;);</span>
+
+<span class="fc" id="L56">        Organization organization = this.organizationRepository.findById(organizationId)</span>
+<span class="pc" id="L57">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+<span class="fc" id="L58">        confirmOrganizationMembership(user, organization, Authority.MEMBER);</span>
+<span class="fc" id="L59">        List&lt;JoinRequest&gt; joinRequests = this.joinRequestRepository.findByOrganization(organization);</span>
+<span class="fc" id="L60">        return ResponseEntity.ok(joinRequests);</span>
+    }
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;JoinRequest&gt; create(User user, @RequestBody JoinRequestForm joinRequestForm) {
+<span class="fc" id="L65">        LOG.debug(&quot;/create joinRequest by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L67">        Organization organization = this.organizationRepository.findById(joinRequestForm.getOrganizationId())</span>
+<span class="pc" id="L68">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+<span class="fc" id="L69">        List&lt;JoinRequest&gt; joinRequests = joinRequestRepository.findByOrganization(organization);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (joinRequests.stream().anyMatch(jr -&gt; jr.getUser().getId().equals(user.getId()))) {</span>
+<span class="fc" id="L71">            throw new DuplicateJoinRequestException(</span>
+<span class="fc" id="L72">                    String.format(&quot;Duplicate join request for user %s and organization %s&quot;,</span>
+<span class="fc" id="L73">                            user.getEmail(), organization.getName()));</span>
+        }
+<span class="fc" id="L75">        JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getMessage(), joinRequestForm.getLanguage());</span>
+<span class="fc" id="L76">        joinRequest = joinRequestRepository.save(joinRequest);</span>
+
+<span class="fc" id="L78">        mailBox.sendJoinRequestMail(joinRequest);</span>
+
+<span class="fc" id="L80">        return ResponseEntity.status(HttpStatus.CREATED).body(joinRequest);</span>
+    }
+
+    @PutMapping({&quot;/approval&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; approval(User user, @RequestBody JoinRequestApproval joinRequestApproval) {
+<span class="fc" id="L85">        LOG.debug(&quot;/approval joinRequest by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L87">        Long joinRequestId = joinRequestApproval.getJoinRequestId();</span>
+<span class="fc" id="L88">        JoinRequest joinRequest = joinRequestRepository.findById(joinRequestId)</span>
+<span class="pc" id="L89">                .orElseThrow(() -&gt; new NotFoundException(&quot;JoinRequest not found&quot;));</span>
+
+<span class="fc" id="L91">        Organization organization = joinRequest.getOrganization();</span>
+<span class="fc" id="L92">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (joinRequestApproval.isApproved()) {</span>
+<span class="fc" id="L95">            OrganizationMembership organizationMembership = new OrganizationMembership(</span>
+<span class="fc" id="L96">                    joinRequest.getUser(), organization, Authority.MEMBER);</span>
+<span class="fc" id="L97">            organizationMembershipRepository.save(organizationMembership);</span>
+
+<span class="fc" id="L99">            mailBox.sendJoinRequestAcceptedMail(joinRequest);</span>
+<span class="fc" id="L100">        } else {</span>
+<span class="fc" id="L101">            mailBox.sendJoinRequestDeniedMail(joinRequest);</span>
+        }
+<span class="fc" id="L103">        organization.removeJoinRequest(joinRequest);</span>
+<span class="fc" id="L104">        joinRequestRepository.deleteJoinRequestById(joinRequestId);</span>
+<span class="fc" id="L105">        return Results.createResult();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

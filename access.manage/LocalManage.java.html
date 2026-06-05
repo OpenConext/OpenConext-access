@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocalManage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">LocalManage.java</span></div><h1>LocalManage.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.exception.NotFoundException;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Organization;
+import access.model.User;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public final class LocalManage implements Manage {
+
+<span class="fc" id="L34">    private static final Log LOG = LogFactory.getLog(LocalManage.class);</span>
+
+    private final Map&lt;EntityType, List&lt;Map&lt;String, Object&gt;&gt;&gt; allProviders;
+<span class="fc" id="L37">    private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();</span>
+    private final ConnectionProviderConverter converter;
+    private final ObjectMapper objectMapper;
+<span class="fc" id="L40">    private final Map&lt;String, Map&lt;String, Object&gt;&gt; policies = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L42">    public LocalManage(ConnectionProviderConverter converter, ObjectMapper objectMapper, String staticManageDirectory) {</span>
+<span class="fc" id="L43">        this.converter = converter;</span>
+<span class="fc" id="L44">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L45">        this.allProviders = Stream.of(EntityType.values()).collect(Collectors.toMap(</span>
+<span class="fc" id="L46">                entityType -&gt; entityType,</span>
+<span class="fc" id="L47">                entityType -&gt; this.initialize(entityType, staticManageDirectory)));</span>
+<span class="fc" id="L48">    }</span>
+
+<span class="nc" id="L50">    @SneakyThrows</span>
+    private List&lt;Map&lt;String, Object&gt;&gt; initialize(EntityType entityType, String staticManageDirectory) {
+<span class="fc" id="L52">        String resourceName = String.format(&quot;%s/%s.json&quot;, staticManageDirectory, entityType.name());</span>
+<span class="fc" id="L53">        Resource resource = defaultResourceLoader.getResource(resourceName);</span>
+<span class="fc" id="L54">        List&lt;Map&lt;String, Object&gt;&gt; providers = objectMapper.readValue(resource.getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+        //Need mutability
+<span class="fc" id="L57">        return providers.stream().map(provider -&gt; sanitizeProvider(provider))</span>
+<span class="fc" id="L58">                .collect(Collectors.toCollection(ArrayList::new));</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; providers(EntityType... entityTypes) {
+<span class="fc" id="L63">        LOG.debug(&quot;providers for : &quot; + List.of(entityTypes));</span>
+
+        //Ensure it is mutable
+<span class="fc" id="L66">        return Stream.of(entityTypes).map(entityType -&gt; this.allProviders.get(entityType).stream().toList())</span>
+<span class="fc" id="L67">                .flatMap(List::stream)</span>
+<span class="fc" id="L68">                .toList();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; providerByConnection(Connection connection) {
+<span class="fc" id="L73">        String manageIdentifier = connection.getManageIdentifier();</span>
+<span class="fc" id="L74">        EntityType protocol = connection.getProtocol();</span>
+
+<span class="fc" id="L76">        LOG.debug(&quot;providerById for : &quot; + protocol);</span>
+
+<span class="fc" id="L78">        List&lt;Map&lt;String, Object&gt;&gt; providers = providers(protocol);</span>
+<span class="fc" id="L79">        return providers.stream()</span>
+<span class="fc" id="L80">                .filter(provider -&gt; provider.get(&quot;id&quot;).equals(manageIdentifier))</span>
+<span class="fc" id="L81">                .findFirst()</span>
+<span class="pc" id="L82">                .orElseThrow(() -&gt; new NotFoundException(&quot;Provider not found&quot;));</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; providerByManageIdentifier(EntityType entityType, String manageIdentifier) {
+<span class="fc" id="L87">        LOG.debug(&quot;providerById for : &quot; + entityType);</span>
+
+<span class="fc" id="L89">        List&lt;Map&lt;String, Object&gt;&gt; providers = providers(entityType);</span>
+<span class="fc" id="L90">        return providers.stream()</span>
+<span class="fc" id="L91">                .filter(provider -&gt; provider.get(&quot;id&quot;).equals(manageIdentifier))</span>
+<span class="fc" id="L92">                .findFirst()</span>
+<span class="pc" id="L93">                .orElseThrow(() -&gt; new NotFoundException(&quot;Provider not found&quot;));</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; saveIdentityProvider(Organization organization) {
+<span class="nc" id="L98">        Map&lt;String, Object&gt; provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());</span>
+<span class="nc" id="L99">        Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="nc" id="L100">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="nc" id="L101">        converter.convertContactPersons(organization.getMetaData(), metaDataFields);</span>
+<span class="nc" id="L102">        return provider;</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt;  saveIdentityProvider(Map&lt;String, Object&gt; identityProvider) {
+<span class="nc" id="L107">        return identityProvider;</span>
+    }
+
+<span class="nc" id="L110">    @SneakyThrows</span>
+    @Override
+    public Map&lt;String, Object&gt; saveProvider(Connection connection) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        Map&lt;String, Object&gt; provider = StringUtils.hasText(connection.getManageIdentifier()) ?</span>
+<span class="fc" id="L114">                providerByConnection(connection) :</span>
+<span class="fc" id="L115">                baseStructureProvider();</span>
+
+<span class="fc" id="L117">        boolean existingProvider = provider.containsKey(&quot;id&quot;);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (existingProvider) {</span>
+<span class="fc" id="L119">            provider.put(&quot;version&quot;, (int) provider.get(&quot;version&quot;) + 1);</span>
+        } else {
+<span class="fc" id="L121">            provider.put(&quot;id&quot;, UUID.randomUUID().toString());</span>
+<span class="fc" id="L122">            provider.put(&quot;version&quot;, 0);</span>
+        }
+<span class="fc" id="L124">        List&lt;Map&lt;String, Object&gt;&gt; providers = this.allProviders.get(connection.getProtocol());</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (existingProvider) {</span>
+<span class="fc" id="L126">            int index = IntStream.range(0, providers.size())</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">                    .filter(i -&gt; providers.get(i).get(&quot;id&quot;) == provider.get(&quot;id&quot;))</span>
+<span class="fc" id="L128">                    .findFirst()</span>
+<span class="fc" id="L129">                    .orElse(-1);</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">            if (index != -1) {</span>
+<span class="fc" id="L131">                providers.set(index, provider);</span>
+            }
+<span class="fc" id="L133">        } else {</span>
+<span class="fc" id="L134">            providers.add(provider);</span>
+        }
+<span class="fc" id="L136">        return provider;</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updateProvider(Map&lt;String, Object&gt; provider) {
+<span class="nc" id="L141">        return provider;</span>
+    }
+
+    @Override
+    public void deleteProvider(Connection connection) {
+<span class="nc" id="L146">        List&lt;Map&lt;String, Object&gt;&gt; newProviders = this.allProviders.get(connection.getProtocol())</span>
+<span class="nc" id="L147">                .stream()</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                .filter(provider -&gt; !provider.get(&quot;id&quot;).equals(connection.getManageIdentifier()))</span>
+<span class="nc" id="L149">                .toList();</span>
+<span class="nc" id="L150">        this.allProviders.put(connection.getProtocol(), newProviders);</span>
+<span class="nc" id="L151">    }</span>
+
+    @Override
+    public Map&lt;String, Object&gt; identityProviderByEntityID(String entityID) {
+<span class="fc" id="L155">        return this.allProviders.get(EntityType.saml20_idp).stream()</span>
+<span class="fc" id="L156">                .filter(provider -&gt; {</span>
+<span class="fc" id="L157">                    Map&lt;String, Object&gt; data = (Map&lt;String, Object&gt;) provider.get(&quot;data&quot;);</span>
+<span class="fc" id="L158">                    return entityID.equalsIgnoreCase((String) data.get(&quot;entityid&quot;));</span>
+                })
+<span class="fc" id="L160">                .findFirst()</span>
+<span class="pc" id="L161">                .orElseThrow(() -&gt; new NotFoundException(&quot;No identityProviders found for entityID: &quot; + entityID));</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersByEntityID(List&lt;String&gt; entityIdentifiers) {
+<span class="fc" id="L166">        return Stream.of(EntityType.saml20_sp, EntityType.oidc10_rp)</span>
+<span class="fc" id="L167">                .flatMap(type -&gt; this.allProviders.get(type).stream())</span>
+<span class="fc" id="L168">                .filter(provider -&gt; entityIdentifiers.contains((String) ((Map) provider.get(&quot;data&quot;)).get(&quot;entityid&quot;)))</span>
+<span class="fc" id="L169">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; uniqueEntityId(EntityType entityType, String entityID) {
+<span class="fc" id="L174">        return Stream.of(EntityType.values())</span>
+<span class="fc" id="L175">                .flatMap(type -&gt; this.allProviders.get(type).stream())</span>
+<span class="fc" id="L176">                .filter(provider -&gt; ((Map) provider.get(&quot;data&quot;)).get(&quot;entityid&quot;).equals(entityID))</span>
+<span class="fc" id="L177">                .toList();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; createChangeRequest(ChangeRequest changeRequest) {
+<span class="nc" id="L182">        return Map.of();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updateChangeRequest(ChangeRequest changeRequest) {
+<span class="nc" id="L187">        return Map.of();</span>
+    }
+
+    @Override
+    public void rejectChangeRequest(ChangeRequest changeRequest) {
+        //noop
+<span class="nc" id="L193">    }</span>
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; getChangeRequests(Connection connection) {
+<span class="nc" id="L197">        return List.of();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; getChangeRequestsIdentityProvider(Map&lt;String, Object&gt; identityProvider) {
+<span class="nc" id="L202">        return List.of();</span>
+    }
+
+    @Override
+    public String changeRequestURL(Connection connection) {
+<span class="nc" id="L207">        return String.format(&quot;http://localhost:8088/metadata/%s/%s&quot;, connection.getProtocol().name(), connection.getManageIdentifier());</span>
+    }
+
+    @Override
+    public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
+<span class="nc" id="L212">        return String.format(&quot;http://localhost:8088/metadata/%s/%s&quot;, entityType.name(), manageIdentifier);</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByInstitutionalGUID(String organisationGUID) {
+<span class="fc" id="L217">        return this.allProviders.get(EntityType.saml20_idp).stream()</span>
+<span class="fc" id="L218">                .filter(provider -&gt; {</span>
+<span class="fc" id="L219">                    Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="fc" id="L220">                    Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L221">                    return organisationGUID.equalsIgnoreCase((String) metaDataFields.get(INSTITUTION_GUID));</span>
+                })
+<span class="fc" id="L223">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersLight() {
+<span class="nc" id="L228">        return this.allProviders.get(EntityType.saml20_idp);</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersLight() {
+<span class="nc" id="L233">        List&lt;Map&lt;String, Object&gt;&gt; providers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L234">        providers.addAll(this.allProviders.get(EntityType.saml20_sp));</span>
+<span class="nc" id="L235">        providers.addAll(this.allProviders.get(EntityType.oidc10_rp));</span>
+<span class="nc" id="L236">        return providers;</span>
+    }
+
+    @Override
+    public Map&lt;String, Integer&gt; stats() {
+<span class="nc" id="L241">        return Arrays.stream(EntityType.values())</span>
+<span class="nc" id="L242">                .collect(Collectors.toMap(</span>
+<span class="nc" id="L243">                        entityType -&gt; entityType.name(),</span>
+<span class="nc" id="L244">                        entityType -&gt; this.allProviders.get(entityType).size()));</span>
+
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByAllowedConnections(List&lt;Connection&gt; connections) {
+<span class="fc" id="L250">        List&lt;String&gt; entityIdentifiers = connections.stream()</span>
+<span class="fc" id="L251">                .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()))</span>
+<span class="fc" id="L252">                .map(connection -&gt; {</span>
+<span class="fc" id="L253">                    Map&lt;String, Object&gt; provider = this.providerByConnection(connection);</span>
+<span class="fc" id="L254">                    Map&lt;String, Object&gt; data = (Map&lt;String, Object&gt;) provider.get(&quot;data&quot;);</span>
+<span class="fc" id="L255">                    return (String) data.get(&quot;entityid&quot;);</span>
+                })
+<span class="fc" id="L257">                .toList();</span>
+<span class="fc" id="L258">        return this.allProviders.get(EntityType.saml20_idp).stream()</span>
+<span class="fc" id="L259">                .filter(idp -&gt; {</span>
+<span class="fc" id="L260">                    Map&lt;String, Object&gt; data = (Map&lt;String, Object&gt;) idp.get(&quot;data&quot;);</span>
+<span class="fc" id="L261">                    List&lt;Map&lt;String, String&gt;&gt; allowedEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.getOrDefault(&quot;allowedEntities&quot;, List.of());</span>
+<span class="fc" id="L262">                    return allowedEntities.stream()</span>
+<span class="fc" id="L263">                            .map(m -&gt; m.get(&quot;name&quot;))</span>
+<span class="fc" id="L264">                            .anyMatch(entityIdentifiers::contains);</span>
+                })
+<span class="fc" id="L266">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProvider(String identityProviderEntityId, String serviceProviderEntityId) {
+<span class="fc" id="L271">        return this.allProviders.get(EntityType.policy).stream()</span>
+<span class="fc" id="L272">                .filter(policy -&gt; {</span>
+<span class="fc" id="L273">                    Map&lt;String, Object&gt; data = getData(policy);</span>
+<span class="fc" id="L274">                    List&lt;Map&lt;String, String&gt;&gt; serviceProviderIds = (List&lt;Map&lt;String, String&gt;&gt;)</span>
+<span class="fc" id="L275">                            data.getOrDefault(&quot;serviceProviderIds&quot;, List.of());</span>
+<span class="fc" id="L276">                    List&lt;Map&lt;String, String&gt;&gt; identityProviderIds = (List&lt;Map&lt;String, String&gt;&gt;)</span>
+<span class="fc" id="L277">                            data.getOrDefault(&quot;identityProviderIds&quot;, List.of());</span>
+<span class="fc" id="L278">                    return serviceProviderIds.stream()</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">                            .anyMatch(m -&gt; m.get(&quot;name&quot;).equals(serviceProviderEntityId))</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">                            &amp;&amp; (identityProviderIds.isEmpty() ||</span>
+<span class="fc" id="L281">                            identityProviderIds.stream()</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">                                    .anyMatch(m -&gt; m.get(&quot;name&quot;).equals(identityProviderEntityId)));</span>
+                })
+<span class="fc" id="L284">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProviders(List&lt;String&gt; serviceProviderEntityIds) {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        if (serviceProviderEntityIds.isEmpty()) {</span>
+<span class="nc" id="L290">            return List.of();</span>
+        }
+<span class="nc" id="L292">        return this.allProviders.get(EntityType.policy).stream()</span>
+<span class="nc" id="L293">                .filter(policy -&gt; {</span>
+<span class="nc" id="L294">                    List&lt;Map&lt;String, String&gt;&gt; serviceProviderIds = (List&lt;Map&lt;String, String&gt;&gt;)</span>
+<span class="nc" id="L295">                            getData(policy).getOrDefault(&quot;serviceProviderIds&quot;, List.of());</span>
+<span class="nc" id="L296">                    return serviceProviderIds.stream()</span>
+<span class="nc" id="L297">                            .anyMatch(m -&gt; serviceProviderEntityIds.contains(m.get(&quot;name&quot;)));</span>
+                })
+<span class="nc" id="L299">                .toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByIdentityProvider(String identityProviderEntityId) {
+<span class="fc" id="L304">        return this.allProviders.get(EntityType.policy).stream()</span>
+<span class="fc" id="L305">                .filter(policy -&gt; {</span>
+<span class="fc" id="L306">                    Map&lt;String, Object&gt; data = getData(policy);</span>
+<span class="fc" id="L307">                    List&lt;Map&lt;String, String&gt;&gt; identityProviderIds = (List&lt;Map&lt;String, String&gt;&gt;)</span>
+<span class="fc" id="L308">                            data.getOrDefault(&quot;identityProviderIds&quot;, List.of());</span>
+<span class="fc" id="L309">                    return identityProviderIds.stream()</span>
+<span class="fc" id="L310">                            .anyMatch(m -&gt; m.get(&quot;name&quot;).equals(identityProviderEntityId));</span>
+                })
+<span class="fc" id="L312">                .toList();</span>
+    }
+
+
+    @Override
+    public Map&lt;String, Object&gt; createPolicy(Map&lt;String, Object&gt; policy) {
+<span class="nc" id="L318">        String id = UUID.randomUUID().toString();</span>
+<span class="nc" id="L319">        policy.put(&quot;id&quot;, id);</span>
+<span class="nc" id="L320">        policies.put(id, policy);</span>
+<span class="nc" id="L321">        return policy;</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updatePolicy(Map&lt;String, Object&gt; policy) {
+<span class="nc" id="L326">        policies.put((String) policy.get(&quot;id&quot;), policy);</span>
+<span class="nc" id="L327">        return policy;</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; uniquePolicyName(Map&lt;String, Object&gt; properties) {
+<span class="nc" id="L332">        String name = (String) properties.get(&quot;name&quot;);</span>
+<span class="nc" id="L333">        return policies.values().stream().filter(policy -&gt; ((String) policy.get(&quot;name&quot;)).equalsIgnoreCase(name))</span>
+<span class="nc" id="L334">                .toList();</span>
+    }
+
+<span class="nc" id="L337">    @SneakyThrows</span>
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; allowedAttributes() {
+<span class="fc" id="L340">        return objectMapper.readValue(new ClassPathResource(&quot;/manage/allowed_attributes.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+    }
+
+    @Override
+    public void deletePolicy(Map&lt;String, Object&gt; policy) {
+<span class="nc" id="L346">        policies.remove((String) policy.get(&quot;id&quot;));</span>
+<span class="nc" id="L347">    }</span>
+
+    @Override
+    public void connectWithoutInteraction(Map&lt;String, Object&gt; identityProvider, Map&lt;String, Object&gt; serviceProvider, User currentUser) {
+        //nope
+<span class="nc" id="L352">    }</span>
+
+    @Override
+    public Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; autoCompleteEntities(EntityType type, String query) {
+<span class="fc" id="L356">        String lowerCaseQuery = query.toLowerCase();</span>
+<span class="fc" id="L357">        return Map.of(&quot;suggestions&quot;, this.allProviders.get(type).stream()</span>
+<span class="fc" id="L358">                .filter(entity -&gt; {</span>
+<span class="fc" id="L359">                    Map&lt;String, Object&gt; data = getData(entity);</span>
+<span class="fc" id="L360">                    String entityid = (String) data.get(&quot;entityid&quot;);</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">                    if (entityid.toLowerCase().contains(lowerCaseQuery)) {</span>
+<span class="fc" id="L362">                        return true;</span>
+                    }
+<span class="fc" id="L364">                    Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L365">                    return Stream.of(&quot;name:en&quot;, &quot;name:nl&quot;, &quot;OrganizationName:en&quot;, &quot;OrganizationName:nl&quot;)</span>
+<span class="fc" id="L366">                            .anyMatch(attr -&gt; {</span>
+<span class="fc" id="L367">                                String val = (String) metaDataFields.get(&quot;attr&quot;);</span>
+<span class="pc bpc" id="L368" title="3 of 4 branches missed.">                                return StringUtils.hasText(val) &amp;&amp; val.toLowerCase().contains(query);</span>
+                            });
+                })
+<span class="fc" id="L371">                .toList());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

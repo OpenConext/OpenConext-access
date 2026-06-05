@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MailBox.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.mail</a> &gt; <span class="el_source">MailBox.java</span></div><h1>MailBox.java</h1><pre class="source lang-java linenums">package access.mail;
+
+import access.model.*;
+import access.manage.Contact;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.MustacheFactory;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.SneakyThrows;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public class MailBox {
+
+    private final JavaMailSender mailSender;
+    private final String clientUrl;
+    private final String emailFrom;
+    private final String serviceDeskEmail;
+    private final String supportEmail;
+    private final String jiraErrorEmail;
+    private final String environment;
+
+    private final Map&lt;String, Map&lt;String, String&gt;&gt; subjects;
+
+<span class="fc" id="L42">    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory(&quot;templates&quot;);</span>
+
+    public MailBox(
+            JavaMailSender mailSender,
+            String emailFrom,
+            String serviceDeskEmail,
+            String supportEmail,
+            String jiraErrorEmail,
+            String clientUrl,
+            String environment,
+<span class="fc" id="L52">            ObjectMapper objectMapper) throws IOException {</span>
+<span class="fc" id="L53">        this.mailSender = mailSender;</span>
+<span class="fc" id="L54">        this.emailFrom = emailFrom;</span>
+<span class="fc" id="L55">        this.serviceDeskEmail = serviceDeskEmail;</span>
+<span class="fc" id="L56">        this.supportEmail = supportEmail;</span>
+<span class="fc" id="L57">        this.jiraErrorEmail = jiraErrorEmail;</span>
+<span class="fc" id="L58">        this.clientUrl = clientUrl;</span>
+<span class="fc" id="L59">        this.environment = environment;</span>
+<span class="fc" id="L60">        this.subjects = objectMapper.readValue(new ClassPathResource(&quot;/templates/subjects.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L62">    }</span>
+
+<span class="pc" id="L64">    @SneakyThrows</span>
+    public void sendInviteMail(Invitation invitation) {
+<span class="fc" id="L66">        Language language = invitation.getLanguage();</span>
+<span class="fc" id="L67">        String title = String.format(subjects.get(language.name()).get(&quot;newInvitation&quot;),</span>
+<span class="fc" id="L68">                invitation.getOrganization().getName());</span>
+<span class="fc" id="L69">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L70">        variables.put(&quot;invitation&quot;, invitation);</span>
+<span class="fc" id="L71">        variables.put(&quot;title&quot;, title);</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (StringUtils.hasText(invitation.getMessage())) {</span>
+<span class="fc" id="L73">            variables.put(&quot;message&quot;, invitation.getMessage().replaceAll(&quot;\n&quot;, &quot;&lt;br/&gt;&quot;));</span>
+        }
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L76">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L78">        variables.put(&quot;url&quot;, String.format(&quot;%s/accept?hash=%s&quot;, clientUrl, invitation.getHash()));</span>
+
+<span class="fc" id="L80">        sendMail(String.format(&quot;invitation_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L83">                invitation.getEmail());</span>
+<span class="fc" id="L84">    }</span>
+
+<span class="pc" id="L86">    @SneakyThrows</span>
+    public void sendConnectionRequest(User requester,
+                                      List&lt;User&gt; recipients,
+                                      Organization organization,
+                                      String serviceProviderName,
+                                      String message,
+                                      String deepLink) {
+<span class="fc" id="L93">        Language language = Language.valueOf(preferredLanguage());</span>
+<span class="fc" id="L94">        String title = String.format(subjects.get(language.name()).get(&quot;connectionRequest&quot;),</span>
+                serviceProviderName);
+<span class="fc" id="L96">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (StringUtils.hasText(message)) {</span>
+<span class="fc" id="L98">            variables.put(&quot;message&quot;, message.replaceAll(&quot;\n&quot;, &quot;&lt;br/&gt;&quot;));</span>
+        }
+<span class="fc" id="L100">        variables.put(&quot;title&quot;, title);</span>
+<span class="fc" id="L101">        variables.put(&quot;serviceProviderName&quot;, serviceProviderName);</span>
+<span class="fc" id="L102">        variables.put(&quot;organization&quot;, organization);</span>
+<span class="fc" id="L103">        variables.put(&quot;requester&quot;, requester);</span>
+<span class="fc" id="L104">        variables.put(&quot;deepLink&quot;, String.format(&quot;%s%s&quot;, clientUrl, deepLink));</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L106">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L108">        sendMail(String.format(&quot;connection_request_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L111">                recipients.stream().map(user -&gt; user.getEmail()).toList().toArray(new String[]{}));</span>
+<span class="fc" id="L112">    }</span>
+
+<span class="pc" id="L114">    @SneakyThrows</span>
+    public void sendNewConnectionCreated(User institutionAdmin,
+                                         List&lt;String&gt; recipients,
+                                         String identityProviderName,
+                                         String serviceProviderName,
+                                         String serviceProviderEntityId) {
+<span class="fc" id="L120">        Language language = Language.valueOf(preferredLanguage());</span>
+<span class="fc" id="L121">        String title = String.format(subjects.get(language.name()).get(&quot;newConnectionMade&quot;),</span>
+                serviceProviderName,
+                identityProviderName);
+<span class="fc" id="L124">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L125">        variables.put(&quot;title&quot;, title);</span>
+<span class="fc" id="L126">        variables.put(&quot;identityProviderName&quot;, identityProviderName);</span>
+<span class="fc" id="L127">        variables.put(&quot;serviceProviderName&quot;, serviceProviderName);</span>
+<span class="fc" id="L128">        variables.put(&quot;serviceProviderEntityId&quot;, serviceProviderEntityId);</span>
+<span class="fc" id="L129">        variables.put(&quot;institutionAdmin&quot;, institutionAdmin);</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L131">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L133">        sendMail(String.format(&quot;new_connection_made_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L136">                recipients.toArray(new String[]{}));</span>
+<span class="fc" id="L137">    }</span>
+
+<span class="pc" id="L139">    @SneakyThrows</span>
+    public void sendJoinRequestMail(JoinRequest joinRequest) {
+<span class="fc" id="L141">        Language language = joinRequest.getLanguage();</span>
+<span class="fc" id="L142">        Organization organization = joinRequest.getOrganization();</span>
+<span class="fc" id="L143">        String title = String.format(subjects.get(language.name()).get(&quot;newJoinRequest&quot;),</span>
+<span class="fc" id="L144">                joinRequest.getUser().getName(), organization.getName());</span>
+<span class="fc" id="L145">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L146">        variables.put(&quot;joinRequest&quot;, joinRequest);</span>
+<span class="fc" id="L147">        variables.put(&quot;title&quot;, title);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L149">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+
+<span class="fc" id="L152">        variables.put(&quot;url&quot;, String.format(&quot;%s/users/%s/joins&quot;, clientUrl, organization.getId()));</span>
+<span class="fc" id="L153">        List&lt;String&gt; emails = organization.getOrganizationMemberships().stream()</span>
+<span class="fc" id="L154">                .filter(organizationMembership -&gt; organizationMembership.getAuthority().equals(Authority.ADMIN))</span>
+<span class="fc" id="L155">                .map(organizationMembership -&gt; organizationMembership.getUser().getEmail())</span>
+<span class="fc" id="L156">                .toList();</span>
+<span class="fc" id="L157">        sendMail(String.format(&quot;join_request_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L160">                emails.toArray(new String[0]));</span>
+<span class="fc" id="L161">    }</span>
+
+<span class="pc" id="L163">    @SneakyThrows</span>
+    public void sendJoinRequestAcceptedMail(JoinRequest joinRequest) {
+<span class="fc" id="L165">        Language language = joinRequest.getLanguage();</span>
+<span class="fc" id="L166">        Organization organization = joinRequest.getOrganization();</span>
+<span class="fc" id="L167">        String title = String.format(subjects.get(language.name()).get(&quot;acceptJoinRequest&quot;),</span>
+<span class="fc" id="L168">                organization.getName());</span>
+<span class="fc" id="L169">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L170">        variables.put(&quot;joinRequest&quot;, joinRequest);</span>
+<span class="fc" id="L171">        variables.put(&quot;title&quot;, title);</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L173">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L175">        variables.put(&quot;url&quot;, String.format(&quot;%s/organization/%s/applications&quot;, clientUrl, organization.getId()));</span>
+<span class="fc" id="L176">        sendMail(String.format(&quot;join_request_accepted_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L179">                joinRequest.getUser().getEmail());</span>
+<span class="fc" id="L180">    }</span>
+
+<span class="pc" id="L182">    @SneakyThrows</span>
+    public void sendJoinRequestDeniedMail(JoinRequest joinRequest) {
+<span class="fc" id="L184">        Language language = joinRequest.getLanguage();</span>
+<span class="fc" id="L185">        Organization organization = joinRequest.getOrganization();</span>
+<span class="fc" id="L186">        String title = String.format(subjects.get(language.name()).get(&quot;deniedJoinRequest&quot;),</span>
+<span class="fc" id="L187">                organization.getName());</span>
+<span class="fc" id="L188">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L189">        variables.put(&quot;joinRequest&quot;, joinRequest);</span>
+<span class="fc" id="L190">        variables.put(&quot;title&quot;, title);</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L192">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L194">        sendMail(String.format(&quot;join_request_denied_%s&quot;, language.name()),</span>
+                title,
+                variables,
+<span class="fc" id="L197">                joinRequest.getUser().getEmail());</span>
+<span class="fc" id="L198">    }</span>
+
+<span class="pc" id="L200">    @SneakyThrows</span>
+    public void sendFeedbackMail(User user, String message) {
+<span class="fc" id="L202">        sendFeedbackMail(user, message, null, null, null, null);</span>
+<span class="fc" id="L203">    }</span>
+
+<span class="pc" id="L205">    @SneakyThrows</span>
+    public void sendFeedbackMail(User user, String message, String url, byte[] screenshotBytes,
+                                 String screenshotName, String screenshotContentType) {
+<span class="fc" id="L208">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L209">        variables.put(&quot;user&quot;, user);</span>
+<span class="fc" id="L210">        variables.put(&quot;title&quot;, &quot;SURF Access feedback form&quot;);</span>
+<span class="fc" id="L211">        String now = LocalDate.now().format(DateTimeFormatter.ofPattern(&quot;dd-MM-yyyy&quot;));</span>
+<span class="fc" id="L212">        variables.put(&quot;date&quot;, now);</span>
+<span class="fc" id="L213">        variables.put(&quot;message&quot;, message.replaceAll(&quot;\n&quot;, &quot;&lt;br/&gt;&quot;));</span>
+<span class="fc" id="L214">        variables.put(&quot;url&quot;, url);</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L216">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L218">        variables.put(&quot;env&quot;, environment);</span>
+<span class="fc" id="L219">        MailAttachment attachment = null;</span>
+<span class="pc bpc" id="L220" title="1 of 4 branches missed.">        if (screenshotBytes != null &amp;&amp; screenshotBytes.length &gt; 0) {</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">            String filename = screenshotName == null ? &quot;feedback.png&quot; : screenshotName;</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">            String contentType = screenshotContentType == null ? &quot;image/png&quot; : screenshotContentType;</span>
+<span class="fc" id="L223">            attachment = new MailAttachment(filename, screenshotBytes, contentType);</span>
+        }
+<span class="fc" id="L225">        sendMail(&quot;feedback_en&quot;,</span>
+                &quot;Feedback&quot;,
+                variables,
+                attachment,
+                supportEmail);
+<span class="fc" id="L230">    }</span>
+
+<span class="pc" id="L232">    @SneakyThrows</span>
+    public void sendOrgContactReminder(Organization organization, Contact contact, String language) {
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        String lang = language != null ? language : preferredLanguage();</span>
+<span class="fc" id="L235">        String title = String.format(subjects.get(lang).get(&quot;orgContactReminder&quot;), organization.getName());</span>
+<span class="fc" id="L236">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L237">        variables.put(&quot;organization&quot;, organization);</span>
+<span class="fc" id="L238">        variables.put(&quot;contact&quot;, contact);</span>
+<span class="fc" id="L239">        variables.put(&quot;title&quot;, title);</span>
+<span class="fc" id="L240">        variables.put(&quot;url&quot;, String.format(&quot;%s/organization/%s&quot;, clientUrl, organization.getId()));</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L242">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L244">        sendMail(String.format(&quot;org_contact_reminder_%s&quot;, lang), title, variables, contact.getEmail());</span>
+<span class="fc" id="L245">    }</span>
+
+<span class="pc" id="L247">    @SneakyThrows</span>
+    public void sendUserInactivityWarning(User user, Instant deletionDate) {
+<span class="fc" id="L249">        String lang = preferredLanguage();</span>
+<span class="fc" id="L250">        String title = String.format(subjects.get(lang).get(&quot;userInactivityWarning&quot;), environment);</span>
+<span class="fc" id="L251">        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;dd-MM-yyyy&quot;).withZone(ZoneId.systemDefault());</span>
+<span class="fc" id="L252">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L253">        variables.put(&quot;user&quot;, user);</span>
+<span class="fc" id="L254">        variables.put(&quot;title&quot;, title);</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        variables.put(&quot;lastActivity&quot;, user.getLastActivity() != null ? formatter.format(user.getLastActivity()) : &quot;unknown&quot;);</span>
+<span class="fc" id="L256">        variables.put(&quot;deletionDate&quot;, formatter.format(deletionDate));</span>
+<span class="fc" id="L257">        variables.put(&quot;clientUrl&quot;, clientUrl);</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">        if (!environment.equalsIgnoreCase(&quot;prod&quot;)) {</span>
+<span class="fc" id="L259">            variables.put(&quot;environment&quot;, environment);</span>
+        }
+<span class="fc" id="L261">        sendMail(String.format(&quot;user_inactivity_warning_%s&quot;, lang), title, variables, user.getEmail());</span>
+<span class="fc" id="L262">    }</span>
+
+<span class="pc" id="L264">    @SneakyThrows</span>
+    public void sendJiraError(String operation, String requestPayload, String errorMessage, String responseBody) {
+<span class="fc" id="L266">        String title = String.format(subjects.get(&quot;en&quot;).get(&quot;jiraError&quot;), environment, operation);</span>
+<span class="fc" id="L267">        Map&lt;String, Object&gt; variables = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L268">        variables.put(&quot;title&quot;, title);</span>
+<span class="fc" id="L269">        variables.put(&quot;operation&quot;, operation);</span>
+<span class="fc" id="L270">        variables.put(&quot;requestPayload&quot;, requestPayload);</span>
+<span class="fc" id="L271">        variables.put(&quot;errorMessage&quot;, errorMessage);</span>
+<span class="fc" id="L272">        variables.put(&quot;responseBody&quot;, responseBody);</span>
+<span class="fc" id="L273">        variables.put(&quot;environment&quot;, environment);</span>
+<span class="fc" id="L274">        sendMail(&quot;jira_error_en&quot;, title, variables, jiraErrorEmail);</span>
+<span class="fc" id="L275">    }</span>
+
+    private String preferredLanguage() {
+<span class="fc" id="L278">        return LocaleContextHolder.getLocale().getLanguage();</span>
+    }
+
+    private String sendMail(String templateName, String subject, Map&lt;String, Object&gt; variables, String... to) throws MessagingException, IOException {
+<span class="fc" id="L282">        return sendMail(templateName, subject, variables, null, to);</span>
+    }
+
+    private String sendMail(String templateName, String subject, Map&lt;String, Object&gt; variables,
+                            MailAttachment attachment, String... to) throws MessagingException, IOException {
+<span class="fc" id="L287">        String htmlText = this.mailTemplate(templateName + &quot;.html&quot;, variables);</span>
+<span class="fc" id="L288">        String plainText = this.mailTemplate(templateName + &quot;.txt&quot;, variables);</span>
+
+<span class="fc" id="L290">        MimeMessage message = mailSender.createMimeMessage();</span>
+<span class="fc" id="L291">        MimeMessageHelper helper = new MimeMessageHelper(message, true);</span>
+<span class="fc" id="L292">        helper.setSubject(subject);</span>
+<span class="fc" id="L293">        helper.setText(plainText, htmlText);</span>
+<span class="fc" id="L294">        helper.setTo(to);</span>
+<span class="fc" id="L295">        helper.setFrom(emailFrom);</span>
+<span class="pc bpc" id="L296" title="1 of 4 branches missed.">        if (attachment != null &amp;&amp; attachment.bytes != null) {</span>
+<span class="fc" id="L297">            helper.addAttachment(attachment.filename, new ByteArrayResource(attachment.bytes), attachment.contentType);</span>
+        }
+<span class="fc" id="L299">        new Thread(() -&gt; mailSender.send(message)).start();</span>
+<span class="fc" id="L300">        return htmlText;</span>
+    }
+
+    private static class MailAttachment {
+        private final String filename;
+        private final byte[] bytes;
+        private final String contentType;
+
+<span class="fc" id="L308">        private MailAttachment(String filename, byte[] bytes, String contentType) {</span>
+<span class="fc" id="L309">            this.filename = filename;</span>
+<span class="fc" id="L310">            this.bytes = bytes;</span>
+<span class="fc" id="L311">            this.contentType = contentType;</span>
+<span class="fc" id="L312">        }</span>
+    }
+
+    private String mailTemplate(String templateName, Map&lt;String, Object&gt; context) {
+<span class="fc" id="L316">        return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

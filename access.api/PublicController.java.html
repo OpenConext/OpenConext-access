@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PublicController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">PublicController.java</span></div><h1>PublicController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.Config;
+import access.manage.Manage;
+import access.model.EntityType;
+import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/public&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@SuppressWarnings(&quot;unchecked&quot;)
+public class PublicController {
+
+<span class="fc" id="L31">    private static final Log LOG = LogFactory.getLog(PublicController.class);</span>
+
+    private final Manage manage;
+    private final Config config;
+
+<span class="pc" id="L36">    @SneakyThrows</span>
+<span class="fc" id="L37">    public PublicController(Manage manage, Config config) {</span>
+<span class="fc" id="L38">        this.manage = manage;</span>
+<span class="fc" id="L39">        this.config = config;</span>
+<span class="fc" id="L40">    }</span>
+
+    @GetMapping(&quot;/service-providers&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; serviceProviders(Authentication authentication) {
+<span class="fc" id="L44">        LOG.debug(&quot;/serviceProviders&quot;);</span>
+<span class="fc" id="L45">        List&lt;Map&lt;String, Object&gt;&gt; providers = manage.serviceProvidersLight();</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (authentication == null) {</span>
+<span class="fc" id="L47">            providers.removeIf(provider -&gt; removeNonPublicProvider(provider));</span>
+        } else {
+<span class="fc" id="L49">            DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();</span>
+<span class="fc" id="L50">            String schacHomeOrganization = (String) user.getClaims().get(&quot;schac_home_organization&quot;);</span>
+<span class="fc" id="L51">            boolean isExternalUserFromSchacHome = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (isExternalUserFromSchacHome) {</span>
+<span class="fc" id="L53">                providers.removeIf(provider -&gt; removeNonPublicProvider(provider));</span>
+            } else {
+                //We need the identity provider to see which providers are connected and are therefore visiblle
+<span class="fc" id="L56">                String authenticatingAuthority = (String) user.getClaims().get(&quot;authenticating_authority&quot;);</span>
+<span class="fc" id="L57">                Map&lt;String, Object&gt; identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);</span>
+<span class="fc" id="L58">                Set&lt;String&gt; allowedEntities = ((List&lt;Map&lt;String, String&gt;&gt;) getData(identityProvider)</span>
+<span class="fc" id="L59">                        .getOrDefault(&quot;allowedEntities&quot;, List.of()))</span>
+<span class="fc" id="L60">                        .stream()</span>
+<span class="fc" id="L61">                        .map(allowedEntity -&gt; allowedEntity.get(&quot;name&quot;))</span>
+<span class="fc" id="L62">                        .collect(Collectors.toSet());</span>
+<span class="fc" id="L63">                providers.removeIf(provider -&gt; removeNonPublicProvider(provider, allowedEntities));</span>
+            }
+        }
+<span class="fc" id="L66">        return ResponseEntity.ok(providers);</span>
+    }
+
+    @GetMapping(&quot;/identity-providers&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProviders() {
+<span class="fc" id="L71">        LOG.debug(&quot;/identityProviders&quot;);</span>
+<span class="fc" id="L72">        return ResponseEntity.ok(manage.identityProvidersLight());</span>
+    }
+
+    @GetMapping(&quot;/service-provider-detail/{type}/{identifier}&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; serviceProviderDetail(
+            @PathVariable(&quot;type&quot;) EntityType entityType,
+            @PathVariable(&quot;identifier&quot;) String identifier) {
+<span class="fc" id="L79">        LOG.debug(&quot;/identityProviders&quot;);</span>
+<span class="fc" id="L80">        Map&lt;String, Object&gt; provider = manage</span>
+<span class="fc" id="L81">                .providerByManageIdentifier(entityType, identifier);</span>
+<span class="fc" id="L82">        getMetaDataFields(getData(provider)).keySet()</span>
+<span class="fc" id="L83">                .removeIf(key -&gt; key.startsWith(&quot;contacts:&quot;));</span>
+<span class="fc" id="L84">        return ResponseEntity.ok(provider);</span>
+    }
+
+    private boolean removeNonPublicProvider(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L88">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L89">        boolean hidden = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:hidden&quot;, false);</span>
+<span class="fc" id="L90">        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:idp_visible_only&quot;, false);</span>
+<span class="fc bfc" id="L91" title="All 4 branches covered.">        return hidden || idpVisibleOnly;</span>
+    }
+
+    private boolean removeNonPublicProvider(Map&lt;String, Object&gt; provider, Set&lt;String&gt; allowedEntities) {
+<span class="fc" id="L95">        Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="fc" id="L96">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L97">        boolean hidden = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:hidden&quot;, false);</span>
+<span class="fc" id="L98">        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:idp_visible_only&quot;, false);</span>
+<span class="fc bfc" id="L99" title="All 6 branches covered.">        return hidden || (idpVisibleOnly &amp;&amp; !allowedEntities.contains((String) data.get(&quot;entityid&quot;)));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

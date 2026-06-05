@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatisticsMock.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.stats</a> &gt; <span class="el_source">StatisticsMock.java</span></div><h1>StatisticsMock.java</h1><pre class="source lang-java linenums">package access.stats;
+
+import access.manage.Manage;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static access.manage.ManageData.getData;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+@Component
+@ConditionalOnProperty(
+        prefix = &quot;statistics&quot;,
+        name = &quot;enabled&quot;,
+        havingValue = &quot;false&quot;
+)
+public class StatisticsMock implements Statistics {
+
+    private final Manage manage;
+
+<span class="fc" id="L24">    public StatisticsMock(Manage manage) {</span>
+<span class="fc" id="L25">        this.manage = manage;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public List&lt;Object&gt; loginTimeFrame(long from, long to, String scale, String idpEntityId, String spEntityId, boolean includeUnique) {
+<span class="fc" id="L30">        long step = step(scale);</span>
+<span class="fc" id="L31">        List&lt;Object&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        for (long i = from; i &lt;= to; i += step) {</span>
+<span class="fc" id="L33">            Map&lt;String, Object&gt; point = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L34">            point.put(&quot;count_user_id&quot;, countValue());</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">            if (includeUnique) {</span>
+<span class="fc" id="L36">                point.put(&quot;distinct_count_user_id&quot;, countValue());</span>
+            }
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (StringUtils.hasText(spEntityId)) {</span>
+<span class="fc" id="L39">                point.put(&quot;sp_entity_id&quot;, spEntityId);</span>
+            }
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            if (StringUtils.hasText(idpEntityId)) {</span>
+<span class="fc" id="L42">                point.put(&quot;idp_entity_id&quot;, idpEntityId);</span>
+            }
+<span class="fc" id="L44">            point.put(&quot;time&quot;, i * 1000);</span>
+<span class="fc" id="L45">            result.add(point);</span>
+        }
+<span class="fc" id="L47">        return result;</span>
+    }
+
+    @Override
+    public List&lt;Object&gt; loginAggregated(String period, String idpEntityId, String spEntityId, String groupBy) {
+<span class="fc" id="L52">        Calendar today = Calendar.getInstance();</span>
+<span class="fc" id="L53">        today.set(Calendar.YEAR, Integer.parseInt(period.substring(0, 4)));</span>
+<span class="fc" id="L54">        today.set(Calendar.HOUR_OF_DAY, 0);</span>
+<span class="fc" id="L55">        today.set(Calendar.MINUTE, 0);</span>
+<span class="fc" id="L56">        today.set(Calendar.DAY_OF_MONTH, 1);</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (period.length() &gt; 4) {</span>
+<span class="pc bpc" id="L58" title="4 of 5 branches missed.">            switch (period.substring(4, 5).toUpperCase()) {</span>
+                case &quot;Q&quot;: {
+<span class="fc" id="L60">                    today.set(Calendar.MONTH, ((Integer.parseInt(period.substring(5)) - 1) * 3));</span>
+<span class="fc" id="L61">                    break;</span>
+                }
+                case &quot;M&quot;: {
+<span class="nc" id="L64">                    today.set(Calendar.MONTH, Integer.parseInt(period.substring(5)) - 1);</span>
+<span class="nc" id="L65">                    break;</span>
+                }
+                case &quot;W&quot;: {
+<span class="nc" id="L68">                    today.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(period.substring(5)));</span>
+<span class="nc" id="L69">                    break;</span>
+                }
+                case &quot;D&quot;: {
+<span class="nc" id="L72">                    today.set(Calendar.DAY_OF_YEAR, Integer.parseInt(period.substring(5)));</span>
+                    break;
+                }
+<span class="fc" id="L75">            }</span>
+        } else {
+<span class="nc" id="L77">            today.set(Calendar.MONTH, 0);</span>
+        }
+<span class="fc" id="L79">        long date = today.getTimeInMillis() / 1000;</span>
+
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (&quot;idp_id&quot;.equals(groupBy)) {</span>
+            // Return mock data grouped by IdP
+<span class="nc" id="L83">            List&lt;String&gt; mockIdpNames = List.of(</span>
+                    &quot;University of Amsterdam&quot;, &quot;Delft University of Technology&quot;,
+                    &quot;Erasmus University Rotterdam&quot;, &quot;Leiden University&quot;,
+                    &quot;HAN University of Applied Sciences&quot;, &quot;Amsterdam University of Applied Sciences&quot;,
+                    &quot;Utrecht University&quot;, &quot;Radboud University&quot;);
+<span class="nc" id="L88">            return mockIdpNames.stream()</span>
+<span class="nc" id="L89">                    .map(name -&gt; {</span>
+<span class="nc" id="L90">                        Map&lt;String, Object&gt; point = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L91">                        point.put(&quot;count_user_id&quot;, countValue() * 100);</span>
+<span class="nc" id="L92">                        point.put(&quot;distinct_count_user_id&quot;, countValue() * 10);</span>
+<span class="nc" id="L93">                        point.put(&quot;idp_entity_id&quot;, &quot;https://idp.example.org/&quot; + name.toLowerCase().replace(&quot; &quot;, &quot;-&quot;));</span>
+<span class="nc" id="L94">                        point.put(&quot;idp_name&quot;, name);</span>
+<span class="nc" id="L95">                        point.put(&quot;time&quot;, date);</span>
+<span class="nc" id="L96">                        return (Object) point;</span>
+<span class="nc" id="L97">                    }).collect(Collectors.toList());</span>
+        }
+
+        // When idpEntityId is null (SURFnet user), return mock data for a broad set of SPs
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (!StringUtils.hasText(idpEntityId)) {</span>
+<span class="nc" id="L102">            List&lt;String&gt; mockSpEntityIds = List.of(</span>
+                    &quot;https://sp.example.org/shibboleth&quot;, &quot;https://wiki.surfnet.nl/shibboleth&quot;,
+                    &quot;https://teams.surfconext.nl/shibboleth&quot;, &quot;https://manage.surfconext.nl/shibboleth&quot;,
+                    &quot;https://invite.surfconext.nl/shibboleth&quot;, &quot;https://pdp.surfconext.nl/shibboleth&quot;,
+                    &quot;https://dashboard.surfconext.nl/shibboleth&quot;, &quot;https://monitoring.surfconext.nl/shibboleth&quot;);
+<span class="nc" id="L107">            return mockSpEntityIds.stream()</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">                    .filter(id -&gt; !StringUtils.hasText(spEntityId) || spEntityId.equals(id))</span>
+<span class="nc" id="L109">                    .map(id -&gt; {</span>
+<span class="nc" id="L110">                        Map&lt;String, Object&gt; point = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L111">                        point.put(&quot;count_user_id&quot;, countValue());</span>
+<span class="nc" id="L112">                        point.put(&quot;distinct_count_user_id&quot;, countValue() / 2);</span>
+<span class="nc" id="L113">                        point.put(&quot;sp_entity_id&quot;, id);</span>
+<span class="nc" id="L114">                        point.put(&quot;time&quot;, date);</span>
+<span class="nc" id="L115">                        return point;</span>
+<span class="nc" id="L116">                    }).collect(Collectors.toList());</span>
+        }
+
+<span class="fc" id="L119">        Map&lt;String, Object&gt; identityProvider = manage.identityProviderByEntityID(idpEntityId);</span>
+<span class="fc" id="L120">        Map&lt;String, Object&gt; data = getData(identityProvider);</span>
+<span class="fc" id="L121">        List&lt;String&gt; entityIdentifiers = ((List&lt;Map&lt;String, String&gt;&gt;) data.getOrDefault(&quot;allowedEntities&quot;, List.of()))</span>
+<span class="fc" id="L122">                .stream()</span>
+<span class="fc" id="L123">                .map(sp -&gt; (String) sp.get(&quot;name&quot;))</span>
+<span class="fc" id="L124">                .toList();</span>
+
+<span class="fc" id="L126">        List&lt;Map&lt;String, Object&gt;&gt; serviceProvider = manage.serviceProvidersByEntityID(entityIdentifiers);</span>
+<span class="fc" id="L127">        return serviceProvider.stream()</span>
+<span class="pc bpc" id="L128" title="1 of 4 branches missed.">                .filter(sp -&gt; !StringUtils.hasText(spEntityId) || spEntityId.equals(getData(sp).get(&quot;entityid&quot;)))</span>
+<span class="fc" id="L129">                .map(sp -&gt; {</span>
+<span class="fc" id="L130">                    Map&lt;String, Object&gt; point = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L131">                    point.put(&quot;count_user_id&quot;, countValue());</span>
+<span class="fc" id="L132">                    point.put(&quot;distinct_count_user_id&quot;, countValue() / 2);</span>
+<span class="fc" id="L133">                    point.put(&quot;sp_entity_id&quot;, getData(sp).get(&quot;entityid&quot;));</span>
+<span class="fc" id="L134">                    point.put(&quot;idp_entity_id&quot;, idpEntityId);</span>
+<span class="fc" id="L135">                    point.put(&quot;time&quot;, date);</span>
+<span class="fc" id="L136">                    return point;</span>
+<span class="fc" id="L137">                }).collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public List&lt;Object&gt; uniqueLoginCount(long from, long to, String idpEntityId, String spEntityId) {
+<span class="fc" id="L142">        List&lt;Object&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L143">        Map&lt;String, Object&gt; point = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L144">        point.put(&quot;count_user_id&quot;, countValue());</span>
+<span class="fc" id="L145">        point.put(&quot;sp_entity_id&quot;, spEntityId);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (StringUtils.hasText(idpEntityId)) {</span>
+<span class="fc" id="L147">            point.put(&quot;idp_entity_id&quot;, idpEntityId);</span>
+        }
+<span class="fc" id="L149">        point.put(&quot;time&quot;, from);</span>
+<span class="fc" id="L150">        result.add(point);</span>
+<span class="fc" id="L151">        return result;</span>
+    }
+
+    private long countValue() {
+<span class="fc" id="L155">        double base = Math.floor(10000 * (Math.random() + 1));</span>
+<span class="fc" id="L156">        return (long) base;</span>
+    }
+
+    private long step(String scale) {
+<span class="pc bpc" id="L160" title="7 of 8 branches missed.">        return switch (scale) {</span>
+<span class="nc" id="L161">            case &quot;minute&quot; -&gt; 60;</span>
+<span class="nc" id="L162">            case &quot;hour&quot; -&gt; 60 * 60;</span>
+<span class="nc" id="L163">            case &quot;day&quot; -&gt; 24 * 60 * 60;</span>
+<span class="nc" id="L164">            case &quot;week&quot; -&gt; 7 * 24 * 60 * 60;</span>
+<span class="fc" id="L165">            case &quot;month&quot; -&gt; 30 * 24 * 60 * 60;</span>
+<span class="nc" id="L166">            case &quot;quarter&quot; -&gt; 90 * 24 * 60 * 60;</span>
+<span class="nc" id="L167">            case &quot;year&quot; -&gt; 365 * 24 * 60 * 60;</span>
+<span class="nc" id="L168">            default -&gt; throw new IllegalArgumentException(&quot;Unknown scale:&quot; + scale);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

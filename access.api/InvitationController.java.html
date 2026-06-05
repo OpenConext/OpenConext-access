@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvitationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">InvitationController.java</span></div><h1>InvitationController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.HashGenerator;
+import access.exception.NotAllowedException;
+import access.exception.NotFoundException;
+import access.mail.MailBox;
+import access.model.AcceptInvitation;
+import access.model.Application;
+import access.model.ApplicationMembership;
+import access.model.Authority;
+import access.model.Invitation;
+import access.model.InvitationForm;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
+import access.repository.ApplicationRepository;
+import access.repository.InvitationRepository;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.*;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/invitations&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class InvitationController implements UserAccessRights {
+
+<span class="fc" id="L58">    private static final Log LOG = LogFactory.getLog(InvitationController.class);</span>
+
+    private final InvitationRepository invitationRepository;
+    private final OrganizationRepository organizationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final MailBox mailBox;
+    private final UserRepository userRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
+
+    public InvitationController(InvitationRepository invitationRepository,
+                                OrganizationRepository organizationRepository,
+                                ApplicationRepository applicationRepository,
+<span class="fc" id="L70">                                MailBox mailBox, UserRepository userRepository, OrganizationMembershipRepository organizationMembershipRepository) {</span>
+<span class="fc" id="L71">        this.invitationRepository = invitationRepository;</span>
+<span class="fc" id="L72">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L73">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L74">        this.mailBox = mailBox;</span>
+<span class="fc" id="L75">        this.userRepository = userRepository;</span>
+<span class="fc" id="L76">        this.organizationMembershipRepository = organizationMembershipRepository;</span>
+<span class="fc" id="L77">    }</span>
+
+    @GetMapping({&quot;/all/{organizationId}&quot;})
+    public ResponseEntity&lt;List&lt;Invitation&gt;&gt; byOrganization(User user, @PathVariable(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L81">        LOG.debug(&quot;/by organization by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L83">        Organization organization = organizationRepository.findById(organizationId)</span>
+<span class="fc" id="L84">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+
+<span class="fc" id="L86">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+<span class="fc" id="L87">        List&lt;Invitation&gt; invitations = invitationRepository.findByOrganization(organization);</span>
+
+<span class="fc" id="L89">        return ResponseEntity.status(HttpStatus.CREATED).body(invitations);</span>
+    }
+
+    @GetMapping({&quot;/hash&quot;})
+    public ResponseEntity&lt;Invitation&gt; byHash(User user, @RequestParam(value = &quot;hash&quot;) String hash) {
+<span class="fc" id="L94">        LOG.debug(&quot;/by hash by &quot; + user.getEmail());</span>
+
+<span class="pc" id="L96">        Invitation invitation = invitationRepository.findDetailsByHash(hash).orElseThrow(() -&gt; new NotFoundException(&quot;Invitation not found&quot;));</span>
+
+<span class="fc" id="L98">        return ResponseEntity.ok(invitation);</span>
+    }
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; create(User user, @RequestBody InvitationForm invitationForm) {
+<span class="fc" id="L103">        LOG.debug(&quot;/create invitation by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L105">        Long organizationID = invitationForm.getOrganizationId();</span>
+<span class="fc" id="L106">        Organization organization = organizationRepository.findById(organizationID)</span>
+<span class="pc" id="L107">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+
+<span class="fc" id="L109">        boolean isGuestInvitation = invitationForm.getIntendedAuthority().equals(Authority.GUEST);</span>
+
+<span class="fc" id="L111">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        confirmOrganizationMembership(userFromDB, organization, isGuestInvitation ? Authority.MEMBER : Authority.ADMIN);</span>
+
+<span class="fc" id="L114">        Set&lt;Application&gt; applications = invitationForm.getApplicationIdentifiers().stream()</span>
+<span class="fc" id="L115">                .map(applicationId -&gt; this.applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L116">                        .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;)))</span>
+<span class="fc" id="L117">                .collect(Collectors.toSet());</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (!applications.stream().allMatch(application -&gt; application.getOrganization().getId().equals(organizationID))) {</span>
+<span class="nc" id="L119">            throw new NotAllowedException(&quot;Not allowed to add applications outside the organization&quot;);</span>
+        }
+<span class="fc" id="L121">        applications.forEach(application -&gt; confirmApplicationWriteAccess(userFromDB, application, Authority.MEMBER));</span>
+
+<span class="fc" id="L123">        invitationForm.getInvites().forEach(invitee -&gt; {</span>
+<span class="fc" id="L124">            Invitation invitation = new Invitation(</span>
+<span class="fc" id="L125">                    invitationForm.getLanguage(),</span>
+<span class="fc" id="L126">                    HashGenerator.generateRandomHash(),</span>
+                    invitee,
+<span class="fc" id="L128">                    invitationForm.getMessage(),</span>
+<span class="fc" id="L129">                    invitationForm.getIntendedAuthority(),</span>
+                    organization,
+                    user,
+                    applications);
+<span class="fc" id="L133">            invitation = invitationRepository.save(invitation);</span>
+<span class="fc" id="L134">            mailBox.sendInviteMail(invitation);</span>
+<span class="fc" id="L135">        });</span>
+
+<span class="fc" id="L137">        return createResult();</span>
+    }
+
+    @PutMapping({&quot;/accept&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; accept(User user, @Validated @RequestBody AcceptInvitation acceptInvitation) {
+<span class="fc" id="L142">        LOG.debug(&quot;/accept invitation by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L144">        Invitation invitation = invitationRepository.findByIdAndHash(acceptInvitation.invitationId(), acceptInvitation.hash())</span>
+<span class="pc" id="L145">                .orElseThrow(() -&gt; new NotFoundException(&quot;Invitation not found&quot;));</span>
+<span class="fc" id="L146">        invitation.accept();</span>
+
+<span class="fc" id="L148">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L149">        invitationRepository.save(invitation);</span>
+<span class="fc" id="L150">        Organization organization = invitation.getOrganization();</span>
+        //Internal users are already provisioned in their organization
+<span class="fc" id="L152">        Optional&lt;OrganizationMembership&gt; organizationMembershipOptional = user.getOrganizationMemberships().stream()</span>
+<span class="fc" id="L153">                .filter(organizationMembership -&gt; organizationMembership.getOrganization().getId().equals(organization.getId()))</span>
+<span class="fc" id="L154">                .findFirst();</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (organizationMembershipOptional.isEmpty()) {</span>
+            //Now create organization_membership and - if any - applicationMemberships
+<span class="fc" id="L157">            OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, invitation.getIntendedAuthority());</span>
+<span class="fc" id="L158">            List&lt;ApplicationMembership&gt; applicationMemberships = invitation.getApplications().stream()</span>
+<span class="fc" id="L159">                    .map(application -&gt; new ApplicationMembership(application, organizationMembership))</span>
+<span class="fc" id="L160">                    .toList();</span>
+<span class="fc" id="L161">            applicationMemberships.forEach(organizationMembership::addApplicationMembership);</span>
+<span class="fc" id="L162">            organization.addOrganizationMembership(organizationMembership);</span>
+<span class="fc" id="L163">            organizationRepository.save(organization);</span>
+<span class="fc" id="L164">        } else {</span>
+            //Add missing applicationMemberships
+<span class="fc" id="L166">            OrganizationMembership organizationMembership = organizationMembershipOptional.get();</span>
+<span class="fc" id="L167">            List&lt;Long&gt; applicationIdentifiers = organizationMembership.getApplicationMemberships().stream()</span>
+<span class="pc" id="L168">                    .map(applicationMembership -&gt; applicationMembership.getApplication().getId())</span>
+<span class="fc" id="L169">                    .toList();</span>
+<span class="fc" id="L170">            List&lt;ApplicationMembership&gt; applicationMemberships = invitation.getApplications().stream()</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">                    .filter(application -&gt; !applicationIdentifiers.contains(application.getId()))</span>
+<span class="fc" id="L172">                    .map(application -&gt; new ApplicationMembership(application, organizationMembership))</span>
+<span class="fc" id="L173">                    .toList();</span>
+<span class="fc" id="L174">            applicationMemberships.forEach(organizationMembership::addApplicationMembership);</span>
+<span class="fc" id="L175">            organizationMembershipRepository.save(organizationMembership);</span>
+        }
+
+<span class="fc" id="L178">        return createResult();</span>
+    }
+
+    @DeleteMapping({&quot;/{invitationId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; deleteInvitation(User user, @PathVariable(&quot;invitationId&quot;) Long invitationId) {
+<span class="fc" id="L183">        LOG.debug(&quot;/delete invitation by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L185">        Invitation invitation = invitationRepository.findById(invitationId)</span>
+<span class="pc" id="L186">                .orElseThrow(() -&gt; new NotFoundException(&quot;Invitation not found&quot;));</span>
+
+<span class="fc" id="L188">        Organization organization = invitation.getOrganization();</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">        Authority requiredAuthority = invitation.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;</span>
+<span class="fc" id="L190">        confirmOrganizationMembership(user, organization, requiredAuthority);</span>
+
+<span class="fc" id="L192">        invitationRepository.delete(invitation);</span>
+
+<span class="fc" id="L194">        return deleteResult();</span>
+    }
+
+    @DeleteMapping({&quot;/delete/all/{organizationId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; deleteAll(User user, @PathVariable(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L199">        LOG.debug(&quot;/delete all invitation by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L201">        Organization organization = organizationRepository.findById(organizationId)</span>
+<span class="pc" id="L202">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+
+<span class="fc" id="L204">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+<span class="fc" id="L205">        Set&lt;Invitation&gt; invitations = organization.getInvitations();</span>
+<span class="fc" id="L206">        organization.getInvitations().clear();</span>
+
+<span class="fc" id="L208">        invitationRepository.deleteAll(invitations);</span>
+
+<span class="fc" id="L210">        return deleteResult();</span>
+    }
+
+    @PutMapping({&quot;/resend/{invitationId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; resendInvitation(User user, @PathVariable(&quot;invitationId&quot;) Long invitationId) {
+<span class="fc" id="L215">        LOG.debug(&quot;/resend invitation by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L217">        Invitation invitation = invitationRepository.findById(invitationId)</span>
+<span class="pc" id="L218">                .orElseThrow(() -&gt; new NotFoundException(&quot;Invitation not found&quot;));</span>
+
+<span class="fc" id="L220">        Organization organization = invitation.getOrganization();</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        Authority requiredAuthority = invitation.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;</span>
+<span class="fc" id="L222">        confirmOrganizationMembership(user, organization, requiredAuthority);</span>
+<span class="fc" id="L223">        invitation.setExpiryDate(Instant.now().plus(30, ChronoUnit.DAYS));</span>
+<span class="fc" id="L224">        invitationRepository.save(invitation);</span>
+
+<span class="fc" id="L226">        mailBox.sendInviteMail(invitation);</span>
+
+<span class="fc" id="L228">        return okResult();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

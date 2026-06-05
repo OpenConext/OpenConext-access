@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">ApplicationController.java</span></div><h1>ApplicationController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.manage.ConnectionProviderConverter;
+import access.manage.Manage;
+import access.manage.ManageData;
+import access.model.Application;
+import access.model.ApplicationMembership;
+import access.model.ApplicationStatus;
+import access.model.Authority;
+import access.model.Connection;
+import access.model.ConnectionStatus;
+import access.model.EntityType;
+import access.model.ImportEntityRequest;
+import access.model.MigrateApplicationRequest;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
+import access.repository.ApplicationMembershipRepository;
+import access.repository.ApplicationRepository;
+import access.repository.ConnectionRepository;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
+import static access.manage.Manage.INSTITUTION_GUID;
+import static access.manage.ManageData.*;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/applications&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+@SuppressWarnings(&quot;unchecked&quot;)
+public class ApplicationController implements UserAccessRights {
+
+<span class="fc" id="L73">    private static final Log LOG = LogFactory.getLog(ApplicationController.class);</span>
+
+    private final ApplicationRepository applicationRepository;
+    private final ApplicationMembershipRepository applicationMembershipRepository;
+    private final ConnectionRepository connectionRepository;
+    private final Manage manage;
+    private final UserRepository userRepository;
+    private final S3Storage s3Storage;
+    private final ConnectionProviderConverter connectionProviderConverter;
+    private final OrganizationRepository organizationRepository;
+    private final Map&lt;String, Object&gt; arpInfo;
+
+    public ApplicationController(ApplicationRepository applicationRepository,
+                                 ApplicationMembershipRepository applicationMembershipRepository,
+                                 ConnectionRepository connectionRepository,
+                                 Manage manage,
+                                 UserRepository userRepository,
+                                 S3Storage s3Storage,
+                                 ConnectionProviderConverter connectionProviderConverter,
+                                 OrganizationRepository organizationRepository,
+<span class="fc" id="L93">                                 ObjectMapper objectMapper) throws IOException {</span>
+<span class="fc" id="L94">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L95">        this.applicationMembershipRepository = applicationMembershipRepository;</span>
+<span class="fc" id="L96">        this.connectionRepository = connectionRepository;</span>
+<span class="fc" id="L97">        this.manage = manage;</span>
+<span class="fc" id="L98">        this.userRepository = userRepository;</span>
+<span class="fc" id="L99">        this.s3Storage = s3Storage;</span>
+<span class="fc" id="L100">        this.connectionProviderConverter = connectionProviderConverter;</span>
+<span class="fc" id="L101">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L102">        this.arpInfo = objectMapper.readValue(new ClassPathResource(&quot;/metadata/ARP.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L104">    }</span>
+
+    @GetMapping(&quot;/all&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; all(User user) {
+<span class="fc" id="L108">        LOG.debug(&quot;/allLightByOrganization&quot;);</span>
+
+<span class="fc" id="L110">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L112">        List&lt;Map&lt;String, Object&gt;&gt; applications = applicationRepository.findAllLight();</span>
+<span class="fc" id="L113">        return ResponseEntity.ok(applications);</span>
+    }
+
+    @GetMapping(&quot;/all/light/{organizationId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; allLightByOrganization(@PathVariable Long organizationId, User user) {
+<span class="fc" id="L118">        LOG.debug(&quot;/allLightByOrganization&quot;);</span>
+
+<span class="fc" id="L120">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L122">        List&lt;Map&lt;String, Object&gt;&gt; applications = applicationRepository.findAllLightByOrganization(organizationId);</span>
+<span class="fc" id="L123">        return ResponseEntity.ok(applications);</span>
+    }
+
+    @GetMapping({&quot;/{applicationId}&quot;})
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ResponseEntity&lt;Application&gt; find(User user, @PathVariable(&quot;applicationId&quot;) Long applicationId) {
+<span class="fc" id="L129">        LOG.debug(&quot;/find application for &quot; + user.getEmail());</span>
+
+<span class="fc" id="L131">        Application application = applicationRepository.findDetailsById(applicationId)</span>
+<span class="pc" id="L132">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L133">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L134">        confirmApplicationWriteAccess(user, application);</span>
+
+<span class="fc" id="L136">        AtomicReference&lt;Map&lt;String, Object&gt;&gt; latestChangedProvider = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L137">        AtomicReference&lt;Instant&gt; latestRevision = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L138">        application.getConnections().stream()</span>
+<span class="fc" id="L139">                .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()))</span>
+<span class="fc" id="L140">                .forEach(connection -&gt; {</span>
+<span class="fc" id="L141">                    Map&lt;String, Object&gt; provider = manage.providerByConnection(connection);</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                    if (connection.mergeMetaData(provider, false)) {</span>
+<span class="fc" id="L143">                        Map&lt;String, Object&gt; revision = (Map&lt;String, Object&gt;) provider.get(&quot;revision&quot;);</span>
+<span class="fc" id="L144">                        Instant revisionCreated = Instant.parse(revision.get(&quot;created&quot;).toString());</span>
+<span class="pc bpc" id="L145" title="3 of 4 branches missed.">                        if (latestRevision.get() == null || revisionCreated.isAfter(latestRevision.get())) {</span>
+<span class="fc" id="L146">                            latestRevision.set(revisionCreated);</span>
+<span class="fc" id="L147">                            latestChangedProvider.set(provider);</span>
+                        }
+<span class="fc" id="L149">                        connectionRepository.save(connection);</span>
+                    }
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">                    if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {</span>
+<span class="fc" id="L152">                        connection.convertChangeRequests(manage.getChangeRequests(connection));</span>
+                    }
+<span class="fc" id="L154">                });</span>
+<span class="fc" id="L155">        Map&lt;String, Object&gt; provider = latestChangedProvider.get();</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (provider != null) {</span>
+            //Take the last updated provider and merge / save the application metaData
+<span class="fc" id="L158">            HashMap&lt;String, Object&gt; updatedMetaData = connectionProviderConverter.convertProviderToApplicationMetaData(provider);</span>
+<span class="fc" id="L159">            application.setMetaData(updatedMetaData);</span>
+
+<span class="fc" id="L161">            Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L162">            application.setLogoUrl((String) metaDataFields.getOrDefault(&quot;logo:0:url&quot;, application.getLogoUrl()));</span>
+<span class="fc" id="L163">            application.setName((String) metaDataFields.getOrDefault(&quot;coin:application_name&quot;, application.getName()));</span>
+<span class="fc" id="L164">            applicationRepository.save(application);</span>
+        }
+<span class="fc" id="L166">        ManageData.removeSecrets(application);</span>
+
+<span class="fc" id="L168">        return ResponseEntity.ok(application);</span>
+    }
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Application&gt; create(User user, @Validated @RequestBody Application application) {
+<span class="fc" id="L173">        LOG.debug(&quot;/create application by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L175">        Organization organization = application.getOrganization();</span>
+<span class="fc" id="L176">        confirmOrganizationMembership(user, organization, Authority.MEMBER);</span>
+
+<span class="fc" id="L178">        application.setCreatedAt(Instant.now());</span>
+<span class="fc" id="L179">        application.setCreatedBy(user.getName());</span>
+<span class="fc" id="L180">        application.setOwner(user);</span>
+<span class="fc" id="L181">        Application applicationSaved = applicationRepository.save(application);</span>
+
+<span class="fc" id="L183">        Optional&lt;OrganizationMembership&gt; optionalOrganizationMembership = user.getOrganizationMemberships().stream()</span>
+<span class="fc" id="L184">                .filter(organizationMembership -&gt; organizationMembership.getOrganization().getId().equals(organization.getId()))</span>
+<span class="fc" id="L185">                .findFirst();</span>
+        //Super User's may not have organization memberships
+<span class="fc" id="L187">        optionalOrganizationMembership.ifPresent(organizationMembership -&gt; {</span>
+<span class="fc" id="L188">            ApplicationMembership applicationMembership =</span>
+                    new ApplicationMembership(applicationSaved, organizationMembership);
+<span class="fc" id="L190">            applicationMembershipRepository.save(applicationMembership);</span>
+<span class="fc" id="L191">        });</span>
+<span class="fc" id="L192">        return ResponseEntity.status(HttpStatus.CREATED).body(applicationSaved);</span>
+    }
+
+    @PutMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Application&gt; update(User user, @Validated @RequestBody Application applicationData) {
+<span class="fc" id="L197">        LOG.debug(&quot;/update application by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L199">        Application application = applicationRepository.findById(applicationData.getId())</span>
+<span class="pc" id="L200">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+
+<span class="fc" id="L202">        user = this.reinitializeUser(user, userRepository);</span>
+
+<span class="fc" id="L204">        confirmApplicationWriteAccess(user, application);</span>
+
+        // Only admins can sign contracts
+<span class="pc bpc" id="L207" title="1 of 4 branches missed.">        if (!application.isSignedContract() &amp;&amp; applicationData.isSignedContract() &amp;&amp;</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">                !user.isSuperUser() &amp;&amp;</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">                getOrganizationMembership(user, application.getOrganization(), Authority.ADMIN).isEmpty()) {</span>
+<span class="fc" id="L210">            throw new UserRestrictionException(</span>
+<span class="fc" id="L211">                    String.format(&quot;User %s is not allowed to sign contract for application %s&quot;,</span>
+<span class="fc" id="L212">                            user.getEmail(), application.getName()));</span>
+        }
+
+        //If the metadata has changed, we must propagate this to manage
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());</span>
+        //However, we first need to merge the data; otherwise the outdated application metadata is used
+<span class="fc" id="L218">        application.merge(applicationData);</span>
+        //Upload base64 encoded image to s3 storage if the logo has changed
+<span class="fc" id="L220">        String logoUrl = application.getLogoUrl();</span>
+<span class="pc bpc" id="L221" title="1 of 4 branches missed.">        if (StringUtils.hasText(logoUrl) &amp;&amp; !logoUrl.startsWith(&quot;http&quot;)) {</span>
+<span class="fc" id="L222">            String url = s3Storage.uploadFile(logoUrl);</span>
+<span class="fc" id="L223">            application.setLogoUrl(url);</span>
+<span class="fc" id="L224">            metaDataHasChanged = true;</span>
+        }
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (metaDataHasChanged) {</span>
+<span class="fc" id="L227">            application.getConnections()</span>
+<span class="fc" id="L228">                    .stream()</span>
+<span class="fc" id="L229">                    .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()))</span>
+<span class="fc" id="L230">                    .forEach(connection -&gt; {</span>
+<span class="fc" id="L231">                Map&lt;String, Object&gt; provider = manage.saveProvider(connection);</span>
+<span class="fc" id="L232">                connection.updateRemoteManageData(provider);</span>
+<span class="fc" id="L233">                connectionRepository.save(connection);</span>
+<span class="fc" id="L234">            });</span>
+        } else {
+<span class="fc" id="L236">            Hibernate.initialize(application.getConnections());</span>
+        }
+<span class="fc" id="L238">        applicationRepository.save(application);</span>
+
+<span class="fc" id="L240">        return ResponseEntity.status(HttpStatus.CREATED).body(application);</span>
+    }
+
+    @DeleteMapping({&quot;&quot;, &quot;/{applicationId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; delete(User user, @PathVariable(&quot;applicationId&quot;) Long applicationId) {
+<span class="fc" id="L245">        LOG.debug(&quot;/delete application by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L247">        Application application = applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L248">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L249">        Organization organization = application.getOrganization();</span>
+
+<span class="fc" id="L251">        user = this.reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L252">        confirmApplicationDeleteAccess(user, application);</span>
+
+        //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
+<span class="fc" id="L255">        organization.removeApplication(application);</span>
+<span class="fc" id="L256">        user.getOrganizationMemberships().forEach(organizationMembership -&gt; {</span>
+<span class="fc" id="L257">            List&lt;ApplicationMembership&gt; applicationMemberships = organizationMembership.getApplicationMemberships()</span>
+<span class="fc" id="L258">                    .stream()</span>
+<span class="fc" id="L259">                    .filter(applicationMembership -&gt; applicationMembership.getApplication().getId().equals(applicationId)).toList();</span>
+<span class="fc" id="L260">            organizationMembership.removeApplicationMemberships(applicationMemberships);</span>
+<span class="fc" id="L261">        });</span>
+
+<span class="fc" id="L263">        application.getConnections()</span>
+<span class="fc" id="L264">                .stream()</span>
+<span class="fc" id="L265">                .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()))</span>
+<span class="fc" id="L266">                .forEach(connection -&gt; manage.deleteProvider(connection));</span>
+
+<span class="fc" id="L268">        applicationRepository.deleteById(application.getId());</span>
+
+<span class="fc" id="L270">        return deleteResult();</span>
+    }
+
+    @GetMapping(&quot;/identity-providers-allowed-connections/{applicationId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProvidersByAllowedConnections(User user,
+                                                                                           @PathVariable Long applicationId) {
+<span class="fc" id="L276">        LOG.debug(&quot;/identityProvidersByAllowedConnections by: &quot; + user.getEmail());</span>
+<span class="fc" id="L277">        Application application = applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L278">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L279">        user = reinitializeUser(user, userRepository);</span>
+
+<span class="fc" id="L281">        confirmApplicationDeleteAccess(user, application);</span>
+
+<span class="fc" id="L283">        List&lt;Connection&gt; connections = new ArrayList&lt;&gt;(application.getConnections());</span>
+<span class="fc" id="L284">        List&lt;Map&lt;String, Object&gt;&gt; identityProviders = manage.identityProvidersByAllowedConnections(connections);</span>
+<span class="fc" id="L285">        return ResponseEntity.ok(identityProviders);</span>
+    }
+
+    @PutMapping({&quot;/migrate&quot;})
+    @Transactional
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; migrate(User user, @Validated @RequestBody MigrateApplicationRequest migrateApplicationRequest) {
+<span class="fc" id="L291">        LOG.debug(&quot;/migrate application by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L293">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L295">        Application application = applicationRepository.findById(migrateApplicationRequest.getApplicationId())</span>
+<span class="pc" id="L296">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L297">        Organization newOrganization = organizationRepository.findById(migrateApplicationRequest.getNewOrganizationId())</span>
+<span class="pc" id="L298">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+<span class="fc" id="L299">        application.setOrganization(newOrganization);</span>
+<span class="fc" id="L300">        applicationRepository.save(application);</span>
+
+<span class="fc" id="L302">        AtomicReference&lt;String&gt; institutionGuid = new AtomicReference&lt;&gt;();</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">        if (StringUtils.hasText(newOrganization.getManageIdentifier())) {</span>
+<span class="fc" id="L304">            Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, newOrganization.getManageIdentifier());</span>
+<span class="fc" id="L305">            Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(identityProvider));</span>
+<span class="fc" id="L306">            institutionGuid.set((String) metaDataFields.get(INSTITUTION_GUID));</span>
+        }
+
+<span class="fc" id="L309">        application.getConnections()</span>
+<span class="fc" id="L310">                .stream()</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">                .filter(connection -&gt; !isEmpty(connection.getManageIdentifier()))</span>
+<span class="fc" id="L312">                .forEach(connection -&gt; {</span>
+<span class="fc" id="L313">            Map&lt;String, Object&gt; provider = manage.providerByConnection(connection);</span>
+<span class="fc" id="L314">            Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L315">            metaDataFields.put(&quot;OrganizationName:en&quot;, newOrganization.getName());</span>
+<span class="fc" id="L316">            metaDataFields.put(&quot;OrganizationName:nl&quot;, newOrganization.getName());</span>
+            //The connections need to be linked to the new identityProvider - if the new Organization is a known IdP in Manage
+<span class="fc bfc" id="L318" title="All 2 branches covered.">            if (StringUtils.hasText(institutionGuid.get())) {</span>
+<span class="fc" id="L319">                metaDataFields.put(INSTITUTION_GUID, institutionGuid.get());</span>
+            } else {
+<span class="fc" id="L321">                metaDataFields.remove(INSTITUTION_GUID);</span>
+            }
+
+<span class="fc" id="L324">            Map&lt;String, Object&gt; updatedProvider = manage.updateProvider(provider);</span>
+<span class="fc" id="L325">            Integer version = (Integer) updatedProvider.get(&quot;version&quot;);</span>
+<span class="fc" id="L326">            connection.setManageVersion(version);</span>
+<span class="fc" id="L327">            connectionRepository.save(connection);</span>
+<span class="fc" id="L328">        });</span>
+
+<span class="fc" id="L330">        return Results.okResult();</span>
+    }
+
+    @PostMapping({&quot;/import&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; importEntity(User user,
+                                                            @Validated @RequestBody ImportEntityRequest importEntityRequest) {
+<span class="fc" id="L336">        LOG.debug(&quot;/import entity by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L338">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L340">        Organization organization = organizationRepository.findById(importEntityRequest.getOrganizationId())</span>
+<span class="pc" id="L341">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+<span class="fc" id="L342">        Map&lt;String, Object&gt; serviceProvider = importEntityRequest.getServiceProvider();</span>
+
+<span class="fc bfc" id="L344" title="All 2 branches covered.">        Application application = importEntityRequest.getApplicationId() != null ?</span>
+<span class="fc" id="L345">                applicationRepository.findById(importEntityRequest.getApplicationId())</span>
+<span class="pc" id="L346">                        .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;)) :</span>
+<span class="fc" id="L347">                createApplicationFromProvider(user, organization, serviceProvider);</span>
+
+<span class="fc" id="L349">        Map&lt;String, Object&gt; data = getData(serviceProvider);</span>
+<span class="fc" id="L350">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+
+        //As this is an import, we need to deduce the profile / motivation
+<span class="fc" id="L353">        Map&lt;String, Object&gt; arp = (Map&lt;String, Object&gt;) data.get(&quot;arp&quot;);</span>
+<span class="fc" id="L354">        String profile = arpProfileName(arp);</span>
+<span class="fc" id="L355">        arp.put(&quot;profile&quot;, profile);</span>
+<span class="fc" id="L356">        serviceProvider = manage.updateProvider(serviceProvider);</span>
+
+<span class="fc" id="L358">        Connection connection = new Connection(</span>
+<span class="fc" id="L359">                (String) metaDataFields.get(&quot;name:en&quot;),</span>
+                application,
+                new HashMap&lt;&gt;(),// We will fill the metadata later
+<span class="fc" id="L362">                EntityType.valueOf((String) serviceProvider.get(&quot;type&quot;))</span>
+        );
+<span class="fc" id="L364">        connection.setSecretSet(true);</span>
+<span class="fc" id="L365">        connection.setStatus(ConnectionStatus.PENDING_PROD);</span>
+<span class="fc" id="L366">        connection.updateRemoteManageData(serviceProvider);</span>
+<span class="fc" id="L367">        connection.mergeMetaData(serviceProvider, true);</span>
+
+<span class="fc" id="L369">        Connection savedConnection = connectionRepository.save(connection);</span>
+<span class="fc" id="L370">        Map&lt;String, Object&gt; body = Map.of(</span>
+<span class="fc" id="L371">                &quot;status&quot;, HttpStatus.OK.value(),</span>
+<span class="fc" id="L372">                &quot;connectionId&quot;, savedConnection.getId(),</span>
+<span class="fc" id="L373">                &quot;applicationId&quot;, application.getId()</span>
+        );
+<span class="fc" id="L375">        return ResponseEntity.status(HttpStatus.OK).body(body);</span>
+    }
+
+    private Application createApplicationFromProvider(User user, Organization organization, Map&lt;String, Object&gt; serviceProvider) {
+<span class="fc" id="L379">        Map&lt;String, Object&gt; data = getData(serviceProvider);</span>
+<span class="fc" id="L380">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L381">        HashMap&lt;String, Object&gt; metaData = this.connectionProviderConverter.convertProviderToApplicationMetaData(serviceProvider);</span>
+<span class="fc" id="L382">        String name = (String) metaDataFields.getOrDefault(&quot;coin:application_name&quot;, (String) metaDataFields.get(&quot;name:en&quot;));</span>
+<span class="fc" id="L383">        Application application = new Application(</span>
+                name,
+                organization,
+                &quot;System&quot;,
+                new HashMap&lt;&gt;()
+        );
+<span class="fc" id="L389">        application.setMetaData(metaData);</span>
+<span class="fc" id="L390">        String logoUrl = (String) metaDataFields.get(&quot;logo:0:url&quot;);</span>
+<span class="fc" id="L391">        application.setLogoUrl(logoUrl);</span>
+<span class="fc" id="L392">        application.setCreatedBy(user.getName());</span>
+<span class="fc" id="L393">        application.setStatus(ApplicationStatus.COMPLETE);</span>
+<span class="fc" id="L394">        application.setSignedContract(true);</span>
+<span class="fc" id="L395">        return applicationRepository.save(application);</span>
+    }
+
+    private String arpProfileName(Map&lt;String, Object&gt; arp) {
+<span class="fc" id="L399">        Set&lt;String&gt; attributeNames = ((Map&lt;String, Object&gt;) arp.get(&quot;attributes&quot;)).keySet();</span>
+
+<span class="fc" id="L401">        List&lt;Map&lt;String, Object&gt;&gt; attributes = (List&lt;Map&lt;String, Object&gt;&gt;) this.arpInfo.get(&quot;attributes&quot;);</span>
+<span class="fc" id="L402">        Map&lt;String, String&gt; attributesMap = attributes.stream().collect(Collectors.toMap(</span>
+<span class="fc" id="L403">                attr -&gt; (String) attr.get(&quot;name&quot;), attr -&gt; (String) attr.get(&quot;urn&quot;)</span>
+        ));
+<span class="fc" id="L405">        List&lt;Map&lt;String, Object&gt;&gt; profiles = (List&lt;Map&lt;String, Object&gt;&gt;) this.arpInfo.get(&quot;profiles&quot;);</span>
+<span class="fc" id="L406">        return profiles.stream().filter(profile -&gt; {</span>
+<span class="fc" id="L407">            List&lt;String&gt; profileAttributes = (List&lt;String&gt;) profile.get(&quot;attributes&quot;);</span>
+<span class="fc" id="L408">            List&lt;String&gt; optionalAttributes = (List&lt;String&gt;) profile.getOrDefault(&quot;optionalAttributes&quot;, List.of());</span>
+<span class="fc" id="L409">            List&lt;String&gt; allAttributes = new ArrayList&lt;&gt;(profileAttributes);</span>
+<span class="fc" id="L410">            allAttributes.addAll(optionalAttributes);</span>
+<span class="fc" id="L411">            Set&lt;String&gt; urns = allAttributes.stream()</span>
+<span class="fc" id="L412">                    .map(attr -&gt; attributesMap.get(attr))</span>
+<span class="fc" id="L413">                    .filter(Objects::nonNull)</span>
+<span class="fc" id="L414">                    .collect(Collectors.toSet());</span>
+<span class="fc" id="L415">            return urns.containsAll(attributeNames);</span>
+<span class="fc" id="L416">        }).findFirst()</span>
+<span class="pc" id="L417">                .map(profile -&gt; (String) profile.get(&quot;name&quot;))</span>
+<span class="fc" id="L418">                .orElse(&quot;personalized&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

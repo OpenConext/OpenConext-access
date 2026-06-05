@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManageData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">ManageData.java</span></div><h1>ManageData.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.api.ApplicationController;
+import access.model.Application;
+import access.model.Connection;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+@SuppressWarnings({&quot;unchecked&quot;, &quot;rawtypes&quot;})
+public class ManageData {
+
+<span class="fc" id="L18">    private static Set&lt;String&gt; secrets = Set.of(&quot;secret&quot;, &quot;originalSecret&quot;);</span>
+
+    private ManageData() {
+    }
+
+    public static Map&lt;String, Object&gt; getMetaDataFields(Map&lt;String, Object&gt; data) {
+<span class="fc" id="L24">        return (Map&lt;String, Object&gt;) data.get(&quot;metaDataFields&quot;);</span>
+    }
+
+    public static Map&lt;String, Object&gt; getData(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L28">        return (Map&lt;String, Object&gt;) provider.get(&quot;data&quot;);</span>
+    }
+
+    public static String getProviderName(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L32">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L33">        return (String) metaDataFields.get(&quot;name:en&quot;);</span>
+    }
+
+    public static String getEntityID(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L37">        Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="fc" id="L38">        return (String) data.get(&quot;entityid&quot;);</span>
+    }
+
+    public static List&lt;String&gt; contactPersons(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L42">        Pattern pattern = Pattern.compile(&quot;contacts:[0-9]:contactType&quot;);</span>
+<span class="fc" id="L43">        List contactTypes = List.of(&quot;technical&quot;, &quot;support&quot;, &quot;administrative&quot;);</span>
+<span class="fc" id="L44">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L45">        return metaDataFields.keySet()</span>
+<span class="fc" id="L46">                .stream()</span>
+<span class="pc bpc" id="L47" title="1 of 4 branches missed.">                .filter(key -&gt; pattern.matcher(key).matches() &amp;&amp; contactTypes.contains(metaDataFields.get(key)))</span>
+<span class="fc" id="L48">                .map(key -&gt; (String) metaDataFields.get(key.replace(&quot;contactType&quot;, &quot;emailAddress&quot;)))</span>
+<span class="fc" id="L49">                .toList();</span>
+
+    }
+
+    public static void removeSecrets(Map&lt;String, Object&gt; application) {
+<span class="fc" id="L54">            List&lt;Map&lt;String, Object&gt;&gt; connections = (List&lt;Map&lt;String, Object&gt;&gt;) application.getOrDefault(&quot;connections&quot;, List.of());</span>
+<span class="fc" id="L55">            connections.forEach(connection -&gt; {</span>
+<span class="fc" id="L56">                Map&lt;String, Object&gt; metaData = (Map&lt;String, Object&gt;) connection.getOrDefault(&quot;metaData&quot;, Map.of());</span>
+<span class="fc" id="L57">                metaData.keySet().removeIf(key -&gt; secrets.contains(key));</span>
+<span class="fc" id="L58">            });</span>
+<span class="fc" id="L59">    }</span>
+
+    public static void removeSecrets(Application application) {
+<span class="fc" id="L62">        Set&lt;Connection&gt; connections = application.getConnections();</span>
+<span class="fc" id="L63">        connections.forEach(connection -&gt; {</span>
+<span class="fc" id="L64">            HashMap&lt;String, Object&gt; metaData = connection.getMetaData();</span>
+<span class="fc" id="L65">            metaData.keySet().removeIf(key -&gt; secrets.contains(key));</span>
+<span class="fc" id="L66">        });</span>
+<span class="fc" id="L67">    }</span>
+
+
+    public static boolean isEmpty(Object object) {
+<span class="fc bfc" id="L71" title="All 5 branches covered.">        return switch (object) {</span>
+<span class="fc" id="L72">            case List l -&gt; l.isEmpty();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            case String s -&gt; !StringUtils.hasText(s);</span>
+<span class="fc" id="L74">            case Map m -&gt; m.isEmpty();</span>
+<span class="fc" id="L75">            case null -&gt; true;</span>
+<span class="fc" id="L76">            default -&gt; false;</span>
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Demo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.seed</a> &gt; <span class="el_source">Demo.java</span></div><h1>Demo.java</h1><pre class="source lang-java linenums">package access.seed;
+
+import access.api.ConnectionController;
+import access.manage.Contact;
+import access.manage.Manage;
+import access.model.*;
+import access.repository.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class Demo {
+
+<span class="fc" id="L18">    private static final Log LOG = LogFactory.getLog(Demo.class);</span>
+
+    private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final ConnectionRepository connectionRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final ApplicationMembershipRepository applicationMembershipRepository;
+    private final JoinRequestRepository joinRequestRepository;
+    private final Manage manage;
+    private final ConnectionController connectionController;
+
+    public Demo(UserRepository userRepository,
+                OrganizationRepository organizationRepository,
+                ApplicationRepository applicationRepository,
+                ConnectionRepository connectionRepository,
+                OrganizationMembershipRepository organizationMembershipRepository,
+                ApplicationMembershipRepository applicationMembershipRepository,
+                JoinRequestRepository joinRequestRepository,
+                Manage manage,
+<span class="fc" id="L38">                ConnectionController connectionController) {</span>
+<span class="fc" id="L39">        this.userRepository = userRepository;</span>
+<span class="fc" id="L40">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L41">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L42">        this.connectionRepository = connectionRepository;</span>
+<span class="fc" id="L43">        this.organizationMembershipRepository = organizationMembershipRepository;</span>
+<span class="fc" id="L44">        this.applicationMembershipRepository = applicationMembershipRepository;</span>
+<span class="fc" id="L45">        this.joinRequestRepository = joinRequestRepository;</span>
+<span class="fc" id="L46">        this.manage = manage;</span>
+<span class="fc" id="L47">        this.connectionController = connectionController;</span>
+<span class="fc" id="L48">    }</span>
+
+    public Map&lt;String, Object&gt; seed() {
+<span class="fc" id="L51">        LOG.info(&quot;Starting demo seed: deleting all existing data&quot;);</span>
+
+        // Delete in FK-safe order (same as AbstractTest.doSeed)
+<span class="fc" id="L54">        userRepository.deleteAllInBatch();</span>
+<span class="fc" id="L55">        applicationRepository.deleteAllInBatch();</span>
+<span class="fc" id="L56">        organizationRepository.deleteAllInBatch();</span>
+<span class="fc" id="L57">        joinRequestRepository.deleteAllInBatch();</span>
+
+        // -------------------------------------------------------------------------
+        // Organization 1: Dummy IdP (has manageIdentifier)
+        // -------------------------------------------------------------------------
+<span class="fc" id="L62">        Organization dummyIdp = new Organization(&quot;Dummy IdP&quot;, &quot;dummy-idp.example.com&quot;,</span>
+<span class="fc" id="L63">                &quot;ad93daef-0911-e511-80d0-005056956c1a&quot;, 1);</span>
+<span class="fc" id="L64">        dummyIdp.setStatus(OrganizationStatus.APPROVED);</span>
+<span class="fc" id="L65">        organizationRepository.save(dummyIdp);</span>
+
+        // Users for Dummy IdP
+<span class="fc" id="L68">        User adminExample = new User(true, &quot;admin@example.com&quot;, &quot;urn:collab:person:example.com:admin&quot;,</span>
+                &quot;example.com&quot;, &quot;Admin&quot;, &quot;Mock&quot;, &quot;admin@example.com&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L70">        User memberExample = new User(false, &quot;member@example.com&quot;, &quot;urn:collab:person:example.com:member&quot;,</span>
+                &quot;example.com&quot;, &quot;Member&quot;, &quot;Mock&quot;, &quot;member@example.com&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L72">        User guestExample = new User(false, &quot;guest@example.com&quot;, &quot;urn:collab:person:example.com:guest&quot;,</span>
+                &quot;example.com&quot;, &quot;Guest&quot;, &quot;Mock&quot;, &quot;guest@example.com&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L74">        userRepository.saveAll(List.of(adminExample, memberExample, guestExample));</span>
+
+        // Memberships for Dummy IdP
+<span class="fc" id="L77">        OrganizationMembership adminExampleMembership =</span>
+                new OrganizationMembership(adminExample, dummyIdp, Authority.ADMIN);
+<span class="fc" id="L79">        OrganizationMembership memberExampleMembership =</span>
+                new OrganizationMembership(memberExample, dummyIdp, Authority.MEMBER);
+<span class="fc" id="L81">        OrganizationMembership guestExampleMembership =</span>
+                new OrganizationMembership(guestExample, dummyIdp, Authority.GUEST);
+<span class="fc" id="L83">        organizationMembershipRepository.saveAll(</span>
+<span class="fc" id="L84">                List.of(adminExampleMembership, memberExampleMembership, guestExampleMembership));</span>
+
+        // Application: Prod App (with connections)
+<span class="fc" id="L87">        Application prodApp = new Application(&quot;Prod App&quot;, dummyIdp, &quot;Demo&quot;, Map.of());</span>
+<span class="fc" id="L88">        applicationRepository.save(prodApp);</span>
+
+        // OIDC connection — PROD_READY
+<span class="fc" id="L91">        Connection prodAppOidc = new Connection(&quot;Prod App OIDC&quot;, prodApp, Map.of(</span>
+                &quot;entityID&quot;, &quot;https://prod-app.example.com&quot;,
+<span class="fc" id="L93">                &quot;redirectUrls&quot;, List.of(&quot;https://prod-app.example.com/redirect&quot;),</span>
+<span class="fc" id="L94">                &quot;grantTypes&quot;, List.of(&quot;authorization_code&quot;)</span>
+        ), EntityType.oidc10_rp);
+<span class="fc" id="L96">        prodAppOidc.setStatus(ConnectionStatus.PROD_READY);</span>
+<span class="fc" id="L97">        prodAppOidc.setState(State.prodaccepted);</span>
+<span class="fc" id="L98">        connectionController.create(adminExample, prodAppOidc);</span>
+
+        // SAML connection — PENDING_PROD
+<span class="fc" id="L101">        Connection prodAppSaml = new Connection(&quot;Prod App SAML&quot;, prodApp, Map.of(</span>
+                &quot;entityID&quot;, &quot;https://prod-app-saml.example.com&quot;,
+<span class="fc" id="L103">                &quot;acsLocations&quot;, List.of(&quot;https://prod-app-saml.example.com/acs&quot;),</span>
+<span class="fc" id="L104">                &quot;arp&quot;, Map.of(&quot;attributes&quot;, Map.of(), &quot;enabled&quot;, true)</span>
+        ), EntityType.saml20_sp);
+<span class="fc" id="L106">        prodAppSaml.setStatus(ConnectionStatus.PENDING_PROD);</span>
+<span class="fc" id="L107">        connectionController.create(adminExample, prodAppSaml);</span>
+
+        // ApplicationMembership: guest on Prod App
+<span class="fc" id="L110">        ApplicationMembership guestAppMembership =</span>
+                new ApplicationMembership(prodApp, guestExampleMembership);
+<span class="fc" id="L112">        applicationMembershipRepository.save(guestAppMembership);</span>
+
+        // Application: Mock App (no connections)
+<span class="fc" id="L115">        Application mockApp = new Application(&quot;Mock App&quot;, dummyIdp, &quot;Demo&quot;, Map.of());</span>
+<span class="fc" id="L116">        applicationRepository.save(mockApp);</span>
+
+        // -------------------------------------------------------------------------
+        // Organization 2: Commerz (no manageIdentifier)
+        // -------------------------------------------------------------------------
+<span class="fc" id="L121">        Organization commerz = new Organization(&quot;Commerz&quot;, &quot;commerz.example.com&quot;);</span>
+<span class="fc" id="L122">        commerz.setStatus(OrganizationStatus.APPROVED);</span>
+<span class="fc" id="L123">        organizationRepository.save(commerz);</span>
+
+        // Users for Commerz
+<span class="fc" id="L126">        User adminTest = new User(false, &quot;admin@test.nl&quot;, &quot;admin@test.nl&quot;,</span>
+                &quot;test.nl&quot;, &quot;Admin&quot;, &quot;Test&quot;, &quot;admin@test.nl&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L128">        User memberTest = new User(false, &quot;member@test.nl&quot;, &quot;member@test.nl&quot;,</span>
+                &quot;test.nl&quot;, &quot;Member&quot;, &quot;Test&quot;, &quot;member@test.nl&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L130">        User guestTest = new User(false, &quot;guest@test.nl&quot;, &quot;guest@test.nl&quot;,</span>
+                &quot;test.nl&quot;, &quot;Guest&quot;, &quot;Test&quot;, &quot;guest@test.nl&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L132">        userRepository.saveAll(List.of(adminTest, memberTest, guestTest));</span>
+
+        // Memberships for Commerz
+<span class="fc" id="L135">        OrganizationMembership adminTestMembership =</span>
+                new OrganizationMembership(adminTest, commerz, Authority.ADMIN);
+<span class="fc" id="L137">        OrganizationMembership memberTestMembership =</span>
+                new OrganizationMembership(memberTest, commerz, Authority.MEMBER);
+<span class="fc" id="L139">        OrganizationMembership guestTestMembership =</span>
+                new OrganizationMembership(guestTest, commerz, Authority.GUEST);
+<span class="fc" id="L141">        organizationMembershipRepository.saveAll(</span>
+<span class="fc" id="L142">                List.of(adminTestMembership, memberTestMembership, guestTestMembership));</span>
+
+        // Application: ShareLogic (no connections)
+<span class="fc" id="L145">        Application shareLogic = new Application(&quot;ShareLogic&quot;, commerz, &quot;Demo&quot;, Map.of());</span>
+<span class="fc" id="L146">        applicationRepository.save(shareLogic);</span>
+
+        // Solo user — no organization membership
+<span class="fc" id="L149">        User soloDoe = new User(false, &quot;sole@test.nl&quot;, &quot;sole@test.nl&quot;,</span>
+                &quot;test.nl&quot;, &quot;Solo&quot;, &quot;Doe&quot;, &quot;sole@test.nl&quot;, &quot;http://mock-idp&quot;);
+<span class="fc" id="L151">        userRepository.save(soloDoe);</span>
+
+        // Join request from Solo Doe to Commerz
+<span class="fc" id="L154">        JoinRequest joinRequest = new JoinRequest(soloDoe, commerz, &quot;Please let me join&quot;, Language.en);</span>
+<span class="fc" id="L155">        joinRequestRepository.save(joinRequest);</span>
+
+<span class="fc" id="L157">        LOG.info(&quot;Demo seed completed successfully&quot;);</span>
+<span class="fc" id="L158">        return Map.of(&quot;status&quot;, &quot;ok&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JiraClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.jira</a> &gt; <span class="el_source">JiraClient.java</span></div><h1>JiraClient.java</h1><pre class="source lang-java linenums">package access.jira;
+
+import access.mail.MailBox;
+import access.remote.RestTemplateFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
+@EnableConfigurationProperties(JiraConfig.class)
+@Service
+public class JiraClient {
+
+<span class="fc" id="L33">    private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);</span>
+
+    private final JiraConfig config;
+    private final MailBox mailBox;
+    private final Map&lt;String, Map&lt;String, Map&lt;String, String&gt;&gt;&gt; mappings;
+    private final String issueType;
+    private RestTemplate restTemplate;
+
+<span class="pc" id="L41">    @SneakyThrows</span>
+    @SuppressWarnings(&quot;unchcked&quot;)
+<span class="fc" id="L43">    public JiraClient(JiraConfig config, ObjectMapper objectMapper, MailBox mailBox) {</span>
+<span class="fc" id="L44">        this.config = config;</span>
+<span class="fc" id="L45">        this.mailBox = mailBox;</span>
+<span class="fc" id="L46">        this.mappings = objectMapper.readValue(new ClassPathResource(&quot;jira/mappings.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L48">        this.issueType = this.resolveIssueType();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (config.isEnabled()) {</span>
+<span class="fc" id="L50">            this.restTemplate = RestTemplateFactory.buildRestTemplate(config.getApiKey());</span>
+        }
+<span class="fc" id="L52">    }</span>
+
+<span class="fc" id="L54">    @SneakyThrows</span>
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public String create(JiraIssue issue) {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (!config.isEnabled()) {</span>
+<span class="fc" id="L58">            return String.format(&quot;CXT-%s&quot;, ThreadLocalRandom.current().nextInt(1000, 10000));</span>
+        }
+<span class="fc" id="L60">        Map&lt;String, Object&gt; fields = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L61">        fields.put(&quot;project&quot;, Map.of(&quot;key&quot;, config.getProjectKey()));</span>
+<span class="fc" id="L62">        fields.put(&quot;customfield_&quot; + spCustomField(), issue.getServiceProviderEntityID());</span>
+<span class="fc" id="L63">        fields.put(&quot;customfield_&quot; + idpCustomField(), issue.getIdentityProviderEntityID());</span>
+<span class="fc" id="L64">        fields.put(&quot;customfield_&quot; + typeMetaDataCustomField(), Map.of(&quot;value&quot;, issue.getEntityType().name()));</span>
+<span class="fc" id="L65">        fields.put(&quot;customfield_&quot; + emailToCustomField(), issue.getEmailTo());</span>
+<span class="fc" id="L66">        fields.put(&quot;issuetype&quot;, ImmutableMap.of(&quot;id&quot;, issueType));</span>
+<span class="fc" id="L67">        fields.put(&quot;summary&quot;, issue.getSummary());</span>
+<span class="fc" id="L68">        fields.put(&quot;description&quot;, issue.getDescription());</span>
+<span class="fc" id="L69">        fields.put(&quot;duedate&quot;, dueDate());</span>
+        //We don't send keys with null or empty values
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        fields.entrySet().removeIf(entry -&gt; entry.getValue() instanceof String &amp;&amp; !StringUtils.hasText((String) entry.getValue()));</span>
+
+<span class="fc" id="L73">        Map&lt;String, Map&lt;String, Object&gt;&gt; jiraIssue = Map.of(&quot;fields&quot;, fields);</span>
+
+<span class="fc" id="L75">        LOG.info(&quot;Sending JSON {} to JIRA&quot;, jiraIssue);</span>
+
+        try {
+<span class="fc" id="L78">            Map&lt;String, String&gt; result = restTemplate.postForObject(config.getBaseUrl() + &quot;/issue&quot;, jiraIssue, Map.class);</span>
+
+<span class="fc" id="L80">            LOG.info(&quot;Response {} from JIRA&quot;, result);</span>
+
+<span class="fc" id="L82">            return result.get(&quot;key&quot;);</span>
+<span class="fc" id="L83">        } catch (HttpClientErrorException e) {</span>
+<span class="fc" id="L84">            LOG.error(&quot;Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}&quot;,</span>
+<span class="fc" id="L85">                    e.getStatusCode(),</span>
+<span class="fc" id="L86">                    e.getStatusText(),</span>
+<span class="fc" id="L87">                    e.getResponseBodyAsString(),</span>
+                    jiraIssue,
+                    e);
+<span class="fc" id="L90">            mailBox.sendJiraError(&quot;create&quot;, jiraIssue.toString(), e.getMessage(), e.getResponseBodyAsString());</span>
+<span class="fc" id="L91">            throw e;</span>
+        }
+    }
+
+    public void comment(String jiraKey, String comment) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (!config.isEnabled()) {</span>
+<span class="fc" id="L97">            return;</span>
+        }
+<span class="fc" id="L99">        String commentUrl = config.getBaseUrl() + &quot;/issue/&quot; + jiraKey + &quot;/comment&quot;;</span>
+<span class="fc" id="L100">        Map&lt;String, String&gt; body = Map.of(&quot;body&quot;, comment);</span>
+<span class="fc" id="L101">        HttpEntity&lt;Object&gt; commentRequestEntity = new HttpEntity&lt;&gt;(body);</span>
+
+<span class="fc" id="L103">        LOG.info(&quot;Sending JSON {} to JIRA&quot;, body);</span>
+
+        try {
+<span class="fc" id="L106">            ResponseEntity&lt;Map&gt; responseEntity = restTemplate.exchange(commentUrl, HttpMethod.POST, commentRequestEntity, Map.class);</span>
+<span class="fc" id="L107">            LOG.info(&quot;Response {} from JIRA&quot;, responseEntity.getBody());</span>
+<span class="fc" id="L108">        } catch (HttpClientErrorException e) {</span>
+<span class="fc" id="L109">            LOG.error(&quot;Failed to post Jira comment: {} ({}) with response:{}, JSON Request: {}&quot;,</span>
+<span class="fc" id="L110">                    e.getStatusCode(),</span>
+<span class="fc" id="L111">                    e.getStatusText(),</span>
+<span class="fc" id="L112">                    e.getResponseBodyAsString(),</span>
+                    body,
+                    e);
+<span class="fc" id="L115">            mailBox.sendJiraError(&quot;comment&quot;, body.toString(), e.getMessage(), e.getResponseBodyAsString());</span>
+<span class="fc" id="L116">            throw e;</span>
+<span class="fc" id="L117">        }</span>
+<span class="fc" id="L118">    }</span>
+
+    private String resolveIssueType() {
+<span class="fc" id="L121">        return this.mappings.get(this.config.getEnvironment())</span>
+<span class="fc" id="L122">                .get(&quot;issueTypes&quot;).entrySet().stream()</span>
+<span class="fc" id="L123">                .filter(entry -&gt; entry.getKey().equals(&quot;change&quot;))</span>
+<span class="fc" id="L124">                .map(entry -&gt; entry.getValue())</span>
+<span class="fc" id="L125">                .findFirst().get();</span>
+    }
+
+    private String spCustomField() {
+<span class="fc" id="L129">        return this.customField(&quot;spEntityId&quot;);</span>
+    }
+
+    private String idpCustomField() {
+<span class="fc" id="L133">        return this.customField(&quot;idpEntityId&quot;);</span>
+    }
+
+    private String typeMetaDataCustomField() {
+<span class="fc" id="L137">        return this.customField(&quot;typeMetaData&quot;);</span>
+    }
+
+    private String emailToCustomField() {
+<span class="fc" id="L141">        return this.customField(&quot;emailTo&quot;);</span>
+    }
+
+    private String customField(String name) {
+<span class="fc" id="L145">        return this.mappings.get(this.config.getEnvironment()).get(&quot;customFields&quot;).get(name);</span>
+    }
+
+    private String dueDate() {
+<span class="fc" id="L149">        LocalDate localDate = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();</span>
+<span class="fc" id="L150">        return localDate.plusWeeks(3).format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

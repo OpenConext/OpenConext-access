@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResourceCleaner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.cron</a> &gt; <span class="el_source">ResourceCleaner.java</span></div><h1>ResourceCleaner.java</h1><pre class="source lang-java linenums">package access.cron;
+
+
+import access.mail.MailBox;
+import access.manage.Contact;
+import access.model.EntityType;
+import access.manage.Manage;
+import access.model.Application;
+import access.model.Organization;
+import access.model.User;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
+@Component
+public class ResourceCleaner {
+
+    public static final String LOCK_NAME = &quot;resource_cleaner_user_level_lock&quot;;
+<span class="fc" id="L29">    private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);</span>
+
+    private final OrganizationRepository organizationRepository;
+    private final UserRepository userRepository;
+    private final MailBox mailBox;
+    private final Manage manage;
+
+    @Value(&quot;${cron.org-contact-reminder-days}&quot;)
+    private int orgContactReminderDays;
+
+    @Value(&quot;${cron.org-delete-after-days}&quot;)
+    private int orgDeleteAfterDays;
+
+    @Value(&quot;${cron.user-inactivity-warn-days}&quot;)
+    private int userInactivityWarnDays;
+
+    @Value(&quot;${cron.user-inactivity-delete-days}&quot;)
+    private int userInactivityDeleteDays;
+
+    public ResourceCleaner(OrganizationRepository organizationRepository,
+                           UserRepository userRepository,
+                           MailBox mailBox,
+<span class="fc" id="L51">                           Manage manage) {</span>
+<span class="fc" id="L52">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L53">        this.userRepository = userRepository;</span>
+<span class="fc" id="L54">        this.mailBox = mailBox;</span>
+<span class="fc" id="L55">        this.manage = manage;</span>
+<span class="fc" id="L56">    }</span>
+
+    @Scheduled(fixedDelayString = &quot;${cron.user-cleaner-cron}&quot;, initialDelayString = &quot;${cron.user-cleaner-cron-initial-delay}&quot;)
+    @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = &quot;${cron.user-cleaner-lock-at-least-for}&quot;,
+            lockAtMostFor = &quot;${cron.user-cleaner-lock-at-most-for}&quot;)
+    @Transactional
+    public void clean() {
+<span class="fc" id="L63">        LOG.info(&quot;CRON: Cleaning resources&quot;);</span>
+<span class="fc" id="L64">        Map&lt;String, Object&gt; results = this.doClean();</span>
+<span class="fc" id="L65">        LOG.info(&quot;CRON: Cleaning results: &quot; + results);</span>
+<span class="fc" id="L66">    }</span>
+
+    @Transactional
+    public Map&lt;String, Object&gt; doClean() {
+<span class="fc" id="L70">        Instant now = Instant.now();</span>
+
+<span class="fc" id="L72">        List&lt;String&gt; orgReminders = sendOrgContactReminders(now);</span>
+<span class="fc" id="L73">        List&lt;String&gt; orgsDeleted = deleteOrgsWithNoConnections(now);</span>
+<span class="fc" id="L74">        Map&lt;String, List&lt;String&gt;&gt; userResults = cleanInactiveUsers(now);</span>
+
+<span class="fc" id="L76">        return Map.of(</span>
+                &quot;orgReminders&quot;, orgReminders,
+                &quot;orgsDeleted&quot;, orgsDeleted,
+<span class="fc" id="L79">                &quot;usersWarned&quot;, userResults.get(&quot;usersWarned&quot;),</span>
+<span class="fc" id="L80">                &quot;usersDeleted&quot;, userResults.get(&quot;usersDeleted&quot;)</span>
+        );
+    }
+
+    private List&lt;String&gt; sendOrgContactReminders(Instant now) {
+<span class="fc" id="L85">        Instant reminderCutoff = now.minus(orgContactReminderDays, ChronoUnit.DAYS);</span>
+<span class="fc" id="L86">        List&lt;Organization&gt; orgs = organizationRepository</span>
+<span class="fc" id="L87">                .findByManageIdentifierIsNotNullAndManageIdentifierIsNot(&quot;&quot;);</span>
+
+<span class="fc" id="L89">        LinkedHashSet&lt;String&gt; reminded = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (Organization org : orgs) {</span>
+<span class="pc bpc" id="L91" title="1 of 4 branches missed.">            if (org.getLastContactReminderAt() != null &amp;&amp; org.getLastContactReminderAt().isAfter(reminderCutoff)) {</span>
+<span class="fc" id="L92">                continue; // reminder sent recently enough</span>
+            }
+            try {
+<span class="fc" id="L95">                Map&lt;String, Object&gt; provider = manage.providerByManageIdentifier(</span>
+<span class="fc" id="L96">                        EntityType.saml20_idp, org.getManageIdentifier());</span>
+<span class="pc bpc" id="L97" title="2 of 4 branches missed.">                if (provider == null || provider.isEmpty()) {</span>
+<span class="nc" id="L98">                    continue;</span>
+                }
+<span class="fc" id="L100">                manage.sanitizeProvider(provider);</span>
+<span class="fc" id="L101">                org.mergeMetaData(provider, true);</span>
+
+                @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L104">                List&lt;Contact&gt; contacts = (List&lt;Contact&gt;) org.getMetaData().get(&quot;contactPersons&quot;);</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">                if (contacts == null) {</span>
+<span class="nc" id="L106">                    continue;</span>
+                }
+<span class="fc" id="L108">                boolean sent = false;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">                for (Contact contact : contacts) {</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                    if (&quot;administrative&quot;.equalsIgnoreCase(contact.getType())) {</span>
+<span class="fc" id="L111">                        mailBox.sendOrgContactReminder(org, contact, &quot;en&quot;);</span>
+<span class="fc" id="L112">                        sent = true;</span>
+                    }
+<span class="fc" id="L114">                }</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">                if (sent) {</span>
+<span class="fc" id="L116">                    reminded.add(org.getName());</span>
+<span class="fc" id="L117">                    org.setLastContactReminderAt(now);</span>
+<span class="fc" id="L118">                    organizationRepository.save(org);</span>
+                }
+<span class="fc" id="L120">            } catch (Exception e) {</span>
+<span class="fc" id="L121">                LOG.warn(&quot;Failed to send contact reminder for org &quot; + org.getId() + &quot;: &quot; + e.getMessage());</span>
+<span class="fc" id="L122">            }</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">        return new ArrayList&lt;&gt;(reminded);</span>
+    }
+
+    private List&lt;String&gt; deleteOrgsWithNoConnections(Instant now) {
+<span class="fc" id="L128">        Instant deleteCutoff = now.minus(orgDeleteAfterDays, ChronoUnit.DAYS);</span>
+<span class="fc" id="L129">        List&lt;Organization&gt; orgs = organizationRepository</span>
+<span class="fc" id="L130">                .findByManageIdentifierIsNullAndCreatedAtBefore(deleteCutoff);</span>
+
+<span class="fc" id="L132">        List&lt;String&gt; deleted = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (Organization org : orgs) {</span>
+<span class="fc" id="L134">            boolean hasConnections = org.getApplications().stream()</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">                    .anyMatch(app -&gt; !app.getConnections().isEmpty());</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            if (!hasConnections) {</span>
+<span class="fc" id="L137">                LOG.info(&quot;CRON: Deleting org with no connections: &quot; + org.getId() + &quot; (&quot; + org.getName() + &quot;)&quot;);</span>
+<span class="fc" id="L138">                organizationRepository.deleteOrganizationById(org.getId());</span>
+<span class="fc" id="L139">                deleted.add(org.getName());</span>
+            }
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">        return deleted;</span>
+    }
+
+    private Map&lt;String, List&lt;String&gt;&gt; cleanInactiveUsers(Instant now) {
+<span class="fc" id="L146">        Instant warnCutoff = now.minus(userInactivityWarnDays, ChronoUnit.DAYS);</span>
+<span class="fc" id="L147">        Instant deleteCutoff = now.minus(userInactivityDeleteDays, ChronoUnit.DAYS);</span>
+
+<span class="fc" id="L149">        List&lt;User&gt; inactiveUsers = userRepository.findInactiveUsersWithMemberships(warnCutoff);</span>
+
+<span class="fc" id="L151">        List&lt;String&gt; warned = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L152">        List&lt;String&gt; deleted = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (User user : inactiveUsers) {</span>
+<span class="fc" id="L154">            Instant activity = user.getLastActivity();</span>
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">            boolean shouldDelete = activity == null || activity.isBefore(deleteCutoff);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (shouldDelete) {</span>
+<span class="fc" id="L157">                LOG.info(&quot;CRON: Deleting inactive user: &quot; + user.getId() + &quot; (&quot; + user.getEmail() + &quot;)&quot;);</span>
+<span class="fc" id="L158">                userRepository.deleteById(user.getId());</span>
+<span class="fc" id="L159">                deleted.add(user.getEmail());</span>
+            } else {
+                // between warn cutoff and delete cutoff — send warning (once only)
+<span class="fc bfc" id="L162" title="All 2 branches covered.">                if (user.getInactivityWarningSentAt() != null) {</span>
+<span class="fc" id="L163">                    continue; // warning already sent; don't spam</span>
+                }
+<span class="fc" id="L165">                Instant deletionDate = activity.plus(userInactivityDeleteDays, ChronoUnit.DAYS);</span>
+<span class="fc" id="L166">                mailBox.sendUserInactivityWarning(user, deletionDate);</span>
+<span class="fc" id="L167">                user.setInactivityWarningSentAt(now);</span>
+<span class="fc" id="L168">                userRepository.save(user);</span>
+<span class="fc" id="L169">                warned.add(user.getEmail());</span>
+            }
+<span class="fc" id="L171">        }</span>
+<span class="fc" id="L172">        return Map.of(&quot;usersWarned&quot;, warned, &quot;usersDeleted&quot;, deleted);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

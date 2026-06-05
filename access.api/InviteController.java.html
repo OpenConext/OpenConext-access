@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InviteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">InviteController.java</span></div><h1>InviteController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.InvalidInputException;
+import access.exception.UserRestrictionException;
+import access.invite.InviteClient;
+import access.manage.Manage;
+import access.model.Organization;
+import access.model.User;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+
+import static access.manage.Manage.INSTITUTION_GUID;
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/invite&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+public class InviteController implements UserAccessRights {
+
+<span class="fc" id="L36">    private static final Log LOG = LogFactory.getLog(InviteController.class);</span>
+
+    private final InviteClient inviteClient;
+    private final Manage manage;
+    private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+
+    public InviteController(InviteClient inviteClient,
+                            Manage manage,
+                            UserRepository userRepository,
+<span class="fc" id="L46">                            OrganizationRepository organizationRepository) {</span>
+<span class="fc" id="L47">        this.inviteClient = inviteClient;</span>
+<span class="fc" id="L48">        this.manage = manage;</span>
+<span class="fc" id="L49">        this.userRepository = userRepository;</span>
+<span class="fc" id="L50">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L51">    }</span>
+
+    /*
+     * The GUID of the organization is coin:institution_guid of the IdP in Manage. In the Invite domain, every role
+     * has an organizationGUID (the coin:institution_guid of the IdP of the institution admin).
+     *
+     * The applicationManageId is the manage identifier of the Application (e.g., SP or RP)
+     */
+    @GetMapping(&quot;/roles/{organizationGUID}/{applicationManageId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; rolesPerOrganizationInviteApplication(
+            User user,
+            @PathVariable String organizationGUID,
+            @PathVariable String applicationManageId) {
+
+<span class="fc" id="L65">        LOG.debug(&quot;/rolesPerOrganizationApplicationId&quot;);</span>
+
+<span class="fc" id="L67">        User userFromDB = reinitializeUser(user, userRepository);</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (!userFromDB.isSuperUser() &amp;&amp;</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">                (!StringUtils.hasText(userFromDB.getOrganizationGUID()) || !StringUtils.hasText(organizationGUID))) {</span>
+<span class="nc" id="L71">            LOG.warn(&quot;Not fetching invite roles as there is no institution GUID for user: &quot; + user.getEmail());</span>
+<span class="nc" id="L72">            return ResponseEntity.ok(List.of());</span>
+        }
+
+<span class="fc bfc" id="L75" title="All 4 branches covered.">        if (!userFromDB.isSuperUser() &amp;&amp; !organizationGUID.equals(userFromDB.getOrganizationGUID())) {</span>
+<span class="fc" id="L76">            throw new UserRestrictionException(</span>
+<span class="fc" id="L77">                    String.format(&quot;User %s is not authorized for organizationGUID %s&quot;,</span>
+<span class="fc" id="L78">                            user.getEmail(), organizationGUID));</span>
+        }
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        boolean noOrganizationGUID = !StringUtils.hasText(organizationGUID) ||</span>
+<span class="pc bpc" id="L81" title="1 of 4 branches missed.">                &quot;undefined&quot;.equals(organizationGUID) || &quot;null&quot;.equalsIgnoreCase(organizationGUID);</span>
+<span class="pc bpc" id="L82" title="1 of 4 branches missed.">        if (noOrganizationGUID &amp;&amp; userFromDB.isSuperUser()) {</span>
+            //We use the authenticating authority
+<span class="fc" id="L84">            Map&lt;String, Object&gt; identityProvider = manage.identityProviderByEntityID(userFromDB.getAuthenticatingAuthority());</span>
+<span class="fc" id="L85">            String idpInstitutionGUID = (String) getMetaDataFields(getData(identityProvider)).get(INSTITUTION_GUID);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (StringUtils.hasText(idpInstitutionGUID)) {</span>
+<span class="fc" id="L87">                organizationGUID = idpInstitutionGUID;</span>
+            } else {
+<span class="fc" id="L89">                LOG.warn(&quot;Not fetching invite roles as there is no institution GUID for IdP: &quot; + user.getAuthenticatingAuthority());</span>
+<span class="fc" id="L90">                return ResponseEntity.ok(List.of());</span>
+            }
+        }
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (!applicationManageId.matches(&quot;^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$&quot;)</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                &amp;&amp; !applicationManageId.matches(&quot;^\\d+$&quot;)) {</span>
+<span class="fc" id="L95">            throw new InvalidInputException(</span>
+<span class="fc" id="L96">                    String.format(&quot;ApplicationManageId %s is not a valid UUID or number&quot;, applicationManageId));</span>
+        }
+<span class="fc" id="L98">        List&lt;Map&lt;String, Object&gt;&gt; inviteRoles = this.inviteClient.rolesPerOrganizationApplicationId(organizationGUID, applicationManageId);</span>
+<span class="fc" id="L99">        return ResponseEntity.ok(inviteRoles);</span>
+    }
+
+
+    @GetMapping(&quot;/roles-summary&quot;)
+    @Transactional(readOnly = true)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; rolesSummary(User user, @RequestParam(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L106">        LOG.debug(&quot;/rolesSummary called by: &quot; + user.getEmail());</span>
+<span class="fc" id="L107">        Organization organization = organizationRepository.getReferenceById(organizationId);</span>
+
+<span class="fc" id="L109">        confirmInstitutionAdmin(user, organization);</span>
+
+<span class="fc" id="L111">        List&lt;Map&lt;String, Object&gt;&gt; inviteRoles = this.inviteClient.rolesSummary();</span>
+<span class="fc" id="L112">        return ResponseEntity.ok(inviteRoles);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

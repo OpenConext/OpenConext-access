@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomOidcUserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.security</a> &gt; <span class="el_source">CustomOidcUserService.java</span></div><h1>CustomOidcUserService.java</h1><pre class="source lang-java linenums">package access.security;
+
+import access.manage.Manage;
+import access.model.Institution;
+import access.model.User;
+import access.repository.UserRepository;
+import lombok.Getter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static access.security.InstitutionAdmin.*;
+
+@SuppressWarnings({&quot;unchecked&quot;, &quot;unsafe&quot;})
+public class CustomOidcUserService implements OAuth2UserService&lt;OidcUserRequest, OidcUser&gt; {
+
+<span class="fc" id="L29">    private static final Log LOG = LogFactory.getLog(CustomOidcUserService.class);</span>
+
+    @Getter
+    private final UserRepository userRepository;
+    private final OidcUserService delegate;
+    private final Manage manage;
+    private final String entitlement;
+    private final String organizationGuidPrefix;
+
+    public CustomOidcUserService(UserRepository userRepository,
+                                 Manage manage,
+                                 String entitlement,
+<span class="fc" id="L41">                                 String organizationGuidPrefix) {</span>
+<span class="fc" id="L42">        this.userRepository = userRepository;</span>
+<span class="fc" id="L43">        this.manage = manage;</span>
+<span class="fc" id="L44">        this.entitlement = entitlement;</span>
+<span class="fc" id="L45">        this.organizationGuidPrefix = organizationGuidPrefix;</span>
+<span class="fc" id="L46">        delegate = new OidcUserService();</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+        // Delegate to the default implementation for loading a user
+<span class="fc" id="L52">        OidcUser oidcUser = delegate.loadUser(userRequest);</span>
+<span class="fc" id="L53">        Map&lt;String, Object&gt; claims = oidcUser.getUserInfo().getClaims();</span>
+        // We need a mutable Map instead of the returned immutable Map
+<span class="fc" id="L55">        Map&lt;String, Object&gt; newClaims = new HashMap&lt;&gt;(claims);</span>
+
+<span class="fc" id="L57">        String sub = (String) newClaims.get(&quot;sub&quot;);</span>
+<span class="fc" id="L58">        Optional&lt;User&gt; optionalUser = userRepository.findBySubIgnoreCase(sub);</span>
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement) ||</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">                (optionalUser.isPresent() &amp;&amp; InstitutionAdmin.isInstitutionAdmin(optionalUser.get()));</span>
+<span class="fc" id="L62">        newClaims.put(INSTITUTION_ADMIN, institutionAdmin);</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        String organizationGuid = institutionAdmin ? InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)</span>
+<span class="fc" id="L65">                .orElse(null) : null;</span>
+<span class="fc" id="L66">        newClaims.put(ORGANIZATION_GUID, organizationGuid);</span>
+
+<span class="pc bpc" id="L68" title="1 of 4 branches missed.">        if (institutionAdmin &amp;&amp; StringUtils.hasText(organizationGuid)) {</span>
+<span class="fc" id="L69">            String authenticatingAuthority = (String) claims.get(&quot;authenticating_authority&quot;);</span>
+<span class="fc" id="L70">            List&lt;Map&lt;String, Object&gt;&gt; identityProviders = manage.identityProvidersByInstitutionalGUID(organizationGuid);</span>
+            //If there are multiple identityProviders with the same organizationGuid, we pick the one that was used to login
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            Optional&lt;Map&lt;String, Object&gt;&gt; optionalIdentityProvider = identityProviders.isEmpty() ? Optional.empty() :</span>
+<span class="fc" id="L73">                    Optional.of(identityProviders.stream()</span>
+<span class="fc" id="L74">                            .filter(idp -&gt; entityID(idp).equals(authenticatingAuthority))</span>
+<span class="fc" id="L75">                            .findFirst()</span>
+<span class="fc" id="L76">                            .orElse(identityProviders.getFirst()));</span>
+<span class="fc" id="L77">            optionalIdentityProvider.ifPresent(provider -&gt; newClaims.put(INSTITUTION, new Institution(provider)));</span>
+        }
+<span class="fc" id="L79">        optionalUser.ifPresent(user -&gt; {</span>
+<span class="fc" id="L80">            user.updateAttributes(newClaims);</span>
+
+<span class="fc" id="L82">            LOG.debug(&quot;Updating user: &quot; + newClaims);</span>
+
+<span class="fc" id="L84">            userRepository.save(user);</span>
+<span class="fc" id="L85">        });</span>
+<span class="fc" id="L86">        OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);</span>
+<span class="fc" id="L87">        oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);</span>
+<span class="fc" id="L88">        return oidcUser;</span>
+
+    }
+
+    private String entityID(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L93">        Map&lt;String, Object&gt; data = (Map&lt;String, Object&gt;) provider.get(&quot;data&quot;);</span>
+<span class="fc" id="L94">        return (String) data.get(&quot;entityid&quot;);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

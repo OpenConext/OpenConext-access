@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Organization.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">Organization.java</span></div><h1>Organization.java</h1><pre class="source lang-java linenums">package access.model;
+
+import access.manage.Contact;
+import access.manage.PathUpdateType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Type;
+import org.springframework.util.CollectionUtils;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static access.manage.ManageData.*;
+
+@Entity(name = &quot;organizations&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+public class Organization implements NameHolder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
+    @NotNull
+    private String name;
+
+    @Column(name = &quot;schac_home_organization&quot;)
+    private String schacHomeOrganization;
+
+    @Column(name = &quot;manage_identifier&quot;)
+    private String manageIdentifier;
+
+    @Column(name = &quot;manage_version&quot;)
+    private Integer manageVersion;
+
+    @Column(name = &quot;ticket_key&quot;)
+    private String ticketKey;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @Column(name = &quot;last_contact_reminder_at&quot;)
+    private Instant lastContactReminderAt;
+
+<span class="fc" id="L56">    @Transient</span>
+    private Map&lt;String, Object&gt; metaData = new HashMap&lt;&gt;();
+
+<span class="fc" id="L59">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private OrganizationStatus status = OrganizationStatus.PENDING_APPROVAL;
+
+<span class="fc" id="L64">    @OneToMany(mappedBy = &quot;organization&quot;, orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)</span>
+    private Set&lt;Application&gt; applications = new HashSet&lt;&gt;();
+
+<span class="fc" id="L67">    @OneToMany(mappedBy = &quot;organization&quot;, orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)</span>
+    private Set&lt;OrganizationMembership&gt; organizationMemberships = new HashSet&lt;&gt;();
+
+<span class="fc" id="L70">    @OneToMany(mappedBy = &quot;organization&quot;, orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)</span>
+    private Set&lt;JoinRequest&gt; joinRequests = new HashSet&lt;&gt;();
+
+<span class="fc" id="L73">    @OneToMany(mappedBy = &quot;organization&quot;, orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)</span>
+    private Set&lt;Invitation&gt; invitations = new HashSet&lt;&gt;();
+
+    @Formula(value = &quot;(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)&quot;)
+    private Long memberCount;
+
+    @Formula(value = &quot;(SELECT COUNT(*) FROM applications a WHERE a.organization_id=id)&quot;)
+    private Long applicationCount;
+
+<span class="fc" id="L82">    public Organization(String name, String schacHomeOrganization) {</span>
+<span class="fc" id="L83">        this.name = name;</span>
+<span class="fc" id="L84">        this.schacHomeOrganization = schacHomeOrganization;</span>
+<span class="fc" id="L85">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L86">    }</span>
+
+<span class="fc" id="L88">    public Organization(String name, String schacHomeOrganization, String manageIdentifier, Integer manageVersion) {</span>
+<span class="fc" id="L89">        this.name = name;</span>
+<span class="fc" id="L90">        this.schacHomeOrganization = schacHomeOrganization;</span>
+<span class="fc" id="L91">        this.manageIdentifier = manageIdentifier;</span>
+<span class="fc" id="L92">        this.manageVersion = manageVersion;</span>
+<span class="fc" id="L93">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L94">    }</span>
+
+    @JsonIgnore
+    public OrganizationMembership addOrganizationMembership(OrganizationMembership organizationMembership) {
+<span class="fc" id="L98">        this.organizationMemberships.add(organizationMembership);</span>
+<span class="fc" id="L99">        organizationMembership.setOrganization(this);</span>
+<span class="fc" id="L100">        return organizationMembership;</span>
+    }
+
+    @JsonIgnore
+    public void removeApplication(Application application) {
+        //This is required by Hibernate - children can't be dereferenced
+<span class="fc" id="L106">        Set&lt;Application&gt; newApplications = this.applications</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                .stream().filter(app -&gt; !app.getId().equals(application.getId())).collect(Collectors.toSet());</span>
+<span class="fc" id="L108">        this.applications.clear();</span>
+<span class="fc" id="L109">        this.applications.addAll(newApplications);</span>
+<span class="fc" id="L110">    }</span>
+
+    @JsonIgnore
+    public void removeJoinRequest(JoinRequest joinRequest) {
+        //This is required by Hibernate - children can't be dereferenced
+<span class="fc" id="L115">        Set&lt;JoinRequest&gt; newJoinRequests = this.joinRequests</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">                .stream().filter(jr -&gt; !jr.getId().equals(joinRequest.getId())).collect(Collectors.toSet());</span>
+<span class="fc" id="L117">        this.joinRequests.clear();</span>
+<span class="fc" id="L118">        this.joinRequests.addAll(newJoinRequests);</span>
+<span class="fc" id="L119">    }</span>
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public Map&lt;String, Object&gt; getMetaData() {
+<span class="fc" id="L123">        return metaData;</span>
+    }
+
+    @JsonIgnore
+    public boolean mergeMetaData(Map&lt;String, Object&gt; provider, boolean force) {
+        // For new Connections
+<span class="fc" id="L129">        Integer newManageVersion = (Integer) provider.get(&quot;version&quot;);</span>
+<span class="pc bpc" id="L130" title="2 of 6 branches missed.">        if (newManageVersion.equals(this.manageVersion) &amp;&amp; !force &amp;&amp; !CollectionUtils.isEmpty(this.metaData)) {</span>
+            //Two-way synchronization and optimistic locking
+<span class="nc" id="L132">            return false;</span>
+        }
+<span class="fc" id="L134">        this.manageIdentifier = (String) provider.get(&quot;id&quot;);</span>
+<span class="fc" id="L135">        this.manageVersion = newManageVersion;</span>
+<span class="fc" id="L136">        this.metaData = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L138">        Map&lt;String, Object&gt; data = getData(provider);</span>
+
+<span class="fc" id="L140">        String entityID = (String) data.get(&quot;entityid&quot;);</span>
+<span class="fc" id="L141">        this.metaData.put(&quot;entityID&quot;, entityID);</span>
+<span class="fc" id="L142">        String state = (String) data.get(&quot;state&quot;);</span>
+<span class="fc" id="L143">        this.metaData.put(&quot;state&quot;, state);</span>
+
+<span class="fc" id="L145">        this.metaData.put(&quot;allowedall&quot;, data.get(&quot;allowedall&quot;));</span>
+<span class="fc" id="L146">        List.of(&quot;allowedEntities&quot;, &quot;disableConsent&quot;, &quot;stepupEntities&quot;, &quot;mfaEntities&quot;)</span>
+<span class="fc" id="L147">                .forEach(key -&gt; {</span>
+<span class="fc" id="L148">                    this.metaData.put(key, data.getOrDefault(key, List.of()));</span>
+<span class="fc" id="L149">                });</span>
+
+<span class="fc" id="L151">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L152">        this.name = (String) metaDataFields.getOrDefault(&quot;name:en&quot;, this.name);</span>
+<span class="fc" id="L153">        this.metaData.put(&quot;name&quot;, name);</span>
+<span class="fc" id="L154">        this.metaData.put(&quot;logoUrl&quot;, metaDataFields.get(&quot;logo:0:url&quot;));</span>
+<span class="fc" id="L155">        String allKeyWords = (String) metaDataFields.getOrDefault(&quot;keywords:0:nl&quot;,&quot;&quot;) +</span>
+<span class="fc" id="L156">                metaDataFields.getOrDefault(&quot;keywords:0:en&quot;,&quot;&quot;);</span>
+<span class="fc" id="L157">        Set&lt;String&gt; keyWords = Arrays.stream(allKeyWords.split(&quot; &quot;)).map(String::trim).collect(Collectors.toSet());</span>
+<span class="fc" id="L158">        this.metaData.put(&quot;keyWords&quot;, keyWords);</span>
+<span class="fc" id="L159">        List&lt;Contact&gt; contactPersons = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L160">        IntStream.of(0, 1, 2, 3, 4, 5).forEach(index -&gt; {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (metaDataFields.containsKey(&quot;contacts:&quot; + index + &quot;:emailAddress&quot;)) {</span>
+<span class="fc" id="L162">                Contact contact = new Contact(</span>
+<span class="fc" id="L163">                        (String) metaDataFields.get(&quot;contacts:&quot; + index + &quot;:contactType&quot;),</span>
+<span class="fc" id="L164">                        (String) metaDataFields.get(&quot;contacts:&quot; + index + &quot;:givenName&quot;),</span>
+<span class="fc" id="L165">                        (String) metaDataFields.get(&quot;contacts:&quot; + index + &quot;:surName&quot;),</span>
+<span class="fc" id="L166">                        (String) metaDataFields.get(&quot;contacts:&quot; + index + &quot;:emailAddress&quot;)</span>
+                );
+<span class="fc" id="L168">                contactPersons.add(contact);</span>
+            }
+<span class="fc" id="L170">        });</span>
+<span class="fc" id="L171">        this.metaData.put(&quot;contactPersons&quot;, contactPersons);</span>
+<span class="fc" id="L172">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManageConf.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">ManageConf.java</span></div><h1>ManageConf.java</h1><pre class="source lang-java linenums">package access.manage;
+
+
+import access.model.State;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
+
+@Configuration
+<span class="fc" id="L13">public class ManageConf {</span>
+
+    @Bean
+    public Manage manage(@Value(&quot;${manage.url}&quot;) String url,
+                         @Value(&quot;${manage.user}&quot;) String user,
+                         @Value(&quot;${manage.password}&quot;) String password,
+                         @Value(&quot;${manage.enabled}&quot;) boolean enabled,
+                         @Value(&quot;${manage.staticManageDirectory}&quot;) String staticManageDirectory,
+                         ConnectionProviderConverter converter,
+                         ObjectMapper objectMapper) throws IOException {
+<span class="fc" id="L23">        ManageAuthorization authorization = new ManageAuthorization(url, user, password);</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        return enabled ? new RemoteManage(authorization, converter, objectMapper) :</span>
+<span class="fc" id="L25">                new LocalManage(converter, objectMapper, staticManageDirectory);</span>
+    }
+
+    @Bean
+    public ConnectionProviderConverter connectionProviderConverter(
+            @Value(&quot;${manage.defaultState}&quot;) State defaultState,
+            ObjectMapper objectMapper) {
+<span class="fc" id="L32">        return new ConnectionProviderConverter(objectMapper, defaultState);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

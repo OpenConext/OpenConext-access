@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InviteClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.invite</a> &gt; <span class="el_source">InviteClient.java</span></div><h1>InviteClient.java</h1><pre class="source lang-java linenums">package access.invite;
+
+import access.remote.RestTemplateFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class InviteClient {
+
+    private final boolean enabled;
+    private final String url;
+    private final RestTemplate restTemplate;
+
+    public InviteClient(@Value(&quot;${invite.enabled}&quot;) boolean enabled,
+                        @Value(&quot;${invite.url}&quot;) String url,
+                        @Value(&quot;${invite.user}&quot;) String user,
+<span class="fc" id="L21">                        @Value(&quot;${invite.password}&quot;) String password) {</span>
+<span class="fc" id="L22">        this.enabled = enabled;</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        this.url = url.endsWith(&quot;/&quot;) ? url.substring(0, url.length() - 1) : url;</span>
+<span class="fc" id="L24">        this.restTemplate = RestTemplateFactory.buildRestTemplate(user, password);</span>
+<span class="fc" id="L25">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;Map&lt;String, Object&gt;&gt; rolesPerOrganizationApplicationId(String organizationGUID,
+                                                                       String applicationManageId) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (!enabled) {</span>
+<span class="nc" id="L31">            return List.of();</span>
+        }
+<span class="fc" id="L33">        return restTemplate.getForObject(</span>
+                url + &quot;/api/external/v1/internal/invite/roles/{organizationGUID}/{applicationManageId}&quot;,
+                List.class,
+                organizationGUID,
+                applicationManageId);
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;Map&lt;String, Object&gt;&gt; rolesSummary() {
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (!enabled) {</span>
+<span class="nc" id="L43">            return List.of();</span>
+        }
+<span class="fc" id="L45">        return restTemplate.getForObject(</span>
+                url + &quot;/api/external/v1/internal/invite/roles-summary&quot;, List.class);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

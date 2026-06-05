@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MetaDataFeedParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">MetaDataFeedParser.java</span></div><h1>MetaDataFeedParser.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import lombok.SneakyThrows;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.Unmarshaller;
+import org.opensaml.core.xml.io.UnmarshallerFactory;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.springframework.core.io.Resource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.List;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L21">public class MetaDataFeedParser {</span>
+
+    static {
+        try {
+<span class="fc" id="L25">            InitializationService.initialize();</span>
+<span class="nc" id="L26">        } catch (InitializationException e) {</span>
+<span class="nc" id="L27">            throw new RuntimeException(e);</span>
+<span class="fc" id="L28">        }</span>
+<span class="fc" id="L29">    }</span>
+
+<span class="fc" id="L31">    @SneakyThrows</span>
+    public List&lt;EntityDescriptor&gt; importXML(Resource xml) {
+<span class="fc" id="L33">        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();</span>
+<span class="fc" id="L34">        factory.setNamespaceAware(true);</span>
+
+<span class="fc" id="L36">        DocumentBuilder builder = factory.newDocumentBuilder();</span>
+<span class="fc" id="L37">        Document document = builder.parse(xml.getInputStream());</span>
+<span class="fc" id="L38">        Element element = document.getDocumentElement();</span>
+
+<span class="fc" id="L40">        UnmarshallerFactory unmarshallerFactory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory();</span>
+<span class="fc" id="L41">        Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);</span>
+<span class="fc" id="L42">        XMLObject xmlObject = unmarshaller.unmarshall(element);</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (xmlObject instanceof EntityDescriptor entityDescriptor) {</span>
+<span class="fc" id="L45">            return List.of(entityDescriptor);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        } else if (xmlObject instanceof EntitiesDescriptor entityDescriptors) {</span>
+<span class="fc" id="L47">            return entityDescriptors.getEntityDescriptors();</span>
+        } else {
+<span class="fc" id="L49">            throw new IllegalStateException(&quot;Unknown metadata type: &quot; + xmlObject.getElementQName());</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

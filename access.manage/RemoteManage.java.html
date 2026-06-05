@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RemoteManage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">RemoteManage.java</span></div><h1>RemoteManage.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.Organization;
+import access.model.State;
+import access.model.User;
+import access.remote.RestTemplateFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public class RemoteManage implements Manage {
+
+<span class="fc" id="L43">    private static final Log LOG = LogFactory.getLog(RemoteManage.class);</span>
+<span class="fc" id="L44">    private static final ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt; PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference&lt;&gt;() {</span>
+    };
+
+    private final RestTemplate restTemplate;
+    private final String url;
+    private final Map&lt;String, Object&gt; queries;
+    private final ConnectionProviderConverter converter;
+
+    public RemoteManage(ManageAuthorization authorization,
+                        ConnectionProviderConverter converter,
+<span class="fc" id="L54">                        ObjectMapper objectMapper) throws IOException {</span>
+<span class="fc" id="L55">        this.url = authorization.url();</span>
+<span class="fc" id="L56">        this.converter = converter;</span>
+<span class="fc" id="L57">        this.queries = objectMapper.readValue(new ClassPathResource(&quot;/manage/query_templates.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L59">        ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);</span>
+<span class="fc" id="L60">        this.restTemplate = RestTemplateFactory.buildRestTemplate(resilientErrorHandler, authorization.user(), authorization.password(), null);</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; providers(EntityType... entityTypes) {
+<span class="fc" id="L65">        LOG.debug(&quot;Providers for entityTypes: &quot; + List.of(entityTypes));</span>
+<span class="fc" id="L66">        return Stream.of(entityTypes).map(entityType -&gt; this.getRemoteMetaData(entityType.name(), false))</span>
+<span class="fc" id="L67">                .flatMap(List::stream)</span>
+<span class="fc" id="L68">                .toList();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; providerByConnection(Connection connection) {
+<span class="fc" id="L73">        String manageIdentifier = connection.getManageIdentifier();</span>
+<span class="fc" id="L74">        EntityType protocol = connection.getProtocol();</span>
+
+<span class="fc" id="L76">        LOG.debug(&quot;providerById: &quot; + protocol);</span>
+
+<span class="fc" id="L78">        return providerDetails(protocol, manageIdentifier);</span>
+    }
+
+    private Map&lt;String, Object&gt; providerDetails(EntityType protocol, String manageIdentifier) {
+<span class="fc" id="L82">        String queryUrl = String.format(&quot;%s/manage/api/internal/metadata/%s/%s&quot;, url, protocol.name(), manageIdentifier);</span>
+<span class="fc" id="L83">        ResponseEntity&lt;Map&gt; responseEntity = restTemplate.getForEntity(queryUrl, Map.class);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {</span>
+<span class="fc" id="L85">            return sanitizeProvider(responseEntity.getBody());</span>
+        }
+<span class="fc" id="L87">        return responseEntity.getBody();</span>
+    }
+
+    public Map&lt;String, Object&gt; providerByManageIdentifier(EntityType entityType, String manageIdentifier) {
+<span class="fc" id="L91">        LOG.debug(&quot;providerById: &quot; + entityType);</span>
+
+<span class="fc" id="L93">        return providerDetails(entityType, manageIdentifier);</span>
+    }
+
+<span class="nc" id="L96">    @SneakyThrows</span>
+    @Override
+    public Map&lt;String, Object&gt; saveIdentityProvider(Organization organization) {
+<span class="fc" id="L99">        Map&lt;String, Object&gt; provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());</span>
+<span class="fc" id="L100">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L101">        Map&lt;String, Object&gt; metaDataOrganization = organization.getMetaData();</span>
+<span class="fc" id="L102">        converter.convertContactPersons(metaDataOrganization, metaDataFields);</span>
+<span class="fc" id="L103">        String keyWords = String.join(&quot; &quot;, ((List&lt;String&gt;) metaDataOrganization.getOrDefault(&quot;keyWords&quot;, List.of())));</span>
+<span class="fc" id="L104">        metaDataFields.put(&quot;keywords:0:nl&quot;, keyWords);</span>
+<span class="fc" id="L105">        metaDataFields.put(&quot;keywords:0:en&quot;, keyWords);</span>
+
+<span class="fc" id="L107">        return internalSaveProvider(provider);</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt;  saveIdentityProvider(Map&lt;String, Object&gt; identityProvider) {
+<span class="fc" id="L112">        return internalSaveProvider(identityProvider);</span>
+    }
+
+<span class="nc" id="L115">    @SneakyThrows</span>
+    @Override
+    public Map&lt;String, Object&gt; saveProvider(Connection connection) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        Map&lt;String, Object&gt; remoteProvider = StringUtils.hasText(connection.getManageIdentifier()) ?</span>
+<span class="fc" id="L119">                providerByConnection(connection) :</span>
+<span class="fc" id="L120">                baseStructureProvider();</span>
+        //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
+        //Attribute Release Policies that are not available in Access
+        //We can't update everything if the connection is production ready, only the application data
+<span class="fc" id="L124">        Map&lt;String, Object&gt; provider = converter.convert(connection, remoteProvider, connection.changeRequestRequired());</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;</span>
+<span class="fc" id="L126">        ResponseEntity&lt;Map&lt;String, Object&gt;&gt; responseEntity = restTemplate.exchange(String.format(&quot;%s/manage/api/internal/metadata&quot;, url),</span>
+                httpMethod, new HttpEntity&lt;&gt;(provider), PARAMETERIZED_TYPE_REFERENCE);
+<span class="fc" id="L128">        return checkNoChangeResponse(responseEntity, provider);</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updateProvider(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L133">        return internalSaveProvider(provider);</span>
+    }
+
+    private Map&lt;String, Object&gt; internalSaveProvider(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L137">        ResponseEntity&lt;Map&lt;String, Object&gt;&gt; responseEntity = restTemplate.exchange(String.format(&quot;%s/manage/api/internal/metadata&quot;, url),</span>
+                HttpMethod.PUT, new HttpEntity&lt;&gt;(provider), PARAMETERIZED_TYPE_REFERENCE);
+<span class="fc" id="L139">        return checkNoChangeResponse(responseEntity, provider);</span>
+    }
+
+    @Override
+    public void deleteProvider(Connection connection) {
+<span class="fc" id="L144">        String deleteUrl = String.format(&quot;%s/manage/api/internal/metadata/%s/%s&quot;,</span>
+                url,
+<span class="fc" id="L146">                connection.getProtocol(),</span>
+<span class="fc" id="L147">                connection.getManageIdentifier());</span>
+<span class="fc" id="L148">        restTemplate.exchange(URI.create(deleteUrl), HttpMethod.DELETE, null, Void.class);</span>
+<span class="fc" id="L149">    }</span>
+
+    @Override
+    public void rejectChangeRequest(ChangeRequest changeRequest) {
+<span class="fc" id="L153">        String rejectUrl = String.format(&quot;%s/manage/api/internal/change-requests/reject&quot;, url);</span>
+<span class="fc" id="L154">        restTemplate.put(URI.create(rejectUrl), changeRequest);</span>
+<span class="fc" id="L155">    }</span>
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; uniqueEntityId(EntityType entityType, String entityID) {
+<span class="fc" id="L159">        String queryUrl = String.format(&quot;%s/manage/api/internal/uniqueEntityId/%s&quot;, url, entityType.name());</span>
+<span class="fc" id="L160">        return restTemplate.postForEntity(queryUrl, Map.of(&quot;entityid&quot;, entityID), List.class).getBody();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; createChangeRequest(ChangeRequest changeRequest) {
+<span class="fc" id="L165">        return doSaveChangeRequest(changeRequest, HttpMethod.POST);</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updateChangeRequest(ChangeRequest changeRequest) {
+<span class="fc" id="L170">        return doSaveChangeRequest(changeRequest, HttpMethod.PUT);</span>
+    }
+
+    private Map&lt;String, Object&gt; doSaveChangeRequest(ChangeRequest changeRequest, HttpMethod method) {
+<span class="fc" id="L174">        String changeRequestUrl = String.format(&quot;%s/manage/api/internal/change-requests&quot;, url);</span>
+<span class="fc" id="L175">        HttpEntity&lt;ChangeRequest&gt; requestEntity = new HttpEntity&lt;&gt;(changeRequest);</span>
+<span class="fc" id="L176">        ResponseEntity&lt;Map&lt;String, Object&gt;&gt; responseEntity = restTemplate.exchange(changeRequestUrl, method, requestEntity,</span>
+                PARAMETERIZED_TYPE_REFERENCE);
+<span class="fc" id="L178">        return responseEntity.getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; getChangeRequests(Connection connection) {
+<span class="fc" id="L183">        String changeRequestUrl = String.format(&quot;%s/manage/api/internal/change-requests/%s/%s&quot;,</span>
+                url,
+<span class="fc" id="L185">                connection.getProtocol().name(),</span>
+<span class="fc" id="L186">                connection.getManageIdentifier());</span>
+<span class="fc" id="L187">        return restTemplate.getForEntity(changeRequestUrl, List.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; getChangeRequestsIdentityProvider(Map&lt;String, Object&gt; identityProvider) {
+<span class="fc" id="L192">        String changeRequestUrl = String.format(&quot;%s/manage/api/internal/change-requests/%s/%s&quot;,</span>
+                url,
+<span class="fc" id="L194">                EntityType.saml20_idp.name(),</span>
+<span class="fc" id="L195">                identityProvider.get(&quot;id&quot;));</span>
+<span class="fc" id="L196">        return restTemplate.getForEntity(changeRequestUrl, List.class).getBody();</span>
+    }
+
+    @Override
+    public String changeRequestURL(Connection connection) {
+<span class="fc" id="L201">        return String.format(&quot;%s/metadata/%s/%s/requests&quot;,</span>
+<span class="fc" id="L202">                url, connection.getProtocol().name(), connection.getManageIdentifier());</span>
+    }
+
+    @Override
+    public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
+<span class="fc" id="L207">        return String.format(&quot;%s/metadata/%s/%s/requests&quot;,</span>
+<span class="fc" id="L208">                url, entityType.name(), manageIdentifier);</span>
+    }
+
+    /**
+     * Equivalent of
+     * curl -H 'Content-Type: application/json' -u user:password  -X POST -d \
+     * '{&quot;entityid&quot;:&quot;http://mock-idp&quot;,&quot;ALL_ATTRIBUTES&quot;:true}' \
+     * 'https://manage.test.surfconext.nl/manage/api/internal/search/saml20_idp' | jq .
+     */
+    @Override
+    public Map&lt;String, Object&gt; identityProviderByEntityID(String entityID) {
+<span class="fc" id="L219">        LOG.debug(&quot;identityProvidersByEntityID for : &quot; + entityID);</span>
+<span class="fc" id="L220">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(true);</span>
+<span class="fc" id="L221">        baseQuery.put(&quot;entityid&quot;, entityID);</span>
+
+<span class="fc" id="L223">        String searchUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;,</span>
+                url,
+<span class="fc" id="L225">                EntityType.saml20_idp.name());</span>
+<span class="fc" id="L226">        List&lt;Map&lt;String, Object&gt;&gt; identityProviders = restTemplate.postForObject(</span>
+                searchUrl,
+                baseQuery, List.class);
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if (identityProviders.isEmpty()) {</span>
+<span class="nc" id="L230">            throw new NotFoundException(&quot;No identityProviders found for entityID: &quot; + entityID);</span>
+        }
+<span class="fc" id="L232">        return sanitizeProvider(identityProviders.getFirst());</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersByEntityID(List&lt;String&gt; entityIdentifiers) {
+<span class="fc" id="L237">        LOG.debug(&quot;serviceProvidersByEntityID for : &quot; + entityIdentifiers);</span>
+
+<span class="fc" id="L239">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(false);</span>
+<span class="fc" id="L240">        baseQuery.put(&quot;entityid&quot;, entityIdentifiers);</span>
+<span class="fc" id="L241">        return Stream.of(EntityType.oidc10_rp, EntityType.saml20_sp)</span>
+<span class="fc" id="L242">                .flatMap(entityType -&gt; {</span>
+<span class="fc" id="L243">                    String searchUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;,</span>
+                            url,
+<span class="fc" id="L245">                            entityType.name());</span>
+<span class="fc" id="L246">                    List&lt;Map&lt;String, Object&gt;&gt; providers = restTemplate.postForObject(</span>
+                            searchUrl,
+                            baseQuery,
+                            List.class);
+<span class="fc" id="L250">                    return providers.stream();</span>
+<span class="fc" id="L251">                }).toList();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByInstitutionalGUID(String organisationGUID) {
+<span class="fc" id="L256">        LOG.debug(&quot;identityProviderByInstitutionalGUID for : &quot; + organisationGUID);</span>
+
+<span class="fc" id="L258">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(true);</span>
+<span class="fc" id="L259">        baseQuery.put(&quot;metaDataFields.coin:institution_guid&quot;, organisationGUID);</span>
+
+<span class="fc" id="L261">        String searchUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;,</span>
+                url,
+<span class="fc" id="L263">                EntityType.saml20_idp.name());</span>
+<span class="fc" id="L264">        return restTemplate.postForObject(searchUrl, baseQuery, List.class);</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersLight() {
+<span class="fc" id="L269">        LOG.debug(&quot;identityProvidersLight&quot;);</span>
+
+<span class="fc" id="L271">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(false);</span>
+<span class="fc" id="L272">        baseQuery.put(&quot;state&quot;, &quot;prodaccepted&quot;);</span>
+<span class="fc" id="L273">        ((List) baseQuery.get(&quot;REQUESTED_ATTRIBUTES&quot;)).add(&quot;metaDataFields.coin:institution_type&quot;);</span>
+
+<span class="fc" id="L275">        String searchUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;,</span>
+                url,
+<span class="fc" id="L277">                EntityType.saml20_idp.name());</span>
+<span class="fc" id="L278">        return restTemplate.postForObject(searchUrl, baseQuery, List.class);</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersLight() {
+<span class="fc" id="L283">        LOG.debug(&quot;serviceProvidersLight&quot;);</span>
+
+<span class="fc" id="L285">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(false);</span>
+<span class="fc" id="L286">        baseQuery.put(&quot;state&quot;, &quot;prodaccepted&quot;);</span>
+<span class="fc" id="L287">        List requestedAttributes = (List) baseQuery.get(&quot;REQUESTED_ATTRIBUTES&quot;);</span>
+<span class="fc" id="L288">        requestedAttributes.add(&quot;metaDataFields.coin:interfed_source&quot;);</span>
+<span class="fc" id="L289">        requestedAttributes.add(&quot;metaDataFields.coin:ss:hidden&quot;);</span>
+<span class="fc" id="L290">        requestedAttributes.add(&quot;metaDataFields.coin:ss:idp_visible_only&quot;);</span>
+<span class="fc" id="L291">        requestedAttributes.add(&quot;metaDataFields.application_tags&quot;);</span>
+
+
+<span class="fc" id="L294">        String spUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;, url, EntityType.saml20_sp.name());</span>
+<span class="fc" id="L295">        List&lt;Map&lt;String, Object&gt;&gt; serviceProviders = restTemplate.postForObject(spUrl, baseQuery, List.class);</span>
+
+<span class="fc" id="L297">        String rpUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;, url, EntityType.oidc10_rp.name());</span>
+<span class="fc" id="L298">        List&lt;Map&lt;String, Object&gt;&gt; relyingParties = restTemplate.postForObject(rpUrl, baseQuery, List.class);</span>
+
+<span class="fc" id="L300">        serviceProviders.addAll(relyingParties);</span>
+<span class="fc" id="L301">        return serviceProviders;</span>
+    }
+
+    @Override
+    public Map&lt;String, Integer&gt; stats() {
+<span class="fc" id="L306">        LOG.debug(&quot;stats&quot;);</span>
+
+<span class="fc" id="L308">        String statsUrl = String.format(&quot;%s/manage/api/internal/stats&quot;, url);</span>
+<span class="fc" id="L309">        return restTemplate.getForEntity(statsUrl, Map.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByAllowedConnections(List&lt;Connection&gt; connections) {
+<span class="fc" id="L314">        List&lt;Map&lt;String, String&gt;&gt; body = connections.stream()</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">                .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()) &amp;&amp;</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">                        connection.getState().equals(State.prodaccepted))</span>
+<span class="fc" id="L317">                .map(connection -&gt; Map.of(</span>
+<span class="fc" id="L318">                        &quot;id&quot;, connection.getManageIdentifier(),</span>
+<span class="fc" id="L319">                        &quot;type&quot;, connection.getProtocol().name()))</span>
+<span class="fc" id="L320">                .toList();</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        if (body.isEmpty()) {</span>
+            //No use to actually go to Manage
+<span class="fc" id="L323">            return List.of();</span>
+        }
+<span class="fc" id="L325">        String deleteConsequencesUrl = String.format(&quot;%s/manage/api/internal/delete-consequences&quot;, url);</span>
+<span class="fc" id="L326">        return restTemplate.postForEntity(URI.create(deleteConsequencesUrl), body, List.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProvider(String identityProviderEntityId,
+                                                               String serviceProviderEntityId) {
+        // Build query using immutable Maps to ensure proper JSON serialization and prevent injection
+<span class="fc" id="L333">        Map&lt;String, Object&gt; identityProviderOrCondition = Map.of(</span>
+                &quot;data.identityProviderIds.name&quot;, identityProviderEntityId
+        );
+<span class="fc" id="L336">        Map&lt;String, Object&gt; identityProviderExistsFalseCondition = Map.of(</span>
+<span class="fc" id="L337">                &quot;data.identityProviderIds&quot;, Map.of(&quot;$exists&quot;, false)</span>
+        );
+<span class="fc" id="L339">        Map&lt;String, Object&gt; identityProviderSizeZeroCondition = Map.of(</span>
+<span class="fc" id="L340">                &quot;data.identityProviderIds&quot;, Map.of(&quot;$size&quot;, 0)</span>
+        );
+<span class="fc" id="L342">        Map&lt;String, Object&gt; query = Map.of(</span>
+                &quot;data.serviceProviderIds.name&quot;, serviceProviderEntityId,
+<span class="fc" id="L344">                &quot;$or&quot;, List.of(</span>
+                        identityProviderSizeZeroCondition,
+                        identityProviderExistsFalseCondition,
+                        identityProviderOrCondition
+                )
+        );
+<span class="fc" id="L350">        String policyUrl = String.format(&quot;%s/manage/api/internal/rawSearch/%s&quot;, url, EntityType.policy);</span>
+<span class="fc" id="L351">        return restTemplate.postForEntity(policyUrl, query, List.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProviders(List&lt;String&gt; serviceProviderEntityIds) {
+<span class="pc bpc" id="L356" title="1 of 2 branches missed.">        if (serviceProviderEntityIds.isEmpty()) {</span>
+<span class="nc" id="L357">            return List.of();</span>
+        }
+<span class="fc" id="L359">        Map&lt;String, Object&gt; query = Map.of(</span>
+<span class="fc" id="L360">                &quot;data.serviceProviderIds.name&quot;, Map.of(&quot;$in&quot;, serviceProviderEntityIds)</span>
+        );
+<span class="fc" id="L362">        String policyUrl = String.format(&quot;%s/manage/api/internal/rawSearch/%s&quot;, url, EntityType.policy);</span>
+<span class="fc" id="L363">        return restTemplate.postForEntity(policyUrl, query, List.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; policiesByIdentityProvider(String identityProviderEntityId) {
+<span class="fc" id="L368">        Map&lt;String, Object&gt; query = Map.of(</span>
+                &quot;data.identityProviderIds.name&quot;, identityProviderEntityId
+        );
+<span class="fc" id="L371">        String policyUrl = String.format(&quot;%s/manage/api/internal/rawSearch/%s&quot;, url, EntityType.policy);</span>
+<span class="fc" id="L372">        return restTemplate.postForEntity(policyUrl, query, List.class).getBody();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; createPolicy(Map&lt;String, Object&gt; policy) {
+<span class="fc" id="L377">        String policyUrl = String.format(&quot;%s/manage/api/internal/metadata&quot;, url);</span>
+<span class="fc" id="L378">        return restTemplate.postForEntity(policyUrl, policy, Map.class).getBody();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; updatePolicy(Map&lt;String, Object&gt; policy) {
+<span class="fc" id="L383">        String policyUrl = String.format(&quot;%s/manage/api/internal/metadata&quot;, url);</span>
+<span class="fc" id="L384">        ResponseEntity&lt;Map&lt;String, Object&gt;&gt; responseEntity = restTemplate.exchange(policyUrl, HttpMethod.PUT, new HttpEntity&lt;&gt;(policy), PARAMETERIZED_TYPE_REFERENCE);</span>
+<span class="fc" id="L385">        return checkNoChangeResponse(responseEntity, policy);</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; uniquePolicyName(Map&lt;String, Object&gt; properties) {
+<span class="fc" id="L390">        String policyUrl = String.format(&quot;%s/manage/api/internal/uniquePolicyName/policy&quot;, url);</span>
+<span class="fc" id="L391">        return restTemplate.exchange(policyUrl, HttpMethod.POST, new HttpEntity&lt;&gt;(properties), List.class).getBody();</span>
+    }
+
+    @Override
+    public List&lt;Map&lt;String, Object&gt;&gt; allowedAttributes() {
+<span class="fc" id="L396">        String attributesUrl = String.format(&quot;%s/manage/api/internal/protected/allowed-attributes&quot;, url);</span>
+<span class="fc" id="L397">        return restTemplate.getForObject(attributesUrl, List.class);</span>
+    }
+
+    @Override
+    public void deletePolicy(Map&lt;String, Object&gt; policy) {
+<span class="fc" id="L402">        String policyUrl = String.format(&quot;%s/manage/api/internal/metadata/%s/%s&quot;,</span>
+<span class="fc" id="L403">                url, EntityType.policy.name(), policy.get(&quot;id&quot;));</span>
+<span class="fc" id="L404">        restTemplate.delete(policyUrl);</span>
+<span class="fc" id="L405">    }</span>
+
+    @Override
+    public Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; autoCompleteEntities(EntityType type, String query) {
+<span class="fc" id="L409">        String autocompleteUrl = String.format(&quot;%s/manage/api/internal/autocomplete/%s?query=%s&quot;,</span>
+                url,
+<span class="fc" id="L411">                type.name(),</span>
+<span class="fc" id="L412">                URLEncoder.encode(query, Charset.defaultCharset()));</span>
+<span class="fc" id="L413">        return restTemplate.getForObject(autocompleteUrl, Map.class);</span>
+    }
+
+    @Override
+    public void connectWithoutInteraction(Map&lt;String, Object&gt; identityProvider, Map&lt;String, Object&gt; serviceProvider, User user) {
+<span class="fc" id="L418">        String connectUrl = String.format(&quot;%s/manage/api/internal/connectWithoutInteraction&quot;, url);</span>
+<span class="fc" id="L419">        Map&lt;String, String&gt; bodyMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L420">        bodyMap.put(&quot;idpId&quot;, (String) getData(identityProvider).get(&quot;entityid&quot;));</span>
+<span class="fc" id="L421">        bodyMap.put(&quot;spId&quot;, (String) getData(serviceProvider).get(&quot;entityid&quot;));</span>
+<span class="fc" id="L422">        bodyMap.put(&quot;spType&quot;, (String) serviceProvider.get(&quot;type&quot;));</span>
+<span class="fc" id="L423">        bodyMap.put(&quot;user&quot;, user.getName());</span>
+<span class="fc" id="L424">        bodyMap.put(&quot;userUrn&quot;, user.getSub());</span>
+        //Fire and forget. An exception will be thrown by the restTemplate if the return is not 20X
+<span class="fc" id="L426">        restTemplate.put(connectUrl, bodyMap);</span>
+<span class="fc" id="L427">    }</span>
+
+    private List&lt;Map&lt;String, Object&gt;&gt; getRemoteMetaData(String type, boolean allAttributes) {
+<span class="fc" id="L430">        Map&lt;String, Object&gt; baseQuery = getBaseQuery(allAttributes);</span>
+<span class="fc" id="L431">        String searchUrl = String.format(&quot;%s/manage/api/internal/search/%s&quot;, url, type);</span>
+<span class="fc" id="L432">        return restTemplate.postForObject(searchUrl, baseQuery, List.class);</span>
+    }
+
+    private Map&lt;String, Object&gt; getBaseQuery(boolean allAttributes) {
+<span class="fc" id="L436">        HashMap&lt;String, Object&gt; baseQuery = new HashMap&lt;&gt;((Map&lt;String, Object&gt;) this.queries.get(&quot;base_query&quot;));</span>
+<span class="fc bfc" id="L437" title="All 2 branches covered.">        if (allAttributes) {</span>
+<span class="fc" id="L438">            baseQuery.remove(&quot;REQUESTED_ATTRIBUTES&quot;);</span>
+<span class="fc" id="L439">            baseQuery.put(&quot;ALL_ATTRIBUTES&quot;, true);</span>
+        } else {
+<span class="fc" id="L441">            baseQuery.put(&quot;REQUESTED_ATTRIBUTES&quot;, baseQuery.get(&quot;REQUESTED_ATTRIBUTES&quot;));</span>
+        }
+<span class="fc" id="L443">        return baseQuery;</span>
+    }
+
+    private Map&lt;String, Object&gt; checkNoChangeResponse(ResponseEntity&lt;Map&lt;String, Object&gt;&gt; responseEntity, Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L447">        Map&lt;String, Object&gt; body = responseEntity.getBody();</span>
+<span class="pc bpc" id="L448" title="2 of 4 branches missed.">        if (body == null || ResilientErrorHandler.ignoreError(body)) {</span>
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
+<span class="nc" id="L450">            return provider;</span>
+        }
+<span class="fc" id="L452">        return body;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

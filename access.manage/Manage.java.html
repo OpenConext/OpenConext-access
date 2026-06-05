@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Manage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">Manage.java</span></div><h1>Manage.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.model.*;
+
+import java.util.*;
+
+public interface Manage {
+
+    String INSTITUTION_GUID = &quot;coin:institution_guid&quot;;
+
+    List&lt;Map&lt;String, Object&gt;&gt; providers(EntityType... entityTypes);
+
+    Map&lt;String, Object&gt; providerByConnection(Connection connection);
+
+    Map&lt;String, Object&gt; providerByManageIdentifier(EntityType entityType, String manageIdentifier);
+
+    Map&lt;String, Object&gt; saveIdentityProvider(Organization organization);
+
+    Map&lt;String, Object&gt; saveIdentityProvider(Map&lt;String, Object&gt; identityProvider);
+
+    Map&lt;String, Object&gt; saveProvider(Connection connection);
+
+    Map&lt;String, Object&gt; updateProvider(Map&lt;String, Object&gt; provider);
+
+    void deleteProvider(Connection connection);
+
+    Map&lt;String, Object&gt; identityProviderByEntityID(String entityID);
+
+    List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersByEntityID(List&lt;String&gt; entityIdentifiers);
+
+    List&lt;Map&lt;String, Object&gt;&gt; uniqueEntityId(EntityType entityType, String entityID);
+
+    Map&lt;String, Object&gt; createChangeRequest(ChangeRequest changeRequest);
+
+    void rejectChangeRequest(ChangeRequest changeRequest);
+
+    Map&lt;String, Object&gt; updateChangeRequest(ChangeRequest changeRequest);
+
+    List&lt;Map&lt;String, Object&gt;&gt; getChangeRequests(Connection connection);
+
+    List&lt;Map&lt;String, Object&gt;&gt; getChangeRequestsIdentityProvider(Map&lt;String, Object&gt; identityProvider);
+
+    String changeRequestURL(Connection connection);
+
+    String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier);
+
+    List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByInstitutionalGUID(String organisationGUID);
+
+    Map&lt;String, Integer&gt; stats();
+
+    List&lt;Map&lt;String, Object&gt;&gt; identityProvidersLight();
+
+    List&lt;Map&lt;String, Object&gt;&gt; serviceProvidersLight();
+
+    List&lt;Map&lt;String, Object&gt;&gt; identityProvidersByAllowedConnections(List&lt;Connection&gt; connections);
+
+    List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProvider(String identityProviderEntityId,
+                                                        String serviceProviderEntityId);
+
+    List&lt;Map&lt;String, Object&gt;&gt; policiesByServiceProviders(List&lt;String&gt; serviceProviderEntityIds);
+
+    List&lt;Map&lt;String, Object&gt;&gt; policiesByIdentityProvider(String identityProviderEntityId);
+
+    Map&lt;String, Object&gt; createPolicy(Map&lt;String, Object&gt; policy);
+
+    Map&lt;String, Object&gt; updatePolicy(Map&lt;String, Object&gt; policy);
+
+    List&lt;Map&lt;String, Object&gt;&gt; uniquePolicyName(Map&lt;String, Object&gt; properties);
+
+    Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; autoCompleteEntities(EntityType type, String query);
+
+    List&lt;Map&lt;String, Object&gt;&gt; allowedAttributes();
+
+    void deletePolicy(Map&lt;String, Object&gt; policy);
+
+    void connectWithoutInteraction(Map&lt;String, Object&gt; identityProvider, Map&lt;String, Object&gt; serviceProvider, User currentUser);
+
+    default Map&lt;String, Object&gt; sanitizeProvider(Map&lt;String, Object&gt; provider) {
+        //Different Manage API calls return 'id' or '_id'
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (provider.containsKey(&quot;id&quot;)) {</span>
+<span class="fc" id="L81">            provider.put(&quot;_id&quot;, provider.get(&quot;id&quot;));</span>
+        } else {
+<span class="fc" id="L83">            provider.put(&quot;id&quot;, provider.get(&quot;_id&quot;));</span>
+        }
+<span class="fc" id="L85">        return provider;</span>
+    }
+
+    default Map&lt;String, Object&gt; baseStructureProvider() {
+        //Base structure must be mutable, so using Map.of(...) is a no-go
+<span class="fc" id="L90">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L91">        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L92">        Map&lt;String, Object&gt; metaDataFields = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L93">        data.put(&quot;metaDataFields&quot;, metaDataFields);</span>
+<span class="fc" id="L94">        data.put(&quot;allowedEntities&quot;, new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L96">        Map&lt;String, Object&gt; arp = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L97">        arp.put(&quot;attributes&quot;, new HashMap&lt;&gt;());</span>
+<span class="fc" id="L98">        arp.put(&quot;enabled&quot;, true);</span>
+<span class="fc" id="L99">        data.put(&quot;arp&quot;, arp);</span>
+<span class="fc" id="L100">        data.put(&quot;allowedEntities&quot;, new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L102">        result.put(&quot;data&quot;, data);</span>
+<span class="fc" id="L103">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.Config;
+import access.exception.NotAllowedException;
+import access.exception.NotFoundException;
+import access.mail.MailBox;
+import access.manage.Manage;
+import access.model.Authority;
+import access.model.EntityType;
+import access.model.Institution;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.OrganizationStatus;
+import access.model.User;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import access.security.InstitutionAdmin;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/users&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@EnableConfigurationProperties(Config.class)
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+@SuppressWarnings(&quot;unchecked&quot;)
+public class UserController implements UserAccessRights {
+
+<span class="fc" id="L68">    private static final Log LOG = LogFactory.getLog(UserController.class);</span>
+
+    private final Config config;
+    private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+    private final Manage manage;
+    private final MailBox mailBox;
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    public UserController(Config config,
+                          UserRepository userRepository,
+<span class="fc" id="L80">                          OrganizationRepository organizationRepository, Manage manage, MailBox mailBox, ObjectMapper objectMapper) {</span>
+<span class="fc" id="L81">        this.config = config;</span>
+<span class="fc" id="L82">        this.userRepository = userRepository;</span>
+<span class="fc" id="L83">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L84">        this.manage = manage;</span>
+<span class="fc" id="L85">        this.mailBox = mailBox;</span>
+<span class="fc" id="L86">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L87">    }</span>
+
+    @GetMapping(&quot;/config&quot;)
+    public ResponseEntity&lt;Config&gt; config(User user) {
+<span class="fc" id="L91">        LOG.debug(&quot;/config&quot;);</span>
+<span class="fc" id="L92">        Config result = new Config(this.config);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        result</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                .withAuthenticated(user != null &amp;&amp; user.getId() != null)</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                .withName(user != null ? user.getName() : null)</span>
+<span class="fc" id="L96">                .withStats(manage.stats());</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (user != null) {</span>
+<span class="fc" id="L98">            verifyMissingAttributes(user, result);</span>
+        }
+<span class="fc" id="L100">        return ResponseEntity.ok(result);</span>
+    }
+
+    @GetMapping(&quot;/login&quot;)
+    public View login() {
+<span class="fc" id="L105">        LOG.debug(&quot;/login&quot;);</span>
+<span class="fc" id="L106">        return new RedirectView(config.getClientUrl(), false);</span>
+    }
+
+    @GetMapping(&quot;/me&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; me(@Parameter(hidden = true) User user, Authentication authentication) {
+<span class="fc" id="L111">        LOG.debug(String.format(&quot;/me for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+
+<span class="fc" id="L113">        User userFromDB = userRepository.findDetailsById(user.getId())</span>
+<span class="pc" id="L114">                .orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+
+<span class="fc" id="L116">        String schacHomeOrganization = userFromDB.getSchacHomeOrganization();</span>
+<span class="fc" id="L117">        boolean isExternalUserFromSchacHome = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());</span>
+<span class="fc" id="L118">        userFromDB.setExternalUser(isExternalUserFromSchacHome);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (!isExternalUserFromSchacHome) {</span>
+<span class="fc" id="L120">            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();</span>
+<span class="fc" id="L121">            Map&lt;String, Object&gt; claims = oidcUser.getUserInfo().getClaims();</span>
+<span class="fc" id="L122">            String authenticatingAuthority = (String) claims.get(&quot;authenticating_authority&quot;);</span>
+<span class="fc" id="L123">            Map&lt;String, Object&gt; identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);</span>
+<span class="fc" id="L124">            String manageIdentifier = (String) identityProvider.get(&quot;_id&quot;);</span>
+<span class="fc" id="L125">            String obtainedAcr = (String) claims.getOrDefault(&quot;acr&quot;, &quot;urn:oasis:names:tc:SAML:2.0:ac:classes:Password&quot;);</span>
+<span class="fc" id="L126">            userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));</span>
+
+            // Provision the user into the organization, this is only done once for a user.
+<span class="fc" id="L129">            if (userFromDB.getOrganizationMemberships().stream()</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                    .noneMatch(organizationMembership -&gt; Objects.equals(organizationMembership.getOrganization()</span>
+<span class="fc" id="L131">                            .getManageIdentifier(), manageIdentifier))) {</span>
+<span class="fc" id="L132">                Optional&lt;Organization&gt; organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);</span>
+<span class="fc" id="L133">                Institution institution = (Institution) claims.getOrDefault(InstitutionAdmin.INSTITUTION, null);</span>
+<span class="fc" id="L134">                userFromDB.setInstitution(institution);</span>
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">                Authority authority = userFromDB.isInstitutionAdmin() &amp;&amp; institution != null ? Authority.ADMIN : Authority.MEMBER;</span>
+<span class="fc" id="L136">                organizationOptional.ifPresentOrElse(</span>
+                        organization -&gt; {
+<span class="fc" id="L138">                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));</span>
+<span class="fc" id="L139">                        }, () -&gt; {</span>
+                            // If no organization is created yet, create it on the fly. This is only done once per organization
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                            Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;</span>
+<span class="fc" id="L142">                            String organizationName = String.format(&quot;%s (%s)&quot;, institutionForOrg.getName(), institutionForOrg.getOrganizationName());</span>
+<span class="fc" id="L143">                            Integer manageVersion = (Integer) identityProvider.get(&quot;version&quot;);</span>
+<span class="fc" id="L144">                            Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);</span>
+                            //Organizations created based on the IdP's in Manage are approved automatically
+<span class="fc" id="L146">                            organization.setStatus(OrganizationStatus.APPROVED);</span>
+<span class="fc" id="L147">                            organizationRepository.save(organization);</span>
+<span class="fc" id="L148">                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));</span>
+<span class="fc" id="L149">                        }</span>
+                );
+            }
+        }
+<span class="fc" id="L153">        userRepository.save(userFromDB);</span>
+<span class="fc" id="L154">        Map&lt;String, Object&gt; userMap = objectMapper.convertValue(userFromDB, new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L156">        List&lt;Map&lt;String, Object&gt;&gt; organizationMemberships = (List&lt;Map&lt;String, Object&gt;&gt;) userMap.getOrDefault(&quot;organizationMemberships&quot;, List.of());</span>
+<span class="fc" id="L157">        organizationMemberships.forEach(organizationMembership -&gt; {</span>
+<span class="fc" id="L158">            Map&lt;String, Object&gt; organization = (Map&lt;String, Object&gt;) organizationMembership.get(&quot;organization&quot;);</span>
+<span class="fc" id="L159">            String manageIdentifier = (String) organization.get(&quot;manageIdentifier&quot;);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">            if (StringUtils.hasText(manageIdentifier)) {</span>
+<span class="fc" id="L161">                Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);</span>
+<span class="fc" id="L162">                organization.put(&quot;identityProvider&quot;, identityProvider);</span>
+<span class="fc" id="L163">                List&lt;Map&lt;String, Object&gt;&gt; changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);</span>
+<span class="fc" id="L164">                organization.put(&quot;changeRequests&quot;, changeRequests);</span>
+            }
+<span class="fc" id="L166">        });</span>
+
+<span class="fc" id="L168">        return ResponseEntity.ok(userMap);</span>
+    }
+
+    @GetMapping(&quot;/other/{id}&quot;)
+    public ResponseEntity&lt;User&gt; details(@PathVariable(&quot;id&quot;) Long id, @Parameter(hidden = true) User user) {
+<span class="fc" id="L173">        LOG.debug(String.format(&quot;/other/%s for user %s&quot;, id, user.getEduPersonPrincipalName()));</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (!user.isSuperUser()) {</span>
+<span class="fc" id="L176">            throw new NotAllowedException(&quot;Not allowed endpoint by &quot; + user.getEmail());</span>
+        }
+<span class="pc" id="L178">        User other = userRepository.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc" id="L179">        return ResponseEntity.ok(other);</span>
+    }
+
+    @DeleteMapping(&quot;/{userId}&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; deleteMe(@Parameter(hidden = true) User user, @PathVariable Long userId) {
+<span class="fc" id="L184">        LOG.debug(String.format(&quot;/delete for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+
+<span class="fc" id="L186">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L188">        User userFromDB = userRepository.findDetailsById(userId)</span>
+<span class="pc" id="L189">                .orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc" id="L190">        userRepository.delete(userFromDB);</span>
+
+<span class="fc" id="L192">        return Results.deleteResult();</span>
+    }
+
+    @GetMapping(&quot;/logout&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; logout(HttpServletRequest request) {
+<span class="fc" id="L197">        LOG.debug(&quot;/logout&quot;);</span>
+<span class="fc" id="L198">        SecurityContextHolder.clearContext();</span>
+<span class="fc" id="L199">        HttpSession session = request.getSession(false);</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (session != null) {</span>
+<span class="fc" id="L201">            session.invalidate();</span>
+        }
+<span class="fc" id="L203">        return Results.okResult();</span>
+    }
+
+    @PostMapping(&quot;/feedback&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; feedback(User user, @RequestBody Map&lt;String, String&gt; body) {
+<span class="fc" id="L208">        LOG.debug(&quot;/feedback from &quot; + user.getEmail());</span>
+<span class="fc" id="L209">        String message = body.get(&quot;message&quot;);</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        if (StringUtils.hasText(message)) {</span>
+<span class="fc" id="L211">            mailBox.sendFeedbackMail(user, message);</span>
+        }
+<span class="fc" id="L213">        return Results.okResult();</span>
+    }
+
+    @GetMapping(&quot;/search&quot;)
+    public ResponseEntity&lt;Page&lt;Map&lt;String, Object&gt;&gt;&gt; search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = &quot;query&quot;, required = false, defaultValue = &quot;&quot;) String query,
+                                                            @RequestParam(value = &quot;pageNumber&quot;, required = false, defaultValue = &quot;0&quot;) int pageNumber,
+                                                            @RequestParam(value = &quot;pageSize&quot;, required = false, defaultValue = &quot;10&quot;) int pageSize,
+                                                            @RequestParam(value = &quot;sort&quot;, required = false, defaultValue = &quot;name&quot;) String sort,
+                                                            @RequestParam(value = &quot;sortDirection&quot;, required = false, defaultValue = &quot;ASC&quot;) String sortDirection) {
+<span class="fc" id="L223">        LOG.debug(String.format(&quot;/search for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+
+<span class="fc" id="L225">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L227">        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        Page&lt;Map&lt;String, Object&gt;&gt; usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :</span>
+<span class="pc" id="L229">                userRepository.searchByPage(pageable);</span>
+<span class="fc" id="L230">        return ResponseEntity.ok(usersPage);</span>
+    }
+
+    private void verifyMissingAttributes(User user, Config result) {
+<span class="fc" id="L234">        List&lt;String&gt; missingAttributes = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        if (!StringUtils.hasText(user.getEmail())) {</span>
+<span class="fc" id="L236">            missingAttributes.add(&quot;email&quot;);</span>
+        }
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        if (!StringUtils.hasText(user.getSchacHomeOrganization())) {</span>
+<span class="fc" id="L239">            missingAttributes.add(&quot;schacHomeOrganization&quot;);</span>
+        }
+<span class="fc bfc" id="L241" title="All 2 branches covered.">        if (!StringUtils.hasText(user.getFamilyName())) {</span>
+<span class="fc" id="L242">            missingAttributes.add(&quot;familyName&quot;);</span>
+        }
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        if (!StringUtils.hasText(user.getGivenName())) {</span>
+<span class="fc" id="L245">            missingAttributes.add(&quot;givenName&quot;);</span>
+        }
+<span class="fc bfc" id="L247" title="All 2 branches covered.">        if (!missingAttributes.isEmpty()) {</span>
+<span class="fc" id="L248">            result.withMissingAttributes(missingAttributes);</span>
+        }
+<span class="fc" id="L250">    }</span>
+
+    private int convertLoaLevel(String acr) {
+<span class="pc bpc" id="L253" title="2 of 4 branches missed.">        if (!StringUtils.hasText(acr) || acr.trim().toLowerCase().endsWith(&quot;password&quot;)) {</span>
+<span class="fc" id="L254">            return 1;</span>
+        }
+        try {
+<span class="nc" id="L257">            int loa = Integer.parseInt(acr.substring(acr.length() - 1));</span>
+            //Corner case for 1.5
+<span class="nc bnc" id="L259" title="All 2 branches missed.">            return loa == 5 ? 1 : loa;</span>
+<span class="nc" id="L260">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L261">            return 1;</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

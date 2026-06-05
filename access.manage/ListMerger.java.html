@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListMerger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">ListMerger.java</span></div><h1>ListMerger.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+public class ListMerger {
+
+    private ListMerger() {
+    }
+
+    public static List&lt;String&gt; threeWayMerge(
+            List&lt;String&gt; base,   // list1: original
+            List&lt;String&gt; left,   // list2: your changes
+            List&lt;String&gt; right   // list3: their changes
+    ) {
+        // Compute diffs against the base
+<span class="fc" id="L24">        Map&lt;Integer, String&gt; leftChanges = diff(base, left);</span>
+<span class="fc" id="L25">        Map&lt;Integer, String&gt; rightChanges = diff(base, right);</span>
+
+        // Start from the longer of left/right to preserve additions
+<span class="fc" id="L28">        int maxSize = Math.max(left.size(), right.size());</span>
+<span class="fc" id="L29">        List&lt;String&gt; result = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        for (int i = 0; i &lt; maxSize; i++) {</span>
+<span class="fc" id="L32">            boolean leftChanged = leftChanges.containsKey(i);</span>
+<span class="fc" id="L33">            boolean rightChanged = rightChanges.containsKey(i);</span>
+
+<span class="fc bfc" id="L35" title="All 4 branches covered.">            if (leftChanged &amp;&amp; rightChanged) {</span>
+<span class="fc" id="L36">                String leftVal = leftChanges.get(i);</span>
+<span class="fc" id="L37">                String rightVal = rightChanges.get(i);</span>
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">                if (Objects.equals(leftVal, rightVal)) {</span>
+                    // Both made the same change — no real conflict
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                    if (leftVal != null) result.add(leftVal);</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">                } else if (i &gt;= base.size()) {</span>
+                    // ✅ CHANGED: both added different items past the end of base — keep both
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">                    if (leftVal != null) result.add(leftVal);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                    if (rightVal != null) result.add(rightVal);</span>
+                } else {
+                    // True conflict on an existing line: prefer left
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                    if (leftVal != null) {</span>
+<span class="nc" id="L49">                        result.add(leftVal);</span>
+                    }
+                }
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            } else if (leftChanged) {</span>
+                // Only left modified this index
+<span class="fc" id="L54">                String val = leftChanges.get(i);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                if (val != null) result.add(val);   // null = deleted</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            } else if (rightChanged) {</span>
+                // Only right modified this index
+<span class="fc" id="L59">                String val = rightChanges.get(i);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">                if (val != null) result.add(val);   // null = deleted</span>
+
+<span class="fc" id="L62">            } else {</span>
+                // Neither side touched this index — take from base
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                if (i &lt; base.size()) result.add(base.get(i));</span>
+            }
+        }
+
+<span class="fc" id="L68">        return new LinkedHashSet&lt;&gt;(result).stream().toList();</span>
+    }
+
+    /**
+     * Produces a map of { index → newValue } representing what changed.
+     * A null value means &quot;deleted at this index&quot;.
+     * Indices beyond base.size() are pure additions.
+     */
+    private static Map&lt;Integer, String&gt; diff(List&lt;String&gt; base, List&lt;String&gt; updated) {
+<span class="fc" id="L77">        Map&lt;Integer, String&gt; changes = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L78">        int maxLen = Math.max(base.size(), updated.size());</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; maxLen; i++) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            String baseVal = i &lt; base.size() ? base.get(i) : null;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">            String updatedVal = i &lt; updated.size() ? updated.get(i) : null;</span>
+
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (!Objects.equals(baseVal, updatedVal)) {</span>
+<span class="fc" id="L85">                changes.put(i, updatedVal); // null = deletion</span>
+            }
+        }
+<span class="fc" id="L88">        return changes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

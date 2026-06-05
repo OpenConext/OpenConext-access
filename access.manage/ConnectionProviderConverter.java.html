@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConnectionProviderConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">ConnectionProviderConverter.java</span></div><h1>ConnectionProviderConverter.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.model.Application;
+import access.model.ConnectOptions;
+import access.model.Connection;
+import access.model.EntityType;
+import access.model.State;
+import access.model.Visibility;
+import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StringUtils;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static access.api.ConnectionController.SECRET_LENGTH;
+import static access.manage.ManageData.*;
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public class ConnectionProviderConverter {
+
+    private final List&lt;Map&lt;String, Object&gt;&gt; privacyInfo;
+    private final List&lt;String&gt; excludedARPAttributes;
+<span class="fc" id="L38">    private final List&lt;String&gt; excludedAttributes = List.of(&quot;revisionnote&quot;);</span>
+<span class="fc" id="L39">    private final List&lt;String&gt; excludedMergeAttributesPaths = List.of(&quot;arp.attributes&quot;);</span>
+
+    private final State defaultState;
+    private final ObjectMapper objectMapper;
+
+<span class="pc" id="L44">    @SneakyThrows</span>
+<span class="fc" id="L45">    public ConnectionProviderConverter(ObjectMapper objectMapper, State defaultState) {</span>
+<span class="fc" id="L46">        this.defaultState = defaultState;</span>
+<span class="fc" id="L47">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L48">        InputStream inputStream = new ClassPathResource(&quot;/metadata/Privacy.json&quot;).getInputStream();</span>
+<span class="fc" id="L49">        this.privacyInfo = objectMapper.readValue(inputStream, new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L51">        Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; arpInfo = objectMapper.readValue(new ClassPathResource(&quot;/metadata/ARP.json&quot;).getInputStream(), new TypeReference&lt;&gt;() {</span>
+        });
+<span class="fc" id="L53">        Set&lt;String&gt; profileAttributes = arpInfo.get(&quot;profiles&quot;).stream()</span>
+<span class="fc" id="L54">                .map(m -&gt; {</span>
+<span class="fc" id="L55">                    List&lt;String&gt; attributes = (List) m.get(&quot;attributes&quot;);</span>
+<span class="fc" id="L56">                    List&lt;String&gt; optionalAttributes = (List) m.get(&quot;optionalAttributes&quot;);</span>
+<span class="fc" id="L57">                    attributes.addAll(optionalAttributes);</span>
+<span class="fc" id="L58">                    return attributes;</span>
+                })
+<span class="fc" id="L60">                .flatMap(List::stream)</span>
+<span class="fc" id="L61">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L62">        excludedARPAttributes = arpInfo.get(&quot;attributes&quot;).stream()</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                .filter(m -&gt; !profileAttributes.contains((String) m.get(&quot;name&quot;)))</span>
+<span class="fc" id="L64">                .map(m -&gt; (String) m.get(&quot;urn&quot;))</span>
+<span class="fc" id="L65">                .toList();</span>
+<span class="fc" id="L66">    }</span>
+
+    public Map&lt;String, Object&gt; convert(Connection connection,
+                                       Map&lt;String, Object&gt; remoteProvider,
+                                       boolean changeRequestRequired) {
+
+<span class="fc" id="L72">        Application application = connection.getApplication();</span>
+        //We need data both from the connection and the application
+<span class="fc" id="L74">        Map&lt;String, Object&gt; connectionMetaData = connection.getMetaData();</span>
+<span class="fc" id="L75">        Map&lt;String, Object&gt; applicationMetaData = application.getMetaData();</span>
+<span class="fc" id="L76">        Map&lt;String, Object&gt; information = (Map&lt;String, Object&gt;) applicationMetaData.getOrDefault(&quot;information&quot;, Map.of());</span>
+
+        //Base structure
+<span class="fc" id="L79">        Map&lt;String, Object&gt; data = getData(remoteProvider);</span>
+<span class="fc" id="L80">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+
+        //Now copy all information from the connection to the data / metadata
+<span class="fc" id="L83">        putIf(remoteProvider, &quot;id&quot;, connection.getManageIdentifier());</span>
+<span class="fc" id="L84">        remoteProvider.put(&quot;type&quot;, connection.getProtocol().name());</span>
+<span class="fc" id="L85">        putIf(remoteProvider, &quot;eid&quot;, connection.getManageEid());</span>
+
+<span class="fc" id="L87">        data.put(&quot;entityid&quot;, connectionMetaData.get(&quot;entityID&quot;));</span>
+        //Use connection's state if set, otherwise fall back to defaultState
+<span class="fc" id="L89">        State connectionState = connection.getState();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        data.put(&quot;state&quot;, connectionState != null ? connectionState.name() : defaultState.name());</span>
+
+<span class="fc" id="L92">        metaDataFields.put(&quot;name:en&quot;, connection.getName());</span>
+<span class="fc" id="L93">        metaDataFields.put(&quot;name:nl&quot;, connection.getName());</span>
+
+<span class="fc" id="L95">        putIf(metaDataFields, &quot;logo:0:url&quot;, application.getLogoUrl());</span>
+<span class="fc" id="L96">        putIf(metaDataFields, &quot;coin:application_name&quot;, application.getName());</span>
+
+<span class="fc" id="L98">        putIf(metaDataFields, &quot;description:en&quot;, information.get(&quot;descriptionEN&quot;));</span>
+<span class="fc" id="L99">        putIf(metaDataFields, &quot;description:nl&quot;, information.get(&quot;descriptionNL&quot;));</span>
+<span class="fc" id="L100">        putIf(metaDataFields, &quot;coin:application_url&quot;, information.get(&quot;webSite&quot;));</span>
+
+<span class="fc" id="L102">        List&lt;String&gt; tags = (List&lt;String&gt;) information.getOrDefault(&quot;tags&quot;, List.of());</span>
+<span class="fc" id="L103">        putIf(metaDataFields, &quot;application_tags&quot;, tags);</span>
+
+<span class="fc" id="L105">        convertContactPersons(applicationMetaData, metaDataFields);</span>
+
+<span class="fc" id="L107">        Map&lt;String, String&gt; privacy = (Map&lt;String, String&gt;) applicationMetaData.getOrDefault(&quot;privacy&quot;, Map.of());</span>
+<span class="fc" id="L108">        privacyInfo.forEach(item -&gt; putIf(metaDataFields, (String) item.get(&quot;manage&quot;), privacy.get(item.get(&quot;name&quot;))));</span>
+
+<span class="fc" id="L110">        metaDataFields.put(&quot;OrganizationName:en&quot;, application.getOrganization().getName());</span>
+
+<span class="fc" id="L112">        data.put(&quot;allowedall&quot;, false);</span>
+<span class="fc" id="L113">        data.put(&quot;revisionnote&quot;, &quot;SURF Access update with remote API&quot;);</span>
+
+        //We have merged everything from the application now, stop if changeRequestRequired
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (changeRequestRequired) {</span>
+<span class="fc" id="L117">            return remoteProvider;</span>
+        }
+<span class="fc" id="L119">        mergeAttributeReleasePolicies(connectionMetaData, data);</span>
+
+<span class="fc" id="L121">        mergeAllowedEntities(data, connectionMetaData);</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (EntityType.oidc10_rp.equals(connection.getProtocol())) {</span>
+<span class="fc" id="L124">            List&lt;String&gt; grantTypes = (List&lt;String&gt;) connectionMetaData.get(&quot;grantTypes&quot;);</span>
+<span class="fc" id="L125">            putIf(metaDataFields, &quot;grants&quot;, grantTypes);</span>
+<span class="fc" id="L126">            putIf(metaDataFields, &quot;redirectUrls&quot;, connectionMetaData.get(&quot;redirectUrls&quot;));</span>
+<span class="fc" id="L127">            metaDataFields.put(&quot;isPublicClient&quot;, connectionMetaData.getOrDefault(&quot;pkce&quot;, false));</span>
+<span class="fc" id="L128">            metaDataFields.put(&quot;oidc:claims_in_id_token&quot;, connectionMetaData.getOrDefault(&quot;claimsInIdToken&quot;, false));</span>
+<span class="fc" id="L129">            metaDataFields.put(&quot;accessTokenValidity&quot;, 3600);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            if (grantTypes.contains(&quot;refresh_token&quot;)) {</span>
+<span class="fc" id="L131">                metaDataFields.put(&quot;refreshTokenValidity&quot;, connectionMetaData.getOrDefault(&quot;refreshTokenValidity&quot;, 3600));</span>
+            }
+<span class="fc" id="L133">            String secret = (String) connectionMetaData.get(&quot;secret&quot;);</span>
+            //Might be an initial secret or a deliberate reset
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">            if (StringUtils.hasText(secret) &amp;&amp; secret.length() == SECRET_LENGTH) {</span>
+<span class="fc" id="L136">                putIf(metaDataFields, &quot;secret&quot;, connectionMetaData.get(&quot;secret&quot;));</span>
+            } else {
+<span class="fc" id="L138">                putIf(metaDataFields, &quot;secret&quot;, metaDataFields.get(&quot;secret&quot;));</span>
+            }
+        }
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (EntityType.saml20_sp.equals(connection.getProtocol())) {</span>
+<span class="fc" id="L143">            List&lt;String&gt; acsLocations = (List&lt;String&gt;) connectionMetaData.getOrDefault(&quot;acsLocations&quot;, Collections.emptyList());</span>
+<span class="fc" id="L144">            IntStream.range(0, acsLocations.size()).forEach(i -&gt; {</span>
+<span class="fc" id="L145">                metaDataFields.put(&quot;AssertionConsumerService:&quot; + i + &quot;:Location&quot;, acsLocations.get(i));</span>
+<span class="fc" id="L146">                metaDataFields.put(&quot;AssertionConsumerService:&quot; + i + &quot;:Binding&quot;, &quot;urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST&quot;);</span>
+<span class="fc" id="L147">            });</span>
+        }
+
+<span class="fc" id="L150">        String visibility = (String) connectionMetaData.get(&quot;visibility&quot;);</span>
+<span class="fc" id="L151">        metaDataFields.put(&quot;coin:ss:idp_visible_only&quot;, Visibility.visible_to_idp_only.name().equals(visibility));</span>
+<span class="fc" id="L152">        metaDataFields.put(&quot;coin:ss:hidden&quot;, Visibility.visible_to_none.name().equals(visibility));</span>
+
+<span class="fc" id="L154">        String loginUrl = (String) connectionMetaData.getOrDefault(&quot;loginUrl&quot;, information.get(&quot;webSite&quot;));</span>
+<span class="fc" id="L155">        metaDataFields.put(&quot;coin:login_url&quot;, loginUrl);</span>
+
+<span class="fc" id="L157">        String connectOption = (String) connectionMetaData.getOrDefault(&quot;connectOption&quot;, ConnectOptions.connect_with_interaction.name());</span>
+<span class="fc" id="L158">        metaDataFields.put(&quot;coin:dashboard_connect_option&quot;, connectOption);</span>
+
+<span class="fc" id="L160">        return remoteProvider;</span>
+    }
+
+    public void convertContactPersons(Map&lt;String, Object&gt; applicationMetaData, Map&lt;String, Object&gt; metaDataFields) {
+<span class="fc" id="L164">        List&lt;Map&lt;String, String&gt;&gt; contactPersons = ((List&lt;Map&lt;String, String&gt;&gt;) applicationMetaData</span>
+<span class="fc" id="L165">                .getOrDefault(&quot;contactPersons&quot;, Collections.emptyList()))</span>
+<span class="fc" id="L166">                .stream()</span>
+<span class="fc" id="L167">                .filter(m -&gt; StringUtils.hasText(m.get(&quot;email&quot;)))</span>
+<span class="fc" id="L168">                .toList();</span>
+        //First, delete all contact persons before adding them again
+<span class="fc" id="L170">        metaDataFields.keySet().removeIf(key -&gt; key.startsWith(&quot;contacts:&quot;));</span>
+
+<span class="fc" id="L172">        IntStream.range(0, contactPersons.size()).forEach(i -&gt; {</span>
+<span class="fc" id="L173">            Map&lt;String, String&gt; contactPerson = contactPersons.get(i);</span>
+<span class="fc" id="L174">            Map.of(&quot;type&quot;, &quot;contactType&quot;,</span>
+                            &quot;email&quot;, &quot;emailAddress&quot;,
+                            &quot;givenName&quot;, &quot;givenName&quot;,
+                            &quot;surName&quot;, &quot;surName&quot;)
+<span class="fc" id="L178">                    .forEach((k, v) -&gt; putIf(metaDataFields, &quot;contacts:&quot; + i + &quot;:&quot; + v, contactPerson.get(k)));</span>
+<span class="fc" id="L179">        });</span>
+<span class="fc" id="L180">    }</span>
+
+    //For all attributes that have been changed, we create a single ChangeRequest
+    public Optional&lt;ChangeRequest&gt; deduceChangeRequests(Connection connection,
+                                                        Map&lt;String, Object&gt; currentProvider) {
+        //We need to compare maps, the current data in Manage (e.g. currentProvider) and the new Data in Connection
+        //So we need to convert the connection in to the new Map, without modifying the originalMap
+<span class="fc" id="L187">        Map clonedProvider = deepClone(currentProvider);</span>
+<span class="fc" id="L188">        Map&lt;String, Object&gt; newProvider = this.convert(connection, clonedProvider, false);</span>
+<span class="fc" id="L189">        Map&lt;String, Object&gt; newData = getData(newProvider);</span>
+<span class="fc" id="L190">        Map&lt;String, Object&gt; currentData = getData(currentProvider);</span>
+
+<span class="fc" id="L192">        Map&lt;String, Object&gt; pathUpdates = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L193">        diffChangeRequestRecursive(&quot;&quot;, currentData, newData, pathUpdates);</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        if (pathUpdatesWarrantChangeRequest(pathUpdates)) {</span>
+<span class="fc" id="L195">            ChangeRequest changeRequest = new ChangeRequest(</span>
+<span class="fc" id="L196">                    connection.getManageIdentifier(),</span>
+<span class="fc" id="L197">                    connection.getProtocol(),</span>
+                    pathUpdates,
+                    false,
+                    null,
+                    RequestType.Change);
+<span class="fc" id="L202">            return Optional.of(changeRequest);</span>
+        }
+<span class="nc" id="L204">        return Optional.empty();</span>
+    }
+
+    private boolean pathUpdatesWarrantChangeRequest(Map&lt;String, Object&gt; pathUpdates) {
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        return !pathUpdates.isEmpty() &amp;&amp;</span>
+<span class="pc bpc" id="L209" title="3 of 4 branches missed.">                (pathUpdates.size() != 1 || !pathUpdates.containsKey(&quot;revisionnote&quot;));</span>
+    }
+
+    public HashMap&lt;String, Object&gt; convertProviderToApplicationMetaData(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L213">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(getData(provider));</span>
+<span class="fc" id="L214">        HashMap&lt;String, Object&gt; updatedMetaData = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L216">        updatedMetaData.put(&quot;privacy&quot;, this.privacyInfo.stream().collect(Collectors.toMap(</span>
+<span class="fc" id="L217">                m -&gt; m.get(&quot;name&quot;),</span>
+<span class="fc" id="L218">                m -&gt; metaDataFields.getOrDefault(m.get(&quot;manage&quot;), &quot;&quot;)</span>
+        )));
+
+<span class="fc" id="L221">        Map&lt;String, Object&gt; information = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L222">        information.put(&quot;tags&quot;, metaDataFields.getOrDefault(&quot;application_tags&quot;, new ArrayList&lt;&gt;()));</span>
+<span class="fc" id="L223">        information.put(&quot;webSite&quot;, metaDataFields.get(&quot;coin:application_url&quot;));</span>
+<span class="fc" id="L224">        information.put(&quot;descriptionEN&quot;, metaDataFields.get(&quot;description:en&quot;));</span>
+<span class="fc" id="L225">        information.put(&quot;descriptionNL&quot;, metaDataFields.get(&quot;description:nl&quot;));</span>
+<span class="fc" id="L226">        updatedMetaData.put(&quot;information&quot;, information);</span>
+
+<span class="fc" id="L228">        List&lt;String&gt; contactTypes = List.of(&quot;administrative&quot;, &quot;technical&quot;, &quot;support&quot;);</span>
+<span class="fc" id="L229">        List&lt;Map&lt;String, Object&gt;&gt; contactPersons = metaDataFields</span>
+<span class="fc" id="L230">                .entrySet()</span>
+<span class="fc" id="L231">                .stream()</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">                .filter(entry -&gt; entry.getKey().endsWith(&quot;:contactType&quot;) &amp;&amp;</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">                        contactTypes.contains((String) entry.getValue()))</span>
+<span class="fc" id="L234">                .collect(Collectors.toMap(</span>
+<span class="fc" id="L235">                        entry -&gt; entry.getKey().split(&quot;:&quot;)[1],</span>
+<span class="fc" id="L236">                        entry -&gt; (String) entry.getValue()</span>
+                ))
+<span class="fc" id="L238">                .entrySet().stream()</span>
+<span class="fc" id="L239">                .map(entry -&gt; Map.of(</span>
+<span class="fc" id="L240">                        &quot;type&quot;, entry.getValue(),</span>
+<span class="fc" id="L241">                        &quot;email&quot;, metaDataFields.getOrDefault(&quot;contacts:&quot; + entry.getKey() + &quot;:emailAddress&quot;, &quot;&quot;),</span>
+<span class="fc" id="L242">                        &quot;surName&quot;, metaDataFields.getOrDefault(&quot;contacts:&quot; + entry.getKey() + &quot;:surName&quot;, &quot;&quot;),</span>
+<span class="fc" id="L243">                        &quot;givenName&quot;, metaDataFields.getOrDefault(&quot;contacts:&quot; + entry.getKey() + &quot;:givenName&quot;, &quot;&quot;)</span>
+                ))
+<span class="fc" id="L245">                .toList();</span>
+<span class="fc" id="L246">        updatedMetaData.put(&quot;contactPersons&quot;, contactPersons);</span>
+
+<span class="fc" id="L248">        return updatedMetaData;</span>
+    }
+
+<span class="nc" id="L251">    @SneakyThrows</span>
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private Map deepClone(Map original) {
+<span class="fc" id="L254">        return this.objectMapper.convertValue(original, Map.class);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private void diffChangeRequestRecursive(String path,
+                                            Object oldVal,
+                                            Object newVal,
+                                            Map&lt;String, Object&gt; pathUpdates) {
+<span class="fc bfc" id="L262" title="All 4 branches covered.">        if (Objects.equals(oldVal, newVal) || excludedAttributes.contains(path.toLowerCase())) {</span>
+<span class="fc" id="L263">            return;</span>
+        }
+
+        // both maps - recurse on union of keys if the name is not excluded
+<span class="pc bpc" id="L267" title="1 of 4 branches missed.">        if (oldVal instanceof Map &amp;&amp; newVal instanceof Map) {</span>
+<span class="fc" id="L268">            Map&lt;String, Object&gt; oldMap = (Map&lt;String, Object&gt;) oldVal;</span>
+<span class="fc" id="L269">            Map&lt;String, Object&gt; newMap = (Map&lt;String, Object&gt;) newVal;</span>
+
+<span class="fc" id="L271">            Set&lt;String&gt; allKeys = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L272">            allKeys.addAll(oldMap.keySet());</span>
+<span class="fc" id="L273">            allKeys.addAll(newMap.keySet());</span>
+
+<span class="fc bfc" id="L275" title="All 2 branches covered.">            for (String key : allKeys) {</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">                String newPath = path.isEmpty() ? key : path + &quot;.&quot; + key;</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">                if (excludedMergeAttributesPaths.contains(newPath)) {</span>
+<span class="nc" id="L278">                    pathUpdates.put(path, newVal);</span>
+<span class="nc" id="L279">                    return;</span>
+                }
+<span class="fc" id="L281">                diffChangeRequestRecursive(newPath, oldMap.get(key), newMap.get(key), pathUpdates);</span>
+<span class="fc" id="L282">            }</span>
+<span class="fc" id="L283">            return;</span>
+        }
+
+        // from both lists take the new value
+<span class="pc bpc" id="L287" title="1 of 4 branches missed.">        if (oldVal instanceof List &amp;&amp; newVal instanceof List) {</span>
+<span class="fc" id="L288">            pathUpdates.put(path, newVal);</span>
+<span class="fc" id="L289">            return;</span>
+        }
+
+        // if we get here, either type differs or one side is missing
+<span class="pc bpc" id="L293" title="1 of 4 branches missed.">        if (oldVal == null &amp;&amp; newVal != null) {</span>
+            // added
+<span class="fc" id="L295">            pathUpdates.put(path, newVal);</span>
+<span class="pc bpc" id="L296" title="1 of 4 branches missed.">        } else if (oldVal != null &amp;&amp; newVal == null) {</span>
+            // removed
+<span class="fc" id="L298">            pathUpdates.put(path, null);</span>
+        } else {
+            // changed
+<span class="fc" id="L301">            pathUpdates.put(path, newVal);</span>
+        }
+<span class="fc" id="L303">    }</span>
+
+    private void mergeAllowedEntities(Map&lt;String, Object&gt; data, Map&lt;String, Object&gt; connectionMetaData) {
+<span class="fc" id="L306">        List&lt;String&gt; allowedEntities = (List&lt;String&gt;) connectionMetaData.getOrDefault(&quot;allowedEntities&quot;, List.of());</span>
+<span class="fc" id="L307">        data.put(&quot;allowedEntities&quot;, allowedEntities.stream().map(entity -&gt; Map.of(&quot;name&quot;, entity)).toList());</span>
+<span class="fc" id="L308">    }</span>
+
+    private void mergeAttributeReleasePolicies(Map&lt;String, Object&gt; connectionMetaData, Map&lt;String, Object&gt; data) {
+<span class="fc" id="L311">        Map&lt;String, Object&gt; newArp = (Map&lt;String, Object&gt;) connectionMetaData.getOrDefault(&quot;arp&quot;, new HashMap&lt;&gt;());</span>
+<span class="fc" id="L312">        Map&lt;String, Object&gt; arpFromManage = (Map&lt;String, Object&gt;) data.getOrDefault(&quot;arp&quot;, Map.of());</span>
+        //Merge the two ARP's, ensuring no existing attributes are overridden which are in the excludedARPAttributes
+<span class="fc" id="L314">        Map&lt;String, List&lt;Map&lt;String, String&gt;&gt;&gt; existingArpAttributes = (Map&lt;String, List&lt;Map&lt;String, String&gt;&gt;&gt;) arpFromManage.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L315">        Map&lt;String, List&lt;Map&lt;String, String&gt;&gt;&gt; newArpAttributes = (Map&lt;String, List&lt;Map&lt;String, String&gt;&gt;&gt;) newArp.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+<span class="fc" id="L316">        existingArpAttributes.entrySet().stream()</span>
+<span class="fc" id="L317">                .filter(entry -&gt; excludedARPAttributes.contains(entry.getKey()))</span>
+<span class="fc" id="L318">                .forEach(entry -&gt; {</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">                    if (!newArpAttributes.containsKey(entry.getKey())) {</span>
+<span class="nc" id="L320">                        newArpAttributes.put(entry.getKey(), entry.getValue());</span>
+                    }
+<span class="fc" id="L322">                });</span>
+<span class="fc" id="L323">        putIf(data, &quot;arp&quot;, newArp);</span>
+<span class="fc" id="L324">    }</span>
+
+    private void putIf(Map&lt;String, Object&gt; result, String key, Object value) {
+<span class="fc bfc" id="L327" title="All 2 branches covered.">        if (!isEmpty(value)) {</span>
+<span class="fc" id="L328">            result.put(key, value);</span>
+        }
+<span class="fc" id="L330">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

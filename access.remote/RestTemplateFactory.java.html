@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RestTemplateFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.remote</a> &gt; <span class="el_source">RestTemplateFactory.java</span></div><h1>RestTemplateFactory.java</h1><pre class="source lang-java linenums">package access.remote;
+
+import access.manage.BearerTokenInterceptor;
+import access.manage.JSONHeaderInterceptor;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.Timeout;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RestTemplateFactory {
+
+    private RestTemplateFactory() {
+    }
+
+    public static RestTemplate buildRestTemplate(String bearerToken) {
+<span class="fc" id="L30">        return buildRestTemplate(new DefaultResponseErrorHandler(), null, null, bearerToken);</span>
+    }
+
+    public static RestTemplate buildRestTemplate(String user, String password) {
+<span class="fc" id="L34">        return buildRestTemplate(new DefaultResponseErrorHandler(), user, password, null);</span>
+    }
+
+    public static RestTemplate buildRestTemplate(ResponseErrorHandler resilientErrorHandler, String user, String password, String bearerToken) {
+<span class="fc" id="L38">        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();</span>
+        // Configure connection timeout on the connection manager
+<span class="fc" id="L40">        ConnectionConfig connectionConfig = ConnectionConfig.custom()</span>
+<span class="fc" id="L41">                .setConnectTimeout(Timeout.ofMilliseconds(10_000))</span>
+<span class="fc" id="L42">                .build();</span>
+<span class="fc" id="L43">        connectionManager.setDefaultConnectionConfig(connectionConfig);</span>
+
+        // Configure read timeout (socket timeout) on the request config
+<span class="fc" id="L46">        RequestConfig requestConfig = RequestConfig.custom()</span>
+<span class="fc" id="L47">                .setResponseTimeout(Timeout.ofMilliseconds(15_000))</span>
+<span class="fc" id="L48">                .build();</span>
+
+<span class="fc" id="L50">        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()</span>
+<span class="fc" id="L51">                .setConnectionManager(connectionManager)</span>
+<span class="fc" id="L52">                .setDefaultRequestConfig(requestConfig)</span>
+<span class="fc" id="L53">                .disableCookieManagement();</span>
+
+<span class="fc" id="L55">        CloseableHttpClient httpClient = httpClientBuilder.build();</span>
+
+<span class="fc" id="L57">        HttpComponentsClientHttpRequestFactory requestFactory =</span>
+                new HttpComponentsClientHttpRequestFactory(httpClient);
+
+<span class="fc" id="L60">        RestTemplateBuilder builder = new RestTemplateBuilder();</span>
+<span class="fc" id="L61">        List&lt;ClientHttpRequestInterceptor&gt; interceptors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L62">        interceptors.add(new JSONHeaderInterceptor());</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (StringUtils.hasText(password)) {</span>
+<span class="fc" id="L64">            interceptors.add(new BasicAuthenticationInterceptor(user, password));</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        } else if (StringUtils.hasText(bearerToken)) {</span>
+<span class="fc" id="L66">            interceptors.add(new BearerTokenInterceptor(bearerToken));</span>
+        }
+<span class="fc" id="L68">        return builder</span>
+<span class="fc" id="L69">                .requestFactory(() -&gt; new BufferingClientHttpRequestFactory(requestFactory))</span>
+<span class="fc" id="L70">                .additionalInterceptors(interceptors)</span>
+<span class="fc" id="L71">                .errorHandler(resilientErrorHandler)</span>
+<span class="fc" id="L72">                .build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

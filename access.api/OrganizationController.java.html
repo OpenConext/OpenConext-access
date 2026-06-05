@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">OrganizationController.java</span></div><h1>OrganizationController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.Config;
+import access.exception.InvalidInputException;
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.jira.JiraClient;
+import access.jira.JiraIssue;
+import access.manage.Manage;
+import access.manage.ManageData;
+import access.model.*;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.OrganizationRepository;
+import access.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/organizations&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@EnableConfigurationProperties(Config.class)
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class OrganizationController implements UserAccessRights {
+
+<span class="fc" id="L52">    private static final Log LOG = LogFactory.getLog(OrganizationController.class);</span>
+
+    private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final Config config;
+    private final Manage manage;
+    private final UserRepository userRepository;
+    private final ObjectMapper objectMapper ;
+    private final JiraClient jiraClient;
+
+
+    @Autowired
+    public OrganizationController(OrganizationRepository organizationRepository,
+                                  OrganizationMembershipRepository organizationMembershipRepository,
+                                  Manage manage,
+                                  UserRepository userRepository,
+                                  Config config,
+                                  ObjectMapper objectMapper,
+<span class="fc" id="L70">                                  JiraClient jiraClient) {</span>
+<span class="fc" id="L71">        this.organizationRepository = organizationRepository;</span>
+<span class="fc" id="L72">        this.organizationMembershipRepository = organizationMembershipRepository;</span>
+<span class="fc" id="L73">        this.manage = manage;</span>
+<span class="fc" id="L74">        this.config = config;</span>
+<span class="fc" id="L75">        this.userRepository = userRepository;</span>
+<span class="fc" id="L76">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L77">        this.jiraClient = jiraClient;</span>
+<span class="fc" id="L78">    }</span>
+
+    @GetMapping(&quot;/applications/{id}&quot;)
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; findOrganizationDetailById(User user,
+                                                                          @PathVariable Long id) {
+<span class="fc" id="L84">        LOG.debug(&quot;/find Organization by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L86">        User userFromDB = reinitializeUser(user, userRepository);</span>
+
+<span class="fc" id="L88">        Organization organization = organizationRepository.findApplicationsDetailsOrganizationById(id)</span>
+<span class="fc" id="L89">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="fc" id="L91">        OrganizationMembership organizationMembership= userFromDB.getOrganizationMemberships()</span>
+<span class="fc" id="L92">                .stream()</span>
+<span class="fc" id="L93">                .filter(membership -&gt; membership.getOrganization().getId().equals(organization.getId()))</span>
+<span class="fc" id="L94">                .findFirst()</span>
+                //little hack to avoid multiple logic branches
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                .or(() -&gt; userFromDB.isSuperUser() ? Optional.of(new OrganizationMembership(Authority.ADMIN)) : Optional.empty())</span>
+<span class="fc" id="L97">                .orElseThrow(() -&gt; new UserRestrictionException(</span>
+<span class="fc" id="L98">                        String.format(&quot;User %s is not a member of organization %s&quot;, user.getEmail(), id)));</span>
+
+<span class="fc" id="L100">        organization.getApplications().forEach(application -&gt; {</span>
+            //We only fetch change-requests for applications with production status
+<span class="fc" id="L102">            application.getConnections().stream()</span>
+<span class="fc" id="L103">                    .filter(conn -&gt; conn.changeRequestRequired())</span>
+<span class="fc" id="L104">                    .forEach(connection -&gt;</span>
+<span class="fc" id="L105">                        connection.convertChangeRequests(manage.getChangeRequests(connection)));</span>
+<span class="fc" id="L106">        });</span>
+
+<span class="fc" id="L108">        Map&lt;String, Object&gt; organizationMap = objectMapper.convertValue(organization, new TypeReference&lt;&gt;() {</span>
+        });
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (organizationMembership.getAuthority().equals(Authority.GUEST)) {</span>
+            //we filter out applications where there is no app membership for the GUEST user
+<span class="fc" id="L113">            List&lt;Long&gt; applicationIdentifiers = organizationMembership.getApplicationMemberships().stream()</span>
+<span class="fc" id="L114">                    .map(applicationMembership -&gt; applicationMembership.getApplication().getId())</span>
+<span class="fc" id="L115">                    .toList();</span>
+<span class="fc" id="L116">            List&lt;Map&lt;String, Object&gt;&gt; applications = (List&lt;Map&lt;String, Object&gt;&gt;) organizationMap.getOrDefault(&quot;applications&quot;, List.of());</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            applications.removeIf(application -&gt; !applicationIdentifiers.contains((Long)application.get(&quot;id&quot;)));</span>
+        }
+<span class="fc" id="L119">        List&lt;Map&lt;String, Object&gt;&gt; applications = (List&lt;Map&lt;String, Object&gt;&gt;) organizationMap.getOrDefault(&quot;applications&quot;, List.of());</span>
+<span class="fc" id="L120">        applications.forEach(application -&gt; ManageData.removeSecrets(application));</span>
+<span class="fc" id="L121">        return ResponseEntity.ok(organizationMap);</span>
+    }
+
+
+    @GetMapping(&quot;/details/{id}&quot;)
+    public ResponseEntity&lt;Organization&gt; findUserManagementDetails(User user,
+                                             @PathVariable(&quot;id&quot;) Long id) {
+<span class="fc" id="L128">        LOG.debug(&quot;/find Organization user-management by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L130">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L131">        Organization organization = organizationRepository.findUserManagementOrganizationById(id)</span>
+<span class="pc" id="L132">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="fc" id="L134">        confirmOrganizationMembership(userFromDB, organization, Authority.MEMBER);</span>
+
+<span class="fc" id="L136">        return ResponseEntity.ok(organization);</span>
+    }
+
+    @GetMapping(&quot;/mine/{id}&quot;)
+    public ResponseEntity&lt;Organization&gt; findMyOrganization(User user,
+                                                           @PathVariable(&quot;id&quot;) Long id) {
+<span class="fc" id="L142">        LOG.debug(&quot;/find Organization mine by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L144">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L145">        Organization organization = organizationRepository.findById(id)</span>
+<span class="pc" id="L146">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="fc" id="L148">        confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);</span>
+
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (StringUtils.hasText(organization.getManageIdentifier())) {</span>
+<span class="fc" id="L151">            Map&lt;String, Object&gt; provider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">            if (organization.mergeMetaData(provider, false)) {</span>
+<span class="fc" id="L153">                organizationRepository.save(organization);</span>
+            }
+        }
+<span class="fc" id="L156">        return ResponseEntity.ok(organization);</span>
+    }
+
+    @GetMapping(&quot;/search&quot;)
+    public ResponseEntity&lt;Page&lt;Map&lt;String, Object&gt;&gt;&gt; search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = &quot;query&quot;, required = false, defaultValue = &quot;&quot;) String query,
+                                                            @RequestParam(value = &quot;pageNumber&quot;, required = false, defaultValue = &quot;0&quot;) int pageNumber,
+                                                            @RequestParam(value = &quot;pageSize&quot;, required = false, defaultValue = &quot;10&quot;) int pageSize,
+                                                            @RequestParam(value = &quot;sort&quot;, required = false, defaultValue = &quot;name&quot;) String sort,
+                                                            @RequestParam(value = &quot;sortDirection&quot;, required = false, defaultValue = &quot;ASC&quot;) String sortDirection) {
+<span class="fc" id="L166">        LOG.debug(String.format(&quot;/search/paginated for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+        //Only used in the Systems tab and exclusively for superusers
+<span class="fc" id="L168">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L170">        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));</span>
+
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        Page&lt;Map&lt;String, Object&gt;&gt; usersPage = StringUtils.hasText(query) ? organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :</span>
+<span class="fc" id="L173">                organizationRepository.searchByPage(pageable);</span>
+<span class="fc" id="L174">        return ResponseEntity.ok(usersPage);</span>
+    }
+
+    @GetMapping(&quot;/search-landing&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = &quot;query&quot;) String query) {
+<span class="fc" id="L180">        LOG.debug(String.format(&quot;/landing-search for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+        //We can enforce any authorization rules here, as this is performed on the landing page
+<span class="fc" id="L182">        List&lt;Map&lt;String, Object&gt;&gt; organizations = organizationRepository.searchWithKeyword(FullSearchQueryParser.parse(query));</span>
+<span class="fc" id="L183">        return ResponseEntity.ok(organizations);</span>
+    }
+
+    @GetMapping(&quot;/all&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; allLight(@Parameter(hidden = true) User user) {
+<span class="nc" id="L188">        LOG.debug(String.format(&quot;/all organization for user %s&quot;, user.getEduPersonPrincipalName()));</span>
+
+<span class="nc" id="L190">        confirmSuperUser(user);</span>
+
+<span class="nc" id="L192">        List&lt;Map&lt;String, Object&gt;&gt; organizations = organizationRepository.findAllLight();</span>
+<span class="nc" id="L193">        return ResponseEntity.ok(organizations);</span>
+    }
+
+    @GetMapping(&quot;/users/{id}&quot;)
+    public ResponseEntity&lt;Organization&gt; usersOfOrganization(User user, @PathVariable(&quot;id&quot;) Long id) {
+<span class="fc" id="L198">        LOG.debug(&quot;/find Organization light by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L200">        Organization organization = organizationRepository.findUsersOfOrganizationById(id)</span>
+<span class="pc" id="L201">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="fc" id="L203">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L204">        confirmOrganizationMembership(userFromDB, organization, Authority.GUEST);</span>
+
+<span class="fc" id="L206">        return ResponseEntity.ok(organization);</span>
+    }
+
+    @GetMapping(&quot;/light/{id}&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; light(@PathVariable Long id) {
+<span class="fc" id="L211">        LOG.debug(&quot;/light&quot;);</span>
+
+<span class="fc" id="L213">        Organization organization = organizationRepository.findById(id)</span>
+<span class="pc" id="L214">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="fc" id="L216">        return ResponseEntity.ok(Map.of(&quot;name&quot;, organization.getName()));</span>
+    }
+
+    @GetMapping(&quot;/invitation/{id}&quot;)
+    public ResponseEntity&lt;Organization&gt; name(User user, @PathVariable Long id) {
+<span class="fc" id="L221">        LOG.debug(&quot;/name&quot;);</span>
+<span class="fc" id="L222">        Organization organization = organizationRepository.findApplicationsOrganizationById(id)</span>
+<span class="pc" id="L223">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+<span class="fc" id="L224">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L225">        confirmOrganizationMembership(user, organization, Authority.MEMBER);</span>
+<span class="fc" id="L226">        return ResponseEntity.ok(organization);</span>
+    }
+
+    @GetMapping(&quot;/status/pending&quot;)
+    public ResponseEntity&lt;List&lt;Organization&gt;&gt; pendingApproval(User user) {
+<span class="fc" id="L231">        LOG.debug(&quot;/pendingApproval Organizations by &quot; + user.getEmail());</span>
+<span class="fc" id="L232">        confirmSuperUser(user);</span>
+<span class="fc" id="L233">        List&lt;Organization&gt; organizations = organizationRepository.findByStatus(OrganizationStatus.PENDING_APPROVAL);</span>
+
+<span class="fc" id="L235">        return ResponseEntity.ok(organizations);</span>
+    }
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Organization&gt; create(User user, @RequestBody @Validated Organization organization) {
+<span class="fc" id="L240">        String name = organization.getName();</span>
+<span class="fc" id="L241">        Organization newOrganization = createOrganization(user, name);</span>
+<span class="fc" id="L242">        String orgName = newOrganization.getName();</span>
+<span class="fc" id="L243">        LOG.info(String.format(&quot;Creating new Organisation %s for %s&quot;, name, user.getEmail()));</span>
+        // Now create a Jira ticket
+<span class="fc" id="L245">        String summary = String.format(&quot;User %s created a new Organisation %s in Access.&quot;,</span>
+<span class="fc" id="L246">                user.getName(),</span>
+                orgName);
+<span class="fc" id="L248">        String jiraKey = jiraClient.create(new JiraIssue(</span>
+                orgName,
+                null,// There is no identity provider for approving organizations
+<span class="fc" id="L251">                String.format(&quot;%s The new organisation is pending approval. Visit to evaluate:%s%s&quot;,</span>
+                        summary,
+<span class="fc" id="L253">                        System.lineSeparator(),</span>
+<span class="fc" id="L254">                        String.format(&quot;%s/system/organizationPendingApproval&quot;, config.getClientUrl())),</span>
+                summary,
+                EntityType.oidc10_rp,
+<span class="fc" id="L257">                user.getEmail()</span>
+        ));
+<span class="fc" id="L259">        LOG.info(&quot;Created Jira issue for new Organization: &quot; + jiraKey);</span>
+<span class="fc" id="L260">        newOrganization.setTicketKey(jiraKey);</span>
+
+<span class="fc" id="L262">        Organization savedOrganization = organizationRepository.save(newOrganization);</span>
+        // User becomes admin
+<span class="fc" id="L264">        OrganizationMembership organizationMembership = new OrganizationMembership(user, savedOrganization, Authority.ADMIN);</span>
+<span class="fc" id="L265">        organizationMembershipRepository.save(organizationMembership);</span>
+<span class="fc" id="L266">        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);</span>
+    }
+
+    @PutMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;Organization&gt; update(User user, @RequestBody @Validated OrganizationForm organizationForm) {
+<span class="fc" id="L271">        Organization organization = findOrganizationById(organizationForm.getId());</span>
+        //IdP can't change the name of the IdP in Manage
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (StringUtils.hasText(organization.getManageIdentifier())) {</span>
+<span class="fc" id="L274">            throw new InvalidInputException(&quot;Can not update name, Organization has manage identifier. &quot; + organization.getName());</span>
+        }
+
+<span class="fc" id="L277">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L278">        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);</span>
+
+<span class="fc" id="L280">        organization.setName(organizationForm.getName());</span>
+<span class="fc" id="L281">        Organization savedOrganization = organizationRepository.save(organization);</span>
+<span class="fc" id="L282">        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);</span>
+    }
+
+
+    @PutMapping(&quot;/status/{organizationId}/{status}&quot;)
+    public ResponseEntity&lt;Organization&gt; approve(User user, @PathVariable(&quot;organizationId&quot;) Long organizationId,
+                                                @PathVariable(&quot;status&quot;) OrganizationStatus status) {
+<span class="fc" id="L289">        confirmSuperUser(user);</span>
+<span class="fc" id="L290">        Organization organization = findOrganizationById(organizationId);</span>
+<span class="fc" id="L291">        organization.setStatus(status);</span>
+
+<span class="fc" id="L293">        Organization savedOrganization = organizationRepository.save(organization);</span>
+
+<span class="fc" id="L295">        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);</span>
+    }
+
+    @PutMapping(&quot;/metadata/{organizationId}&quot;)
+    public ResponseEntity&lt;Organization&gt; updateMetaData(User user,
+                                                       @PathVariable(&quot;organizationId&quot;) Long organizationId,
+                                                       @RequestBody Map&lt;String, Object&gt; metaData) {
+<span class="fc" id="L302">        Organization organization = findOrganizationById(organizationId);</span>
+
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        if (!StringUtils.hasText(organization.getManageIdentifier())) {</span>
+<span class="fc" id="L305">            throw new InvalidInputException(&quot;Can not update metadata. Organization has no manage identifier: &quot; + organization.getName());</span>
+        }
+<span class="fc" id="L307">        User userFromDB = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L308">        confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);</span>
+
+<span class="fc" id="L310">        organization.setMetaData(metaData);</span>
+<span class="fc" id="L311">        manage.saveIdentityProvider(organization);</span>
+
+<span class="fc" id="L313">        return ResponseEntity.status(HttpStatus.CREATED).body(organization);</span>
+    }
+
+    private Organization findOrganizationById(Long organizationId) {
+<span class="fc" id="L317">        return organizationRepository.findById(organizationId)</span>
+<span class="pc" id="L318">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organization not found&quot;));</span>
+    }
+
+    @DeleteMapping({&quot;&quot;, &quot;/{organizationId}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; delete(User user, @PathVariable(&quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L323">        LOG.debug(&quot;/delete organization by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L325">        Organization organization = findOrganizationById(organizationId);</span>
+
+<span class="fc" id="L327">        user = this.reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L328">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+
+<span class="fc" id="L330">        organization.getApplications().stream()</span>
+<span class="fc" id="L331">                .map(Application::getConnections)</span>
+<span class="fc" id="L332">                .flatMap(Collection::stream)</span>
+<span class="fc" id="L333">                .filter(connection -&gt; StringUtils.hasText(connection.getManageIdentifier()))</span>
+<span class="fc" id="L334">                .forEach(connection -&gt; manage.deleteProvider(connection));</span>
+
+<span class="fc" id="L336">        organizationRepository.deleteOrganizationById(organizationId);</span>
+
+<span class="fc" id="L338">        return deleteResult();</span>
+    }
+
+    @GetMapping(&quot;/admin-email/{organizationId}&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; adminEmail(User user, @PathVariable Long organizationId) {
+<span class="fc" id="L343">        LOG.debug(&quot;/admin-email by: &quot; + user.getEmail());</span>
+
+<span class="fc" id="L345">        Map&lt;String, Object&gt; admin = userRepository.findAdminByOrganizationAndMember(organizationId, user.getId());</span>
+<span class="fc" id="L346">        return ResponseEntity.ok(admin);</span>
+    }
+
+    @GetMapping(&quot;/identity-providers-allowed-connections/{organizationId}&quot;)
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; identityProvidersByAllowedConnections(User user,
+                                                                                           @PathVariable Long organizationId) {
+<span class="nc" id="L352">        LOG.debug(&quot;/identityProvidersByAllowedConnections by: &quot;+user.getEmail());</span>
+<span class="nc" id="L353">        Organization organization = organizationRepository.findApplicationsOrganizationById(organizationId)</span>
+<span class="nc" id="L354">                .orElseThrow(() -&gt; new NotFoundException(&quot;Organisation not found&quot;));</span>
+
+<span class="nc" id="L356">        user = reinitializeUser(user ,userRepository);</span>
+<span class="nc" id="L357">        confirmOrganizationMembership(user, organization, Authority.ADMIN);</span>
+
+<span class="nc" id="L359">        List&lt;Connection&gt; connections = organization.getApplications().stream()</span>
+<span class="nc" id="L360">                .map(Application::getConnections)</span>
+<span class="nc" id="L361">                .flatMap(Collection::stream)</span>
+<span class="nc" id="L362">                .toList();</span>
+<span class="nc" id="L363">        List&lt;Map&lt;String, Object&gt;&gt; identityProviders = manage.identityProvidersByAllowedConnections(connections);</span>
+<span class="nc" id="L364">        return ResponseEntity.ok(identityProviders);</span>
+    }
+
+    private Organization createOrganization(User user, String name) {
+<span class="fc" id="L368">        String orgSchacHomeOrganization = getOrgSchacHomeOrganization(user, name);</span>
+<span class="fc" id="L369">        return new Organization(name, orgSchacHomeOrganization);</span>
+    }
+
+    private String getOrgSchacHomeOrganization(User user, String name) {
+<span class="fc" id="L373">        String schacHomeOrganization = user.getSchacHomeOrganization().toLowerCase();</span>
+        String orgSchacHomeOrganization;
+<span class="fc bfc" id="L375" title="All 2 branches covered.">        if (config.getEduIdSchacHomeOrganization().equals(schacHomeOrganization)) {</span>
+<span class="fc" id="L376">            String normalizedName = name</span>
+<span class="fc" id="L377">                    .replaceAll(&quot;[^a-zA-Z_ ]&quot;, &quot;&quot;)</span>
+<span class="fc" id="L378">                    .trim()</span>
+<span class="fc" id="L379">                    .replaceAll(&quot; &quot;, &quot;_&quot;)</span>
+<span class="fc" id="L380">                    .toLowerCase();</span>
+<span class="fc" id="L381">            orgSchacHomeOrganization = String.format(&quot;%s.%s&quot;, normalizedName, config.getEduIdSchacHomeOrganization());</span>
+<span class="fc" id="L382">        } else {</span>
+<span class="fc" id="L383">            orgSchacHomeOrganization = schacHomeOrganization;</span>
+        }
+<span class="fc" id="L385">        return orgSchacHomeOrganization;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

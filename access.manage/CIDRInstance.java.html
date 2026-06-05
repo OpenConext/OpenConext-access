@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CIDRInstance.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">CIDRInstance.java</span></div><h1>CIDRInstance.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A class that enables to get an IP range from CIDR specification. It supports
+ * both IPv4 and IPv6.
+ */
+public class CIDRInstance {
+
+    private final InetAddress inetAddress;
+    private InetAddress startAddress;
+    private InetAddress endAddress;
+    private final int prefixLength;
+
+<span class="fc" id="L21">    public CIDRInstance(String cidr) throws UnknownHostException {</span>
+        // split CIDR to address and prefix part
+<span class="fc" id="L23">        int index = cidr.indexOf(&quot;/&quot;);</span>
+<span class="fc" id="L24">        String addressPart = cidr.substring(0, index);</span>
+<span class="fc" id="L25">        String networkPart = cidr.substring(index + 1);</span>
+
+<span class="fc" id="L27">        inetAddress = InetAddress.getByName(addressPart);</span>
+<span class="fc" id="L28">        prefixLength = Integer.parseInt(networkPart);</span>
+
+<span class="fc" id="L30">        calculate();</span>
+<span class="fc" id="L31">    }</span>
+
+
+    private void calculate() throws UnknownHostException {
+        ByteBuffer maskBuffer;
+        int targetSize;
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (inetAddress.getAddress().length == 4) {</span>
+<span class="fc" id="L38">            maskBuffer =</span>
+                    ByteBuffer
+<span class="fc" id="L40">                            .allocate(4)</span>
+<span class="fc" id="L41">                            .putInt(-1);</span>
+<span class="fc" id="L42">            targetSize = 4;</span>
+        } else {
+<span class="fc" id="L44">            maskBuffer = ByteBuffer.allocate(16)</span>
+<span class="fc" id="L45">                    .putLong(-1L)</span>
+<span class="fc" id="L46">                    .putLong(-1L);</span>
+<span class="fc" id="L47">            targetSize = 16;</span>
+        }
+
+<span class="fc" id="L50">        BigInteger mask = (new BigInteger(1, maskBuffer.array())).not().shiftRight(prefixLength);</span>
+
+<span class="fc" id="L52">        ByteBuffer buffer = ByteBuffer.wrap(inetAddress.getAddress());</span>
+<span class="fc" id="L53">        BigInteger ipVal = new BigInteger(1, buffer.array());</span>
+
+<span class="fc" id="L55">        BigInteger startIp = ipVal.and(mask);</span>
+<span class="fc" id="L56">        BigInteger endIp = startIp.add(mask.not());</span>
+
+<span class="fc" id="L58">        byte[] startIpArr = toBytes(startIp.toByteArray(), targetSize);</span>
+<span class="fc" id="L59">        byte[] endIpArr = toBytes(endIp.toByteArray(), targetSize);</span>
+
+<span class="fc" id="L61">        this.startAddress = InetAddress.getByAddress(startIpArr);</span>
+<span class="fc" id="L62">        this.endAddress = InetAddress.getByAddress(endIpArr);</span>
+
+<span class="fc" id="L64">    }</span>
+
+    private byte[] toBytes(byte[] array, int targetSize) {
+<span class="fc" id="L67">        int counter = 0;</span>
+<span class="fc" id="L68">        List&lt;Byte&gt; newArr = new ArrayList&lt;Byte&gt;();</span>
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        while (counter &lt; targetSize &amp;&amp; (array.length - 1 - counter &gt;= 0)) {</span>
+<span class="fc" id="L70">            newArr.add(0, array[array.length - 1 - counter]);</span>
+<span class="fc" id="L71">            counter++;</span>
+        }
+
+<span class="fc" id="L74">        int size = newArr.size();</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        for (int i = 0; i &lt; (targetSize - size); i++) {</span>
+
+<span class="nc" id="L77">            newArr.add(0, (byte) 0);</span>
+        }
+
+<span class="fc" id="L80">        byte[] ret = new byte[newArr.size()];</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (int i = 0; i &lt; newArr.size(); i++) {</span>
+<span class="fc" id="L82">            ret[i] = newArr.get(i);</span>
+        }
+<span class="fc" id="L84">        return ret;</span>
+    }
+
+    public String getNetworkAddress() {
+<span class="fc" id="L88">        return this.startAddress.getHostAddress();</span>
+    }
+
+    public String getBroadcastAddress() {
+<span class="fc" id="L92">        return this.endAddress.getHostAddress();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaggerOpenIdConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access</a> &gt; <span class="el_source">SwaggerOpenIdConfig.java</span></div><h1>SwaggerOpenIdConfig.java</h1><pre class="source lang-java linenums">package access;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.*;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.ForwardedHeaderFilter;
+
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
+
+@Configuration
+@OpenAPIDefinition
+<span class="fc" id="L18">public class SwaggerOpenIdConfig {</span>
+
+    public static final String OPEN_ID_SCHEME_NAME = &quot;openId&quot;;
+    public static final String API_TOKENS_SCHEME_NAME = &quot;apiTokens&quot;;
+    public static final String BASIC_AUTHENTICATION_SCHEME_NAME = &quot;basic_auth&quot;;
+
+    @Bean
+    OpenAPI customOpenApi(@Value(&quot;${spring.security.oauth2.client.provider.oidcng.authorization-uri}&quot;) String authorizationUrl,
+                          @Value(&quot;${spring.security.oauth2.client.provider.oidcng.token-uri}&quot;) String tokenUrl,
+                          @Value(&quot;${oidcng.discovery-url}&quot;) String discoveryURL,
+                          @Value(&quot;${oidcng.base-url}&quot;) String baseUrl) {
+<span class="fc" id="L29">        SecurityScheme openIdSecuritySchema = new SecurityScheme()</span>
+<span class="fc" id="L30">                .type(SecurityScheme.Type.OAUTH2)</span>
+<span class="fc" id="L31">                .openIdConnectUrl(discoveryURL)</span>
+<span class="fc" id="L32">                .flows(new OAuthFlows().authorizationCode(new OAuthFlow()</span>
+<span class="fc" id="L33">                        .authorizationUrl(authorizationUrl)</span>
+<span class="fc" id="L34">                        .tokenUrl(tokenUrl)</span>
+<span class="fc" id="L35">                        .scopes(new Scopes().addString(&quot;openid&quot;, &quot;openid&quot;))));</span>
+
+<span class="fc" id="L37">        SecurityScheme apiTokensSecurityScheme = new SecurityScheme()</span>
+<span class="fc" id="L38">                .type(SecurityScheme.Type.APIKEY)</span>
+<span class="fc" id="L39">                .in(SecurityScheme.In.HEADER)</span>
+<span class="fc" id="L40">                .name(API_TOKEN_HEADER);</span>
+
+<span class="fc" id="L42">        SecurityScheme basicAuthentication = new SecurityScheme()</span>
+<span class="fc" id="L43">                .type(SecurityScheme.Type.HTTP)</span>
+<span class="fc" id="L44">                .scheme(&quot;basic&quot;);</span>
+
+<span class="fc" id="L46">        Components components = new Components()</span>
+<span class="fc" id="L47">                .addSecuritySchemes(OPEN_ID_SCHEME_NAME, openIdSecuritySchema)</span>
+<span class="fc" id="L48">                .addSecuritySchemes(API_TOKENS_SCHEME_NAME, apiTokensSecurityScheme)</span>
+<span class="fc" id="L49">                .addSecuritySchemes(BASIC_AUTHENTICATION_SCHEME_NAME, basicAuthentication);</span>
+
+<span class="fc" id="L51">        OpenAPI openAPI = new OpenAPI()</span>
+<span class="fc" id="L52">                .info(new Info()</span>
+<span class="fc" id="L53">                        .description(&quot;Access external API endpoints&quot;)</span>
+<span class="fc" id="L54">                        .title(&quot;Access API&quot;)</span>
+<span class="fc" id="L55">                        .version(&quot;v1&quot;))</span>
+<span class="fc" id="L56">                .addServersItem(new Server()</span>
+<span class="fc" id="L57">                        .url(baseUrl));</span>
+
+<span class="fc" id="L59">        openAPI.components(components)</span>
+<span class="fc" id="L60">                .addSecurityItem(new SecurityRequirement().addList(OPEN_ID_SCHEME_NAME));</span>
+<span class="fc" id="L61">        return openAPI;</span>
+    }
+
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() {
+<span class="fc" id="L66">        return new ForwardedHeaderFilter();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

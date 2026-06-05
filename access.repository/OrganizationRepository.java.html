@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.repository</a> &gt; <span class="el_source">OrganizationRepository.java</span></div><h1>OrganizationRepository.java</h1><pre class="source lang-java linenums">package access.repository;
+
+import access.model.Organization;
+import access.model.OrganizationStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryRewriter;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Repository
+public interface OrganizationRepository extends JpaRepository&lt;Organization, Long&gt;, QueryRewriter {
+
+    List&lt;Organization&gt; findByNameContainingIgnoreCase(String name);
+
+    Optional&lt;Organization&gt; findByManageIdentifier(String manageIdentifier);
+
+    List&lt;Organization&gt; findByStatus(OrganizationStatus status);
+
+    @EntityGraph(attributePaths = {&quot;organizationMemberships.user&quot;, &quot;invitations.invitee&quot;, &quot;joinRequests.user&quot;})
+    Optional&lt;Organization&gt; findUserManagementOrganizationById(Long id);
+
+    @EntityGraph(attributePaths = {&quot;applications.connections&quot;})
+    Optional&lt;Organization&gt; findApplicationsDetailsOrganizationById(Long id);
+
+    @EntityGraph(attributePaths = {&quot;applications&quot;})
+    Optional&lt;Organization&gt; findApplicationsOrganizationById(Long id);
+
+    @EntityGraph(attributePaths = {&quot;organizationMemberships.user&quot;})
+    Optional&lt;Organization&gt; findUsersOfOrganizationById(Long id);
+
+    @Modifying
+    @Query(value = &quot;DELETE FROM organizations WHERE id = ?1&quot;, nativeQuery = true)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    void deleteOrganizationById(Long id);
+
+
+    @Query(value = &quot;&quot;&quot;
+             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+                                org.manage_identifier as manageIdentifier,
+                    (SELECT u.email FROM organization_memberships om JOIN users u ON u.id = om.user_id WHERE om.organization_id = org.id
+                    AND om.authority = 'ADMIN' LIMIT 1) AS adminEmail
+              FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
+            &quot;&quot;&quot;,
+            countQuery = &quot;SELECT count(*) FROM organizations WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)&quot;,
+            queryRewriter = OrganizationRepository.class,
+            nativeQuery = true)
+    Page&lt;Map&lt;String, Object&gt;&gt; searchByPageWithKeyword(String keyWord, Pageable pageable);
+
+    @Query(value = &quot;&quot;&quot;
+             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+                                org.manage_identifier as manageIdentifier,
+                    (SELECT u.email FROM organization_memberships om JOIN users u ON u.id = om.user_id WHERE om.organization_id = org.id
+                    AND om.authority = 'ADMIN' LIMIT 1) AS adminEmail
+              FROM organizations org
+            &quot;&quot;&quot;,
+            countQuery = &quot;SELECT count(*) FROM organizations&quot;,
+            queryRewriter = OrganizationRepository.class,
+            nativeQuery = true)
+    Page&lt;Map&lt;String, Object&gt;&gt; searchByPage(Pageable pageable);
+
+    @Query(value = &quot;&quot;&quot;
+             SELECT org.id, org.name,
+                (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
+                (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount
+              FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
+            &quot;&quot;&quot;,
+            nativeQuery = true)
+    List&lt;Map&lt;String, Object&gt;&gt; searchWithKeyword(String keyWord);
+
+    @Query(value = &quot;SELECT org.id, org.name FROM organizations org&quot;, nativeQuery = true)
+    List&lt;Map&lt;String, Object&gt;&gt; findAllLight();
+
+    List&lt;Organization&gt; findByManageIdentifierIsNotNullAndManageIdentifierIsNot(String manageIdentifier);
+
+    @EntityGraph(attributePaths = {&quot;applications.connections&quot;})
+    List&lt;Organization&gt; findByManageIdentifierIsNullAndCreatedAtBefore(Instant cutoff);
+
+    @Override
+    default String rewrite(String query, Sort sort) {
+<span class="fc" id="L92">        Sort.Order adminEmailSort = sort.getOrderFor(&quot;adminEmail&quot;);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (adminEmailSort != null) {</span>
+            //Spring cannot sort on aggregated columns
+<span class="fc" id="L95">            return query.replace(&quot;order by org.adminEmail&quot;, &quot;order by adminEmail&quot;);</span>
+        }
+<span class="fc" id="L97">        return query;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

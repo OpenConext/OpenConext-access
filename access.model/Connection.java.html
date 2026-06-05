@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Connection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">Connection.java</span></div><h1>Connection.java</h1><pre class="source lang-java linenums">package access.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import static access.manage.ManageData.*;
+
+@Entity(name = &quot;connections&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+@SuppressWarnings(&quot;unchecked&quot;)
+public class Connection implements NameHolder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
+    @NotNull
+    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;application_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Application application;
+
+<span class="fc" id="L56">    @Type(JsonType.class)</span>
+    @Column(name = &quot;meta_data&quot;, columnDefinition = &quot;jsonb&quot;)
+    private HashMap&lt;String, Object&gt; metaData = new HashMap&lt;&gt;();
+
+<span class="fc" id="L60">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private EntityType protocol = EntityType.oidc10_rp;
+
+<span class="fc" id="L65">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private State state = State.testaccepted;
+
+<span class="fc" id="L70">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private ConnectionStatus status = ConnectionStatus.OPEN;
+
+    @Column(name = &quot;secret_set&quot;)
+    private boolean secretSet;
+
+    @Column(name = &quot;manage_identifier&quot;)
+    private String manageIdentifier;
+
+    @Column(name = &quot;sections_complete&quot;)
+    private int sectionsComplete;
+
+    @Column(name = &quot;manage_version&quot;)
+    private Integer manageVersion;
+
+    @Column(name = &quot;manage_eid&quot;)
+    private Integer manageEid;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @Column(name = &quot;updated_at&quot;)
+    private Instant updatedAt;
+
+<span class="fc" id="L96">    @Transient</span>
+    private List&lt;Map&lt;String, Object&gt;&gt; changeRequests = new ArrayList&lt;&gt;();
+
+<span class="fc" id="L99">    public Connection(String name, Application application, Map&lt;String, Object&gt; metaData, EntityType protocol) {</span>
+<span class="fc" id="L100">        this.name = name;</span>
+<span class="fc" id="L101">        this.application = application;</span>
+<span class="fc" id="L102">        this.metaData = new HashMap&lt;&gt;(metaData);</span>
+<span class="fc" id="L103">        this.protocol = protocol;</span>
+<span class="fc" id="L104">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L105">        this.updatedAt = Instant.now();</span>
+<span class="fc" id="L106">        this.manageVersion = 0;</span>
+<span class="fc" id="L107">    }</span>
+
+    @JsonIgnore
+    public boolean isValid() {
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (!StringUtils.hasText(name)) {</span>
+<span class="fc" id="L112">            return false;</span>
+        }
+<span class="fc" id="L114">        String entityID = (String) metaData.get(&quot;entityID&quot;);</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">        if (!StringUtils.hasText(entityID) &amp;&amp; EntityType.saml20_sp.equals(this.protocol)) {</span>
+<span class="nc" id="L116">            return false;</span>
+        }
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (this.protocol.equals(EntityType.oidc10_rp) &amp;&amp;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">                (CollectionUtils.isEmpty((Collection&lt;?&gt;) metaData.get(&quot;redirectUrls&quot;)) ||</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                        CollectionUtils.isEmpty((Collection&lt;?&gt;) metaData.get(&quot;grantTypes&quot;)))) {</span>
+<span class="fc" id="L121">            return false;</span>
+        }
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (this.protocol.equals(EntityType.saml20_sp) &amp;&amp;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">                CollectionUtils.isEmpty((Collection&lt;?&gt;) metaData.get(&quot;acsLocations&quot;))) {</span>
+<span class="fc" id="L125">            return false;</span>
+        }
+<span class="fc" id="L127">        return true;</span>
+    }
+
+    public void merge(Connection connectionData) {
+<span class="fc" id="L131">        this.name = connectionData.name;</span>
+<span class="fc" id="L132">        this.metaData = connectionData.metaData;</span>
+<span class="fc" id="L133">        this.protocol = connectionData.protocol;</span>
+<span class="fc" id="L134">        this.status = connectionData.status;</span>
+<span class="fc" id="L135">        this.sectionsComplete = connectionData.sectionsComplete;</span>
+<span class="fc" id="L136">    }</span>
+
+
+    @JsonIgnore
+    public boolean mergeMetaData(Map&lt;String, Object&gt; provider, boolean force) {
+        // For new Connections
+<span class="fc" id="L142">        boolean changed = true;</span>
+<span class="fc" id="L143">        Integer newManageVersion = (Integer) provider.get(&quot;version&quot;);</span>
+<span class="fc bfc" id="L144" title="All 4 branches covered.">        if (newManageVersion.equals(this.manageVersion) &amp;&amp; !force) {</span>
+            //Two-way synchronization and optimistic locking
+<span class="fc" id="L146">            return false;</span>
+        }
+<span class="fc" id="L148">        this.manageIdentifier = (String) provider.get(&quot;id&quot;);</span>
+<span class="fc" id="L149">        this.manageVersion = newManageVersion;</span>
+<span class="fc" id="L150">        this.metaData = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L152">        Map&lt;String, Object&gt; data = getData(provider);</span>
+<span class="fc" id="L153">        this.manageEid = (Integer) data.get(&quot;eid&quot;);</span>
+
+<span class="fc" id="L155">        String entityID = (String) data.get(&quot;entityid&quot;);</span>
+<span class="fc" id="L156">        this.metaData.put(&quot;entityID&quot;, entityID);</span>
+<span class="fc" id="L157">        this.metaData.put(&quot;allowedall&quot;, data.get(&quot;allowedall&quot;));</span>
+<span class="fc" id="L158">        List&lt;Map&lt;String, String&gt;&gt; allowedEntities = (List&lt;Map&lt;String, String&gt;&gt;) data.getOrDefault(&quot;allowedEntities&quot;, List.of());</span>
+<span class="pc" id="L159">        List&lt;String&gt; allowedEntitiesMapped = allowedEntities.stream().map(m -&gt; m.get(&quot;name&quot;)).toList();</span>
+<span class="fc" id="L160">        this.metaData.put(&quot;allowedEntities&quot;, allowedEntitiesMapped);</span>
+<span class="fc" id="L161">        Map&lt;String, Object&gt; arp = (Map&lt;String, Object&gt;) data.get(&quot;arp&quot;);</span>
+<span class="fc" id="L162">        this.metaData.put(&quot;arp&quot;, arp);</span>
+
+<span class="fc" id="L164">        Map&lt;String, Object&gt; metaDataFields = getMetaDataFields(data);</span>
+<span class="fc" id="L165">        this.name = (String) metaDataFields.getOrDefault(&quot;name:en&quot;, this.name);</span>
+<span class="fc" id="L166">        this.metaData.put(&quot;name&quot;, name);</span>
+<span class="fc" id="L167">        this.metaData.put(&quot;pkce&quot;, metaDataFields.get(&quot;isPublicClient&quot;));</span>
+<span class="fc" id="L168">        this.metaData.put(&quot;grantTypes&quot;, metaDataFields.get(&quot;grants&quot;));</span>
+<span class="fc" id="L169">        this.metaData.put(&quot;refreshTokenValidity&quot;, metaDataFields.get(&quot;refreshTokenValidity&quot;));</span>
+<span class="fc" id="L170">        this.metaData.put(&quot;claimsInIdToken&quot;, metaDataFields.get(&quot;oidc:claims_in_id_token&quot;));</span>
+<span class="fc" id="L171">        this.metaData.put(&quot;secret&quot;, metaDataFields.get(&quot;secret&quot;));</span>
+<span class="fc" id="L172">        this.metaData.put(&quot;redirectUrls&quot;, metaDataFields.get(&quot;redirectUrls&quot;));</span>
+<span class="fc" id="L173">        List&lt;String&gt; acsLocations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L174">        IntStream.of(0, 1, 2, 3, 4, 5).forEach(index -&gt; {</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">            if (metaDataFields.containsKey(&quot;AssertionConsumerService:&quot; + index + &quot;:Location&quot;)) {</span>
+<span class="nc" id="L176">                acsLocations.add((String) metaDataFields.get(&quot;AssertionConsumerService:&quot; + index + &quot;:Location&quot;));</span>
+            }
+<span class="fc" id="L178">        });</span>
+<span class="fc" id="L179">        this.metaData.put(&quot;acsLocations&quot;, acsLocations);</span>
+<span class="fc" id="L180">        this.metaData.put(&quot;logoUrl&quot;, metaDataFields.get(&quot;logo:0:url&quot;));</span>
+<span class="fc" id="L181">        boolean ssHidden = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:hidden&quot;, false);</span>
+<span class="fc" id="L182">        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault(&quot;coin:ss:idp_visible_only&quot;, false);</span>
+<span class="pc bpc" id="L183" title="1 of 4 branches missed.">        String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?</span>
+<span class="pc" id="L184">                Visibility.visible_to_idp_only.name() : Visibility.visible_to_all.name();</span>
+<span class="fc" id="L185">        this.metaData.put(&quot;visibility&quot;, visibility);</span>
+<span class="fc" id="L186">        this.metaData.put(&quot;loginUrl&quot;, metaDataFields.get(&quot;coin:login_url&quot;));</span>
+<span class="fc" id="L187">        String connectOption = (String) metaDataFields</span>
+<span class="fc" id="L188">                .getOrDefault(&quot;coin:dashboard_connect_option&quot;, ConnectOptions.connect_with_interaction.name());</span>
+<span class="fc" id="L189">        this.metaData.put(&quot;connectOption&quot;, connectOption);</span>
+        /*
+         * Business logic. If a status for a production connection is pending production and the state has changed
+         * to prodaccepted, then we set the status to production ready
+         */
+<span class="fc" id="L194">        this.state = State.valueOf((String) data.getOrDefault(&quot;state&quot;, &quot;testaccepted&quot;));</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (ConnectionStatus.PENDING_PROD.equals(this.status) &amp;&amp;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                this.state.equals(State.prodaccepted)) {</span>
+<span class="fc" id="L197">            this.status = ConnectionStatus.PROD_READY;</span>
+        }
+<span class="fc" id="L199">        return changed;</span>
+    }
+
+    @JsonIgnore
+    public void updateRemoteManageData(Map&lt;String, Object&gt; provider) {
+<span class="fc" id="L204">        this.manageIdentifier = (String) provider.get(&quot;id&quot;);</span>
+<span class="fc" id="L205">        this.manageVersion = (Integer) provider.get(&quot;version&quot;);</span>
+<span class="fc" id="L206">        Map&lt;String, Object&gt; data = (Map&lt;String, Object&gt;) provider.get(&quot;data&quot;);</span>
+<span class="fc" id="L207">        this.manageEid = (Integer) data.get(&quot;eid&quot;);</span>
+<span class="fc" id="L208">        this.state = State.valueOf((String) data.getOrDefault(&quot;state&quot;, &quot;testaccepted&quot;));</span>
+<span class="fc" id="L209">    }</span>
+
+    @JsonIgnore
+    public boolean changeRequestRequired() {
+<span class="fc bfc" id="L213" title="All 4 branches covered.">        return this.state.equals(State.prodaccepted) &amp;&amp; StringUtils.hasText(this.manageIdentifier);</span>
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+<span class="fc" id="L218">        this.updatedAt = Instant.now();</span>
+<span class="fc" id="L219">    }</span>
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public List&lt;Map&lt;String, Object&gt;&gt; getChangeRequests() {
+<span class="fc" id="L223">        return this.changeRequests;</span>
+    }
+
+    public void convertChangeRequests(List&lt;Map&lt;String, Object&gt;&gt; changeRequests) {
+        //We need to convert the changeRequests to the same data as the metaData of a Connection
+<span class="fc" id="L228">        this.changeRequests = changeRequests.stream()</span>
+<span class="fc" id="L229">                .map(changeRequest -&gt; {</span>
+<span class="fc" id="L230">                    Map&lt;String, Object&gt; pathUpdates = (Map&lt;String, Object&gt;) changeRequest.get(&quot;pathUpdates&quot;);</span>
+<span class="fc" id="L231">                    Map&lt;String, Object&gt; provider = new HashMap&lt;&gt;();</span>
+                    //To prevent NullPointerException
+<span class="fc" id="L233">                    provider.put(&quot;version&quot;, -1);</span>
+
+<span class="fc" id="L235">                    Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L236">                    provider.put(&quot;data&quot;, data);</span>
+
+<span class="fc" id="L238">                    Map&lt;String, Object&gt; metaDataFields = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L239">                    data.put(&quot;metaDataFields&quot;, metaDataFields);</span>
+
+<span class="fc" id="L241">                    pathUpdates.forEach((key, value) -&gt; {</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">                        if (key.startsWith(&quot;metaDataFields&quot;)) {</span>
+                            //See src/test/resources/manage/change_request_large.json
+<span class="fc" id="L244">                            key = key.substring(&quot;metaDataFields.&quot;.length());</span>
+<span class="fc" id="L245">                            metaDataFields.put(key, value);</span>
+                        } else {
+                            //For pathUpdates to the ARP
+<span class="fc" id="L248">                            data.put(key, value);</span>
+                        }
+<span class="fc" id="L250">                    });</span>
+<span class="fc" id="L251">                    Connection connection = new Connection();</span>
+<span class="fc" id="L252">                    connection.mergeMetaData(provider, true);</span>
+<span class="fc" id="L253">                    Map&lt;String, Object&gt; connectionMetaData = connection.getMetaData();</span>
+                    //Now clean up all keys where the value is empty
+<span class="fc" id="L255">                    connectionMetaData.entrySet().removeIf(entry -&gt; isEmpty(entry.getValue()));</span>
+                    //Bugfix for lazy initialization of boolean values
+<span class="fc" id="L257">                    Map.of(</span>
+<span class="fc" id="L258">                                    &quot;visibility&quot;, List.of(&quot;coin:ss:idp_visible_only&quot;, &quot;coin:ss:hidden&quot;),</span>
+<span class="fc" id="L259">                                    &quot;pkce&quot;, List.of(&quot;isPublicClient&quot;),</span>
+<span class="fc" id="L260">                                    &quot;oidc:claims_in_id_token&quot;, List.of(&quot;claimsInIdToken&quot;),</span>
+<span class="fc" id="L261">                                    &quot;connectOption&quot;, List.of(&quot;coin:dashboard_connect_option&quot;))</span>
+<span class="fc" id="L262">                            .forEach((connectionKey, manageValues) -&gt; {</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">                                if (manageValues.stream().noneMatch(val -&gt; metaDataFields.containsKey(val))) {</span>
+<span class="fc" id="L264">                                    connectionMetaData.remove(connectionKey);</span>
+                                }
+<span class="fc" id="L266">                            });</span>
+                    //copy some of the auditData for display purposes and revoke functionality
+<span class="fc" id="L268">                    List.of(&quot;id&quot;, &quot;metaDataId&quot;, &quot;type&quot;, &quot;auditData&quot;, &quot;created&quot;, &quot;ticketKey&quot;)</span>
+<span class="fc" id="L269">                            .forEach(attr -&gt; connectionMetaData.put(attr, changeRequest.get(attr)));</span>
+<span class="fc" id="L270">                    return connectionMetaData;</span>
+                })
+<span class="fc" id="L272">                .toList();</span>
+<span class="fc" id="L273">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAccessRights.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">UserAccessRights.java</span></div><h1>UserAccessRights.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.model.Application;
+import access.model.Authority;
+import access.model.Organization;
+import access.model.OrganizationMembership;
+import access.model.User;
+import access.repository.UserRepository;
+
+import java.util.Optional;
+
+public interface UserAccessRights {
+
+    default void confirmOrganizationMembership(User user, Organization organization, Authority authority) {
+<span class="fc bfc" id="L17" title="All 2 branches covered.">        if (user.isSuperUser()) {</span>
+<span class="fc" id="L18">            return;</span>
+        }
+        //Throw an Exception if there is no Organization membership for this user with the required authority
+<span class="fc" id="L21">        getOrganizationMembership(user, organization, authority)</span>
+<span class="fc" id="L22">                .orElseThrow(() -&gt; new UserRestrictionException(</span>
+<span class="fc" id="L23">                        String.format(&quot;User %s does not have the authority %s of a membership in organization %s&quot;,</span>
+<span class="fc" id="L24">                                user.getEmail(), authority, organization.getName())));</span>
+<span class="fc" id="L25">    }</span>
+
+    default void confirmApplicationWriteAccess(User user, Application application) {
+<span class="fc" id="L28">        confirmApplicationWriteAccess(user, application, Authority.GUEST);</span>
+<span class="fc" id="L29">    }</span>
+
+    default void confirmApplicationWriteAccess(User user, Application application, Authority minimalAuthority) {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (user.isSuperUser()) {</span>
+<span class="fc" id="L33">            return;</span>
+        }
+        //First, get the organization membership for the user
+<span class="fc" id="L36">        Organization organization = application.getOrganization();</span>
+<span class="fc" id="L37">        OrganizationMembership organizationMembership = getOrganizationMembership(user, organization, minimalAuthority)</span>
+<span class="fc" id="L38">                .orElseThrow(() -&gt; new UserRestrictionException(</span>
+<span class="fc" id="L39">                        String.format(&quot;User %s is not a %s of organization %s&quot;,</span>
+<span class="fc" id="L40">                                user.getEmail(), minimalAuthority, organization.getName())));</span>
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        boolean allowed = switch (organizationMembership.getAuthority()) {</span>
+<span class="fc" id="L43">            case ADMIN -&gt; true;</span>
+            case MEMBER, GUEST -&gt; {
+<span class="fc" id="L45">                boolean allowedByApplicationMembership = organizationMembership.getApplicationMemberships()</span>
+<span class="fc" id="L46">                        .stream()</span>
+<span class="fc" id="L47">                        .anyMatch(applicationMembership -&gt; applicationMembership.getApplication().getId().equals(application.getId()));</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">                yield allowedByApplicationMembership ||</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">                        (application.getOwner() != null &amp;&amp; application.getOwner().getId().equals(user.getId()));</span>
+            }
+        };
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (!allowed) {</span>
+<span class="fc" id="L53">            throw new UserRestrictionException(</span>
+<span class="fc" id="L54">                    String.format(&quot;User %s is not allowed to access application %s&quot;,</span>
+<span class="fc" id="L55">                            user.getEmail(), application.getName()));</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+    default void confirmApplicationDeleteAccess(User user, Application application) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (user.isSuperUser()) {</span>
+<span class="fc" id="L61">            return;</span>
+        }
+        //First, get the organization membership for the user
+<span class="fc" id="L64">        Organization organization = application.getOrganization();</span>
+<span class="fc" id="L65">        OrganizationMembership organizationMembership = getOrganizationMembership(user, organization, Authority.MEMBER)</span>
+<span class="fc" id="L66">                .orElseThrow(() -&gt; new UserRestrictionException(</span>
+<span class="fc" id="L67">                        String.format(&quot;User %s is not a member of organization %s&quot;,</span>
+<span class="fc" id="L68">                                user.getEmail(), organization.getName())));</span>
+
+<span class="pc bpc" id="L70" title="1 of 3 branches missed.">        boolean allowed = switch (organizationMembership.getAuthority()) {</span>
+<span class="fc" id="L71">            case ADMIN -&gt; true;</span>
+<span class="pc bpc" id="L72" title="1 of 4 branches missed.">            case MEMBER -&gt; application.getOwner() != null &amp;&amp; application.getOwner().getId().equals(user.getId());</span>
+<span class="pc" id="L73">            case GUEST -&gt; false;</span>
+        };
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (!allowed) {</span>
+<span class="fc" id="L76">            throw new UserRestrictionException(</span>
+<span class="fc" id="L77">                    String.format(&quot;User %s is not allowed to access application %s&quot;,</span>
+<span class="fc" id="L78">                            user.getEmail(), application.getName()));</span>
+        }
+<span class="fc" id="L80">    }</span>
+
+    default Optional&lt;OrganizationMembership&gt; getOrganizationMembership(User user, Organization organization, Authority authority) {
+<span class="fc" id="L83">        return user.getOrganizationMemberships().stream()</span>
+<span class="fc" id="L84">                .filter(orgMembership -&gt; orgMembership.getOrganization().getId().equals(organization.getId()))</span>
+<span class="fc" id="L85">                .filter(orgMembership -&gt; orgMembership.getAuthority().isAllowed(authority))</span>
+<span class="fc" id="L86">                .findFirst();</span>
+    }
+
+    default User reinitializeUser(User user, UserRepository userRepository) {
+        //To prevent LazyInitializationException
+<span class="fc" id="L91">        return userRepository.findById(user.getId())</span>
+<span class="pc" id="L92">                .orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+    }
+
+    default void confirmSuperUser(User user) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (!user.isSuperUser()) {</span>
+<span class="fc" id="L97">            throw new UserRestrictionException(String.format(&quot;User %s is no super user&quot;,</span>
+<span class="fc" id="L98">                    user.getEmail()));</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    default void confirmInstitutionAdmin(User user, Organization organization) {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (user.isSuperUser()) {</span>
+<span class="fc" id="L104">            return;</span>
+        }
+<span class="fc" id="L106">        organization.getOrganizationMemberships().stream()</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                .filter(organizationMembership -&gt; organizationMembership.getUser().getId().equals(user.getId())</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                        &amp;&amp; organizationMembership.getAuthority().equals(Authority.ADMIN))</span>
+<span class="fc" id="L109">                .findFirst()</span>
+<span class="fc" id="L110">                .orElseThrow(() -&gt; new UserRestrictionException(</span>
+<span class="fc" id="L111">                        String.format(&quot;User %s, %s is no super user or institution admin or admin of %s&quot;,</span>
+<span class="fc" id="L112">                                user.getEmail(), user.getAuthenticatingAuthority(), organization.getName())));</span>
+
+<span class="fc" id="L114">    }</span>
+
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

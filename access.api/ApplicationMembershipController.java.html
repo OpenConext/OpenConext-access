@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationMembershipController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">ApplicationMembershipController.java</span></div><h1>ApplicationMembershipController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.NotFoundException;
+import access.model.*;
+import access.repository.ApplicationMembershipRepository;
+import access.repository.ApplicationRepository;
+import access.repository.OrganizationMembershipRepository;
+import access.repository.UserRepository;
+import access.request.ApplicationMembershipForm;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Set;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.api.Results.deleteResult;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/application_memberships&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class ApplicationMembershipController implements UserAccessRights {
+
+<span class="fc" id="L33">    private static final Log LOG = LogFactory.getLog(ApplicationMembershipController.class);</span>
+
+    private final ApplicationRepository applicationRepository;
+    private final ApplicationMembershipRepository applicationMembershipRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final UserRepository userRepository;
+
+    public ApplicationMembershipController(ApplicationRepository applicationRepository,
+                                           ApplicationMembershipRepository applicationMembershipRepository,
+                                           OrganizationMembershipRepository organizationMembershipRepository,
+<span class="fc" id="L43">                                           UserRepository userRepository) {</span>
+<span class="fc" id="L44">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L45">        this.applicationMembershipRepository = applicationMembershipRepository;</span>
+<span class="fc" id="L46">        this.organizationMembershipRepository = organizationMembershipRepository;</span>
+<span class="fc" id="L47">        this.userRepository = userRepository;</span>
+<span class="fc" id="L48">    }</span>
+
+    @PostMapping({&quot;&quot;, &quot;/&quot;})
+    public ResponseEntity&lt;ApplicationMembership&gt; create(
+            User user, @RequestBody ApplicationMembershipForm applicationMembershipForm) {
+<span class="fc" id="L53">        LOG.debug(&quot;/create&quot;);</span>
+<span class="fc" id="L54">        Application application = this.applicationRepository.findById(applicationMembershipForm.getApplicationId())</span>
+<span class="pc" id="L55">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+
+<span class="fc" id="L57">        user = reinitializeUser(user ,userRepository);</span>
+<span class="fc" id="L58">        confirmApplicationWriteAccess(user, application, Authority.MEMBER);</span>
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (!application.getOrganization().getId().equals(applicationMembershipForm.getOrganizationId())) {</span>
+<span class="nc" id="L61">            throw new NotFoundException(&quot;Organization not found&quot;);</span>
+        }
+<span class="fc" id="L63">        OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(applicationMembershipForm.getOrganizationMembershipId())</span>
+<span class="pc" id="L64">                .orElseThrow(() -&gt; new NotFoundException(&quot;OrganizationMembership not found&quot;));</span>
+<span class="fc" id="L65">        ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership);</span>
+<span class="fc" id="L66">        applicationMembership = applicationMembershipRepository.save(applicationMembership);</span>
+
+<span class="fc" id="L68">        return ResponseEntity.status(HttpStatus.CREATED).body(applicationMembership);</span>
+    }
+
+    @DeleteMapping({&quot;/{membership_id}&quot;})
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; delete(User user, @PathVariable(&quot;membership_id&quot;) Long membershipId) {
+<span class="fc" id="L73">        LOG.debug(&quot;/delete&quot;);</span>
+<span class="fc" id="L74">        ApplicationMembership applicationMembership = this.applicationMembershipRepository.findById(membershipId)</span>
+<span class="pc" id="L75">                .orElseThrow(() -&gt; new NotFoundException(&quot;ApplicationMembership not found&quot;));</span>
+
+<span class="fc" id="L77">        user = reinitializeUser(user ,userRepository);</span>
+<span class="fc" id="L78">        confirmOrganizationMembership(user, applicationMembership.getOrganizationMembership().getOrganization(), Authority.GUEST);</span>
+<span class="fc" id="L79">        applicationMembershipRepository.delete(applicationMembership);</span>
+
+<span class="fc" id="L81">        return deleteResult();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

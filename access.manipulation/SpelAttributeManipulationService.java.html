@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpelAttributeManipulationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manipulation</a> &gt; <span class="el_source">SpelAttributeManipulationService.java</span></div><h1>SpelAttributeManipulationService.java</h1><pre class="source lang-java linenums">package access.manipulation;
+
+import org.springframework.expression.EvaluationException;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+<span class="fc" id="L11">public class SpelAttributeManipulationService implements AttributeManipulationService {</span>
+
+
+    public void apply(AttributeManipulation policy,
+                      Map&lt;String, List&lt;String&gt;&gt; attributes,
+                      String subjectId) {
+
+<span class="fc" id="L18">        Expression expression = policy.getCompiledExpression();</span>
+
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if (expression == null) {</span>
+<span class="nc" id="L21">            return;</span>
+        }
+
+<span class="fc" id="L24">        AttributeScriptContext ctx = new AttributeScriptContext(attributes, subjectId);</span>
+
+<span class="fc" id="L26">        StandardEvaluationContext context = new StandardEvaluationContext(ctx);</span>
+
+<span class="fc" id="L28">        context.setTypeLocator(typeName -&gt; {</span>
+<span class="nc" id="L29">            throw new EvaluationException(&quot;Type access not allowed&quot;);</span>
+        });
+
+<span class="fc" id="L32">        expression.getValue(context);</span>
+<span class="fc" id="L33">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

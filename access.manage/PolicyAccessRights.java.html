@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PolicyAccessRights.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">PolicyAccessRights.java</span></div><h1>PolicyAccessRights.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import access.exception.UserRestrictionException;
+import access.model.EntityType;
+import access.model.Organization;
+import access.model.User;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import static access.manage.ManageData.getData;
+
+public interface PolicyAccessRights {
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    default void confirmPolicyAccess(User user,
+                                     PolicyDefinition policyDefinition,
+                                     Manage manage,
+                                     Organization organization) {
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (user.isSuperUser()) {</span>
+<span class="fc" id="L22">            return;</span>
+        }
+<span class="fc" id="L24">        Map&lt;String, Object&gt; identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());</span>
+<span class="fc" id="L25">        Map&lt;String, Object&gt; data = getData(identityProvider);</span>
+<span class="fc" id="L26">        List&lt;String&gt; entityId = List.of((String) data.get(&quot;entityid&quot;));</span>
+        //Is the IdP of the Policy the same as the IdP of the User?
+<span class="fc" id="L28">        if (!policyDefinition.getIdentityProviderIds().stream()</span>
+<span class="fc" id="L29">                .map(policyProvider -&gt; policyProvider.getName())</span>
+<span class="fc" id="L30">                .toList()</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">                .equals(entityId)) {</span>
+<span class="nc" id="L32">            throwUserRestrictionException(user, policyDefinition);</span>
+        }
+        //All SP's must be linked to the IdP of the user (=authenticatingAuthority of the User)
+<span class="fc" id="L35">        List&lt;String&gt; serviceProviderIdentifiers = policyDefinition.getServiceProviderIds().stream()</span>
+<span class="fc" id="L36">                .map(policyProvider -&gt; policyProvider.getName())</span>
+<span class="fc" id="L37">                .toList();</span>
+<span class="fc" id="L38">        List&lt;String&gt; allowedEntities = ((List&lt;Map&lt;String, String&gt;&gt;) data.getOrDefault(&quot;allowedEntities&quot;, List.of()))</span>
+<span class="fc" id="L39">                .stream()</span>
+<span class="fc" id="L40">                .map(allowedEntry -&gt; allowedEntry.get(&quot;name&quot;))</span>
+<span class="fc" id="L41">                .toList();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (!new HashSet&lt;&gt;(allowedEntities).containsAll(serviceProviderIdentifiers)) {</span>
+<span class="nc" id="L43">            throwUserRestrictionException(user, policyDefinition);</span>
+        }
+<span class="fc" id="L45">    }</span>
+
+    default void throwUserRestrictionException(User user,
+                                               PolicyDefinition policyDefinition) {
+<span class="fc" id="L49">        throw new UserRestrictionException(</span>
+<span class="fc" id="L50">                String.format(&quot;User %s from %s is not allowed access to policy %s&quot;,</span>
+<span class="fc" id="L51">                        user.getEmail(), user.getAuthenticatingAuthority(), policyDefinition.getIdentityProviderIds()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

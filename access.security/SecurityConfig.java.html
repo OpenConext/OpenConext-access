@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.security</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package access.security;
+
+import access.manage.Manage;
+import access.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
+
+@EnableWebSecurity
+@EnableScheduling
+@Configuration
+@EnableMethodSecurity
+@EnableCaching
+public class SecurityConfig {
+
+    public static final String API_TOKEN_HEADER = &quot;X-API-TOKEN&quot;;
+
+    private final ClientRegistrationRepository clientRegistrationRepository;
+    private final Environment environment;
+    private final List&lt;String&gt; eduidIdpEntityIdentifiers;
+    private final String minimalStepupAcrLevel;
+
+    @Autowired
+    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
+                          Environment environment,
+                          @Value(&quot;${eduid-idp-entity-id}&quot;) String eduidIdpEntityId,
+<span class="fc" id="L61">                          @Value(&quot;${config.minimal_stepup_acr_level}&quot;) String minimalStepupAcrLevel) {</span>
+<span class="fc" id="L62">        this.clientRegistrationRepository = clientRegistrationRepository;</span>
+<span class="fc" id="L63">        this.environment = environment;</span>
+<span class="fc" id="L64">        this.eduidIdpEntityIdentifiers = Stream.of(eduidIdpEntityId.split(&quot;,&quot;)).map(entityId -&gt; entityId.trim()).toList();</span>
+<span class="fc" id="L65">        this.minimalStepupAcrLevel = minimalStepupAcrLevel;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Configuration
+    @EnableConfigurationProperties({SuperAdmin.class})
+    public static class MvcConfig implements WebMvcConfigurer {
+
+        private final UserRepository userRepository;
+        private final SuperAdmin superAdmin;
+
+        @Autowired
+<span class="fc" id="L76">        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {</span>
+<span class="fc" id="L77">            this.userRepository = userRepository;</span>
+<span class="fc" id="L78">            this.superAdmin = superAdmin;</span>
+<span class="fc" id="L79">        }</span>
+
+        @Override
+        public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; argumentResolvers) {
+<span class="fc" id="L83">            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));</span>
+<span class="fc" id="L84">        }</span>
+
+    }
+
+    @Bean
+    public CookieSerializer cookieSerializer(@Value(&quot;${server.servlet.session.cookie.secure}&quot;) boolean secure) {
+<span class="fc" id="L90">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
+<span class="fc" id="L91">        serializer.setUseSecureCookie(secure);</span>
+<span class="fc" id="L92">        return serializer;</span>
+    }
+
+    @Bean
+    @Order(1)
+    SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http,
+                                                   UserRepository userRepository,
+                                                   Manage manage,
+                                                   @Value(&quot;${institution-admin.entitlement}&quot;) String entitlement,
+                                                   @Value(&quot;${institution-admin.organization-guid-prefix}&quot;) String organizationGuidPrefix) throws Exception {
+<span class="fc" id="L102">        http</span>
+<span class="fc" id="L103">                .csrf(csrfConfigurer -&gt; csrfConfigurer</span>
+<span class="fc" id="L104">                        .ignoringRequestMatchers(</span>
+                                &quot;/api/v1/test/login&quot;,
+                                &quot;/login/oauth2/code/oidcng&quot;,
+                                &quot;/api/v1/validations/**&quot;))
+<span class="fc" id="L108">                .securityMatcher(&quot;/login/oauth2/**&quot;, &quot;/oauth2/authorization/**&quot;, &quot;/api/v1/**&quot;)</span>
+<span class="fc" id="L109">                .authorizeHttpRequests(authorizeHttpRequestsConfigurer -&gt; authorizeHttpRequestsConfigurer</span>
+<span class="fc" id="L110">                        .requestMatchers(</span>
+                                &quot;/api/v1/csrf&quot;,
+                                &quot;/api/v1/disclaimer&quot;,
+                                &quot;/api/v1/users/config&quot;,
+                                &quot;/api/v1/users/logout&quot;,
+                                &quot;/api/v1/validations/**&quot;,
+                                &quot;/api/v1/test/login&quot;,
+                                &quot;/api/v1/public/**&quot;,
+                                &quot;/api/v1/manage/arp&quot;,
+                                &quot;/api/v1/stats/loginTimeFrame&quot;,
+                                &quot;/api/v1/monitoring&quot;,
+                                &quot;/api/v1/manage/allowed-attributes&quot;,
+                                &quot;/api/v1/manage/privacy&quot;,
+                                &quot;/ui/**&quot;,
+                                &quot;/internal/health&quot;,
+                                &quot;/internal/info&quot;)
+<span class="fc" id="L126">                        .permitAll()</span>
+<span class="fc" id="L127">                        .anyRequest()</span>
+<span class="fc" id="L128">                        .authenticated()</span>
+                )
+<span class="fc" id="L130">                .oauth2Login(oAuth2LoginConfigurer -&gt; oAuth2LoginConfigurer</span>
+<span class="fc" id="L131">                        .authorizationEndpoint(authorization -&gt; authorization</span>
+<span class="fc" id="L132">                                .authorizationRequestResolver(</span>
+<span class="fc" id="L133">                                        authorizationRequestResolver(this.clientRegistrationRepository)</span>
+                                )
+<span class="fc" id="L135">                        ).userInfoEndpoint(userInfoEndpointConfigurer -&gt; userInfoEndpointConfigurer.oidcUserService(</span>
+                                new CustomOidcUserService(userRepository, manage, entitlement, organizationGuidPrefix)))
+                )
+                //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
+<span class="fc" id="L139">                .securityContext(securityContextConfigurer -&gt;</span>
+<span class="fc" id="L140">                        securityContextConfigurer.securityContextRepository(this.securityContextRepository()));</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (environment.acceptsProfiles(Profiles.of(&quot;dev&quot;))) {</span>
+            //Thus avoiding an oauth2 login for local development
+<span class="nc" id="L143">            http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);</span>
+        }
+<span class="fc" id="L145">        return http.build();</span>
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository() {
+<span class="fc" id="L150">        return new DelegatingSecurityContextRepository(</span>
+                new RequestAttributeSecurityContextRepository(),
+                new HttpSessionSecurityContextRepository()
+        );
+    }
+
+
+    @Bean
+    @Order(2)
+    SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http,
+                                                               @Value(&quot;${lifecycle.user}&quot;) String lifeCycleUser,
+                                                               @Value(&quot;${lifecycle.password}&quot;) String lifeCyclePassword) throws Exception {
+<span class="fc" id="L162">        http.csrf(c -&gt; c.disable())</span>
+<span class="fc" id="L163">                .securityMatcher(</span>
+                        &quot;/api/external/v1/deprovision/**&quot;,
+                        &quot;/internal/prometheus&quot;
+<span class="fc" id="L166">                ).sessionManagement(c -&gt; c</span>
+<span class="fc" id="L167">                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)</span>
+<span class="fc" id="L168">                ).authorizeHttpRequests(auth -&gt; auth</span>
+<span class="fc" id="L169">                        .requestMatchers(&quot;/internal/prometheus&quot;).hasRole(&quot;ACTUATOR&quot;)</span>
+<span class="fc" id="L170">                        .requestMatchers(&quot;/api/external/v1/deprovision/**&quot;).hasRole(&quot;LIFECYCLE&quot;))</span>
+<span class="fc" id="L171">                .authorizeHttpRequests(c -&gt; c</span>
+<span class="fc" id="L172">                        .anyRequest()</span>
+<span class="fc" id="L173">                        .authenticated()</span>
+                )
+<span class="fc" id="L175">                .userDetailsService(new InMemoryUserDetailsManager(</span>
+                        new org.springframework.security.core.userdetails.User(
+                                lifeCycleUser,
+<span class="fc" id="L178">                                &quot;{noop}&quot;.concat(lifeCyclePassword),</span>
+<span class="fc" id="L179">                                List.of(new SimpleGrantedAuthority(&quot;ROLE_LIFECYCLE&quot;))</span>
+                        )
+                ))
+<span class="fc" id="L182">                .httpBasic(Customizer.withDefaults());</span>
+<span class="fc" id="L183">        return http.build();</span>
+    }
+
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+<span class="fc" id="L188">        DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =</span>
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository, &quot;/oauth2/authorization&quot;);
+<span class="fc" id="L191">        authorizationRequestResolver.setAuthorizationRequestCustomizer(</span>
+                new AuthorizationRequestCustomizer(eduidIdpEntityIdentifiers, minimalStepupAcrLevel));
+<span class="fc" id="L193">        return authorizationRequestResolver;</span>
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+<span class="fc" id="L198">        AcceptHeaderLocaleResolver slr = new AcceptHeaderLocaleResolver();</span>
+<span class="fc" id="L199">        slr.setDefaultLocale(Locale.ENGLISH);</span>
+<span class="fc" id="L200">        return slr;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

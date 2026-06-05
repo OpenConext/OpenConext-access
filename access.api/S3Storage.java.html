@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>S3Storage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">S3Storage.java</span></div><h1>S3Storage.java</h1><pre class="source lang-java linenums">package access.api;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.signer.AwsS3V4Signer;
+import software.amazon.awssdk.core.client.config.SdkAdvancedClientOption;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+
+@Service
+public class S3Storage {
+
+    private final String bucketName;
+    private final String s3URL;
+    private final ObjectMapper objectMapper;
+    private final S3Client s3Client;
+    private boolean bucketExists;
+
+<span class="pc" id="L36">    @SneakyThrows</span>
+    @SuppressWarnings(&quot;deprecation&quot;)
+    public S3Storage(@Value(&quot;${s3storage.url}&quot;) String s3URL,
+                     @Value(&quot;${s3storage.key}&quot;) String s3AccessKey,
+                     @Value(&quot;${s3storage.secret}&quot;) String s3SecretKey,
+                     @Value(&quot;${s3storage.bucket}&quot;) String s3BucketName,
+<span class="fc" id="L42">                     ObjectMapper objectMapper) {</span>
+<span class="fc" id="L43">        this.s3URL = s3URL;</span>
+<span class="fc" id="L44">        AwsBasicCredentials credentials =</span>
+<span class="fc" id="L45">                AwsBasicCredentials.create(s3AccessKey, s3SecretKey);</span>
+
+<span class="fc" id="L47">        this.s3Client = S3Client.builder()</span>
+<span class="fc" id="L48">                .endpointOverride(new URI(s3URL))</span>
+<span class="fc" id="L49">                .region(Region.EU_CENTRAL_1)</span>
+<span class="fc" id="L50">                .forcePathStyle(true)</span>
+<span class="fc" id="L51">                .overrideConfiguration(c -&gt; {</span>
+<span class="fc" id="L52">                    c.putAdvancedOption(SdkAdvancedClientOption.SIGNER,</span>
+<span class="fc" id="L53">                            AwsS3V4Signer.create());</span>
+<span class="fc" id="L54">                })</span>
+<span class="fc" id="L55">                .credentialsProvider(StaticCredentialsProvider.create(credentials))</span>
+<span class="fc" id="L56">                .build();</span>
+<span class="fc" id="L57">        this.bucketName = s3BucketName;</span>
+<span class="fc" id="L58">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L59">    }</span>
+
+<span class="nc" id="L61">    @SneakyThrows</span>
+    public String uploadFile(String content) {
+<span class="fc" id="L63">        byte[] decodedBytes = Base64.getDecoder().decode(content);</span>
+
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (!bucketExists) {</span>
+<span class="fc" id="L66">            createBucket(s3Client);</span>
+        }
+
+<span class="fc" id="L69">        ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);</span>
+<span class="fc" id="L70">        ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L71">        Thumbnails.of(inputStream)</span>
+<span class="fc" id="L72">                .size(200, 200)</span>
+<span class="fc" id="L73">                .keepAspectRatio(true)</span>
+<span class="fc" id="L74">                .toOutputStream(baos);</span>
+
+<span class="fc" id="L76">        inputStream = new ByteArrayInputStream(baos.toByteArray());</span>
+
+<span class="fc" id="L78">        String uuid = UUID.randomUUID().toString();</span>
+<span class="fc" id="L79">        s3Client.putObject(PutObjectRequest.builder()</span>
+<span class="fc" id="L80">                        .bucket(bucketName)</span>
+<span class="fc" id="L81">                        .key(uuid)</span>
+<span class="fc" id="L82">                        .contentType(&quot;image/jpeg&quot;)</span>
+<span class="fc" id="L83">                        .cacheControl(&quot;public, max-age=31536000, immutable&quot;)</span>
+<span class="fc" id="L84">                        .build(),</span>
+<span class="fc" id="L85">                RequestBody.fromInputStream(inputStream, inputStream.available()));</span>
+
+<span class="fc" id="L87">        return String.format(&quot;%s/%s/%s&quot;, s3URL, bucketName, uuid);</span>
+    }
+
+
+    private void createBucket(S3Client s3Client) {
+<span class="fc" id="L92">        HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()</span>
+<span class="fc" id="L93">                .bucket(bucketName)</span>
+<span class="fc" id="L94">                .build();</span>
+        try {
+<span class="fc" id="L96">            s3Client.headBucket(headBucketRequest);</span>
+<span class="fc" id="L97">        } catch (NoSuchBucketException e) {</span>
+<span class="fc" id="L98">            s3Client.createBucket(CreateBucketRequest.builder()</span>
+<span class="fc" id="L99">                    .bucket(bucketName)</span>
+<span class="fc" id="L100">                    .build());</span>
+            PutBucketPolicyRequest putBucketPolicyRequest = PutBucketPolicyRequest
+<span class="fc" id="L102">                    .builder()</span>
+<span class="fc" id="L103">                    .bucket(bucketName)</span>
+<span class="fc" id="L104">                    .policy(getPublicBucketPolicy(bucketName))</span>
+<span class="fc" id="L105">                    .build();</span>
+<span class="fc" id="L106">            s3Client.putBucketPolicy(putBucketPolicyRequest);</span>
+<span class="fc" id="L107">            bucketExists = true;</span>
+<span class="fc" id="L108">        }</span>
+<span class="fc" id="L109">    }</span>
+
+<span class="nc" id="L111">    @SneakyThrows</span>
+    private String getPublicBucketPolicy(String bucketName) {
+<span class="fc" id="L113">        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of(</span>
+                &quot;Version&quot;, &quot;2012-10-17&quot;,
+<span class="fc" id="L115">                &quot;Statement&quot;, List.of(Map.of(</span>
+                        &quot;Effect&quot;, &quot;Allow&quot;,
+<span class="fc" id="L117">                        &quot;Principal&quot;, Map.of(&quot;AWS&quot;, &quot;*&quot;),</span>
+                        &quot;Action&quot;, &quot;s3:GetObject&quot;,
+<span class="fc" id="L119">                        &quot;Resource&quot;, String.format(&quot;arn:aws:s3:::%s/*&quot;, bucketName)</span>
+                ))
+        ));
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

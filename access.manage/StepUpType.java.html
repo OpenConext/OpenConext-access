@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StepUpType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.manage</a> &gt; <span class="el_source">StepUpType.java</span></div><h1>StepUpType.java</h1><pre class="source lang-java linenums">package access.manage;
+
+import java.util.List;
+
+<span class="fc" id="L5">public enum StepUpType {</span>
+
+<span class="fc" id="L7">    loa1_5, loa2, loa3;</span>
+
+    public int getRequiredLoaLevel() {
+<span class="pc bpc" id="L10" title="1 of 3 branches missed.">        return switch (this) {</span>
+<span class="fc" id="L11">            case loa1_5 -&gt; 1;</span>
+<span class="fc" id="L12">            case loa2 -&gt; 2;</span>
+<span class="nc" id="L13">            case loa3 -&gt; 3;</span>
+        };
+    }
+
+    public static StepUpType fromLevel(List&lt;String&gt; acrValues, String level) {
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (!acrValues.contains(level)) {</span>
+<span class="nc" id="L19">            throw new IllegalArgumentException(&quot;Unknown StepUpType level: &quot; + level);</span>
+        }
+
+<span class="fc" id="L22">        String lastChar = level.substring(level.length() - 1);</span>
+<span class="pc bpc" id="L23" title="1 of 3 branches missed.">        return switch (lastChar) {</span>
+<span class="fc" id="L24">            case &quot;2&quot; -&gt; loa2;</span>
+<span class="nc" id="L25">            case &quot;3&quot; -&gt; loa3;</span>
+<span class="fc" id="L26">            default -&gt; loa1_5;</span>
+        };
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

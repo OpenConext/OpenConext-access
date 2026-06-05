@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserHandlerMethodArgumentResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.security</a> &gt; <span class="el_source">UserHandlerMethodArgumentResolver.java</span></div><h1>UserHandlerMethodArgumentResolver.java</h1><pre class="source lang-java linenums">package access.security;
+
+import access.exception.UserRestrictionException;
+import access.model.User;
+import access.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.MethodParameter;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.security.Principal;
+import java.util.Map;
+import java.util.Optional;
+
+public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private final UserRepository userRepository;
+    private final SuperAdmin superAdmin;
+
+    public UserHandlerMethodArgumentResolver(UserRepository userRepository,
+<span class="fc" id="L27">                                             SuperAdmin superAdmin) {</span>
+<span class="fc" id="L28">        this.userRepository = userRepository;</span>
+<span class="fc" id="L29">        this.superAdmin = superAdmin;</span>
+<span class="fc" id="L30">    }</span>
+
+    public boolean supportsParameter(MethodParameter methodParameter) {
+<span class="fc" id="L33">        return methodParameter.getParameterType().equals(User.class);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public User resolveArgument(MethodParameter methodParameter,
+                                ModelAndViewContainer mavContainer,
+                                NativeWebRequest webRequest,
+                                WebDataBinderFactory binderFactory) {
+<span class="fc" id="L41">        Principal userPrincipal = webRequest.getUserPrincipal();</span>
+        Map&lt;String, Object&gt; attributes;
+
+<span class="fc" id="L44">        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();</span>
+<span class="fc" id="L45">        String requestURI = request.getRequestURI();</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {</span>
+            //The user has logged in and got an access_token. Access is acting as an API resource server
+<span class="fc" id="L49">            attributes = bearerTokenAuthentication.getTokenAttributes();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {</span>
+            //The user has logged in with OpenIDConnect. Access is acting as a backend server
+<span class="fc" id="L52">            attributes = authenticationToken.getPrincipal().getAttributes();</span>
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">        } else if (requestURI.equals(&quot;/api/v1/users/config&quot;) || requestURI.startsWith(&quot;/api/v1/stats/loginTimeFrame&quot;)) {</span>
+            //This call is always allowed
+<span class="fc" id="L55">            return null;</span>
+        } else {
+<span class="fc" id="L57">            throw new UserRestrictionException(&quot;Forbidden&quot;);</span>
+        }
+
+<span class="fc" id="L60">        String sub = attributes.get(&quot;sub&quot;).toString();</span>
+<span class="fc" id="L61">        Optional&lt;User&gt; optionalUser = userRepository.findBySubIgnoreCase(sub)</span>
+<span class="fc" id="L62">                .or(() -&gt;</span>
+                        //Provision super-admin users on the fly
+<span class="fc" id="L64">                        superAdmin.getUsers().stream().filter(adminSub -&gt; adminSub.equals(sub))</span>
+<span class="fc" id="L65">                                .findFirst()</span>
+<span class="fc" id="L66">                                .map(adminSub -&gt; userRepository.save(new User(true, attributes)))</span>
+                )
+<span class="fc" id="L68">                .or(() -&gt; {</span>
+<span class="fc" id="L69">                    User user = new User(attributes);</span>
+<span class="fc" id="L70">                    userRepository.save(user);</span>
+<span class="fc" id="L71">                    return Optional.of(user);</span>
+                });
+<span class="pc" id="L73">        User user = optionalUser.orElseThrow(() -&gt; new UserRestrictionException(&quot;Forbidden&quot;));</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {</span>
+<span class="fc" id="L75">            String acr = (String) authenticationToken.getPrincipal().getAttributes()</span>
+<span class="fc" id="L76">                    .getOrDefault(&quot;acr&quot;, &quot;urn:oasis:names:tc:SAML:2.0:ac:classes:Password&quot;);</span>
+<span class="fc" id="L77">            user.setLoaLevel(convertLoaLevel(acr));</span>
+        }
+<span class="fc" id="L79">        String impersonateId = webRequest.getHeader(&quot;X-IMPERSONATE-ID&quot;);</span>
+<span class="fc bfc" id="L80" title="All 4 branches covered.">        if (StringUtils.hasText(impersonateId) &amp;&amp; user.isSuperUser()) {</span>
+<span class="fc" id="L81">            return userRepository.findById(Long.valueOf(impersonateId))</span>
+<span class="fc" id="L82">                    .orElseThrow(() -&gt; new UserRestrictionException(&quot;Forbidden&quot;));</span>
+        }
+<span class="fc" id="L84">        return user;</span>
+    }
+
+    private int convertLoaLevel(String acr) {
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (!StringUtils.hasText(acr) || acr.trim().toLowerCase().endsWith(&quot;password&quot;)) {</span>
+<span class="fc" id="L89">            return 1;</span>
+        }
+        try {
+<span class="fc" id="L92">            int loa = Integer.parseInt(acr.substring(acr.length() - 1));</span>
+            //Corner case for 1.5
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            return loa == 5 ? 1 : loa;</span>
+<span class="nc" id="L95">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L96">            return 1;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

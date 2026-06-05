@@ -1,0 +1,148 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+access-server,access.config,Config,0,87,0,0,0,26,0,5,0,5
+access-server,access.config,FeatureName,0,27,0,0,0,2,0,1,0,1
+access-server,access.config,HashGenerator,0,16,0,0,0,4,0,2,0,2
+access-server,access.config,Feature,0,9,0,0,0,1,0,1,0,1
+access-server,access.config,ObjectMapperHolder,0,27,0,0,0,8,0,3,0,3
+access-server,access,AccessServerApplication,5,3,0,0,2,1,1,1,1,1
+access-server,access,SwaggerOpenIdConfig,0,97,0,0,0,30,0,3,0,3
+access-server,access.manage,Assurance,0,12,0,0,0,1,0,1,0,1
+access-server,access.manage,IPAddressProvider,10,44,3,3,2,7,2,2,0,1
+access-server,access.manage,ConnectionProviderConverter.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,AssuranceEntity,0,9,0,0,0,1,0,1,0,1
+access-server,access.manage,DashBoardConnectionOption,6,48,0,0,0,11,1,4,1,4
+access-server,access.manage,ManageAuthorization,0,12,0,0,0,1,0,1,0,1
+access-server,access.manage,ResilientErrorHandler.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,Manage,0,81,0,2,0,16,0,3,0,2
+access-server,access.manage,PolicyAccessRights,8,87,1,5,2,21,1,7,0,5
+access-server,access.manage,MetaDataFeedParser,6,61,0,4,2,18,0,5,0,3
+access-server,access.manage,ManageConf,0,32,0,2,0,5,0,4,0,3
+access-server,access.manage,ConnectionProviderConverter.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,RequestType,0,39,0,0,0,2,0,1,0,1
+access-server,access.manage,LocalManage.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,ConsentType,0,21,0,0,0,2,0,1,0,1
+access-server,access.manage,LocalManage.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,ListMerger,7,178,10,26,2,32,9,11,0,2
+access-server,access.manage,LocalManage,267,620,10,16,53,122,36,46,29,40
+access-server,access.manage,PathUpdateType,0,15,0,0,0,2,0,1,0,1
+access-server,access.manage,Contact,4,45,3,3,0,9,3,2,0,2
+access-server,access.manage,Consent,5,33,0,0,2,3,1,2,1,2
+access-server,access.manage,JSONHeaderInterceptor,0,15,0,0,0,4,0,2,0,2
+access-server,access.manage,ResilientErrorHandler,6,39,2,4,2,8,2,4,0,3
+access-server,access.manage,ManageData,2,158,2,9,0,33,2,20,0,15
+access-server,access.manage,ChangeRequest,21,77,8,4,1,20,6,4,0,4
+access-server,access.manage,StepUpType,9,52,3,5,3,10,3,5,0,3
+access-server,access.manage,RemoteManage,16,1229,5,17,5,185,5,51,0,45
+access-server,access.manage,CIDRInstance,7,174,2,8,1,40,2,8,0,5
+access-server,access.manage,ConnectionProviderConverter,31,929,14,44,5,175,13,45,0,29
+access-server,access.manage,CidrNotation,0,14,0,0,0,5,0,1,0,1
+access-server,access.manage,MetaData,0,85,0,0,0,20,0,8,0,8
+access-server,access.manage,RemoteManage.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,RemoteManage.new ParameterizedTypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.manage,BearerTokenInterceptor,0,30,1,1,0,7,1,2,0,2
+access-server,access.manage,MFAType,6,109,1,3,0,21,2,6,1,5
+access-server,access.ohdear,OhDearService,58,470,8,16,12,89,10,24,2,20
+access-server,access.ohdear,ServiceStatus,0,21,0,0,0,1,0,1,0,1
+access-server,access.ohdear,Group,0,9,0,0,0,1,0,1,0,1
+access-server,access.ohdear,StatusResponse,0,12,0,0,0,1,0,1,0,1
+access-server,access.validation,URLFormatValidator,0,15,0,0,0,4,0,3,0,3
+access-server,access.validation,EmailFormatValidator,0,15,0,0,0,5,0,4,0,4
+access-server,access.remote,RestTemplateFactory,0,103,1,3,0,28,1,5,0,4
+access-server,access.lifecycle,LifeCycleResult,0,14,0,0,0,4,0,1,0,1
+access-server,access.lifecycle,UserLifeCycleController,2,140,1,3,1,28,1,8,0,7
+access-server,access.invite,InviteClient,4,62,2,4,2,9,2,4,0,3
+access-server,access.mail,MailBox.MailAttachment,0,12,0,0,0,5,0,1,0,1
+access-server,access.mail,MailBox,40,1069,17,21,0,174,17,22,0,20
+access-server,access.mail,MailConf,0,16,0,0,0,2,0,2,0,2
+access-server,access.mail,MailBox.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.security,SecurityConfig,7,335,1,1,1,49,1,18,0,18
+access-server,access.security,SecurityConfig.MvcConfig,0,20,0,0,0,6,0,2,0,2
+access-server,access.security,AuthorizationRequestCustomizer,0,83,2,14,0,24,2,9,0,3
+access-server,access.security,InstitutionAdmin,0,72,1,7,0,15,1,9,0,6
+access-server,access.security,SuperAdmin,0,3,0,0,0,1,0,1,0,1
+access-server,access.security,LocalDevelopmentAuthenticationFilter,0,109,1,3,0,24,1,4,0,3
+access-server,access.security,UserHandlerMethodArgumentResolver,10,193,3,17,2,39,4,16,1,9
+access-server,access.security,CustomOidcUserService,2,185,3,11,0,38,3,11,0,7
+access-server,access.stats,StatisticsRemote,0,205,0,6,0,34,0,8,0,5
+access-server,access.stats,StatisticsMock,179,296,23,14,35,61,24,11,3,9
+access-server,access.stats,Scale,0,45,0,0,0,2,0,1,0,1
+access-server,access.exception,UserRestrictionException,0,4,0,0,0,2,0,1,0,1
+access-server,access.exception,InvalidInputException,0,4,0,0,0,2,0,1,0,1
+access-server,access.exception,NotFoundException,0,6,0,0,0,3,0,2,0,2
+access-server,access.exception,NotAllowedException,0,4,0,0,0,2,0,1,0,1
+access-server,access.exception,DuplicateJoinRequestException,0,4,0,0,0,2,0,1,0,1
+access-server,access.exception,BaseException,0,14,0,2,0,4,0,4,0,3
+access-server,access.seed,Demo,0,370,0,0,0,67,0,3,0,3
+access-server,access.api,InvitationController,51,434,5,7,1,97,13,19,8,18
+access-server,access.api,InviteController,8,161,6,20,2,35,6,11,0,4
+access-server,access.api,StatisticsController,17,49,6,2,4,9,4,5,0,5
+access-server,access.api,UserController.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.api,IdentityProviderController,14,694,7,21,0,132,9,21,2,14
+access-server,access.api,EnvironmentController,0,24,0,0,0,8,0,2,0,2
+access-server,access.api,ApplicationController,51,919,10,24,0,211,18,37,9,29
+access-server,access.api,DefaultErrorController,3,138,3,13,1,21,3,9,0,4
+access-server,access.api,OhDearController,0,19,0,2,0,6,0,3,0,2
+access-server,access.api,StatusController,5,6,0,0,1,3,1,1,1,1
+access-server,access.api,Results,0,27,0,0,0,3,0,3,0,3
+access-server,access.api,FullSearchQueryParser,0,198,0,8,0,11,0,8,0,4
+access-server,access.api,OrganizationMembershipController,12,72,1,1,0,19,3,4,2,4
+access-server,access.api,OrganizationController.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.api,ConnectionController,29,1044,11,43,2,212,15,41,4,25
+access-server,access.api,UserController,38,515,10,34,4,107,12,29,3,16
+access-server,access.api,ApplicationMembershipController,20,105,1,1,1,25,4,4,3,4
+access-server,access.api,JoinRequestController,15,176,0,4,0,41,3,8,3,6
+access-server,access.api,FeedbackController,11,84,2,8,3,21,2,5,0,2
+access-server,access.api,CsrfController,0,5,0,0,0,2,0,2,0,2
+access-server,access.api,UserAccessRights,6,329,4,29,0,64,5,29,1,16
+access-server,access.api,ApplicationController.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.api,PublicController,3,200,0,14,0,41,0,19,0,12
+access-server,access.api,OrganizationController,103,740,3,15,15,149,12,38,9,32
+access-server,access.api,ManageController.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.api,ManageController.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.api,SystemController,0,67,0,2,0,16,0,5,0,4
+access-server,access.api,LoginController,5,41,3,3,1,10,3,2,0,2
+access-server,access.api,ContractController,20,239,3,5,0,52,7,8,4,7
+access-server,access.api,S3Storage,9,201,1,1,2,57,1,5,0,5
+access-server,access.api,ManageController,158,912,7,19,18,176,19,38,13,31
+access-server,access.cron,ResourceCleaner,3,347,7,27,2,81,7,18,0,8
+access-server,access.cron,ShedLockConfig,0,34,0,0,0,8,0,5,0,5
+access-server,access.cron,DeadlockLockProvider,0,74,0,10,0,21,0,9,0,4
+access-server,access.cron,ShedLockConfig.new SimpleLock() {...},1,3,0,0,1,1,1,1,1,1
+access-server,access.jira,JiraClient,5,378,1,9,0,65,1,18,0,14
+access-server,access.jira,JiraClient.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+access-server,access.jira,APITokenHeaderInterceptor,20,0,0,0,6,0,2,0,2,0
+access-server,access.repository,OrganizationRepository,0,13,0,2,0,4,0,2,0,1
+access-server,access.model,InvitationStatus,0,21,0,0,0,2,0,1,0,1
+access-server,access.model,User,0,423,3,23,0,86,3,20,0,10
+access-server,access.model,State,0,15,0,0,0,2,0,1,0,1
+access-server,access.model,ConnectOptions,0,21,0,0,0,4,0,1,0,1
+access-server,access.model,Connection,18,603,4,34,2,121,5,31,1,16
+access-server,access.model,ApplicationTarget,0,15,0,0,0,2,0,1,0,1
+access-server,access.model,Authority,0,41,0,2,0,6,0,4,0,3
+access-server,access.model,ConnectionStatus,0,27,0,0,0,5,0,1,0,1
+access-server,access.model,EntityType,0,27,0,0,0,2,0,1,0,1
+access-server,access.model,ApplicationType,0,15,0,0,0,2,0,1,0,1
+access-server,access.model,ApplicationMembership,4,57,4,4,2,16,4,5,0,5
+access-server,access.model,GrantType,0,21,0,0,0,2,0,1,0,1
+access-server,access.model,Organization,2,370,2,10,1,67,2,15,0,11
+access-server,access.model,OrganizationStatus,0,21,0,0,0,2,0,1,0,1
+access-server,access.model,Language,0,15,0,0,0,2,0,1,0,1
+access-server,access.model,ConnectionSectionFlags,0,71,0,4,0,12,0,8,0,6
+access-server,access.model,DisconnectionRequest,0,3,0,0,0,1,0,1,0,1
+access-server,access.model,JoinRequest,0,90,2,2,0,23,2,4,0,4
+access-server,access.model,Application,0,148,2,8,0,37,2,9,0,6
+access-server,access.model,Institution,0,33,0,0,0,8,0,1,0,1
+access-server,access.model,ApplicationStatus,0,15,0,0,0,2,0,1,0,1
+access-server,access.model,OrganizationMembership,21,161,3,7,5,35,5,10,2,8
+access-server,access.model,Visibility,0,21,0,0,0,2,0,1,0,1
+access-server,access.model,AcceptInvitation,0,9,0,0,0,1,0,1,0,1
+access-server,access.model,Contract,0,26,1,3,0,6,1,2,0,1
+access-server,access.model,Invitation,16,121,7,5,1,32,7,4,1,4
+access-server,access.json,CloningJsonSerializerSupplier,0,14,0,0,0,3,0,2,0,2
+access-server,access.json,CloningJsonSerializer,0,22,0,4,0,8,0,4,0,2
+access-server,access.manipulation,SpelAttributeManipulationService,6,27,1,1,2,8,2,2,1,2
+access-server,access.manipulation,AttributeManipulationCompiler,2,54,2,2,1,13,2,3,0,3
+access-server,access.manipulation,InvalidAttributePolicyException,0,5,0,0,0,2,0,1,0,1
+access-server,access.manipulation,AttributeManipulation,0,9,0,0,0,4,0,1,0,1
+access-server,access.manipulation,AttributeScriptContext,0,46,0,0,0,10,0,5,0,5
+access-server,access.manipulation,AttributeManipulationLoader,26,0,0,0,9,0,3,0,3,0

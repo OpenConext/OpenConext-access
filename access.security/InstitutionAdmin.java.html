@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstitutionAdmin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.security</a> &gt; <span class="el_source">InstitutionAdmin.java</span></div><h1>InstitutionAdmin.java</h1><pre class="source lang-java linenums">package access.security;
+
+import access.model.User;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Getter
+@Setter
+@SuppressWarnings(&quot;unchecked&quot;)
+public class InstitutionAdmin {
+
+    public static final String INSTITUTION_ADMIN = &quot;INSTITUTION_ADMIN&quot;;
+    public static final String ORGANIZATION_GUID = &quot;ORGANIZATION_GUID&quot;;
+    public static final String INSTITUTION = &quot;INSTITUTION&quot;;
+    public static final String IDENTITY_PROVIDER = &quot;IDENTITY_PROVIDER&quot;;
+
+    private InstitutionAdmin() {
+    }
+
+    public static boolean isInstitutionAdmin(Map&lt;String, Object&gt; attributes,
+                                             String requiredEntitlement) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (attributes.containsKey(&quot;eduperson_entitlement&quot;)) {</span>
+<span class="fc" id="L28">            List&lt;String&gt; entitlements = (List&lt;String&gt;) attributes.get(&quot;eduperson_entitlement&quot;);</span>
+<span class="fc" id="L29">            return entitlements.stream().anyMatch(entitlement -&gt; entitlement.equalsIgnoreCase(requiredEntitlement));</span>
+        }
+<span class="fc" id="L31">        return false;</span>
+    }
+
+    public static boolean isInstitutionAdmin(User user) {
+<span class="pc bpc" id="L35" title="1 of 4 branches missed.">        return StringUtils.hasText(user.getOrganizationGUID()) &amp;&amp; user.isInstitutionAdmin();</span>
+    }
+
+    public static Optional&lt;String&gt; getOrganizationGuid(Map&lt;String, Object&gt; attributes,
+                                                       String organizationGuidPrefix,
+                                                       Optional&lt;User&gt; optionalUser) {
+
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (attributes.containsKey(&quot;eduperson_entitlement&quot;)) {</span>
+<span class="fc" id="L43">            List&lt;String&gt; entitlements = (List&lt;String&gt;) attributes.get(&quot;eduperson_entitlement&quot;);</span>
+<span class="fc" id="L44">            final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();</span>
+<span class="fc" id="L45">            return entitlements.stream()</span>
+<span class="fc" id="L46">                    .filter(entitlement -&gt; entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))</span>
+<span class="fc" id="L47">                    .map(entitlement -&gt; entitlement.substring(organizationGuidPrefix.length()))</span>
+<span class="fc" id="L48">                    .filter(StringUtils::hasText)</span>
+<span class="fc" id="L49">                    .findFirst();</span>
+        }
+<span class="fc" id="L51">        return optionalUser.map(User::getOrganizationGUID)</span>
+<span class="fc" id="L52">                .filter(StringUtils::hasText);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

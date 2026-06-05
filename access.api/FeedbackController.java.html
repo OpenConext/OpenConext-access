@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FeedbackController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">FeedbackController.java</span></div><h1>FeedbackController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.exception.InvalidInputException;
+import access.mail.MailBox;
+import access.model.User;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/api/v1/feedback&quot;)
+public class FeedbackController {
+
+    private static final long MAX_SCREENSHOT_BYTES = 5L * 1024L * 1024L;
+    private static final String SCREENSHOT_CONTENT_TYPE = &quot;image/png&quot;;
+
+    private final MailBox mailBox;
+
+<span class="fc" id="L26">    public FeedbackController(MailBox mailBox) {</span>
+<span class="fc" id="L27">        this.mailBox = mailBox;</span>
+<span class="fc" id="L28">    }</span>
+
+    @PostMapping
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; feedback(User user, @RequestBody Map&lt;String, Object&gt; body) throws IOException {
+<span class="fc" id="L32">        String message = (String) body.get(&quot;message&quot;);</span>
+<span class="fc" id="L33">        String url = (String) body.get(&quot;url&quot;);</span>
+<span class="fc" id="L34">        boolean includeScreenshot = Boolean.parseBoolean(String.valueOf(body.getOrDefault(&quot;includeScreenshot&quot;, &quot;false&quot;)));</span>
+<span class="fc" id="L35">        String screenshotBase64 = (String) body.get(&quot;screenshotBase64&quot;);</span>
+<span class="fc" id="L36">        String screenshotContentType = (String) body.getOrDefault(&quot;screenshotContentType&quot;, SCREENSHOT_CONTENT_TYPE);</span>
+
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (!StringUtils.hasText(message)) {</span>
+<span class="fc" id="L39">            throw new InvalidInputException(&quot;Feedback message is required&quot;);</span>
+        }
+
+<span class="fc" id="L42">        byte[] screenshotBytes = null;</span>
+<span class="fc" id="L43">        String screenshotName = null;</span>
+
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">        if (includeScreenshot &amp;&amp; StringUtils.hasText(screenshotBase64)) {</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">            if (!SCREENSHOT_CONTENT_TYPE.equalsIgnoreCase(screenshotContentType)) {</span>
+<span class="fc" id="L47">                throw new InvalidInputException(&quot;Screenshot must be a PNG image&quot;);</span>
+            }
+            try {
+<span class="fc" id="L50">                screenshotBytes = Base64.getDecoder().decode(screenshotBase64);</span>
+<span class="nc" id="L51">            } catch (IllegalArgumentException exception) {</span>
+<span class="nc" id="L52">                throw new InvalidInputException(&quot;Screenshot is not valid base64&quot;);</span>
+<span class="fc" id="L53">            }</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">            if (screenshotBytes.length &gt; MAX_SCREENSHOT_BYTES) {</span>
+<span class="nc" id="L55">                throw new InvalidInputException(&quot;Screenshot exceeds max size&quot;);</span>
+            }
+<span class="fc" id="L57">            screenshotName = &quot;feedback.png&quot;;</span>
+        }
+
+<span class="fc" id="L60">        mailBox.sendFeedbackMail(user, message, url, screenshotBytes, screenshotName, screenshotContentType);</span>
+<span class="fc" id="L61">        return Results.okResult();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

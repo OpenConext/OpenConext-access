@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthorizationRequestCustomizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.security</a> &gt; <span class="el_source">AuthorizationRequestCustomizer.java</span></div><h1>AuthorizationRequestCustomizer.java</h1><pre class="source lang-java linenums">package access.security;
+
+import jakarta.servlet.http.HttpSession;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+public class AuthorizationRequestCustomizer implements Consumer&lt;OAuth2AuthorizationRequest.Builder&gt; {
+
+    private final List&lt;String&gt; eduidIdpEntityIdentifiers;
+    private final String minimalStepupAcrLevel;
+
+<span class="fc" id="L18">    public AuthorizationRequestCustomizer(List&lt;String&gt; eduidIdpEntityIdentifiers, String minimalStepupAcrLevel) {</span>
+<span class="fc" id="L19">        this.eduidIdpEntityIdentifiers = eduidIdpEntityIdentifiers;</span>
+<span class="fc" id="L20">        this.minimalStepupAcrLevel= minimalStepupAcrLevel;</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public void accept(OAuth2AuthorizationRequest.Builder builder) {
+<span class="fc" id="L25">        builder.additionalParameters(params -&gt; {</span>
+<span class="fc" id="L26">            RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();</span>
+<span class="fc" id="L27">            HttpSession session = ((ServletRequestAttributes) requestAttributes)</span>
+<span class="fc" id="L28">                    .getRequest().getSession(false);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            if (session == null) {</span>
+<span class="fc" id="L30">                return;</span>
+            }
+<span class="fc" id="L32">            DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute(&quot;SPRING_SECURITY_SAVED_REQUEST&quot;);</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">            if (savedRequest == null) {</span>
+<span class="fc" id="L34">                return;</span>
+<span class="fc" id="L35">            }            String[] force = savedRequest.getParameterValues(&quot;force&quot;);</span>
+<span class="fc bfc" id="L36" title="All 4 branches covered.">            if (force != null &amp;&amp; force.length == 1) {</span>
+<span class="fc" id="L37">                params.put(&quot;prompt&quot;, &quot;login&quot;);</span>
+            }
+<span class="fc" id="L39">            String[] eduId = savedRequest.getParameterValues(&quot;eduId&quot;);</span>
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">            if (eduId != null &amp;&amp; eduId.length == 1) {</span>
+<span class="fc" id="L41">                params.put(&quot;login_hint&quot;, eduidIdpEntityIdentifiers.getFirst());</span>
+            }
+<span class="fc" id="L43">            String[] upgradeLoa = savedRequest.getParameterValues(&quot;upgradeLoa&quot;);</span>
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">            if (upgradeLoa != null &amp;&amp; upgradeLoa.length == 1) {</span>
+<span class="fc" id="L45">                params.put(&quot;acr_values&quot;, minimalStepupAcrLevel);</span>
+            }
+<span class="fc" id="L47">        });</span>
+<span class="fc" id="L48">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

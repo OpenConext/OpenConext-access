@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Config.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.config</a> &gt; <span class="el_source">Config.java</span></div><h1>Config.java</h1><pre class="source lang-java linenums">package access.config;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
+import java.util.Map;
+
+@ConfigurationProperties(prefix = &quot;config&quot;)
+@Getter
+@Setter
+@NoArgsConstructor
+public class Config {
+
+    private String clientUrl;
+    private String baseUrl;
+    private String eduIdSchacHomeOrganization;
+    private String surfSchacHomeOrganization;
+    private String name;
+    private String sram;
+    private String invite;
+    private String serviceDesk;
+    private String discovery;
+    private boolean authenticated;
+    private boolean testEnvironment;
+    private List&lt;String&gt; missingAttributes;
+    private Map&lt;String, Integer&gt; stats;
+    private List&lt;Map&lt;String, String&gt;&gt; identityProviders;
+    private String idpProxyMetaData;
+    private List&lt;Feature&gt; features;
+    private List&lt;String&gt; acrValues;
+    private String minimalStepupAcrLevel;
+    private boolean feedbackWidgetEnabled;
+    private boolean demoSeedEnabled;
+    private String jiraBrowseBaseUrl;
+
+<span class="fc" id="L39">    public Config(Config base) {</span>
+<span class="fc" id="L40">        this.clientUrl = base.clientUrl;</span>
+<span class="fc" id="L41">        this.baseUrl = base.baseUrl;</span>
+<span class="fc" id="L42">        this.discovery = base.discovery;</span>
+<span class="fc" id="L43">        this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;</span>
+<span class="fc" id="L44">        this.surfSchacHomeOrganization = base.surfSchacHomeOrganization;</span>
+<span class="fc" id="L45">        this.invite = base.invite;</span>
+<span class="fc" id="L46">        this.sram = base.sram;</span>
+<span class="fc" id="L47">        this.serviceDesk = base.serviceDesk;</span>
+<span class="fc" id="L48">        this.identityProviders = base.identityProviders;</span>
+<span class="fc" id="L49">        this.idpProxyMetaData = base.idpProxyMetaData;</span>
+<span class="fc" id="L50">        this.features = base.features;</span>
+<span class="fc" id="L51">        this.acrValues = base.acrValues;</span>
+<span class="fc" id="L52">        this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;</span>
+<span class="fc" id="L53">        this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;</span>
+<span class="fc" id="L54">        this.demoSeedEnabled = base.demoSeedEnabled;</span>
+<span class="fc" id="L55">        this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;</span>
+<span class="fc" id="L56">    }</span>
+
+    public Config withAuthenticated(boolean authenticated) {
+<span class="fc" id="L59">        this.setAuthenticated(authenticated);</span>
+<span class="fc" id="L60">        return this;</span>
+    }
+
+    public Config withName(String name) {
+<span class="fc" id="L64">        this.setName(name);</span>
+<span class="fc" id="L65">        return this;</span>
+    }
+
+    public Config withMissingAttributes(List&lt;String&gt; missingAttributes) {
+<span class="fc" id="L69">        this.setMissingAttributes(missingAttributes);</span>
+<span class="fc" id="L70">        return this;</span>
+    }
+
+    public Config withStats(Map&lt;String, Integer&gt; stats) {
+<span class="fc" id="L74">        this.stats = stats;</span>
+<span class="fc" id="L75">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

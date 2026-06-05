@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JoinRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">JoinRequest.java</span></div><h1>JoinRequest.java</h1><pre class="source lang-java linenums">package access.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+@Entity(name = &quot;join_requests&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+public class JoinRequest implements NameHolder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private Language language;
+
+    @Column
+    private String message;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = &quot;user_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = &quot;organization_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Organization organization;
+
+    @Transient
+    private String transientName;
+
+<span class="fc" id="L47">    public JoinRequest(User user, Organization organization, String message, Language language) {</span>
+<span class="fc" id="L48">        this.user = user;</span>
+<span class="fc" id="L49">        this.organization = organization;</span>
+<span class="fc" id="L50">        this.message = message;</span>
+<span class="fc" id="L51">        this.language = language;</span>
+<span class="fc" id="L52">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L53">        this.transientName = getClass().getName().concat(organization.getName()).concat(user.getName());</span>
+<span class="fc" id="L54">    }</span>
+
+    //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;organization&quot;)
+    public Map&lt;String, Serializable&gt; getOrganizationInfo() {
+<span class="fc" id="L59">        Organization organization = getOrganization();</span>
+<span class="fc" id="L60">        Map&lt;String, Serializable&gt; organizationInfo = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (organization != null) {</span>
+<span class="fc" id="L62">            organizationInfo.put(&quot;id&quot;, organization.getId());</span>
+<span class="fc" id="L63">            organizationInfo.put(&quot;name&quot;, organization.getName());</span>
+        }
+<span class="fc" id="L65">        return organizationInfo;</span>
+    }
+
+    //We need user info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;user&quot;)
+    public Map&lt;String, Serializable&gt; getUserInfo() {
+<span class="fc" id="L71">        User user = getUser();</span>
+<span class="fc" id="L72">        Map&lt;String, Serializable&gt; userInfo = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (user != null) {</span>
+<span class="fc" id="L74">            userInfo.put(&quot;id&quot;, user.getId());</span>
+<span class="fc" id="L75">            userInfo.put(&quot;name&quot;, user.getName());</span>
+<span class="fc" id="L76">            userInfo.put(&quot;email&quot;, user.getEmail());</span>
+<span class="fc" id="L77">            userInfo.put(&quot;schacHomeOrganization&quot;, user.getSchacHomeOrganization());</span>
+        }
+<span class="fc" id="L79">        return userInfo;</span>
+    }
+
+    @Override
+    @Transient
+    @JsonIgnore
+    public String getName() {
+<span class="fc" id="L86">        return transientName;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

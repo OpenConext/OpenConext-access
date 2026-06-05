@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationMembership.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">ApplicationMembership.java</span></div><h1>ApplicationMembership.java</h1><pre class="source lang-java linenums">package access.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.Hibernate;
+
+import java.time.Instant;
+
+@Entity(name = &quot;application_memberships&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+public class ApplicationMembership implements NameHolder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;application_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Application application;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;organization_membership_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private OrganizationMembership organizationMembership;
+
+<span class="fc" id="L38">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private Authority authority = Authority.MEMBER;
+
+<span class="fc" id="L43">    public ApplicationMembership(Application application, OrganizationMembership organizationMembership) {</span>
+<span class="fc" id="L44">        this.application = application;</span>
+<span class="fc" id="L45">        this.organizationMembership = organizationMembership;</span>
+<span class="fc" id="L46">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    @Transient
+    @JsonIgnore
+    public String getName() {
+<span class="fc" id="L53">        return getClass().getName().concat(application.getName()).concat(authority.name());</span>
+    }
+
+    //We need info, about the application
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;applicationIdentifier&quot;)
+    public Long getApplicationIndentifier() {
+<span class="fc" id="L59">        Application application = getApplication();</span>
+<span class="pc bpc" id="L60" title="2 of 4 branches missed.">        if (application != null &amp;&amp; Hibernate.isInitialized(application)) {</span>
+<span class="fc" id="L61">            return application.getId();</span>
+        }
+<span class="nc" id="L63">        return null;</span>
+    }
+
+    //We need info, about the application
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;applicationName&quot;)
+    public String getApplicationName() {
+<span class="fc" id="L69">        Application application = getApplication();</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (application != null &amp;&amp; Hibernate.isInitialized(application)) {</span>
+<span class="fc" id="L71">            return application.getName();</span>
+        }
+<span class="nc" id="L73">        return null;</span>
+    }
+
+    @JsonProperty(value = &quot;organizationMembershipIdentifier&quot;, access = JsonProperty.Access.READ_ONLY)
+    public Long getOrganizationMembershipInfo() {
+<span class="fc" id="L78">        OrganizationMembership organizationMembership = this.getOrganizationMembership();</span>
+<span class="fc" id="L79">        Hibernate.initialize(organizationMembership);</span>
+<span class="fc" id="L80">        return organizationMembership.getId();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

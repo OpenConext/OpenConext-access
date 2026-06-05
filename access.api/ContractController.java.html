@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.api</a> &gt; <span class="el_source">ContractController.java</span></div><h1>ContractController.java</h1><pre class="source lang-java linenums">package access.api;
+
+import access.config.Config;
+import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
+import access.jira.JiraClient;
+import access.jira.JiraIssue;
+import access.model.Application;
+import access.model.Contract;
+import access.model.EntityType;
+import access.model.User;
+import access.repository.ApplicationRepository;
+import access.repository.ContractRepository;
+import access.repository.UserRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+
+@RestController
+@RequestMapping(value = {&quot;/api/v1/contracts&quot;}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
+@EnableConfigurationProperties(Config.class)
+@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {&quot;openid&quot;})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
+public class ContractController implements UserAccessRights {
+
+<span class="fc" id="L45">    private static final Log LOG = LogFactory.getLog(ContractController.class);</span>
+
+    private final ContractRepository contractRepository;
+    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
+    private final Config config;
+    private final JiraClient jiraClient;
+
+    public ContractController(ContractRepository contractRepository,
+                              ApplicationRepository applicationRepository,
+                              UserRepository userRepository,
+                              Config config,
+<span class="fc" id="L57">                              JiraClient jiraClient) {</span>
+<span class="fc" id="L58">        this.contractRepository = contractRepository;</span>
+<span class="fc" id="L59">        this.applicationRepository = applicationRepository;</span>
+<span class="fc" id="L60">        this.userRepository = userRepository;</span>
+<span class="fc" id="L61">        this.config = config;</span>
+<span class="fc" id="L62">        this.jiraClient = jiraClient;</span>
+<span class="fc" id="L63">    }</span>
+
+    @GetMapping(&quot;/unsigned&quot;)
+    public ResponseEntity&lt;List&lt;Contract&gt;&gt; unsigned(User user) {
+<span class="fc" id="L67">        LOG.debug(&quot;/unsigned contracts&quot;);</span>
+
+<span class="fc" id="L69">        confirmSuperUser(user);</span>
+
+<span class="fc" id="L71">        return ResponseEntity.ok(contractRepository.findBySignedContractFalse());</span>
+    }
+
+    @GetMapping(&quot;/{applicationId}&quot;)
+    public ResponseEntity&lt;Contract&gt; get(User user, @PathVariable(&quot;applicationId&quot;) Long applicationId) {
+<span class="fc" id="L76">        LOG.debug(&quot;/get contract for applicationId &quot; + applicationId);</span>
+
+<span class="fc" id="L78">        Application application = applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L79">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L80">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L81">        confirmInstitutionAdmin(user, application.getOrganization());</span>
+
+<span class="fc" id="L83">        Contract contract = contractRepository.findByApplicationId(applicationId)</span>
+<span class="fc" id="L84">                .orElseThrow(() -&gt; new NotFoundException(&quot;Contract not found&quot;));</span>
+<span class="fc" id="L85">        return ResponseEntity.ok(contract);</span>
+    }
+
+    @PostMapping(&quot;/{applicationId}&quot;)
+    public ResponseEntity&lt;Contract&gt; create(User user,
+                                           @PathVariable(&quot;applicationId&quot;) Long applicationId,
+                                           @Validated @RequestBody Contract contract) {
+<span class="fc" id="L92">        LOG.debug(&quot;/create contract for applicationId &quot; + applicationId + &quot; by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L94">        Application application = applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L95">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L96">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L97">        confirmInstitutionAdmin(user, application.getOrganization());</span>
+
+<span class="fc" id="L99">        contract.setApplication(application);</span>
+<span class="fc" id="L100">        Contract saved = contractRepository.save(contract);</span>
+
+<span class="fc" id="L102">        String summary = String.format(&quot;User %s submitted a contract for application %s.&quot;,</span>
+<span class="fc" id="L103">                user.getName(), application.getName());</span>
+<span class="fc" id="L104">        String jiraKey = jiraClient.create(new JiraIssue(</span>
+<span class="fc" id="L105">                application.getName(),</span>
+                null,
+<span class="fc" id="L107">                String.format(&quot;%s%nVisit: %s/system/contracts&quot;,</span>
+<span class="fc" id="L108">                        summary, config.getClientUrl()),</span>
+                summary,
+                EntityType.oidc10_rp,
+<span class="fc" id="L111">                user.getEmail()</span>
+        ));
+<span class="fc" id="L113">        LOG.info(&quot;Created Jira issue for new Contract: &quot; + jiraKey);</span>
+<span class="fc" id="L114">        saved.setTicketKey(jiraKey);</span>
+<span class="fc" id="L115">        saved = contractRepository.save(saved);</span>
+
+<span class="fc" id="L117">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+
+    @PutMapping(&quot;/{applicationId}&quot;)
+    public ResponseEntity&lt;Contract&gt; update(User user,
+                                           @PathVariable(&quot;applicationId&quot;) Long applicationId,
+                                           @Validated @RequestBody Contract contract) {
+<span class="fc" id="L124">        LOG.debug(&quot;/update contract for applicationId &quot; + applicationId + &quot; by &quot; + user.getEmail());</span>
+
+<span class="fc" id="L126">        Application application = applicationRepository.findById(applicationId)</span>
+<span class="pc" id="L127">                .orElseThrow(() -&gt; new NotFoundException(&quot;Application not found&quot;));</span>
+<span class="fc" id="L128">        user = reinitializeUser(user, userRepository);</span>
+<span class="fc" id="L129">        confirmInstitutionAdmin(user, application.getOrganization());</span>
+
+<span class="pc bpc" id="L131" title="1 of 4 branches missed.">        if (contract.isSignedContract() &amp;&amp; !user.isSuperUser()) {</span>
+<span class="fc" id="L132">            throw new UserRestrictionException(&quot;Only super users can sign a contract&quot;);</span>
+        }
+
+<span class="fc" id="L135">        contractRepository.findById(contract.getId())</span>
+<span class="pc" id="L136">                .orElseThrow(() -&gt; new NotFoundException(&quot;Contract not found&quot;));</span>
+
+<span class="fc" id="L138">        contract.setApplication(application);</span>
+<span class="fc" id="L139">        Contract saved = contractRepository.save(contract);</span>
+<span class="pc bpc" id="L140" title="2 of 4 branches missed.">        if (contract.isSignedContract() &amp;&amp; !application.isSignedContract()) {</span>
+<span class="fc" id="L141">            application.setSignedContract(true);</span>
+<span class="fc" id="L142">            applicationRepository.save(application);</span>
+        }
+<span class="fc" id="L144">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationMembership.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">access-server</a> &gt; <a href="index.source.html" class="el_package">access.model</a> &gt; <span class="el_source">OrganizationMembership.java</span></div><h1>OrganizationMembership.java</h1><pre class="source lang-java linenums">package access.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.Hibernate;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Entity(name = &quot;organization_memberships&quot;)
+@NoArgsConstructor
+@Getter
+@Setter
+public class OrganizationMembership implements NameHolder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = &quot;created_at&quot;)
+    private Instant createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;user_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;organization_id&quot;)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Organization organization;
+
+<span class="pc" id="L40">    @Enumerated(EnumType.STRING)</span>
+    @Column
+    @NotNull
+    private Authority authority = Authority.MEMBER;
+
+<span class="pc" id="L45">    @OneToMany(mappedBy = &quot;organizationMembership&quot;, orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)</span>
+    private Set&lt;ApplicationMembership&gt; applicationMemberships = new HashSet&lt;&gt;();
+
+    @Transient
+    private String transientName;
+
+<span class="nc" id="L51">    public OrganizationMembership(Authority authority) {</span>
+<span class="nc" id="L52">        this.authority = authority;</span>
+<span class="nc" id="L53">    }</span>
+
+<span class="fc" id="L55">    public OrganizationMembership(User user, Organization organization, Authority authority) {</span>
+<span class="fc" id="L56">        this.user = user;</span>
+<span class="fc" id="L57">        this.organization = organization;</span>
+<span class="fc" id="L58">        this.authority = authority;</span>
+<span class="fc" id="L59">        this.transientName = getClass().getName().concat(organization.getName()).concat(authority.name());</span>
+<span class="fc" id="L60">        this.createdAt = Instant.now();</span>
+<span class="fc" id="L61">    }</span>
+
+    @JsonIgnore
+    public ApplicationMembership addApplicationMembership(ApplicationMembership applicationMemberships) {
+<span class="fc" id="L65">        this.applicationMemberships.add(applicationMemberships);</span>
+<span class="fc" id="L66">        return applicationMemberships;</span>
+    }
+
+    //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;organization&quot;)
+    public Map&lt;String, Serializable&gt; getOrganizationInfo() {
+<span class="fc" id="L72">        Organization organization = getOrganization();</span>
+<span class="fc" id="L73">        Map&lt;String, Serializable&gt; organizationInfo = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">        if (organization != null &amp;&amp; Hibernate.isInitialized(organization)) {</span>
+<span class="fc" id="L75">            organizationInfo.put(&quot;id&quot;, organization.getId());</span>
+<span class="fc" id="L76">            organizationInfo.put(&quot;name&quot;, organization.getName());</span>
+<span class="fc" id="L77">            organizationInfo.put(&quot;manageIdentifier&quot;, organization.getManageIdentifier());</span>
+<span class="fc" id="L78">            organizationInfo.put(&quot;status&quot;, organization.getStatus());</span>
+<span class="fc" id="L79">            organizationInfo.put(&quot;schacHomeOrganization&quot;, organization.getSchacHomeOrganization());</span>
+        }
+<span class="fc" id="L81">        return organizationInfo;</span>
+    }
+
+    //We need user info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = &quot;user&quot;)
+    public Map&lt;String, Serializable&gt; getUserInfo() {
+<span class="fc" id="L87">        User user = getUser();</span>
+<span class="fc" id="L88">        Map&lt;String, Serializable&gt; userInfo = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">        if (user != null &amp;&amp; Hibernate.isInitialized(user)) {</span>
+<span class="fc" id="L90">            userInfo.put(&quot;id&quot;, user.getId());</span>
+<span class="fc" id="L91">            userInfo.put(&quot;name&quot;, user.getName());</span>
+<span class="fc" id="L92">            userInfo.put(&quot;email&quot;, user.getEmail());</span>
+<span class="fc" id="L93">            userInfo.put(&quot;schacHomeOrganization&quot;, user.getSchacHomeOrganization());</span>
+        }
+<span class="fc" id="L95">        return userInfo;</span>
+    }
+
+    @JsonIgnore
+    public void removeApplicationMembership(ApplicationMembership applicationMembership) {
+        //This is required by Hibernate - children can't be dereferenced
+<span class="nc" id="L101">        this.removeApplicationMemberships(List.of(applicationMembership));</span>
+<span class="nc" id="L102">    }</span>
+
+    @JsonIgnore
+    public void removeApplicationMemberships(List&lt;ApplicationMembership&gt; applicationMemberships) {
+        //This is required by Hibernate - children can't be dereferenced
+<span class="fc" id="L107">        List&lt;Long&gt; applicationMembershipsIdentifiers = applicationMemberships.stream().map(am -&gt; am.getId()).toList();</span>
+<span class="fc" id="L108">        Set&lt;ApplicationMembership&gt; newApplicationMemberships = this.applicationMemberships</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">                .stream().filter(am -&gt; !applicationMembershipsIdentifiers.contains(am.getId())).collect(Collectors.toSet());</span>
+<span class="fc" id="L110">        this.applicationMemberships.clear();</span>
+<span class="fc" id="L111">        this.applicationMemberships.addAll(newApplicationMemberships);</span>
+<span class="fc" id="L112">    }</span>
+
+    @Override
+    @Transient
+    @JsonIgnore
+    public String getName() {
+<span class="fc" id="L118">        return transientName;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
