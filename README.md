@@ -2,7 +2,9 @@
 
 [![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)
 ![Coverage](.github/badges/jacoco.svg)
-![Branches](.github/badges/branches.svg)
+
+[Coverage report](https://openconext.github.io/OpenConext-access)
+
 
 ## [Getting started](#getting-started)
 
