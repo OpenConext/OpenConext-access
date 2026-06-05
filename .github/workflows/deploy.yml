@@ -159,6 +159,9 @@ jobs:
             type=semver,pattern={{version}},value=${{ needs.deployment.outputs.version }}
             type=sha
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Build and push the ${{ matrix.app }} image
         uses: docker/build-push-action@v7
         with:
