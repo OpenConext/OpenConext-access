@@ -62,12 +62,12 @@ jobs:
         run: mvn -pl server test jacoco:report
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: server/target/site/jacoco
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 #          - name: Deploy coverage report
 
 #      - name: Deploy
