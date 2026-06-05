@@ -56,8 +56,17 @@ jobs:
       - name: Generate coverage
         run: mvn -pl server test jacoco:report
 
-      - name: Deploy coverage report
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: server/target/site/jacoco
+          path: server/target/site/jacoco
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+          - name: Deploy coverage report
+
+#      - name: Deploy
+#        uses: JamesIves/github-pages-deploy-action@v4
+#        with:
+#          branch: 'gh-pages'
+#          folder: 'server/target/site/jacoco'
