@@ -54,10 +54,10 @@ jobs:
 #        with:
 #          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Generate coverage
-        run: mvn test jacoco:report
+        run: mvn -pl server test jacoco:report
 
       - name: Deploy coverage report
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/jacoco
+          publish_dir: server/target/site/jacoco
