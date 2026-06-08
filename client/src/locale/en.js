@@ -952,6 +952,7 @@ const en = {
         cancel: "Cancel",
         submit: "Submit",
         new: "New",
+        approve: "Approve",
         create: "Create",
         save: "Save",
         sure: "I'm sure",

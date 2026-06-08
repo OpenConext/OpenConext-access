@@ -952,6 +952,7 @@ const nl = {
         cancel: "Annuleren",
         submit: "Verzenden",
         new: "Nieuw",
+        approve: "Goedkeuren",
         create: "Aanmaken",
         save: "Opslaan",
         sure: "Ik weet het zeker",

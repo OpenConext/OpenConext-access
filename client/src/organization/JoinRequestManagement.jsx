@@ -146,7 +146,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
         <div className="organization-join-requests">
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
-                                         confirmationHeader={I18n.t("forms.delete")}
+                                         confirmationHeader={I18n.t("forms.approve")}
                                          confirmationTxt={okButton}
                                          question={question}
             />}
