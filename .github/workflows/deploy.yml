@@ -123,10 +123,10 @@ jobs:
         include:
           - image: ghcr.io/openconext/openconext-access/accessclient
             app: client
-            architecture: "linux/amd64,linux/arm64"
+            architecture: "linux/amd64"
           - image: ghcr.io/openconext/openconext-access/accessserver
             app: server
-            architecture: "linux/amd64,linux/arm64v8"
+            architecture: "linux/amd64"
     steps:
       - uses: actions/checkout@v6
 
