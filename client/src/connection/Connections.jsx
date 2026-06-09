@@ -523,6 +523,7 @@ export const Connections = ({
                 <SelectField name={I18n.t("connection.protocol")}
                              value={connection.protocol}
                              options={protocolOptions}
+                             required={true}
                              toolTip={isEmpty(connection.manageIdentifier) ? null : I18n.t("connection.protocolTooltip")}
                              disabled={!isEmpty(connection.manageIdentifier)}
                              onChange={changeProtocol}
@@ -585,6 +586,7 @@ export const Connections = ({
                         </div>
                         <div className="redirect-urls-container">
                             <span className="label">{I18n.t("connection.redirectUrls")}
+                                <sup className="required">*</sup>
                                 {changeRequestsKeys.includes("redirectUrls") && <Tooltip standalone={true}
                                                                                          children={<AlertIcon/>}
                                                                                          tip={I18n.t("forms.changeRequest")}/>}</span>
