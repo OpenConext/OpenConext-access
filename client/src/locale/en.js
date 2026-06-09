@@ -397,7 +397,7 @@ const en = {
         acsLocations: "ACS location(s)",
         addACSLocation: "+ Add ASC location",
         save: "Save",
-        saveAndNext: "Save and continu",
+        saveAndNext: "Save and continue",
         requiresChangeRequest: "Request change",
         deleteConfirmation: "Are you sure you want to delete this connection?",
         outstandingPolicies: "This connection cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you need this connection to be deleted.",
