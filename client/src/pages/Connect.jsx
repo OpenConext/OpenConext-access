@@ -25,72 +25,14 @@ const Connect = () => {
             <div className="inner-connect-container">
                 <div className="connect">
                     <h2>{I18n.t("connect.formal")}</h2>
+                    <p>{I18n.t("connect.subTitle")}</p>
                     <p>{I18n.t("connect.formalInfo")}</p>
-                    <div className="table-container">
-                        <table>
-                            <thead></thead>
-                            <tbody>
-                            <tr>
-                                <td className="left-top">
-                                    {I18n.t("connect.agreementTypes")}
-                                </td>
-                                <td>
-                                    <p>{I18n.t("connect.testIdps")}</p>
-                                    <span className="sub">{I18n.t("connect.accessTestIdps")}</span>
-                                </td>
-                                <td>
-                                    <p>{I18n.t("connect.collaborations")}</p>
-                                    <span className="sub">{I18n.t("connect.accessGroups")}</span>
-                                </td>
-                                <td>
-                                    <p>{I18n.t("connect.enterprises")}</p>
-                                    <span className="sub">{I18n.t("connect.accessStudent")}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <p>{I18n.t("connect.commercial")}</p>
-                                </td>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.fairUse"),
-                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.accessTOS"),
-                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.connectionAgreement"),
-                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <p>{I18n.t("connect.surfMember")}<sup>*</sup></p>
-                                </td>
-                                <td><span>{I18n.t("connect.notNeeded")}</span></td>
-                                <td><span>{I18n.t("connect.notNeeded")}</span></td>
-                                <td dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connect.memberAgreement"),
-                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <p className="sup-info"><sup>*</sup>{I18n.t("connect.surfMemberInfo")}</p>
-                    </div>
-                    <p>{I18n.t("connect.provisions")}</p>
                 </div>
                 <div className="connect">
-                    <h2>{I18n.t("connect.technical")}</h2>
-                    <p>{I18n.t("connect.technicalInfo")}</p>
-                    <div>
-                        <p>{I18n.t("connect.serviceInfo")}</p>
-                        <ul>
-                            {I18n.translations[I18n.locale].connect.serviceBullets
-                                .map((s,index) => <li key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(s)}}/>)}
-                        </ul>
-                    </div>
-                    <div>
-                        <h5>{I18n.t("connect.samlOidc")}</h5>
-                        <p>{I18n.t("connect.samlOidcInfo")}</p>
-                    </div>
-                    <div>
-                        <h5>{I18n.t("connect.attributes")}</h5>
-                        <p>{I18n.t("connect.attributesInfo")}</p>
-                    </div>
+                    <ul>
+                        {I18n.translations[I18n.locale].connect.serviceBullets
+                            .map((s, index) => <li key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(s)}}/>)}
+                    </ul>
                 </div>
                 <div className="button-container">
                     <Button type={ButtonType.Primary}

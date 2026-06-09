@@ -44,7 +44,8 @@ div.connect-container {
         @include index.page;
         background-color: white;
         max-width: $width;
-        padding-top: 40px;
+        padding-top: 10px;
+        gap: 20px;
 
         .table-container {
             padding: 8px 15px 20px 15px ;
