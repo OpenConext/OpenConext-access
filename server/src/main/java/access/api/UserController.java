@@ -114,7 +114,7 @@ public class UserController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
-        boolean isExternalUserFromSchacHome = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
+        boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
         userFromDB.setExternalUser(isExternalUserFromSchacHome);
         if (!isExternalUserFromSchacHome) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();

@@ -372,13 +372,14 @@ public class OrganizationController implements UserAccessRights {
     private String getOrgSchacHomeOrganization(User user, String name) {
         String schacHomeOrganization = user.getSchacHomeOrganization().toLowerCase();
         String orgSchacHomeOrganization;
-        if (config.getEduIdSchacHomeOrganization().equals(schacHomeOrganization)) {
+        boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
+        if (isExternalUserFromSchacHome) {
             String normalizedName = name
                     .replaceAll("[^a-zA-Z_ ]", "")
                     .trim()
                     .replaceAll(" ", "_")
                     .toLowerCase();
-            orgSchacHomeOrganization = String.format("%s.%s", normalizedName, config.getEduIdSchacHomeOrganization());
+            orgSchacHomeOrganization = String.format("%s.%s", normalizedName, schacHomeOrganization);
         } else {
             orgSchacHomeOrganization = schacHomeOrganization;
         }

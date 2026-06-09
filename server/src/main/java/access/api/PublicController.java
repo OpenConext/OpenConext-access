@@ -48,7 +48,7 @@ public class PublicController {
         } else {
             DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
             String schacHomeOrganization = (String) user.getClaims().get("schac_home_organization");
-            boolean isExternalUserFromSchacHome = schacHomeOrganization.equals(config.getEduIdSchacHomeOrganization());
+            boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
             if (isExternalUserFromSchacHome) {
                 providers.removeIf(provider -> removeNonPublicProvider(provider));
             } else {

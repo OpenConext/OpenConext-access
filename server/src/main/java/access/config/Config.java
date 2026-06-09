@@ -16,8 +16,8 @@ public class Config {
 
     private String clientUrl;
     private String baseUrl;
-    private String eduIdSchacHomeOrganization;
-    private String surfSchacHomeOrganization;
+    private List<String> externalSchacHomeOrganizations;
+    private List<String> ownerSchacHomeOrgs;
     private String name;
     private String sram;
     private String invite;
@@ -40,8 +40,8 @@ public class Config {
         this.clientUrl = base.clientUrl;
         this.baseUrl = base.baseUrl;
         this.discovery = base.discovery;
-        this.eduIdSchacHomeOrganization = base.eduIdSchacHomeOrganization;
-        this.surfSchacHomeOrganization = base.surfSchacHomeOrganization;
+        this.externalSchacHomeOrganizations = base.externalSchacHomeOrganizations;
+        this.ownerSchacHomeOrgs = base.ownerSchacHomeOrgs;
         this.invite = base.invite;
         this.sram = base.sram;
         this.serviceDesk = base.serviceDesk;

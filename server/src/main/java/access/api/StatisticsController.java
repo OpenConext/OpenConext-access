@@ -34,8 +34,8 @@ public class StatisticsController {
         if (user == null || user.isSuperUser()) {
             return null;
         }
-        String surfSchacHome = config.getSurfSchacHomeOrganization();
-        if (StringUtils.hasText(surfSchacHome) && surfSchacHome.equals(user.getSchacHomeOrganization())) {
+        List<String> ownerSchacHomeOrgs = config.getOwnerSchacHomeOrgs();
+        if (ownerSchacHomeOrgs.contains(user.getSchacHomeOrganization())) {
             return null;
         }
         return user.getAuthenticatingAuthority();
