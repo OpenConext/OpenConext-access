@@ -625,7 +625,7 @@ const nl = {
         status: "Status",
         protocol: "Protocol",
         details: "Details",
-        zeroState: "Applicatie <strong>{{name}}</strong> heeft nog geen {{type}}‑verbindingen.",
+        zeroState: "Applicatie <strong>{{name}}</strong> heeft nog geen verbindingen.",
     },
     confirmationDialog: {
         title: "Bevestigen",
@@ -862,7 +862,6 @@ const nl = {
             "<strong>Stap 5</strong>: Vraag een koppeling aan en wacht op akkoord. Je ontvangt bericht bij acceptatie of afwijzing.",
             ],
         formalInfo: "Kom je er niet uit: neem dan contact met ons op via support@surfaccess.nl",
-        
         connect: "Koppel nu je applicatie",
     },
     changeRequests: {
