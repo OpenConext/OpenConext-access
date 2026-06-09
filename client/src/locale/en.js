@@ -590,6 +590,7 @@ const en = {
             supportPlaceholder: "support",
             addTechnicalContact: "+ add another contact",
             oneTechnicalEmail: "One real email is required",
+            adminContactEqualsTech: "Technical contact must be different from the administrative contact",
         },
         privacy: {
             label: "Privacy & Security",

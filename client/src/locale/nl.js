@@ -590,6 +590,7 @@ const nl = {
             supportPlaceholder: "support",
             addTechnicalContact: "+ nog een contact toevoegen",
             oneTechnicalEmail: "Eén echte e-mail is verplicht",
+            adminContactEqualsTech: "Technisch contact moet verschillen van het administratieve contact",
         },
         privacy: {
             label: "Privacy & beveiliging",
