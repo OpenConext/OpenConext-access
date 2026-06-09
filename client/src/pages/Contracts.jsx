@@ -92,12 +92,17 @@ export const Contracts = () => {
                 ? <a href={`${config.jiraBrowseBaseUrl}/${contract.ticketKey}`}
                      target="_blank"
                      rel="noreferrer">{contract.ticketKey}</a>
-                : null,
+                : "-",
+        },
+        {
+            key: "telephone",
+            header: I18n.t("contracts.telephone"),
+            mapper: contract => <span>{contract.telephone || "-"}</span>,
         },
         {
             key: "country",
             header: I18n.t("contracts.country"),
-            mapper: contract => <span>{contract.country}</span>,
+            mapper: contract => <span>{contract.country || "-"}</span>,
         },
         {
             key: "buttons",
