@@ -5,7 +5,7 @@
     right: 30px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 90;
+    z-index: 9999;
 
     &__trigger {
         background: var(--sl-color-green-200);
@@ -70,6 +70,18 @@
 .sds--modal--container.feedback-preview-dialog {
     max-width: 64rem;
     width: 64rem;
+    z-index: 99999;
+}
+
+// While the feedback widget is open, lift its backdrop above all other modals
+// and hide other open modals without unmounting them (their React state is preserved).
+// Removing the feedback-open body class restores them instantly.
+body.feedback-open .sds--modal.sds--backdrop:has(.feedback-preview-dialog) {
+    z-index: 99998;
+}
+
+body.feedback-open .sds--modal.sds--backdrop:not(:has(.feedback-preview-dialog)) {
+    visibility: hidden;
 }
 
 // Mac Mail–style preview panel
@@ -237,10 +249,6 @@
 .sds--modal--content .sds--text--rich a {
     color: black;
     font-weight: 600;
-}
-
-body.feedback-capture--hide-modal .sds--modal {
-    visibility: hidden !important;
 }
 
 body.feedback-capture .user-feedback-widget {

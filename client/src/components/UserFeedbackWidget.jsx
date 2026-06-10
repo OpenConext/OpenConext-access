@@ -27,6 +27,7 @@ export const UserFeedbackWidget = () => {
         setMessage("");
         setIncludeScreenshot(true);
         setPreviewScreenshot(null);
+        document.body.classList.remove("feedback-open");
     };
 
     const captureScreenshot = useCallback(async (hideModal = true) => {
@@ -48,11 +49,12 @@ export const UserFeedbackWidget = () => {
     }, []);
 
     const handleOpen = useCallback(() => {
-        setOpen(true);
-        // Capture in background — the modal is hidden from html2canvas
-        // via the feedback-capture--hide-modal CSS class.
-        // Focus the textarea after capture completes (modal becomes visible again).
-        captureScreenshot(true).then(dataUrl => {
+        // Capture the page first — before the feedback modal is in the DOM —
+        // so any open confirmation modals (e.g. delete confirmations) are
+        // included in the screenshot.
+        captureScreenshot(false).then(dataUrl => {
+            document.body.classList.add("feedback-open");
+            setOpen(true);
             setPreviewScreenshot(dataUrl);
             setTimeout(() => inputRef.current?.focus(), 25);
         });
@@ -70,9 +72,8 @@ export const UserFeedbackWidget = () => {
                 includeScreenshot
             };
 
-            if (includeScreenshot) {
-                const dataUrl = await captureScreenshot(true);
-                const base64 = dataUrl.split(",")[1] || "";
+            if (includeScreenshot && previewScreenshot) {
+                const base64 = previewScreenshot.split(",")[1] || "";
                 const estimatedBytes = Math.ceil((base64.length * 3) / 4);
                 if (estimatedBytes > MAX_SCREENSHOT_BYTES) {
                     setFlash(I18n.t("feedback.tooLarge"));
@@ -87,7 +88,7 @@ export const UserFeedbackWidget = () => {
         } finally {
             setSubmitting(false);
         }
-    }, [captureScreenshot, includeScreenshot, location.hash, location.pathname, location.search, message, setFlash]);
+    }, [includeScreenshot, location.hash, location.pathname, location.search, message, previewScreenshot, setFlash]);
 
     const renderMailPreview = () => {
         const now = new Date();
