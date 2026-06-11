@@ -115,6 +115,9 @@ public class UserController implements UserAccessRights {
 
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
         boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
+
+        LOG.debug(String.format("/me for user from %s is guest: %s", schacHomeOrganization, isExternalUserFromSchacHome));
+
         userFromDB.setExternalUser(isExternalUserFromSchacHome);
         if (!isExternalUserFromSchacHome) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
