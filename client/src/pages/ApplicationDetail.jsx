@@ -268,7 +268,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     />
                 </div>
             );
-
         } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
             return (
                 <div className="connect-options-container">
@@ -324,7 +323,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             const directConnectAllowed = connectWithoutInteraction(metaData, user);
             if (!isAdminUser) {
                 newModalOption = confirmationModalOptions.requestConnectionByMember;
-            } else if (directConnectAllowed) {
+            } else if (directConnectAllowed || config.testEnvironment) {
                 newModalOption = confirmationModalOptions.makeConnection;
             } else {
                 newModalOption = confirmationModalOptions.requestConnection;
@@ -417,8 +416,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 cancel: () => cancelConfirmation(),
                 action: () => doRequestDisconnection(false),
                 title: null,
-                question: I18n.t("applicationConnect.disconnectRequestedQuestion"),
-                okButton: I18n.t("applicationConnect.disconnectRequested")
+                question: I18n.t(`applicationConnect.disconnectRequestedQuestion${config.testEnvironment ? "Test" : ""}`),
+                okButton: I18n.t(`applicationConnect.disconnectRequested${config.testEnvironment ? "Test" : ""}`)
             });
         } else {
             cancelConfirmation();
@@ -430,10 +429,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 manageIdentifierOrg,
                 message)
                 .then(() => {
-                    setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
+                    setFlash(I18n.t(`applicationConnect.flash.requestConnectionByMember${config.testEnvironment ? "Test" : ""}`));
                     //Because user is an useEffect dependency, everything will reload. Including change requests
                     refreshUser(() => {
-                        //a small timeout to prevent flickering - connecting apps does not happen that often
+                        //a small timeout to prevent flickering - disconnecting apps does not happen that often
                         setTimeout(() => setLoading(false), 75);
                     });
                 }).catch(() => {
@@ -709,8 +708,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <p className="warning">
                             <AlertIcon/>
                             <span dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
-                        }}/>
+                                __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
+                            }}/>
                         </p>
                         <p>{I18n.t("assurance.tips.authentication")}</p>
                     </InfoBlock>
@@ -973,7 +972,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
     let connectButtonPostFixTxt;
     if (isAdminUser) {
-        connectButtonPostFixTxt = connectWithoutInteraction(metaData, user) ? "connect" : "request"
+        connectButtonPostFixTxt = (connectWithoutInteraction(metaData, user) || config.testEnvironment) ? "connect" : "request"
     } else {
         connectButtonPostFixTxt = memberRequestSend ? "requested" : "requestMember";
     }

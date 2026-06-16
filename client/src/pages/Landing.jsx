@@ -17,10 +17,11 @@ import {useShallow} from "zustand/react/shallow";
 
 const Landing = ({refreshUser}) => {
 
-    const {user, currentOrganization, setFlash} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization, setFlash, config} = useAppStore(useShallow(state => ({
         user: state.user,
         currentOrganization: state.currentOrganization,
-        setFlash: state.setFlash
+        setFlash: state.setFlash,
+        config: state.config
     })));
 
     const [search, setSearch] = useState("");
@@ -83,7 +84,7 @@ const Landing = ({refreshUser}) => {
                 setConfirmation({
                     open: true,
                     action: () => afterOrgCreate(res),
-                    question: I18n.t("welcome.confirmationAfter", {jiraKey: res.ticketKey}),
+                    question: I18n.t(`welcome.confirmationAfter${config.testEnvironment ? "Test": ""}`, {jiraKey: res.ticketKey}),
                     okButton: I18n.t("forms.proceed")
                 });
             })

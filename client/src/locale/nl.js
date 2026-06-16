@@ -136,7 +136,8 @@ const nl = {
         zeroState: "Geen organisaties gevonden",
         register: "Registreer nieuwe organisatie: ‘<strong>{{name}}</strong>’",
         confirmation: "Weet je zeker dat je een nieuwe organisatie wilt registreren met de naam {{name}}?",
-        confirmationAfter: "Je organisatie is aangemaakt. Je kunt doorgaan met het aanmaken van applicaties. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong></strong>",
+        confirmationAfter: "Je organisatie is aangemaakt. Je kunt doorgaan met het aanmaken van applicaties. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>",
+        confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het aanmaken van applicaties.",
         newOrganization: "Nieuwe organisatie aangemaakt",
         flash: "Organisatie {{name}} aangemaakt.",
     },
@@ -1052,6 +1053,7 @@ const nl = {
         disconnect: "koppeling verbreken",
         disconnectRequested: "Verzoek tot verbreken",
         disconnectRequestedQuestion: "Om deze applicatie te ontkoppelen van je instelling, maken we een ticket aan bij SURF support. Zij zullen de applicatie ontkoppelen.",
+        disconnectRequestedQuestionTest: "Weet je zeker dat je deze applicatie wilt ontkoppelen van je instelling?",
         back: "← Terug naar andere apps",
         defaultAccess: "Hoe wil je standaardtoegang configureren?",
         requestConnection: "Een koppeling met deze applicatie moet worden goedgekeurd",
@@ -1067,6 +1069,7 @@ const nl = {
         sendMessage: "Bericht verzenden",
         flash: {
             requestConnectionByMember: "Je verzoek is verzonden",
+            requestConnectionByMemberTest: "Je verzoek is uitgevoerd",
             makeConnection: "Applicatietoegang is ingesteld",
             requestConnection: "Applicatietoegang is aangevraagd",
             cancelConnectionRequest: "Je verzoek is geannuleerd",
@@ -1394,7 +1397,8 @@ const nl = {
         ticketKey: "Jira-ticket",
         jiraModal: {
             title: "Contract ingediend",
-            message: "Uw contract is ingediend. Uw Jira-ticket:",
+            message: "Uw contract is ingediend. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>",
+            messageTest: "Uw contract is ingediend."
         },
         flash: {
             signed: "Het contract voor {{name}} is ondertekend.",

@@ -10,6 +10,7 @@ import {countryOptions} from "../utils/countries.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
+import {useShallow} from "zustand/react/shallow";
 
 const KNOWN_TITLES = ["mr", "mrs", "dr", "prof"];
 const OTHER_TITLE = "other";
@@ -22,7 +23,10 @@ export const Contract = ({
                              changeTab,
                          }) => {
 
-    const setFlash = useAppStore(state => state.setFlash);
+    const {config, setFlash} = useAppStore(useShallow(state => ({
+        config: state.config,
+        setFlash: state.setFlash
+    })));
 
     const [contract, setContract] = useState(null);
     const [isNew, setIsNew] = useState(true);
@@ -133,7 +137,7 @@ export const Contract = ({
                     }}
                     confirmationHeader={I18n.t("contracts.jiraModal.title")}
                     confirmationTxt={I18n.t("confirmationDialog.ok")}
-                    question={I18n.t("contracts.jiraModal.message", {jiraKey: jiraModal.ticketKey})}
+                    question={I18n.t(`contracts.jiraModal.message${config.testEnvironment ? "Test" : ""}`, {jiraKey: jiraModal.ticketKey})}
                 />
 
             )}

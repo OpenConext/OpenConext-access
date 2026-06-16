@@ -352,6 +352,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public void disconnectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser) {
+        //nope
+    }
+
+    @Override
     public Map<String, List<Map<String, Object>>> autoCompleteEntities(EntityType type, String query) {
         String lowerCaseQuery = query.toLowerCase();
         return Map.of("suggestions", this.allProviders.get(type).stream()

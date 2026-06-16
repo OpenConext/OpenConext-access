@@ -1,5 +1,6 @@
 package access.api;
 
+import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
@@ -57,17 +58,20 @@ public class IdentityProviderController implements UserAccessRights {
     private final Manage manage;
     private final JiraClient jiraClient;
     private final MailBox mailBox;
+    private final Config config;
 
     public IdentityProviderController(UserRepository userRepository,
                                       OrganizationRepository organizationRepository,
                                       Manage manage,
                                       JiraClient jiraClient,
-                                      MailBox mailBox) {
+                                      MailBox mailBox,
+                                      Config config) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.manage = manage;
         this.jiraClient = jiraClient;
         this.mailBox = mailBox;
+        this.config = config;
     }
 
     @PutMapping({"/connect"})
@@ -123,10 +127,11 @@ public class IdentityProviderController implements UserAccessRights {
 
         boolean idpAndSpShareInstitution = spMetaDataFields.getOrDefault(INSTITUTION_GUID, "nope")
                 .equals(idpInstitutionGUID);
-        boolean connectWithoutInteraction = idpAndSpShareInstitution || !connectOption.equals(DashBoardConnectionOption.connectWithInteraction);
+        boolean connectWithoutInteraction = idpAndSpShareInstitution ||
+            !connectOption.equals(DashBoardConnectionOption.connectWithInteraction) || config.isTestEnvironment();
         if (connectWithoutInteraction) {
             manage.connectWithoutInteraction(identityProvider, serviceProvider, user);
-            if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail)) {
+            if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail) && !config.isTestEnvironment()) {
                 List<String> recipients = contactPersons(serviceProvider);
                 if (!CollectionUtils.isEmpty(recipients)) {
                     mailBox.sendNewConnectionCreated(
@@ -197,10 +202,18 @@ public class IdentityProviderController implements UserAccessRights {
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
         Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, idpManageIdentifier);
 
-        String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
-
         String identityProviderEntityID = getEntityID(identityProvider);
         String serviceProviderEntityID = getEntityID(serviceProvider);
+
+        if (config.isTestEnvironment()) {
+            manage.disconnectWithoutInteraction(identityProvider, serviceProvider, user);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("status", HttpStatus.CREATED.value()));
+        }
+
+        String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp, idpManageIdentifier);
+
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Disconnection request requested by %s for %s.",
                 user.getName(), getProviderName(identityProvider));

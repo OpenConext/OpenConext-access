@@ -98,20 +98,24 @@ public class ContractController implements UserAccessRights {
 
         contract.setApplication(application);
         Contract saved = contractRepository.save(contract);
-
-        String summary = String.format("User %s submitted a contract for application %s.",
+        if (config.isTestEnvironment()) {
+            application.setSignedContract(true);
+            applicationRepository.save(application);
+        } else {
+            String summary = String.format("User %s submitted a contract for application %s.",
                 user.getName(), application.getName());
-        String jiraKey = jiraClient.create(new JiraIssue(
+            String jiraKey = jiraClient.create(new JiraIssue(
                 application.getName(),
                 null,
                 String.format("%s%nVisit: %s/system/contracts",
-                        summary, config.getClientUrl()),
+                    summary, config.getClientUrl()),
                 summary,
                 EntityType.oidc10_rp,
                 user.getEmail()
-        ));
-        LOG.info("Created Jira issue for new Contract: " + jiraKey);
-        saved.setTicketKey(jiraKey);
+            ));
+            LOG.info("Created Jira issue for new Contract: " + jiraKey);
+            saved.setTicketKey(jiraKey);
+        }
         saved = contractRepository.save(saved);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);

@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.*;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -429,6 +428,24 @@ public class RemoteManage implements Manage {
         bodyMap.put("userUrn", user.getSub());
         //Fire and forget. An exception will be thrown by the restTemplate if the return is not 20X
         restTemplate.put(connectUrl, bodyMap);
+    }
+
+    @Override
+    public void disconnectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser) {
+        Map<String, Object> identityProviderData = getData(identityProvider);
+        String idpEntityID = getEntityID(identityProvider);
+
+        Map<String, Object> serviceProviderData = getData(serviceProvider);
+        String spEntityID = getEntityID(serviceProvider);
+
+        ((List<Map<String, String>>) identityProviderData.getOrDefault("allowedEntities", List.of()))
+            .removeIf(allowedEntity -> allowedEntity.get("name").equals(spEntityID));
+        //Onn production this will not be necessary, but it can't harm
+        ((List<Map<String, String>>) serviceProviderData.getOrDefault("allowedEntities", List.of()))
+            .removeIf(allowedEntity -> allowedEntity.get("name").equals(idpEntityID));
+
+        updateProvider(identityProvider);
+        updateProvider(serviceProvider);
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type, boolean allAttributes) {

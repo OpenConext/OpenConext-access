@@ -137,6 +137,7 @@ const en = {
         register: "Register new organisation: ‘<strong>{{name}}</strong>’",
         confirmation: "Are you sure you want to register a new organisation called {{name}}?",
         confirmationAfter: "Your organisation is created. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
+        confirmationAfterTest: "Your organisation is created. You can continue to create applications.",
         newOrganization: "New organisation created",
         flash: "Created organisation {{name}}.",
     },
@@ -1051,7 +1052,9 @@ const en = {
         requested: "Application requested",
         disconnect: "Disconnect",
         disconnectRequested: "Request disconnect",
+        disconnectRequestedTest: "Disconnect",
         disconnectRequestedQuestion: "In order to disconnect this application from your institution, we will create a ticket for SURF support. They will disconnect the application.",
+        disconnectRequestedQuestionTest: "Are you sure you want to disconnect this application?",
         back: "← Back to other apps",
         defaultAccess: "How do you want to configure default access?",
         requestConnection: "A connection to this application must be approved",
@@ -1067,6 +1070,7 @@ const en = {
         sendMessage: "Send message",
         flash: {
             requestConnectionByMember: "Your request has been send",
+            requestConnectionByMemberTest: "Your request has been fulfilled",
             makeConnection: "Application access has been set",
             requestConnection: "Application access is requested",
             cancelConnectionRequest: "Your request has been cancelled",
@@ -1395,6 +1399,7 @@ const en = {
         jiraModal: {
             title: "Contract submitted",
             message: "The contract information has been send. You can continue to create applications. You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
+            messageTest: "The contract information has been send. You can continue to create applications.",
         },
         flash: {
             signed: "The contract for {{name}} has been signed.",

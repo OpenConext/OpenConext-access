@@ -53,6 +53,7 @@ public class Config {
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
         this.demoSeedEnabled = base.demoSeedEnabled;
         this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;
+        this.testEnvironment = base.testEnvironment;
     }
 
     public Config withAuthenticated(boolean authenticated) {
