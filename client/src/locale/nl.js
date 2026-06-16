@@ -1052,6 +1052,7 @@ const nl = {
         requested: "Applicatie aangevraagd",
         disconnect: "koppeling verbreken",
         disconnectRequested: "Verzoek tot verbreken",
+        disconnectRequestedTest: "Ontkoppel",
         disconnectRequestedQuestion: "Om deze applicatie te ontkoppelen van je instelling, maken we een ticket aan bij SURF support. Zij zullen de applicatie ontkoppelen.",
         disconnectRequestedQuestionTest: "Weet je zeker dat je deze applicatie wilt ontkoppelen van je instelling?",
         back: "← Terug naar andere apps",
@@ -1398,7 +1399,7 @@ const nl = {
         jiraModal: {
             title: "Contract ingediend",
             message: "Uw contract is ingediend. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>",
-            messageTest: "Uw contract is ingediend."
+            messageTest: "Uw contract is ingediend.",
         },
         flash: {
             signed: "Het contract voor {{name}} is ondertekend.",
