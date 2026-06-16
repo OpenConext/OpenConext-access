@@ -313,7 +313,22 @@ function templateToRegex(body) {
     return new RegExp(`^${regexStr}$`);
 }
 
+// Key expressions that are impossible to resolve statically (bare variables
+// holding a runtime value) but whose value is known from reading the call
+// site. `link.locale` is set to "applicationDetail.entityCategory" by the
+// `externalLink({locale: "applicationDetail.entityCategory", ...})` call in
+// pages/ApplicationDetail.jsx, so I18n.t(link.locale) - and the companion
+// `I18n.t(`${link.locale}.${attribute...}`)` template - resolve to that prefix.
+const HARDCODED_KEY_PREFIXES = {
+    "link.locale": "applicationDetail.entityCategory",
+};
+
 function classifyKeyExpression(expr, location, unresolved) {
+    if (Object.prototype.hasOwnProperty.call(HARDCODED_KEY_PREFIXES, expr)) {
+        const prefix = HARDCODED_KEY_PREFIXES[expr];
+        return {type: "regex", value: new RegExp(`^${escapeRegex(prefix)}(\\..+)?$`)};
+    }
+
     const stringMatch = expr.match(STRING_LITERAL_RE);
     if (stringMatch) {
         return {type: "exact", value: stringMatch[2]};
