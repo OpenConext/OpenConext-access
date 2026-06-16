@@ -1,6 +1,5 @@
 const nl = {
     code: "NL",
-    name: "Nederlands",
     languages: {
         language: "Taal",
         en: "Engels",
@@ -157,7 +156,6 @@ const nl = {
             roles: "Toegangsrollen",
             maintainRoles: "Beheer rollen",
             teamCentral: "Centraal team",
-            you: "Jij",
             responsible: "Verantwoordelijke: <a href='mailto:{{email}}'>{{name}}</a>",
             maintainTeam: "Beheer team",
         },
@@ -330,12 +328,9 @@ const nl = {
         },
         team: {
             name: "Team",
-            info: "Geef teamleden of externe gebruikers toegang om deze app te beheren",
             members: "Beheer teamleden",
         },
         production: {
-            name: "Productie",
-            connections: "Koppelen met de productieomgeving",
             catalogue: "App‑details voor de applicatie catalogus",
             access: "Toegang & zichtbaarheid",
             contract: "Contract",
@@ -483,14 +478,6 @@ const nl = {
             motivationPlaceholder: "Attribuut wordt gebruikt voor ...",
             value: "Waarde",
         },
-        testIdPs: {
-            info: "Je kunt testen of federated login werkt met de volgende IdP's.",
-            subTitle: "SURF test‑IdP's",
-            institutionIdPs: "Instelling‑test‑IdP's",
-            institutionIdPsInfo: "Je kunt ook testen met accounts en data van instellingen. <strong>Let op</strong>: je moet zelf contact opnemen voor de test‑inloggegevens van hun test‑IdP's.",
-            placeholder: "Selecteer één of meer instellingen",
-            institution: "test‑IdP of instelling‑IdP",
-        },
         visibilities: {
             info: "Je app wordt zichtbaar in de applicatie catalogus. Instellingen of samenwerkingen die je app willen gebruiken, kunnen deze zelf activeren of een koppeling aanvragen.",
             disclaimer: "<strong>Let op</strong>: je kunt de zichtbaarheid later altijd aanpassen.",
@@ -559,7 +546,6 @@ const nl = {
                 surf: "SURF",
                 media_video: "Media / Video",
             },
-            targetGroup: "Ga door naar de doelgroep",
         },
         logo: {
             name: "logo",
@@ -606,10 +592,6 @@ const nl = {
         },
         contractSection: {
             title: "Contract",
-            info: "Voor apps op SURF Access moet je een SURF‑verbindingsovereenkomst ondertekenen.",
-            notSigned: "Er is nog geen overeenkomst ondertekend.",
-            signed: "Er is een overeenkomst ondertekend.",
-            sign: "Overeenkomst ondertekenen",
         },
         productionStatusSection: {
             proceedHow: "Hoe wilt u verder gaan?",
@@ -793,11 +775,6 @@ const nl = {
         title: "Applicaties",
         subTitle: "Blader door applicaties die momenteel verbonden zijn met SURF Access, onderverdeeld in categorieën. Sommige zijn direct via SURFconext verbonden, andere via eduGAIN.",
         back: "Terug",
-        license: {
-            license_available_through_surfmarket: "Licentie vereist via SURFmarket",
-            license_not_required: "Licentie niet vereist",
-            license_required_by_service_provider: "Licentie vereist",
-        },
         attributes: "Attributen",
         attributesInfo: "De applicatie heeft attributen nodig om correct te functioneren.",
         details: "Toon details",
@@ -863,8 +840,8 @@ const nl = {
             "<strong>Stap 2</strong>: Geef aan bij welke organisatie je hoort. Kies eduID als je geen instellingsaccount hebt.",
             "<strong>Stap 3</strong>: Maak een nieuwe applicatie aan. Vul de gevraagde gegevens in.",
             "<strong>Stap 4</strong>: Maak een eerste koppeling aan bij de applicatie. Vul de benodige formele en technische gegevens aan. ",
-            "<strong>Stap 5</strong>: Vraag een koppeling aan en wacht op akkoord. Je ontvangt bericht bij acceptatie of afwijzing.",
-            ],
+            "<strong>Stap 5</strong>: Vraag een koppeling aan en wacht op akkoord. Je ontvangt bericht bij acceptatie of afwijzing."
+        ],
         formalInfo: "Kom je er niet uit: neem dan contact met ons op via support@surfaccess.nl",
         connect: "Koppel nu je applicatie",
     },
@@ -1262,7 +1239,6 @@ const nl = {
             practice: "SURF Access ondersteunt twee tweestapsverificatie systemen:",
             optionMfa: "via de identity provider van de eigen organisatie.",
             optionSurf: "via SURFSecureID.",
-            independant: "Beide systemen werken onafhankelijk van elkaar.",
             warning: "<strong>Let op</strong>: zet je <em>beide</em> systemen aan, dan moeten gebruikers met <em>beide</em> systemen een tweestapsverificatie uitvoeren.",
             authentication: "De tweestapsverificatie die je hier instelt wordt gebruikt voor alle authenticaties van gebruikers van deze organisatie naar de geselecteerde applicatie.",
         },
@@ -1334,9 +1310,6 @@ const nl = {
         chooseApplicationPlaceholder: "Optioneel: zoek en kies een applicatie",
         impportApplicationConfirmation: "Weet je absoluut zeker dat je entiteit <strong>{{entity}}</strong> wilt importeren naar organisatie <strong>{{organisation}}</strong> als nieuwe applicatie?",
         impportConnectionConfirmation: "Weet je absoluut zeker dat je entiteit <strong>{{entity}}</strong> wilt importeren naar organisatie <strong>{{organisation}}</strong> als nieuwe koppeling van applicatie {{application}}?",
-        flash: {
-            imported: "Entiteit {{entity}} is gemigreerd naar organisatie {{organisation}}",
-        },
     },
     applicationMigrate: {
         migrate: "Migreren",

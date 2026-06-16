@@ -1,6 +1,5 @@
 const en = {
     code: "EN",
-    name: "English",
     languages: {
         language: "Language",
         en: "English",
@@ -157,7 +156,6 @@ const en = {
             roles: "Access roles",
             maintainRoles: "Manage roles",
             teamCentral: "Central team",
-            you: "You",
             responsible: "Responsible: <a href='mailto:{{email}}'>{{name}}</a>",
             maintainTeam: "Manage team",
         },
@@ -330,12 +328,9 @@ const en = {
         },
         team: {
             name: "Team",
-            info: "Give team members or external users access to manage this app",
             members: "Manage team members",
         },
         production: {
-            name: "Production",
-            connections: "Connections to the production environment",
             catalogue: "App details for the application catalog",
             access: "Access & visibility",
             contract: "Contract",
@@ -483,14 +478,6 @@ const en = {
             motivationPlaceholder: "Attribute is used to ...",
             value: "Value",
         },
-        testIdPs: {
-            info: "You can test whether federated login works using the following IdPs.",
-            subTitle: "SURF test IdPs",
-            institutionIdPs: "Institution test IdPs",
-            institutionIdPsInfo: "You can also test with accounts and data from institutions. <strong>Note<strong/>: You must contact them yourself for the test login details for their test IdPs.",
-            placeholder: "Select one or more institutions",
-            institution: "test IdP or institution IdP",
-        },
         visibilities: {
             info: "Your app will become visible in the application catalog. Institutions or collaborations that want to use your app can activate it themselves or request a connection.",
             disclaimer: "<strong>Note</strong>: You can always adjust the visibility later.",
@@ -559,7 +546,6 @@ const en = {
                 surf: "SURF",
                 media_video: "Media / Video",
             },
-            targetGroup: "Ga door naar de doelgroep",
         },
         logo: {
             name: "logo",
@@ -606,10 +592,6 @@ const en = {
         },
         contractSection: {
             title: "Contract",
-            info: "For apps on SURF Access you must sign a SURF connection agreement.",
-            notSigned: "No agreement has been signed yet.",
-            signed: "An agreement has been signed.",
-            sign: "Sign the agreement",
         },
         productionStatusSection: {
             proceedHow: "How do you want to proceed?",
@@ -793,11 +775,6 @@ const en = {
         title: "Applications",
         subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
         back: "Terug",
-        license: {
-            license_available_through_surfmarket: "Requires a license through SURFmarket",
-            license_not_required: "Does not requires a license",
-            license_required_by_service_provider: "Requires a license",
-        },
         attributes: "Attributes",
         attributesInfo: "The application needs to receive attributes to function correctly.",
         details: "Show details",
@@ -863,8 +840,8 @@ const en = {
             "<strong>Step 2</strong>: Choose your organisatie. Use eduID if you do not have an institution account.",
             "<strong>Step 3</strong>: Create a new application. Enter the required information.",
             "<strong>Step 4</strong>: Create a new connection for the application. Enter the required formal and technical information. ",
-            "<strong>Step 5</strong>: Request the connection and wait for confirmation. You will receive a message at acceptance or denial.",
-            ],
+            "<strong>Step 5</strong>: Request the connection and wait for confirmation. You will receive a message at acceptance or denial."
+        ],
         formalInfo: "Unsure how to proceed? Contact us via support@surfaccess.nl",
         connect: "Connect your application now",
     },
@@ -1262,7 +1239,6 @@ const en = {
             practice: "SURF Access supports two two-factor authentication systems:",
             optionMfa: "via your organisation’s identity provider.",
             optionSurf: "via SURFSecureID.",
-            independant: "Both systems operate independently of one another.",
             warning: "<strong>Please note</strong>: if you enable <em>both</em> systems, users will be required to perform two-factor authentication using <em>both</em> systems.",
             authentication: "The two-factor authentication you set up here will be used for all user authentications from this organisation to the selected application.",
         },
@@ -1334,9 +1310,6 @@ const en = {
         chooseApplicationPlaceholder: "Optional: find and choose an application",
         impportApplicationConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to organisation <strong>{{organisation}}</strong> as a new application?",
         impportConnectionConfirmation: "Are you absolutely sure you want to import entity <strong>{{entity}}</strong> in to organisation <strong>{{organisation}}</strong> as a new connection of application {{application}}?",
-        flash: {
-            imported: "Entity {{entity}} has been migrated to organisation {{organisation}}",
-        },
     },
     applicationMigrate: {
         migrate: "Migrate",
