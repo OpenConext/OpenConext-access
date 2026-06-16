@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Copy Changelog to server resources
+        run: cp Changelog.md server/src/main/resources/Changelog.md
+
       - uses: actions/setup-java@v5
         with:
           java-version: 21

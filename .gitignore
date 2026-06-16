@@ -54,3 +54,4 @@ LOCAL_USERS.md
 security.MD
 logs_*.zip
 OhDearServiceRemoteTest.java
+server/src/main/resources/Changelog.md

@@ -40,6 +40,7 @@ import Feedback from "./pages/Feedback.jsx";
 import MyOrganization from "./pages/MyOrganization.jsx";
 import ApplicationOverview from "./pages/ApplicationOverview.jsx";
 import Profile from "./pages/Profile.jsx";
+import Changelog from "./pages/Changelog.jsx";
 import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
@@ -158,6 +159,7 @@ const App = () => {
                             <Route path="/invitation/:organizationId/:applicationId?" element={<InvitationForm/>}/>
                             <Route path="/accept" element={<Invitation refreshUser={refreshUser}/>}/>
                             <Route path="/profile" element={<Profile setIsAuthenticated={setIsAuthenticated}/>}/>
+                            <Route path="/changelog" element={<Changelog/>}/>
                             <Route path="/external/:app?" element={<ExternalApplication/>}/>
                             <Route path="/application-detail/:manageType/:manageId/:tab?"
                                    element={<ApplicationDetail anonymous={false} refreshUser={refreshUser}/>}/>

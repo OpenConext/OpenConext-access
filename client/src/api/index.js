@@ -73,6 +73,14 @@ export function csrf() {
     return fetchJson("/api/v1/csrf", {}, {}, false);
 }
 
+export function changelog() {
+    return fetchJson("/api/v1/changelog");
+}
+
+export function info() {
+    return fetchJson("/internal/info");
+}
+
 //Users
 export function me() {
     return fetchJson("/api/v1/users/me");

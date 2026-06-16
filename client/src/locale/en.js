@@ -11,6 +11,7 @@ const en = {
             subTitle: "Enabling users in higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Sign in / sign up",
             profile: "Profile",
+            changelog: "Changelog",
             logout: "Logout",
             system: "System",
         },
@@ -113,6 +114,7 @@ const en = {
         home: "Home",
         feedback: "Feedback",
         profile: "Profile",
+        changelog: "Changelog",
         system: "System",
         users: "Users",
         organizations: "Organizations",
@@ -1044,6 +1046,11 @@ const en = {
         externalUserTooltip: "An external user - as opposed to an internal user - is a user who only has an eduID account and not an institutional account.",
         internalUser: "Internal user",
         internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account.",
+    },
+    changelog: {
+        title: "Changelog",
+        info: "Version {{version}} - {{date}}",
+        noChanges: "No changes for this version.",
     },
     applicationConnect: {
         connect: "Connect",

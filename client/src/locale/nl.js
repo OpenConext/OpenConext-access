@@ -11,6 +11,7 @@ const nl = {
             subTitle: "Gebruikers in het hoger onderwijs en onderzoek <strong>toegang geven tot meerdere diensten met één account</strong>.",
             login: "Inloggen / registreren",
             profile: "Profiel",
+            changelog: "Changelog",
             logout: "Afmelden",
             system: "Systeem",
         },
@@ -113,6 +114,7 @@ const nl = {
         home: "Home",
         feedback: "Feedback",
         profile: "Profiel",
+        changelog: "Changelog",
         system: "Systeem",
         users: "Gebruikers",
         organizations: "Organisaties",
@@ -1044,6 +1046,11 @@ const nl = {
         externalUserTooltip: "Een externe gebruiker – in tegenstelling tot een interne – is een gebruiker die alleen een eduID‑account heeft en geen institutioneel account.",
         internalUser: "Interne gebruiker",
         internalUserTooltip: "Een interne gebruiker – in tegenstelling tot een externe – is een gebruiker die is ingelogd met een institutioneel account.",
+    },
+    changelog: {
+        title: "Changelog",
+        info: "Versie {{version}} - {{date}}",
+        noChanges: "Geen wijzigingen voor deze versie.",
     },
     applicationConnect: {
         connect: "Koppelen",
