@@ -1,5 +1,6 @@
 package access.api;
 
+import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
@@ -16,6 +17,7 @@ import access.model.Connection;
 import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.Organization;
+import access.model.State;
 import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
@@ -76,6 +78,7 @@ public class ConnectionController implements UserAccessRights {
     private final PasswordGenerator passwordGenerator = new PasswordGenerator(SECRET_LENGTH, passwordGeneratorRules);
     private final ConnectionProviderConverter connectionProviderConverter;
     private final ObjectMapper objectMapper;
+    private final Config config;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
@@ -83,7 +86,8 @@ public class ConnectionController implements UserAccessRights {
                                 Manage manage,
                                 JiraClient jiraClient,
                                 ConnectionProviderConverter connectionProviderConverter,
-                                ObjectMapper objectMapper) {
+                                ObjectMapper objectMapper,
+                                Config config) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
@@ -91,6 +95,7 @@ public class ConnectionController implements UserAccessRights {
         this.jiraClient = jiraClient;
         this.connectionProviderConverter = connectionProviderConverter;
         this.objectMapper = objectMapper;
+        this.config = config;
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -191,7 +196,7 @@ public class ConnectionController implements UserAccessRights {
 
         connection.merge(connectionData);
 
-        if (connection.changeRequestRequired()) {
+        if (connection.changeRequestRequired() && !config.isTestEnvironment()) {
             //Not allowed to sync the connection to Manage. Create or update outstanding ChangeRequest
             connection = this.productionReadyChangeRequests(connection, user);
             connection.convertChangeRequests(manage.getChangeRequests(connection));
@@ -234,9 +239,18 @@ public class ConnectionController implements UserAccessRights {
     }
 
     private String doRequestProductionStatus(User user, Connection connection) {
+        Map<String, Object> provider = manage.providerByConnection(connection);
+        if (config.isTestEnvironment()) {
+            Map<String, Object> data = getData(provider);
+            data.put("state", State.prodaccepted.name());
+            connection.setStatus(ConnectionStatus.PROD_READY);
+            saveConnection(connection);
+            manage.updateProvider(provider);
+            return "No ticket created";
+        }
         String changeRequestURL = manage.changeRequestURL(connection);
 
-        Map<String, Object> provider = manage.providerByConnection(connection);
+
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Production status requested by %s for %s.",
@@ -258,7 +272,7 @@ public class ConnectionController implements UserAccessRights {
         ChangeRequest changeRequest = new ChangeRequest(
                 connection.getManageIdentifier(),
                 connection.getProtocol(),
-                Map.of("state", "prodaccepted"),
+                Map.of("state", State.prodaccepted.name()),
                 false,
                 PathUpdateType.ADDITION,
                 RequestType.ProductionStatusRequest);

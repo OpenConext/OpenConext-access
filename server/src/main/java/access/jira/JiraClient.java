@@ -32,7 +32,7 @@ public class JiraClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);
 
-    private final JiraConfig config;
+    private final JiraConfig jiraConfig;
     private final MailBox mailBox;
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
@@ -40,25 +40,25 @@ public class JiraClient {
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
-    public JiraClient(JiraConfig config, ObjectMapper objectMapper, MailBox mailBox) {
-        this.config = config;
+    public JiraClient(JiraConfig jiraConfig, ObjectMapper objectMapper, MailBox mailBox) {
+        this.jiraConfig = jiraConfig;
         this.mailBox = mailBox;
         this.mappings = objectMapper.readValue(new ClassPathResource("jira/mappings.json").getInputStream(), new TypeReference<>() {
         });
         this.issueType = this.resolveIssueType();
-        if (config.isEnabled()) {
-            this.restTemplate = RestTemplateFactory.buildRestTemplate(config.getApiKey());
+        if (jiraConfig.isEnabled()) {
+            this.restTemplate = RestTemplateFactory.buildRestTemplate(jiraConfig.getApiKey());
         }
     }
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public String create(JiraIssue issue) {
-        if (!config.isEnabled()) {
+        if (!jiraConfig.isEnabled()) {
             return String.format("CXT-%s", ThreadLocalRandom.current().nextInt(1000, 10000));
         }
         Map<String, Object> fields = new HashMap<>();
-        fields.put("project", Map.of("key", config.getProjectKey()));
+        fields.put("project", Map.of("key", jiraConfig.getProjectKey()));
         fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
         fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
         fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", issue.getEntityType().name()));
@@ -75,7 +75,7 @@ public class JiraClient {
         LOG.info("Sending JSON {} to JIRA", jiraIssue);
 
         try {
-            Map<String, String> result = restTemplate.postForObject(config.getBaseUrl() + "/issue", jiraIssue, Map.class);
+            Map<String, String> result = restTemplate.postForObject(jiraConfig.getBaseUrl() + "/issue", jiraIssue, Map.class);
 
             LOG.info("Response {} from JIRA", result);
 
@@ -93,10 +93,10 @@ public class JiraClient {
     }
 
     public void comment(String jiraKey, String comment) {
-        if (!config.isEnabled()) {
+        if (!jiraConfig.isEnabled()) {
             return;
         }
-        String commentUrl = config.getBaseUrl() + "/issue/" + jiraKey + "/comment";
+        String commentUrl = jiraConfig.getBaseUrl() + "/issue/" + jiraKey + "/comment";
         Map<String, String> body = Map.of("body", comment);
         HttpEntity<Object> commentRequestEntity = new HttpEntity<>(body);
 
@@ -118,7 +118,7 @@ public class JiraClient {
     }
 
     private String resolveIssueType() {
-        return this.mappings.get(this.config.getEnvironment())
+        return this.mappings.get(this.jiraConfig.getEnvironment())
                 .get("issueTypes").entrySet().stream()
                 .filter(entry -> entry.getKey().equals("change"))
                 .map(entry -> entry.getValue())
@@ -142,7 +142,7 @@ public class JiraClient {
     }
 
     private String customField(String name) {
-        return this.mappings.get(this.config.getEnvironment()).get("customFields").get(name);
+        return this.mappings.get(this.jiraConfig.getEnvironment()).get("customFields").get(name);
     }
 
     private String dueDate() {

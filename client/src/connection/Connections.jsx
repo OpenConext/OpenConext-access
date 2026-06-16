@@ -1241,7 +1241,8 @@ export const Connections = ({
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
         const showOverviewButton = section === sections.overview;
-        const submitTxt = requiresChangeRequest ? I18n.t("connection.requiresChangeRequest") : isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+        const submitTxt = (requiresChangeRequest && config.testEnvironment)? I18n.t("connection.requiresChangeRequest") :
+            isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
                 <div className="testing-header">

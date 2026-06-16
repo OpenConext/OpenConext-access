@@ -242,22 +242,27 @@ public class OrganizationController implements UserAccessRights {
         String orgName = newOrganization.getName();
         LOG.info(String.format("Creating new Organisation %s for %s", name, user.getEmail()));
         // Now create a Jira ticket
-        String summary = String.format("User %s created a new Organisation %s in Access.",
+        if (config.isTestEnvironment()) {
+            LOG.info("Skipping creatiob of Jira issue for new Organization: " + orgName);
+            newOrganization.setStatus(OrganizationStatus.APPROVED);
+        } else  {
+            String summary = String.format("User %s created a new Organisation %s in Access.",
                 user.getName(),
                 orgName);
-        String jiraKey = jiraClient.create(new JiraIssue(
+            String jiraKey = jiraClient.create(new JiraIssue(
                 orgName,
                 null,// There is no identity provider for approving organizations
                 String.format("%s The new organisation is pending approval. Visit to evaluate:%s%s",
-                        summary,
-                        System.lineSeparator(),
-                        String.format("%s/system/organizationPendingApproval", config.getClientUrl())),
+                    summary,
+                    System.lineSeparator(),
+                    String.format("%s/system/organizationPendingApproval", config.getClientUrl())),
                 summary,
                 EntityType.oidc10_rp,
                 user.getEmail()
-        ));
-        LOG.info("Created Jira issue for new Organization: " + jiraKey);
-        newOrganization.setTicketKey(jiraKey);
+            ));
+            LOG.info("Created Jira issue for new Organization: " + jiraKey);
+            newOrganization.setTicketKey(jiraKey);
+        }
 
         Organization savedOrganization = organizationRepository.save(newOrganization);
         // User becomes admin

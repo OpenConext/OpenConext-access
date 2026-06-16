@@ -1,6 +1,7 @@
 package access.manage;
 
 
+import access.config.Config;
 import access.model.State;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +20,10 @@ public class ManageConf {
                          @Value("${manage.enabled}") boolean enabled,
                          @Value("${manage.staticManageDirectory}") String staticManageDirectory,
                          ConnectionProviderConverter converter,
-                         ObjectMapper objectMapper) throws IOException {
+                         ObjectMapper objectMapper,
+                         Config config) throws IOException {
         ManageAuthorization authorization = new ManageAuthorization(url, user, password);
-        return enabled ? new RemoteManage(authorization, converter, objectMapper) :
+        return enabled ? new RemoteManage(authorization, converter, objectMapper, config) :
                 new LocalManage(converter, objectMapper, staticManageDirectory);
     }
 

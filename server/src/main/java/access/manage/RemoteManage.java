@@ -1,5 +1,6 @@
 package access.manage;
 
+import access.config.Config;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.model.Connection;
@@ -48,14 +49,17 @@ public class RemoteManage implements Manage {
     private final String url;
     private final Map<String, Object> queries;
     private final ConnectionProviderConverter converter;
+    private final Config config;
 
     public RemoteManage(ManageAuthorization authorization,
                         ConnectionProviderConverter converter,
-                        ObjectMapper objectMapper) throws IOException {
+                        ObjectMapper objectMapper,
+                        Config config) throws IOException {
         this.url = authorization.url();
         this.converter = converter;
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
+        this.config = config;
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler(objectMapper);
         this.restTemplate = RestTemplateFactory.buildRestTemplate(resilientErrorHandler, authorization.user(), authorization.password(), null);
     }
@@ -121,7 +125,8 @@ public class RemoteManage implements Manage {
         //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
         //Attribute Release Policies that are not available in Access
         //We can't update everything if the connection is production ready, only the application data
-        Map<String, Object> provider = converter.convert(connection, remoteProvider, connection.changeRequestRequired());
+        Map<String, Object> provider = converter.convert(connection, remoteProvider,
+            connection.changeRequestRequired() && !config.isTestEnvironment());
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
@@ -269,7 +274,7 @@ public class RemoteManage implements Manage {
         LOG.debug("identityProvidersLight");
 
         Map<String, Object> baseQuery = getBaseQuery(false);
-        baseQuery.put("state", "prodaccepted");
+        baseQuery.put("state", State.prodaccepted.name());
         ((List) baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
 
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
@@ -283,7 +288,7 @@ public class RemoteManage implements Manage {
         LOG.debug("serviceProvidersLight");
 
         Map<String, Object> baseQuery = getBaseQuery(false);
-        baseQuery.put("state", "prodaccepted");
+        baseQuery.put("state", State.prodaccepted.name());
         List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
         requestedAttributes.add("metaDataFields.coin:interfed_source");
         requestedAttributes.add("metaDataFields.coin:ss:hidden");
