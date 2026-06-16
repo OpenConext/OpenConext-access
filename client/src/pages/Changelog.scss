@@ -1,0 +1,44 @@
+@use "../styles/mixins" as *;
+@use "../index";
+@use "../styles/vars" as *;
+
+div.changelog-outer-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: white;
+
+    .changelog-header-container {
+        background-color: var(--sds--color--gray--background);
+        padding: 25px 50px 25px 50px;
+
+        .top-header {
+            margin-bottom: 15px;
+        }
+    }
+
+    div.changelog {
+        padding: $page-padding;
+
+        .changelog-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px 30px;
+            border: 1px solid var(--sds--color--gray--background);
+
+            h2 {
+                margin-top: 35px;
+
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+
+            em {
+                color: var(--sds--color--gray--text);
+            }
+        }
+    }
+
+}
