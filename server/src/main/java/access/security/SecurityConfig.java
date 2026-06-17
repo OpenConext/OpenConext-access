@@ -96,7 +96,6 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http,
                                                    UserRepository userRepository,
-                                                   Manage manage,
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
@@ -133,7 +132,7 @@ public class SecurityConfig {
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
                         ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
-                                new CustomOidcUserService(userRepository, manage, entitlement, organizationGuidPrefix)))
+                                new CustomOidcUserService(userRepository, entitlement, organizationGuidPrefix)))
                 )
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
                 .securityContext(securityContextConfigurer ->

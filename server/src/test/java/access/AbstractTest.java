@@ -62,6 +62,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import static access.security.InstitutionAdmin.SURF_AUTORISATIES;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static io.restassured.RestAssured.given;
@@ -231,7 +232,7 @@ public abstract class AbstractTest {
 
     protected UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator(String organisationGuid) {
         return m -> {
-            m.put("eduperson_entitlement",
+            m.put(SURF_AUTORISATIES,
                     List.of(
                             "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
                             "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid

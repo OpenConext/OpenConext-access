@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static access.security.InstitutionAdmin.SURF_AUTORISATIES;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InstitutionAdminTest {
@@ -31,26 +32,26 @@ class InstitutionAdminTest {
     @Test
     void testIsInstitutionAdmin() {
         assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of(), entitlement));
-        assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of("eduperson_entitlement", List.of()), entitlement));
-        assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of("eduperson_entitlement", List.of("nope")), entitlement));
+        assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of(SURF_AUTORISATIES, List.of()), entitlement));
+        assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of(SURF_AUTORISATIES, List.of("nope")), entitlement));
 
-        assertTrue(InstitutionAdmin.isInstitutionAdmin(Map.of("eduperson_entitlement", List.of(entitlement)), entitlement));
+        assertTrue(InstitutionAdmin.isInstitutionAdmin(Map.of(SURF_AUTORISATIES, List.of(entitlement)), entitlement));
     }
 
     @Test
     void getOrganizationGuid() {
         assertFalse(InstitutionAdmin.getOrganizationGuid(Map.of(), organizationGuidPrefix, Optional.empty()).isPresent());
-        assertFalse(InstitutionAdmin.getOrganizationGuid(Map.of("eduperson_entitlement", List.of("nope")),
+        assertFalse(InstitutionAdmin.getOrganizationGuid(Map.of(SURF_AUTORISATIES, List.of("nope")),
                 organizationGuidPrefix,
                 Optional.empty()).isPresent());
 
-        Optional<String> organizationGuid = InstitutionAdmin.getOrganizationGuid(Map.of("eduperson_entitlement", List.of(organizationGuidPrefix + " ")),
+        Optional<String> organizationGuid = InstitutionAdmin.getOrganizationGuid(Map.of(SURF_AUTORISATIES, List.of(organizationGuidPrefix + " ")),
                 organizationGuidPrefix,
                 Optional.empty());
         assertFalse(organizationGuid.isPresent());
 
         String guid = UUID.randomUUID().toString();
-        organizationGuid = InstitutionAdmin.getOrganizationGuid(Map.of("eduperson_entitlement", List.of(organizationGuidPrefix + guid)),
+        organizationGuid = InstitutionAdmin.getOrganizationGuid(Map.of(SURF_AUTORISATIES, List.of(organizationGuidPrefix + guid)),
                 organizationGuidPrefix,
                 Optional.empty());
         assertEquals(guid, organizationGuid.get());

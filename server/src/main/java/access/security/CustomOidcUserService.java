@@ -1,7 +1,5 @@
 package access.security;
 
-import access.manage.Manage;
-import access.model.Institution;
 import access.model.User;
 import access.repository.UserRepository;
 import lombok.Getter;
@@ -14,14 +12,13 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static access.security.InstitutionAdmin.*;
+import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
+import static access.security.InstitutionAdmin.ORGANIZATION_GUID;
 
 @SuppressWarnings({"unchecked", "unsafe"})
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
@@ -31,16 +28,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     @Getter
     private final UserRepository userRepository;
     private final OidcUserService delegate;
-    private final Manage manage;
     private final String entitlement;
     private final String organizationGuidPrefix;
 
     public CustomOidcUserService(UserRepository userRepository,
-                                 Manage manage,
                                  String entitlement,
                                  String organizationGuidPrefix) {
         this.userRepository = userRepository;
-        this.manage = manage;
         this.entitlement = entitlement;
         this.organizationGuidPrefix = organizationGuidPrefix;
         delegate = new OidcUserService();
@@ -58,24 +52,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
 
         boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement) ||
-                (optionalUser.isPresent() && InstitutionAdmin.isInstitutionAdmin(optionalUser.get()));
+            (optionalUser.isPresent() && InstitutionAdmin.isInstitutionAdmin(optionalUser.get()));
         newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
 
         String organizationGuid = institutionAdmin ? InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
-                .orElse(null) : null;
+                                                     .orElse(null) : null;
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
-        if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
-            String authenticatingAuthority = (String) claims.get("authenticating_authority");
-            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(organizationGuid);
-            //If there are multiple identityProviders with the same organizationGuid, we pick the one that was used to login
-            Optional<Map<String, Object>> optionalIdentityProvider = identityProviders.isEmpty() ? Optional.empty() :
-                    Optional.of(identityProviders.stream()
-                            .filter(idp -> entityID(idp).equals(authenticatingAuthority))
-                            .findFirst()
-                            .orElse(identityProviders.getFirst()));
-            optionalIdentityProvider.ifPresent(provider -> newClaims.put(INSTITUTION, new Institution(provider)));
-        }
         optionalUser.ifPresent(user -> {
             user.updateAttributes(newClaims);
 

@@ -1,7 +1,10 @@
 package access.security;
 
-import access.model.Institution;
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static access.security.InstitutionAdmin.IDENTITY_PROVIDER;
-import static access.security.InstitutionAdmin.INSTITUTION;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
@@ -40,36 +40,33 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
     public static void populateSecurityContext(Map<String, Object> body) {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
         Map<String, Object> defaultClaims = Map.of(
-                "eduperson_principal_name", "urn:collab:person:example.com:super",
-                "email", "jdoe@example.com",
-                "family_name", "Doe",
-                "authenticating_authority", "http://mock-idp",
-                "given_name", "John",
-                "name", "John Doe",
-                "schac_home_organization", schacHomeOrganization,
-                "scope", "openid",
-                "sub", body.getOrDefault("sub", LocalDevelopmentAuthenticationFilter.sub),
-                "uids", List.of("super"));
+            "eduperson_principal_name", "urn:collab:person:example.com:super",
+            "email", "jdoe@example.com",
+            "family_name", "Doe",
+            "authenticating_authority", "http://mock-idp",
+            "given_name", "John",
+            "name", "John Doe",
+            "schac_home_organization", schacHomeOrganization,
+            "scope", "openid",
+            "sub", body.getOrDefault("sub", LocalDevelopmentAuthenticationFilter.sub),
+            "uids", List.of("super"));
         //We can't rely on the mutability of the body
         Map<String, Object> claims = new HashMap<>(defaultClaims);
-        if (body.containsKey(IDENTITY_PROVIDER)) {
-            body.put(INSTITUTION, new Institution((Map<String, Object>) body.get(IDENTITY_PROVIDER)));
-            body.remove(IDENTITY_PROVIDER);
-        }
+        claims.put("surf-crm-id", "ad93daef-0911-e511-80d0-005056956c1a");
         claims.putAll(body);
 
         OidcIdToken idToken = new OidcIdToken(
-                UUID.randomUUID().toString(),
-                Instant.now(),
-                Instant.now().plus(1, ChronoUnit.HOURS),
-                claims
+            UUID.randomUUID().toString(),
+            Instant.now(),
+            Instant.now().plus(1, ChronoUnit.HOURS),
+            claims
         );
         OidcUserInfo userInfo = new OidcUserInfo(claims);
         DefaultOidcUser oidcUser = new DefaultOidcUser(authorities, idToken, userInfo);
         OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(
-                oidcUser,
-                authorities,
-                "oidcng"
+            oidcUser,
+            authorities,
+            "oidcng"
         );
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }

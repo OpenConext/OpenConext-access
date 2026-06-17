@@ -16,16 +16,15 @@ public class InstitutionAdmin {
 
     public static final String INSTITUTION_ADMIN = "INSTITUTION_ADMIN";
     public static final String ORGANIZATION_GUID = "ORGANIZATION_GUID";
-    public static final String INSTITUTION = "INSTITUTION";
-    public static final String IDENTITY_PROVIDER = "IDENTITY_PROVIDER";
+    public static final String SURF_AUTORISATIES = "surf-autorisaties";
 
     private InstitutionAdmin() {
     }
 
     public static boolean isInstitutionAdmin(Map<String, Object> attributes,
                                              String requiredEntitlement) {
-        if (attributes.containsKey("eduperson_entitlement")) {
-            List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
+        if (attributes.containsKey(SURF_AUTORISATIES)) {
+            List<String> entitlements = (List<String>) attributes.get(SURF_AUTORISATIES);
             return entitlements.stream().anyMatch(entitlement -> entitlement.equalsIgnoreCase(requiredEntitlement));
         }
         return false;
@@ -39,8 +38,8 @@ public class InstitutionAdmin {
                                                        String organizationGuidPrefix,
                                                        Optional<User> optionalUser) {
 
-        if (attributes.containsKey("eduperson_entitlement")) {
-            List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
+        if (attributes.containsKey(SURF_AUTORISATIES)) {
+            List<String> entitlements = (List<String>) attributes.get(SURF_AUTORISATIES);
             final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();
             return entitlements.stream()
                     .filter(entitlement -> entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))

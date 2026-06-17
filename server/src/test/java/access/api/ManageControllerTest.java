@@ -196,10 +196,8 @@ class ManageControllerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void policyByServiceProviderNotAllowed() {
-        Map<String, Object> identityProvider = super.stubForIdentityProviderByEntityId("http://mock-idp");
         Map<String, Object> attributes = Map.of(
-                "sub", INSTITUTION_ADMIN,
-                InstitutionAdmin.IDENTITY_PROVIDER, identityProvider);
+                "sub", INSTITUTION_ADMIN);
         AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
 
         String serviceProviderEntityId = "nope";

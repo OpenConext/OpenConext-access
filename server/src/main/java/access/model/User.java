@@ -90,9 +90,6 @@ public class User implements Serializable, NameHolder {
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
     @Transient
-    private Institution institution = null;
-
-    @Transient
     private int loaLevel = 1;
 
     @Transient
@@ -118,7 +115,6 @@ public class User implements Serializable, NameHolder {
         this.lastActivity = this.createdAt;
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
-        this.institution = (Institution) attributes.get(INSTITUTION);
 
         //Defensive mode, EPPN is not a required attribute for access RP
         if (!StringUtils.hasText(this.eduPersonPrincipalName)) {
@@ -201,11 +197,6 @@ public class User implements Serializable, NameHolder {
         this.organizationMemberships.add(organizationMembership);
         organizationMembership.setUser(this);
         return organizationMembership;
-    }
-
-    @JsonProperty
-    public Institution getInstitution() {
-        return institution;
     }
 
     @JsonProperty

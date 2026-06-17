@@ -7,14 +7,12 @@ import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.Authority;
 import access.model.EntityType;
-import access.model.Institution;
 import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.OrganizationStatus;
 import access.model.User;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
-import access.security.InstitutionAdmin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,11 +49,12 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getMetaDataFields;
 
 @RestController
 @RequestMapping(value = {"/api/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -91,9 +91,9 @@ public class UserController implements UserAccessRights {
         LOG.debug("/config");
         Config result = new Config(this.config);
         result
-                .withAuthenticated(user != null && user.getId() != null)
-                .withName(user != null ? user.getName() : null)
-                .withStats(manage.stats());
+            .withAuthenticated(user != null && user.getId() != null)
+            .withName(user != null ? user.getName() : null)
+            .withStats(manage.stats());
         if (user != null) {
             verifyMissingAttributes(user, result);
         }
@@ -111,7 +111,7 @@ public class UserController implements UserAccessRights {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+            .orElseThrow(() -> new NotFoundException("User not found"));
 
         String schacHomeOrganization = userFromDB.getSchacHomeOrganization();
         boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
@@ -122,36 +122,50 @@ public class UserController implements UserAccessRights {
         if (!isExternalUserFromSchacHome) {
             OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
             Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
-            String authenticatingAuthority = (String) claims.get("authenticating_authority");
-            Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
-            String manageIdentifier = (String) identityProvider.get("_id");
+
             String obtainedAcr = (String) claims.getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
             userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
 
-            // Provision the user into the organization, this is only done once for a user.
-            if (userFromDB.getOrganizationMemberships().stream()
-                    .noneMatch(organizationMembership -> Objects.equals(organizationMembership.getOrganization()
-                            .getManageIdentifier(), manageIdentifier))) {
-                Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
-                Institution institution = (Institution) claims.getOrDefault(InstitutionAdmin.INSTITUTION, null);
-                userFromDB.setInstitution(institution);
-                Authority authority = userFromDB.isInstitutionAdmin() && institution != null ? Authority.ADMIN : Authority.MEMBER;
-                organizationOptional.ifPresentOrElse(
+            String surfCrmId = (String) claims.get("surf-crm-id");
+            if (!StringUtils.hasText(surfCrmId)) {
+                //For now raise exception
+                throw new NotAllowedException(String.format("No surf-crm-id in user attributes %s. Check the ARP",
+                    claims));
+            }
+            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(surfCrmId);
+            if (CollectionUtils.isEmpty(identityProviders)) {
+                //For now raise exception
+                throw new NotAllowedException(String.format("No IdP found for user %s and surf-crm-id %s",
+                    userFromDB.getEmail(), surfCrmId));
+            }
+            // Provision the user into the organization(s), this is only done once for a user
+            List<String> existingOrgMembershipIdentifiers = userFromDB.getOrganizationMemberships().stream()
+                .map(organizationMembership -> organizationMembership.getOrganization().getManageIdentifier())
+                .toList();
+            identityProviders.stream()
+                .filter(idp -> !existingOrgMembershipIdentifiers.contains((String) idp.get("_id")))
+                .forEach(idp -> {
+                    String manageIdentifier = (String) idp.get("_id");
+                    Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
+                    Authority authority = userFromDB.isInstitutionAdmin() ? Authority.ADMIN : Authority.MEMBER;
+                    organizationOptional.ifPresentOrElse(
                         organization -> {
                             userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
                         }, () -> {
                             // If no organization is created yet, create it on the fly. This is only done once per organization
-                            Institution institutionForOrg = Objects.isNull(institution) ? new Institution(identityProvider) : institution;
-                            String organizationName = String.format("%s (%s)", institutionForOrg.getName(), institutionForOrg.getOrganizationName());
-                            Integer manageVersion = (Integer) identityProvider.get("version");
+                            Map<String, Object> metaDataFields = getMetaDataFields(getData(idp));
+                            String organizationName = String.format("%s (%s)",
+                                metaDataFields.get("name:en"),
+                                metaDataFields.get("OrganizationName:en"));
+                            Integer manageVersion = (Integer) idp.get("version");
                             Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
                             //Organizations created based on the IdP's in Manage are approved automatically
                             organization.setStatus(OrganizationStatus.APPROVED);
                             organizationRepository.save(organization);
                             userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
                         }
-                );
-            }
+                    );
+                });
         }
         userRepository.save(userFromDB);
         Map<String, Object> userMap = objectMapper.convertValue(userFromDB, new TypeReference<>() {
@@ -189,7 +203,7 @@ public class UserController implements UserAccessRights {
         confirmSuperUser(user);
 
         User userFromDB = userRepository.findDetailsById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+            .orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.delete(userFromDB);
 
         return Results.deleteResult();
@@ -229,7 +243,7 @@ public class UserController implements UserAccessRights {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                userRepository.searchByPage(pageable);
+            userRepository.searchByPage(pageable);
         return ResponseEntity.ok(usersPage);
     }
 
