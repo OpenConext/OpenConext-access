@@ -1,6 +1,12 @@
 # Release notes
 
-## 0.2
+## 0.2.0
+
+### Features
+- Feature toggle for test environment ([#790](https://github.com/OpenConext/OpenConext-access/issues/790))
+
+### Improvements
+- Use the SURF-CRM-ID for looking up the IdP of the user ([#796](https://github.com/OpenConext/OpenConext-access/issues/796))
 
 ## 0.1.1
 
