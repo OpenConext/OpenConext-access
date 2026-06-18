@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -324,6 +325,87 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void meNewUserWithNewOrganizationTestLogin() {
+        Map<String, Object> attributes = Map.of(
+            "eduperson_principal_name", "new@farwind.org",
+            "email", "new@farwind.org",
+            "family_name", "Doe",
+            "given_name", "Simon",
+            "name", "Simon Doe",
+            "schac_home_organization", "farwind.org",
+            "surf-crm-id", "test_institution_guid",
+            "sub", "urn:collab:person:providence:tata");
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+
+        super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForIdentityProviderByInstitutionalGUID("test_institution_guid");
+        super.stubForGetProvider(EntityType.saml20_idp, "9");
+
+        User user = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/users/me")
+            .as(new TypeRef<>() {
+            });
+        assertEquals(1, user.getOrganizationMemberships().size());
+
+        Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
+        assertNotNull(organization.getName());
+        assertEquals(attributes.get("schac_home_organization"), organization.getSchacHomeOrganization());
+    }
+
+    @Test
+    void meNewUserWithNoSurfCrmId() {
+        Map<String, Object> attributes = Map.of(
+            "eduperson_principal_name", "new@farwind.org",
+            "email", "new@farwind.org",
+            "family_name", "Doe",
+            "given_name", "Simon",
+            "name", "Simon Doe",
+            "schac_home_organization", "farwind.org",
+            "surf-crm-id", " ",
+            "sub", "urn:collab:person:providence:tata");
+
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/users/me")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    void meNewUserWithNoIdentityProviders() {
+        Map<String, Object> attributes = Map.of(
+            "eduperson_principal_name", "new@farwind.org",
+            "email", "new@farwind.org",
+            "family_name", "Doe",
+            "given_name", "Simon",
+            "name", "Simon Doe",
+            "schac_home_organization", "farwind.org",
+            "surf-crm-id", "nope",
+            "sub", "urn:collab:person:providence:tata");
+
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
+        super.stubForIdentityProviderByInstitutionalGUID("nope");
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/users/me")
+            .then()
+            .statusCode(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
     void createOrganizationForInstitutionAdmin() throws Exception {
         super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
         super.stubForGetChangeRequests(getChangeRequests());
@@ -331,8 +413,6 @@ class UserControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
             institutionalAdminEntitlementOperator(ORGANISATION_GUID));
-        // Re-register stubs consumed during OIDC auth by CustomOidcUserService
-        super.stubForIdentityProviderByEntityId("http://mock-idp");
 
         super.stubForGetChangeRequests(getChangeRequests());
         Map<String, Object> res = given()

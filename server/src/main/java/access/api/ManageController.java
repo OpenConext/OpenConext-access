@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ByteArrayResource;
@@ -62,6 +63,7 @@ import java.util.Optional;
 
 import static access.api.Results.createResult;
 import static access.manage.ManageData.getData;
+import static access.manage.ManageData.getEntityID;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -212,9 +214,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         LOG.debug("/policies for " + entityId + " for " + user.getEmail());
         Organization organization = organizationRepository.getReferenceById(organizationId);
         confirmInstitutionAdmin(user, organization);
+        Map<String, Object> data = getIdentityProvider(organization);
         //we need to ensure the application is connected to the IdP of the user - realtime
         if (!user.isSuperUser()) {
-            Map<String, Object> data = getIdentityProvider(user);
             boolean noneMatch = ((List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of()))
                     .stream()
                     .noneMatch(allowedEntity -> allowedEntity.get("name").equals(entityId));
@@ -225,7 +227,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
             }
         }
         List<Map<String, Object>> policies = this.manage
-                .policiesByServiceProvider(user.getAuthenticatingAuthority(), entityId);
+                .policiesByServiceProvider((String) data.get("entityid"), entityId);
         return ResponseEntity.ok(policies);
     }
 
@@ -450,9 +452,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         confirmPolicyAccess(user, policyDefinition, manage, organization);
     }
 
-    private Map<String, Object> getIdentityProvider(User user) {
+    private Map<String, Object> getIdentityProvider(Organization organization) {
         //We can't use any cache as this method is called right after automatic connection allowed
-        Map<String, Object> identityProvider = manage.identityProviderByEntityID(user.getAuthenticatingAuthority());
+        Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
         return getData(identityProvider);
     }
 

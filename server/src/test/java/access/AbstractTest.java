@@ -237,6 +237,7 @@ public abstract class AbstractTest {
                             "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
                             "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid
                     ));
+            m.put("surf-crm-id", organisationGuid);
             return m;
         };
     }

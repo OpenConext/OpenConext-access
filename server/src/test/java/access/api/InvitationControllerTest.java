@@ -137,12 +137,13 @@ class InvitationControllerTest extends AbstractMailTest {
                 m -> {
                     m.put("authenticating_authority", authenticatingAuthority);
                     m.put("schac_home_organization", schacHomeOrganization);
+                    m.put("surf-crm-id", ORGANISATION_GUID);
                     return m;
                 });
         //Lookup for identity provider by authenticating authority
-        super.stubForIdentityProviderByEntityId(authenticatingAuthority);
+        super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
         super.stubForGetChangeRequests(getChangeRequests());
-        super.stubForGetProvider(EntityType.saml20_idp, "9");
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         Map<String, Object> res = given()
                 .when()
@@ -156,7 +157,6 @@ class InvitationControllerTest extends AbstractMailTest {
         User user = objectMapper.convertValue(res, User.class);
         assertEquals(1, user.getOrganizationMemberships().size());
         Organization organization = user.getOrganizationMemberships().iterator().next().getOrganization();
-        assertEquals(schacHomeOrganization, organization.getSchacHomeOrganization());
 
         //Now create an Application for the new invitation
         Application application = new Application("JIT", organization, "me", Map.of());
