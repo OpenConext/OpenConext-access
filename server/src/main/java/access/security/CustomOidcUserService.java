@@ -72,9 +72,4 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
     }
 
-    private String entityID(Map<String, Object> provider) {
-        Map<String, Object> data = (Map<String, Object>) provider.get("data");
-        return (String) data.get("entityid");
-    }
-
 }

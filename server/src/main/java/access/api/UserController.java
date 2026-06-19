@@ -166,6 +166,7 @@ public class UserController implements UserAccessRights {
                         }
                     );
                 });
+                //corner-case, if the user already existed, but was promoted to InstitutionAdmin, then we need to promote the user
         }
         userRepository.save(userFromDB);
         Map<String, Object> userMap = objectMapper.convertValue(userFromDB, new TypeReference<>() {
