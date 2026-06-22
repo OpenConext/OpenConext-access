@@ -481,6 +481,18 @@ export function updateContract(applicationId, contract) {
     return postPutJson(`/api/v1/contracts/${applicationId}`, contract, "PUT");
 }
 
+export function contractByOrganization(organizationId) {
+    return fetchJson(`/api/v1/contracts/${organizationId}`);
+}
+
+export function createContractForOrganization(organizationId, contract) {
+    return postPutJson(`/api/v1/contracts/${organizationId}`, contract, "POST");
+}
+
+export function updateContractForOrganization(organizationId, contract) {
+    return postPutJson(`/api/v1/contracts/${organizationId}`, contract, "PUT");
+}
+
 export function unsignedContracts() {
     return fetchJson("/api/v1/contracts/unsigned");
 }

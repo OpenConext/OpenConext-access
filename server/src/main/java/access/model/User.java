@@ -83,6 +83,9 @@ public class User implements Serializable, NameHolder {
     @NotNull
     private boolean institutionAdmin;
 
+    @Column(name = "institution_admin_by_invite")
+    private boolean institutionAdminByInvite;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<OrganizationMembership> organizationMemberships = new HashSet<>();
 

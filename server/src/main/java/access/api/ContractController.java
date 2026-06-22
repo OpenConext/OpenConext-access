@@ -5,12 +5,12 @@ import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
-import access.model.Application;
 import access.model.Contract;
 import access.model.EntityType;
+import access.model.Organization;
 import access.model.User;
-import access.repository.ApplicationRepository;
 import access.repository.ContractRepository;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -45,18 +45,18 @@ public class ContractController implements UserAccessRights {
     private static final Log LOG = LogFactory.getLog(ContractController.class);
 
     private final ContractRepository contractRepository;
-    private final ApplicationRepository applicationRepository;
+    private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
     private final Config config;
     private final JiraClient jiraClient;
 
     public ContractController(ContractRepository contractRepository,
-                              ApplicationRepository applicationRepository,
+                              OrganizationRepository organizationRepository,
                               UserRepository userRepository,
                               Config config,
                               JiraClient jiraClient) {
         this.contractRepository = contractRepository;
-        this.applicationRepository = applicationRepository;
+        this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.config = config;
         this.jiraClient = jiraClient;
@@ -71,41 +71,38 @@ public class ContractController implements UserAccessRights {
         return ResponseEntity.ok(contractRepository.findBySignedContractFalse());
     }
 
-    @GetMapping("/{applicationId}")
-    public ResponseEntity<Contract> get(User user, @PathVariable("applicationId") Long applicationId) {
-        LOG.debug("/get contract for applicationId " + applicationId);
+    @GetMapping("/{organizationId}")
+    public ResponseEntity<Contract> get(User user, @PathVariable("organizationId") Long organizationId) {
+        LOG.debug("/get contract for organizationId " + organizationId);
 
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
         user = reinitializeUser(user, userRepository);
-        confirmInstitutionAdmin(user, application.getOrganization());
+        confirmInstitutionAdmin(user, organization);
 
-        Contract contract = contractRepository.findByApplicationId(applicationId)
+        Contract contract = contractRepository.findByOrganizationId(organizationId)
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
         return ResponseEntity.ok(contract);
     }
 
-    @PostMapping("/{applicationId}")
+    @PostMapping("/{organizationId}")
     public ResponseEntity<Contract> create(User user,
-                                           @PathVariable("applicationId") Long applicationId,
+                                           @PathVariable("organizationId") Long organizationId,
                                            @Validated @RequestBody Contract contract) {
-        LOG.debug("/create contract for applicationId " + applicationId + " by " + user.getEmail());
+        LOG.debug("/create contract for organizationId " + organizationId + " by " + user.getEmail());
 
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
         user = reinitializeUser(user, userRepository);
-        confirmInstitutionAdmin(user, application.getOrganization());
+        confirmInstitutionAdmin(user, organization);
 
-        contract.setApplication(application);
+        contract.setOrganization(organization);
         Contract saved = contractRepository.save(contract);
-        if (config.isTestEnvironment()) {
-            application.setSignedContract(true);
-            applicationRepository.save(application);
-        } else {
-            String summary = String.format("User %s submitted a contract for application %s.",
-                user.getName(), application.getName());
+        if (!config.isTestEnvironment()) {
+            String summary = String.format("User %s submitted a contract for organization %s.",
+                user.getName(), organization.getName());
             String jiraKey = jiraClient.create(new JiraIssue(
-                application.getName(),
+                organization.getName(),
                 null,
                 String.format("%s%nVisit: %s/system/contracts",
                     summary, config.getClientUrl()),
@@ -121,16 +118,16 @@ public class ContractController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @PutMapping("/{applicationId}")
+    @PutMapping("/{organizationId}")
     public ResponseEntity<Contract> update(User user,
-                                           @PathVariable("applicationId") Long applicationId,
+                                           @PathVariable("organizationId") Long organizationId,
                                            @Validated @RequestBody Contract contract) {
-        LOG.debug("/update contract for applicationId " + applicationId + " by " + user.getEmail());
+        LOG.debug("/update contract for organizationId " + organizationId + " by " + user.getEmail());
 
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
         user = reinitializeUser(user, userRepository);
-        confirmInstitutionAdmin(user, application.getOrganization());
+        confirmInstitutionAdmin(user, organization);
 
         if (contract.isSignedContract() && !user.isSuperUser()) {
             throw new UserRestrictionException("Only super users can sign a contract");
@@ -139,12 +136,8 @@ public class ContractController implements UserAccessRights {
         contractRepository.findById(contract.getId())
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
 
-        contract.setApplication(application);
+        contract.setOrganization(organization);
         Contract saved = contractRepository.save(contract);
-        if (contract.isSignedContract() && !application.isSignedContract()) {
-            application.setSignedContract(true);
-            applicationRepository.save(application);
-        }
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

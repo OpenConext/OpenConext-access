@@ -2,7 +2,7 @@ import "./Contract.scss";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
-import {contractByApplication, createContract, updateContract} from "../api/index.js";
+import {contractByOrganization, createContractForOrganization, updateContractForOrganization} from "../api/index.js";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
@@ -14,12 +14,11 @@ import {useShallow} from "zustand/react/shallow";
 
 const KNOWN_TITLES = ["mr", "mrs", "dr", "prof"];
 const OTHER_TITLE = "other";
-const REQUIRED_FIELDS = ["providerName", "applicationName", "signeeName", "email"];
+const REQUIRED_FIELDS = ["providerName", "organizationName", "signeeName", "email"];
 
 export const Contract = ({
-                             application,
+                             organization,
                              user,
-                             currentOrganization,
                              changeTab,
                          }) => {
 
@@ -49,14 +48,12 @@ export const Contract = ({
         telephone: "",
         address: "",
         country: "",
-        providerName: (application.organization && application.organization.name)
-            ? application.organization.name
-            : (currentOrganization && currentOrganization.name ? currentOrganization.name : ""),
-        applicationName: application.name || "",
+        providerName: organization.name || "",
+        organizationName: organization.name || "",
     });
 
     useEffect(() => {
-        contractByApplication(application.id)
+        contractByOrganization(organization.id)
             .then(res => {
                 // Detect if stored signeeTitle is a known key or a custom value
                 const storedTitle = res.signeeTitle || "";
@@ -74,7 +71,7 @@ export const Contract = ({
                 setIsNew(true);
                 setLoading(false);
             });
-    }, [application.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [organization.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const updateField = (field, value) => {
         setContract(prev => ({...prev, [field]: value}));
@@ -94,16 +91,16 @@ export const Contract = ({
             delete body.signedContract;
         }
         const call = isNew
-            ? createContract(application.id, body)
-            : updateContract(application.id, body);
+            ? createContractForOrganization(organization.id, body)
+            : updateContractForOrganization(organization.id, body);
         call
             .then(res => {
                 setLoading(false);
                 if (isNew && res.ticketKey) {
                     setJiraModal({open: true, ticketKey: res.ticketKey});
                 } else {
-                    setFlash(I18n.t("contracts.flash.saved", {name: application.name}));
-                    changeTab("overview");
+                    setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
+                    changeTab("general");
                 }
             })
             .catch(() => {
@@ -113,14 +110,14 @@ export const Contract = ({
     };
 
     const doCancel = () => {
-        changeTab("overview");
+        changeTab("general");
     };
 
     if (loading || contract === null) {
         return <Loader/>;
     }
 
-    const signed = !!application.signedContract;
+    const signed = !!contract.signedContract;
     const isOtherTitle = contract.signeeTitle === OTHER_TITLE;
 
     const selectedTitleOption = signeeTitleOptions.find(o => o.value === contract.signeeTitle) || null;
@@ -132,8 +129,8 @@ export const Contract = ({
                 <ConfirmationDialog
                     confirm={() => {
                         setJiraModal({open: false, ticketKey: null});
-                        setFlash(I18n.t("contracts.flash.saved", {name: application.name}));
-                        changeTab("overview");
+                        setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
+                        changeTab("general");
                     }}
                     confirmationHeader={I18n.t("contracts.jiraModal.title")}
                     confirmationTxt={I18n.t("confirmationDialog.ok")}
@@ -162,14 +159,14 @@ export const Contract = ({
                         <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.providerName")})}/>}
 
                     <InputField
-                        name={I18n.t("contracts.applicationName")}
-                        value={contract.applicationName || ""}
+                        name={I18n.t("contracts.organizationName")}
+                        value={contract.organizationName || ""}
                         disabled={signed}
-                        onChange={e => updateField("applicationName", e.target.value)}
+                        onChange={e => updateField("organizationName", e.target.value)}
                         required={true}
                     />
-                    {(!initial && isEmpty(contract.applicationName)) &&
-                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.applicationName")})}/>}
+                    {(!initial && isEmpty(contract.organizationName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.organizationName")})}/>}
 
                     <InputField
                         name={I18n.t("contracts.signeeName")}

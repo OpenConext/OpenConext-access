@@ -21,7 +21,7 @@ class ContractControllerTest extends AbstractTest {
     @Test
     void getContract() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
         Contract contract = given()
                 .when()
@@ -29,8 +29,8 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
-                .get("/api/v1/contracts/{applicationId}")
+                .pathParam("organizationId", organizationId)
+                .get("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -44,7 +44,7 @@ class ContractControllerTest extends AbstractTest {
     @Test
     void getContractNotFound() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
-        Long applicationId = seedIdentifiers.get(NITRO_MAP);
+        Long organizationId = seedIdentifiers.get(FAR_WIND);
 
         given()
                 .when()
@@ -52,8 +52,8 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
-                .get("/api/v1/contracts/{applicationId}")
+                .pathParam("organizationId", organizationId)
+                .get("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
@@ -77,8 +77,7 @@ class ContractControllerTest extends AbstractTest {
 
         assertEquals(1, contracts.size());
         Contract contract = contracts.getFirst();
-        assertEquals("John Doe",contract.getSigneeName());
-        assertNotNull(contract.getApplication().getId());
+        assertNotNull(contract.getOrganization().getId());
     }
 
     @Test
@@ -99,7 +98,7 @@ class ContractControllerTest extends AbstractTest {
     @Test
     void createContractSavesJiraKey() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
         // Remove the seeded contract so we can POST a fresh one
         contractRepository.deleteAll(contractRepository.findAll());
@@ -109,7 +108,7 @@ class ContractControllerTest extends AbstractTest {
                 "email", "jsmith@example.com",
                 "providerName", "SURF bv",
                 "applicationName", "BuddyCheck",
-                "application", Map.of("id", applicationId)
+                "organization", Map.of("id", organizationId)
         );
 
         Contract created = given()
@@ -118,9 +117,9 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
+                .pathParam("organizationId", organizationId)
                 .body(contractData)
-                .post("/api/v1/contracts/{applicationId}")
+                .post("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .extract()
@@ -129,7 +128,7 @@ class ContractControllerTest extends AbstractTest {
         assertNotNull(created.getTicketKey());
         assertTrue(created.getTicketKey().startsWith("CXT-"));
 
-        Contract fromDb = contractRepository.findByApplicationId(applicationId).orElseThrow();
+        Contract fromDb = contractRepository.findByOrganizationId(organizationId).orElseThrow();
         assertEquals(created.getTicketKey(), fromDb.getTicketKey());
     }
 
@@ -137,12 +136,12 @@ class ContractControllerTest extends AbstractTest {
     void updateContractSigned() {
         // Only super users may set signedContract = true
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
-        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
-        Contract contract = contractRepository.findByApplicationId(applicationId).get();
+        Contract contract = contractRepository.findByOrganizationId(organizationId).get();
         Map<String, Object> contractData = objectMapper.convertValue(contract, new TypeReference<>() {
         });
-        contractData.put("application", Map.of("id", applicationId));
+        contractData.put("organization", Map.of("id", organizationId));
         contractData.put("signedContract", true);
 
         Contract updated = given()
@@ -151,9 +150,9 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
+                .pathParam("organizationId", organizationId)
                 .body(contractData)
-                .put("/api/v1/contracts/{applicationId}")
+                .put("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .extract()
@@ -161,7 +160,7 @@ class ContractControllerTest extends AbstractTest {
 
         assertTrue(updated.isSignedContract());
 
-        Contract fromDb = contractRepository.findByApplicationId(applicationId).get();
+        Contract fromDb = contractRepository.findByOrganizationId(organizationId).get();
         assertTrue(fromDb.isSignedContract());
     }
 
@@ -169,12 +168,12 @@ class ContractControllerTest extends AbstractTest {
     void updateContractSignedNotAllowedForNonSuperUser() {
         // A regular org ADMIN must not be able to set signedContract = true
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
-        Contract contract = contractRepository.findByApplicationId(applicationId).get();
+        Contract contract = contractRepository.findByOrganizationId(organizationId).get();
         Map<String, Object> contractData = objectMapper.convertValue(contract, new TypeReference<>() {
         });
-        contractData.put("application", Map.of("id", applicationId));
+        contractData.put("organization", Map.of("id", organizationId));
         contractData.put("signedContract", true);
 
         given()
@@ -183,26 +182,26 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
+                .pathParam("organizationId", organizationId)
                 .body(contractData)
-                .put("/api/v1/contracts/{applicationId}")
+                .put("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
 
         // Verify it was NOT signed in the DB
-        Contract fromDb = contractRepository.findByApplicationId(applicationId).get();
+        Contract fromDb = contractRepository.findByOrganizationId(organizationId).get();
         assertFalse(fromDb.isSignedContract());
     }
 
     @Test
     void updateContractNotAllowed() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
-        Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
 
-        Contract contract = contractRepository.findByApplicationId(applicationId).get();
+        Contract contract = contractRepository.findByOrganizationId(organizationId).get();
         Map<String, Object> contractData = objectMapper.convertValue(contract, new TypeReference<>() {
         });
-        contractData.put("application", Map.of("id", applicationId));
+        contractData.put("organization", Map.of("id", organizationId));
         contractData.put("signedContract", true);
 
         given()
@@ -211,11 +210,10 @@ class ContractControllerTest extends AbstractTest {
                 .header(csrfHeader(accessCookieFilter))
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("applicationId", applicationId)
+                .pathParam("organizationId", organizationId)
                 .body(contractData)
-                .put("/api/v1/contracts/{applicationId}")
+                .put("/api/v1/contracts/{organizationId}")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }
-

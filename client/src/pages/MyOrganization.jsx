@@ -22,10 +22,12 @@ import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import {currentOrganizationFromUser} from "../utils/Organization.js";
+import {Contract} from "../connection/Contract.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
     general: "general",
+    contract: "contract",
     delete: "delete"
 }
 
@@ -92,7 +94,8 @@ const MyOrganization = ({refreshUser}) => {
         return Object.values(sections)
             .filter(s => s !== sections.delete || (externalOrganization && (user.superUser || isOrganizationAdmin(user, organization))))
             .filter(s => s !== sections.contactPersons || !externalOrganization)
-    }, [externalOrganization, organization, user])
+            .filter(s => s !== sections.contract || (externalOrganization && adminUser))
+    }, [externalOrganization, organization, user, adminUser])
 
     if (loading) {
         return <Loader/>
@@ -183,6 +186,10 @@ const MyOrganization = ({refreshUser}) => {
         )
     }
 
+    const renderContractSection = () => {
+        return <Contract organization={organization} user={user} changeTab={setSection}/>;
+    }
+
     const renderDeleteSection = () => {
         return (
             <div>
@@ -233,6 +240,9 @@ const MyOrganization = ({refreshUser}) => {
             case sections.general: {
                 return externalOrganization ? renderExternalGeneralSection() : renderInternalGeneralSection();
             }
+            case sections.contract: {
+                return renderContractSection();
+            }
             case sections.delete: {
                 return renderDeleteSection();
             }
@@ -281,7 +291,7 @@ const MyOrganization = ({refreshUser}) => {
                         {renderCurrentSection()}
                     </div>
                 </div>
-                {(section !== sections.delete && adminUser) &&
+                {(section !== sections.delete && section !== sections.contract && adminUser) &&
                     <div className="actions proceed">
                         <Button onClick={() => externalOrganization ? saveExternalOrganization() : saveInternalOrganization()}
                                 disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}

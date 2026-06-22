@@ -1,7 +1,14 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +33,9 @@ public class Contract {
     @NotNull
     private String providerName;
 
-    @Column(name = "application_name")
+    @Column(name = "organization_name")
     @NotNull
-    private String applicationName;
+    private String organizationName;
 
     @Column(name = "signee_name")
     @NotNull
@@ -48,7 +55,7 @@ public class Contract {
 
     @Column
     @NotNull
-        private String email;
+    private String email;
 
     @Column(name = "signed_contract")
     private boolean signedContract;
@@ -57,20 +64,20 @@ public class Contract {
     private String ticketKey;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id")
+    @JoinColumn(name = "organization_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Application application;
+    private Organization organization;
 
-    //We need application info, but we don't want cyclic JSON deserialization
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "application")
-    public Map<String, Serializable> getApplicationInfo() {
-        Application app = getApplication();
-        Map<String, Serializable> applicationInfo = new HashMap<>();
-        if (app != null && Hibernate.isInitialized(app)) {
-            applicationInfo.put("id", app.getId());
-            applicationInfo.put("name", app.getName());
+    //We need organization info, but we don't want cyclic JSON deserialization
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "organization")
+    public Map<String, Serializable> getOrganizationInfo() {
+        Organization org = getOrganization();
+        Map<String, Serializable> organizationInfo = new HashMap<>();
+        if (org != null && Hibernate.isInitialized(org)) {
+            organizationInfo.put("id", org.getId());
+            organizationInfo.put("name", org.getName());
         }
-        return applicationInfo;
+        return organizationInfo;
     }
 
 }

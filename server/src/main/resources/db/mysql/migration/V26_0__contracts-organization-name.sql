@@ -1,0 +1,1 @@
+ALTER TABLE contracts ADD COLUMN organization_name VARCHAR(255) NOT NULL DEFAULT '';

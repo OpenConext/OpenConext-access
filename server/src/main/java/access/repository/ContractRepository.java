@@ -11,9 +11,9 @@ import java.util.Optional;
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 
-    Optional<Contract> findByApplicationId(Long applicationId);
+    Optional<Contract> findByOrganizationId(Long organizationId);
 
-    @EntityGraph(attributePaths = {"application"})
+    @EntityGraph(attributePaths = {"organization"})
     List<Contract> findBySignedContractFalse();
 
 }

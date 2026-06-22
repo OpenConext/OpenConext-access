@@ -603,6 +603,7 @@ public abstract class AbstractTest {
         this.applicationRepository.deleteAllInBatch();
         this.organizationRepository.deleteAllInBatch();
         this.joinRequestRepository.deleteAllInBatch();
+        this.contractRepository.deleteAllInBatch();
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com", "http://mock-idp");
@@ -642,7 +643,7 @@ public abstract class AbstractTest {
         doSave(this.applicationRepository, buddyCheck, techno, nitroMap);
 
         Contract buddyCheckContract = new Contract();
-        buddyCheckContract.setApplication(buddyCheck);
+        buddyCheckContract.setOrganization(shareLogics);
         buddyCheckContract.setProviderName("SURF bv");
         buddyCheckContract.setApplicationName(BUDDY_CHECK);
         buddyCheckContract.setSigneeName("John Doe");

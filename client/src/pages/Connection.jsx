@@ -24,7 +24,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 import {isOrganizationAdmin} from "../utils/Permissions.js";
 
-const tabNames = ["overview", "application", "allConnections", "contract", "appteam"]
+const tabNames = ["overview", "application", "allConnections", "appteam"]
 
 const protocolOptions = Object.values(PROTOCOLS).map(protocol => ({
     value: protocol,
@@ -203,18 +203,6 @@ export const Connection = () => {
                                        arpInfo={arp}
                 />
             }
-            case "contract": {
-                return <Contract application={application}
-                                 setApplication={setApplication}
-                                 changeTab={changeTab}
-                                 refresh={refresh}
-                                 user={user}
-                                 currentOrganization={currentOrganization}
-                                 protocolOptions={protocolOptions}
-                                 profileOptions={profileOptions}
-                                 arpInfo={arp}
-                />
-            }
             case "appteam": {
                 return <AppTeamManagement application={application}
                                           refresh={refresh}
@@ -230,9 +218,6 @@ export const Connection = () => {
     return (
         <div className="application-connection-container">
             <ApplicationConnectionHeader tabs={tabNames
-                .filter(name => name !== "contract" || (isEmpty(currentOrganization.manageIdentifier)) && (
-                    user.superUser || isOrganizationAdmin(user, currentOrganization)
-                ))
                 .map(name => ({
                     name: name,
                     disabled: false
