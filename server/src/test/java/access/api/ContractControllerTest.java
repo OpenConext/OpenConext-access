@@ -107,7 +107,7 @@ class ContractControllerTest extends AbstractTest {
                 "signeeName", "Jane Smith",
                 "email", "jsmith@example.com",
                 "providerName", "SURF bv",
-                "applicationName", "BuddyCheck",
+                "organizationName", "BuddyCheck",
                 "organization", Map.of("id", organizationId)
         );
 

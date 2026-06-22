@@ -642,13 +642,14 @@ public abstract class AbstractTest {
         Application nitroMap = new Application(NITRO_MAP, farWind, "System", Map.of());
         doSave(this.applicationRepository, buddyCheck, techno, nitroMap);
 
-        Contract buddyCheckContract = new Contract();
-        buddyCheckContract.setOrganization(shareLogics);
-        buddyCheckContract.setProviderName("SURF bv");
-        buddyCheckContract.setSigneeName("John Doe");
-        buddyCheckContract.setEmail("jdoe@example.com");
-        buddyCheckContract.setSignedContract(false);
-        contractRepository.save(buddyCheckContract);
+        Contract shareLogicsContract = new Contract();
+        shareLogicsContract.setOrganization(shareLogics);
+        shareLogicsContract.setProviderName("SURF bv");
+        shareLogicsContract.setOrganizationName(SHARE_LOGICS);
+        shareLogicsContract.setSigneeName("John Doe");
+        shareLogicsContract.setEmail("jdoe@example.com");
+        shareLogicsContract.setSignedContract(false);
+        contractRepository.save(shareLogicsContract);
 
         ApplicationMembership applicationMembershipBuddyCheck = new ApplicationMembership(buddyCheck, adminOfShareLogics);
         ApplicationMembership applicationMembershipGuest = new ApplicationMembership(buddyCheck, guestOfShareLogics);
