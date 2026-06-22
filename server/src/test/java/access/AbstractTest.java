@@ -645,7 +645,6 @@ public abstract class AbstractTest {
         Contract buddyCheckContract = new Contract();
         buddyCheckContract.setOrganization(shareLogics);
         buddyCheckContract.setProviderName("SURF bv");
-        buddyCheckContract.setApplicationName(BUDDY_CHECK);
         buddyCheckContract.setSigneeName("John Doe");
         buddyCheckContract.setEmail("jdoe@example.com");
         buddyCheckContract.setSignedContract(false);
