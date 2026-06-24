@@ -126,6 +126,8 @@ class ConnectionControllerTest extends AbstractTest {
         connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
 
         super.stubForSaveProvider(connection);
+        Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForSaveIdentityProvider(idp);
 
         Map<String, Object> savedConnection = given()
                 .when()
@@ -419,54 +421,6 @@ class ConnectionControllerTest extends AbstractTest {
 
         Optional<Connection> optionalConnection = connectionRepository.findById(connectionId);
         assertFalse(optionalConnection.isPresent());
-    }
-
-    @SneakyThrows
-    @Test
-    void requestProductionStatus() {
-        //We can't run transactional here, so we need to manually set references to avoid lazy loading exceptions
-        Connection connection = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
-
-        Map<String, String> jiraResponse = Map.of("key", "CTX-1000");
-        stubFor(post(urlPathMatching("/issue")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(jiraResponse))));
-
-        Map<String, String> manageResponse = Map.of("id", "1");
-        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
-
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/null")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(Map.of("data", Map.of("entityid", "https://mock-rp"))))));
-
-        Map<String, Object> postManageResponse = Map.of(
-                "id", UUID.randomUUID().toString(),
-                "version", 1,
-                "data", Map.of(
-                        "eid", 9L,
-                        "state", State.prodaccepted.name(),
-                        "metaDataFields", Map.of("secret", "secret")));
-        stubFor(post(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(postManageResponse))));
-
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("id", connection.getId())
-                .put("/api/v1/connections/request-production-status/{id}")
-                .then()
-                .statusCode(HttpStatus.CREATED.value());
-
-        Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
-        assertEquals(State.prodaccepted, connectionFromDB.getState());
-        assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
     }
 
     @SneakyThrows

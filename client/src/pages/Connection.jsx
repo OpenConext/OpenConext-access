@@ -10,19 +10,12 @@ import {getApplicationById, getIdentityProviders} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
 import {APPLICATION_STATUSES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
-import {
-    contactSectionValid,
-    convertServerApplicationToClient,
-    logoSectionValid,
-    privacySectionValid
-} from "../utils/Application.js";
-import {Contract} from "../connection/Contract.jsx";
+import {contactSectionValid, convertServerApplicationToClient, logoSectionValid, privacySectionValid} from "../utils/Application.js";
 import {AppTeamManagement} from "../application/AppTeamManagement.jsx";
 import {connectOptions, visibilities} from "../utils/Connection.js";
 import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
-import {isOrganizationAdmin} from "../utils/Permissions.js";
 
 const tabNames = ["overview", "application", "allConnections", "appteam"]
 

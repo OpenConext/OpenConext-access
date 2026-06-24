@@ -109,7 +109,7 @@ public class ConnectionProviderConverter {
 
         metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
 
-        data.put("allowedall", false);
+        data.put("allowedall", true);
         data.put("revisionnote", "SURF Access update with remote API");
 
         //We have merged everything from the application now, stop if changeRequestRequired
@@ -118,7 +118,7 @@ public class ConnectionProviderConverter {
         }
         mergeAttributeReleasePolicies(connectionMetaData, data);
 
-        mergeAllowedEntities(data, connectionMetaData);
+        data.put("allowedEntities", List.of());
 
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");
@@ -303,8 +303,6 @@ public class ConnectionProviderConverter {
     }
 
     private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
-        List<String> allowedEntities = (List<String>) connectionMetaData.getOrDefault("allowedEntities", List.of());
-        data.put("allowedEntities", allowedEntities.stream().map(entity -> Map.of("name", entity)).toList());
     }
 
     private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {

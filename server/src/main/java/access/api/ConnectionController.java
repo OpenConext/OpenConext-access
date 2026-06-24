@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -225,17 +226,6 @@ public class ConnectionController implements UserAccessRights {
         saveConnection(connection);
 
         return Collections.singletonMap("secret", secret);
-    }
-
-    @PutMapping(value = "/request-production-status/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> requestProductionStatus(User user,
-                                                                       @PathVariable("connectionId") Long connectionId) {
-        Connection connection = findConnectionForAuthorizedUser(user, connectionId);
-
-        String jiraKey = doRequestProductionStatus(user, connection);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
     }
 
     private String doRequestProductionStatus(User user, Connection connection) {
@@ -432,7 +422,6 @@ public class ConnectionController implements UserAccessRights {
                 connection.getMetaData().put("secret", secret);
                 connection.setSecretSet(true);
             }
-            //Now sync the Connection to Manage.
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
 
@@ -459,6 +448,19 @@ public class ConnectionController implements UserAccessRights {
                 //No need to store redundant data
                 connection.getMetaData().remove("contactPersons");
             }
+        }
+        //Now sync the Connection to Manage, but first check if we need to connect to test IdP's
+        if (connection.getState().equals(State.testaccepted) && connection.getStatus().equals(ConnectionStatus.COMPLETE) &&
+            !connection.isTestIdpInitialized()) {
+            String entityID = (String) connection.getMetaData().get("entityID");
+            config.getIdentityProviders().forEach(idp -> {
+                Map<String, Object> provider = manage.identityProviderByEntityID(idp.get("entityid"));
+                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) getData(provider)
+                    .getOrDefault("allowedEntities", new ArrayList<>());
+                allowedEntities.add(Map.of("name", entityID));
+                manage.saveIdentityProvider(provider);
+            });
+            connection.setTestIdpInitialized(true);
         }
         return connectionRepository.save(connection);
     }

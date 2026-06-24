@@ -345,10 +345,6 @@ export function deleteConnectionById(connectionId) {
     return fetchDelete(`/api/v1/connections/${connectionId}`);
 }
 
-export function requestConnectionProductionStatus(connectionId) {
-    return postPutJson(`/api/v1/connections/request-production-status/${connectionId}`, {}, "PUT");
-}
-
 export function uppdateAndRequestConnectionProductionStatus(connection) {
     return postPutJson("/api/v1/connections/update-request-production-status", connection, "PUT");
 }

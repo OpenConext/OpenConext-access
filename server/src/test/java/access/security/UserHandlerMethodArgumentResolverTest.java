@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static access.security.UserHandlerMethodArgumentResolver.X_IMPERSONATE_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -189,7 +190,7 @@ class UserHandlerMethodArgumentResolverTest {
         when(userRepository.findById(42L)).thenReturn(Optional.of(impersonated));
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/organizations");
-        request.addHeader("X-IMPERSONATE-ID", "42");
+        request.addHeader(X_IMPERSONATE_ID, "42");
         request.setUserPrincipal(bearerTokenAuthentication(ATTRIBUTES));
         ServletWebRequest webRequest = new ServletWebRequest(request);
 
@@ -200,19 +201,17 @@ class UserHandlerMethodArgumentResolverTest {
     // ── resolveArgument: impersonation by non-superUser → returns self ────────
 
     @Test
-    void resolveArgument_impersonationHeader_nonSuperUser_returnsSelf() throws Exception {
+    void resolveArgument_impersonationHeader_nonSuperUser_throwsException() throws Exception {
         User regularUser = new User(ATTRIBUTES); // superUser=false
         when(userRepository.findBySubIgnoreCase("urn:collab:person:example.com:john"))
                 .thenReturn(Optional.of(regularUser));
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/organizations");
-        request.addHeader("X-IMPERSONATE-ID", "42");
+        request.addHeader(X_IMPERSONATE_ID, "42");
         request.setUserPrincipal(bearerTokenAuthentication(ATTRIBUTES));
         ServletWebRequest webRequest = new ServletWebRequest(request);
-
-        User result = resolver.resolveArgument(userParameter(), null, webRequest, null);
-        assertSame(regularUser, result);
-        verify(userRepository, never()).findById(any());
+        assertThrows(UserRestrictionException.class,
+            () -> resolver.resolveArgument(userParameter(), null, webRequest, null));
     }
 
     // ── resolveArgument: impersonation with non-existent id → exception ───────
@@ -225,7 +224,7 @@ class UserHandlerMethodArgumentResolverTest {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/organizations");
-        request.addHeader("X-IMPERSONATE-ID", "99");
+        request.addHeader(X_IMPERSONATE_ID, "99");
         request.setUserPrincipal(bearerTokenAuthentication(ATTRIBUTES));
         ServletWebRequest webRequest = new ServletWebRequest(request);
 

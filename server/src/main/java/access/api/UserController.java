@@ -55,6 +55,7 @@ import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.manage.ManageData.getData;
 import static access.manage.ManageData.getMetaDataFields;
+import static access.security.UserHandlerMethodArgumentResolver.X_IMPERSONATE_ID;
 
 @RestController
 @RequestMapping(value = {"/api/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -107,7 +108,9 @@ public class UserController implements UserAccessRights {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me(@Parameter(hidden = true) User user, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> me(@Parameter(hidden = true) User user,
+                                                  @Parameter(hidden = true) HttpServletRequest servletRequest,
+                                                  Authentication authentication) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.findDetailsById(user.getId())
@@ -138,35 +141,52 @@ public class UserController implements UserAccessRights {
                 throw new NotAllowedException(String.format("No IdP found for user %s and surf-crm-id %s",
                     userFromDB.getEmail(), surfCrmId));
             }
+            //We already enforce that this header is not allowed when the original user is not a super-user
+            boolean impersonation = StringUtils.hasText(servletRequest.getHeader(X_IMPERSONATE_ID));
             // Provision the user into the organization(s), this is only done once for a user
-            List<String> existingOrgMembershipIdentifiers = userFromDB.getOrganizationMemberships().stream()
-                .map(organizationMembership -> organizationMembership.getOrganization().getManageIdentifier())
-                .toList();
-            identityProviders.stream()
-                .filter(idp -> !existingOrgMembershipIdentifiers.contains((String) idp.get("_id")))
-                .forEach(idp -> {
-                    String manageIdentifier = (String) idp.get("_id");
-                    Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
-                    Authority authority = userFromDB.isInstitutionAdmin() ? Authority.ADMIN : Authority.MEMBER;
-                    organizationOptional.ifPresentOrElse(
-                        organization -> {
-                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
-                        }, () -> {
-                            // If no organization is created yet, create it on the fly. This is only done once per organization
-                            Map<String, Object> metaDataFields = getMetaDataFields(getData(idp));
-                            String organizationName = String.format("%s (%s)",
-                                metaDataFields.get("name:en"),
-                                metaDataFields.get("OrganizationName:en"));
-                            Integer manageVersion = (Integer) idp.get("version");
-                            Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
-                            //Organizations created based on the IdP's in Manage are approved automatically
-                            organization.setStatus(OrganizationStatus.APPROVED);
-                            organizationRepository.save(organization);
-                            userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
-                        }
-                    );
-                });
-                //corner-case, if the user already existed, but was promoted to InstitutionAdmin, then we need to promote the user
+            if (!impersonation) {
+                List<String> existingMembershipManageIdentifiers = userFromDB.getOrganizationMemberships().stream()
+                    .map(organizationMembership -> organizationMembership.getOrganization().getManageIdentifier())
+                    .toList();
+                Authority authority = userFromDB.isInstitutionAdmin() ? Authority.ADMIN : Authority.MEMBER;
+                identityProviders.stream()
+                    .filter(idp -> !existingMembershipManageIdentifiers.contains((String) idp.get("_id")))
+                    //We need to prevent provisioning the user to the organizations of a super-user who is impersonating someone
+                    .filter(idp -> !impersonation)
+                    .forEach(idp -> {
+                        String manageIdentifier = (String) idp.get("_id");
+                        Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
+
+                        organizationOptional.ifPresentOrElse(
+                            organization -> {
+                                userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
+                            }, () -> {
+                                // If no organization is created yet, create it on the fly. This is only done once per organization
+                                Map<String, Object> metaDataFields = getMetaDataFields(getData(idp));
+                                String organizationName = String.format("%s (%s)",
+                                    metaDataFields.get("name:en"),
+                                    metaDataFields.get("OrganizationName:en"));
+                                Integer manageVersion = (Integer) idp.get("version");
+                                Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
+                                //Organizations created based on the IdP's in Manage are approved automatically
+                                organization.setStatus(OrganizationStatus.APPROVED);
+                                organizationRepository.save(organization);
+                                userFromDB.addOrganizationMembership(new OrganizationMembership(userFromDB, organization, authority));
+                            }
+                        );
+                    });
+                //corner-case, if the user already existed, but was promoted to InstitutionAdmin, then we need to promote the memberships that are included in the identityProvider
+                if (authority.equals(Authority.ADMIN)) {
+                    List<String> identityProviderIds = identityProviders.stream()
+                        .map(idp -> (String) idp.get("_id"))
+                        .toList();
+                    user.getOrganizationMemberships().stream()
+                        .filter(organizationMembership ->
+                            identityProviderIds.contains(organizationMembership.getOrganization().getManageIdentifier()) &&
+                                !organizationMembership.getAuthority().equals(Authority.ADMIN))
+                        .forEach(organizationMembership -> organizationMembership.setAuthority(Authority.ADMIN));
+                }
+            }
         }
         userRepository.save(userFromDB);
         Map<String, Object> userMap = objectMapper.convertValue(userFromDB, new TypeReference<>() {

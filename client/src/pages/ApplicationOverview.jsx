@@ -49,10 +49,11 @@ const ApplicationOverview = ({accessible}) => {
                     const openConnectionRequests = (currentOrganization.changeRequests || [])
                         .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
                             changeRequest.pathUpdateType === "ADDITION")
-                        .map(changeRequest => changeRequest.pathUpdates.allowedEntities.name);
+                        .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
+                        .filter(Boolean);
                     if (accessible) {
-                        const allowedAll = currentOrganization.identityProvider.data.allowedall;
-                        const allowedEntities = currentOrganization.identityProvider.data.allowedEntities.map(entity => entity.name);
+                        const allowedAll = currentOrganization.identityProvider?.data?.allowedall;
+                        const allowedEntities = (currentOrganization.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
                         res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid))
                     } else {
                         //In the case of eduID / external user, we don't have an identityProvider

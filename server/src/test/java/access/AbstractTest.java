@@ -434,6 +434,15 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForSaveIdentityProvider(Map<String, Object> provider) {
+        String body = objectMapper.writeValueAsString(provider);
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata"))
+            .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                .withBody(body)
+                .withStatus(200)));
+    }
+
+    @SneakyThrows
     protected void stubForDeleteProvider(EntityType entityType, String manageIdentifier) {
         String url = String.format("/manage/api/internal/metadata/%s/%s",
                 entityType.name(),

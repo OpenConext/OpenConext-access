@@ -20,6 +20,8 @@ import java.util.Optional;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
+    public static final String X_IMPERSONATE_ID = "X-IMPERSONATE-ID";
+
     private final UserRepository userRepository;
     private final SuperAdmin superAdmin;
 
@@ -76,7 +78,10 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     .getOrDefault("acr", "urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
             user.setLoaLevel(convertLoaLevel(acr));
         }
-        String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
+        String impersonateId = webRequest.getHeader(X_IMPERSONATE_ID);
+        if (StringUtils.hasText(impersonateId) && !user.isSuperUser()) {
+            throw new UserRestrictionException("Forbidden to use X-IMPERSONATE-ID for non-super users");
+        }
         if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
             return userRepository.findById(Long.valueOf(impersonateId))
                     .orElseThrow(() -> new UserRestrictionException("Forbidden"));

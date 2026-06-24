@@ -52,7 +52,7 @@
       "motivation": ""
     },
     "entityID": "ACCESS-C4EA112E-C76F-4BF2-8384-99D321F9DCC4",
-    "allowedall": false,
+    "allowedall": true,
     "claimsInIdToken": true,
     "redirectUrls": [
       "http://localhost:8080/redirect",
@@ -64,8 +64,6 @@
       "urn:ietf:params:oauth:grant-type:device_code"
     ],
     "allowedEntities": [
-      "http://mock-idp",
-      "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
     ]
   }
 }

@@ -52,13 +52,11 @@
       "motivation": ""
     },
     "entityID": "https://engine.test.surfconext.nl/authentication/sp/metadata",
-    "allowedall": false,
+    "allowedall": true,
     "acsLocations": [
       "https://engine.test.surfconext.nl/authentication/sp/consume-assertion"
     ],
     "allowedEntities": [
-      "http://mock-idp",
-      "https://idp.diy.surfconext.nl/saml2/idp/metadata.php"
     ]
   }
 }

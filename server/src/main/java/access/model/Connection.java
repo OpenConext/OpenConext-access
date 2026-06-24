@@ -75,6 +75,9 @@ public class Connection implements NameHolder {
     @Column(name = "secret_set")
     private boolean secretSet;
 
+    @Column(name = "test_idp_initialized")
+    private boolean testIdpInitialized;
+
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 
