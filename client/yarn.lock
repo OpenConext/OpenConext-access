@@ -3293,10 +3293,10 @@ react-dom@^19.2.7:
   dependencies:
     scheduler "^0.27.0"
 
-react-image-crop@^11.0.10:
-  version "11.0.10"
-  resolved "https://registry.npmjs.org/react-image-crop/-/react-image-crop-11.0.10.tgz"
-  integrity sha512-+5FfDXUgYLLqBh1Y/uQhIycpHCbXkI50a+nbfkB1C0xXXUTwkisHDo2QCB1SQJyHCqIuia4FeyReqXuMDKWQTQ==
+react-image-crop@^11.1.2:
+  version "11.1.2"
+  resolved "https://registry.yarnpkg.com/react-image-crop/-/react-image-crop-11.1.2.tgz#fbf20e58c0b02746d6388d64759c012b0ffde5c2"
+  integrity sha512-+0Pc2fxpwKL4u4oLmdKBw8XSwUceFbXbKEHvFOlsl/MGB1OVNic4uBlAPmEHGXYgoJIq+b63xHbc/aJMG0AVkA==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
