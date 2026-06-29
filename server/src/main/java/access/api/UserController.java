@@ -180,7 +180,7 @@ public class UserController implements UserAccessRights {
                     List<String> identityProviderIds = identityProviders.stream()
                         .map(idp -> (String) idp.get("_id"))
                         .toList();
-                    user.getOrganizationMemberships().stream()
+                    userFromDB.getOrganizationMemberships().stream()
                         .filter(organizationMembership ->
                             identityProviderIds.contains(organizationMembership.getOrganization().getManageIdentifier()) &&
                                 !organizationMembership.getAuthority().equals(Authority.ADMIN))
