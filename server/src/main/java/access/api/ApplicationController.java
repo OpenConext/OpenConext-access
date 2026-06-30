@@ -203,15 +203,6 @@ public class ApplicationController implements UserAccessRights {
 
         confirmApplicationWriteAccess(user, application);
 
-        // Only admins can sign contracts
-        if (!application.isSignedContract() && applicationData.isSignedContract() &&
-                !user.isSuperUser() &&
-                getOrganizationMembership(user, application.getOrganization(), Authority.ADMIN).isEmpty()) {
-            throw new UserRestrictionException(
-                    String.format("User %s is not allowed to sign contract for application %s",
-                            user.getEmail(), application.getName()));
-        }
-
         //If the metadata has changed, we must propagate this to manage
         boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());
         //However, we first need to merge the data; otherwise the outdated application metadata is used
@@ -391,7 +382,6 @@ public class ApplicationController implements UserAccessRights {
         application.setLogoUrl(logoUrl);
         application.setCreatedBy(user.getName());
         application.setStatus(ApplicationStatus.COMPLETE);
-        application.setSignedContract(true);
         return applicationRepository.save(application);
     }
 

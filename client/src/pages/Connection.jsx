@@ -89,7 +89,7 @@ export const Connection = () => {
                     .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
             appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacy, application)
                 && application.status !== APPLICATION_STATUSES.OPEN,
-            connectionNeedsApproval: (application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections) &&
+            connectionNeedsApproval: !isEmpty(currentOrganization.manageIdentifier) && !isEmpty(application.connections) &&
                 application.connections
                     .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
         }

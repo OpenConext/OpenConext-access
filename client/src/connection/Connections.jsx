@@ -1361,8 +1361,7 @@ export const Connections = ({
                 key: "status",
                 header: I18n.t("connection.connections.status"),
                 mapper: conn => {
-                    const productionConnectionNeedsActivation = application.signedContract && (
-                        conn.status === CONNECTION_STATUSES.COMPLETE);
+                    const productionConnectionNeedsActivation = conn.status === CONNECTION_STATUSES.COMPLETE;
                     const toolTip = null;//I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
                     const status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
                     return (

@@ -65,9 +65,6 @@ public class Application implements NameHolder {
     @Column
     private String createdBy;
 
-    @Column(name = "signed_contract")
-    private boolean signedContract;
-
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
@@ -130,7 +127,6 @@ public class Application implements NameHolder {
         this.type = applicationData.type;
         this.target = applicationData.target;
         this.logoUrl = applicationData.logoUrl;
-        this.signedContract = applicationData.signedContract;
         this.status = applicationData.status;
     }
 

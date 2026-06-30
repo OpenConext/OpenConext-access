@@ -7,10 +7,6 @@
     background-color: white;
     padding: $page-padding;
 
-    .contract-inner {
-        max-width: 60%;
-    }
-
     .app-header {
         display: flex;
         align-items: center;
@@ -27,21 +23,33 @@
         color: var(--sds--color--gray--700, #555);
     }
 
-    .contract-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        row-gap: 20px;
-        column-gap: 50px;
-        max-width: 100%;
-    }
-
-    .actions {
-        display: flex;
-        margin: 25px 0;
-        gap: 40px;
-
-        button.sds--btn--secondary {
-            margin-left: auto;
+    .contract-inner {
+        .contract-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 20px;
+            column-gap: 50px;
+            max-width: 100%;
         }
+
+        .sds--alert {
+            margin-bottom: 25px;
+        }
+
+        .actions {
+            display: flex;
+            margin: 40px 0 25px 0;
+            gap: 40px;
+            padding-right: 0;
+
+            button.sds--btn--secondary {
+                margin-left: auto;
+            }
+
+            button.sds--btn--primary {
+                margin-left: 0;
+            }
+        }
+
     }
 }

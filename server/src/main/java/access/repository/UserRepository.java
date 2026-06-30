@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
 
     @EntityGraph(attributePaths = {
             "joinRequests.organization",
-            "organizationMemberships.organization",
+            "organizationMemberships.organization.contract",
             "organizationMemberships.applicationMemberships.application"})
     Optional<User> findDetailsById(Long id);
 

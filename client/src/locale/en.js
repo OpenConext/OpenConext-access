@@ -1401,6 +1401,7 @@ const en = {
         country: "Country",
         update: "Update",
         signedReadonly: "This contract has been signed and is read-only.",
+        awaiting: "This contract is awaiting approval and signing. You will be contacted if more information is required",
         sign: "Sign contract",
         confirmation: "Are you sure you want to sign the contract for {{name}}?",
         ticketKey: "Jira ticket",

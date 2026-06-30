@@ -73,6 +73,15 @@ public class Organization implements NameHolder {
     @OneToMany(mappedBy = "organization", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Invitation> invitations = new HashSet<>();
 
+    @OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Contract contract;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public boolean isContractSigned() {
+        return contract != null && contract.isSignedContract();
+    }
+
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long memberCount;
 

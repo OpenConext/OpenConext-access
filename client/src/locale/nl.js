@@ -1401,6 +1401,7 @@ const nl = {
         country: "Land",
         update: "Opslaan",
         signedReadonly: "Dit contract is ondertekend en kan niet meer worden gewijzigd.",
+        awaiting: "Dit contract wacht op goedkeuring en ondertekening. Er wordt contact met je opgenomen als er meer informatie nodig is.",
         sign: "Contract ondertekenen",
         confirmation: "Weet je zeker dat je het contract voor {{name}} wilt ondertekenen?",
         ticketKey: "Jira-ticket",

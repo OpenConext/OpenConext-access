@@ -25,7 +25,7 @@ export const ConnectionAlert = ({
             return null;
         }
         let connectionsNeedActivationNames = [];
-        if ((application.signedContract || !isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections)) {
+        if ((!isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections)) {
             const names = application.connections
                 .filter(conn =>
                     conn.status === CONNECTION_STATUSES.COMPLETE)

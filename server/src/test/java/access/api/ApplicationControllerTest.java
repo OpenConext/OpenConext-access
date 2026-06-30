@@ -145,29 +145,6 @@ class ApplicationControllerTest extends AbstractTest {
     }
 
     @Test
-    void updateSignContractNotAllowed() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
-        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
-        application.setSignedContract(true);
-        Organization organization = application.getOrganization();
-        //Otherwise rest-assured does not deserialize the Organization
-        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
-        });
-        applicationData.put("organization", Map.of("id", organization.getId()));
-
-        given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(applicationData)
-                .put("/api/v1/applications")
-                .then()
-                .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     void updateMetaDataChanged() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();

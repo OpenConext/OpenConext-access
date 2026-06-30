@@ -36,6 +36,7 @@ const MyOrganization = ({refreshUser}) => {
     const setFlash = useAppStore(state => state.setFlash);
 
     const {organizationId} = useParams();
+    const {tab} = useParams();
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
@@ -67,7 +68,9 @@ const MyOrganization = ({refreshUser}) => {
                     setOrganization(convertedOrganization);
                     setOriginalOrganizationName(res.name);
                     setExternalOrganization(isEmpty(res.manageIdentifier));
-                    setSection(isEmpty(res.manageIdentifier) ? sections.general : sections.contactPersons);
+                    const currentSection = isEmpty(tab) ? (isEmpty(res.manageIdentifier) ? sections.general : sections.contactPersons) : tab;
+                    setSection(currentSection);
+                    navigate(`/idp/${organizationId}/${currentSection}`);
                     setLoading(false);
                     const organization = currentOrganizationFromUser(user, organizationId)
                     useAppStore.setState({
@@ -187,7 +190,7 @@ const MyOrganization = ({refreshUser}) => {
     }
 
     const renderContractSection = () => {
-        return <Contract organization={organization} user={user} changeTab={setSection}/>;
+        return <Contract organization={organization} user={user} changeTab={changeTab}/>;
     }
 
     const renderDeleteSection = () => {
@@ -252,6 +255,11 @@ const MyOrganization = ({refreshUser}) => {
         }
     }
 
+    const changeTab = s => {
+        navigate(`/idp/${organizationId}/${s}`);
+        setSection(s);
+    }
+
     const {open, cancel, action, question, okButton} = confirmation;
     return (
         <div
@@ -282,7 +290,7 @@ const MyOrganization = ({refreshUser}) => {
                             .map((s, index) =>
                                 <div key={index}
                                      className={`menu-item ${s === section ? "active" : ""}`}
-                                     onClick={() => setSection(s)}>
+                                     onClick={() => changeTab(s)}>
                                     <span>{I18n.t(`myOrganization.${s}`)}</span>
                                 </div>
                             )}

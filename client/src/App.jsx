@@ -167,7 +167,7 @@ const App = () => {
                                    element={<ManageDetail/>}/>
                             <Route path="/refresh-route/:path" element={<RefreshRoute/>}/>
                             <Route path="/feedback" element={<Feedback/>}/>
-                            <Route path="/idp/:organizationId" element={<MyOrganization refreshUser={refreshUser}/>}/>
+                            <Route path="/idp/:organizationId/:tab?" element={<MyOrganization refreshUser={refreshUser}/>}/>
                             <Route path="/policies/:page?/:policyId?" element={<Policies/>}/>
                             <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>

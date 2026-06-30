@@ -113,10 +113,7 @@ const Organization = () => {
             status = "multiple_connections"
         } else {
             const connection = connections[0];
-            if (!application.signedContract) {
-                status = "in_progress";
-            } else if (application.signedContract && (
-                connection.status === CONNECTION_STATUSES.COMPLETE)) {
+            if (connection.status === CONNECTION_STATUSES.COMPLETE) {
                 status = "ready_for_prod"
             } else if (!isEmpty(connection.changeRequests)) {
                 status = "open_change_requests";

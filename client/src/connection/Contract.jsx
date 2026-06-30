@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
 import {contractByOrganization, createContractForOrganization, updateContractForOrganization} from "../api/index.js";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Alert, AlertType, Button, ButtonType, Loader} from "@surfnet/sds";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {countryOptions} from "../utils/countries.js";
@@ -145,6 +145,12 @@ export const Contract = ({
 
                 {signed && (
                     <p className="readonly-notice">{I18n.t("contracts.signedReadonly")}</p>
+                )}
+
+                {(!signed && !isNew) && (
+                    <Alert alertType={AlertType.Info}
+                           asChild={true}
+                           message={I18n.t("contracts.awaiting")}/>
                 )}
 
                 <div className="contract-form">
