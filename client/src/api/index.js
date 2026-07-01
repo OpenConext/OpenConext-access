@@ -83,7 +83,7 @@ export function info() {
 
 //Users
 export function me() {
-    return fetchJson("/api/v1/users/me");
+    return fetchJson("/api/v1/users/me", {}, {}, false);
 }
 
 export function deleteUser() {

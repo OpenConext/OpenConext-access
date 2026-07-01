@@ -22,7 +22,7 @@ export const useLogout = () => {
                     user: { name: "" }
                 }));
                 navigate("/home");
-            }, 375);
+            }, 175);
         });
     }, [navigate]);
 

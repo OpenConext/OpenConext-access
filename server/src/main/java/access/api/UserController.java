@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.IdpConfigurationException;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -130,15 +132,15 @@ public class UserController implements UserAccessRights {
             userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
 
             String surfCrmId = (String) claims.get("surf-crm-id");
-            if (!StringUtils.hasText(surfCrmId)) {
+            if (!StringUtils.hasText(surfCrmId) || 1 == 1) {
                 //For now raise exception
-                throw new NotAllowedException(String.format("No surf-crm-id in user attributes %s. Check the ARP",
+                throw new IdpConfigurationException(HttpStatus.PRECONDITION_REQUIRED, String.format("No surf-crm-id in user attributes %s. Check the ARP",
                     claims));
             }
             List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(surfCrmId);
             if (CollectionUtils.isEmpty(identityProviders)) {
                 //For now raise exception
-                throw new NotAllowedException(String.format("No IdP found for user %s and surf-crm-id %s",
+                throw new IdpConfigurationException(HttpStatus.PRECONDITION_REQUIRED, String.format("No IdP found for user %s and surf-crm-id %s",
                     userFromDB.getEmail(), surfCrmId));
             }
             //We already enforce that this header is not allowed when the original user is not a super-user

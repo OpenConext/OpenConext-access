@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Loader} from "@surfnet/sds";
 import './App.scss';
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router-dom";
-import {allowedAttributes, arp, configuration, csrf, me, privacy} from "./api/index.js";
+import {allowedAttributes, arp, configuration, csrf, logout, me, privacy} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
@@ -48,15 +48,21 @@ import Statistics from "./pages/Statistics.jsx";
 import {currentOrganizationFromUser} from "./utils/Organization.js";
 import PublicStats from "./pages/PublicStats.jsx";
 import {Monitoring} from "./pages/Monitoring.jsx";
+import I18n from "./locale/I18n.js";
+import ConfirmationDialog from "./components/ConfirmationDialog.jsx";
+import {useLogout} from "./hooks/UseLogout.jsx";
 
 const App = () => {
 
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [reference, setReference] = useState(null);
     const impersonator = useAppStore(state => state.impersonator);
     const feedbackWidgetEnabled = useAppStore(state => state.config.feedbackWidgetEnabled);
     const navigate = useNavigate();
     const currentLocation = useLocation();
+    const logoutUser = useLogout();
 
     const refreshUser = callback => {
         me()
@@ -91,36 +97,46 @@ const App = () => {
                     }));
                     setIsAuthenticated(res[0].authenticated);
                     if (res[0].authenticated) {
-                        me().then(user => {
-                            //If there are multiple organization memberships, we default to the one which was used to login
-                            const orgMembership = (user.organizationMemberships || [])
-                                .find(organizationMembership => !isEmpty(organizationMembership.organization.identityProvider) &&
-                                    organizationMembership.organization.identityProvider.data.entityid ===
-                                    user.authenticatingAuthority);
-                            const currentOrganization = orgMembership?.organization || user.organizationMemberships.map(om => om.organization)[0] || {name: ""};
-                            const newMenuItems = menuItemsForUser(user, currentOrganization);
-                            useAppStore.setState(() => ({
-                                user: user,
-                                menuItems: newMenuItems,
-                                activeMenuItem: activeMenuItem(currentLocation),
-                                currentOrganization: currentOrganization
-                            }));
-                            const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-                            let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
-                            if (!isEmpty(storedLocation)) {
-                                // Do not remove the SESSION_STORAGE_LOCATION directly because in development mode this is called twice
-                                if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
-                                    storedLocation = "/landing";
+                        me()
+                            .then(user => {
+                                //If there are multiple organization memberships, we default to the one which was used to login
+                                const orgMembership = (user.organizationMemberships || [])
+                                    .find(organizationMembership => !isEmpty(organizationMembership.organization.identityProvider) &&
+                                        organizationMembership.organization.identityProvider.data.entityid ===
+                                        user.authenticatingAuthority);
+                                const currentOrganization = orgMembership?.organization || user.organizationMemberships.map(om => om.organization)[0] || {name: ""};
+                                const newMenuItems = menuItemsForUser(user, currentOrganization);
+                                useAppStore.setState(() => ({
+                                    user: user,
+                                    menuItems: newMenuItems,
+                                    activeMenuItem: activeMenuItem(currentLocation),
+                                    currentOrganization: currentOrganization
+                                }));
+                                const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
+                                let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
+                                if (!isEmpty(storedLocation)) {
+                                    // Do not remove the SESSION_STORAGE_LOCATION directly because in development mode this is called twice
+                                    if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
+                                        storedLocation = "/landing";
+                                    }
+                                    flushSync(() => {
+                                        navigate(storedLocation, {replace: true});
+                                        setTimeout(() => sessionStorage.removeItem(SESSION_STORAGE_LOCATION), 1000 * 5);
+                                    });
+                                    setTimeout(() => setLoading(false), 500);
+                                } else {
+                                    setLoading(false);
                                 }
-                                flushSync(() => {
-                                    navigate(storedLocation, {replace: true});
-                                    setTimeout(() => sessionStorage.removeItem(SESSION_STORAGE_LOCATION), 1000 * 5);
-                                });
-                                setTimeout(() => setLoading(false), 500);
-                            } else {
-                                setLoading(false);
-                            }
-                        })
+                            })
+                            .catch(e => {
+                                e.response.json().then(j => {
+                                    const ref = j.reference || 999;
+                                    setReference(ref);
+                                    setLoading(false);
+                                    setShowErrorModal(true);
+                                })
+                            })
+
                     } else {
                         setLoading(false);
                     }
@@ -134,6 +150,26 @@ const App = () => {
 
     if (loading) {
         return <Loader/>
+    }
+
+    if (showErrorModal) {
+
+        const proceed = () => {
+            setLoading(true);
+            setShowErrorModal(false);
+            logoutUser(null, setIsAuthenticated);
+            setTimeout(() => setLoading(false), 325);
+        }
+
+        return (
+            <div className="access">
+                <ConfirmationDialog confirm={proceed}
+                                    confirmationHeader={I18n.t("forms.idpConfigException")}
+                                    confirmationTxt={I18n.t("forms.proceed")}
+                                    question={I18n.t("forms.idpConfigExceptionIfo", {reference: reference})}
+                />
+            </div>
+        );
     }
 
     return (

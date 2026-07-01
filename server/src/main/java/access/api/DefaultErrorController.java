@@ -1,8 +1,8 @@
 package access.api;
 
 
+import access.exception.IdpConfigurationException;
 import access.exception.NotFoundException;
-import access.exception.UserRestrictionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -33,7 +33,7 @@ public class DefaultErrorController implements ErrorController {
     private static final Log LOG = LogFactory.getLog(DefaultErrorController.class);
 
     private static final List<Class<?>> suppressStackTraceClasses = List.of(
-            NotFoundException.class
+        NotFoundException.class
     );
 
     private final ErrorAttributes errorAttributes;
@@ -47,12 +47,12 @@ public class DefaultErrorController implements ErrorController {
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
         WebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> result = this.errorAttributes.getErrorAttributes(
-                webRequest,
-                ErrorAttributeOptions.of(
-                        ErrorAttributeOptions.Include.EXCEPTION,
-                        ErrorAttributeOptions.Include.STATUS,
-                        ErrorAttributeOptions.Include.MESSAGE,
-                        ErrorAttributeOptions.Include.BINDING_ERRORS)
+            webRequest,
+            ErrorAttributeOptions.of(
+                ErrorAttributeOptions.Include.EXCEPTION,
+                ErrorAttributeOptions.Include.STATUS,
+                ErrorAttributeOptions.Include.MESSAGE,
+                ErrorAttributeOptions.Include.BINDING_ERRORS)
         );
 
         Throwable error = this.errorAttributes.getError(webRequest);
@@ -63,7 +63,7 @@ public class DefaultErrorController implements ErrorController {
                 statusCode = FORBIDDEN;
             } else {
                 statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
-                        HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
+                    HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
             }
 
         } else {
@@ -78,6 +78,9 @@ public class DefaultErrorController implements ErrorController {
             }
         }
         result.put("status", statusCode.value());
+        if (error instanceof IdpConfigurationException idpConfigurationException) {
+            result.put("reference", idpConfigurationException.getReference());
+        }
         return ResponseEntity.status(statusCode).body(result);
     }
 
