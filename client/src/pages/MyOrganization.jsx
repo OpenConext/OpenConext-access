@@ -85,7 +85,7 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, user]);
+    }, [navigate, organizationId, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inputRef.current) {
