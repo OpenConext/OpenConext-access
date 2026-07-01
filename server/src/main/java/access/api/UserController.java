@@ -132,7 +132,7 @@ public class UserController implements UserAccessRights {
             userFromDB.setLoaLevel(this.convertLoaLevel(obtainedAcr));
 
             String surfCrmId = (String) claims.get("surf-crm-id");
-            if (!StringUtils.hasText(surfCrmId) || 1 == 1) {
+            if (!StringUtils.hasText(surfCrmId)) {
                 //For now raise exception
                 throw new IdpConfigurationException(HttpStatus.PRECONDITION_REQUIRED, String.format("No surf-crm-id in user attributes %s. Check the ARP",
                     claims));
