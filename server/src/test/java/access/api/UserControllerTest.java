@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -395,14 +396,15 @@ class UserControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
         super.stubForIdentityProviderByInstitutionalGUID("nope");
 
-        given()
+        Map<String, Object> res = given()
             .when()
             .filter(accessCookieFilter.cookieFilter())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .get("/api/v1/users/me")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value());
+            .as(new TypeRef<>() {
+            });
+        assertNotNull(res.get("reference"));
     }
 
     @Test
