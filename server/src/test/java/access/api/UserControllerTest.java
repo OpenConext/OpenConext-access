@@ -371,14 +371,16 @@ class UserControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(attributes);
 
-        given()
+        Map<String, Object > res = given()
             .when()
             .filter(accessCookieFilter.cookieFilter())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .get("/api/v1/users/me")
-            .then()
-            .statusCode(HttpStatus.CONFLICT.value());
+            .as(new TypeRef<>() {
+            });
+        assertEquals(400, res.get("status"));
+        assertNotNull(res.get("reference"));
     }
 
     @Test
