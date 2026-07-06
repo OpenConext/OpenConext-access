@@ -1,6 +1,7 @@
 {
   "active": true,
   "authenticating_authority": "http://mock-idp",
+  "surf-crm-id": "ad93daef-0911-e511-80d0-005056956c1a",
   "client_id": "playground_client",
   "eduperson_principal_name": "%s",
   "email": "admin@utrecht.nl",

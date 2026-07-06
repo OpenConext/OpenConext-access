@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,7 +42,9 @@ public class PublicController {
     }
 
     @GetMapping("/service-providers")
-    public ResponseEntity<List<Map<String, Object>>> serviceProviders(Authentication authentication) {
+    public ResponseEntity<List<Map<String, Object>>> serviceProviders(Authentication authentication,
+                                                                      @RequestParam(value = "manageIdentifier",
+                                                                          required = false) String manageIdentifier) {
         LOG.debug("/serviceProviders");
         List<Map<String, Object>> providers = manage.serviceProvidersLight();
         if (authentication == null) {
@@ -53,13 +57,23 @@ public class PublicController {
                 providers.removeIf(provider -> removeNonPublicProvider(provider));
             } else {
                 //We need the identity provider to see which providers are connected and are therefore visiblle
-                String authenticatingAuthority = (String) user.getClaims().get("authenticating_authority");
-                Map<String, Object> identityProvider = manage.identityProviderByEntityID(authenticatingAuthority);
+                Map<String, Object> identityProvider;
+                if (StringUtils.hasText(manageIdentifier)) {
+                    identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
+                } else {
+                    String surfCrmId = (String) user.getClaims().get("surf-crm-id");
+                    List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(surfCrmId);
+                    String authenticatingAuthority = (String) user.getClaims().get("authenticating_authority");
+                    identityProvider = identityProviders.stream()
+                        .filter(idp -> authenticatingAuthority.equals(getData(idp).get("entityid")))
+                        .findFirst()
+                        .orElseGet(() -> identityProviders.getFirst());
+                }
                 Set<String> allowedEntities = ((List<Map<String, String>>) getData(identityProvider)
-                        .getOrDefault("allowedEntities", List.of()))
-                        .stream()
-                        .map(allowedEntity -> allowedEntity.get("name"))
-                        .collect(Collectors.toSet());
+                    .getOrDefault("allowedEntities", List.of()))
+                    .stream()
+                    .map(allowedEntity -> allowedEntity.get("name"))
+                    .collect(Collectors.toSet());
                 providers.removeIf(provider -> removeNonPublicProvider(provider, allowedEntities));
             }
         }
@@ -74,13 +88,13 @@ public class PublicController {
 
     @GetMapping("/service-provider-detail/{type}/{identifier}")
     public ResponseEntity<Map<String, Object>> serviceProviderDetail(
-            @PathVariable("type") EntityType entityType,
-            @PathVariable("identifier") String identifier) {
+        @PathVariable("type") EntityType entityType,
+        @PathVariable("identifier") String identifier) {
         LOG.debug("/identityProviders");
         Map<String, Object> provider = manage
-                .providerByManageIdentifier(entityType, identifier);
+            .providerByManageIdentifier(entityType, identifier);
         getMetaDataFields(getData(provider)).keySet()
-                .removeIf(key -> key.startsWith("contacts:"));
+            .removeIf(key -> key.startsWith("contacts:"));
         return ResponseEntity.ok(provider);
     }
 

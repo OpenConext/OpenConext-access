@@ -9,11 +9,11 @@
   "preferred_username": "John Doe",
   "schac_home_organization": "example.com",
   "authenticating_authority": "http://mock-idp",
+  "surf-crm-id": "ad93daef-0911-e511-80d0-005056956c1a",
   "scope": "openid",
   "sub": "sub",
   "uids": [
     "1234567890"
   ],
-  "surf-crm-id": "ad93daef-0911-e511-80d0-005056956c1a",
   "updated_at": 1606133230
 }

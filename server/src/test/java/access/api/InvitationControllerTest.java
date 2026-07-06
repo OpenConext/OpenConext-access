@@ -135,7 +135,6 @@ class InvitationControllerTest extends AbstractMailTest {
         String schacHomeOrganization = "idp.uu";
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", sub,
                 m -> {
-                    m.put("authenticating_authority", authenticatingAuthority);
                     m.put("schac_home_organization", schacHomeOrganization);
                     m.put("surf-crm-id", ORGANISATION_GUID);
                     return m;

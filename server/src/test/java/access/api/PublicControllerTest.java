@@ -32,6 +32,24 @@ class PublicControllerTest extends AbstractTest {
     }
 
     @Test
+    void serviceProvidersWithIdp() {
+        this.stubForServiceProviders();
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForGetProvider(EntityType.saml20_idp, "8");
+        List<Map<String, Object>> serviceProviders = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/public/service-providers?manageIdentifier=8")
+            .as(new TypeRef<>() {
+            });
+        //Only two are filtered out because of coin:ss:hidden and coin:ss:idp_visible_only and internal user
+        assertEquals(6, serviceProviders.size());
+    }
+
+    @Test
     void serviceProvidersWithAuthenticatedInternalUser() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         this.stubForServiceProviders();

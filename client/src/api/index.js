@@ -440,8 +440,9 @@ export function publicIdentityProviders() {
     return fetchJson("/api/v1/public/identity-providers");
 }
 
-export function publicServiceProviders() {
-    return fetchJson("/api/v1/public/service-providers");
+export function publicServiceProviders(manageIdentifier = null) {
+    const query = isEmpty(manageIdentifier) ? "" : `?manageIdentifier=${manageIdentifier}`;
+    return fetchJson(`/api/v1/public/service-providers${query}`);
 }
 
 export function publicServiceProviderByDetail(type, identifier) {

@@ -151,10 +151,9 @@ public class UserController implements UserAccessRights {
                     .map(organizationMembership -> organizationMembership.getOrganization().getManageIdentifier())
                     .toList();
                 Authority authority = userFromDB.isInstitutionAdmin() ? Authority.ADMIN : Authority.MEMBER;
+                //We need to prevent provisioning the user to the organizations of a super-user who is impersonating someone
                 identityProviders.stream()
                     .filter(idp -> !existingMembershipManageIdentifiers.contains((String) idp.get("_id")))
-                    //We need to prevent provisioning the user to the organizations of a super-user who is impersonating someone
-                    .filter(idp -> !impersonation)
                     .forEach(idp -> {
                         String manageIdentifier = (String) idp.get("_id");
                         Optional<Organization> organizationOptional = organizationRepository.findByManageIdentifier(manageIdentifier);
