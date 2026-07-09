@@ -50,10 +50,10 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "0.5.3",
     "globals": "^17.7.0",
-    "http-proxy-middleware": "4.1.1",
+    "http-proxy-middleware": "4.2.0",
     "sass": "1.101.0",
-    "vite": "^8.1.3",
+    "vite": "^8.1.4",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   }
 }
