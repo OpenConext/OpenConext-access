@@ -824,7 +824,7 @@ const nl = {
         arp: "Informatieprofiel",
         profile: "Profiel",
         arpSources: {
-            eduid: "EduID Identity Provider",
+            eduid: "eduID Identity Provider",
             idp: "Je IdP",
             invite: "SURF Invite",
             manage: "SURF ManageImport",
@@ -896,8 +896,8 @@ const nl = {
     external: {
         invite: {
             title: "Rollen",
-            alert: "Toegangsrollen worden momenteel beheerd in SURF Conext Invite en zullen in de toekomst worden verplaatst naar SURF Access.",
-            link: "Open SURFConext <strong>Invite</strong>",
+            alert: "Toegangsrollen worden momenteel beheerd in SURFconext Invite en zullen in de toekomst worden verplaatst naar SURF Access.",
+            link: "Open SURFconext <strong>Invite</strong>",
         },
         sram: {
             title: "Samenwerkingen",
