@@ -14,6 +14,7 @@ import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
+import access.model.NameExistsRequest;
 import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.User;
@@ -193,20 +194,16 @@ public class ApplicationController implements UserAccessRights {
     }
 
     @PostMapping("/name-exists")
-    public ResponseEntity<Boolean> nameExists(User user, @RequestBody Map<String, Object> properties) {
-        LOG.debug("/name-exists for " + properties);
+    public ResponseEntity<Boolean> nameExists(User user, @Validated @RequestBody NameExistsRequest nameExistsRequest) {
+        LOG.debug("/name-exists for " + nameExistsRequest.getName());
 
-        String name = (String) properties.get("name");
-        Long organizationId = Long.valueOf(String.valueOf(properties.get("organizationId")));
-        Object applicationIdProperty = properties.get("applicationId");
-        Long applicationId = applicationIdProperty != null ? Long.valueOf(String.valueOf(applicationIdProperty)) : null;
-
-        Organization organization = organizationRepository.findById(organizationId)
+        Organization organization = organizationRepository.findById(nameExistsRequest.getOrganizationId())
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
         user = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
 
-        boolean exists = applicationRepository.findByNameIgnoreCaseAndOrganization(name, organization)
+        Long applicationId = nameExistsRequest.getApplicationId();
+        boolean exists = applicationRepository.findByNameIgnoreCaseAndOrganization(nameExistsRequest.getName(), organization)
                 .filter(application -> applicationId == null || !application.getId().equals(applicationId))
                 .isPresent();
         return ResponseEntity.ok(exists);

@@ -10,6 +10,7 @@ import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
+import access.model.NameExistsRequest;
 import access.model.Organization;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -65,6 +66,52 @@ class ApplicationControllerTest extends AbstractTest {
         Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
         assertEquals(application.getName(), applicationFromDB.getName());
         assertEquals(metaDataMap, applicationFromDB.getMetaData());
+    }
+
+    @Test
+    void nameExists() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application buddyCheck = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        Long organizationId = buddyCheck.getOrganization().getId();
+
+        //An existing application name in the same organization is taken
+        NameExistsRequest duplicate = new NameExistsRequest(BUDDY_CHECK, organizationId, null);
+        Boolean exists = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(duplicate)
+                .post("/api/v1/applications/name-exists")
+                .as(Boolean.class);
+        assertTrue(exists);
+
+        //The application itself is excluded from the check, so its own name is not a duplicate
+        NameExistsRequest excludingSelf = new NameExistsRequest(BUDDY_CHECK, organizationId, buddyCheck.getId());
+        exists = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(excludingSelf)
+                .post("/api/v1/applications/name-exists")
+                .as(Boolean.class);
+        assertFalse(exists);
+
+        //A name that is not used yet in the organization is not a duplicate
+        NameExistsRequest unique = new NameExistsRequest("Some new unique application name", organizationId, null);
+        exists = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(unique)
+                .post("/api/v1/applications/name-exists")
+                .as(Boolean.class);
+        assertFalse(exists);
     }
 
     @Test
