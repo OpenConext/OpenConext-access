@@ -1,6 +1,6 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
-import {useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {NavigationMenu} from "@surfnet/sds";
 import CheckIcon from "@surfnet/sds/icons/check.svg";
 
@@ -9,9 +9,7 @@ import {useMemo} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
-import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
-import {useLocation} from "react-router";
 
 export const SharedMenu = () => {
 
@@ -63,6 +61,7 @@ export const SharedMenu = () => {
         <NavigationMenu
             groups={filteredMenuGroups}
             logoLabel={"Access"}
+            logoAction={() => navigate("/")}
             setActiveMenuItem={setActiveMenuItem}
             title={currentOrganization?.name || ""}
             settingToolTip={isPendingApproval ? I18n.t("organizations.tooltip") :
