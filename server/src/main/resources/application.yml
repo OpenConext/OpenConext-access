@@ -146,6 +146,7 @@ eduid-idp-entity-id: "https://login.test2.eduid.nl, https://localhost.surf.id"
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"
+    - "urn:collab:person:example.com:super"
 
 gui:
   disclaimer:
