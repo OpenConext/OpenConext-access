@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {acceptInvitation, getInvitationByHash} from "../api";

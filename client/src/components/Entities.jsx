@@ -6,7 +6,7 @@ import {sortObjects, valueForSort} from "../utils/Sort";
 import "./Entities.scss";
 import {Button, ButtonType, Loader, Pagination, Tooltip} from "@surfnet/sds";
 import {pageCount, pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 

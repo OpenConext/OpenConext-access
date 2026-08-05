@@ -5,7 +5,7 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";

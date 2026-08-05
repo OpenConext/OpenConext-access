@@ -30,11 +30,14 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     private final OidcUserService delegate;
     private final String entitlement;
     private final String organizationGuidPrefix;
+    private final SuperAdmin superAdmin;
 
     public CustomOidcUserService(UserRepository userRepository,
+                                 SuperAdmin superAdmin,
                                  String entitlement,
                                  String organizationGuidPrefix) {
         this.userRepository = userRepository;
+        this.superAdmin = superAdmin;
         this.entitlement = entitlement;
         this.organizationGuidPrefix = organizationGuidPrefix;
         delegate = new OidcUserService();
@@ -63,6 +66,9 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             user.updateAttributes(newClaims);
 
             LOG.debug("Updating user: " + newClaims);
+
+            boolean isSuperUser = superAdmin.getUsers().contains(user.getSub());
+            user.setSuperUser(isSuperUser);
 
             userRepository.save(user);
         });

@@ -1,6 +1,5 @@
 package access.security;
 
-import access.manage.Manage;
 import access.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +31,6 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -45,6 +43,7 @@ import java.util.stream.Stream;
 @Configuration
 @EnableMethodSecurity
 @EnableCaching
+@EnableConfigurationProperties({SuperAdmin.class})
 public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
@@ -53,16 +52,19 @@ public class SecurityConfig {
     private final Environment environment;
     private final List<String> eduidIdpEntityIdentifiers;
     private final String minimalStepupAcrLevel;
+    private final SuperAdmin superAdmin;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           Environment environment,
+                          SuperAdmin superAdmin,
                           @Value("${eduid-idp-entity-id}") String eduidIdpEntityId,
                           @Value("${config.minimal_stepup_acr_level}") String minimalStepupAcrLevel) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.environment = environment;
         this.eduidIdpEntityIdentifiers = Stream.of(eduidIdpEntityId.split(",")).map(entityId -> entityId.trim()).toList();
         this.minimalStepupAcrLevel = minimalStepupAcrLevel;
+        this.superAdmin = superAdmin;
     }
 
     @Configuration
@@ -99,44 +101,44 @@ public class SecurityConfig {
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
-                .csrf(csrfConfigurer -> csrfConfigurer
-                        .ignoringRequestMatchers(
-                                "/api/v1/test/login",
-                                "/login/oauth2/code/oidcng",
-                                "/api/v1/validations/**"))
-                .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
-                .authorizeHttpRequests(authorizeHttpRequestsConfigurer -> authorizeHttpRequestsConfigurer
-                        .requestMatchers(
-                                "/api/v1/csrf",
-                                "/api/v1/disclaimer",
-                                "/api/v1/users/config",
-                                "/api/v1/users/logout",
-                                "/api/v1/validations/**",
-                                "/api/v1/test/login",
-                                "/api/v1/public/**",
-                                "/api/v1/manage/arp",
-                                "/api/v1/stats/loginTimeFrame",
-                                "/api/v1/monitoring",
-                                "/api/v1/manage/allowed-attributes",
-                                "/api/v1/manage/privacy",
-                                "/ui/**",
-                                "/internal/health",
-                                "/internal/info")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()
-                )
-                .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer
-                        .authorizationEndpoint(authorization -> authorization
-                                .authorizationRequestResolver(
-                                        authorizationRequestResolver(this.clientRegistrationRepository)
-                                )
-                        ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
-                                new CustomOidcUserService(userRepository, entitlement, organizationGuidPrefix)))
-                )
-                //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
-                .securityContext(securityContextConfigurer ->
-                        securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
+            .csrf(csrfConfigurer -> csrfConfigurer
+                .ignoringRequestMatchers(
+                    "/api/v1/test/login",
+                    "/login/oauth2/code/oidcng",
+                    "/api/v1/validations/**"))
+            .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
+            .authorizeHttpRequests(authorizeHttpRequestsConfigurer -> authorizeHttpRequestsConfigurer
+                .requestMatchers(
+                    "/api/v1/csrf",
+                    "/api/v1/disclaimer",
+                    "/api/v1/users/config",
+                    "/api/v1/users/logout",
+                    "/api/v1/validations/**",
+                    "/api/v1/test/login",
+                    "/api/v1/public/**",
+                    "/api/v1/manage/arp",
+                    "/api/v1/stats/loginTimeFrame",
+                    "/api/v1/monitoring",
+                    "/api/v1/manage/allowed-attributes",
+                    "/api/v1/manage/privacy",
+                    "/ui/**",
+                    "/internal/health",
+                    "/internal/info")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+            )
+            .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer
+                .authorizationEndpoint(authorization -> authorization
+                    .authorizationRequestResolver(
+                        authorizationRequestResolver(this.clientRegistrationRepository)
+                    )
+                ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
+                    new CustomOidcUserService(userRepository, superAdmin, entitlement, organizationGuidPrefix)))
+            )
+            //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
+            .securityContext(securityContextConfigurer ->
+                securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
         if (environment.acceptsProfiles(Profiles.of("dev"))) {
             //Thus avoiding an oauth2 login for local development
             http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
@@ -147,8 +149,8 @@ public class SecurityConfig {
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new DelegatingSecurityContextRepository(
-                new RequestAttributeSecurityContextRepository(),
-                new HttpSessionSecurityContextRepository()
+            new RequestAttributeSecurityContextRepository(),
+            new HttpSessionSecurityContextRepository()
         );
     }
 
@@ -159,36 +161,36 @@ public class SecurityConfig {
                                                                @Value("${lifecycle.user}") String lifeCycleUser,
                                                                @Value("${lifecycle.password}") String lifeCyclePassword) throws Exception {
         http.csrf(c -> c.disable())
-                .securityMatcher(
-                        "/api/external/v1/deprovision/**",
-                        "/internal/prometheus"
-                ).sessionManagement(c -> c
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ).authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/internal/prometheus").hasRole("ACTUATOR")
-                        .requestMatchers("/api/external/v1/deprovision/**").hasRole("LIFECYCLE"))
-                .authorizeHttpRequests(c -> c
-                        .anyRequest()
-                        .authenticated()
+            .securityMatcher(
+                "/api/external/v1/deprovision/**",
+                "/internal/prometheus"
+            ).sessionManagement(c -> c
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            ).authorizeHttpRequests(auth -> auth
+                .requestMatchers("/internal/prometheus").hasRole("ACTUATOR")
+                .requestMatchers("/api/external/v1/deprovision/**").hasRole("LIFECYCLE"))
+            .authorizeHttpRequests(c -> c
+                .anyRequest()
+                .authenticated()
+            )
+            .userDetailsService(new InMemoryUserDetailsManager(
+                new org.springframework.security.core.userdetails.User(
+                    lifeCycleUser,
+                    "{noop}".concat(lifeCyclePassword),
+                    List.of(new SimpleGrantedAuthority("ROLE_LIFECYCLE"))
                 )
-                .userDetailsService(new InMemoryUserDetailsManager(
-                        new org.springframework.security.core.userdetails.User(
-                                lifeCycleUser,
-                                "{noop}".concat(lifeCyclePassword),
-                                List.of(new SimpleGrantedAuthority("ROLE_LIFECYCLE"))
-                        )
-                ))
-                .httpBasic(Customizer.withDefaults());
+            ))
+            .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
-            ClientRegistrationRepository clientRegistrationRepository) {
+        ClientRegistrationRepository clientRegistrationRepository) {
         DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
-                new DefaultOAuth2AuthorizationRequestResolver(
-                        clientRegistrationRepository, "/oauth2/authorization");
+            new DefaultOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer(eduidIdpEntityIdentifiers, minimalStepupAcrLevel));
+            new AuthorizationRequestCustomizer(eduidIdpEntityIdentifiers, minimalStepupAcrLevel));
         return authorizationRequestResolver;
     }
 

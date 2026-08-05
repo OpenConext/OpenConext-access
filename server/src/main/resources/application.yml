@@ -188,13 +188,13 @@ manage:
 invite:
   enabled: True
   url: "https://invite.test2.surfconext.nl"
-  user: access
-  password: secret
+  user: access_dashboard
+  password: invite_access_dashboard_secret
 
 statistics:
   enabled: True
   url: "http://localhost:8081"
-  user: access
+  user: access_dashboard
   password: secret
 
 s3storage:

@@ -5,7 +5,7 @@ import MenuIcon from "../icons/menu.svg";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import {Chip, ChipType, Loader} from "@surfnet/sds";

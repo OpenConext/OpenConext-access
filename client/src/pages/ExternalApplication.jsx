@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Alert, AlertType} from "@surfnet/sds";
-import {useParams} from "react-router-dom";
+import {useParams} from "react-router";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import {createAndClickLink} from "../utils/Forms.js";
 import DOMPurify from "dompurify";

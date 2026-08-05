@@ -5,7 +5,7 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
 import {allAuthorities, authorities} from "../utils/Permissions.js";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {changeOrganizationMembershipById, deleteOrganizationMembershipById} from "../api/index.js";
 import SelectField from "../components/SelectField.jsx";

@@ -11,7 +11,7 @@ import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 
 export const SharedMenu = () => {
 

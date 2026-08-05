@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import {Button, ButtonType} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
-import {Navigate, useNavigate} from "react-router-dom";
+import {Navigate, useNavigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import DOMPurify from "dompurify";
 import {InfoBlock} from "../components/InfoBlock.jsx";

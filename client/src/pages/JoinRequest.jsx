@@ -2,7 +2,7 @@ import "./JoinRequest.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {newJoinRequest, organizationLightById} from "../api/index.js";
 import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
 import DOMPurify from "dompurify";

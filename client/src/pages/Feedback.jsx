@@ -5,7 +5,7 @@ import "./Feedback.scss";
 import {feedback} from "../api";
 import DOMPurify from "dompurify";
 import {Button, ButtonType} from "@surfnet/sds";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 

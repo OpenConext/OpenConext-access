@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {
     deleteOrganizationById,
     identityProvidersByUsedConnectionsForOrganization,

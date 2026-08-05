@@ -2,7 +2,7 @@ import React from "react";
 import "./AuthorizedHeader.scss";
 import {BreadCrumb} from "./BreadCrumb.jsx";
 import {UserMenu} from "./UserMenu.jsx";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useLogout} from "../hooks/UseLogout.jsx";
 import I18n from "../locale/I18n.js";

@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Alert, AlertType, Button, Chip, ChipType, Loader} from "@surfnet/sds";
 import Logo from "../icons/logo.svg";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";

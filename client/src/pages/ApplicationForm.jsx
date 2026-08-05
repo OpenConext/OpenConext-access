@@ -2,7 +2,7 @@ import "./ApplicationForm.scss";
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
 import {Button, ButtonType, Loader, RadioOptions, RadioOptionsOrientation, Tooltip} from "@surfnet/sds";
 import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";

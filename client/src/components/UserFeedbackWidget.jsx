@@ -1,6 +1,6 @@
 import React, {useCallback, useRef, useState} from "react";
 import {Checkbox} from "@surfnet/sds";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import DOMPurify from "dompurify";
 import html2canvas from "html2canvas";
 import I18n from "../locale/I18n.js";

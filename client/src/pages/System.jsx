@@ -1,6 +1,6 @@
 import "./System.scss";
 import React, {useState} from "react";
-import {Navigate, useNavigate, useParams} from "react-router-dom";
+import {Navigate, useNavigate, useParams} from "react-router";
 import {Users} from "./Users.jsx";
 import {TabHeader} from "../components/TabHeader.jsx";
 import I18n from "../locale/I18n.js";

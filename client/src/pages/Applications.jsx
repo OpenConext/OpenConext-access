@@ -2,7 +2,7 @@ import "./Applications.scss";
 import React, {useEffect, useMemo, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {Loader, Pagination} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";

@@ -56,7 +56,7 @@ import {CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 import {createAndClickLink} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";

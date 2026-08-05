@@ -14,7 +14,7 @@ import {loginTimeFrame, loginAggregated, uniqueLoginCount, publicServiceProvider
 import {providerName} from "../utils/Manage.js";
 import {authorities} from "../utils/Permissions.js";
 import {isEmpty} from "../utils/Utils.js";
-import {Navigate} from "react-router-dom";
+import {Navigate} from "react-router";
 
 const periods = {
     year: "year",

@@ -6,7 +6,7 @@ import "./InputField.scss";
 import {isEmpty} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import AlertIcon from "../icons/alert-triangle.svg";
 import I18n from "../locale/I18n.js";
 

@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {newOrganization, searchOrganizationsLandingPage} from "../api/index.js";
 import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";

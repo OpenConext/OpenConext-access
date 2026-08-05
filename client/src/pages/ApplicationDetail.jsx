@@ -15,7 +15,7 @@ import {
 import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
 import NotAllowedIcon from "../icons/not-allowed.svg";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {Alert, AlertType, Button, ButtonIconPlacement, ButtonType, Chip, ChipType, Loader} from "@surfnet/sds";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";

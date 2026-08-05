@@ -3,7 +3,7 @@ import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router";
 import RelaxIcon from "../icons/undraw/relax.svg";
 import DOMPurify from "dompurify";
 import {mainMenuItems} from "../utils/MenuItems.js";

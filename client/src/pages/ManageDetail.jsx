@@ -9,7 +9,7 @@ import {
     publicServiceProviderByDetail
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";

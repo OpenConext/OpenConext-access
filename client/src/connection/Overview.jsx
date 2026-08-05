@@ -4,7 +4,7 @@ import I18n from "../locale/I18n";
 import {STATUS_LINK_TYPE, StatusLink} from "../components/StatusLink.jsx";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export const Overview = ({
                              user,

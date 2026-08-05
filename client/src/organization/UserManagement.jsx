@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {organizationUserManagementById} from "../api/index.js";
 import {TeamManagement} from "./TeamManagement.jsx";
 import {currentUserMembershipAuthority} from "../utils/Permissions.js";

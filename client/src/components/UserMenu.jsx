@@ -1,7 +1,7 @@
 import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {isEmpty} from "../utils/Utils";
 import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";

@@ -8,7 +8,7 @@ import {searchUsers} from "../api";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {isEmpty} from "../utils/Utils";
 import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
 import {defaultPagination, pageCount} from "../utils/Pagination";

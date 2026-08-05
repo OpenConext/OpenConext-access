@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Navigate, useNavigate, useParams} from "react-router-dom";
+import {Navigate, useNavigate, useParams} from "react-router";
 import {getPolicyByIdentityProvider, getServiceProvidersAllowed} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 import "./Policies.scss";

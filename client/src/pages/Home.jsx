@@ -3,7 +3,7 @@ import './Home.scss';
 import I18n from "../locale/I18n";
 import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router";
 import {Button, ButtonType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
