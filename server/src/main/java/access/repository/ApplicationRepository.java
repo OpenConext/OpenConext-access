@@ -23,6 +23,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findByOrganization(Organization organization);
 
+    Optional<Application> findByNameIgnoreCaseAndOrganization(String name, Organization organization);
+
     @Query(value = "SELECT app.id, app.name FROM applications app where app.organization_id = ?1",
             nativeQuery = true)
     List<Map<String, Object>> findAllLightByOrganization(Long organizationId);

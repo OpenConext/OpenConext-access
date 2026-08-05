@@ -251,6 +251,7 @@ const en = {
         edit: "Edit {{name}}",
         name: "Name",
         nameInfo: "Use a name that will be recognisable to institutions",
+        duplicateName: "Name {{name}} is already taken within this organization, please pick a different name.",
         type: "Type",
         app: "An application (tool, cloud service, utitility)",
         content: "Content service (streaming media, educational content, e-books)",

@@ -211,6 +211,11 @@ export function updateApplication(application) {
     return postPutJson("/api/v1/applications", application, "PUT");
 }
 
+export function applicationNameExists(name, organizationId, applicationId) {
+    const body = {name: name, organizationId: organizationId, applicationId: applicationId};
+    return postPutJson("/api/v1/applications/name-exists", body, "POST");
+}
+
 export function migrateApplication(applicationId, newOrganizationId) {
     const body = {applicationId: applicationId, newOrganizationId: newOrganizationId}
     return postPutJson("/api/v1/applications/migrate", body, "PUT");

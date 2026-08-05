@@ -251,6 +251,7 @@ const nl = {
         edit: "Bewerk {{name}}",
         name: "Naam",
         nameInfo: "Gebruik een naam die herkenbaar is voor instellingen",
+        duplicateName: "Naam {{name}} bestaat al binnen deze organisatie, kies een andere naam.",
         type: "Type",
         app: "Een applicatie (tool, cloud‑service, utility)",
         content: "Content‑service (streaming media, educatieve content, e‑books)",

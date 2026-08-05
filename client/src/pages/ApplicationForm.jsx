@@ -8,9 +8,10 @@ import {Button, ButtonType, Loader, RadioOptions, RadioOptionsOrientation, Toolt
 import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";
 import {CollapseField} from "../components/CollapseField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {getApplicationById, newApplication, updateApplication} from "../api/index.js";
+import {applicationNameExists, getApplicationById, newApplication, updateApplication} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
+import ErrorIndicator from "../components/ErrorIndicator.jsx";
 
 export const ApplicationForm = () => {
 
@@ -27,6 +28,8 @@ export const ApplicationForm = () => {
     const isNew = applicationId === "new";
     const [loading, setLoading] = useState(!isNew);
     const [application, setApplication] = useState({type: "APP", target: "SURF"});
+    const [originalName, setOriginalName] = useState();
+    const [duplicateApplicationName, setDuplicateApplicationName] = useState(false);
     const [checks, setChecks] = useState(() => {
         const newChecks = {};
         const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
@@ -46,6 +49,7 @@ export const ApplicationForm = () => {
             getApplicationById(applicationId)
                 .then(res => {
                     setApplication(res);
+                    setOriginalName(res.name);
                     setLoading(false)
                     searchRef.current && searchRef.current.focus();
                 })
@@ -65,6 +69,16 @@ export const ApplicationForm = () => {
         return <Loader/>
     }
 
+    const validateApplicationName = e => {
+        const name = e.target.value.trim();
+        if (!isEmpty(name) && name !== originalName) {
+            applicationNameExists(name, currentOrganization.id, isNew ? null : application.id)
+                .then(exists => setDuplicateApplicationName(exists));
+        } else {
+            setDuplicateApplicationName(false);
+        }
+    };
+
     const doSaveApplication = () => {
         const promise = isNew ? newApplication : updateApplication;
         application.organization = {id: currentOrganization.id}
@@ -83,8 +97,16 @@ export const ApplicationForm = () => {
                             value={application.name || ""}
                             required={true}
                             onRef={searchRef}
-                            onChange={e => setApplication({...application, name: e.target.value})}
+                            onBlur={validateApplicationName}
+                            error={duplicateApplicationName}
+                            onChange={e => {
+                                setApplication({...application, name: e.target.value});
+                                setDuplicateApplicationName(false);
+                            }}
                             info={I18n.t("application.nameInfo")}/>
+                {duplicateApplicationName &&
+                    <ErrorIndicator adjustMargin={true}
+                                    msg={I18n.t("application.duplicateName", {name: application.name})}/>}
                 <RadioOptions label={I18n.t("application.type")}
                               name={"type"}
                               value={application.type}
@@ -144,7 +166,7 @@ export const ApplicationForm = () => {
                             txt={I18n.t("forms.cancel")}/>
                     <Button onClick={() => doSaveApplication()}
                             txt={I18n.t("forms.submit")}
-                            disabled={(isNew && Object.values(checks).some(check => !check)) || isEmpty(application.name)}/>
+                            disabled={(isNew && Object.values(checks).some(check => !check)) || isEmpty(application.name) || duplicateApplicationName}/>
                 </section>
             </div>
         </div>

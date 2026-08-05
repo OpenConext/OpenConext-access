@@ -192,6 +192,26 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationSaved);
     }
 
+    @PostMapping("/name-exists")
+    public ResponseEntity<Boolean> nameExists(User user, @RequestBody Map<String, Object> properties) {
+        LOG.debug("/name-exists for " + properties);
+
+        String name = (String) properties.get("name");
+        Long organizationId = Long.valueOf(String.valueOf(properties.get("organizationId")));
+        Object applicationIdProperty = properties.get("applicationId");
+        Long applicationId = applicationIdProperty != null ? Long.valueOf(String.valueOf(applicationIdProperty)) : null;
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        user = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+
+        boolean exists = applicationRepository.findByNameIgnoreCaseAndOrganization(name, organization)
+                .filter(application -> applicationId == null || !application.getId().equals(applicationId))
+                .isPresent();
+        return ResponseEntity.ok(exists);
+    }
+
     @PutMapping({"", "/"})
     public ResponseEntity<Application> update(User user, @Validated @RequestBody Application applicationData) {
         LOG.debug("/update application by " + user.getEmail());
