@@ -35,8 +35,9 @@ export const SharedMenu = () => {
                         Logo: menuItem.Logo,
                         label: I18n.t(`navigation.${menuItem.name}`),
                         name: menuItem.name,
-                        tooltip: isEmpty(I18n.translations[I18n.locale].navigation.tooltips[menuItem.name]) ? null :
-                            I18n.t(`navigation.tooltips.${menuItem.name}`),
+                        // tooltip: isEmpty(I18n.translations[I18n.locale].navigation.tooltips[menuItem.name]) ? null :
+                        //     I18n.t(`navigation.tooltips.${menuItem.name}`),
+                        tooltip: null,
                         active: menuItem.name === activeMenuItem,
                         href: menuItem.path.replace("organizationId", currentOrganization.id)
                     }))

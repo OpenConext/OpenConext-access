@@ -1021,12 +1021,14 @@ const nl = {
         organizationsIcon: "Organisatie {{name}} is aangemaakt op {{createdAt}} en heeft status {{status}}",
     },
     footer: {
-        terms: "Gebruiksvoorwaarden",
+        terms: "Voorwaarden",
         termsLink: "https://support.surfconext.nl/terms-en",
-        privacy: "Privacy‑beleid",
+        privacy: "Privacy",
         privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
         select_locale: "Selecteer je gewenste taal",
+        version: "Versie {{version}}",
+        versionLink: "/changelog",
     },
     profile: {
         title: "Profiel",

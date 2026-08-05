@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [react(), svgr(
         {
             // svgr options: https://react-svgr.com/docs/options/
-            svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
+            svgrOptions: {exportType: "default", ref: true, svgo: false, titleProp: true},
             include: "**/*.svg",
         }
     )],
@@ -24,6 +24,11 @@ export default defineConfig({
                 secure: false
             },
             '/config': {
+                target: 'http://localhost:8886',
+                changeOrigin: false,
+                secure: false
+            },
+            '/internal/info': {
                 target: 'http://localhost:8886',
                 changeOrigin: false,
                 secure: false

@@ -83,12 +83,7 @@ export const allMenuGroups = [
                 name: mainMenuItems.home,
                 path: "/home",
                 Logo: HomeIcon
-            }
-        ]
-    },
-    {
-        label: "apps",
-        items: [
+            },
             {
                 name: mainMenuItems.accessibleApps,
                 path: "/accessible-apps",
@@ -106,7 +101,7 @@ export const allMenuGroups = [
             }]
     },
     {
-        label: "externalMaintenance",
+        label: null,
         items: [
             {
                 name: mainMenuItems.policies,
@@ -126,7 +121,7 @@ export const allMenuGroups = [
         ]
     },
     {
-        label: "organizationMaintenance",
+        label: null,
         items: [
             {
                 name: mainMenuItems.idp,

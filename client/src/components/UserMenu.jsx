@@ -64,13 +64,13 @@ export const UserMenu = ({setIsAuthenticated}) => {
                         </Link>
                     </li>
                 </ul>
-                <ul>
+                {user.superUser && <ul>
                     <li>
                         <Link to="/changelog">
                             {I18n.t("landing.header.changelog")}
                         </Link>
                     </li>
-                </ul>
+                </ul>}
                 <ul>
                     <li>
                         <a href="/logout" onClick={e => logoutUser(e, setIsAuthenticated)}>

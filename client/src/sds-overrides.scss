@@ -129,4 +129,10 @@ span.sds--chips--textual {
     text-align: center;
 }
 
+.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-group-item:not(:first-child) {
+    border-top: 1px solid var(--sl-color-neutral-500);
+}
 
+.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-group-item.custom-group {
+    border: 1px solid var(--sl-color-neutral-500);
+}

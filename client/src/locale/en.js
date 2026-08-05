@@ -1027,6 +1027,8 @@ const en = {
         privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
         select_locale: "Select your preferred language",
+        version: "Version {{version}}",
+        versionLink: "/changelog",
     },
     profile: {
         title: "Profile",
