@@ -147,7 +147,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
-            <version>12.10.0</version>
+            <version>13.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
