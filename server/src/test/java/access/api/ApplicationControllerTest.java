@@ -209,6 +209,7 @@ class ApplicationControllerTest extends AbstractTest {
         super.stubForSaveProvider(connectionProd);
         Connection connectionTest = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
         super.stubForSaveProvider(connectionTest);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         Application savedApplication = given()
                 .when()

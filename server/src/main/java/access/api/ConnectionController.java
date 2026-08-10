@@ -101,9 +101,9 @@ public class ConnectionController implements UserAccessRights {
 
     private List<CharacterRule> initPasswordGeneratorRules() {
         return List.of(
-                new CharacterRule(EnglishCharacterData.LowerCase, 8),
-                new CharacterRule(EnglishCharacterData.UpperCase, 8),
-                new CharacterRule(EnglishCharacterData.Digit, 8));
+            new CharacterRule(EnglishCharacterData.LowerCase, 8),
+            new CharacterRule(EnglishCharacterData.UpperCase, 8),
+            new CharacterRule(EnglishCharacterData.Digit, 8));
     }
 
     @GetMapping({"/{connectionId}"})
@@ -111,7 +111,7 @@ public class ConnectionController implements UserAccessRights {
         LOG.debug("/find connection for " + user.getEmail());
 
         Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
+            .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
 
         user = reinitializeUser(user, userRepository);
@@ -136,20 +136,20 @@ public class ConnectionController implements UserAccessRights {
         LOG.debug("/find findByManage for " + user.getEmail());
 
         return connectionRepository.findByProtocolAndManageIdentifier(entityType, manageIdentifier)
-                .map(connection -> {
-                    Application application = connection.getApplication();
+            .map(connection -> {
+                Application application = connection.getApplication();
 
-                    User userFromDB = reinitializeUser(user, userRepository);
-                    confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);
+                User userFromDB = reinitializeUser(user, userRepository);
+                confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);
 
-                    Organization organization = application.getOrganization();
-                    return ResponseEntity.ok(Map.of(
-                            "connection", connection,
-                            "application", application,
-                            "organisation", organization
-                    ));
-                })
-                .orElse(ResponseEntity.notFound().build());
+                Organization organization = application.getOrganization();
+                return ResponseEntity.ok(Map.of(
+                    "connection", connection,
+                    "application", application,
+                    "organisation", organization
+                ));
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping({"", "/"})
@@ -161,7 +161,7 @@ public class ConnectionController implements UserAccessRights {
 
         Long applicationID = connection.getApplication().getId();
         Application application = applicationRepository.findById(applicationID)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, application);
@@ -244,28 +244,28 @@ public class ConnectionController implements UserAccessRights {
         String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Production status requested by %s for %s.",
-                user.getName(), connection.getName());
+            user.getName(), connection.getName());
         String jiraKey = jiraClient.create(new JiraIssue(
-                entityId,
-                null,// There is no identity provider for requesting production status
-                String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
-                        summary,
-                        lineSeparator,
-                        changeRequestURL),
+            entityId,
+            null,// There is no identity provider for requesting production status
+            String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
                 summary,
-                connection.getProtocol(),
-                user.getEmail()
+                lineSeparator,
+                changeRequestURL),
+            summary,
+            connection.getProtocol(),
+            user.getEmail()
         ));
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                "notes", String.format("Production status requested by %s for %s. See Jira %s",
-                        user.getName(), connection.getName(), jiraKey));
+            "notes", String.format("Production status requested by %s for %s. See Jira %s",
+                user.getName(), connection.getName(), jiraKey));
         ChangeRequest changeRequest = new ChangeRequest(
-                connection.getManageIdentifier(),
-                connection.getProtocol(),
-                Map.of("state", State.prodaccepted.name()),
-                false,
-                PathUpdateType.ADDITION,
-                RequestType.ProductionStatusRequest);
+            connection.getManageIdentifier(),
+            connection.getProtocol(),
+            Map.of("state", State.prodaccepted.name()),
+            false,
+            PathUpdateType.ADDITION,
+            RequestType.ProductionStatusRequest);
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(changeRequest);
@@ -301,7 +301,7 @@ public class ConnectionController implements UserAccessRights {
                                                                                            @PathVariable("connectionId") Long connectionId) {
         LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
+            .orElseThrow(() -> new NotFoundException("Connection not found"));
 
         user = reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, connection.getApplication(), Authority.GUEST);
@@ -316,9 +316,9 @@ public class ConnectionController implements UserAccessRights {
             return false;
         }
         return newChangeRequest
-                .map(changeRequest ->
-                        existingChangeRequests.stream().anyMatch(changeRequestMap -> changeRequest.matches(changeRequestMap)))
-                .orElse(false);
+            .map(changeRequest ->
+                existingChangeRequests.stream().anyMatch(changeRequestMap -> changeRequest.matches(changeRequestMap)))
+            .orElse(false);
 
     }
 
@@ -335,25 +335,25 @@ public class ConnectionController implements UserAccessRights {
                 //No existing change requests, proceed as normal and create a ticket
                 String entityId = (String) ((Map) provider.get("data")).get("entityid");
                 String summary = String.format("Data change requested by %s for %s with entityID %s",
-                        user.getName(),
-                        connection.getName(),
-                        entityId);
+                    user.getName(),
+                    connection.getName(),
+                    entityId);
                 String jiraKey = jiraClient.create(new JiraIssue(
-                        entityId,
-                        null,// There is no identity provider for change requests
-                        String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
-                                summary,
-                                System.lineSeparator(),
-                                changeRequestURL),
+                    entityId,
+                    null,// There is no identity provider for change requests
+                    String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
                         summary,
-                        connection.getProtocol(),
-                        user.getEmail()
+                        System.lineSeparator(),
+                        changeRequestURL),
+                    summary,
+                    connection.getProtocol(),
+                    user.getEmail()
                 ));
                 Map<String, Object> auditData = Map.of("user", user.getEmail(),
-                        "notes", String.format("Data change requested by %s for %s. See Jira %s",
-                                user.getName(),
-                                connection.getName(),
-                                jiraKey));
+                    "notes", String.format("Data change requested by %s for %s. See Jira %s",
+                        user.getName(),
+                        connection.getName(),
+                        jiraKey));
                 ChangeRequest changeRequest = changeRequestOptional.get();
                 changeRequest.setTicketKey(jiraKey);
                 changeRequest.setAuditData(auditData);
@@ -382,8 +382,8 @@ public class ConnectionController implements UserAccessRights {
                         List<String> newValues = ListMerger.threeWayMerge(baseValues, pathValues, attibuteNames);
                         //Now we need to construct a new attributes Map with all the values from the three attributes Map
                         Map<String, Object> newAttributes = newValues.stream().collect(Collectors.toMap(
-                                attrName -> attrName,
-                                attrName -> attributes.getOrDefault(attrName, pathAttributes.getOrDefault(attrName, baseAttributes.get(attrName)))));
+                            attrName -> attrName,
+                            attrName -> attributes.getOrDefault(attrName, pathAttributes.getOrDefault(attrName, baseAttributes.get(attrName)))));
                         arpPath.put("attributes", newAttributes);
                     } else if (value instanceof List && existingPathUpdates.containsKey(key)) {
                         //three way merge
@@ -413,7 +413,7 @@ public class ConnectionController implements UserAccessRights {
         //Put / Post to Manage only if the status is not OPEN
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
-                    connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
+                connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
 
             boolean secretNotSet = !connection.isSecretSet();
             if (isPrivateRelyingParty && secretNotSet) {
@@ -467,7 +467,7 @@ public class ConnectionController implements UserAccessRights {
 
     private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
         Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new NotFoundException("Connection not found"));
+            .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
         user = this.reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, application);

@@ -126,6 +126,15 @@ public class RemoteManage implements Manage {
         //We can't update everything if the connection is production ready, only the application data
         Map<String, Object> provider = converter.convert(connection, remoteProvider,
             connection.changeRequestRequired() && !config.isTestEnvironment());
+        String manageIdentifierIdP = connection.getApplication().getOrganization().getManageIdentifier();
+        if (StringUtils.hasText(manageIdentifierIdP)) {
+            Map<String, Object> idp = providerDetails(EntityType.saml20_idp, manageIdentifierIdP);
+            Map<String, Object> metaDataFields = getMetaDataFields(getData(idp));
+            String institutionGuid = (String) metaDataFields.get(INSTITUTION_GUID);
+            if (StringUtils.hasText(institutionGuid)) {
+                getMetaDataFields(getData(provider)).put(INSTITUTION_GUID, institutionGuid);
+            }
+        }
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
                 httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);

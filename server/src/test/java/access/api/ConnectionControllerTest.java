@@ -128,6 +128,7 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForSaveProvider(connection);
         Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForSaveIdentityProvider(idp);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         Map<String, Object> savedConnection = given()
                 .when()
@@ -442,7 +443,7 @@ class ConnectionControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/null")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(Map.of("data", Map.of("entityid", "https://mock-rp"))))));
-
+        stubForGetProvider(EntityType.saml20_idp, "7");
         Map<String, Object> postManageResponse = Map.of(
                 "id", UUID.randomUUID().toString(),
                 "version", 1,
