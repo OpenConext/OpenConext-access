@@ -219,6 +219,7 @@ export const Connection = () => {
                                          currentTab={currentTab}
                                          setLoading={setLoading}
                                          user={user}
+                                         currentOrganization={currentOrganization}
                                          setTab={changeTab}/>
             {renderCurrentTab()}
         </div>

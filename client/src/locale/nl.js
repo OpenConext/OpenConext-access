@@ -275,6 +275,7 @@ const nl = {
         },
         flash: "Applicatie {{name}} opgeslagen.",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
+        deleteFlash: "De applicatie is verwijderd",
         outstandingPolicies: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
     },
     organization: {

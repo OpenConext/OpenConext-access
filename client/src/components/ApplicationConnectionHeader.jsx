@@ -12,8 +12,11 @@ import {Chip, ChipType, Loader} from "@surfnet/sds";
 import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
+import {useAppStore} from "../stores/AppStore.js";
 
-export const ApplicationConnectionHeader = ({tabs, application, user, currentTab, setTab}) => {
+export const ApplicationConnectionHeader = ({tabs, application, user, currentOrganization, currentTab, setTab}) => {
+
+    const setFlash = useAppStore(state => state.setFlash);
 
     const [dropDownActive, setDropDownActive] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -73,8 +76,9 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentTab
             setAffectedIdentityProviders([]);
             deleteApplicationById(application.id).then(() => {
                 setConfirmation({});
-                navigate("/home");
+                navigate(`/organization/${currentOrganization.id}`);
                 setLoading(false);
+                setFlash(I18n.t("application.deleteFlash"));
             })
         }
     }

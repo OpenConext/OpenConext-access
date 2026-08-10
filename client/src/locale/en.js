@@ -275,6 +275,7 @@ const en = {
         },
         flash: "Application {{name}} saved.",
         deleteConfirmation: "Are you sure you want to delete this application?",
+        deleteFlash: "The application has been deleleted",
         outstandingPolicies: "This application cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you want this application deleted.",
     },
     organization: {
