@@ -64,16 +64,24 @@ const App = () => {
     const currentLocation = useLocation();
     const logoutUser = useLogout();
 
+    const loadUserOrganization = user => {
+        const currentOrganization = useAppStore.getState().currentOrganization;
+        if (currentOrganization.id) {
+            return currentOrganizationFromUser(user, currentOrganization.id);
+        } else {
+            const organizationId = localStorage.getItem("organization");
+            if (isEmpty(organizationId)) {
+                return user.organizationMemberships[0].organization;
+            } else {
+                return currentOrganizationFromUser(user, organizationId);
+            }
+        }
+    }
+
     const refreshUser = callback => {
         me()
             .then(user => {
-                const currentOrganization = useAppStore.getState().currentOrganization;
-                let organization;
-                if (currentOrganization.id) {
-                    organization = currentOrganizationFromUser(user, currentOrganization.id);
-                } else {
-                    organization = user.organizationMemberships[0].organization;
-                }
+                const organization = loadUserOrganization(user);
                 const newMenuItems = menuItemsForUser(user, organization);
                 useAppStore.setState(() => ({
                     user: user,
@@ -100,17 +108,13 @@ const App = () => {
                         me()
                             .then(user => {
                                 //If there are multiple organization memberships, we default to the one which was used to login
-                                const orgMembership = (user.organizationMemberships || [])
-                                    .find(organizationMembership => !isEmpty(organizationMembership.organization.identityProvider) &&
-                                        organizationMembership.organization.identityProvider.data.entityid ===
-                                        user.authenticatingAuthority);
-                                const currentOrganization = orgMembership?.organization || user.organizationMemberships.map(om => om.organization)[0] || {name: ""};
-                                const newMenuItems = menuItemsForUser(user, currentOrganization);
+                                const organization = loadUserOrganization(user);
+                                const newMenuItems = menuItemsForUser(user, organization);
                                 useAppStore.setState(() => ({
                                     user: user,
                                     menuItems: newMenuItems,
                                     activeMenuItem: activeMenuItem(currentLocation),
-                                    currentOrganization: currentOrganization
+                                    currentOrganization: organization
                                 }));
                                 const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
                                 let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);

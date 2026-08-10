@@ -20,7 +20,8 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const logoutUser = useLogout();
 
     const switchOrganization = organization => {
-        window.location.href = `/organization/${organization.id}`
+        window.location.href = `/organization/${organization.id}`;
+        setTimeout(() => localStorage.setItem("organization", organization.id.toString()))
     }
 
     const renderOrganizationSwitch = () => {

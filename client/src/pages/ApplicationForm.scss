@@ -17,6 +17,34 @@ div.application-form-container {
             font-weight: 600;
         }
 
+        .application-type, .fair-use {
+            p {
+                font-weight: 600;
+                margin-bottom: var(--sds--space--1);
+            }
+
+            .sds--checkbox-container {
+                background-color: white;
+                padding: 15px;
+                border: 1px solid var(--sds--color--gray--400);
+                border-radius: .375rem;
+            }
+
+            div.info {
+                margin-top: 6px;
+                display: block;
+                color: var(--sds--color--gray--500);
+            }
+
+            ul {
+                list-style: initial;
+                margin-top: 15px;
+                li {
+                    margin-left: 25px;
+                }
+            }
+        }
+
         .sds--tooltip-container {
             .react-tooltip {
                 text-align: left;

@@ -4,9 +4,7 @@ import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
-import {Button, ButtonType, Loader, RadioOptions, RadioOptionsOrientation, Tooltip} from "@surfnet/sds";
-import InfoIcon from "@surfnet/sds/icons/functional-icons/info.svg";
-import {CollapseField} from "../components/CollapseField.jsx";
+import {Button, ButtonType, Checkbox, Loader, Tooltip} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils.js";
 import {applicationNameExists, getApplicationById, newApplication, updateApplication} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -30,12 +28,7 @@ export const ApplicationForm = () => {
     const [application, setApplication] = useState({type: "APP", target: "SURF"});
     const [originalName, setOriginalName] = useState();
     const [duplicateApplicationName, setDuplicateApplicationName] = useState(false);
-    const [checks, setChecks] = useState(() => {
-        const newChecks = {};
-        const translationChecks = I18n.translations[I18n.locale]["application"]["checks"];
-        Object.keys(translationChecks).forEach(check => newChecks[check] = false);
-        return newChecks;
-    });
+    const [checks, setChecks] = useState(false);
 
     useEffect(() => {
         useAppStore.setState({
@@ -107,66 +100,49 @@ export const ApplicationForm = () => {
                 {duplicateApplicationName &&
                     <ErrorIndicator adjustMargin={true}
                                     msg={I18n.t("application.duplicateName", {name: application.name})}/>}
-                <RadioOptions label={I18n.t("application.type")}
-                              name={"type"}
-                              value={application.type}
-                              onChange={e => setApplication({
+
+                <div className="application-type">
+                    <p>{I18n.t("application.type")}</p>
+                    <Checkbox name={I18n.t("application.type")}
+                              info={I18n.t("application.content")}
+                              value={application.type === "CONTENT"}
+                              onChange={() => setApplication({
                                   ...application,
-                                  type: e.target.id.replace("type_", "").toUpperCase()
+                                  type: application.type === "CONTENT" ? "APP" : "CONTENT"
                               })}
-                              isMultiple={true}
-                              labels={["APP", "CONTENT"]}
-                              labelResolver={label => I18n.t(`application.${label.toLowerCase()}`)}
-                              orientation={RadioOptionsOrientation.column}/>
-                {application.type === "CONTENT" &&
-                    <div className="sds--alert sds--alert--status-info">
-                        <div className="sds--alert--inner">
-                            <div className="sds--alert--visual">
-                                <InfoIcon/>
-                            </div>
-                            <div>
-                                <span>{I18n.t("application.contentInfoPre")}</span>
-                                <Tooltip tip={I18n.t("application.contentInfoTip")}
-                                         standalone={true}
-                                         children={
-                                             <span className="link">{I18n.t("application.contentInfoLink")}</span>}
-                                />
-                                <span>{I18n.t("application.contentInfoPost")}</span>
-                            </div>
-                        </div>
+                    />
+
+                    <div className={"info"}>
+                        <span>{I18n.t("application.contentInfoPre")}</span>
+                        <Tooltip tip={I18n.t("application.contentInfoTip")}
+                                 standalone={true}
+                                 children={
+                                     <span className="link">{I18n.t("application.contentInfoLink")}</span>}
+                        />
+                        <span>{I18n.t("application.contentInfoPost")}</span>
+                    </div>
+                </div>
+                {isNew &&
+                    <div className="fair-use">
+                        <p>{I18n.t("application.terms")}</p>
+                        <Checkbox name={I18n.t("application.terms")}
+                                  info={I18n.t("application.termsInfo")}
+                                  value={checks}
+                                  onChange={() => setChecks(!checks)}
+                        />
+                        <ul>
+                            {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
+                                .map(check => <li key={check}>{check}</li>)}
+                        </ul>
                     </div>
                 }
-                {/*<RadioOptions label={I18n.t("application.targetGroup")}*/}
-                {/*              name={"target"}*/}
-                {/*              value={application.target}*/}
-                {/*              onChange={e => setApplication({*/}
-                {/*                  ...application,*/}
-                {/*                  target: e.target.id.replace("target_", "").toUpperCase()*/}
-                {/*              })}*/}
-                {/*              isMultiple={true}*/}
-                {/*              labels={["SURF", "SRAM"]}*/}
-                {/*              labelResolver={targetGroupLabel}*/}
-                {/*              orientation={RadioOptionsOrientation.column}/>*/}
-                {isNew &&
-                    <div className="fair-use-terms">
-                        <span className="label">{I18n.t("application.terms")}<sup className="required">*</sup></span>
-                        {Object.keys(checks).map(check =>
-                            <CollapseField title={I18n.t(`application.checks.${check}`)}
-                                           name={check}
-                                           key={check}
-                                           disabledToggle={isEmpty(I18n.translations[I18n.locale].application.checksInfo[check])}
-                                           checkRequired={e => setChecks({...checks, [check]: e.target.checked})}
-                                           checkValue={checks[check]}>
-                                <span>{I18n.t(`application.checksInfo.${check}`)}</span>
-                            </CollapseField>)}
-                    </div>}
                 <section className="actions">
                     <Button onClick={() => navigate(-1)}
                             type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}/>
                     <Button onClick={() => doSaveApplication()}
                             txt={I18n.t("forms.submit")}
-                            disabled={(isNew && Object.values(checks).some(check => !check)) || isEmpty(application.name) || duplicateApplicationName}/>
+                            disabled={(isNew && !checks) || isEmpty(application.name) || duplicateApplicationName}/>
                 </section>
             </div>
         </div>
