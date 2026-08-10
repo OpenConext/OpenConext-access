@@ -5,8 +5,11 @@ import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.RoleDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
+import org.xml.sax.SAXParseException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,5 +53,21 @@ class MetaDataFeedParserTest {
     void importXMLAssertion() {
         assertThrows(IllegalStateException.class, () -> metaDataFeedParser.importXML(new ClassPathResource("/assertion.xml")));
 
+    }
+
+    @Test
+    void importXMLDisallowsDoctypeWithExternalEntity() {
+        String xxe = """
+                <?xml version="1.0"?>
+                <!DOCTYPE md:EntityDescriptor [
+                    <!ENTITY xxe SYSTEM "file:///etc/passwd">
+                ]>
+                <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                                     entityID="&xxe;">
+                </md:EntityDescriptor>
+                """;
+        ByteArrayResource resource = new ByteArrayResource(xxe.getBytes(StandardCharsets.UTF_8));
+
+        assertThrows(SAXParseException.class, () -> metaDataFeedParser.importXML(resource));
     }
 }
