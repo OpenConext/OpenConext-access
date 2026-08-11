@@ -62,6 +62,7 @@ import {createAndClickLink} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";
 import {useShallow} from "zustand/react/shallow";
 import {ConnectionInUseWarning, units} from "./ConnectionInUseWarning.jsx";
+import {hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
 
 const metaData = {
     url: "url",
@@ -379,14 +380,21 @@ export const Connections = ({
             ]).then(([idpRes, policiesRes]) => {
                 setLoading(false);
                 if (policiesRes.length > 0) {
+                    const policyWriteAccess = hasPolicyWriteAccess(user, application, policiesRes);
                     setConfirmation({
                         open: true,
-                        cancel: null,
-                        header: I18n.t("forms.delete"),
-                        question: null,
+                        cancel: policyWriteAccess ? () => setConfirmation({}) : null,
                         outstandingPolicies: true,
-                        action: () => setConfirmation({open: false}),
-                        okButton: I18n.t("forms.ok")
+                        policyWriteAccess: policyWriteAccess,
+                        header: I18n.t("forms.delete"),
+                        action: () => {
+                            setConfirmation({open: false});
+                            if (policyWriteAccess) {
+                                navigate(`/policies?service=${policyServiceProvider(policiesRes)}`)
+                            }
+                        },
+                        question: null,
+                        okButton: policyWriteAccess ? I18n.t("forms.editPolicies") : I18n.t("forms.ok")
                     });
                 } else {
                     setAffectedIdentityProviders(idpRes);
@@ -1447,7 +1455,7 @@ export const Connections = ({
     }
     const showInitialConnection = (isEmpty(connections) || connection?.new || connection?.id)
         && !isEmpty(connection);
-    const {open, cancel, action, modal, okButton, question, header, outstandingPolicies} = confirmation;
+    const {open, cancel, action, modal, okButton, question, header, outstandingPolicies, policyWriteAccess} = confirmation;
     return (
         <div className="testing-container">
             {open && <ConfirmationDialog confirm={action}
@@ -1457,7 +1465,8 @@ export const Connections = ({
                                          question={question}
                                          isDeleteAction={modal === modals.deletionWarning}
                                          children={outstandingPolicies ?
-                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.outstandingPolicies"),
+                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(
+                                                 I18n.t(`connection.${policyWriteAccess ? "policyWriteAccess" : "outstandingPolicies"}`),
                                                  {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})}}/> :
                                              modal === modals.resetSecretDisclaimer ?
                                              <Alert alertType={AlertType.Error}

@@ -124,3 +124,26 @@ export const hasCreateApplicationAccess = (user, organization) => {
         .find(membership => membership.organization.id === organization.id);
     return !isEmpty(organizationMembership) && organizationMembership.authority !== authorities.GUEST;
 }
+
+const containsAll = (arr, values) => values.every(v => arr.includes(v));
+
+export const hasPolicyWriteAccess = (user, application, policies) => {
+    const idpEntityIds = user.organizationMemberships
+        .map(orgMembership => orgMembership?.organization?.identityProvider?.data?.entityid);
+    if (isEmpty(idpEntityIds)) {
+        return false;
+    }
+    const spEntityIds = application.connections.map(conn => conn.metaData.entityID);
+
+    const policyIdpEntityIds = policies.map(policy => policy.identityProviderIds).flat().map(idp => idp.name);
+    const policySpEntityIds = policies.map(policy => policy.serviceProviderIds).flat().map(sp => sp.name);
+    // All of the policyEntityIds (both SP and IdP) have to be owned
+    const ownsAllServiceProviders = containsAll(spEntityIds, policySpEntityIds);
+    const ownsAllIdentityProviders = containsAll(idpEntityIds, policyIdpEntityIds);
+    return ownsAllServiceProviders && ownsAllIdentityProviders;
+}
+
+export const policyServiceProvider = policies => {
+    return policies.map(policy => policy.serviceProviderIds).flat().map(sp => sp.name)[0];
+}
+

@@ -9,7 +9,7 @@ import {useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import {Chip, ChipType, Loader} from "@surfnet/sds";
-import {hasApplicationDeleteAccess} from "../utils/Permissions.js";
+import {hasApplicationDeleteAccess, hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore.js";
@@ -52,13 +52,20 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
             ]).then(([idpRes, policiesRes]) => {
                 setLoading(false);
                 if (policiesRes.length > 0) {
+                    const policyWriteAccess = hasPolicyWriteAccess(user, application, policiesRes);
                     setConfirmation({
                         open: true,
-                        cancel: null,
+                        cancel: policyWriteAccess ? () => setConfirmation({}) : null,
                         outstandingPolicies: true,
-                        action: () => setConfirmation({open: false}),
+                        policyWriteAccess: policyWriteAccess,
+                        action: () => {
+                            setConfirmation({open: false});
+                            if (policyWriteAccess) {
+                                navigate(`/policies?service=${policyServiceProvider(policiesRes)}`)
+                            }
+                        },
                         question: null,
-                        okButton: I18n.t("forms.ok")
+                        okButton: policyWriteAccess ? I18n.t("forms.editPolicies") : I18n.t("forms.ok")
                     });
                 } else {
                     setAffectedIdentityProviders(idpRes);
@@ -109,7 +116,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
         return <Loader/>
     }
 
-    const {open, cancel, action, question, okButton, outstandingPolicies} = confirmation;
+    const {open, cancel, action, question, okButton, outstandingPolicies, policyWriteAccess} = confirmation;
     return (
         <div className="application-connection-header-container">
             {open && <ConfirmationDialog confirm={action}
@@ -118,8 +125,11 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                                          confirmationTxt={okButton}
                                          isDeleteAction={!outstandingPolicies}
                                          children={outstandingPolicies ?
-                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("application.outstandingPolicies"),
-                                                 {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})}}/> :
+                                             <p dangerouslySetInnerHTML={{
+                                                 __html: DOMPurify.sanitize(
+                                                     I18n.t(`application.${policyWriteAccess ? "policyWriteAccess" : "outstandingPolicies"}`),
+                                                     {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})
+                                             }}/> :
                                              <ConnectionInUseWarning
                                                  identityProviders={affectedIdentityProviders}
                                                  unit={units.application}

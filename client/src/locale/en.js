@@ -276,7 +276,8 @@ const en = {
         flash: "Application {{name}} saved.",
         deleteConfirmation: "Are you sure you want to delete this application?",
         deleteFlash: "The application has been deleleted",
-        outstandingPolicies: "This application cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you want this application deleted.",
+        outstandingPolicies: "This application cannot be deleted because there are outstanding access rules. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you want this application deleted.",
+        policyWriteAccess: "This application cannot be deleted because there are outstanding access rules. You can edit or delete the access rules, and then delete this application.",
     },
     organization: {
         alertInfo: "Welcome to SURF Access. Through this self-service portal, you can make your application available to higher education and research institutions in the Netherlands.",
@@ -394,6 +395,7 @@ const en = {
         requiresChangeRequest: "Request change",
         deleteConfirmation: "Are you sure you want to delete this connection?",
         outstandingPolicies: "This connection cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you need this connection to be deleted.",
+        policyWriteAccess: "This connection cannot be deleted because there are outstanding access rules. You can edit or delete the access rules, and then delete this connection.",
         metadata: {
             how: "How do you want to import the metadata?",
             url: "Extract metadata from url",
@@ -937,6 +939,7 @@ const en = {
         you: "You",
         copied: "Copied",
         changeRequest: "There is an outstanding change request for this attribute.<br/><br/>The displayed value is the current value. See the outstanding changes for the requested value.",
+        editPolicies: "Edit access rules"
     },
     feedback: {
         title: "Provide Feedback",

@@ -35,7 +35,6 @@ const Policies = () => {
 
     const navigate = useNavigate();
 
-
     const adminUser = useMemo(() => {
         return user.superUser || (user.organizationMemberships
                 .some(om => om.authority === authorities.ADMIN && om.organization.id === currentOrganization.id)
@@ -71,8 +70,8 @@ const Policies = () => {
             getPolicyByIdentityProvider(currentOrganization.id),
             getServiceProvidersAllowed(currentOrganization.id)
         ]).then(res => {
-            setPolicies(res[0]);
-            setServiceProviders(res[1]);
+            setPolicies(res[0].sort((p1, p2)=> p1.data.name.toLowerCase().localeCompare(p2.data.name)));
+            setServiceProviders(res[1].sort((p1, p2)=> p1.data.metaDataFields["name:en"].toLowerCase().localeCompare(p2.data.metaDataFields["name:en"])));
             if (page === "details" && !isEmpty(policyId)) {
                 toPolicyDetail(policyId, null, res[0]);
             }

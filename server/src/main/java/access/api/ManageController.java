@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ByteArrayResource;
@@ -63,7 +62,6 @@ import java.util.Optional;
 
 import static access.api.Results.createResult;
 import static access.manage.ManageData.getData;
-import static access.manage.ManageData.getEntityID;
 
 @RestController
 @RequestMapping(value = {"/api/v1/manage"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -178,13 +176,17 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
     @PostMapping("/policies/by-service-providers")
-    public ResponseEntity<List<String>> policiesByServiceProviders(
+    public ResponseEntity<List<Map<String, Object>>> policiesByServiceProviders(
             @Parameter(hidden = true) User user,
             @RequestBody List<String> serviceProviderEntityIds) {
         LOG.debug("/policiesByServiceProviders for " + serviceProviderEntityIds);
         List<Map<String, Object>> policies = manage.policiesByServiceProviders(serviceProviderEntityIds);
-        List<String> policyNames = policies.stream().map(policy -> (String) getData(policy).get("name")).toList();
-        return ResponseEntity.ok(policyNames);
+        //We need to send the identityProviderIds and serviceProviderIds for the client to check if the policy is owned
+        List<Map<String, Object>> policyDataList = policies.stream().map(policy -> {
+            Map<String, Object> data = getData(policy);
+            return Map.of("identityProviderIds", data.get("identityProviderIds"), "serviceProviderIds", data.get("serviceProviderIds"));
+        }).toList();
+        return ResponseEntity.ok(policyDataList);
     }
 
     @GetMapping("/identity-provider/policies")

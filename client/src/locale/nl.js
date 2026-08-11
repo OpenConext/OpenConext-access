@@ -277,6 +277,7 @@ const nl = {
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
         deleteFlash: "De applicatie is verwijderd",
         outstandingPolicies: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
+        policyWriteAccess: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Je kan deze beleidsregels bewerken of verwijderen en daarna deze applicatie verwijderen.",
     },
     organization: {
         alertInfo: "Welkom bij SURF Access. Via dit self‑service‑portaal kun je je applicatie beschikbaar maken voor hoger onderwijs‑ en onderzoeksinstellingen in Nederland.",
@@ -394,6 +395,7 @@ const nl = {
         requiresChangeRequest: "Wijzigingsverzoek aanvragen",
         deleteConfirmation: "Weet je zeker dat je deze koppeling wilt verwijderen?",
         outstandingPolicies: "Deze verbinding kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
+        policyWriteAccess: "Deze verbinding kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Je kan deze beleidsregels bewerken of verwijderen en daarna deze verbinding verwijderen.",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "Metadata ophalen van URL",
@@ -937,6 +939,7 @@ const nl = {
         you: "Jij",
         copied: "Gekopieerd",
         changeRequest: "Er is een openstaand wijzigingsverzoek voor dit attribuut.<br/><br/>De weergegeven waarde is de huidige waarde. Bekijk de openstaande wijzigingen voor de aangevraagde waarde.",
+        editPolicies: "Bewerk access regels"
     },
     feedback: {
         title: "Feedback geven",
