@@ -66,6 +66,51 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
+    void parseURLTooLarge() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        // Test config overrides config.metadata_url_max_bytes to 15000, so a body just over
+        // that fits comfortably in the WireMock stub body.
+        String tooLarge = "a".repeat(20_000);
+        stubFor(get(urlPathMatching("/metadata-too-large"))
+                .willReturn(aResponse().withHeader("Content-Type", "html/xml")
+                        .withBody(tooLarge)
+                        .withStatus(200)));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("url", "http://localhost:8081/metadata-too-large"))
+                .post("/api/v1/manage/parse")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void parseURLTimeout() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", ADMIN_SUB);
+        // Test config overrides config.metadata_url_read_timeout_ms to 1000, so a short delay is enough.
+        stubFor(get(urlPathMatching("/metadata-slow"))
+                .willReturn(aResponse().withHeader("Content-Type", "html/xml")
+                        .withFixedDelay(2_000)
+                        .withBody("<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://slow\"/>")
+                        .withStatus(200)));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("url", "http://localhost:8081/metadata-slow"))
+                .post("/api/v1/manage/parse")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     void parseXML() throws Exception {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         String xml = IOUtils.readInputStreamToString(new ClassPathResource("/metadata.xml").getInputStream());

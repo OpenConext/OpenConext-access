@@ -140,6 +140,9 @@ config:
     - "http://test2.surfconext.nl/assurance/loa1.5"
     - "http://test2.surfconext.nl/assurance/loa2"
     - "http://test2.surfconext.nl/assurance/loa3"
+  metadata_url_max_bytes: 20971520
+  metadata_url_connect_timeout_ms: 10000
+  metadata_url_read_timeout_ms: 15000
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl, https://localhost.surf.id"
 

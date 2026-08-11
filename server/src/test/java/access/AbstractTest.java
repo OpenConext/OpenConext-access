@@ -90,7 +90,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "invite.enabled=true",
                 //Trailing backslash for testing purposes
                 "invite.url=http://localhost:8081/",
-                "ohdear.enabled=true"
+                "ohdear.enabled=true",
+                "config.metadata_url_max_bytes=15000",
+                "config.metadata_url_connect_timeout_ms=500",
+                "config.metadata_url_read_timeout_ms=1000"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {

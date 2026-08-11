@@ -29,11 +29,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,11 +48,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +84,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final UserRepository userRepository;
     private final ConnectionRepository connectionRepository;
     private final Config config;
+    private final long maxMetadataUrlBytes;
+    private final int metadataUrlConnectTimeoutMs;
+    private final int metadataUrlReadTimeoutMs;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
@@ -88,7 +94,10 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                             JiraClient jiraClient,
                             UserRepository userRepository,
                             ConnectionRepository connectionRepository,
-                            Config config) throws IOException {
+                            Config config,
+                            @Value("${config.metadata_url_max_bytes}") long maxMetadataUrlBytes,
+                            @Value("${config.metadata_url_connect_timeout_ms}") int metadataUrlConnectTimeoutMs,
+                            @Value("${config.metadata_url_read_timeout_ms}") int metadataUrlReadTimeoutMs) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -100,6 +109,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         this.userRepository = userRepository;
         this.connectionRepository = connectionRepository;
         this.config = config;
+        this.maxMetadataUrlBytes = maxMetadataUrlBytes;
+        this.metadataUrlConnectTimeoutMs = metadataUrlConnectTimeoutMs;
+        this.metadataUrlReadTimeoutMs = metadataUrlReadTimeoutMs;
     }
 
     @GetMapping("/arp")
@@ -129,13 +141,39 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
             if (!List.of("http", "https").contains(protocol)) {
                 throw new InvalidInputException("Not allowed protocol: " + protocol);
             }
-            resource = new UrlResource(url);
+            resource = new ByteArrayResource(fetchBoundedUrlContent(url));
         } else {
             String xml = requestBody.get("xml");
             resource = new ByteArrayResource(xml.getBytes(Charset.defaultCharset()));
         }
         entityDescriptors = metaDataFeedParser.importXML(resource);
         return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());
+    }
+
+    private byte[] fetchBoundedUrlContent(URL url) {
+        try {
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(metadataUrlConnectTimeoutMs);
+            connection.setReadTimeout(metadataUrlReadTimeoutMs);
+
+            try (InputStream inputStream = connection.getInputStream()) {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] chunk = new byte[8192];
+                long total = 0;
+                int read;
+                while ((read = inputStream.read(chunk)) != -1) {
+                    total += read;
+                    if (total > maxMetadataUrlBytes) {
+                        throw new InvalidInputException(
+                                "Metadata URL content exceeds maximum allowed size of " + maxMetadataUrlBytes + " bytes");
+                    }
+                    buffer.write(chunk, 0, read);
+                }
+                return buffer.toByteArray();
+            }
+        } catch (IOException e) {
+            throw new InvalidInputException("Unable to fetch metadata from URL: " + e.getMessage());
+        }
     }
 
 
