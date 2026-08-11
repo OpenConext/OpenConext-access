@@ -77,6 +77,8 @@ public interface Manage {
 
     void disconnectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser);
 
+    List<Map<String, Object>> allScopes();
+
     default Map<String, Object> sanitizeProvider(Map<String, Object> provider) {
         //Different Manage API calls return 'id' or '_id'
         if (provider.containsKey("id")) {

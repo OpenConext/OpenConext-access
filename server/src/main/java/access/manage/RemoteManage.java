@@ -457,6 +457,12 @@ public class RemoteManage implements Manage {
         updateProvider(serviceProvider);
     }
 
+    @Override
+    public List<Map<String, Object>> allScopes() {
+        String scopesUrl = String.format("%s/manage/api/internal/scopes", this.url);
+        return restTemplate.getForObject(scopesUrl, List.class);
+    }
+
     private List<Map<String, Object>> getRemoteMetaData(String type, boolean allAttributes) {
         Map<String, Object> baseQuery = getBaseQuery(allAttributes);
         String searchUrl = String.format("%s/manage/api/internal/search/%s", url, type);

@@ -1,0 +1,274 @@
+[
+  {
+    "id": "5ed7a4f50a7d507cff6212b5",
+    "version": 1,
+    "name": "all-groups",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "5ed7a4f50a7d507cff6212b6",
+    "version": 4,
+    "name": "groups",
+    "titles": {
+      "en": "Group memberships",
+      "nl": "Groeplidmaatschappen"
+    },
+    "descriptions": {
+      "en": "All your group memberships",
+      "nl": "Alle groepen waar je lid van bent"
+    }
+  },
+  {
+    "id": "5ed7a4f50a7d507cff6212b7",
+    "version": 1,
+    "name": "members",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "5ed7a4f50a7d507cff6212b8",
+    "version": 2,
+    "name": "openid",
+    "titles": {},
+    "descriptions": {
+      "en": "The application intends to use OIDC to verify the user's identity and access API endpoints",
+      "nl": "De applicatie is van plan OIDC te gebruiken om de identiteit van de gebruiker te verifiëren en toegang te krijgen tot API-eindpunten"
+    }
+  },
+  {
+    "id": "5ed7a4f50a7d507cff6212b9",
+    "version": 1,
+    "name": "email",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "5ed7b2e20a7d507f345257fe",
+    "version": 2,
+    "name": "test-scope",
+    "titles": {
+      "en": "Test scope",
+      "nl": "Test scope"
+    },
+    "descriptions": {
+      "en": "English description for test-scope",
+      "nl": "Nederlandse omschrijving voor test-scope"
+    }
+  },
+  {
+    "id": "5edb6cf40a7d507f345257ff",
+    "version": 1,
+    "name": "student-info",
+    "titles": {},
+    "descriptions": {
+      "en": "Retrieve student information",
+      "nl": "Ophalen student informatie"
+    }
+  },
+  {
+    "id": "5fc2443b7390a97a8f356bc5",
+    "version": 1,
+    "name": "inteken",
+    "titles": {},
+    "descriptions": {
+      "en": "Request and receive your personal information",
+      "nl": "Vraag en ontvang je persoonlijke gegevens"
+    }
+  },
+  {
+    "id": "5fc2471d7390a97a8f356bc6",
+    "version": 2,
+    "name": "https://utrecht/api",
+    "titles": {},
+    "descriptions": {
+      "en": "Retrieve personal information at Utrecht University ",
+      "nl": "Ophalen persoonsinformatie bij Utrecht Universiteit"
+    }
+  },
+  {
+    "id": "5ff2fecbefacf630807ecd81",
+    "version": 1,
+    "name": "https://voot.surfconext.nl/groups",
+    "titles": {},
+    "descriptions": {
+      "en": "Request and receive all your group membership information",
+      "nl": " Vraag en ontvang al je groepslidmaatschappen informatie"
+    }
+  },
+  {
+    "id": "6048de1f6c903e6f489ed1c0",
+    "version": 1,
+    "name": "eduid.nl/eppn",
+    "titles": {},
+    "descriptions": {
+      "en": "Allows the retrieval of your institutional identifier ",
+      "nl": "Toestemming om je institutionele ID op te halen"
+    }
+  },
+  {
+    "id": "6054b12c92ed8a46ed337497",
+    "version": 1,
+    "name": "terugmelden",
+    "titles": {},
+    "descriptions": {
+      "en": "Report back grades for enrollments",
+      "nl": "Terugmelden resultaat voor opleidingen"
+    }
+  },
+  {
+    "id": "60798e8c0f4a414b4a788c9c",
+    "version": 0,
+    "name": "eduid.nl/eduid",
+    "titles": {},
+    "descriptions": {
+      "en": "Allows the retrieval of your targeted eduID",
+      "nl": "Toestaan dat jouw specifieke eduID op wordt gevraagd"
+    }
+  },
+  {
+    "id": "60ae1273247e9532f29217b7",
+    "version": 0,
+    "name": "student.mobility.home.institution.mock/persons",
+    "titles": {
+      "en": "Person information",
+      "nl": "Persoonsgegevens"
+    },
+    "descriptions": {
+      "en": "Your personal information",
+      "nl": "Je persoonlijke gegevens"
+    }
+  },
+  {
+    "id": "60ae1299247e9532f29217b8",
+    "version": 0,
+    "name": "student.mobility.home.institution.mock/results",
+    "titles": {
+      "en": "Study results",
+      "nl": "Studie resultaten"
+    },
+    "descriptions": {
+      "en": "Your study results",
+      "nl": "Je studie resultaten"
+    }
+  },
+  {
+    "id": "614348642087f4449c6e2070",
+    "version": 0,
+    "name": "eduid.nl/attributes",
+    "titles": {},
+    "descriptions": {
+      "nl": "Toestaan dat jouw specifieke data bij eduID op wordt gevraagd",
+      "en": "Allows the retrieval of your data at eduID"
+    }
+  },
+  {
+    "id": "6149a8a21a7e700fb3dc0589",
+    "version": 1,
+    "name": "eduid.nl/links",
+    "titles": {
+      "en": "Linked accounts",
+      "nl": "Gekoppelde gegevens"
+    },
+    "descriptions": {
+      "en": "Retrieve a list of all linked accounts",
+      "nl": "Ophalen van een lijst met alle gekoppelde accounts"
+    }
+  },
+  {
+    "id": "628c9defd88f9710a1ed1a72",
+    "version": 0,
+    "name": "eduBadges",
+    "titles": {
+      "en": "eduBadges",
+      "nl": "eduBadges"
+    },
+    "descriptions": {
+      "en": "eduBadges",
+      "nl": "eduBadges"
+    }
+  },
+  {
+    "id": "63ee4013c1ee541cc07de354",
+    "version": 1,
+    "name": "eduid.nl/mobile",
+    "titles": {
+      "en": "Mobile eduID API",
+      "nl": "Mobile eduID API"
+    },
+    "descriptions": {
+      "en": "eduID backend endpoints for eduID mobile app",
+      "nl": "eduID backend endpoints for eduID mobile app"
+    }
+  },
+  {
+    "id": "6564933675e7693abe7c8791",
+    "version": 0,
+    "name": "eduperson_scoped_affiliation",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564934175e7693abe7c8792",
+    "version": 0,
+    "name": "voperson_external_affiliation",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564934c75e7693abe7c8793",
+    "version": 0,
+    "name": "ssh_public_key",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564935375e7693abe7c8794",
+    "version": 0,
+    "name": "eduperson_orcid",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564936075e7693abe7c8795",
+    "version": 0,
+    "name": "uid",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564936875e7693abe7c8796",
+    "version": 0,
+    "name": "voperson_external_id",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564937075e7693abe7c8797",
+    "version": 0,
+    "name": "eduperson_entitlement",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564937775e7693abe7c8798",
+    "version": 0,
+    "name": "eduperon_assurance",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564937d75e7693abe7c8799",
+    "version": 0,
+    "name": "eduperson_principal_name",
+    "titles": {},
+    "descriptions": {}
+  },
+  {
+    "id": "6564938475e7693abe7c879a",
+    "version": 0,
+    "name": "voperson_id",
+    "titles": {},
+    "descriptions": {}
+  }
+]

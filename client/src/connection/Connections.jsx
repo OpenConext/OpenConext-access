@@ -1,19 +1,7 @@
 import "./Connections.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {
-    Alert,
-    AlertType,
-    Button,
-    ButtonType,
-    Chip,
-    ChipType,
-    Loader,
-    RadioOptions,
-    RadioOptionsOrientation,
-    Switch,
-    Tooltip
-} from "@surfnet/sds";
+import {Alert, AlertType, Button, ButtonType, Chip, ChipType, Loader, RadioOptions, RadioOptionsOrientation, Switch, Tooltip} from "@surfnet/sds";
 import "jsondiffpatch/formatters/styles/html.css";
 
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
@@ -44,14 +32,7 @@ import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
-import {
-    connectOptions,
-    convertClientConnectionToServer,
-    convertServerConnectionToClient,
-    generateOIDCClientID,
-    sections,
-    visibilities
-} from "../utils/Connection.js";
+import {connectOptions, convertClientConnectionToServer, convertServerConnectionToClient, generateOIDCClientID, sections, visibilities} from "../utils/Connection.js";
 import {CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -212,9 +193,10 @@ export const Connections = ({
 
     const technicalValid = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc) || isDuplicateConnectionName() ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
-            (isEmpty(connection.loginUrl) || invalidLoginUrl) ||
+            (!isRs && (isEmpty(connection.loginUrl) || invalidLoginUrl)) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
             (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
@@ -490,6 +472,7 @@ export const Connections = ({
     }
 
     const renderTechnicalSection = () => {
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.technical")}</h3>
@@ -510,6 +493,15 @@ export const Connections = ({
                     <ErrorIndicator msg={I18n.t("connection.duplicatedName", {name: connection.name})}
                                     adjustMargin={true}/>}
 
+                <SelectField name={I18n.t("connection.protocol")}
+                             value={connection.protocol}
+                             options={protocolOptions}
+                             required={true}
+                             toolTip={isEmpty(connection.manageIdentifier) ? null : I18n.t("connection.protocolTooltip")}
+                             disabled={!isEmpty(connection.manageIdentifier)}
+                             onChange={changeProtocol}
+                />
+                {!isRs &&
                 <InputField value={connection.loginUrl || ""}
                             onChange={e => {
                                 setConnection({...connection, loginUrl: e.target.value});
@@ -520,22 +512,18 @@ export const Connections = ({
                             onBlur={e => setInvalidLoginUrl(!isValidUrl(e.target.value))}
                             isAlert={changeRequestsKeys.includes("loginUrl")}
                             placeholder={I18n.t("connection.loginUrlPlaceholder")}
-                />
-                {(!initial && isEmpty(connection.loginUrl)) &&
+                />}
+                {(!isRs && !initial && isEmpty(connection.loginUrl)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.loginUrl")})}
                                     adjustMargin={true}/>}
-                {invalidLoginUrl &&
+                {(!isRs && invalidLoginUrl) &&
                     <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: I18n.t("connection.loginUrl")})}
                                     adjustMargin={true}/>}
+                {isRs && <>
 
-                <SelectField name={I18n.t("connection.protocol")}
-                             value={connection.protocol}
-                             options={protocolOptions}
-                             required={true}
-                             toolTip={isEmpty(connection.manageIdentifier) ? null : I18n.t("connection.protocolTooltip")}
-                             disabled={!isEmpty(connection.manageIdentifier)}
-                             onChange={changeProtocol}
-                />
+                </>}
+
+
                 {connection.protocol.value === PROTOCOLS.OIDC10_RP &&
                     <>
                         <div>
@@ -821,8 +809,10 @@ export const Connections = ({
                             <div key={index} className="idp">
                                 <div className="idp-info">
                                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp.name)}}/>
-                                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`],
-                                            {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})}}/>
+                                    <p dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(idp[`description${I18n.locale.toUpperCase()}`],
+                                            {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
+                                    }}/>
                                 </div>
                             </div>
                         )}
@@ -1249,7 +1239,7 @@ export const Connections = ({
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
         const showOverviewButton = section === sections.overview;
-        const submitTxt = (requiresChangeRequest && config.testEnvironment)? I18n.t("connection.requiresChangeRequest") :
+        const submitTxt = (requiresChangeRequest && config.testEnvironment) ? I18n.t("connection.requiresChangeRequest") :
             isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
@@ -1288,6 +1278,7 @@ export const Connections = ({
                             {Object.values(sections)
                                 .filter(s => s !== sections.overview)
                                 .filter(s => typeof s !== "function")
+                                .filter(s => connection.protocol.value !== PROTOCOLS.OAUTH20_RS || s !== sections.informationProfile)
                                 .filter(s => s !== sections.pendingChanges || !isEmpty(connection.changeRequests))
                                 .map(sectionValue =>
                                     <StatusMenuItem key={sectionValue}
@@ -1465,28 +1456,30 @@ export const Connections = ({
                                          question={question}
                                          isDeleteAction={modal === modals.deletionWarning}
                                          children={outstandingPolicies ?
-                                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(
-                                                 I18n.t(`connection.${policyWriteAccess ? "policyWriteAccess" : "outstandingPolicies"}`),
-                                                 {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})}}/> :
+                                             <p dangerouslySetInnerHTML={{
+                                                 __html: DOMPurify.sanitize(
+                                                     I18n.t(`connection.${policyWriteAccess ? "policyWriteAccess" : "outstandingPolicies"}`),
+                                                     {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})
+                                             }}/> :
                                              modal === modals.resetSecretDisclaimer ?
-                                             <Alert alertType={AlertType.Error}
-                                                    asChild={true}
-                                                    message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
-                                             modal === modals.resetSecret ?
-                                                 <div>
-                                                     <Alert alertType={AlertType.Warning}
-                                                            asChild={true}
-                                                            message={I18n.t("connection.connectionOverview.disclaimer")}/>
-                                                     <InputField name={I18n.t("connection.connectionOverview.secret")}
-                                                                 value={connection.secret}
-                                                                 disabled={true}
-                                                                 copyClipBoard={true}/>
+                                                 <Alert alertType={AlertType.Error}
+                                                        asChild={true}
+                                                        message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
+                                                 modal === modals.resetSecret ?
+                                                     <div>
+                                                         <Alert alertType={AlertType.Warning}
+                                                                asChild={true}
+                                                                message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                                                         <InputField name={I18n.t("connection.connectionOverview.secret")}
+                                                                     value={connection.secret}
+                                                                     disabled={true}
+                                                                     copyClipBoard={true}/>
 
-                                                 </div> :
-                                                 modal === modals.deletionWarning ? <ConnectionInUseWarning
-                                                     identityProviders={affectedIdentityProviders}
-                                                     unit={units.connection}
-                                                     applicationName={application.name}/> : null
+                                                     </div> :
+                                                     modal === modals.deletionWarning ?
+                                                         <ConnectionInUseWarning identityProviders={affectedIdentityProviders}
+                                                                                 unit={units.connection}
+                                                                                 applicationName={application.name}/> : null
                                          }
             />}
             {showInitialConnection ? renderInitialConnection() : renderConnections()}

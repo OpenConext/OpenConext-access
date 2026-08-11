@@ -49,7 +49,8 @@ export const isAccessRoleReady = provider => {
 }
 
 export const PROTOCOLS = {
-    OIDC10_RP: "oidc10_rp", SAML20_SP: "saml20_sp"
+    OIDC10_RP: "oidc10_rp", SAML20_SP: "saml20_sp", OAUTH20_RS: "oauth20_rs",
+
 }
 
 export const CONNECTION_STATUSES = {

@@ -15,6 +15,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -354,6 +355,13 @@ public final class LocalManage implements Manage {
     @Override
     public void disconnectWithoutInteraction(Map<String, Object> identityProvider, Map<String, Object> serviceProvider, User currentUser) {
         //nope
+    }
+
+    @SneakyThrows
+    @Override
+    public List<Map<String, Object>> allScopes() {
+        return objectMapper.readValue(new ClassPathResource("/manage/scopes.json").getInputStream(), new TypeReference<>() {
+        });
     }
 
     @Override
