@@ -1,6 +1,7 @@
 package access.api;
 
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.model.Authority;
 import access.model.OrganizationMembership;
 import access.model.User;
@@ -40,7 +41,12 @@ public class OrganizationMembershipController implements UserAccessRights {
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
         confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
-        organizationMembershipRepository.delete(organizationMembership);
+
+        long nbrOfAdmins = this.getNbrOfAdmins(organizationMembership);
+        if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN)) {
+            throw new UserRestrictionException("Not allowed to delete last remaining Admin user");
+        }
+        organizationMembershipRepository.deleteOrganizationMembershipById(organizationMembership.getId());
 
         return deleteResult();
     }
@@ -55,8 +61,21 @@ public class OrganizationMembershipController implements UserAccessRights {
         Authority requiredAuthority = Authority.ADMIN.equals(newAuthority) ? Authority.ADMIN : Authority.MEMBER;
         confirmOrganizationMembership(user, organizationMembership.getOrganization(), requiredAuthority);
 
+        long nbrOfAdmins = this.getNbrOfAdmins(organizationMembership);
+        if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN) && !newAuthority.isAllowed(Authority.ADMIN)) {
+            throw new UserRestrictionException("Not allowed to update last remaining Admin user");
+        }
+
         organizationMembership.setAuthority(newAuthority);
         organizationMembership = organizationMembershipRepository.save(organizationMembership);
         return ResponseEntity.ok(organizationMembership);
     }
+
+    private long getNbrOfAdmins(OrganizationMembership organizationMembership) {
+        return organizationMembership.getOrganization().getOrganizationMemberships()
+            .stream()
+            .filter(om -> om.getAuthority().equals(Authority.ADMIN))
+            .count();
+    }
+
 }

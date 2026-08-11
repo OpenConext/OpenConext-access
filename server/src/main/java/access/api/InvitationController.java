@@ -3,6 +3,7 @@ package access.api;
 import access.config.HashGenerator;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.mail.MailBox;
 import access.model.AcceptInvitation;
 import access.model.Application;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,6 +108,9 @@ public class InvitationController implements UserAccessRights {
         Organization organization = organizationRepository.findById(organizationID)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
 
+        if (invitationForm.getIntendedAuthority().equals(Authority.ADMIN) && StringUtils.hasText(organization.getManageIdentifier())) {
+            throw new UserRestrictionException("Not allowed to invite an admin for an IdP organization");
+        }
         boolean isGuestInvitation = invitationForm.getIntendedAuthority().equals(Authority.GUEST);
 
         User userFromDB = reinitializeUser(user, userRepository);

@@ -63,7 +63,7 @@ const ApplicationOverview = ({accessible}) => {
                     res.forEach(entity => {
                         entity.name = providerName(I18n.locale, entity);
                         entity.vendor = providerOrganizationName(I18n.locale, entity);
-                        entity.created = entity.revision.created
+                        entity.created = entity.revision?.created
                         entity.connectionRequest = openConnectionRequests.includes(entity.data.entityid);
                     });
                     res = res

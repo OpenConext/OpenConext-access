@@ -54,7 +54,7 @@ const MyOrganization = ({refreshUser}) => {
 
     const adminUser = useMemo(() => {
         const organizationIntegerIdentifier = parseInt(organizationId, 10);
-        return user.superUser || user.organizationMemberships
+        return user.superUser || (user.organizationMemberships || [])
             .some(om => om.authority === authorities.ADMIN && om.organization.id === organizationIntegerIdentifier);
     }, [user, organizationId]);
 

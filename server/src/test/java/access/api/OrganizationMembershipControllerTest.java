@@ -57,4 +57,43 @@ class OrganizationMembershipControllerTest extends AbstractTest {
                 .statusCode(HttpStatus.NO_CONTENT.value());
         assertTrue(organizationMembershipRepository.findById(organizationMembership.getId()).isEmpty());
     }
+
+    @Test
+    void updateLastRemainingAdminNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.ADMIN.name()));
+        Map<String, Object> body = Map.of("id", organizationMembershipId, "authority", Authority.MEMBER.name());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put("/api/v1/organization_memberships")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        assertEquals(Authority.ADMIN, organizationMembershipRepository.findById(organizationMembershipId).get().getAuthority());
+    }
+
+    @Test
+    void deleteLastRemainingAdminNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.ADMIN.name()));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationMembershipId", organizationMembershipId)
+                .delete("/api/v1/organization_memberships/{organizationMembershipId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        assertTrue(organizationMembershipRepository.findById(organizationMembershipId).isPresent());
+    }
 }

@@ -92,6 +92,31 @@ class InvitationControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void createAdminInvitationForIdPOrganization() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        String inviteeMail = "jdoe@test.com";
+        InvitationForm invitationForm = new InvitationForm(
+            Language.en,
+            List.of(inviteeMail),
+            "Please join",
+            Authority.ADMIN,
+            organization.getId(),
+            Set.of(application.getId()));
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(invitationForm)
+            .post("/api/v1/invitations")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
     void accept() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
         Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();

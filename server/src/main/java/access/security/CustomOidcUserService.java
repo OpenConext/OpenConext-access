@@ -69,6 +69,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
             boolean isSuperUser = superAdmin.getUsers().contains(user.getSub());
             user.setSuperUser(isSuperUser);
+            user.setInstitutionAdmin(institutionAdmin);
 
             userRepository.save(user);
         });

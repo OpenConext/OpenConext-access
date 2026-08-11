@@ -26,5 +26,8 @@ export const dateFromEpoch = (epoch, needsMultiplier = true, longMonth = true) =
 }
 
 export const formatLongDate = (isoString, longMonth = true, includeTime = true) => {
+    if (isEmpty(isoString)) {
+        return "-";
+    }
     return formatDate(new Date(isoString), longMonth, includeTime);
 }

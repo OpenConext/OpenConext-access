@@ -10,13 +10,7 @@ import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
-import {
-    allAuthorities,
-    authorities,
-    authorityWeights,
-    currentUserMembershipAuthority,
-    hasApplicationWriteAccess
-} from "../utils/Permissions.js";
+import {allAuthorities, authorities, authorityWeights, currentUserMembershipAuthority, hasApplicationWriteAccess} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
@@ -137,19 +131,18 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitation.requiredEmail")}/>}
 
-                {authorityOptions.length > 1 &&
-                    <SelectField
-                        value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
-                            || authorityOptions[authorityOptions.length - 1]}
-                        options={authorityOptions}
-                        name={I18n.t("invitation.intendedAuthority")}
-                        searchable={false}
-                        disabled={authorityOptions.length === 1}
-                        onChange={authorityChanged}
-                        toolTip={I18n.t("invitation.intendedAuthorityTooltip")}
-                        clearable={false}
-                        className={"small"}
-                    />}
+                <SelectField
+                    value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
+                        || authorityOptions[authorityOptions.length - 1]}
+                    options={authorityOptions}
+                    name={I18n.t("invitation.intendedAuthority")}
+                    searchable={false}
+                    disabled={authorityOptions.length === 1}
+                    onChange={authorityChanged}
+                    toolTip={I18n.t("invitation.intendedAuthorityTooltip")}
+                    clearable={false}
+                    className={"small"}
+                />
 
                 {(organization.applications.length > 0 && invitation.intendedAuthority !== authorities.ADMIN) &&
                     <SelectField
@@ -197,6 +190,7 @@ export const InvitationForm = () => {
         const authorityOptions = allAuthorities
             .filter(authority => currentUserAuthority === authorities.ADMIN ||
                 authorityWeights[currentUserAuthority] > authorityWeights[authority])
+            .filter(authority => isEmpty(organization.manageIdentifier) || authority !== authorities.ADMIN)
             .map(authority => ({value: authority, label: I18n.t(`roles.${authority.toLowerCase()}`)}));
         return (
             <>

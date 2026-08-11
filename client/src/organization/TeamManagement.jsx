@@ -14,6 +14,7 @@ import MenuIcon from "../icons/menu.svg";
 import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import {useShallow} from "zustand/react/shallow";
+import {isEmpty} from "../utils/Utils.js";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -84,6 +85,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
     }
 
     const renderMenu = membership => {
+
         return (
             <div className="sds--user-info--dropdown">
                 <ul>
@@ -113,6 +115,8 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
     }
 
     const renderOrganizationMembers = () => {
+        const oneAdminLeft = (organization.organizationMemberships || [])
+            .filter(m => m.authority === authorities.ADMIN).length < 2;
         const columns = [
             {
                 key: "user__name",
@@ -135,6 +139,14 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                 nonSortable: true,
                 mapper: membership => {
                     if (currentUserAuthority === authorities.GUEST || currentUserAuthority === authorities.MEMBER) {
+                        return null;
+                    }
+                    //We need to ensure that one admin remains
+                    if (oneAdminLeft && membership.authority === authorities.ADMIN) {
+                        return null;
+                    }
+                    //Also institution admins of an IdP are not allowed to be downgraded or deleted
+                    if (membership.authority === authorities.ADMIN && !isEmpty(organization.manageIdentifier)) {
                         return null;
                     }
                     return (
