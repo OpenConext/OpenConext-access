@@ -172,9 +172,8 @@ public final class LocalManage implements Manage {
 
     @Override
     public List<Map<String, Object>> uniqueEntityId(EntityType entityType, String entityID) {
-        return Stream.of(EntityType.values())
-                .flatMap(type -> this.allProviders.get(type).stream())
-                .filter(provider -> ((Map) provider.get("data")).get("entityid").equals(entityID))
+        return allProviders.get(entityType).stream()
+                .filter(provider -> getData(provider).get("entityid").equals(entityID))
                 .toList();
     }
 

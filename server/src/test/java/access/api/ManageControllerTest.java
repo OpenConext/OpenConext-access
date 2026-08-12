@@ -268,7 +268,7 @@ class ManageControllerTest extends AbstractTest {
     void uniqueEntityId() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         String entityID = "https://network";
-        List<Map<String, Object>> providers = localManage.uniqueEntityId(EntityType.saml20_idp, entityID);
+        List<Map<String, Object>> providers = localManage.uniqueEntityId(EntityType.saml20_sp, entityID);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/uniqueEntityId/saml20_sp"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")

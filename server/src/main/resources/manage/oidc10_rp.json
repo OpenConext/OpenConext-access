@@ -6,6 +6,11 @@
     "data": {
       "entityid": "https://calendar",
       "state": "prodaccepted",
+      "allowedResourceServers": [
+        {
+          "name": "eduid.demo.eduid.nl"
+        }
+      ],
       "metaDataFields": {
         "name:en": "Calendar EN",
         "name:nl": "Calendar NL",

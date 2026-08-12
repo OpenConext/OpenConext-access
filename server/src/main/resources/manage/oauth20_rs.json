@@ -1,0 +1,21 @@
+[
+  {
+    "_id": "5",
+    "version": 1,
+    "type": "oauth20_rs",
+    "data": {
+      "entityid": "eduid.demo.eduid.nl",
+      "state": "prodaccepted",
+      "metaDataFields": {
+        "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+        "OrganizationName:en": "SURF",
+        "description:en": "EDUID demo",
+        "name:en": "EDUID demo",
+        "scopes": [
+          "openid"
+        ],
+        "secret": "$2a$10$0htabz/U2lQRH/dWqODRrek1/BsUn48dwx6OOklbCRjNJDzwVUNYa"
+      }
+    }
+  }
+]
