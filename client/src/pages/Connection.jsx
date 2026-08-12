@@ -6,7 +6,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHeader.jsx";
 import {Overview} from "../connection/Overview.jsx";
 import {Connections} from "../connection/Connections.jsx";
-import {getApplicationById, getIdentityProviders} from "../api/index.js";
+import {getApplicationById, getIdentityProviders, getScopes} from "../api/index.js";
 import {Loader} from "@surfnet/sds";
 import {APPLICATION_STATUSES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
@@ -40,6 +40,7 @@ export const Connection = () => {
     const [currentTab, setCurrentTab] = useState(tab);
     const [connection, setConnection] = useState(null);
     const [identityProviders, setIdentityProviders] = useState([]);
+    const [scopes, setScopes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dirty, setDirty] = useState(false);
 
@@ -72,9 +73,10 @@ export const Connection = () => {
                         {value: res.name}
                     ]
                 });
-                getIdentityProviders().then(providers => {
-                    setIdentityProviders(providers);
-                })
+                Promise.all([getIdentityProviders(), getScopes()]).then(([allIdentityProviders, allScopes]) => {
+                    setIdentityProviders(allIdentityProviders);
+                    setScopes(allScopes);
+                });
             })
     }, [applicationId, arp]);
 
@@ -182,7 +184,7 @@ export const Connection = () => {
                                     isProduction={false}
                                     setDirty={setDirty}
                                     connectionId={connectionId}
-
+                                    scopes={scopes}
                 />
             }
             case "application": {

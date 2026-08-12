@@ -93,7 +93,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "ohdear.enabled=true",
                 "config.metadata_url_max_bytes=15000",
                 "config.metadata_url_connect_timeout_ms=500",
-                "config.metadata_url_read_timeout_ms=1000"
+                "config.metadata_url_read_timeout_ms=1000",
+                "config.metadata_url_block_private_networks=false"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {

@@ -47,34 +47,42 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
 }
 //Deliberate design choice to have a different format on the client to have all complex data in the connection attribute
 export const convertServerConnectionToClient = (connection, protocolOptions, profileOptions, arpInfo) => {
-    const {arp} = connection.metaData;
-    const {profile, attributes, motivation} = arp;
     const protocol = protocolOptions.find(option => option.value === connection.protocol);
-    const profileAttributesNames = arpInfo.profiles.find(p => p.name === profile).attributes;
-    const profileAttributes = arpInfo.attributes.filter(attr => profileAttributesNames.includes(attr.name));
-    const profileAttributesUrns = profileAttributes.map(attr => attr.urn);
-    //Find all attributes in the metadata that are not in the default array
-    const additionalAttributesUrns = Object.keys(attributes)
-        .filter(attr => !profileAttributesUrns.includes(attr))
-    const additionalAttributes = arpInfo.attributes.filter(attr => additionalAttributesUrns.includes(attr.urn));
-    const additionalAttributesNames = additionalAttributes.map(attr => attr.name);
-    const motivations = additionalAttributesUrns
-        .reduce((acc, urn) => {
-            const attribute = additionalAttributes.find(attr => attr.urn === urn);
-            const attrMotivation = attributes[urn][0].motivation;
-            acc[attribute.name] = isEmpty(attrMotivation) ? `Need ${attribute.name}` : attrMotivation;
-            return acc;
-        }, {})
-    const profileOption = profileOptions.find(option => option.value === profile);
+    //Resource servers have no ARP
+    let arpFields = {};
+    const {arp} = connection.metaData;
+    if (arp) {
+        const {profile, attributes, motivation} = arp;
+        const profileAttributesNames = arpInfo.profiles.find(p => p.name === profile).attributes;
+        const profileAttributes = arpInfo.attributes.filter(attr => profileAttributesNames.includes(attr.name));
+        const profileAttributesUrns = profileAttributes.map(attr => attr.urn);
+        //Find all attributes in the metadata that are not in the default array
+        const additionalAttributesUrns = Object.keys(attributes)
+            .filter(attr => !profileAttributesUrns.includes(attr))
+        const additionalAttributes = arpInfo.attributes.filter(attr => additionalAttributesUrns.includes(attr.urn));
+        const additionalAttributesNames = additionalAttributes.map(attr => attr.name);
+        const motivations = additionalAttributesUrns
+            .reduce((acc, urn) => {
+                const attribute = additionalAttributes.find(attr => attr.urn === urn);
+                const attrMotivation = attributes[urn][0].motivation;
+                acc[attribute.name] = isEmpty(attrMotivation) ? `Need ${attribute.name}` : attrMotivation;
+                return acc;
+            }, {})
+        const profileOption = profileOptions.find(option => option.value === profile);
+
+        arpFields = {
+            additionalAttributes: additionalAttributesNames,
+            profile: profileOption,
+            motivations: motivations,
+            profileMotivation: motivation
+        };
+    }
     return {
         ...connection,
         ...connection.metaData,
         protocol: protocol,
-        additionalAttributes: additionalAttributesNames,
-        profile: profileOption,
-        motivations: motivations,
-        profileMotivation: motivation
-    }
+        ...arpFields
+    };
 }
 
 export const generateOIDCClientID = () => {

@@ -273,6 +273,10 @@ export function getIdentityProviders() {
     return fetchJson(`/api/v1/manage/identity-providers`);
 }
 
+export function getScopes() {
+    return fetchJson(`/api/v1/manage/scopes`);
+}
+
 export function getServiceProvidersAllowed(organizationId) {
     return fetchJson(`/api/v1/manage/allowed-service-providers/${organizationId}`);
 }

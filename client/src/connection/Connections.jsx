@@ -80,7 +80,8 @@ export const Connections = ({
                                 profileOptions,
                                 identityProviders,
                                 setDirty,
-                                connectionId
+                                connectionId,
+                                scopes
                             }) => {
 
     const {config, setFlash} = useAppStore(useShallow(state => ({
@@ -501,18 +502,29 @@ export const Connections = ({
                              disabled={!isEmpty(connection.manageIdentifier)}
                              onChange={changeProtocol}
                 />
+                {isRs &&
+                    <SelectField name={I18n.t("connection.scopes")}
+                                 options={scopes.map(scope => ({label: scope.name, value: scope.name}))}
+                                 value={connection.scopes}
+                                 isMulti={true}
+                                 searchable={true}
+                                 placeholder={I18n.t("connection.scopePlaceholder")}
+                                 onChange={options => setConnection({...connection, scopes: options})}
+                                 info={I18n.t("connection.appInfo.tagInfo")}
+                    />}
+
                 {!isRs &&
-                <InputField value={connection.loginUrl || ""}
-                            onChange={e => {
-                                setConnection({...connection, loginUrl: e.target.value});
-                                setInvalidLoginUrl(false);
-                            }}
-                            name={I18n.t("connection.loginUrl")}
-                            required={true}
-                            onBlur={e => setInvalidLoginUrl(!isValidUrl(e.target.value))}
-                            isAlert={changeRequestsKeys.includes("loginUrl")}
-                            placeholder={I18n.t("connection.loginUrlPlaceholder")}
-                />}
+                    <InputField value={connection.loginUrl || ""}
+                                onChange={e => {
+                                    setConnection({...connection, loginUrl: e.target.value});
+                                    setInvalidLoginUrl(false);
+                                }}
+                                name={I18n.t("connection.loginUrl")}
+                                required={true}
+                                onBlur={e => setInvalidLoginUrl(!isValidUrl(e.target.value))}
+                                isAlert={changeRequestsKeys.includes("loginUrl")}
+                                placeholder={I18n.t("connection.loginUrlPlaceholder")}
+                    />}
                 {(!isRs && !initial && isEmpty(connection.loginUrl)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.loginUrl")})}
                                     adjustMargin={true}/>}

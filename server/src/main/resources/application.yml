@@ -143,6 +143,7 @@ config:
   metadata_url_max_bytes: 20971520
   metadata_url_connect_timeout_ms: 10000
   metadata_url_read_timeout_ms: 15000
+  metadata_url_block_private_networks: true
 
 eduid-idp-entity-id: "https://login.test2.eduid.nl, https://localhost.surf.id"
 
