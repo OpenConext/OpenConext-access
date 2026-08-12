@@ -51,11 +51,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +89,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final long maxMetadataUrlBytes;
     private final int metadataUrlConnectTimeoutMs;
     private final int metadataUrlReadTimeoutMs;
+    private final boolean blockPrivateNetworkMetadataUrls;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
@@ -97,7 +100,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                             Config config,
                             @Value("${config.metadata_url_max_bytes}") long maxMetadataUrlBytes,
                             @Value("${config.metadata_url_connect_timeout_ms}") int metadataUrlConnectTimeoutMs,
-                            @Value("${config.metadata_url_read_timeout_ms}") int metadataUrlReadTimeoutMs) throws IOException {
+                            @Value("${config.metadata_url_read_timeout_ms}") int metadataUrlReadTimeoutMs,
+                            @Value("${config.metadata_url_block_private_networks}") boolean blockPrivateNetworkMetadataUrls) throws IOException {
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
@@ -112,6 +116,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         this.maxMetadataUrlBytes = maxMetadataUrlBytes;
         this.metadataUrlConnectTimeoutMs = metadataUrlConnectTimeoutMs;
         this.metadataUrlReadTimeoutMs = metadataUrlReadTimeoutMs;
+        this.blockPrivateNetworkMetadataUrls = blockPrivateNetworkMetadataUrls;
     }
 
     @GetMapping("/arp")
@@ -129,6 +134,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
 
+    private static final int MAX_METADATA_URL_REDIRECTS = 5;
+
     @PostMapping("/parse")
     public ResponseEntity<List<MetaData>> parse(@RequestBody Map<String, String> requestBody) throws URISyntaxException, MalformedURLException {
         LOG.debug("/parse");
@@ -136,11 +143,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         List<EntityDescriptor> entityDescriptors;
         Resource resource;
         if (requestBody.containsKey("url")) {
-            URL url = new URI(requestBody.get("url")).toURL();
-            String protocol = url.getProtocol().toLowerCase();
-            if (!List.of("http", "https").contains(protocol)) {
-                throw new InvalidInputException("Not allowed protocol: " + protocol);
-            }
+            URL url = parseAndValidateUrl(requestBody.get("url"));
             resource = new ByteArrayResource(fetchBoundedUrlContent(url));
         } else {
             String xml = requestBody.get("xml");
@@ -150,28 +153,83 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(entityDescriptors.stream().map(MetaData::new).toList());
     }
 
-    private byte[] fetchBoundedUrlContent(URL url) {
-        try {
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(metadataUrlConnectTimeoutMs);
-            connection.setReadTimeout(metadataUrlReadTimeoutMs);
+    private URL parseAndValidateUrl(String value) throws URISyntaxException, MalformedURLException {
+        URL url = new URI(value).toURL();
+        String protocol = url.getProtocol().toLowerCase();
+        if (!List.of("http", "https").contains(protocol)) {
+            throw new InvalidInputException("Not allowed protocol: " + protocol);
+        }
+        if (blockPrivateNetworkMetadataUrls) {
+            assertPublicHost(url.getHost());
+        }
+        return url;
+    }
 
-            try (InputStream inputStream = connection.getInputStream()) {
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                byte[] chunk = new byte[8192];
-                long total = 0;
-                int read;
-                while ((read = inputStream.read(chunk)) != -1) {
-                    total += read;
-                    if (total > maxMetadataUrlBytes) {
-                        throw new InvalidInputException(
-                                "Metadata URL content exceeds maximum allowed size of " + maxMetadataUrlBytes + " bytes");
-                    }
-                    buffer.write(chunk, 0, read);
-                }
-                return buffer.toByteArray();
+    private void assertPublicHost(String host) {
+        InetAddress[] addresses;
+        try {
+            addresses = InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            throw new InvalidInputException("Unable to resolve metadata URL host: " + host);
+        }
+        for (InetAddress address : addresses) {
+            if (isDisallowedAddress(address)) {
+                throw new InvalidInputException("Metadata URL resolves to a disallowed network address");
             }
-        } catch (IOException e) {
+        }
+    }
+
+    private boolean isDisallowedAddress(InetAddress address) {
+        if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress()
+                || address.isSiteLocalAddress() || address.isMulticastAddress()) {
+            return true;
+        }
+        byte[] bytes = address.getAddress();
+        // IPv6 unique local addresses (fc00::/7) are not covered by isSiteLocalAddress
+        return bytes.length == 16 && (bytes[0] & 0xfe) == 0xfc;
+    }
+
+    private byte[] fetchBoundedUrlContent(URL initialUrl) {
+        URL url = initialUrl;
+        try {
+            for (int redirect = 0; ; redirect++) {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setInstanceFollowRedirects(false);
+                connection.setConnectTimeout(metadataUrlConnectTimeoutMs);
+                connection.setReadTimeout(metadataUrlReadTimeoutMs);
+
+                int status = connection.getResponseCode();
+                if (status >= 300 && status < 400) {
+                    if (redirect >= MAX_METADATA_URL_REDIRECTS) {
+                        throw new InvalidInputException("Too many redirects while fetching metadata URL");
+                    }
+                    String location = connection.getHeaderField("Location");
+                    connection.disconnect();
+                    if (!StringUtils.hasText(location)) {
+                        throw new InvalidInputException("Redirect response without Location header");
+                    }
+                    URI resolved = url.toURI().resolve(location);
+                    url = parseAndValidateUrl(resolved.toString());
+                    continue;
+                }
+
+                try (InputStream inputStream = connection.getInputStream()) {
+                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                    byte[] chunk = new byte[8192];
+                    long total = 0;
+                    int read;
+                    while ((read = inputStream.read(chunk)) != -1) {
+                        total += read;
+                        if (total > maxMetadataUrlBytes) {
+                            throw new InvalidInputException(
+                                    "Metadata URL content exceeds maximum allowed size of " + maxMetadataUrlBytes + " bytes");
+                        }
+                        buffer.write(chunk, 0, read);
+                    }
+                    return buffer.toByteArray();
+                }
+            }
+        } catch (URISyntaxException | IOException e) {
             throw new InvalidInputException("Unable to fetch metadata from URL: " + e.getMessage());
         }
     }
@@ -466,6 +524,13 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(manage.allowedAttributes());
     }
 
+    @GetMapping("/scopes")
+    public ResponseEntity<List<Map<String, Object>>> allScopes() {
+        LOG.debug("/scopes");
+
+        return ResponseEntity.ok(manage.allScopes());
+
+    }
 
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
