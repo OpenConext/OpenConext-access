@@ -136,3 +136,8 @@ span.sds--chips--textual {
 .sds--navigation-menu .sds--navigation-menu-items .sds--navigation-group-item.custom-group {
     border: 1px solid var(--sl-color-neutral-500);
 }
+
+.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-menu-item svg {
+    width: 24px;
+    height: 24px;
+}
