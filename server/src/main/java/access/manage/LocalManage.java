@@ -113,7 +113,7 @@ public final class LocalManage implements Manage {
     public Map<String, Object> saveProvider(Connection connection) {
         Map<String, Object> provider = StringUtils.hasText(connection.getManageIdentifier()) ?
                 providerByConnection(connection) :
-                baseStructureProvider();
+                baseStructureProvider(connection.getProtocol());
 
         boolean existingProvider = provider.containsKey("id");
         if (existingProvider) {

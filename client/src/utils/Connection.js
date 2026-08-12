@@ -2,7 +2,6 @@
 import {isEmpty} from "./Utils.js";
 
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
-
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
     const currentProfile = arpInfo.profiles.find(p => p.name === profile.value);
     const selectedAttributes = currentProfile.attributes.concat(additionalAttributes);
@@ -17,6 +16,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
         ];
         return acc;
     }, {});
+    //We are returning all fields combined for the protocols, server side everything is filtered and merged with the manage data
     return {
         ...connection,
         application: {id: application.id},
@@ -29,6 +29,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             contactPersons: connection.contactPersons,
             allowedEntities: connection.allowedEntities,
             pkce: connection.pkce,
+            scopes: connection.scopes,
             secret: connection.secret,
             visibility: connection.visibility,
             connectOption: connection.connectOption,
@@ -42,7 +43,6 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
                 enabled: true
             }
         }
-
     };
 }
 //Deliberate design choice to have a different format on the client to have all complex data in the connection attribute

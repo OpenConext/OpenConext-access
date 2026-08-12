@@ -194,13 +194,15 @@ export const Connections = ({
 
     const technicalValid = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isSaml = connection.protocol.value === PROTOCOLS.SAML20_SP;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
-        return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc) || isDuplicateConnectionName() ||
+        return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc && !isRs) ||
+            isDuplicateConnectionName() ||
             Object.values(invalidRedirects).some(invalid => invalid) ||
             (!isRs && (isEmpty(connection.loginUrl) || invalidLoginUrl)) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
-            (!isOidc && isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
+            (isSaml && !isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
     }
 
     const informationProfileValid = () => {
@@ -340,7 +342,7 @@ export const Connections = ({
                 redirectUrls: [""],
                 acsLocations: null
             })
-        } else {
+        } else if (option.value === PROTOCOLS.SAML20_SP) {
             setConnection({
                 ...connection, protocol: option,
                 grantTypes: null,
@@ -349,6 +351,19 @@ export const Connections = ({
                 redirectUrls: null,
                 acsLocations: [""]
             })
+        } else if (option.value === PROTOCOLS.OAUTH20_RS) {
+            setConnection({
+                ...connection,
+                protocol: option,
+                grantTypes: null,
+                pkce: false,
+                entityID: "",
+                redirectUrls: null,
+                acsLocations: null,
+                NameIDFormat: "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                scopes: [{label: "openid", value: "openid"}]
+            })
+
         }
     }
 
@@ -508,9 +523,10 @@ export const Connections = ({
                                  value={connection.scopes}
                                  isMulti={true}
                                  searchable={true}
+                                 creatable={true}
                                  placeholder={I18n.t("connection.scopePlaceholder")}
                                  onChange={options => setConnection({...connection, scopes: options})}
-                                 info={I18n.t("connection.appInfo.tagInfo")}
+                                 info={I18n.t("connection.scopeInfo")}
                     />}
 
                 {!isRs &&
@@ -836,6 +852,7 @@ export const Connections = ({
     const renderProductionStatusSection = () => {
         const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.productionStatus")}</h3>
@@ -858,7 +875,7 @@ export const Connections = ({
                     </div>}
                 {(pendingProd && isEmpty(jiraKey)) &&
                     alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimer"))}
-                {((proceedWithProduction && appInformationComplete) || prodConnection) &&
+                {(!isRs && ((proceedWithProduction && appInformationComplete) || prodConnection)) &&
                     <>
                         <h4>{I18n.t("connection.production.access")}</h4>
                         <div className="identity-providers">
@@ -903,7 +920,7 @@ export const Connections = ({
                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
                     </>}
-                {(!pendingProd && !prodConnection && !proceedWithProduction) && renderTestIdPSection()}
+                {(!pendingProd && !prodConnection && !proceedWithProduction && !isRs) && renderTestIdPSection()}
             </section>
         );
     }
@@ -1125,6 +1142,7 @@ export const Connections = ({
 
     const renderSection = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         switch (section) {
             case sections.technical: {
                 return renderTechnicalSection();
@@ -1136,7 +1154,7 @@ export const Connections = ({
                 return renderProductionStatusSection();
             }
             case sections.overview: {
-                return isOidc ? renderOIDCOverview() : renderSAMLOverview();
+                return isOidc || isRs ? renderOIDCOverview() : renderSAMLOverview();
             }
             case sections.pendingChanges: {
                 return <ChangeRequests connectionName={connection.name}
@@ -1174,16 +1192,26 @@ export const Connections = ({
         }
     }
 
+    const determineNextSection = currentSection => {
+        switch (currentSection) {
+            case sections.technical:
+                return connection.protocol.value === PROTOCOLS.OAUTH20_RS ? sections.productionStatus : sections.informationProfile;
+            case sections.informationProfile:
+                return sections.productionStatus;
+            default:
+                return sections.overview;
+        }
+    }
     const storeAndNext = (finished = false) => {
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const isOpen = connection.status === CONNECTION_STATUSES.OPEN;
         let nextSection;
         if (!isOpen) {
             nextSection = section;
         } else {
-            nextSection = section === sections.technical ? sections.informationProfile :
-                section === sections.informationProfile ? sections.productionStatus : sections.overview;
+            nextSection = determineNextSection(section);
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
@@ -1195,8 +1223,12 @@ export const Connections = ({
             if (!sections.allCompleted(body)) {
                 sections.complete(body, section);
             }
+            if (section === sections.technical && isRs) {
+                //Resource servers do not have an informationProfile
+                sections.complete(body, sections.informationProfile);
+            }
             if (finished && isOpen) {
-                if (isOidc) {
+                if (isOidc || isRs) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
                 body.status = CONNECTION_STATUSES.COMPLETE;

@@ -2,7 +2,6 @@ package access.manage;
 
 import access.config.Config;
 import access.exception.NotFoundException;
-import access.exception.UserRestrictionException;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.Organization;
@@ -28,11 +27,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static access.manage.ManageData.*;
@@ -120,7 +117,7 @@ public class RemoteManage implements Manage {
     public Map<String, Object> saveProvider(Connection connection) {
         Map<String, Object> remoteProvider = StringUtils.hasText(connection.getManageIdentifier()) ?
                 providerByConnection(connection) :
-                baseStructureProvider();
+                baseStructureProvider(connection.getProtocol());
         //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
         //Attribute Release Policies that are not available in Access
         //We can't update everything if the connection is production ready, only the application data

@@ -6,6 +6,7 @@ import CreatableSelect from "react-select/creatable";
 import {Tooltip} from "@surfnet/sds";
 import AlertIcon from "../icons/alert-triangle.svg";
 import I18n from "../locale/I18n.js";
+import DOMPurify from "dompurify";
 
 export default function SelectField({
                                         onChange, name, value, options, placeholder = "", disabled = false,
@@ -48,7 +49,12 @@ export default function SelectField({
                 isSearchable={searchable}
                 isClearable={clearable}
             />}
-            {info && <p className="select-info">{info}</p>}
+            {info && <p className="select-info"
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(info
+                                , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
+                        }}/>
+            }
         </div>
     );
 }

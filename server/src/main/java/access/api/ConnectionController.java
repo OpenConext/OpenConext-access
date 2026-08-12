@@ -411,12 +411,12 @@ public class ConnectionController implements UserAccessRights {
     @SuppressWarnings("unchecked")
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is not OPEN
+        boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
                 connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
-
             boolean secretNotSet = !connection.isSecretSet();
-            if (isPrivateRelyingParty && secretNotSet) {
+            if ((isPrivateRelyingParty || isResourceServer) && secretNotSet) {
                 //generate secret if it is not already set, but store the raw-text variant, because Manage encodes it
                 String secret = (String) connection.getMetaData().getOrDefault("secret", passwordGenerator.generate().toString());
                 connection.getMetaData().put("secret", secret);
@@ -425,7 +425,7 @@ public class ConnectionController implements UserAccessRights {
             Map<String, Object> provider = manage.saveProvider(connection);
             connection.updateRemoteManageData(provider);
 
-            if (isPrivateRelyingParty && secretNotSet) {
+            if ((isPrivateRelyingParty || isResourceServer) && secretNotSet) {
                 //We must store the encrypted secret, otherwise manage will keep encrypting it again and again
                 Map<String, Object> data = getData(provider);
                 Map<String, Object> metaDataFields = getMetaDataFields(data);
@@ -451,7 +451,7 @@ public class ConnectionController implements UserAccessRights {
         }
         //Now sync the Connection to Manage, but first check if we need to connect to test IdP's
         if (connection.getState().equals(State.testaccepted) && connection.getStatus().equals(ConnectionStatus.COMPLETE) &&
-            !connection.isTestIdpInitialized()) {
+            !connection.isTestIdpInitialized() && !isResourceServer) {
             String entityID = (String) connection.getMetaData().get("entityID");
             config.getIdentityProviders().forEach(idp -> {
                 Map<String, Object> provider = manage.identityProviderByEntityID(idp.get("entityid"));

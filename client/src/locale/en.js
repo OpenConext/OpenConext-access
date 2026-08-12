@@ -397,6 +397,9 @@ const en = {
         deleteConfirmation: "Are you sure you want to delete this connection?",
         outstandingPolicies: "This connection cannot be deleted because there are outstanding policies. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> if you need this connection to be deleted.",
         policyWriteAccess: "This connection cannot be deleted because there are outstanding access rules. You can edit or delete the access rules, and then delete this connection.",
+        scopes: "Scopes",
+        scopePlaceholder: "Search and add relevant scopes for this RS",
+        scopeInfo: "Scopes are optional and if you require a new scope, you can create your own scope",
         metadata: {
             how: "How do you want to import the metadata?",
             url: "Extract metadata from url",

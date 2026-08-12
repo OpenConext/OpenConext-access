@@ -6,7 +6,6 @@ import access.model.Connection;
 import access.model.EntityType;
 import access.model.State;
 import access.model.Visibility;
-import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -51,18 +50,18 @@ public class ConnectionProviderConverter {
         Map<String, List<Map<String, Object>>> arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
         Set<String> profileAttributes = arpInfo.get("profiles").stream()
-                .map(m -> {
-                    List<String> attributes = (List) m.get("attributes");
-                    List<String> optionalAttributes = (List) m.get("optionalAttributes");
-                    attributes.addAll(optionalAttributes);
-                    return attributes;
-                })
-                .flatMap(List::stream)
-                .collect(Collectors.toSet());
+            .map(m -> {
+                List<String> attributes = (List) m.get("attributes");
+                List<String> optionalAttributes = (List) m.get("optionalAttributes");
+                attributes.addAll(optionalAttributes);
+                return attributes;
+            })
+            .flatMap(List::stream)
+            .collect(Collectors.toSet());
         excludedARPAttributes = arpInfo.get("attributes").stream()
-                .filter(m -> !profileAttributes.contains((String) m.get("name")))
-                .map(m -> (String) m.get("urn"))
-                .toList();
+            .filter(m -> !profileAttributes.contains((String) m.get("name")))
+            .map(m -> (String) m.get("urn"))
+            .toList();
     }
 
     public Map<String, Object> convert(Connection connection,
@@ -92,16 +91,18 @@ public class ConnectionProviderConverter {
         metaDataFields.put("name:en", connection.getName());
         metaDataFields.put("name:nl", connection.getName());
 
-        putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
-        putIf(metaDataFields, "coin:application_name", application.getName());
-
         putIf(metaDataFields, "description:en", information.get("descriptionEN"));
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
-        putIf(metaDataFields, "coin:application_url", information.get("webSite"));
+        putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
 
-        List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
-        putIf(metaDataFields, "application_tags", tags);
-
+        boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
+        if (!isResourceServer) {
+            putIf(metaDataFields, "coin:application_name", application.getName());
+            putIf(metaDataFields, "coin:application_url", information.get("webSite"));
+            List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
+            putIf(metaDataFields, "application_tags", tags);
+            data.put("allowedall", true);
+        }
         convertContactPersons(applicationMetaData, metaDataFields);
 
         Map<String, String> privacy = (Map<String, String>) applicationMetaData.getOrDefault("privacy", Map.of());
@@ -109,16 +110,16 @@ public class ConnectionProviderConverter {
 
         metaDataFields.put("OrganizationName:en", application.getOrganization().getName());
 
-        data.put("allowedall", true);
         data.put("revisionnote", "SURF Access update with remote API");
 
         //We have merged everything from the application now, stop if changeRequestRequired
         if (changeRequestRequired) {
             return remoteProvider;
         }
-        mergeAttributeReleasePolicies(connectionMetaData, data);
-
-        data.put("allowedEntities", List.of());
+        if (!isResourceServer) {
+            mergeAttributeReleasePolicies(connectionMetaData, data);
+            data.put("allowedEntities", List.of());
+        }
 
         if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");
@@ -147,35 +148,44 @@ public class ConnectionProviderConverter {
             });
         }
 
-        String visibility = (String) connectionMetaData.get("visibility");
-        metaDataFields.put("coin:ss:idp_visible_only", Visibility.visible_to_idp_only.name().equals(visibility));
-        metaDataFields.put("coin:ss:hidden", Visibility.visible_to_none.name().equals(visibility));
+        if (isResourceServer) {
+            metaDataFields.put("scopes", ((List<Map<String, Object>>) connectionMetaData.getOrDefault("scopes", List.of()))
+                .stream()
+                .map(scope -> scope.get("value"))
+                .toList());
+        }
 
-        String loginUrl = (String) connectionMetaData.getOrDefault("loginUrl", information.get("webSite"));
-        metaDataFields.put("coin:login_url", loginUrl);
+        if (!isResourceServer) {
+            String visibility = (String) connectionMetaData.get("visibility");
+            metaDataFields.put("coin:ss:idp_visible_only", Visibility.visible_to_idp_only.name().equals(visibility));
+            metaDataFields.put("coin:ss:hidden", Visibility.visible_to_none.name().equals(visibility));
 
-        String connectOption = (String) connectionMetaData.getOrDefault("connectOption", ConnectOptions.connect_with_interaction.name());
-        metaDataFields.put("coin:dashboard_connect_option", connectOption);
+            String loginUrl = (String) connectionMetaData.getOrDefault("loginUrl", information.get("webSite"));
+            metaDataFields.put("coin:login_url", loginUrl);
+
+            String connectOption = (String) connectionMetaData.getOrDefault("connectOption", ConnectOptions.connect_with_interaction.name());
+            metaDataFields.put("coin:dashboard_connect_option", connectOption);
+        }
 
         return remoteProvider;
     }
 
     public void convertContactPersons(Map<String, Object> applicationMetaData, Map<String, Object> metaDataFields) {
         List<Map<String, String>> contactPersons = ((List<Map<String, String>>) applicationMetaData
-                .getOrDefault("contactPersons", Collections.emptyList()))
-                .stream()
-                .filter(m -> StringUtils.hasText(m.get("email")))
-                .toList();
+            .getOrDefault("contactPersons", Collections.emptyList()))
+            .stream()
+            .filter(m -> StringUtils.hasText(m.get("email")))
+            .toList();
         //First, delete all contact persons before adding them again
         metaDataFields.keySet().removeIf(key -> key.startsWith("contacts:"));
 
         IntStream.range(0, contactPersons.size()).forEach(i -> {
             Map<String, String> contactPerson = contactPersons.get(i);
             Map.of("type", "contactType",
-                            "email", "emailAddress",
-                            "givenName", "givenName",
-                            "surName", "surName")
-                    .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
+                    "email", "emailAddress",
+                    "givenName", "givenName",
+                    "surName", "surName")
+                .forEach((k, v) -> putIf(metaDataFields, "contacts:" + i + ":" + v, contactPerson.get(k)));
         });
     }
 
@@ -193,12 +203,12 @@ public class ConnectionProviderConverter {
         diffChangeRequestRecursive("", currentData, newData, pathUpdates);
         if (pathUpdatesWarrantChangeRequest(pathUpdates)) {
             ChangeRequest changeRequest = new ChangeRequest(
-                    connection.getManageIdentifier(),
-                    connection.getProtocol(),
-                    pathUpdates,
-                    false,
-                    null,
-                    RequestType.Change);
+                connection.getManageIdentifier(),
+                connection.getProtocol(),
+                pathUpdates,
+                false,
+                null,
+                RequestType.Change);
             return Optional.of(changeRequest);
         }
         return Optional.empty();
@@ -206,7 +216,7 @@ public class ConnectionProviderConverter {
 
     private boolean pathUpdatesWarrantChangeRequest(Map<String, Object> pathUpdates) {
         return !pathUpdates.isEmpty() &&
-                (pathUpdates.size() != 1 || !pathUpdates.containsKey("revisionnote"));
+            (pathUpdates.size() != 1 || !pathUpdates.containsKey("revisionnote"));
     }
 
     public HashMap<String, Object> convertProviderToApplicationMetaData(Map<String, Object> provider) {
@@ -214,8 +224,8 @@ public class ConnectionProviderConverter {
         HashMap<String, Object> updatedMetaData = new HashMap<>();
 
         updatedMetaData.put("privacy", this.privacyInfo.stream().collect(Collectors.toMap(
-                m -> m.get("name"),
-                m -> metaDataFields.getOrDefault(m.get("manage"), "")
+            m -> m.get("name"),
+            m -> metaDataFields.getOrDefault(m.get("manage"), "")
         )));
 
         Map<String, Object> information = new HashMap<>();
@@ -227,22 +237,22 @@ public class ConnectionProviderConverter {
 
         List<String> contactTypes = List.of("administrative", "technical", "support");
         List<Map<String, Object>> contactPersons = metaDataFields
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().endsWith(":contactType") &&
-                        contactTypes.contains((String) entry.getValue()))
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey().split(":")[1],
-                        entry -> (String) entry.getValue()
-                ))
-                .entrySet().stream()
-                .map(entry -> Map.of(
-                        "type", entry.getValue(),
-                        "email", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":emailAddress", ""),
-                        "surName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":surName", ""),
-                        "givenName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":givenName", "")
-                ))
-                .toList();
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().endsWith(":contactType") &&
+                contactTypes.contains((String) entry.getValue()))
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().split(":")[1],
+                entry -> (String) entry.getValue()
+            ))
+            .entrySet().stream()
+            .map(entry -> Map.of(
+                "type", entry.getValue(),
+                "email", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":emailAddress", ""),
+                "surName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":surName", ""),
+                "givenName", metaDataFields.getOrDefault("contacts:" + entry.getKey() + ":givenName", "")
+            ))
+            .toList();
         updatedMetaData.put("contactPersons", contactPersons);
 
         return updatedMetaData;
@@ -312,12 +322,12 @@ public class ConnectionProviderConverter {
         Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.getOrDefault("attributes", Map.of());
         Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.getOrDefault("attributes", Map.of());
         existingArpAttributes.entrySet().stream()
-                .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
-                .forEach(entry -> {
-                    if (!newArpAttributes.containsKey(entry.getKey())) {
-                        newArpAttributes.put(entry.getKey(), entry.getValue());
-                    }
-                });
+            .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
+            .forEach(entry -> {
+                if (!newArpAttributes.containsKey(entry.getKey())) {
+                    newArpAttributes.put(entry.getKey(), entry.getValue());
+                }
+            });
         putIf(data, "arp", newArp);
     }
 
