@@ -95,7 +95,10 @@ public class ConnectionProviderConverter {
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
         putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
 
-        boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
+        boolean isResourceServer = EntityType.oauth20_rs.equals(connection.getProtocol());
+        boolean isRelyingParty = EntityType.oidc10_rp.equals(connection.getProtocol());
+        boolean isServiceProvider = EntityType.saml20_sp.equals(connection.getProtocol());
+
         if (!isResourceServer) {
             putIf(metaDataFields, "coin:application_name", application.getName());
             putIf(metaDataFields, "coin:application_url", information.get("webSite"));
@@ -121,7 +124,7 @@ public class ConnectionProviderConverter {
             data.put("allowedEntities", List.of());
         }
 
-        if (EntityType.oidc10_rp.equals(connection.getProtocol())) {
+        if (isRelyingParty) {
             List<String> grantTypes = (List<String>) connectionMetaData.get("grantTypes");
             putIf(metaDataFields, "grants", grantTypes);
             putIf(metaDataFields, "redirectUrls", connectionMetaData.get("redirectUrls"));
@@ -131,6 +134,9 @@ public class ConnectionProviderConverter {
             if (grantTypes.contains("refresh_token")) {
                 metaDataFields.put("refreshTokenValidity", connectionMetaData.getOrDefault("refreshTokenValidity", 3600));
             }
+        }
+
+        if (isRelyingParty || isResourceServer) {
             String secret = (String) connectionMetaData.get("secret");
             //Might be an initial secret or a deliberate reset
             if (StringUtils.hasText(secret) && secret.length() == SECRET_LENGTH) {
@@ -140,7 +146,7 @@ public class ConnectionProviderConverter {
             }
         }
 
-        if (EntityType.saml20_sp.equals(connection.getProtocol())) {
+        if (isServiceProvider) {
             List<String> acsLocations = (List<String>) connectionMetaData.getOrDefault("acsLocations", Collections.emptyList());
             IntStream.range(0, acsLocations.size()).forEach(i -> {
                 metaDataFields.put("AssertionConsumerService:" + i + ":Location", acsLocations.get(i));

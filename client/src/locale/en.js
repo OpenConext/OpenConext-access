@@ -708,7 +708,7 @@ const en = {
         remove: "Remove from appteam",
         deleteConfirmation: "Are you sure you want to delete the application role for {{name}}?",
         organizationMembersPre: "You can add ",
-        organizationMembersLink: "organisationusers",
+        organizationMembersLink: "organisation users",
         organizationMembersPost: " to this applicationteam. ",
         flashCreated: "Created application membership for {{name}}",
         createdBy: "Created by {{name}} on {{date}}",
