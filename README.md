@@ -30,6 +30,8 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 
 The `docker-compose.yaml` file in this project is meant for local development and contains a MariaDB and Mailpit instance
 
+or run `docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"`
+
 ```shell
 docker compose up -d
 ```
