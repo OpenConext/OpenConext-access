@@ -77,6 +77,11 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
             profileMotivation: motivation
         };
     }
+    const {scopes} = connection.metaData;
+    if (scopes) {
+        //When the data comes from Manage, the scopes are Strings, when not stored in Manage yet or from database, then they are objects
+        connection.metaData.scopes = scopes.map(scope => scope.value ? scope : ({value: scope, label: scope}));
+    }
     return {
         ...connection,
         ...connection.metaData,

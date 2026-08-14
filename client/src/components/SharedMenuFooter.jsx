@@ -12,7 +12,7 @@ export const SharedMenuFooter = () => {
     const [version, setVersion] = useState("");
 
     useEffect(() => {
-        info().then(res => setVersion(res.git.build.version));
+        info().then(res => setVersion(res.git?.build?.version || "0.0.1-local"));
     }, []);
 
     const handleChooseLocale = locale => {

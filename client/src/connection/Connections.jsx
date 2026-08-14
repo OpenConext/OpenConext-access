@@ -652,30 +652,32 @@ export const Connections = ({
                                      label={I18n.t("connection.claimsInIdToken")}
                                      info={I18n.t("connection.claimsInIdTokenTooltip")}
                         />
-                        {connection.status !== CONNECTION_STATUSES.OPEN &&
-                            <div className="oidc-authentication">
-                                <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
-                                <div className="oidc-authentication-inner">
-                                    <InputField name={I18n.t("connection.connectionOverview.discovery")}
-                                                value={config.discovery}
-                                                disabled={true}
-                                                copyClipBoard={true}/>
-                                    <InputField name={I18n.t("connection.connectionOverview.clientID")}
-                                                value={connection.entityID}
-                                                disabled={true}
-                                                copyClipBoard={true}/>
-                                    <div className="input-field sds--text-field secret-link">
-                                        <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
-                                        <span>{I18n.t("connection.connectionOverview.secretReset")}</span>
-                                        <a href="/" onClick={e => newClientSecret(e, true)}>
-                                            {I18n.t("connection.connectionOverview.secretResetLink")}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        }
                     </>
                 }
+                {connection.status !== CONNECTION_STATUSES.OPEN && (connection.protocol.value === PROTOCOLS.OIDC10_RP ||
+                        connection.protocol.value === PROTOCOLS.OAUTH20_RS) &&
+                    <div className="oidc-authentication">
+                        <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
+                        <div className="oidc-authentication-inner">
+                            <InputField name={I18n.t("connection.connectionOverview.discovery")}
+                                        value={config.discovery}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                            <InputField name={I18n.t("connection.connectionOverview.clientID")}
+                                        value={connection.entityID}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                            <div className="input-field sds--text-field secret-link">
+                                <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
+                                <span>{I18n.t("connection.connectionOverview.secretReset")}</span>
+                                <a href="/" onClick={e => newClientSecret(e, true)}>
+                                    {I18n.t("connection.connectionOverview.secretResetLink")}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+
                 {connection.protocol.value === PROTOCOLS.SAML20_SP &&
                     <>
                         <div className="import-metadata">
@@ -856,7 +858,8 @@ export const Connections = ({
         return (
             <section className="inner-right">
                 <h3>{I18n.t("connection.productionStatus")}</h3>
-                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
+                {prodConnection && <p>{I18n.t("connection.productionStatusReady")}</p>}
+                {!isEmpty(jiraKey) && renderProductionStatusRequested(false)}
                 {(!pendingProd && !prodConnection) &&
                     <div className="visibility-options">
                         <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
@@ -928,7 +931,7 @@ export const Connections = ({
     const renderSAMLOverview = () => {
         return (
             <section className="inner-right-overview">
-                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
+                {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
                 <h3>{I18n.t("connection.connectionOverviewSAML.title")}</h3>
                 <p className="test"
                    dangerouslySetInnerHTML={{
@@ -942,7 +945,7 @@ export const Connections = ({
     const renderOIDCOverview = () => {
         return (
             <section className="inner-right-overview">
-                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
+                {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
                 <Alert alertType={AlertType.Warning}
                        asChild={true}
@@ -968,10 +971,10 @@ export const Connections = ({
         )
     }
 
-    const renderProductionStatusRequested = () => {
+    const renderProductionStatusRequested = renderHeader => {
         return (
             <div className="production-status-requested">
-                <h3>{I18n.t("connection.productionStatusRequested.info")}</h3>
+                {renderHeader && <h3>{I18n.t("connection.productionStatusRequested.info")}</h3>}
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostInfo",
                         {jiraKey: jiraKey}))

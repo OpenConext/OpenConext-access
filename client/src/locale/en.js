@@ -350,6 +350,7 @@ const en = {
         testIdP: "Test IdP's",
         visibility: "Visibility in the catalog",
         productionStatus: "Production status",
+        productionStatusReady: "This connection is live and ready to be used in production",
         help: "Need help?",
         callSurf: "Plan a call with SURF",
         supportTicket: "Create a support ticket",

@@ -119,12 +119,12 @@ public class Connection implements NameHolder {
             return false;
         }
         if (this.protocol.equals(EntityType.oidc10_rp) &&
-                (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirectUrls")) ||
-                        CollectionUtils.isEmpty((Collection<?>) metaData.get("grantTypes")))) {
+            (CollectionUtils.isEmpty((Collection<?>) metaData.get("redirectUrls")) ||
+                CollectionUtils.isEmpty((Collection<?>) metaData.get("grantTypes")))) {
             return false;
         }
         if (this.protocol.equals(EntityType.saml20_sp) &&
-                CollectionUtils.isEmpty((Collection<?>) metaData.get("acsLocations"))) {
+            CollectionUtils.isEmpty((Collection<?>) metaData.get("acsLocations"))) {
             return false;
         }
         return true;
@@ -157,46 +157,73 @@ public class Connection implements NameHolder {
 
         String entityID = (String) data.get("entityid");
         this.metaData.put("entityID", entityID);
-        this.metaData.put("allowedall", data.get("allowedall"));
-        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of());
-        List<String> allowedEntitiesMapped = allowedEntities.stream().map(m -> m.get("name")).toList();
-        this.metaData.put("allowedEntities", allowedEntitiesMapped);
-        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
-        this.metaData.put("arp", arp);
+
+        String entityType = (String) provider.get("type");
+        boolean isChangeRequest = !StringUtils.hasText(entityType);
+        boolean isRelyingParty = isChangeRequest || entityType.equals(EntityType.oidc10_rp.name());
+        boolean isResourceServer = isChangeRequest || entityType.equals(EntityType.oauth20_rs.name());
+        boolean isServiceProvider = isChangeRequest || entityType.equals(EntityType.saml20_sp.name());
 
         Map<String, Object> metaDataFields = getMetaDataFields(data);
         this.name = (String) metaDataFields.getOrDefault("name:en", this.name);
         this.metaData.put("name", name);
-        this.metaData.put("pkce", metaDataFields.get("isPublicClient"));
-        this.metaData.put("grantTypes", metaDataFields.get("grants"));
-        this.metaData.put("refreshTokenValidity", metaDataFields.get("refreshTokenValidity"));
-        this.metaData.put("claimsInIdToken", metaDataFields.get("oidc:claims_in_id_token"));
-        this.metaData.put("secret", metaDataFields.get("secret"));
-        this.metaData.put("redirectUrls", metaDataFields.get("redirectUrls"));
-        List<String> acsLocations = new ArrayList<>();
-        IntStream.of(0, 1, 2, 3, 4, 5).forEach(index -> {
-            if (metaDataFields.containsKey("AssertionConsumerService:" + index + ":Location")) {
-                acsLocations.add((String) metaDataFields.get("AssertionConsumerService:" + index + ":Location"));
-            }
-        });
-        this.metaData.put("acsLocations", acsLocations);
         this.metaData.put("logoUrl", metaDataFields.get("logo:0:url"));
-        boolean ssHidden = (boolean) metaDataFields.getOrDefault("coin:ss:hidden", false);
-        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault("coin:ss:idp_visible_only", false);
-        String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?
+
+        if (isServiceProvider || isRelyingParty) {
+            this.metaData.put("allowedall", data.get("allowedall"));
+            List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data.getOrDefault("allowedEntities", List.of());
+            List<String> allowedEntitiesMapped = allowedEntities.stream().map(m -> m.get("name")).toList();
+            this.metaData.put("allowedEntities", allowedEntitiesMapped);
+            Map<String, Object> arp = (Map<String, Object>) data.get("arp");
+            this.metaData.put("arp", arp);
+        }
+
+        if (isRelyingParty) {
+            this.metaData.put("pkce", metaDataFields.get("isPublicClient"));
+            this.metaData.put("grantTypes", metaDataFields.get("grants"));
+            this.metaData.put("refreshTokenValidity", metaDataFields.get("refreshTokenValidity"));
+            this.metaData.put("claimsInIdToken", metaDataFields.get("oidc:claims_in_id_token"));
+            this.metaData.put("redirectUrls", metaDataFields.get("redirectUrls"));
+        }
+
+        if (isRelyingParty || isResourceServer) {
+            this.metaData.put("secret", metaDataFields.get("secret"));
+        }
+
+        if (isServiceProvider) {
+            List<String> acsLocations = new ArrayList<>();
+            IntStream.of(0, 1, 2, 3, 4, 5).forEach(index -> {
+                if (metaDataFields.containsKey("AssertionConsumerService:" + index + ":Location")) {
+                    acsLocations.add((String) metaDataFields.get("AssertionConsumerService:" + index + ":Location"));
+                }
+            });
+            this.metaData.put("acsLocations", acsLocations);
+        }
+
+        if (isServiceProvider || isRelyingParty) {
+            boolean ssHidden = (boolean) metaDataFields.getOrDefault("coin:ss:hidden", false);
+            boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault("coin:ss:idp_visible_only", false);
+            String visibility = ssHidden ? Visibility.visible_to_none.name() : idpVisibleOnly ?
                 Visibility.visible_to_idp_only.name() : Visibility.visible_to_all.name();
-        this.metaData.put("visibility", visibility);
-        this.metaData.put("loginUrl", metaDataFields.get("coin:login_url"));
-        String connectOption = (String) metaDataFields
+            this.metaData.put("visibility", visibility);
+            this.metaData.put("loginUrl", metaDataFields.get("coin:login_url"));
+            String connectOption = (String) metaDataFields
                 .getOrDefault("coin:dashboard_connect_option", ConnectOptions.connect_with_interaction.name());
-        this.metaData.put("connectOption", connectOption);
+            this.metaData.put("connectOption", connectOption);
+        }
+
+        if (isResourceServer) {
+            List<String> scopes = (List<String>) metaDataFields.getOrDefault("scopes", List.of());
+            this.metaData.put("scopes", scopes);
+        }
+
         /*
          * Business logic. If a status for a production connection is pending production and the state has changed
          * to prodaccepted, then we set the status to production ready
          */
         this.state = State.valueOf((String) data.getOrDefault("state", "testaccepted"));
         if (ConnectionStatus.PENDING_PROD.equals(this.status) &&
-                this.state.equals(State.prodaccepted)) {
+            this.state.equals(State.prodaccepted)) {
             this.status = ConnectionStatus.PROD_READY;
         }
         return changed;
@@ -229,50 +256,50 @@ public class Connection implements NameHolder {
     public void convertChangeRequests(List<Map<String, Object>> changeRequests) {
         //We need to convert the changeRequests to the same data as the metaData of a Connection
         this.changeRequests = changeRequests.stream()
-                .map(changeRequest -> {
-                    Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
-                    Map<String, Object> provider = new HashMap<>();
-                    //To prevent NullPointerException
-                    provider.put("version", -1);
+            .map(changeRequest -> {
+                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
+                Map<String, Object> provider = new HashMap<>();
+                //To prevent NullPointerException
+                provider.put("version", -1);
 
-                    Map<String, Object> data = new HashMap<>();
-                    provider.put("data", data);
+                Map<String, Object> data = new HashMap<>();
+                provider.put("data", data);
 
-                    Map<String, Object> metaDataFields = new HashMap<>();
-                    data.put("metaDataFields", metaDataFields);
+                Map<String, Object> metaDataFields = new HashMap<>();
+                data.put("metaDataFields", metaDataFields);
 
-                    pathUpdates.forEach((key, value) -> {
-                        if (key.startsWith("metaDataFields")) {
-                            //See src/test/resources/manage/change_request_large.json
-                            key = key.substring("metaDataFields.".length());
-                            metaDataFields.put(key, value);
-                        } else {
-                            //For pathUpdates to the ARP
-                            data.put(key, value);
+                pathUpdates.forEach((key, value) -> {
+                    if (key.startsWith("metaDataFields")) {
+                        //See src/test/resources/manage/change_request_large.json
+                        key = key.substring("metaDataFields.".length());
+                        metaDataFields.put(key, value);
+                    } else {
+                        //For pathUpdates to the ARP
+                        data.put(key, value);
+                    }
+                });
+                Connection connection = new Connection();
+                connection.mergeMetaData(provider, true);
+                Map<String, Object> connectionMetaData = connection.getMetaData();
+                //Now clean up all keys where the value is empty
+                connectionMetaData.entrySet().removeIf(entry -> isEmpty(entry.getValue()));
+                //Bugfix for lazy initialization of boolean values
+                Map.of(
+                        "visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
+                        "pkce", List.of("isPublicClient"),
+                        "oidc:claims_in_id_token", List.of("claimsInIdToken"),
+                        "connectOption", List.of("coin:dashboard_connect_option"))
+                    .forEach((connectionKey, manageValues) -> {
+                        if (manageValues.stream().noneMatch(val -> metaDataFields.containsKey(val))) {
+                            connectionMetaData.remove(connectionKey);
                         }
                     });
-                    Connection connection = new Connection();
-                    connection.mergeMetaData(provider, true);
-                    Map<String, Object> connectionMetaData = connection.getMetaData();
-                    //Now clean up all keys where the value is empty
-                    connectionMetaData.entrySet().removeIf(entry -> isEmpty(entry.getValue()));
-                    //Bugfix for lazy initialization of boolean values
-                    Map.of(
-                                    "visibility", List.of("coin:ss:idp_visible_only", "coin:ss:hidden"),
-                                    "pkce", List.of("isPublicClient"),
-                                    "oidc:claims_in_id_token", List.of("claimsInIdToken"),
-                                    "connectOption", List.of("coin:dashboard_connect_option"))
-                            .forEach((connectionKey, manageValues) -> {
-                                if (manageValues.stream().noneMatch(val -> metaDataFields.containsKey(val))) {
-                                    connectionMetaData.remove(connectionKey);
-                                }
-                            });
-                    //copy some of the auditData for display purposes and revoke functionality
-                    List.of("id", "metaDataId", "type", "auditData", "created", "ticketKey")
-                            .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
-                    return connectionMetaData;
-                })
-                .toList();
+                //copy some of the auditData for display purposes and revoke functionality
+                List.of("id", "metaDataId", "type", "auditData", "created", "ticketKey")
+                    .forEach(attr -> connectionMetaData.put(attr, changeRequest.get(attr)));
+                return connectionMetaData;
+            })
+            .toList();
     }
 
 }

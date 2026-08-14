@@ -350,6 +350,7 @@ const nl = {
         testIdP: "Test‑IdP's",
         visibility: "Zichtbaarheid in de catalogus",
         productionStatus: "Productie status",
+        productionStatusReady: "Deze koppeling is live en gereed om te worden gebruikt in productie",
         help: "Hulp nodig?",
         callSurf: "Plan een gesprek met SURF",
         supportTicket: "Maak een support‑ticket",

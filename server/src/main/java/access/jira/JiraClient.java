@@ -1,6 +1,7 @@
 package access.jira;
 
 import access.mail.MailBox;
+import access.model.EntityType;
 import access.remote.RestTemplateFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +62,9 @@ public class JiraClient {
         fields.put("project", Map.of("key", jiraConfig.getProjectKey()));
         fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
         fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
-        fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", issue.getEntityType().name()));
+        //can be removed when https://jira.ia.surf.nl/servicedesk/customer/portal/1/ISSD-46489 is resolved
+        EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();
+        fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", entityType.name()));
         fields.put("customfield_" + emailToCustomField(), issue.getEmailTo());
         fields.put("issuetype", ImmutableMap.of("id", issueType));
         fields.put("summary", issue.getSummary());

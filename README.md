@@ -108,3 +108,12 @@ yarn outdated
 ### [Designs](#design)
 
 https://www.figma.com/design/81StIVqfOKfwhWVjx7Ew81/SURF-Access?node-id=1916-18441&t=gmckiSapuONmLn5u-4
+
+### [Minio](#minio)
+
+```
+exec -it minio bash
+mc alias set local http://localhost:9000 minioadmin minioadmin
+mc ls local
+mc rb --force --dangerous local/s3-images
+```
