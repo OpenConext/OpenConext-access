@@ -71,8 +71,9 @@ const App = () => {
         } else {
             const organizationId = localStorage.getItem("organization");
             if (isEmpty(organizationId)) {
-                localStorage.setItem("organization", organizationId.toString());
-                return user.organizationMemberships[0].organization;
+                const organization = user.organizationMemberships[0].organization;
+                localStorage.setItem("organization", organization.id.toString());
+                return organization;
             } else {
                 return currentOrganizationFromUser(user, organizationId);
             }
