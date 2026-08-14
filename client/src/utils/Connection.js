@@ -3,19 +3,28 @@ import {isEmpty} from "./Utils.js";
 
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
-    const currentProfile = arpInfo.profiles.find(p => p.name === profile.value);
-    const selectedAttributes = currentProfile.attributes.concat(additionalAttributes);
-    const attributes = arpInfo.attributes.filter(attribute => selectedAttributes.includes(attribute.name));
-    const arpAttributes = attributes.reduce((acc, attr) => {
-        acc[attr.urn] = [
-            {
-                "source": attr.overrideSource || "idp",
-                "value": "*",
-                "motivation": motivations[attr.name] || "Default for profile"
-            }
-        ];
-        return acc;
-    }, {});
+    let arpFields = {};
+    if (!isEmpty(profile)) {
+        const currentProfile = arpInfo.profiles.find(p => p.name === profile.value);
+        const selectedAttributes = currentProfile.attributes.concat(additionalAttributes);
+        const attributes = arpInfo.attributes.filter(attribute => selectedAttributes.includes(attribute.name));
+        const arpAttributes = attributes.reduce((acc, attr) => {
+            acc[attr.urn] = [
+                {
+                    "source": attr.overrideSource || "idp",
+                    "value": "*",
+                    "motivation": motivations[attr.name] || "Default for profile"
+                }
+            ];
+            return acc;
+        }, {});
+        arpFields = {
+            attributes: arpAttributes,
+            profile: currentProfile.name,
+            motivation: profileMotivation,
+            enabled: true
+        }
+    }
     //We are returning all fields combined for the protocols, server side everything is filtered and merged with the manage data
     return {
         ...connection,
@@ -37,10 +46,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             claimsInIdToken: connection.claimsInIdToken,
             loginUrl: connection.loginUrl,
             arp: {
-                attributes: arpAttributes,
-                profile: currentProfile.name,
-                motivation: profileMotivation,
-                enabled: true
+                ...arpFields
             }
         }
     };

@@ -93,6 +93,7 @@ public class ConnectionProviderConverter {
 
         putIf(metaDataFields, "description:en", information.get("descriptionEN"));
         putIf(metaDataFields, "description:nl", information.get("descriptionNL"));
+        putIf(metaDataFields, "coin:application_url", information.get("webSite"));
         putIf(metaDataFields, "logo:0:url", application.getLogoUrl());
 
         boolean isResourceServer = EntityType.oauth20_rs.equals(connection.getProtocol());
@@ -101,7 +102,6 @@ public class ConnectionProviderConverter {
 
         if (!isResourceServer) {
             putIf(metaDataFields, "coin:application_name", application.getName());
-            putIf(metaDataFields, "coin:application_url", information.get("webSite"));
             List<String> tags = (List<String>) information.getOrDefault("tags", List.of());
             putIf(metaDataFields, "application_tags", tags);
             data.put("allowedall", true);
@@ -321,19 +321,27 @@ public class ConnectionProviderConverter {
     private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
     }
 
-    private void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
+    protected void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
         Map<String, Object> newArp = (Map<String, Object>) connectionMetaData.getOrDefault("arp", new HashMap<>());
         Map<String, Object> arpFromManage = (Map<String, Object>) data.getOrDefault("arp", Map.of());
         //Merge the two ARP's, ensuring no existing attributes are overridden which are in the excludedARPAttributes
         Map<String, List<Map<String, String>>> existingArpAttributes = (Map<String, List<Map<String, String>>>) arpFromManage.getOrDefault("attributes", Map.of());
         Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) newArp.getOrDefault("attributes", Map.of());
-        existingArpAttributes.entrySet().stream()
-            .filter(entry -> excludedARPAttributes.contains(entry.getKey()))
-            .forEach(entry -> {
-                if (!newArpAttributes.containsKey(entry.getKey())) {
-                    newArpAttributes.put(entry.getKey(), entry.getValue());
-                }
-            });
+        existingArpAttributes.forEach((arpAttributeName, value) -> {
+            if (newArpAttributes.containsKey(arpAttributeName)) {
+                Map<String, String> newArpEntry = newArpAttributes.get(arpAttributeName).getFirst();
+                Map<String, String> manageArpEntry = existingArpAttributes.get(arpAttributeName).getFirst();
+                //If both ARP's contain this entry, then we will keep the source and value from Manage - may be changed in Manage
+                List.of("source", "value").forEach(name -> {
+                    String manageValue = manageArpEntry.get(name);
+                    if (StringUtils.hasText(manageValue)) {
+                        newArpEntry.put(name, manageValue);
+                    }
+                });
+            } else if (this.excludedARPAttributes.contains(arpAttributeName)) {
+                newArpAttributes.put(arpAttributeName, value);
+            }
+        });
         putIf(data, "arp", newArp);
     }
 

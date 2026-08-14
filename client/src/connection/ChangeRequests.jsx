@@ -123,7 +123,16 @@ export const ChangeRequests = ({
 
     const formatLogicalValue = (attribute, change, value) => {
         if (attribute === "arp") {
-            return change.path[1] === "attributes" ? translateARPKey(change.path[2]) : value;
+            if (change.path[1] !== "attributes") {
+                return value;
+            }
+            const friendlyName = translateARPKey(change.path[2]);
+            if (change.path.length > 3) {
+                const fieldKey = change.path[change.path.length - 1];
+                const fieldLabel = I18n.t(`changeRequests.${fieldKey}`, {defaultValue: fieldKey});
+                return `${friendlyName} - ${fieldLabel} - ${value}`;
+            }
+            return friendlyName;
         }
         if (enumerations.includes(attribute)) {
             return I18n.t(`changeRequests.${value}`);
@@ -229,6 +238,9 @@ export const ChangeRequests = ({
                             newValue: value[1],
                         });
                     }
+                } else if (typeof value === "object" && value !== null) {
+                    // nested delta within an array element (e.g. a sub-property changed)
+                    extractChanges(value, currentPath, changes);
                 }
                 continue;
             }

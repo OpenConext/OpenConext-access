@@ -460,7 +460,7 @@ const en = {
                 pseudonymized: {
                     name: "Pseudonymised",
                     title: "Privacy friendly including reliability",
-                    info: "his bundle is specifically designed for ...",
+                    info: "This bundle is specifically designed for content applications",
                 },
                 personalized: {
                     name: "Personalised",

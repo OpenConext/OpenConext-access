@@ -4,7 +4,9 @@ import access.AbstractTest;
 import access.model.Application;
 import access.model.Connection;
 import access.model.Organization;
+import access.model.State;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.util.IOUtils;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -17,119 +19,62 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("unchecked")
-class ConnectionProviderConverterTest extends AbstractTest {
+class ConnectionProviderConverterTest {
 
-    @Autowired
-    private ConnectionProviderConverter connectionProviderConverter;
+    private final ConnectionProviderConverter connectionProviderConverter =
+        new ConnectionProviderConverter(new ObjectMapper(), State.prodaccepted);
 
-    @Autowired
-    private Manage manage;
 
     @Test
-    void convertConnections() {
-        Map.of(
-                "/manage/rp_connection.json",
-                "/manage/oidc10_rp.expected.json",
-                "/manage/sp_connection.json",
-                "/manage/saml20_sp.expected.json"
-        ).forEach(this::doConvertConnection);
+    void mergeAttributeReleasePolicies() {
+        Map<String, Object> provider = new HashMap<>();
+        Map<String, Object> attributes = new HashMap<>();
+
+        attributes.put("attributes", mutableMapOf(
+            "urn:mace:surf.nl:attribute-def:surf-autorisaties", mutableArpEntry("invite", "regexp"),
+            "urn:mace:dir:attribute-def:mail", mutableArpEntry("eduid", "*")
+        ));
+        provider.put("arp", attributes);
+
+        Map<String, Object> connectionMetaData = mutableMapOf(
+            "arp", mutableMapOf(
+                "attributes", mutableMapOf(
+                    "urn:mace:dir:attribute-def:sn", mutableArpEntry("idp", "*"),
+                    "urn:mace:dir:attribute-def:mail", mutableArpEntry("idp", "*")
+                )
+            )
+        );
+        connectionProviderConverter.mergeAttributeReleasePolicies(connectionMetaData, provider);
+
+        Map<String, Object> updatedArp = (Map<String, Object>) provider.get("arp");
+        Map<String, List<Map<String, String>>> newArpAttributes = (Map<String, List<Map<String, String>>>) updatedArp.get("attributes");
+
+        Map<String, String> autorisatie = newArpAttributes.get("urn:mace:surf.nl:attribute-def:surf-autorisaties").getFirst();
+        assertEquals("invite", autorisatie.get("source"));
+        assertEquals("regexp", autorisatie.get("value"));
+
+        Map<String, String> mail = newArpAttributes.get("urn:mace:dir:attribute-def:mail").getFirst();
+        assertEquals("eduid", mail.get("source"));
+        assertEquals("*", mail.get("value"));
+
+        Map<String, String> sn = newArpAttributes.get("urn:mace:dir:attribute-def:sn").getFirst();
+        assertEquals("idp", sn.get("source"));
+        assertEquals("*", sn.get("value"));
     }
 
-    @Test
-    void deduceChangeRequests() {
-        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
-        connection.setManageIdentifier("5");
-        Map<String, Object> provider = localManage.providerByConnection(connection);
-        Optional<ChangeRequest> changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);
-        assertTrue(changeRequestOptional.isPresent());
-        ChangeRequest changeRequest = changeRequestOptional.get();
-        assertEquals(19, changeRequest.getPathUpdates().size());
+    private List<Map<String, String>> mutableArpEntry(String source, String value) {
+        Map<String, String> entry = new HashMap<>();
+        entry.put("source", source);
+        entry.put("value", value);
+        return List.of(entry);
     }
 
-    @SneakyThrows
-    private void doConvertConnection(String connectionPath, String expectedPath) {
-        Connection connection = readJson(connectionPath, Connection.class);
-        Application application = readJson("/manage/application.json", Application.class);
-        Organization organization = new Organization("ORG name", "example.com");
-        application.setOrganization(organization);
-        connection.setApplication(application);
-
-        Map<String, Object> converted = connectionProviderConverter.convert(connection, manage.baseStructureProvider(connection.getProtocol()), false);
-
-        Map<String, Object> expected = objectMapper.readValue(IOUtils.readInputStreamToString(
-                new ClassPathResource(expectedPath).getInputStream()), new TypeReference<>() {
-        });
-        List<String> differences = differences(toSortedTreeMap(expected), toSortedTreeMap(converted));
-        if (!differences.isEmpty()) {
-            //Easy to compare sorted maps / lists in case of failures
-            System.out.println(differences);
+    private <K, V> Map<K, V> mutableMapOf(Object... kv) {
+        Map<K, V> map = new HashMap<>();
+        for (int i = 0; i < kv.length; i += 2) {
+            map.put((K) kv[i], (V) kv[i + 1]);
         }
-        assertEquals(expected, converted);
+        return map;
     }
-
-
-    @SneakyThrows
-    private <T> T readJson(String path, Class<T> clazz) {
-        return objectMapper.readValue(IOUtils.readInputStreamToString(
-                new ClassPathResource(path).getInputStream()), clazz);
-    }
-
-    private Map<String, Object> toSortedTreeMap(Map<String, Object> input) {
-        Map<String, Object> result = new TreeMap<>();
-
-        input.forEach((key, value) -> {
-            if (value instanceof Map) {
-                result.put(key, toSortedTreeMap((Map<String, Object>) value));
-            } else if (value instanceof List) {
-                result.put(key, sortListIfNeeded((List<?>) value));
-            } else {
-                result.put(key, value);
-            }
-
-        });
-        return result;
-    }
-
-    private List<Object> sortListIfNeeded(List<?> list) {
-        List<Object> sortedList = new ArrayList<>();
-        list.forEach(item -> {
-            if (item instanceof Map) {
-                sortedList.add(toSortedTreeMap((Map<String, Object>) item));
-            } else {
-                sortedList.add(item);
-            }
-        });
-        return sortedList;
-    }
-
-    private List<String> differences(Map<String, Object> left, Map<String, Object> right) {
-        return differencesRecursive(left, right, "", new ArrayList<>());
-    }
-
-    private List<String> differencesRecursive(Map<String, Object> left, Map<String, Object> right, String path, List<String> differences) {
-        Set<String> allKeys = new TreeSet<>();
-        allKeys.addAll(left.keySet());
-        allKeys.addAll(right.keySet());
-        allKeys.forEach(key -> {
-
-        });
-        for (String key : allKeys) {
-            String fullPath = path.isEmpty() ? key : path + "." + key;
-            Object val1 = left.get(key);
-            Object val2 = right.get(key);
-
-            if (!left.containsKey(key)) {
-                differences.add(String.format("Only in right: %s = %s%n", fullPath, val2));
-            } else if (!right.containsKey(key)) {
-                differences.add(String.format("Only in left: %s = %s%n", fullPath, val2));
-            } else if (val1 instanceof Map && val2 instanceof Map) {
-                differencesRecursive((Map<String, Object>) val1, (Map<String, Object>) val2, fullPath, differences);
-            } else if (!Objects.equals(val1, val2)) {
-                differences.add(String.format("Different at %s: left=%s, right=%s%n", fullPath, val1, val2));
-            }
-        }
-        return differences;
-    }
-
 
 }

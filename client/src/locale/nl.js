@@ -460,7 +460,7 @@ const nl = {
                 pseudonymized: {
                     name: "Gepseudonimiseerd",
                     title: "Privacy‑vriendelijk inclusief betrouwbaarheid",
-                    info: "Deze bundel is specifiek ontworpen voor ...",
+                    info: "Deze bundel is specifiek ontworpen voor content applicaties",
                 },
                 personalized: {
                     name: "Gepersonaliseerd",
