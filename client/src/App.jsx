@@ -66,11 +66,14 @@ const App = () => {
 
     const loadUserOrganization = user => {
         const currentOrganization = useAppStore.getState().currentOrganization;
-        if (currentOrganization.id) {
+        if (currentOrganization?.id) {
             return currentOrganizationFromUser(user, currentOrganization.id);
         } else {
             const organizationId = localStorage.getItem("organization");
             if (isEmpty(organizationId)) {
+                if (isEmpty(user.organizationMemberships)) {
+                    return null;
+                }
                 const organization = user.organizationMemberships[0].organization;
                 localStorage.setItem("organization", organization.id.toString());
                 return organization;

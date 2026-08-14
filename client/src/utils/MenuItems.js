@@ -41,7 +41,7 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     }
     const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
         m.organization.id === currentOrganization.id);
-    if (noOrganizationMemberships || onlyGuest) {
+    if (onlyGuest) {
         newMenuItems.push(mainMenuItems.yourApps);
         return newMenuItems;
     }

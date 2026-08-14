@@ -37,7 +37,7 @@ export const SharedMenu = () => {
                         //     I18n.t(`navigation.tooltips.${menuItem.name}`),
                         tooltip: null,
                         active: menuItem.name === activeMenuItem,
-                        href: menuItem.path.replace("organizationId", currentOrganization.id)
+                        href: menuItem.path.replace("organizationId", currentOrganization?.id)
                     }))
             }))
             .filter(menuGroup => menuGroup.items.length > 0);
@@ -56,7 +56,7 @@ export const SharedMenu = () => {
         return null;
     }
 
-    const isPendingApproval = currentOrganization.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;
+    const isPendingApproval = currentOrganization?.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;
     return (
         <NavigationMenu
             groups={filteredMenuGroups}
