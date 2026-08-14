@@ -2,11 +2,19 @@
 @use "../index";
 
 .monitoring-container {
-    padding: 35px 50px 50px;
+    padding: 35px 0 50px 0;
+    @media (min-width: $max-stats) {
+        margin: 0 auto;
+        width: $max-stats;
+    }
+
+    @media (max-width: $max-stats) {
+        margin: 0 20px;
+    }
+
     display: flex;
     flex-direction: column;
     gap: 28px;
-    @include index.page-media;
 
     // ── Header ──────────────────────────────────────────────────────────────
     .monitoring-header {
@@ -84,11 +92,17 @@
             overflow-y: auto;
             max-height: 72vh;
             border-radius: 12px 0 0 12px;
+            position: sticky;
+            top: 0;
+            background-color: white;
 
             // Search bar wrapper — SDS classes handle the input styling
             .search-bar {
                 padding: 12px 14px;
                 border-bottom: 1px solid var(--sl-color-neutral-200);
+                position: sticky;
+                top: 0;
+                background-color: white;
             }
 
             // Loading spinner

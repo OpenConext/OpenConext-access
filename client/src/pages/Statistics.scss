@@ -2,12 +2,21 @@
 @use "../index";
 
 .statistics-container {
-    padding: 35px 50px 0 50px;
+    padding: 35px 0 40px 0;
+    @media (min-width: $max-stats) {
+        margin: 0 auto;
+        width: $max-stats;
+    }
+
+    @media (max-width: $max-stats) {
+        margin: 0 20px;
+    }
+
+    margin: 0 auto;
+    max-width: $max-stats;
     display: flex;
     flex-direction: column;
     gap: 40px;
-    padding-bottom: 40px;
-    @include index.page-media;
 
     .statistics-header {
         display: flex;
@@ -115,13 +124,16 @@
         display: flex;
         gap: 20px;
         align-items: flex-end;
+
         h1 {
             line-height: 2.25rem;
         }
+
         p.no-comparison {
             color: var(--sl-color-neutral-500);
             align-self: center;
         }
+
         span {
             &.blue {
                 background-color: var(--sds--color--blue--400);
