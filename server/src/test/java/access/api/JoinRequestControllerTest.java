@@ -86,7 +86,7 @@ class JoinRequestControllerTest extends AbstractMailTest {
                 .statusCode(HttpStatus.CREATED.value());
 
         String htmlContent = super.mailMessage().getHtmlContent();
-        assertTrue(htmlContent.contains(SHARE_LOGICS));
+        assertTrue(htmlContent.contains(SHARE_LOGICS), htmlContent);
 
         Optional<JoinRequest> optionalJoinRequest = joinRequestRepository.findById(joinRequestId);
         assertFalse(optionalJoinRequest.isPresent());
