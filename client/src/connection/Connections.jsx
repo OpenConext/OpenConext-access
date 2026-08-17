@@ -44,6 +44,7 @@ import {ChangeRequests} from "./ChangeRequests.jsx";
 import {useShallow} from "zustand/react/shallow";
 import {ConnectionInUseWarning, units} from "./ConnectionInUseWarning.jsx";
 import {hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const metaData = {
     url: "url",
@@ -134,6 +135,9 @@ export const Connections = ({
                     "?action=activate");
             }
         }
+        useAppStore.setState({
+            activeMenuItem: mainMenuItems.yourApps
+        });
     }, [application]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const isPending = sectionName => {

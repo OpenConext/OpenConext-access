@@ -55,5 +55,6 @@ security.MD
 logs_*.zip
 OhDearServiceRemoteTest.java
 server/src/main/resources/Changelog.md
-# For now ignore cluade
+# For now ignore claude
 .claude
+SPRING_MIGRATION.md

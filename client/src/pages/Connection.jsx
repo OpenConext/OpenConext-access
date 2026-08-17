@@ -71,7 +71,8 @@ export const Connection = () => {
                             menuItemName: mainMenuItems.yourApps
                         },
                         {value: res.name}
-                    ]
+                    ],
+                    activeMenuItem: mainMenuItems.yourApps
                 });
                 Promise.all([getIdentityProviders(), getScopes()]).then(([allIdentityProviders, allScopes]) => {
                     setIdentityProviders(allIdentityProviders);
