@@ -230,6 +230,19 @@ public class ConnectionController implements UserAccessRights {
 
     private String doRequestProductionStatus(User user, Connection connection) {
         Map<String, Object> provider = manage.providerByConnection(connection);
+        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        config.getIdentityProviders().forEach(idp -> {
+            Map<String, Object> idpData = manage.identityProviderByEntityID(idp.get("entityid"));
+            Map<String, Object> data = getData(idpData);
+            List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
+                .getOrDefault("allowedEntities", new ArrayList<>());
+            List<Map<String, String>> newAllowedEntities = allowedEntities.stream()
+                .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
+                .toList();
+            data.put("allowedEntities", newAllowedEntities);
+            manage.saveIdentityProvider(provider);
+        });
+
         if (config.isTestEnvironment()) {
             Map<String, Object> data = getData(provider);
             data.put("state", State.prodaccepted.name());
@@ -240,8 +253,6 @@ public class ConnectionController implements UserAccessRights {
         }
         String changeRequestURL = manage.changeRequestURL(connection);
 
-
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Production status requested by %s for %s.",
             user.getName(), connection.getName());
@@ -455,9 +466,11 @@ public class ConnectionController implements UserAccessRights {
             String entityID = (String) connection.getMetaData().get("entityID");
             config.getIdentityProviders().forEach(idp -> {
                 Map<String, Object> provider = manage.identityProviderByEntityID(idp.get("entityid"));
-                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) getData(provider)
+                Map<String, Object> data = getData(provider);
+                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
                     .getOrDefault("allowedEntities", new ArrayList<>());
                 allowedEntities.add(Map.of("name", entityID));
+                data.put("allowedEntities", allowedEntities);
                 manage.saveIdentityProvider(provider);
             });
             connection.setTestIdpInitialized(true);
