@@ -9,8 +9,8 @@ import access.model.ConnectionStatus;
 import access.model.EntityType;
 import access.model.GrantType;
 import access.model.State;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
@@ -475,7 +475,7 @@ class ConnectionControllerTest extends AbstractTest {
     }
 
     @Test
-    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+    void identityProvidersByAllowedConnections() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
 

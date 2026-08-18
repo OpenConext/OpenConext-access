@@ -6,8 +6,6 @@ import access.manage.Contact;
 import access.manage.LocalManage;
 import access.model.*;
 import access.repository.*;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -46,6 +44,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -179,8 +179,8 @@ public abstract class AbstractTest {
     @BeforeAll
     protected static void beforeAll() {
         RestAssured.config = RestAssuredConfig.config()
-                .objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
-                        new ConfigurableJackson2ObjectMapperFactory()));
+                .objectMapperConfig(new ObjectMapperConfig().jackson3ObjectMapperFactory(
+                        new ConfigurableJackson3ObjectMapperFactory()));
     }
 
     @BeforeEach

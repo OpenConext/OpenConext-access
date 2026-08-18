@@ -4,7 +4,7 @@ import access.AbstractTest;
 import access.model.Connection;
 import access.model.EntityType;
 import access.model.State;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providers() throws JsonProcessingException {
+    void providers() throws JacksonException {
         List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.saml20_sp);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
@@ -41,7 +41,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providerByConnection() throws JsonProcessingException {
+    void providerByConnection() throws JacksonException {
         Map<String, Object> provider = localManage.providerByConnection(connection(EntityType.saml20_sp, "1"));
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
@@ -54,7 +54,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providerByConnectionNoDataChanged() throws JsonProcessingException {
+    void providerByConnectionNoDataChanged() throws JacksonException {
         Map<String, String> errorMap = Map.of("validations", "No data is changed");
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -65,7 +65,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void providerByConnectionExceptionHandling() throws JsonProcessingException {
+    void providerByConnectionExceptionHandling() throws JacksonException {
         Map<String, String> errorMap = Map.of("error", "NotFound");
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -76,7 +76,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void identityProvidersLight() throws JsonProcessingException {
+    void identityProvidersLight() throws JacksonException {
         List<Map<String, Object>> identityProviders = localManage.providers(EntityType.saml20_idp);
         String body = objectMapper.writeValueAsString(identityProviders);
 
@@ -89,7 +89,7 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
-    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+    void identityProvidersByAllowedConnections() throws JacksonException {
         List<Connection> connections = List.of(
                 connection(EntityType.saml20_sp, "4"),
                 connection(EntityType.oidc10_rp, "5")

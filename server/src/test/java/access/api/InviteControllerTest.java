@@ -4,7 +4,7 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
 import access.model.Organization;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;

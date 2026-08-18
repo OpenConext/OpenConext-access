@@ -4,7 +4,7 @@ import access.AbstractTest;
 import access.model.Application;
 import access.model.Connection;
 import access.model.Organization;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;

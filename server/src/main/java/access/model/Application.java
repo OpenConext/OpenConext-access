@@ -62,7 +62,7 @@ public class Application implements NameHolder {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column
+    @Column(name = "created_by")
     private String createdBy;
 
     @Enumerated(EnumType.STRING)

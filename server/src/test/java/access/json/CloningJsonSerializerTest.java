@@ -1,6 +1,7 @@
 package access.json;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +23,10 @@ class CloningJsonSerializerTest {
 
     @Test
     void testCloneException() {
-        assertThrows(IllegalArgumentException.class, () -> serializer.clone(new InnerObject("nope")));
+        // Jackson 3's ObjectMapper#convertValue no longer wraps failures as IllegalArgumentException
+        // (that wrapping was Jackson 2-specific, needed because JsonMappingException was checked;
+        // Jackson 3's JacksonException hierarchy is unchecked, so it propagates directly).
+        assertThrows(MismatchedInputException.class, () -> serializer.clone(new InnerObject("nope")));
     }
 
     private static class InnerObject {

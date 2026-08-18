@@ -10,7 +10,7 @@ import access.model.OrganizationMembership;
 import access.model.User;
 import access.request.JoinRequestApproval;
 import access.request.JoinRequestForm;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserControllerFeedbackTest extends AbstractMailTest {
 
     @Test
-    void feedback() throws JsonProcessingException {
+    void feedback() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
         Map<String, String> body = Map.of("message", "improve");
         given()
@@ -44,7 +44,7 @@ class UserControllerFeedbackTest extends AbstractMailTest {
     }
 
     @Test
-    void noFeedback() throws JsonProcessingException {
+    void noFeedback() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
         Map<String, String> body = Map.of("message", "");
         given()

@@ -3,7 +3,7 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.Contract;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;

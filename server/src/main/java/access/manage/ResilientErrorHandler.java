@@ -1,7 +1,7 @@
 package access.manage;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.util.IOUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;

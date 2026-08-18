@@ -7,8 +7,8 @@ import access.manage.StepUpType;
 import access.model.EntityType;
 import access.model.Organization;
 import access.security.InstitutionAdmin;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import com.nimbusds.jose.util.IOUtils;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -145,7 +145,7 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
-    void autoComplete() throws JsonProcessingException {
+    void autoComplete() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
         Map<String, List<Map<String, Object>>> entities = localManage.autoCompleteEntities(EntityType.saml20_sp, "Wiki");
         String body = objectMapper.writeValueAsString(entities);
@@ -321,7 +321,7 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
-    void allowedAttributes() throws JsonProcessingException {
+    void allowedAttributes() throws JacksonException {
         List<Map<String, Object>> allowedAttributes = localManage.allowedAttributes();
         String body = objectMapper.writeValueAsString(allowedAttributes);
         stubFor(get("/manage/api/internal/protected/allowed-attributes")

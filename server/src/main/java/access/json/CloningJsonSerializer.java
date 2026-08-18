@@ -1,6 +1,6 @@
 package access.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.util.JsonSerializer;
 
 public class CloningJsonSerializer implements JsonSerializer {

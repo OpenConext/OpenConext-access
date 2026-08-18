@@ -1,6 +1,6 @@
 package access.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;

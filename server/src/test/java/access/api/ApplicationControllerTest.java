@@ -12,8 +12,8 @@ import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
 import access.model.NameExistsRequest;
 import access.model.Organization;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
@@ -283,7 +283,7 @@ class ApplicationControllerTest extends AbstractTest {
     }
 
     @Test
-    void identityProvidersByAllowedConnections() throws JsonProcessingException {
+    void identityProvidersByAllowedConnections() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
         Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
 

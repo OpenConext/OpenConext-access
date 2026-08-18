@@ -3,7 +3,7 @@ package access.stats;
 import access.manage.ConnectionProviderConverter;
 import access.manage.LocalManage;
 import access.model.State;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

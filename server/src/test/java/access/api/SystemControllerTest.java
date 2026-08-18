@@ -3,7 +3,7 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.model.EntityType;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class SystemControllerTest extends AbstractTest {
     }
 
     @Test
-    void demoSeed() throws JsonProcessingException {
+    void demoSeed() throws JacksonException {
         // Both connections are new (no manageIdentifier), so saveProvider issues a POST
         Map<String, Object> response = Map.of(
                 "id", UUID.randomUUID().toString(),

@@ -21,7 +21,7 @@ public class BearerTokenInterceptor implements ClientHttpRequestInterceptor {
             HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 
         HttpHeaders headers = request.getHeaders();
-        if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+        if (!headers.containsHeader(HttpHeaders.AUTHORIZATION)) {
             headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
         }
         return execution.execute(request, body);

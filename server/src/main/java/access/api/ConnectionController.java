@@ -22,7 +22,7 @@ import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
 import access.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
