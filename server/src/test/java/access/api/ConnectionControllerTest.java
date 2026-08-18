@@ -454,6 +454,8 @@ class ConnectionControllerTest extends AbstractTest {
         stubFor(post(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(postManageResponse))));
+        Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForSaveIdentityProvider(idp);
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         given()
