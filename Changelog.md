@@ -12,6 +12,7 @@
 - Impersonation no longer adds memberships to the impersonated user.
 - Defensive handling of the `enabled-apps` endpoint to prevent 404 errors.
 - Updated backend and frontend dependencies (Maven, npm, GitHub Actions).
+- Upgraded to Spring Boot 4.1.0
 
 ### Bug Fixes
 - Removed the non-functional 'Approve all' button for external organization members and guests ([#779](https://github.com/OpenConext/OpenConext-access/issues/779)).
