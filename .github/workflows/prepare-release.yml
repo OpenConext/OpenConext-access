@@ -1,0 +1,96 @@
+---
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 0.3.0), must not end in -SNAPSHOT"
+        required: true
+        type: string
+      dry_run:
+        description: "Generate the changelog and version bump without committing, tagging or pushing"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate version input
+        run: |
+          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version '${{ inputs.version }}' must look like MAJOR.MINOR.PATCH (no -SNAPSHOT, no leading v)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Generate changelog section for ${{ inputs.version }}
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ inputs.version }} --prepend Changelog.md
+
+      - name: Bump Maven versions to ${{ inputs.version }}
+        run: |
+          mvn --batch-mode versions:set -DnewVersion=${{ inputs.version }} -DprocessAllModules=true
+          mvn --batch-mode versions:commit
+
+      - name: Show generated changes (dry run)
+        if: ${{ inputs.dry_run }}
+        run: |
+          {
+            echo '## Dry run: changes for release ${{ inputs.version }}'
+            echo '```diff'
+            git diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Discard changes (dry run)
+        if: ${{ inputs.dry_run }}
+        run: git checkout -- .
+
+      - name: Configure git identity
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit release
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git add Changelog.md pom.xml server/pom.xml client/pom.xml
+          git commit -m "Release ${{ inputs.version }}"
+          git push origin main
+
+      - name: Tag release
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git tag ${{ inputs.version }}
+          git push origin ${{ inputs.version }}
+
+      - name: Bump to next SNAPSHOT
+        if: ${{ !inputs.dry_run }}
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ inputs.version }}"
+          NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))-SNAPSHOT"
+          mvn --batch-mode versions:set -DnewVersion="$NEXT_VERSION" -DprocessAllModules=true
+          mvn --batch-mode versions:commit
+          git add pom.xml server/pom.xml client/pom.xml
+          git commit -m "Back to SNAPSHOT dev cycle ${{ inputs.version }}"
+          git push origin main

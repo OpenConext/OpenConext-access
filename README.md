@@ -104,6 +104,34 @@ nvm use
 yarn outdated
 ```
 
+### [Commits, Pull Requests & Changelog](#commits-pull-requests-changelog)
+
+[Changelog.md](Changelog.md) is generated automatically from commit history using
+[git-cliff](https://git-cliff.org/), so commit messages need to follow the
+[Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>: <description>
+```
+
+with `type` one of `feat`, `fix`, `perf`, `refactor`, `docs`, `chore`, `ci`, `build`, `test`, `revert`.
+Only `feat`, `fix`, `perf` and `refactor` end up in the changelog (as Features, Bug Fixes and
+Improvements respectively); the rest are intentionally left out to keep it user-facing.
+
+For Pull Requests:
+
+- The **PR title** must follow the same format — it's checked automatically by the
+  `PR title lint` workflow, e.g. `feat: add organization-level contracts`.
+- Merge with **"Squash and merge"**, using the PR title as the commit message. This keeps the
+  history on `main` as a clean, one-line-per-change log that the changelog generator can parse,
+  regardless of how messy the commits inside the branch were.
+- Reference an issue with `#123` in the title or body to have it turned into a link automatically.
+
+Releases are cut via the `Prepare Release` GitHub Actions workflow (`workflow_dispatch`, pick a
+version), which generates the new `Changelog.md` section, bumps the Maven versions, commits and
+tags in one go. `Changelog.md` shouldn't be hand-edited for a release — fix the source commit
+message instead if an entry is wrong.
+
 ### [Designs](#design)
 
 https://www.figma.com/design/81StIVqfOKfwhWVjx7Ew81/SURF-Access?node-id=1916-18441&t=gmckiSapuONmLn5u-4

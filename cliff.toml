@@ -1,0 +1,44 @@
+[changelog]
+header = """
+# Release notes
+"""
+body = """
+## {{ version }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | split(pat="\n") | first | upper_first | trim }}\
+{% endfor %}
+{% endfor %}
+"""
+trim = true
+footer = ""
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+commit_preprocessors = [
+  { pattern = '\(#(\d+)\)', replace = "" },
+  { pattern = '#(\d+)', replace = "[#${1}](https://github.com/OpenConext/OpenConext-access/issues/${1})" },
+]
+commit_parsers = [
+  { message = "^Merge (pull request|branch)", skip = true },
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^perf", group = "Improvements" },
+  { message = "^refactor", group = "Improvements" },
+  { message = "^chore(\\(deps.*\\))?", skip = true },
+  { message = "^ci", skip = true },
+  { message = "^build", skip = true },
+  { message = "^docs", skip = true },
+  { message = "^test", skip = true },
+  { message = "^revert", group = "Other" },
+  { message = ".*", group = "Other" },
+]
+filter_commits = false
+tag_pattern = "[0-9]+\\.[0-9]+\\.[0-9]+"
+skip_tags = ""
+ignore_tags = ""
+topo_order = false
+sort_commits = "oldest"

@@ -94,12 +94,12 @@ jobs:
             server/target/*.jar
           retention-days: 1
 
-      - name: Build Changelog
+      - name: Extract Changelog for this release
+        uses: orhun/git-cliff-action@v4
         id: changelog
-        uses: ardalanamini/auto-changelog@v5
         with:
-          default-commit-type: New Features
-          github-token: ${{ github.token }}
+          config: cliff.toml
+          args: --latest --strip header
         if: github.event_name != 'workflow_dispatch'
 
       - name: Create release
@@ -112,7 +112,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           github-token: ${{ github.token }}
           body: |
-            ${{ steps.changelog.outputs.changelog }}
+            ${{ steps.changelog.outputs.content }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         if: github.event_name != 'workflow_dispatch'
