@@ -96,7 +96,7 @@ public class JiraClient {
     }
 
     public void comment(String jiraKey, String comment) {
-        if (!jiraConfig.isEnabled()) {
+        if (!jiraConfig.isEnabled() || !StringUtils.hasText(jiraKey)) {
             return;
         }
         String commentUrl = jiraConfig.getBaseUrl() + "/issue/" + jiraKey + "/comment";
