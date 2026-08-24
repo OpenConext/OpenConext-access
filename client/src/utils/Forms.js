@@ -10,6 +10,11 @@ export const createAndClickLink = href => {
 
 }
 
+export const domainName = href => {
+    const hostname = new URL(href).hostname;
+    return hostname.replace(/^www\./, "");
+}
+
 const sanitizeOrganizationName = orgName => {
     return orgName
         .toLowerCase()

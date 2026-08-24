@@ -39,7 +39,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router";
 import {ConnectionAlert} from "./ConnectionAlert.jsx";
-import {createAndClickLink} from "../utils/Forms.js";
+import {createAndClickLink, domainName} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";
 import {useShallow} from "zustand/react/shallow";
 import {ConnectionInUseWarning, units} from "./ConnectionInUseWarning.jsx";
@@ -219,7 +219,7 @@ export const Connections = ({
         }
         return true;
     }
-    
+
     const changeSection = sectionName => {
         setSection(sectionName);
     }
@@ -626,7 +626,7 @@ export const Connections = ({
                                             />
                                             <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
                                             <Button txt={I18n.t("connection.testSection")}
-                                                    onClick={() => createAndClickLink("https://www.ssllabs.com/ssltest/")}/>
+                                                    onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}/>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
