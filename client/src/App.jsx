@@ -112,6 +112,7 @@ const App = () => {
                     if (res[0].authenticated) {
                         me()
                             .then(user => {
+                                debugger;
                                 //If there are multiple organization memberships, we default to the one which was used to login
                                 const organization = loadUserOrganization(user);
                                 const newMenuItems = menuItemsForUser(user, organization);
