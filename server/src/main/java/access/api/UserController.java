@@ -197,10 +197,15 @@ public class UserController implements UserAccessRights {
             Map<String, Object> organization = (Map<String, Object>) organizationMembership.get("organization");
             String manageIdentifier = (String) organization.get("manageIdentifier");
             if (StringUtils.hasText(manageIdentifier)) {
-                Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
-                organization.put("identityProvider", identityProvider);
-                List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
-                organization.put("changeRequests", changeRequests);
+                try {
+                    Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
+                    organization.put("identityProvider", identityProvider);
+                    List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
+                    organization.put("changeRequests", changeRequests);
+                } catch (RuntimeException e) {
+                    //Can happen when the IdP is removed from Manage, but do not rethrow as this break the login flow.
+                    LOG.error("Error in fetch IdP from manage:" + manageIdentifier, e);
+                }
             }
         });
 
