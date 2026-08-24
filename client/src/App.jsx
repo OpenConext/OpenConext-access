@@ -238,7 +238,7 @@ const App = () => {
                         <Route path="/stats" element={<PublicStats/>}/>
                         <Route path="/monitoring" element={<Monitoring/>}/>
                         <Route path="/login-info" element={<LoginInfo/>}/>
-                        <Route path="/application-detail/:manageType/:manageId"
+                        <Route path="/application-detail/:manageType/:manageId/:tab?"
                                element={<ApplicationDetail anonymous={true}/>}/>
                         <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>
                         <Route path="/*" element={<LoginRedirect/>}/>

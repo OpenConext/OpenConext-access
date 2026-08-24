@@ -102,7 +102,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     })));
 
     const navigate = useNavigate();
-    const {manageType, manageId, tab = tabs.access} = useParams();
+    const {manageType, manageId, tab = Object.values(tabs)[0]} = useParams();
 
     const [tabNames, setTabNames] = useState(Object.values(tabs));
     const [currentTab, setCurrentTab] = useState(tab);
@@ -475,6 +475,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const tabChanged = name => {
         setCurrentTab(name);
+        navigate(`/application-detail/${manageType}/${manageId}/${name}`);
     }
 
     const renderAccessApp = () => {
