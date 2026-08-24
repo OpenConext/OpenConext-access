@@ -70,6 +70,49 @@ class ConnectionTest {
 
         assertEquals(changeRequest, convertedChangeRequest);
     }
+
+    @Test
+    void isProductionRequestTrueWhenPathUpdatesStateIsProdAccepted() {
+        Map<String, Object> changeRequest = Map.of("pathUpdates", Map.of("state", State.prodaccepted.name()));
+
+        assertTrue(connection.isProductionRequest(changeRequest));
+    }
+
+    @Test
+    void isProductionRequestFalseWhenPathUpdatesStateIsNotProdAccepted() {
+        Map<String, Object> changeRequest = Map.of("pathUpdates", Map.of("state", State.testaccepted.name()));
+
+        assertFalse(connection.isProductionRequest(changeRequest));
+    }
+
+    @Test
+    void isProductionRequestFalseWhenPathUpdatesHasNoState() {
+        Map<String, Object> changeRequest = Map.of("pathUpdates", Map.of("metaDataFields.redirectUrls", List.of("https://red.com")));
+
+        assertFalse(connection.isProductionRequest(changeRequest));
+    }
+
+    @Test
+    void isProductionRequestFalseWhenPathUpdatesIsMissing() {
+        Map<String, Object> changeRequest = Map.of("note", "no pathUpdates here");
+
+        assertFalse(connection.isProductionRequest(changeRequest));
+    }
+
+    @SneakyThrows
+    @Test
+    @SuppressWarnings("unchecked")
+    void convertChangeRequestsFiltersOutProductionRequests() {
+        String json = IOUtils.toString(new ClassPathResource("/manage/change_request_large.json").getInputStream(), Charset.defaultCharset());
+        Map<String, Object> regularChangeRequest = objectMapper.readValue(json, Map.class);
+        Map<String, Object> productionChangeRequest = new HashMap<>(regularChangeRequest);
+        productionChangeRequest.put("pathUpdates", Map.of("state", State.prodaccepted.name()));
+
+        Connection connection = new Connection();
+        connection.convertChangeRequests(List.of(regularChangeRequest, productionChangeRequest));
+
+        assertEquals(1, connection.getChangeRequests().size());
+    }
     // --- complete() ---
 
     @Test

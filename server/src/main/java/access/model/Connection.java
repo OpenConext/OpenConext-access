@@ -253,9 +253,18 @@ public class Connection implements NameHolder {
         return this.changeRequests;
     }
 
+    @JsonIgnore
+    public boolean isProductionRequest(Map<String, Object> changeRequest) {
+        return ((Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of()))
+            .getOrDefault("state", "nope").equals(State.prodaccepted.name());
+    }
+
+
+
     public void convertChangeRequests(List<Map<String, Object>> changeRequests) {
         //We need to convert the changeRequests to the same data as the metaData of a Connection
         this.changeRequests = changeRequests.stream()
+            .filter(changeRequest -> !isProductionRequest(changeRequest))
             .map(changeRequest -> {
                 Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.get("pathUpdates");
                 Map<String, Object> provider = new HashMap<>();

@@ -17,6 +17,7 @@ import access.model.MigrateApplicationRequest;
 import access.model.NameExistsRequest;
 import access.model.Organization;
 import access.model.OrganizationMembership;
+import access.model.State;
 import access.model.User;
 import access.repository.ApplicationMembershipRepository;
 import access.repository.ApplicationRepository;
@@ -130,29 +131,40 @@ public class ApplicationController implements UserAccessRights {
         LOG.debug("/find application for " + user.getEmail());
 
         Application application = applicationRepository.findDetailsById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
         user = reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(user, application);
 
         AtomicReference<Map<String, Object>> latestChangedProvider = new AtomicReference<>();
         AtomicReference<Instant> latestRevision = new AtomicReference<>();
         application.getConnections().stream()
-                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
-                .forEach(connection -> {
-                    Map<String, Object> provider = manage.providerByConnection(connection);
-                    if (connection.mergeMetaData(provider, false)) {
-                        Map<String, Object> revision = (Map<String, Object>) provider.get("revision");
-                        Instant revisionCreated = Instant.parse(revision.get("created").toString());
-                        if (latestRevision.get() == null || revisionCreated.isAfter(latestRevision.get())) {
-                            latestRevision.set(revisionCreated);
-                            latestChangedProvider.set(provider);
-                        }
+            .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+            .forEach(connection -> {
+                Map<String, Object> provider = manage.providerByConnection(connection);
+                if (connection.mergeMetaData(provider, false)) {
+                    Map<String, Object> revision = (Map<String, Object>) provider.get("revision");
+                    Instant revisionCreated = Instant.parse(revision.get("created").toString());
+                    if (latestRevision.get() == null || revisionCreated.isAfter(latestRevision.get())) {
+                        latestRevision.set(revisionCreated);
+                        latestChangedProvider.set(provider);
+                    }
+                    connectionRepository.save(connection);
+                }
+                ConnectionStatus status = connection.getStatus();
+                if (status.equals(ConnectionStatus.PROD_READY) || status.equals(ConnectionStatus.PENDING_PROD)) {
+                    List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
+                    connection.convertChangeRequests(changeRequests);
+                    //If a connection is PENDING_PROD and does not have a prodaccepted change request we can conclude that it is rejected in Manage
+                    if (status.equals(ConnectionStatus.PENDING_PROD) &&
+                        (changeRequests.isEmpty() || changeRequests.stream()
+                        .noneMatch(changeRequest ->
+                            connection.isProductionRequest(changeRequest)))) {
+                        connection.setStatus(ConnectionStatus.COMPLETE);
+                        connection.setState(State.testaccepted);
                         connectionRepository.save(connection);
                     }
-                    if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
-                        connection.convertChangeRequests(manage.getChangeRequests(connection));
-                    }
-                });
+                }
+            });
         Map<String, Object> provider = latestChangedProvider.get();
         if (provider != null) {
             //Take the last updated provider and merge / save the application metaData
@@ -182,12 +194,12 @@ public class ApplicationController implements UserAccessRights {
         Application applicationSaved = applicationRepository.save(application);
 
         Optional<OrganizationMembership> optionalOrganizationMembership = user.getOrganizationMemberships().stream()
-                .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
-                .findFirst();
+            .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
+            .findFirst();
         //Super User's may not have organization memberships
         optionalOrganizationMembership.ifPresent(organizationMembership -> {
             ApplicationMembership applicationMembership =
-                    new ApplicationMembership(applicationSaved, organizationMembership);
+                new ApplicationMembership(applicationSaved, organizationMembership);
             applicationMembershipRepository.save(applicationMembership);
         });
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationSaved);
@@ -198,14 +210,14 @@ public class ApplicationController implements UserAccessRights {
         LOG.debug("/name-exists for " + nameExistsRequest.getName());
 
         Organization organization = organizationRepository.findById(nameExistsRequest.getOrganizationId())
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+            .orElseThrow(() -> new NotFoundException("Organization not found"));
         user = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
 
         Long applicationId = nameExistsRequest.getApplicationId();
         boolean exists = applicationRepository.findByNameIgnoreCaseAndOrganization(nameExistsRequest.getName(), organization)
-                .filter(application -> applicationId == null || !application.getId().equals(applicationId))
-                .isPresent();
+            .filter(application -> applicationId == null || !application.getId().equals(applicationId))
+            .isPresent();
         return ResponseEntity.ok(exists);
     }
 
@@ -214,7 +226,7 @@ public class ApplicationController implements UserAccessRights {
         LOG.debug("/update application by " + user.getEmail());
 
         Application application = applicationRepository.findById(applicationData.getId())
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
 
@@ -233,13 +245,13 @@ public class ApplicationController implements UserAccessRights {
         }
         if (metaDataHasChanged) {
             application.getConnections()
-                    .stream()
-                    .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
-                    .forEach(connection -> {
-                Map<String, Object> provider = manage.saveProvider(connection);
-                connection.updateRemoteManageData(provider);
-                connectionRepository.save(connection);
-            });
+                .stream()
+                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+                .forEach(connection -> {
+                    Map<String, Object> provider = manage.saveProvider(connection);
+                    connection.updateRemoteManageData(provider);
+                    connectionRepository.save(connection);
+                });
         } else {
             Hibernate.initialize(application.getConnections());
         }
@@ -253,7 +265,7 @@ public class ApplicationController implements UserAccessRights {
         LOG.debug("/delete application by " + user.getEmail());
 
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
         Organization organization = application.getOrganization();
 
         user = this.reinitializeUser(user, userRepository);
@@ -263,15 +275,15 @@ public class ApplicationController implements UserAccessRights {
         organization.removeApplication(application);
         user.getOrganizationMemberships().forEach(organizationMembership -> {
             List<ApplicationMembership> applicationMemberships = organizationMembership.getApplicationMemberships()
-                    .stream()
-                    .filter(applicationMembership -> applicationMembership.getApplication().getId().equals(applicationId)).toList();
+                .stream()
+                .filter(applicationMembership -> applicationMembership.getApplication().getId().equals(applicationId)).toList();
             organizationMembership.removeApplicationMemberships(applicationMemberships);
         });
 
         application.getConnections()
-                .stream()
-                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
-                .forEach(connection -> manage.deleteProvider(connection));
+            .stream()
+            .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+            .forEach(connection -> manage.deleteProvider(connection));
 
         applicationRepository.deleteById(application.getId());
 
@@ -283,7 +295,7 @@ public class ApplicationController implements UserAccessRights {
                                                                                            @PathVariable Long applicationId) {
         LOG.debug("/identityProvidersByAllowedConnections by: " + user.getEmail());
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
         user = reinitializeUser(user, userRepository);
 
         confirmApplicationDeleteAccess(user, application);
@@ -301,9 +313,9 @@ public class ApplicationController implements UserAccessRights {
         confirmSuperUser(user);
 
         Application application = applicationRepository.findById(migrateApplicationRequest.getApplicationId())
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+            .orElseThrow(() -> new NotFoundException("Application not found"));
         Organization newOrganization = organizationRepository.findById(migrateApplicationRequest.getNewOrganizationId())
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+            .orElseThrow(() -> new NotFoundException("Organization not found"));
         application.setOrganization(newOrganization);
         applicationRepository.save(application);
 
@@ -315,25 +327,25 @@ public class ApplicationController implements UserAccessRights {
         }
 
         application.getConnections()
-                .stream()
-                .filter(connection -> !isEmpty(connection.getManageIdentifier()))
-                .forEach(connection -> {
-            Map<String, Object> provider = manage.providerByConnection(connection);
-            Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-            metaDataFields.put("OrganizationName:en", newOrganization.getName());
-            metaDataFields.put("OrganizationName:nl", newOrganization.getName());
-            //The connections need to be linked to the new identityProvider - if the new Organization is a known IdP in Manage
-            if (StringUtils.hasText(institutionGuid.get())) {
-                metaDataFields.put(INSTITUTION_GUID, institutionGuid.get());
-            } else {
-                metaDataFields.remove(INSTITUTION_GUID);
-            }
+            .stream()
+            .filter(connection -> !isEmpty(connection.getManageIdentifier()))
+            .forEach(connection -> {
+                Map<String, Object> provider = manage.providerByConnection(connection);
+                Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+                metaDataFields.put("OrganizationName:en", newOrganization.getName());
+                metaDataFields.put("OrganizationName:nl", newOrganization.getName());
+                //The connections need to be linked to the new identityProvider - if the new Organization is a known IdP in Manage
+                if (StringUtils.hasText(institutionGuid.get())) {
+                    metaDataFields.put(INSTITUTION_GUID, institutionGuid.get());
+                } else {
+                    metaDataFields.remove(INSTITUTION_GUID);
+                }
 
-            Map<String, Object> updatedProvider = manage.updateProvider(provider);
-            Integer version = (Integer) updatedProvider.get("version");
-            connection.setManageVersion(version);
-            connectionRepository.save(connection);
-        });
+                Map<String, Object> updatedProvider = manage.updateProvider(provider);
+                Integer version = (Integer) updatedProvider.get("version");
+                connection.setManageVersion(version);
+                connectionRepository.save(connection);
+            });
 
         return Results.okResult();
     }
@@ -346,13 +358,13 @@ public class ApplicationController implements UserAccessRights {
         confirmSuperUser(user);
 
         Organization organization = organizationRepository.findById(importEntityRequest.getOrganizationId())
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+            .orElseThrow(() -> new NotFoundException("Organization not found"));
         Map<String, Object> serviceProvider = importEntityRequest.getServiceProvider();
 
         Application application = importEntityRequest.getApplicationId() != null ?
-                applicationRepository.findById(importEntityRequest.getApplicationId())
-                        .orElseThrow(() -> new NotFoundException("Application not found")) :
-                createApplicationFromProvider(user, organization, serviceProvider);
+            applicationRepository.findById(importEntityRequest.getApplicationId())
+                .orElseThrow(() -> new NotFoundException("Application not found")) :
+            createApplicationFromProvider(user, organization, serviceProvider);
 
         Map<String, Object> data = getData(serviceProvider);
         Map<String, Object> metaDataFields = getMetaDataFields(data);
@@ -364,10 +376,10 @@ public class ApplicationController implements UserAccessRights {
         serviceProvider = manage.updateProvider(serviceProvider);
 
         Connection connection = new Connection(
-                (String) metaDataFields.get("name:en"),
-                application,
-                new HashMap<>(),// We will fill the metadata later
-                EntityType.valueOf((String) serviceProvider.get("type"))
+            (String) metaDataFields.get("name:en"),
+            application,
+            new HashMap<>(),// We will fill the metadata later
+            EntityType.valueOf((String) serviceProvider.get("type"))
         );
         connection.setSecretSet(true);
         connection.setStatus(ConnectionStatus.PENDING_PROD);
@@ -376,9 +388,9 @@ public class ApplicationController implements UserAccessRights {
 
         Connection savedConnection = connectionRepository.save(connection);
         Map<String, Object> body = Map.of(
-                "status", HttpStatus.OK.value(),
-                "connectionId", savedConnection.getId(),
-                "applicationId", application.getId()
+            "status", HttpStatus.OK.value(),
+            "connectionId", savedConnection.getId(),
+            "applicationId", application.getId()
         );
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
@@ -389,10 +401,10 @@ public class ApplicationController implements UserAccessRights {
         HashMap<String, Object> metaData = this.connectionProviderConverter.convertProviderToApplicationMetaData(serviceProvider);
         String name = (String) metaDataFields.getOrDefault("coin:application_name", (String) metaDataFields.get("name:en"));
         Application application = new Application(
-                name,
-                organization,
-                "System",
-                new HashMap<>()
+            name,
+            organization,
+            "System",
+            new HashMap<>()
         );
         application.setMetaData(metaData);
         String logoUrl = (String) metaDataFields.get("logo:0:url");
@@ -407,21 +419,21 @@ public class ApplicationController implements UserAccessRights {
 
         List<Map<String, Object>> attributes = (List<Map<String, Object>>) this.arpInfo.get("attributes");
         Map<String, String> attributesMap = attributes.stream().collect(Collectors.toMap(
-                attr -> (String) attr.get("name"), attr -> (String) attr.get("urn")
+            attr -> (String) attr.get("name"), attr -> (String) attr.get("urn")
         ));
         List<Map<String, Object>> profiles = (List<Map<String, Object>>) this.arpInfo.get("profiles");
         return profiles.stream().filter(profile -> {
-            List<String> profileAttributes = (List<String>) profile.get("attributes");
-            List<String> optionalAttributes = (List<String>) profile.getOrDefault("optionalAttributes", List.of());
-            List<String> allAttributes = new ArrayList<>(profileAttributes);
-            allAttributes.addAll(optionalAttributes);
-            Set<String> urns = allAttributes.stream()
+                List<String> profileAttributes = (List<String>) profile.get("attributes");
+                List<String> optionalAttributes = (List<String>) profile.getOrDefault("optionalAttributes", List.of());
+                List<String> allAttributes = new ArrayList<>(profileAttributes);
+                allAttributes.addAll(optionalAttributes);
+                Set<String> urns = allAttributes.stream()
                     .map(attr -> attributesMap.get(attr))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
-            return urns.containsAll(attributeNames);
-        }).findFirst()
-                .map(profile -> (String) profile.get("name"))
-                .orElse("personalized");
+                return urns.containsAll(attributeNames);
+            }).findFirst()
+            .map(profile -> (String) profile.get("name"))
+            .orElse("personalized");
     }
 }

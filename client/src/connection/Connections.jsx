@@ -219,11 +219,7 @@ export const Connections = ({
         }
         return true;
     }
-
-    const testIdPValid = () => {
-        return connection.state === STATE.prodaccepted || !isEmpty(connection.allowedEntities);
-    }
-
+    
     const changeSection = sectionName => {
         setSection(sectionName);
     }
@@ -1222,7 +1218,7 @@ export const Connections = ({
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
-            (section === sections.productionStatus && (connection.status === CONNECTION_STATUSES.PROD_READY || testIdPValid()));
+            section === sections.productionStatus;
         if (proceed) {
             setLoading(true);
             const promise = connection.id ? (proceedWithProduction ? uppdateAndRequestConnectionProductionStatus : updateConnection) : newConnection;
@@ -1244,6 +1240,7 @@ export const Connections = ({
                 .then(res => {
                     setInitial(true);
                     setDirty(true);
+                    setProceedWithProduction(false);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));

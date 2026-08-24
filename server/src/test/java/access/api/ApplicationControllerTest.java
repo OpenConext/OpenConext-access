@@ -12,6 +12,7 @@ import access.model.ImportEntityRequest;
 import access.model.MigrateApplicationRequest;
 import access.model.NameExistsRequest;
 import access.model.Organization;
+import access.model.State;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import io.restassured.common.mapper.TypeRef;
@@ -164,6 +165,72 @@ class ApplicationControllerTest extends AbstractTest {
                 .filter(connection -> ((Map<String, Object>) connection).get("status").equals(ConnectionStatus.PROD_READY.name()))
                 .findFirst().get();
         assertEquals(2, ((List) o.get("changeRequests")).size());
+    }
+
+    @SneakyThrows
+    @Test
+    void findPendingProdConnectionWithoutProductionChangeRequestIsCompleted() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        stubForPendingProdProvider();
+        //No prodaccepted change request pending in Manage means the production request was rejected / withdrawn
+        super.stubForGetChangeRequests(List.of());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", seedIdentifiers.get(BUDDY_CHECK))
+                .get("/api/v1/applications/{applicationId}")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        Connection connectionFromDB = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        assertEquals(ConnectionStatus.COMPLETE, connectionFromDB.getStatus());
+        assertEquals(State.testaccepted, connectionFromDB.getState());
+    }
+
+    @SneakyThrows
+    @Test
+    void findPendingProdConnectionWithProductionChangeRequestStaysPending() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        stubForPendingProdProvider();
+        //A pending prodaccepted change request means the production request is still awaiting approval in Manage
+        Map<String, Object> pendingProductionChangeRequest = Map.of(
+                "pathUpdates", Map.of("state", State.prodaccepted.name())
+        );
+        super.stubForGetChangeRequests(List.of(pendingProductionChangeRequest));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("applicationId", seedIdentifiers.get(BUDDY_CHECK))
+                .get("/api/v1/applications/{applicationId}")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        Connection connectionFromDB = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private void stubForPendingProdProvider() {
+        //Stub a provider whose Manage state is not (yet) prodaccepted, so the connection is not
+        //auto-promoted to PROD_READY and remains PENDING_PROD, exercising the new business logic
+        String provider = IOUtils.toString(new ClassPathResource("/manage/playground_rp.json").getInputStream(), Charset.defaultCharset());
+        Map<String, Object> providerMap = objectMapper.readValue(provider, Map.class);
+        ((Map<String, Object>) providerMap.get("data")).put("state", "testaccepted");
+        String body = objectMapper.writeValueAsString(providerMap);
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
     }
 
     @Test
