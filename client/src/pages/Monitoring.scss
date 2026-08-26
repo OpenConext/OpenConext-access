@@ -23,7 +23,7 @@
         gap: 24px;
 
         .monitoring-title {
-            flex: 1 1 auto;
+            flex: 0 1 auto;
 
             h2 {
                 margin-bottom: 8px;
@@ -32,6 +32,60 @@
             p {
                 color: var(--sl-color-neutral-600);
                 margin: 0;
+            }
+        }
+
+        // Groups the legend, overall-status and period toggle together on the right,
+        // pushed there by margin-left: auto since monitoring-title no longer grows to fill it.
+        .header-actions {
+            display: flex;
+            align-items: flex-start;
+            gap: 60px;
+            margin-left: auto;
+        }
+
+        // Small legend explaining the uptime-bar segment colors — same colors as
+        // .bar-segment below, shown only alongside it (i.e. when a service is selected).
+        .uptime-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid var(--sl-color-neutral-200);
+            border-radius: 8px;
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.75rem;
+                color: var(--sl-color-neutral-600);
+            }
+
+            .legend-swatch {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                border: 1px solid var(--sl-color-neutral-200);
+                flex-shrink: 0;
+
+                &.ok {
+                    background: #a8dfc0;
+                }
+
+                &.warn-light {
+                    background: var(--sl-color-warning-50);
+                }
+
+                &.warn-heavy {
+                    background: var(--sl-color-warning-600);
+                }
+
+                &.critical {
+                    background: var(--sds--color--red--400);
+                }
             }
         }
 
@@ -366,12 +420,21 @@
                     gap: 12px;
                     align-items: stretch;
 
-                    // Left column: icons stacked with connector between them
+                    // Left column: icons stacked with connector between them. The connector
+                    // grows to fill the full height between the icons (never just a stub),
+                    // which also pushes the second icon down to align with its text block's
+                    // last line (inc.startedTime) instead of its first.
                     .entry-icons {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
                         flex-shrink: 0;
+
+                        // No connector above a lone icon (ongoing incident) - push it to the
+                        // bottom of the column directly so it still aligns with inc.startedTime.
+                        &--single {
+                            justify-content: flex-end;
+                        }
 
                         .event-connector {
                             width: 2px;
@@ -409,9 +472,22 @@
                         color: #2e7d32;
                     }
 
-                    &--incident {
-                        background: #fff9c4;
-                        color: #a37a00;
+                    // Match the uptime bar segment colors for the same severity (see
+                    // SEVERITY_LEVELS in Monitoring.jsx) so an incident's icon and its
+                    // place in the uptime bar read as the same severity.
+                    &--warn-light {
+                        background: var(--sl-color-warning-50);
+                        color: var(--sl-color-warning-600);
+                    }
+
+                    &--warn-heavy {
+                        background: var(--sl-color-warning-600);
+                        color: white;
+                    }
+
+                    &--critical {
+                        background: var(--sds--color--red--400);
+                        color: white;
                     }
                 }
 
@@ -431,6 +507,13 @@
                     .event-time {
                         font-size: 0.8rem;
                         color: var(--sl-color-neutral-500);
+                    }
+
+                    .event-note {
+                        font-size: 0.8rem;
+                        font-style: italic;
+                        color: var(--sl-color-neutral-600);
+                        margin: 8px 0;
                     }
                 }
             }

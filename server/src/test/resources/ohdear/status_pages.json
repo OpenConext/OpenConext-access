@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Test Status",
+      "updates": [
+        {
+          "id": 100,
+          "title": "SURFconext Engine appears to be down.",
+          "text": "Root cause: a human mistake caused a brief outage.",
+          "pinned": false,
+          "severity": "resolved",
+          "time": "2026-05-01 09:58:00"
+        },
+        {
+          "id": 101,
+          "title": "SURFconext Engine has recovered.",
+          "text": "",
+          "pinned": false,
+          "severity": "resolved",
+          "time": "2026-05-01 10:10:00"
+        }
+      ]
+    }
+  ]
+}

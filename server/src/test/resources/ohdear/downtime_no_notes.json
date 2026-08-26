@@ -1,0 +1,11 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "started_at": "2026-05-01 10:00:00",
+      "ended_at": "2026-05-01 10:10:00",
+      "notes_markdown": null,
+      "notes_html": null
+    }
+  ]
+}

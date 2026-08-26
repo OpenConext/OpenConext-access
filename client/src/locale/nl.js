@@ -1466,6 +1466,10 @@ const nl = {
         tooltipDurationSec: "{{sec}} seconden",
         showMoreIncidents: "Toon alle incidenten",
         showLessIncidents: "Toon alleen recente incidenten",
+        legendOk: "Geen downtime",
+        legendWarnLight: "Kleine downtime",
+        legendWarnHeavy: "Gemiddelde downtime",
+        legendCritical: "Grote downtime",
     },
 }
 

@@ -1466,6 +1466,10 @@ const en = {
         tooltipDurationSec: "{{sec}} seconds",
         showMoreIncidents: "Show all incidents",
         showLessIncidents: "Show only recent incidents",
+        legendOk: "No downtime",
+        legendWarnLight: "Minor downtime",
+        legendWarnHeavy: "Moderate downtime",
+        legendCritical: "Major downtime",
     },
 }
 

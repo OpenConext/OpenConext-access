@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {createPortal} from "react-dom";
+import {useNavigate} from "react-router";
 import "./Monitoring.scss";
 import {monitoring} from "../api/index.js";
 import I18n from "../locale/I18n.js";
@@ -9,6 +10,11 @@ import MonitoringIncidentIcon from "../icons/monitoring_incident.svg";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import {formatDate} from "../utils/Date.js";
 import {stopEvent} from "../utils/Utils.js";
+import {getParameterByName} from "../utils/QueryParameters.js";
+
+// Query parameter used to persist the selected service, so the selection survives a
+// refresh and the URL can be bookmarked.
+const SERVICE_QUERY_PARAM = "service";
 
 // Period constants
 const PERIOD_DEFAULT = 60;
@@ -19,11 +25,12 @@ const INCIDENT_GROUPS_NUMBER_SLICE = 10;
 
 // Severity thresholds (downtime minutes) and their CSS classes + bar colors.
 // Evaluated in order — first match wins. Segments with no downtime use "ok".
+// labelKey is also the single source for the bar-segment color legend below.
 const SEVERITY_LEVELS = [
-    {minMinutes: 0, maxMinutes: 1, cls: "ok", color: "#a8dfc0"},
-    {minMinutes: 1, maxMinutes: 5, cls: "warn-light", color: "var(--sl-color-warning-50)"},
-    {minMinutes: 5, maxMinutes: 15, cls: "warn-heavy", color: "var(--sl-color-warning-600)"},
-    {minMinutes: 15, maxMinutes: Infinity, cls: "critical", color: "var(--sds--color--red--400)"},
+    {minMinutes: 0, maxMinutes: 1, cls: "ok", color: "#a8dfc0", labelKey: "legendOk"},
+    {minMinutes: 1, maxMinutes: 5, cls: "warn-light", color: "var(--sl-color-warning-50)", labelKey: "legendWarnLight"},
+    {minMinutes: 5, maxMinutes: 15, cls: "warn-heavy", color: "var(--sl-color-warning-600)", labelKey: "legendWarnHeavy"},
+    {minMinutes: 15, maxMinutes: Infinity, cls: "critical", color: "var(--sds--color--red--400)", labelKey: "legendCritical"},
 ];
 
 // Incidents shorter than the first non-ok severity threshold (minutes) are ignored.
@@ -90,18 +97,28 @@ function parseDateStr(dateStr) {
     return new Date(dateStr.replace(" ", "T") + "Z");
 }
 
+// Same thresholds as the uptime bar segments, applied to a single incident's own duration -
+// so the incident icon uses the same severity color as the bar for how long it lasted.
+function incidentSeverityClass(startedDate, resolvedDate) {
+    const minutes = Math.floor(((resolvedDate ?? new Date()) - startedDate) / 60000);
+    return SEVERITY_LEVELS.find(l => minutes >= l.minMinutes && minutes < l.maxMinutes)?.cls ?? "ok";
+}
+
 function groupIncidentsByDate(incidents) {
     const significant = incidents.filter(isSignificant);
     const byDate = {};
 
     significant.forEach(inc => {
         const d = parseDateStr(inc.startedAt);
+        const resolvedDate = inc.resolvedAt ? parseDateStr(inc.resolvedAt) : null;
         const label = formatDate(d, true, false);
         if (!byDate[label]) byDate[label] = [];
         byDate[label].push({
-            startedTime: formatDate(parseDateStr(inc.startedAt), true, true),
-            resolvedTime: inc.resolvedAt ? formatDate(parseDateStr(inc.resolvedAt), true, true) : null,
+            startedTime: formatDate(d, true, true),
+            resolvedTime: resolvedDate ? formatDate(resolvedDate, true, true) : null,
             startedDate: d,
+            message: inc.message,
+            severity: incidentSeverityClass(d, resolvedDate),
         });
     });
 
@@ -123,9 +140,9 @@ function CheckCircleIcon() {
     );
 }
 
-function WarningCircleIcon() {
+function WarningCircleIcon({severity}) {
     return (
-        <span className="event-circle event-circle--incident">
+        <span className={`event-circle event-circle--${severity}`}>
             <MonitoringIncidentIcon/>
         </span>
     );
@@ -134,9 +151,13 @@ function WarningCircleIcon() {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export const Monitoring = () => {
+    const navigate = useNavigate();
     const [status, setStatus] = useState(null);
     const [loadedPeriod, setLoadedPeriod] = useState(null);
-    const [selectedServiceId, setSelectedServiceId] = useState(null);
+    const [selectedServiceId, setSelectedServiceId] = useState(() => {
+        const serviceParam = getParameterByName(SERVICE_QUERY_PARAM, window.location.search);
+        return serviceParam ? Number(serviceParam) : null;
+    });
     const [period, setPeriod] = useState(PERIOD_DEFAULT);
     const [search, setSearch] = useState("");
     const [tooltip, setTooltip] = useState(null);
@@ -148,11 +169,22 @@ export const Monitoring = () => {
         monitoring(period)
             .then(data => {
                 setStatus(data);
-                setSelectedServiceId(null);
                 setLoadedPeriod(period);
             })
             .catch(() => setLoadedPeriod(period));
     }, [period]);
+
+    const selectService = serviceId => {
+        setSelectedServiceId(serviceId);
+        const params = new URLSearchParams(window.location.search);
+        if (serviceId) {
+            params.set(SERVICE_QUERY_PARAM, serviceId);
+        } else {
+            params.delete(SERVICE_QUERY_PARAM);
+        }
+        const query = params.toString();
+        navigate(`/monitoring${query ? `?${query}` : ""}`, {replace: true});
+    };
 
     const selectedService = useMemo(() => {
         if (!status || !selectedServiceId) return null;
@@ -218,29 +250,42 @@ export const Monitoring = () => {
                     <p>{I18n.t("monitoring.subTitle")}</p>
                 </div>
 
-                {selectedService && (
-                    <div className="overall-status">
-                        <span className="status-label">
-                            {I18n.t("monitoring.status")}&nbsp;
-                            <span className={`status-dot ${status?.overallStatus ?? "operational"}`}/>
-                        </span>
-                        <strong>{I18n.t("monitoring.noIssues")}</strong>
-                        <span className="last-update-small">
-                            {I18n.t("monitoring.lastUpdate", {time: lastUpdatedText})}
-                        </span>
-                    </div>
-                )}
+                <div className="header-actions">
+                    {selectedService && (
+                        <div className="uptime-legend">
+                            {SEVERITY_LEVELS.map(level => (
+                                <span className="legend-item" key={level.cls}>
+                                    <span className={`legend-swatch ${level.cls}`}/>
+                                    {I18n.t(`monitoring.${level.labelKey}`)}
+                                </span>
+                            ))}
+                        </div>
+                    )}
 
-                <div className="period-control">
-                    <span className="period-label">{I18n.t("monitoring.period")}</span>
-                    <SegmentedControl
-                        options={[PERIOD_DEFAULT, PERIOD_ALL]}
-                        option={period}
-                        optionLabelResolver={p => p === PERIOD_DEFAULT
-                            ? I18n.t("monitoring.period60")
-                            : I18n.t("monitoring.periodAll")}
-                        onClick={p => setPeriod(p)}
-                    />
+                    {selectedService && (
+                        <div className="overall-status">
+                            <span className="status-label">
+                                {I18n.t("monitoring.status")}&nbsp;
+                                <span className={`status-dot ${status?.overallStatus ?? "operational"}`}/>
+                            </span>
+                            <strong>{I18n.t("monitoring.noIssues")}</strong>
+                            <span className="last-update-small">
+                                {I18n.t("monitoring.lastUpdate", {time: lastUpdatedText})}
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="period-control">
+                        <span className="period-label">{I18n.t("monitoring.period")}</span>
+                        <SegmentedControl
+                            options={[PERIOD_DEFAULT, PERIOD_ALL]}
+                            option={period}
+                            optionLabelResolver={p => p === PERIOD_DEFAULT
+                                ? I18n.t("monitoring.period60")
+                                : I18n.t("monitoring.periodAll")}
+                            onClick={p => setPeriod(p)}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -285,7 +330,7 @@ export const Monitoring = () => {
                                     <div
                                         key={service.id}
                                         className={`service-item${isSelected ? " selected" : ""}`}
-                                        onClick={() => setSelectedServiceId(isSelected ? null : service.id)}
+                                        onClick={() => selectService(isSelected ? null : service.id)}
                                     >
                                         <span className={`status-dot ${service.status}`}/>
                                         <div className="service-info">
@@ -299,7 +344,7 @@ export const Monitoring = () => {
                                                 className="deselect-btn"
                                                 onClick={e => {
                                                     e.stopPropagation();
-                                                    setSelectedServiceId(null);
+                                                    selectService(null);
                                                     setSearch("");
                                                 }}
                                             >
@@ -417,7 +462,7 @@ export const Monitoring = () => {
                                                                 <div className="entry-icons">
                                                                     <CheckCircleIcon/>
                                                                     <div className="event-connector"/>
-                                                                    <WarningCircleIcon/>
+                                                                    <WarningCircleIcon severity={inc.severity}/>
                                                                 </div>
                                                                 {/* Right: text rows */}
                                                                 <div className="entry-texts">
@@ -429,6 +474,9 @@ export const Monitoring = () => {
                                                                             className="event-time">{inc.resolvedTime}</span>
                                                                     </div>
                                                                     <div className="event-body">
+                                                                        {inc.message && (
+                                                                            <span className="event-note">{inc.message}</span>
+                                                                        )}
                                                                         <span className="event-message">
                                                                             {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
                                                                         </span>
@@ -439,11 +487,14 @@ export const Monitoring = () => {
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <div className="entry-icons">
-                                                                    <WarningCircleIcon/>
+                                                                <div className="entry-icons entry-icons--single">
+                                                                    <WarningCircleIcon severity={inc.severity}/>
                                                                 </div>
                                                                 <div className="entry-texts">
                                                                     <div className="event-body">
+                                                                        {inc.message && (
+                                                                            <span className="event-note">{inc.message}</span>
+                                                                        )}
                                                                         <span className="event-message">
                                                                             {I18n.t("monitoring.startedMessage", {name: selectedService.name})}
                                                                         </span>

@@ -128,6 +128,75 @@ class OhDearServiceTest {
     }
 
     @Test
+    void shouldFallBackToNotesHtml_whenNotesMarkdownKeyIsPresentButNull() throws Exception {
+
+        // --- monitors ---
+        stubFor(get(urlEqualTo("/api/monitors"))
+                .willReturn(okJson(json("monitors_operational.json"))));
+
+        // --- uptime ---
+        stubFor(get(urlPathMatching("/api/monitors/.*/uptime.*"))
+                .willReturn(okJson(json("uptime_array.json"))));
+
+        // --- downtime: notes_markdown key present but null, notes_html has content ---
+        stubFor(get(urlPathMatching("/api/monitors/.*/downtime.*"))
+                .willReturn(okJson(json("downtime_null_markdown.json"))));
+
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
+
+        ServiceStatus service = response.groups().stream()
+                .flatMap(g -> g.services().stream())
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(service.incidents()).hasSize(2);
+
+        // notes_markdown null, notes_html present -> falls back to notes_html
+        Incident withHtmlNote = service.incidents().stream()
+                .filter(i -> "Some html note".equals(i.getMessage()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(withHtmlNote.getMessage()).isEqualTo("Some html note");
+
+        // both notes_markdown and notes_html null -> falls back to default message
+        Incident withoutNote = service.incidents().stream()
+                .filter(i -> !"Some html note".equals(i.getMessage()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(withoutNote.getMessage()).isEqualTo("Service disruption detected");
+    }
+
+    @Test
+    void shouldUseStatusPageUpdateText_whenDowntimeHasNoNotes() throws Exception {
+
+        // --- monitors ---
+        stubFor(get(urlEqualTo("/api/monitors"))
+                .willReturn(okJson(json("monitors_operational.json"))));
+
+        // --- uptime ---
+        stubFor(get(urlPathMatching("/api/monitors/.*/uptime.*"))
+                .willReturn(okJson(json("uptime_array.json"))));
+
+        // --- downtime: no notes_markdown/notes_html at all ---
+        stubFor(get(urlPathMatching("/api/monitors/.*/downtime.*"))
+                .willReturn(okJson(json("downtime_no_notes.json"))));
+
+        // --- status page updates: the human-authored note lives here instead ---
+        stubFor(get(urlEqualTo("/api/status-pages"))
+                .willReturn(okJson(json("status_pages.json"))));
+
+        StatusResponse response = ohDearService.getAggregatedStatus(60);
+
+        Incident incident = response.groups().stream()
+                .flatMap(g -> g.services().stream())
+                .flatMap(s -> s.incidents().stream())
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(incident.getMessage()).isEqualTo("Root cause: a human mistake caused a brief outage.");
+    }
+
+    @Test
     void shouldFallbackToOtherGroup_whenNoTags() throws Exception {
 
         stubFor(get(urlEqualTo("/api/monitors"))

@@ -90,6 +90,9 @@ class OhDearControllerTest extends AbstractTest {
         String downtimeJson = IOUtils.toString(
                 new ClassPathResource("ohdear/downtime.json").getInputStream(),
                 Charset.defaultCharset());
+        String statusPagesJson = IOUtils.toString(
+                new ClassPathResource("ohdear/status_pages.json").getInputStream(),
+                Charset.defaultCharset());
 
         stubFor(get(urlEqualTo("/monitors"))
                 .willReturn(okJson(monitorsJson)));
@@ -97,5 +100,7 @@ class OhDearControllerTest extends AbstractTest {
                 .willReturn(okJson(uptimeJson)));
         stubFor(get(urlPathMatching("/monitors/.*/downtime.*"))
                 .willReturn(okJson(downtimeJson)));
+        stubFor(get(urlEqualTo("/status-pages"))
+                .willReturn(okJson(statusPagesJson)));
     }
 }

@@ -15,7 +15,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -43,6 +45,11 @@ public class OhDearService {
 
     private static final DateTimeFormatter OHDEAR_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter OHDEAR_DATETIME_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    // Status page updates and downtime periods are recorded independently in OhDear, so their
+    // timestamps for the same real-world event rarely line up exactly - allow some drift when matching.
+    private static final long STATUS_PAGE_UPDATE_MATCH_TOLERANCE_SECONDS = Duration.ofMinutes(15).toSeconds();
     private final boolean enabled;
     private StatusResponse disabledResponse;
 
@@ -92,6 +99,7 @@ public class OhDearService {
         }
         Map<String, Object> monitorsResponse = get(baseUrl + "/monitors");
         List<Map<String, Object>> monitors = (List<Map<String, Object>>) monitorsResponse.get("data");
+        List<Map<String, Object>> statusPageUpdates = fetchStatusPageUpdates();
 
         Map<String, List<ServiceStatus>> grouped = new HashMap<>();
 
@@ -104,7 +112,7 @@ public class OhDearService {
 
             Double uptimePercentage = fetchUptime(id, period);
 
-            List<Incident> incidents = fetchIncidentsFromDowntime(id, period);
+            List<Incident> incidents = fetchIncidentsFromDowntime(id, period, name, statusPageUpdates);
 
             ServiceStatus service = new ServiceStatus(id, name, url, status, uptimePercentage, incidents);
 
@@ -170,7 +178,8 @@ public class OhDearService {
         }
     }
 
-    private List<Incident> fetchIncidentsFromDowntime(Long id, int period) {
+    private List<Incident> fetchIncidentsFromDowntime(Long id, int period, String monitorName,
+                                                       List<Map<String, Object>> statusPageUpdates) {
         try {
             Instant now = Instant.now();
             Instant start = now.minus(period, ChronoUnit.DAYS);
@@ -192,7 +201,13 @@ public class OhDearService {
             List<Incident> incidents = new ArrayList<>();
 
             data.forEach(downtime -> {
-                String message = (String) downtime.getOrDefault("notes_markdown", downtime.getOrDefault("notes_html", "Service disruption detected"));
+                String notesMarkdown = (String) downtime.get("notes_markdown");
+                String notesHtml = (String) downtime.get("notes_html");
+                String statusPageNote = findStatusPageUpdateText(monitorName, (String) downtime.get("started_at"), statusPageUpdates);
+                String message = notesMarkdown != null ? notesMarkdown
+                        : notesHtml != null ? notesHtml
+                        : statusPageNote != null ? statusPageNote
+                        : "Service disruption detected";
                 incidents.add(new Incident((String) downtime.get("started_at"), (String) downtime.get("ended_at"), message));
             });
 
@@ -203,6 +218,64 @@ public class OhDearService {
         } catch (Exception e) {
             LOG.error("Exception in fetchIncidentsFromDowntime", e);
             return List.of();
+        }
+    }
+
+    // The status page's "updates" feed is where operators actually write incident notes (e.g. "Door een
+    // menselijke fout ..."); downtime periods themselves almost never carry notes_markdown/notes_html.
+    // Only the first status page is used - this integration assumes a single team status page, matching
+    // how ohdear.baseUrl/apiKey are configured per environment.
+    private List<Map<String, Object>> fetchStatusPageUpdates() {
+        try {
+            Map<String, Object> response = get(baseUrl + "/status-pages");
+            List<Map<String, Object>> statusPages = (List<Map<String, Object>>) response.get("data");
+            if (statusPages == null || statusPages.isEmpty()) return List.of();
+
+            List<Map<String, Object>> updates = (List<Map<String, Object>>) statusPages.get(0).get("updates");
+            return updates != null ? updates : List.of();
+        } catch (Exception e) {
+            LOG.error("Exception in fetchStatusPageUpdates", e);
+            return List.of();
+        }
+    }
+
+    // Matches a downtime period to the status page "... appears to be down." update for the same
+    // monitor whose time is closest to the downtime's started_at, within a tolerance window.
+    private String findStatusPageUpdateText(String monitorName, String downtimeStartedAt,
+                                             List<Map<String, Object>> statusPageUpdates) {
+        if (monitorName == null || downtimeStartedAt == null || statusPageUpdates == null || statusPageUpdates.isEmpty()) {
+            return null;
+        }
+        Instant downtimeStart = parseOhDearDateTime(downtimeStartedAt);
+        if (downtimeStart == null) return null;
+
+        String downTitle = monitorName + " appears to be down.";
+        String bestText = null;
+        long bestDiffSeconds = Long.MAX_VALUE;
+
+        for (Map<String, Object> update : statusPageUpdates) {
+            String title = (String) update.get("title");
+            String text = (String) update.get("text");
+            if (!downTitle.equals(title) || text == null || text.isBlank()) continue;
+
+            Instant updateTime = parseOhDearDateTime((String) update.get("time"));
+            if (updateTime == null) continue;
+
+            long diffSeconds = Math.abs(Duration.between(downtimeStart, updateTime).getSeconds());
+            if (diffSeconds <= STATUS_PAGE_UPDATE_MATCH_TOLERANCE_SECONDS && diffSeconds < bestDiffSeconds) {
+                bestDiffSeconds = diffSeconds;
+                bestText = text;
+            }
+        }
+        return bestText;
+    }
+
+    private Instant parseOhDearDateTime(String dateTime) {
+        if (dateTime == null) return null;
+        try {
+            return LocalDateTime.parse(dateTime, OHDEAR_DATETIME_FORMAT).toInstant(ZoneOffset.UTC);
+        } catch (Exception e) {
+            return null;
         }
     }
 

@@ -207,10 +207,14 @@ s3storage:
   secret: "minioadmin"
   bucket: "s3-images"
 
+#ohdear:
+#  apiKey: "test-token"
+#  baseUrl: http://localhost:8081
+#  enabled: false
 ohdear:
-  apiKey: "test-token"
-  baseUrl: http://localhost:8081
-  enabled: false
+  apiKey: "yZo9T959IX6oeUwPi21wvxlKWA3ZkclsQ8l9Q17r78ee8227"
+  baseUrl: "https://ohdear.app/api"
+  enabled: true
 
 springdoc:
   pathsToMatch: "/api/v1/**"
