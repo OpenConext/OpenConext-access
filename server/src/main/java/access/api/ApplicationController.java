@@ -151,11 +151,13 @@ public class ApplicationController implements UserAccessRights {
                     connectionRepository.save(connection);
                 }
                 ConnectionStatus status = connection.getStatus();
+
                 if (status.equals(ConnectionStatus.PROD_READY) || status.equals(ConnectionStatus.PENDING_PROD)) {
                     List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
                     connection.convertChangeRequests(changeRequests);
+                    boolean isTestAccepted = getData(provider).get("state").equals(State.testaccepted.name());
                     //If a connection is PENDING_PROD and does not have a prodaccepted change request we can conclude that it is rejected in Manage
-                    if (status.equals(ConnectionStatus.PENDING_PROD) &&
+                    if (status.equals(ConnectionStatus.PENDING_PROD) && isTestAccepted &&
                         (changeRequests.isEmpty() || changeRequests.stream()
                         .noneMatch(changeRequest ->
                             connection.isProductionRequest(changeRequest)))) {
