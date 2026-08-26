@@ -21,4 +21,8 @@ public class Results {
     public static ResponseEntity<Map<String, Object>> deleteResult() {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("status", HttpStatus.NO_CONTENT.value()));
     }
+
+    public static ResponseEntity<Map<String, Object>> forbiddenResult() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("status", HttpStatus.FORBIDDEN.value()));
+    }
 }

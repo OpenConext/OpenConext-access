@@ -235,6 +235,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
 
+    @Transactional(readOnly = true)
     @GetMapping("/identity-providers")
     public ResponseEntity<List<Map<String, Object>>> identityProviders() {
         LOG.debug("/identityProviders");

@@ -101,24 +101,148 @@ class PublicControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
-    void serviceProviderDetail() {
-        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.saml20_sp, "1");
-        String body = objectMapper.writeValueAsString(provider);
-        stubFor(get(String.format("/manage/api/internal/metadata/%s/%s",
-                EntityType.saml20_sp.name(),
-                "1"))
-                .willReturn(aResponse().withHeader("Content-Type", "application/json")
-                        .withBody(body)
-                        .withStatus(200)));
+    void serviceProviderDetailAnonymousAllowed() {
+        this.stubForGetProvider(EntityType.saml20_sp, "2");
         Map<String, Object> sp = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp.name())
+                .pathParam("identifier", "2")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("https://network", ((Map) sp.get("data")).get("entityid"));
+    }
+
+    @Test
+    void serviceProviderDetailInvalidType() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_idp.name())
+                .pathParam("identifier", "7")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void serviceProviderDetailAnonymousHidden() {
+        this.stubForGetProvider(EntityType.oidc10_rp, "7");
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.oidc10_rp.name())
+                .pathParam("identifier", "7")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void serviceProviderDetailAnonymousIdpVisibleOnly() {
+        this.stubForGetProvider(EntityType.saml20_sp, "1");
+        given()
                 .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("type", EntityType.saml20_sp.name())
                 .pathParam("identifier", "1")
                 .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(List.of("education"), ((Map)((Map)sp.get("data")).get("metaDataFields")).get("application_tags"));
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void serviceProviderDetailExternalUserAllowed() {
+        Map<String, Object> body = Map.of("sub", MANAGE_SUB, "schac_home_organization", "eduid.nl");
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(body);
+        this.stubForGetProvider(EntityType.saml20_sp, "2");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp.name())
+                .pathParam("identifier", "2")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void serviceProviderDetailExternalUserForbidden() {
+        Map<String, Object> body = Map.of("sub", MANAGE_SUB, "schac_home_organization", "eduid.nl");
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(body);
+        this.stubForGetProvider(EntityType.saml20_sp, "1");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp.name())
+                .pathParam("identifier", "1")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void serviceProviderDetailInternalUserAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForIdentityProviderByEntityId("http://mock-idp");
+        this.stubForGetProvider(EntityType.saml20_sp, "1");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp.name())
+                .pathParam("identifier", "1")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void serviceProviderDetailInternalUserForbidden() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForIdentityProviderByEntityId("http://mock-idp");
+        this.stubForGetProvider(EntityType.oidc10_rp, "6");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.oidc10_rp.name())
+                .pathParam("identifier", "6")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void serviceProviderDetailInternalUserHiddenAlwaysForbidden() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        this.stubForIdentityProviderByEntityId("http://mock-idp");
+        this.stubForGetProvider(EntityType.oidc10_rp, "7");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.oidc10_rp.name())
+                .pathParam("identifier", "7")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(403);
     }
 }

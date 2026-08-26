@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static access.api.Results.forbiddenResult;
 import static access.manage.ManageData.getData;
 import static access.manage.ManageData.getMetaDataFields;
 
@@ -47,36 +48,8 @@ public class PublicController {
                                                                           required = false) String manageIdentifier) {
         LOG.debug("/serviceProviders");
         List<Map<String, Object>> providers = manage.serviceProvidersLight();
-        if (authentication == null) {
-            providers.removeIf(provider -> removeNonPublicProvider(provider));
-        } else {
-            DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
-            String schacHomeOrganization = (String) user.getClaims().get("schac_home_organization");
-            boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
-            if (isExternalUserFromSchacHome) {
-                providers.removeIf(provider -> removeNonPublicProvider(provider));
-            } else {
-                //We need the identity provider to see which providers are connected and are therefore visiblle
-                Map<String, Object> identityProvider;
-                if (StringUtils.hasText(manageIdentifier)) {
-                    identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
-                } else {
-                    String surfCrmId = (String) user.getClaims().get("surf-crm-id");
-                    List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(surfCrmId);
-                    String authenticatingAuthority = (String) user.getClaims().get("authenticating_authority");
-                    identityProvider = identityProviders.stream()
-                        .filter(idp -> authenticatingAuthority.equals(getData(idp).get("entityid")))
-                        .findFirst()
-                        .orElseGet(() -> identityProviders.getFirst());
-                }
-                Set<String> allowedEntities = ((List<Map<String, String>>) getData(identityProvider)
-                    .getOrDefault("allowedEntities", List.of()))
-                    .stream()
-                    .map(allowedEntity -> allowedEntity.get("name"))
-                    .collect(Collectors.toSet());
-                providers.removeIf(provider -> removeNonPublicProvider(provider, allowedEntities));
-            }
-        }
+        Set<String> allowedEntities = allowedEntities(authentication, manageIdentifier);
+        providers.removeIf(provider -> removeNonPublicProvider(provider, allowedEntities));
         return ResponseEntity.ok(providers);
     }
 
@@ -88,21 +61,54 @@ public class PublicController {
 
     @GetMapping("/service-provider-detail/{type}/{identifier}")
     public ResponseEntity<Map<String, Object>> serviceProviderDetail(
+        Authentication authentication,
         @PathVariable("type") EntityType entityType,
         @PathVariable("identifier") String identifier) {
-        LOG.debug("/identityProviders");
+
+        LOG.debug("/service-provider-detail");
+        if (!List.of(EntityType.oidc10_rp, EntityType.saml20_sp).contains(entityType)) {
+            return forbiddenResult();
+        }
+
         Map<String, Object> provider = manage
             .providerByManageIdentifier(entityType, identifier);
+        Set<String> allowedEntities = allowedEntities(authentication, null);
+        if (removeNonPublicProvider(provider, allowedEntities)) {
+            return forbiddenResult();
+        }
         getMetaDataFields(getData(provider)).keySet()
             .removeIf(key -> key.startsWith("contacts:"));
+
         return ResponseEntity.ok(provider);
     }
 
-    private boolean removeNonPublicProvider(Map<String, Object> provider) {
-        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
-        boolean hidden = (boolean) metaDataFields.getOrDefault("coin:ss:hidden", false);
-        boolean idpVisibleOnly = (boolean) metaDataFields.getOrDefault("coin:ss:idp_visible_only", false);
-        return hidden || idpVisibleOnly;
+    private Set<String> allowedEntities(Authentication authentication, String manageIdentifier) {
+        if (authentication == null) {
+            return Set.of();
+        }
+        DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
+        String schacHomeOrganization = (String) user.getClaims().get("schac_home_organization");
+        if (config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization)) {
+            return Set.of();
+        }
+        //We need the identity provider to see which providers are connected and are therefore visible
+        Map<String, Object> identityProvider;
+        if (StringUtils.hasText(manageIdentifier)) {
+            identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
+        } else {
+            String surfCrmId = (String) user.getClaims().get("surf-crm-id");
+            List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(surfCrmId);
+            String authenticatingAuthority = (String) user.getClaims().get("authenticating_authority");
+            identityProvider = identityProviders.stream()
+                .filter(idp -> authenticatingAuthority.equals(getData(idp).get("entityid")))
+                .findFirst()
+                .orElseGet(identityProviders::getFirst);
+        }
+        return ((List<Map<String, String>>) getData(identityProvider)
+            .getOrDefault("allowedEntities", List.of()))
+            .stream()
+            .map(allowedEntity -> allowedEntity.get("name"))
+            .collect(Collectors.toSet());
     }
 
     private boolean removeNonPublicProvider(Map<String, Object> provider, Set<String> allowedEntities) {
