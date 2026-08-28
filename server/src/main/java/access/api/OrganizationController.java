@@ -169,8 +169,9 @@ public class OrganizationController implements UserAccessRights {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
 
-        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                organizationRepository.searchByPage(pageable);
+        Page<Map<String, Object>> usersPage = (StringUtils.hasText(query) ? organizationRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                organizationRepository.searchByPage(pageable))
+                .map(row -> MapTimestampConverter.convertTimestamps(row, "createdAt"));
         return ResponseEntity.ok(usersPage);
     }
 

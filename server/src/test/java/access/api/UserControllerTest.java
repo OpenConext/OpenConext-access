@@ -451,7 +451,11 @@ class UserControllerTest extends AbstractTest {
             .get("/api/v1/users/search")
             .as(new TypeRef<>() {
             });
-        assertEquals(6, ((List) results.get("content")).size());
+        List<Map<String, Object>> content = (List<Map<String, Object>>) results.get("content");
+        assertEquals(6, content.size());
+        Map<String, Object> firstResult = content.get(0);
+        assertInstanceOf(Number.class, firstResult.get("createdAt"));
+        assertInstanceOf(Number.class, firstResult.get("lastActivity"));
     }
 
 

@@ -97,12 +97,12 @@ export const Users = () => {
         {
             key: "createdAt",
             header: I18n.t("users.createdAt"),
-            mapper: user => dateFromEpoch(user.createdAt, false)
+            mapper: user => dateFromEpoch(user.createdAt)
         },
         {
             key: "lastActivity",
             header: I18n.t("users.lastActivity"),
-            mapper: user => dateFromEpoch(user.lastActivity, false)
+            mapper: user => dateFromEpoch(user.lastActivity)
         },
     ];
     const showImpersonation = currentUser && currentUser.superUser;

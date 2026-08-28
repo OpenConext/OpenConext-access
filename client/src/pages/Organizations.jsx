@@ -235,7 +235,7 @@ export const Organizations = ({pendingApproval}) => {
                          tip={I18n.t("tooltips.organizationsIcon",
                              {
                                  name: org.name,
-                                 createdAt: dateFromEpoch(org.created_at || org.createdAt, false),
+                                 createdAt: dateFromEpoch(org.created_at || org.createdAt),
                                  status: I18n.t(`organizations.${org.status.toLowerCase()}`)
                              })}/>
             </div>
@@ -263,7 +263,7 @@ export const Organizations = ({pendingApproval}) => {
         {
             key: "createdAt",
             header: I18n.t("organizations.createdAt"),
-            mapper: org => dateFromEpoch(org.createdAt, pendingApproval)
+            mapper: org => dateFromEpoch(org.createdAt)
         },
         {
             key: "status",

@@ -158,6 +158,7 @@ class OrganizationControllerTest extends AbstractTest {
         assertEquals(1, content.size());
         Map<String, Object> organization = (Map<String, Object>) content.getFirst();
         assertEquals("mary.doe@example.com", organization.get("adminEmail"));
+        assertInstanceOf(Number.class, organization.get("createdAt"));
     }
 
     @Test

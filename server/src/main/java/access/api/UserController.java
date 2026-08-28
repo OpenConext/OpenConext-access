@@ -269,8 +269,9 @@ public class UserController implements UserAccessRights {
         confirmSuperUser(user);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-            userRepository.searchByPage(pageable);
+        Page<Map<String, Object>> usersPage = (StringUtils.hasText(query) ? userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+            userRepository.searchByPage(pageable))
+            .map(row -> MapTimestampConverter.convertTimestamps(row, "createdAt", "lastActivity"));
         return ResponseEntity.ok(usersPage);
     }
 
