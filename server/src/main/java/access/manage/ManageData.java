@@ -66,6 +66,33 @@ public class ManageData {
         });
     }
 
+    //Case-insensitive substring match, not an exact-key allowlist: this is used only for provider data returned by
+    //raw, unauthenticated Manage lookups (see PublicController), whose metaDataFields schema is externally defined
+    //and extensible (e.g. "clientSecretJWT" alongside "secret"/"originalSecret") - a fixed set of exact key names
+    //can never be proven complete against that, so anything that looks credential-shaped is stripped
+    private static final Pattern SECRET_LIKE_KEY = Pattern.compile("secret|password|private.?key", Pattern.CASE_INSENSITIVE);
+
+    //Returns a shallow-copied provider with secrets removed, leaving the original (possibly cached/shared) map untouched
+    public static Map<String, Object> removeSecretsFromProvider(Map<String, Object> provider) {
+        Map<String, Object> data = getData(provider);
+        if (data == null) {
+            return provider;
+        }
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
+        if (metaDataFields == null) {
+            return provider;
+        }
+        Map<String, Object> sanitizedMetaDataFields = new HashMap<>(metaDataFields);
+        sanitizedMetaDataFields.keySet().removeIf(key -> SECRET_LIKE_KEY.matcher(key).find());
+
+        Map<String, Object> sanitizedData = new HashMap<>(data);
+        sanitizedData.put("metaDataFields", sanitizedMetaDataFields);
+
+        Map<String, Object> sanitizedProvider = new HashMap<>(provider);
+        sanitizedProvider.put("data", sanitizedData);
+        return sanitizedProvider;
+    }
+
 
     public static boolean isEmpty(Object object) {
         return switch (object) {

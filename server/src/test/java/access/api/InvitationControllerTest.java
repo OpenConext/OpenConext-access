@@ -118,8 +118,11 @@ class InvitationControllerTest extends AbstractMailTest {
 
     @Test
     void accept() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
         Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        //The accepting user's email must match the invitation's email - see InvitationController#accept
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(Map.of(
+                "sub", "urn:collab:person:eduid.nl:new_user",
+                "email", invitation.getEmail()));
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -187,11 +190,13 @@ class InvitationControllerTest extends AbstractMailTest {
         application = applicationRepository.save(application);
 
         //Now create an invitation with this organization, and application memberships
+        //The accepting user's email must match the invitation's email - see InvitationController#accept.
+        //This flow's mocked userinfo sets email to the sub (see AbstractTest#openIDConnectFlow)
         String hash = UUID.randomUUID().toString();
         Invitation invitation = new Invitation(
                 Language.en,
                 hash,
-                "some@new.ocm",
+                sub,
                 "Please",
                 Authority.GUEST,
                 organization,

@@ -1,6 +1,7 @@
 package access.api;
 
 
+import access.exception.BaseException;
 import access.exception.IdpConfigurationException;
 import access.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -15,11 +16,13 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -46,16 +49,26 @@ public class DefaultErrorController implements ErrorController {
     @RequestMapping("/error")
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
         WebRequest webRequest = new ServletWebRequest(request);
+        Throwable error = this.errorAttributes.getError(webRequest);
+
+        //Only exceptions this application deliberately throws for the client (validation, not-found, forbidden,
+        //...) may expose their class/message. Anything else (NPEs, JDBC/Hibernate errors, ...) could leak
+        //internal implementation detail, so only a generic message is returned - full detail is still logged below.
+        boolean clientFacing = error == null || isClientFacingException(error);
         Map<String, Object> result = this.errorAttributes.getErrorAttributes(
             webRequest,
-            ErrorAttributeOptions.of(
-                ErrorAttributeOptions.Include.EXCEPTION,
-                ErrorAttributeOptions.Include.STATUS,
-                ErrorAttributeOptions.Include.MESSAGE,
-                ErrorAttributeOptions.Include.BINDING_ERRORS)
+            clientFacing
+                ? ErrorAttributeOptions.of(
+                    ErrorAttributeOptions.Include.EXCEPTION,
+                    ErrorAttributeOptions.Include.STATUS,
+                    ErrorAttributeOptions.Include.MESSAGE,
+                    ErrorAttributeOptions.Include.BINDING_ERRORS)
+                : ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STATUS)
         );
+        if (!clientFacing) {
+            result.put("message", "An unexpected error occurred");
+        }
 
-        Throwable error = this.errorAttributes.getError(webRequest);
         HttpStatus statusCode;
 
         if (error == null) {
@@ -82,6 +95,13 @@ public class DefaultErrorController implements ErrorController {
             result.put("reference", idpConfigurationException.getReference());
         }
         return ResponseEntity.status(statusCode).body(result);
+    }
+
+    private boolean isClientFacingException(Throwable error) {
+        return error instanceof BaseException
+                || error instanceof AuthenticationException
+                || error instanceof ResponseStatusException
+                || error instanceof AccessDeniedException;
     }
 
 }

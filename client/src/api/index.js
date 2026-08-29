@@ -383,7 +383,9 @@ export function getInvitationByHash(hash) {
 
 export function acceptInvitation(invitation) {
     const body = {hash: invitation.hash, invitationId: invitation.id}
-    return postPutJson("/api/v1/invitations/accept", body, "PUT")
+    //showErrorDialog=false - the caller (Invitation.jsx) shows a dedicated flash message instead, since a
+    //rejection here (e.g. wrong account) is an expected outcome the user needs to understand, not a generic error
+    return postPutJson("/api/v1/invitations/accept", body, "PUT", false)
 }
 
 export function resendInvitation(invitation) {

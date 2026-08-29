@@ -3,6 +3,7 @@ import "./CollapseField.scss"
 import CaretUp from "../icons/caret_up.svg";
 import CaretDown from "../icons/caret_down.svg";
 import {Checkbox} from "@surfnet/sds";
+import DOMPurify from "dompurify";
 
 export const CollapseField = ({title, info, children, disabledToggle, checkRequired, name, checkValue}) => {
 
@@ -34,7 +35,7 @@ export const CollapseField = ({title, info, children, disabledToggle, checkRequi
 
             </div>
             {(collapse && info) && <p className="collapsed"
-                                      dangerouslySetInnerHTML={{__html: info}}/>}
+                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>}
             {(collapse && !info) && <div className="collapsed">
                 {children}
             </div>}

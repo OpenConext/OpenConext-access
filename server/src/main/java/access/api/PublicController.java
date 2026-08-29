@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import static access.api.Results.forbiddenResult;
 import static access.manage.ManageData.getData;
 import static access.manage.ManageData.getMetaDataFields;
+import static access.manage.ManageData.removeSecretsFromProvider;
 
 @RestController
 @RequestMapping(value = {"/api/v1/public"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,7 +51,13 @@ public class PublicController {
         List<Map<String, Object>> providers = manage.serviceProvidersLight();
         Set<String> allowedEntities = allowedEntities(authentication, manageIdentifier);
         providers.removeIf(provider -> removeNonPublicProvider(provider, allowedEntities));
-        return ResponseEntity.ok(providers);
+        //RemoteManage's search query already restricts fields, but LocalManage.serviceProvidersLight() (used
+        //whenever manage.enabled=false, the shipped application.yml default) returns full, unfiltered records -
+        //never rely solely on the upstream query shape for an unauthenticated endpoint
+        List<Map<String, Object>> sanitizedProviders = providers.stream()
+                .map(provider -> removeSecretsFromProvider(provider))
+                .toList();
+        return ResponseEntity.ok(sanitizedProviders);
     }
 
     @GetMapping("/identity-providers")
@@ -76,6 +83,8 @@ public class PublicController {
         if (removeNonPublicProvider(provider, allowedEntities)) {
             return forbiddenResult();
         }
+        //Defensive copy first - the returned provider may be a cached / shared instance (e.g. LocalManage)
+        provider = removeSecretsFromProvider(provider);
         getMetaDataFields(getData(provider)).keySet()
             .removeIf(key -> key.startsWith("contacts:"));
 

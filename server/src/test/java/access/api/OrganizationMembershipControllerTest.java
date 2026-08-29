@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.OrganizationMembership;
+import access.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,38 @@ class OrganizationMembershipControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(Authority.GUEST.name(), result.get("authority"));
+    }
+
+    @Test
+    void updateByPlainMemberNotAllowed() {
+        //Security regression test (AUDIT.md #3 - Critical): a plain MEMBER must never be able to change another
+        //member's authority (e.g. promote a GUEST to MEMBER, or demote an ADMIN) - only an ADMIN may do this.
+        //(Note: MULTIPLE_ORG_SUB, though seeded as MEMBER of SHARE_LOGICS, is also seeded as a super-user and so
+        //can't be used here - super-users bypass all authority checks. A dedicated, genuinely non-super MEMBER is
+        //created inline instead.)
+        String plainMemberSub = "urn:collab:person:example.com:plain_member";
+        User plainMemberUser = new User(false, plainMemberSub, plainMemberSub, "eduid.nl",
+                "Plain", "Member", "plain.member@eduid.nl", "http://mock-idp");
+        userRepository.save(plainMemberUser);
+        Organization shareLogics = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        organizationMembershipRepository.save(new OrganizationMembership(plainMemberUser, shareLogics, Authority.MEMBER));
+
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(plainMemberSub);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.GUEST.name()));
+        Map<String, Object> body = Map.of("id", organizationMembershipId, "authority", Authority.MEMBER.name());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put("/api/v1/organization_memberships")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        assertEquals(Authority.GUEST, organizationMembershipRepository.findById(organizationMembershipId).get().getAuthority());
     }
 
     @Test

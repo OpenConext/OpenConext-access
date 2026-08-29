@@ -96,6 +96,9 @@ public class ContractController implements UserAccessRights {
         user = reinitializeUser(user, userRepository);
         confirmInstitutionAdmin(user, organization);
 
+        //Never trust a client-supplied id on a create - would otherwise let save() merge() into (i.e. overwrite)
+        //an arbitrary existing contract row instead of inserting a new one
+        contract.setId(null);
         contract.setOrganization(organization);
         Contract saved = contractRepository.save(contract);
         if (!config.isTestEnvironment()) {
@@ -133,11 +136,22 @@ public class ContractController implements UserAccessRights {
             throw new UserRestrictionException("Only super users can sign a contract");
         }
 
-        contractRepository.findById(contract.getId())
+        Contract existing = contractRepository.findById(contract.getId())
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
+        //Ensure the contract being updated actually belongs to the organization the caller is admin of,
+        //otherwise a client-supplied id could hijack an arbitrary contract from a different organization
+        if (existing.getOrganization() == null || !existing.getOrganization().getId().equals(organizationId)) {
+            throw new NotFoundException("Contract not found");
+        }
 
-        contract.setOrganization(organization);
-        Contract saved = contractRepository.save(contract);
+        //Merge only the caller-editable fields onto the persisted row - never save the raw request body, which
+        //would let any institution admin silently un-sign a contract or rewrite its Jira ticketKey (signedContract
+        //may only ever move false->true, and only via the super-user path below)
+        existing.merge(contract);
+        if (contract.isSignedContract() && user.isSuperUser()) {
+            existing.setSignedContract(true);
+        }
+        Contract saved = contractRepository.save(existing);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

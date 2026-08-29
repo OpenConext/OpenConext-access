@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -190,6 +191,11 @@ public class ApplicationController implements UserAccessRights {
         Organization organization = application.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
 
+        //Never trust a client-supplied id / nested collections on a create - would otherwise let save() merge()
+        //into (i.e. overwrite) an arbitrary existing row instead of inserting a new one
+        application.setId(null);
+        application.setConnections(new HashSet<>());
+        application.setApplicationMemberships(new HashSet<>());
         application.setCreatedAt(Instant.now());
         application.setCreatedBy(user.getName());
         application.setOwner(user);
@@ -232,7 +238,9 @@ public class ApplicationController implements UserAccessRights {
 
         user = this.reinitializeUser(user, userRepository);
 
-        confirmApplicationWriteAccess(user, application);
+        //GUEST is the lowest, view-only tier (see AUDIT.md #7) - editing the application is a write operation
+        //and must require at least MEMBER
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
 
         //If the metadata has changed, we must propagate this to manage
         boolean metaDataHasChanged = !application.getMetaData().equals(applicationData.getMetaData());

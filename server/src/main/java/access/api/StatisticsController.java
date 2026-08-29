@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.UserRestrictionException;
 import access.model.User;
 import access.stats.Scale;
 import access.stats.Statistics;
@@ -28,7 +29,9 @@ public class StatisticsController {
 
     /**
      * SURFnet users (schacHomeOrganization == surfSchacHomeOrganization) see data for all IdPs (null idpEntityId).
-     * Non-SURFnet users are restricted to their own IdP — always enforced server-side.
+     * Non-SURFnet users are restricted to their own IdP — always enforced server-side. Anonymous callers are
+     * only allowed the platform-wide aggregate (see loginTimeFrame - no spEntityId filter permitted), so they
+     * can share the same "no restriction" idpEntityId as a super-user without being able to target one SP.
      */
     private String resolveIdpEntityId(User user) {
         if (user == null || user.isSuperUser()) {
@@ -49,6 +52,11 @@ public class StatisticsController {
                                        @RequestParam("scale") Scale scale,
                                        @RequestParam(value = "spEntityId", required = false) String spEntityId,
                                        @RequestParam(value = "includeUnique", required = false, defaultValue = "true") boolean includeUnique) {
+        //Anonymous callers (this endpoint is permitAll, for the public statistics dashboard) may only ever see
+        //the platform-wide aggregate, never data scoped to one specific, attacker-chosen SP
+        if (user == null && StringUtils.hasText(spEntityId)) {
+            throw new UserRestrictionException("Authentication is required to filter statistics by spEntityId");
+        }
         return statistics.loginTimeFrame(from, to, scale.name(), resolveIdpEntityId(user), spEntityId, includeUnique);
     }
 

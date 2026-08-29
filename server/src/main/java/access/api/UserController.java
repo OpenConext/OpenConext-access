@@ -6,6 +6,7 @@ import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
 import access.manage.Manage;
+import access.manage.ManageData;
 import access.model.Authority;
 import access.model.EntityType;
 import access.model.Organization;
@@ -198,7 +199,11 @@ public class UserController implements UserAccessRights {
             String manageIdentifier = (String) organization.get("manageIdentifier");
             if (StringUtils.hasText(manageIdentifier)) {
                 try {
-                    Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier);
+                    //Defensive redaction for consistency with the other endpoints that return raw Manage provider
+                    //data (see PublicController) - SAML IdP metadata has no secret-like field today, but this
+                    //endpoint should not be the one place that assumes it never will
+                    Map<String, Object> identityProvider = ManageData.removeSecretsFromProvider(
+                            manage.providerByManageIdentifier(EntityType.saml20_idp, manageIdentifier));
                     organization.put("identityProvider", identityProvider);
                     List<Map<String, Object>> changeRequests = manage.getChangeRequestsIdentityProvider(identityProvider);
                     organization.put("changeRequests", changeRequests);

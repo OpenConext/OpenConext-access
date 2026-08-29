@@ -115,6 +115,33 @@ class PublicControllerTest extends AbstractTest {
         assertEquals("https://network", ((Map) sp.get("data")).get("entityid"));
     }
 
+    @SneakyThrows
+    @Test
+    void serviceProviderDetailAnonymousDoesNotLeakSecret() {
+        //Security regression test (AUDIT.md #1 - Critical): this provider ("10", entityid playground_client) is
+        //not hidden / not idp_visible_only, so it is publicly viewable - but its raw metaDataFields legitimately
+        //contain an OAuth/OIDC client "secret", which must never reach an unauthenticated caller
+        Map<String, Object> rawProvider = this.stubForGetProvider(EntityType.oidc10_rp, "10");
+        Map<String, Object> rawMetaDataFields = (Map<String, Object>) ((Map<String, Object>) rawProvider.get("data")).get("metaDataFields");
+        assertTrue(rawMetaDataFields.containsKey("secret"), "test fixture must contain a secret to make this test meaningful");
+
+        Map<String, Object> sp = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.oidc10_rp.name())
+                .pathParam("identifier", "10")
+                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(new TypeRef<>() {
+                });
+        Map<String, Object> metaDataFields = (Map<String, Object>) ((Map<String, Object>) sp.get("data")).get("metaDataFields");
+        assertFalse(metaDataFields.containsKey("secret"));
+        assertFalse(metaDataFields.containsKey("originalSecret"));
+    }
+
     @Test
     void serviceProviderDetailInvalidType() {
         given()

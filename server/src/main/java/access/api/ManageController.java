@@ -28,6 +28,18 @@ import tools.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -51,7 +63,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -189,48 +200,104 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return bytes.length == 16 && (bytes[0] & 0xfe) == 0xfc;
     }
 
+    //DnsResolver is invoked by the HTTP client at the exact moment it opens the TCP connection, so the address(es)
+    //validated here are guaranteed to be the same address(es) actually connected to - this closes the TOCTOU /
+    //DNS-rebinding gap that exists when validation (e.g. assertPublicHost) and the real connection each perform
+    //their own, separate DNS resolution
+    private DnsResolver validatingDnsResolver() {
+        return new DnsResolver() {
+            @Override
+            public InetAddress[] resolve(String host) throws UnknownHostException {
+                InetAddress[] addresses = InetAddress.getAllByName(host);
+                if (blockPrivateNetworkMetadataUrls) {
+                    for (InetAddress address : addresses) {
+                        if (isDisallowedAddress(address)) {
+                            throw new UnknownHostException("Metadata URL resolves to a disallowed network address");
+                        }
+                    }
+                }
+                return addresses;
+            }
+
+            @Override
+            public String resolveCanonicalHostname(String host) {
+                return host;
+            }
+        };
+    }
+
+    private record MetadataUrlFetchStep(String redirectLocation, byte[] body) {
+    }
+
+    private MetadataUrlFetchStep handleMetadataUrlResponse(ClassicHttpResponse response) throws IOException {
+        int status = response.getCode();
+        if (status >= 300 && status < 400) {
+            Header locationHeader = response.getFirstHeader("Location");
+            String location = locationHeader != null ? locationHeader.getValue() : null;
+            if (!StringUtils.hasText(location)) {
+                throw new InvalidInputException("Redirect response without Location header");
+            }
+            return new MetadataUrlFetchStep(location, null);
+        }
+        if (status != 200) {
+            throw new InvalidInputException("Unexpected HTTP status while fetching metadata URL: " + status);
+        }
+        HttpEntity entity = response.getEntity();
+        if (entity == null) {
+            return new MetadataUrlFetchStep(null, new byte[0]);
+        }
+        try (InputStream inputStream = entity.getContent()) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] chunk = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = inputStream.read(chunk)) != -1) {
+                total += read;
+                if (total > maxMetadataUrlBytes) {
+                    throw new InvalidInputException(
+                            "Metadata URL content exceeds maximum allowed size of " + maxMetadataUrlBytes + " bytes");
+                }
+                buffer.write(chunk, 0, read);
+            }
+            return new MetadataUrlFetchStep(null, buffer.toByteArray());
+        }
+    }
+
     private byte[] fetchBoundedUrlContent(URL initialUrl) {
         URL url = initialUrl;
-        try {
-            for (int redirect = 0; ; redirect++) {
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setInstanceFollowRedirects(false);
-                connection.setConnectTimeout(metadataUrlConnectTimeoutMs);
-                connection.setReadTimeout(metadataUrlReadTimeoutMs);
+        for (int redirect = 0; ; redirect++) {
+            PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setDnsResolver(validatingDnsResolver())
+                    .setDefaultConnectionConfig(ConnectionConfig.custom()
+                            .setConnectTimeout(Timeout.ofMilliseconds(metadataUrlConnectTimeoutMs))
+                            .build())
+                    .build();
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setResponseTimeout(Timeout.ofMilliseconds(metadataUrlReadTimeoutMs))
+                    .build();
 
-                int status = connection.getResponseCode();
-                if (status >= 300 && status < 400) {
+            try (CloseableHttpClient httpClient = HttpClientBuilder.create()
+                    .setConnectionManager(connectionManager)
+                    .setDefaultRequestConfig(requestConfig)
+                    .disableRedirectHandling()
+                    .disableCookieManagement()
+                    .build()) {
+
+                HttpGet request = new HttpGet(url.toURI());
+                MetadataUrlFetchStep step = httpClient.execute(request, this::handleMetadataUrlResponse);
+
+                if (step.redirectLocation() != null) {
                     if (redirect >= MAX_METADATA_URL_REDIRECTS) {
                         throw new InvalidInputException("Too many redirects while fetching metadata URL");
                     }
-                    String location = connection.getHeaderField("Location");
-                    connection.disconnect();
-                    if (!StringUtils.hasText(location)) {
-                        throw new InvalidInputException("Redirect response without Location header");
-                    }
-                    URI resolved = url.toURI().resolve(location);
+                    URI resolved = url.toURI().resolve(step.redirectLocation());
                     url = parseAndValidateUrl(resolved.toString());
                     continue;
                 }
-
-                try (InputStream inputStream = connection.getInputStream()) {
-                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                    byte[] chunk = new byte[8192];
-                    long total = 0;
-                    int read;
-                    while ((read = inputStream.read(chunk)) != -1) {
-                        total += read;
-                        if (total > maxMetadataUrlBytes) {
-                            throw new InvalidInputException(
-                                    "Metadata URL content exceeds maximum allowed size of " + maxMetadataUrlBytes + " bytes");
-                        }
-                        buffer.write(chunk, 0, read);
-                    }
-                    return buffer.toByteArray();
-                }
+                return step.body();
+            } catch (IOException | URISyntaxException e) {
+                throw new InvalidInputException("Unable to fetch metadata from URL: " + e.getMessage());
             }
-        } catch (URISyntaxException | IOException e) {
-            throw new InvalidInputException("Unable to fetch metadata from URL: " + e.getMessage());
         }
     }
 

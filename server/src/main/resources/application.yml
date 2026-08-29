@@ -207,14 +207,12 @@ s3storage:
   secret: "minioadmin"
   bucket: "s3-images"
 
-#ohdear:
-#  apiKey: "test-token"
-#  baseUrl: http://localhost:8081
-#  enabled: false
+#Real credentials must never be committed - provide via OHDEAR_APIKEY env var (or application-local.yml, which is
+#gitignored) in any environment where monitoring is actually enabled. See AUDIT.md finding #4.
 ohdear:
-  apiKey: "yZo9T959IX6oeUwPi21wvxlKWA3ZkclsQ8l9Q17r78ee8227"
+  apiKey: "changeme"
   baseUrl: "https://ohdear.app/api"
-  enabled: true
+  enabled: false
 
 springdoc:
   pathsToMatch: "/api/v1/**"
@@ -244,7 +242,9 @@ management:
       access: unrestricted
     health:
       access: unrestricted
-      show-details: always
+      #Anonymous callers only get the aggregate UP/DOWN status - per-component detail (DB, disk, mail, ...)
+      #is only shown to an authenticated principal, avoiding infrastructure disclosure to the internet
+      show-details: when-authorized
     mappings:
       access: none
     metrics:

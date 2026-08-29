@@ -148,6 +148,13 @@ public class InvitationController implements UserAccessRights {
 
         Invitation invitation = invitationRepository.findByIdAndHash(acceptInvitation.invitationId(), acceptInvitation.hash())
                 .orElseThrow(() -> new NotFoundException("Invitation not found"));
+
+        //The invite hash alone is not proof of identity - anyone who obtains the link (forwarded mail, shared
+        //inbox, browser history, ...) must not be able to accept it under a different account than the invitee
+        if (!StringUtils.hasText(invitation.getEmail()) || !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {
+            throw new UserRestrictionException("Invitation is not intended for this user");
+        }
+
         invitation.accept();
 
         user = reinitializeUser(user, userRepository);

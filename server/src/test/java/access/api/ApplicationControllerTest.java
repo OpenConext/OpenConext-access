@@ -70,6 +70,41 @@ class ApplicationControllerTest extends AbstractTest {
     }
 
     @Test
+    void createDoesNotHijackExistingApplicationViaClientSuppliedId() {
+        //Security regression test (AUDIT.md #2 - Critical): a client-supplied id on create() must never let
+        //save() merge() into (i.e. overwrite/steal) an application belonging to a different organization
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Organization shareLogics = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        Application victim = applicationRepository.findById(seedIdentifiers.get(NITRO_MAP)).get();
+        String victimOriginalName = victim.getName();
+        Long victimOriginalOrganizationId = victim.getOrganization().getId();
+        assertNotEquals(shareLogics.getId(), victimOriginalOrganizationId, "test setup: victim must belong to a different organization");
+
+        Map<String, Object> applicationData = objectMapper.convertValue(
+                new Application("Hijacked", shareLogics, "attacker", Map.of()), new TypeReference<>() {
+                });
+        applicationData.put("id", victim.getId());
+        applicationData.put("organization", Map.of("id", shareLogics.getId()));
+
+        Application savedApplication = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(applicationData)
+                .post("/api/v1/applications")
+                .as(Application.class);
+
+        //A new row must have been inserted - never the victim's id
+        assertNotEquals(victim.getId(), savedApplication.getId());
+
+        Application victimAfter = applicationRepository.findById(victim.getId()).get();
+        assertEquals(victimOriginalName, victimAfter.getName());
+        assertEquals(victimOriginalOrganizationId, victimAfter.getOrganization().getId());
+    }
+
+    @Test
     void nameExists() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Application buddyCheck = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
@@ -260,7 +295,9 @@ class ApplicationControllerTest extends AbstractTest {
 
     @Test
     void updateMetaDataChanged() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+        //Application updates now require at least MEMBER (AUDIT.md follow-up: GUEST is view-only) -
+        //EXTERNAL_USER_SUB is only a GUEST of SHARE_LOGICS, so use MANAGE_SUB as elsewhere in this test class
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         application.getMetaData().put("information", Map.of("descriptionEN", "Changed"));
         Organization organization = application.getOrganization();

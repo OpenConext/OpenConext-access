@@ -68,6 +68,19 @@ public class Contract {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
+    //Only the caller-editable contact/provider fields - never id, organization, ticketKey or signedContract,
+    //which are controlled server-side (see ContractController#update)
+    public void merge(Contract contractData) {
+        this.providerName = contractData.providerName;
+        this.organizationName = contractData.organizationName;
+        this.signeeName = contractData.signeeName;
+        this.signeeTitle = contractData.signeeTitle;
+        this.address = contractData.address;
+        this.country = contractData.country;
+        this.telephone = contractData.telephone;
+        this.email = contractData.email;
+    }
+
     //We need organization info, but we don't want cyclic JSON deserialization
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "organization")
     public Map<String, Serializable> getOrganizationInfo() {

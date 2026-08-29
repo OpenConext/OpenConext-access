@@ -58,8 +58,9 @@ public class OrganizationMembershipController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
 
         Authority newAuthority = organizationMembershipUpdate.getAuthority();
-        Authority requiredAuthority = Authority.ADMIN.equals(newAuthority) ? Authority.ADMIN : Authority.MEMBER;
-        confirmOrganizationMembership(user, organizationMembership.getOrganization(), requiredAuthority);
+        //Changing someone else's authority always requires ADMIN rights - the required authority must never be
+        //derived from the client-supplied target value, otherwise a plain MEMBER could demote an ADMIN
+        confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
 
         long nbrOfAdmins = this.getNbrOfAdmins(organizationMembership);
         if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN) && !newAuthority.isAllowed(Authority.ADMIN)) {

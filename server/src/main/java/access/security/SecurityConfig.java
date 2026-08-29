@@ -1,6 +1,8 @@
 package access.security;
 
 import access.repository.UserRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -45,6 +47,8 @@ import java.util.stream.Stream;
 @EnableCaching
 @EnableConfigurationProperties({SuperAdmin.class})
 public class SecurityConfig {
+
+    private static final Log LOG = LogFactory.getLog(SecurityConfig.class);
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
 
@@ -141,6 +145,10 @@ public class SecurityConfig {
                 securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
         if (environment.acceptsProfiles(Profiles.of("dev"))) {
             //Thus avoiding an oauth2 login for local development
+            LOG.warn("=================================================================");
+            LOG.warn("DEV PROFILE ACTIVE: authentication is bypassed, every request is treated as a super-admin.");
+            LOG.warn("This must never run in a production or externally reachable environment.");
+            LOG.warn("=================================================================");
             http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
         }
         return http.build();
@@ -160,6 +168,13 @@ public class SecurityConfig {
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http,
                                                                @Value("${lifecycle.user}") String lifeCycleUser,
                                                                @Value("${lifecycle.password}") String lifeCyclePassword) throws Exception {
+        if (!environment.acceptsProfiles(Profiles.of("dev", "test")) && "secret".equals(lifeCyclePassword)) {
+            LOG.warn("=================================================================");
+            LOG.warn("lifecycle.password is still set to the insecure shipped default outside the dev/test " +
+                    "profiles - the /api/external/v1/deprovision/** API (PII read + account deletion) is only as " +
+                    "safe as this credential. Override it via configuration/environment variables.");
+            LOG.warn("=================================================================");
+        }
         http.csrf(c -> c.disable())
             .securityMatcher(
                 "/api/external/v1/deprovision/**",

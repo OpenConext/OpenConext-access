@@ -403,6 +403,28 @@ class ConnectionControllerTest extends AbstractTest {
     }
 
     @Test
+    void deleteConnectionByGuestNotAllowed() {
+        //Security regression test: a GUEST-tier org member with an explicit ApplicationMembership on the
+        //application (EXTERNAL_USER_SUB is seeded as GUEST of SHARE_LOGICS with an ApplicationMembership on
+        //BuddyCheck) must not be able to delete - or otherwise mutate - its connections. GUEST is view-only.
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(EXTERNAL_USER_SUB);
+        Long connectionId = seedIdentifiers.get(BUDDY_CHECK_TEST);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("connectionId", connectionId)
+                .delete("/api/v1/connections/{connectionId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        assertTrue(connectionRepository.findById(connectionId).isPresent());
+    }
+
+    @Test
     void deleteConnectionWithManageProvider() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);

@@ -115,7 +115,9 @@ public class ConnectionController implements UserAccessRights {
         Application application = connection.getApplication();
 
         user = reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application, Authority.GUEST);
+        //Connection detail includes the live OAuth/OIDC client secret - require at least org-level MEMBER,
+        //not the lowest (GUEST) tier, before it can be viewed
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
 
         if (StringUtils.hasText(connection.getManageIdentifier())) {
             Map<String, Object> provider = manage.providerByConnection(connection);
@@ -140,7 +142,9 @@ public class ConnectionController implements UserAccessRights {
                 Application application = connection.getApplication();
 
                 User userFromDB = reinitializeUser(user, userRepository);
-                confirmApplicationWriteAccess(userFromDB, application, Authority.GUEST);
+                //Connection detail includes the live OAuth/OIDC client secret - require at least org-level MEMBER,
+                //not the lowest (GUEST) tier, before it can be viewed
+                confirmApplicationWriteAccess(userFromDB, application, Authority.MEMBER);
 
                 Organization organization = application.getOrganization();
                 return ResponseEntity.ok(Map.of(
@@ -164,8 +168,13 @@ public class ConnectionController implements UserAccessRights {
             .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application);
+        //GUEST is the lowest, view-only tier (see AUDIT.md #7) - creating a connection (which can carry a
+        //client secret) is a write operation and must require at least MEMBER
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
 
+        //Never trust a client-supplied id on a create - would otherwise let save() merge() into (i.e. overwrite)
+        //an arbitrary existing connection row instead of inserting a new one
+        connection.setId(null);
         connection.setCreatedAt(Instant.now());
         connection.setApplication(application);
         connection = saveConnection(connection);
@@ -478,12 +487,15 @@ public class ConnectionController implements UserAccessRights {
         return connectionRepository.save(connection);
     }
 
+    //Used by update/updateWithProductionReadyRequest, secret (reset-secret), delete and changeRequests - all
+    //mutate or expose the connection's secret, so GUEST (the lowest, view-only tier - see AUDIT.md #7) must not
+    //be allowed through here
     private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
         Connection connection = connectionRepository.findById(connectionId)
             .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application);
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
         return connection;
     }
 

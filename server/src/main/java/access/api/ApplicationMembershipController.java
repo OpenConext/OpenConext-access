@@ -62,6 +62,11 @@ public class ApplicationMembershipController implements UserAccessRights {
         }
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(applicationMembershipForm.getOrganizationMembershipId())
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
+        //organizationMembershipId is a client-supplied, globally unscoped id - without this check a member of
+        //org A could attach an arbitrary user from an unrelated org B to an org A application
+        if (!organizationMembership.getOrganization().getId().equals(application.getOrganization().getId())) {
+            throw new NotFoundException("OrganizationMembership not found");
+        }
         ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
 
@@ -75,7 +80,11 @@ public class ApplicationMembershipController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));
 
         user = reinitializeUser(user ,userRepository);
-        confirmOrganizationMembership(user, applicationMembership.getOrganizationMembership().getOrganization(), Authority.GUEST);
+        //Mirror create()'s authorization scope exactly: app-scoped confirmApplicationWriteAccess (which requires
+        //either org ADMIN, or MEMBER/GUEST-tier callers to actually be a member/owner of this specific
+        //application), not the broader org-wide confirmOrganizationMembership - otherwise a MEMBER with no
+        //relationship to this application at all could still delete its memberships
+        confirmApplicationWriteAccess(user, applicationMembership.getApplication(), Authority.MEMBER);
         applicationMembershipRepository.delete(applicationMembership);
 
         return deleteResult();

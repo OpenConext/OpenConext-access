@@ -1,5 +1,6 @@
 package access.jira;
 
+import access.exception.InvalidInputException;
 import access.mail.MailBox;
 import access.model.EntityType;
 import access.remote.RestTemplateFactory;
@@ -26,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
 @EnableConfigurationProperties(JiraConfig.class)
 @Service
@@ -95,9 +97,16 @@ public class JiraClient {
         }
     }
 
+    private static final Pattern JIRA_ISSUE_KEY = Pattern.compile("^[A-Z][A-Z0-9]*-[0-9]+$");
+
     public void comment(String jiraKey, String comment) {
         if (!jiraConfig.isEnabled() || !StringUtils.hasText(jiraKey)) {
             return;
+        }
+        //jiraKey ends up concatenated into the request URL below - reject anything that isn't a well-formed
+        //Jira issue key (e.g. path-traversal segments) before it can redirect the request elsewhere on the host
+        if (!JIRA_ISSUE_KEY.matcher(jiraKey).matches()) {
+            throw new InvalidInputException("Invalid Jira issue key: " + jiraKey);
         }
         String commentUrl = jiraConfig.getBaseUrl() + "/issue/" + jiraKey + "/comment";
         Map<String, String> body = Map.of("body", comment);

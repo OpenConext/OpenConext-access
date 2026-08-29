@@ -45,6 +45,10 @@ export const Invitation = ({refreshUser}) => {
                 navigate(`/organization/${invitation.organization.id}/team`);
             });
 
+        }).catch(() => {
+            //e.g. this account's email does not match the invitation - see InvitationController#accept
+            setLoading(false);
+            setFlash(I18n.t("invitation.acceptedErrorFlash"), "error");
         })
     }
 

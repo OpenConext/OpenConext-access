@@ -756,6 +756,7 @@ const en = {
         languageTooltip: "Choose the language of the invitation mail",
         createFlash: "Invitations are created and sent to the invitees",
         acceptedFlash: "Invitation is accepted and you are now a member of the {{name}} organisation",
+        acceptedErrorFlash: "This invitation could not be accepted. It may not be intended for your account, or it may have already been used.",
         accept: "{{inviter}} has invited you to join organisation {{name}}. Press proceed to accept the invitation and checkout the organisation",
     },
     institutions: {

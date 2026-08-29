@@ -70,7 +70,9 @@ public class MailBox {
         variables.put("invitation", invitation);
         variables.put("title", title);
         if (StringUtils.hasText(invitation.getMessage())) {
-            variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
+            //Templates use {{message}} (Mustache-escaped) with CSS white-space:pre-line for line breaks -
+            //never inject raw HTML here, this is free text supplied by another user
+            variables.put("message", invitation.getMessage());
         }
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
@@ -95,7 +97,9 @@ public class MailBox {
                 serviceProviderName);
         Map<String, Object> variables = new HashMap<>();
         if (StringUtils.hasText(message)) {
-            variables.put("message", message.replaceAll("\n", "<br/>"));
+            //Templates use {{message}} (Mustache-escaped) with CSS white-space:pre-line for line breaks -
+            //never inject raw HTML here, this is free text supplied by another user
+            variables.put("message", message);
         }
         variables.put("title", title);
         variables.put("serviceProviderName", serviceProviderName);

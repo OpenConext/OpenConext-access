@@ -1,5 +1,6 @@
 package access.api;
 
+import access.exception.InvalidInputException;
 import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import net.coobird.thumbnailator.Thumbnails;
@@ -14,11 +15,15 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +31,14 @@ import java.util.UUID;
 
 @Service
 public class S3Storage {
+
+    //Logos are resized down to 200x200 - there is no legitimate reason for the client to submit anything
+    //remotely close to these limits, so reject early rather than decode/decompress an oversized payload
+    private static final int MAX_LOGO_BASE64_LENGTH = 8 * 1024 * 1024;
+    private static final int MAX_LOGO_DECODED_BYTES = 6 * 1024 * 1024;
+    //~4000x3000 (12MP, a generous allowance for a high-res source photo) - a decoded ARGB raster at this cap is
+    //~48MB, not the ~190MB the previous 50M-pixel cap permitted, which defeated much of the point of this check
+    private static final long MAX_LOGO_PIXELS = 12_000_000L;
 
     private final String bucketName;
     private final String s3URL;
@@ -60,7 +73,14 @@ public class S3Storage {
 
     @SneakyThrows
     public String uploadFile(String content) {
+        if (content.length() > MAX_LOGO_BASE64_LENGTH) {
+            throw new InvalidInputException("Logo content exceeds maximum allowed size");
+        }
         byte[] decodedBytes = Base64.getDecoder().decode(content);
+        if (decodedBytes.length > MAX_LOGO_DECODED_BYTES) {
+            throw new InvalidInputException("Logo content exceeds maximum allowed size");
+        }
+        assertValidAndBoundedImage(decodedBytes);
 
         if (!bucketExists) {
             createBucket(s3Client);
@@ -87,6 +107,30 @@ public class S3Storage {
         return String.format("%s/%s/%s", s3URL, bucketName, uuid);
     }
 
+
+    //Reads only the image header (width/height), not the full decompressed pixel buffer, so a small but highly
+    //compressed "decompression bomb" image can be rejected before Thumbnails decodes it into memory
+    private void assertValidAndBoundedImage(byte[] decodedBytes) throws java.io.IOException {
+        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(new ByteArrayInputStream(decodedBytes))) {
+            if (imageInputStream == null) {
+                throw new InvalidInputException("Logo content is not a valid image");
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+            if (!readers.hasNext()) {
+                throw new InvalidInputException("Logo content is not a valid image");
+            }
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(imageInputStream);
+                long pixels = (long) reader.getWidth(0) * (long) reader.getHeight(0);
+                if (pixels > MAX_LOGO_PIXELS) {
+                    throw new InvalidInputException("Logo image dimensions exceed maximum allowed size");
+                }
+            } finally {
+                reader.dispose();
+            }
+        }
+    }
 
     private void createBucket(S3Client s3Client) {
         HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()

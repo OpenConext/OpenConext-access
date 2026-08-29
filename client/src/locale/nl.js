@@ -756,6 +756,7 @@ const nl = {
         languageTooltip: "Kies de taal van de uitnodigingsmail",
         createFlash: "Uitnodigingen zijn aangemaakt en verzonden naar de uitgenodigden",
         acceptedFlash: "Uitnodiging is geaccepteerd en je bent nu lid van de organisatie {{name}}",
+        acceptedErrorFlash: "Deze uitnodiging kon niet worden geaccepteerd. Mogelijk is deze niet bedoeld voor jouw account, of is de uitnodiging al gebruikt.",
         accept: "{{inviter}} heeft je uitgenodigd om lid te worden van organisatie {{name}}. Klik op Doorgaan om de uitnodiging te accepteren en de organisatie te bekijken",
     },
     institutions: {

@@ -6,6 +6,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,49 @@ class StatisticsControllerTest extends AbstractTest {
         List<Map<String, Object>> stats = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("from", from)
+                .queryParam("to", from)
+                .queryParam("scale", "day")
+                .get("/api/v1/stats/loginTimeFrame")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, stats.size());
+    }
+
+    @SneakyThrows
+    @Test
+    void loginTimeFrameAnonymousWithServiceProviderIsForbidden() {
+        //Security regression test (AUDIT.md #8): an unauthenticated caller must never be able to filter
+        ///api/v1/stats/loginTimeFrame by an arbitrary spEntityId - that scope is reserved for authenticated
+        //(non-super) users restricted to their own IdP, and for super/owner users
+        long from = System.currentTimeMillis();
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("from", from)
+                .queryParam("to", from)
+                .queryParam("scale", "day")
+                .queryParam("spEntityId", "http://mock-sp")
+                .get("/api/v1/stats/loginTimeFrame")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @SneakyThrows
+    @Test
+    void loginTimeFrameAnonymousWithoutServiceProviderIsAllowed() {
+        //Security regression test (AUDIT.md #8): the public statistics dashboard calls this endpoint
+        //anonymously without a spEntityId for the platform-wide aggregate - that must keep working
+        stubFor(get(urlPathMatching("/public/login_time_frame")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody("[]")));
+
+        long from = System.currentTimeMillis();
+        List<Map<String, Object>> stats = given()
+                .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("from", from)

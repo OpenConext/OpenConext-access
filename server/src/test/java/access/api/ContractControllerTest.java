@@ -165,6 +165,61 @@ class ContractControllerTest extends AbstractTest {
     }
 
     @Test
+    void updateContractCannotBeUnsignedByNonSuperUser() {
+        //Security regression test: once a contract is signed, a non-super-user (even an org ADMIN, who is
+        //otherwise fully authorized to call this endpoint) must not be able to revert signedContract back to
+        //false, or rewrite ticketKey, by submitting a modified request body - see ContractController#update
+        AccessCookieFilter superAccessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+        Contract contract = contractRepository.findByOrganizationId(organizationId).get();
+        Map<String, Object> signData = objectMapper.convertValue(contract, new TypeReference<>() {
+        });
+        signData.put("organization", Map.of("id", organizationId));
+        signData.put("signedContract", true);
+        given()
+                .when()
+                .filter(superAccessCookieFilter.cookieFilter())
+                .header(csrfHeader(superAccessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .body(signData)
+                .put("/api/v1/contracts/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+        assertTrue(contractRepository.findByOrganizationId(organizationId).get().isSignedContract());
+
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Contract signedContract = contractRepository.findByOrganizationId(organizationId).get();
+        Map<String, Object> unsignAttempt = objectMapper.convertValue(signedContract, new TypeReference<>() {
+        });
+        unsignAttempt.put("organization", Map.of("id", organizationId));
+        unsignAttempt.put("signedContract", false);
+        unsignAttempt.put("ticketKey", "HIJACKED-1");
+
+        Contract updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .body(unsignAttempt)
+                .put("/api/v1/contracts/{organizationId}")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .as(Contract.class);
+
+        assertTrue(updated.isSignedContract());
+        assertNotEquals("HIJACKED-1", updated.getTicketKey());
+
+        Contract fromDb = contractRepository.findByOrganizationId(organizationId).get();
+        assertTrue(fromDb.isSignedContract());
+        assertNotEquals("HIJACKED-1", fromDb.getTicketKey());
+    }
+
+    @Test
     void updateContractSignedNotAllowedForNonSuperUser() {
         // A regular org ADMIN must not be able to set signedContract = true
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);

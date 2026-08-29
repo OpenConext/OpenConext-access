@@ -4,6 +4,8 @@ import access.exception.UserRestrictionException;
 import access.model.User;
 import access.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -19,6 +21,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private static final Log LOG = LogFactory.getLog(UserHandlerMethodArgumentResolver.class);
 
     public static final String X_IMPERSONATE_ID = "X-IMPERSONATE-ID";
 
@@ -83,8 +87,12 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             throw new UserRestrictionException("Forbidden to use X-IMPERSONATE-ID for non-super users");
         }
         if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
-            return userRepository.findById(Long.valueOf(impersonateId))
+            User impersonatedUser = userRepository.findById(Long.valueOf(impersonateId))
                     .orElseThrow(() -> new UserRestrictionException("Forbidden"));
+            LOG.info(String.format("Super user %s (%s) is impersonating user %s (%s) for %s %s",
+                    user.getEmail(), user.getSub(), impersonatedUser.getEmail(), impersonatedUser.getSub(),
+                    request.getMethod(), requestURI));
+            return impersonatedUser;
         }
         return user;
     }
