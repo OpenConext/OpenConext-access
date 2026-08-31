@@ -800,8 +800,10 @@
   resolved "https://registry.yarnpkg.com/@standard-schema/spec/-/spec-1.1.0.tgz#a79b55dbaf8604812f52d140b2c9ab41bc150bb8"
   integrity sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==
 
-"@surfnet/curve-react@file:../../DesignSystem/packages/react":
-  version "0.2.2"
+"@surfnet/curve-react@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.3.0.tgz#8d6053130334168975e5a6fde23a4f5e3e4d332f"
+  integrity sha512-iLdPYvJ3TL412ZVDWr3gmKG1qR7Py3xDKsAPb/76yyPPcrjQk4aaJtX/Ssds2K/bRRB6u7DPa/jaYwRCYf5n+g==
   dependencies:
     "@base-ui/react" "1.5.0"
     "@tanstack/react-table" "^8.21.3"
