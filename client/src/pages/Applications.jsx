@@ -3,16 +3,25 @@ import React, {useEffect, useMemo, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Loader, Pagination} from "@surfnet/sds";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+    Spinner
+} from "@surfnet/curve-react";
 import StudentPng from "../icons/student2.png";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
-import ArrowIcon from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import {MagnifyingGlassIcon as SearchIcon, CaretRightIcon as ArrowIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
-import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {
     pageNumberFromQueryParams,
+    pageRangeWithDots,
     storePageNumber,
     storeQueryParameter,
     valueFromQueryParams
@@ -131,11 +140,50 @@ const Applications = () => {
 
 
         if (loading) {
-            return <Loader/>
+            return <div className="loading-container"><Spinner className="size-8"/></div>
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
         const showMostRecent = isEmpty(query) && tag === "all" && source === "all" && page === 1;
+
+        const renderPagination = (total, onChange) => {
+            const nbrPages = Math.ceil(total / pageCount);
+            if (total <= pageCount) {
+                return null;
+            }
+            return (
+                <Pagination>
+                    <PaginationContent>
+                        {page !== 1 && <PaginationItem>
+                            <PaginationPrevious href="#" iconOnly={true}
+                                                onClick={e => {
+                                                    e.preventDefault();
+                                                    onChange(page - 1);
+                                                }}/>
+                        </PaginationItem>}
+                        {pageRangeWithDots(page, nbrPages).map((nbr, index) =>
+                            <PaginationItem key={`${nbr}_${index}`}>
+                                {typeof nbr === "string" ?
+                                    <PaginationEllipsis/> :
+                                    <PaginationLink href="#" isActive={nbr === page}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        onChange(nbr);
+                                                    }}>{nbr}</PaginationLink>}
+                            </PaginationItem>
+                        )}
+                        {page !== nbrPages && <PaginationItem>
+                            <PaginationNext href="#" iconOnly={true}
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                onChange(page + 1);
+                                            }}/>
+                        </PaginationItem>}
+                    </PaginationContent>
+                </Pagination>
+            );
+        };
+
         return (
             <div className="applications-container">
                 <div className="applications-header-container">
@@ -236,13 +284,10 @@ const Applications = () => {
                                 </ul>
                             </div>}
                     </div>
-                    {!showMostRecent && <Pagination currentPage={page}
-                                                    onChange={nbr => {
-                                                        setPage(nbr);
-                                                        storePageNumber(nbr);
-                                                    }}
-                                                    total={filteredServiceProviders.length}
-                                                    pageCount={pageCount}/>}
+                    {!showMostRecent && renderPagination(filteredServiceProviders.length, nbr => {
+                        setPage(nbr);
+                        storePageNumber(nbr);
+                    })}
                 </div>
 
             </div>

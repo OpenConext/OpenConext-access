@@ -1,5 +1,5 @@
 import "./UserMembership.scss";
-import {Chip, ChipType} from "@surfnet/sds";
+import {Chip, ChipType} from "./Chip.jsx";
 import I18n from "../locale/I18n.js";
 
 export const UserMembership = ({user, currentUser}) => {

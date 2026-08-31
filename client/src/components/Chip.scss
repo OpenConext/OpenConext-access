@@ -1,0 +1,144 @@
+.sds--chips {
+    padding: 0 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .5em;
+    border-radius: 1rem;
+    border: none;
+    cursor: default;
+    background-color: #F4F6F8;
+
+    &:hover {
+        background-color: #EAECF0;
+    }
+
+    svg {
+        width: calc(15em / 16);
+        height: calc(18.75em / 16);
+    }
+
+    &.main-100 {
+        background-color: #F4F6F8;
+
+        &:hover {
+            background-color: #F4F6F8;
+        }
+    }
+
+    &.main-200 {
+        background-color: #EAECF0;
+
+        &:hover {
+            background-color: #EAECF0;
+        }
+    }
+
+    &.main-300 {
+        background-color: #B2B6BE;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #B2B6BE;
+        }
+    }
+
+    &.main-400 {
+        background-color: #5E6873;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #5E6873;
+        }
+    }
+
+    &.main-500 {
+        background-color: #050E1D;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #050E1D;
+        }
+    }
+
+    &.support-100 {
+        background-color: #DCF2E5;
+
+        &:hover {
+            background-color: #DCF2E5;
+        }
+    }
+
+    &.support-400 {
+        background-color: #008939;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #008939;
+        }
+    }
+
+    &.support-500 {
+        background-color: #006731;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #006731;
+        }
+    }
+
+    &.status-default {
+        background-color: #5E6873;
+        color: #FFFFFF;
+
+        &:hover {
+            background-color: #5E6873;
+        }
+    }
+
+    &.status-success {
+        background-color: #B8E3C9;
+        color: #050E1D;
+
+        &:hover {
+            background-color: #B8E3C9;
+        }
+    }
+
+    &.status-warning {
+        background-color: #FEF8D3;
+        color: #050E1D;
+
+        &:hover {
+            background-color: #FEF8D3;
+        }
+    }
+
+    &.status-error {
+        background-color: #FFCDCA;
+        color: #050E1D;
+
+        &:hover {
+            background-color: #FFCDCA;
+        }
+    }
+
+    &.status-info {
+        background-color: #B3E5FF;
+        color: #050E1D;
+
+        &:hover {
+            background-color: #B3E5FF;
+        }
+    }
+}
+
+.sds--chips--visual {
+    display: flex;
+}
+
+.sds--chips--textual {
+    padding: 0.5rem 0;
+    display: block;
+    font-weight: 600;
+    text-align: center;
+}

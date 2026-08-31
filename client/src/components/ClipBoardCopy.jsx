@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import "./ClipBoardCopy.scss";
-import Duplicate from "@surfnet/sds//icons/functional-icons/duplicate.svg";
+import {CopyIcon as Duplicate} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 
 export default function ClipBoardCopy({txt}) {

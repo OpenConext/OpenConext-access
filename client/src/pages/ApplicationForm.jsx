@@ -4,8 +4,8 @@ import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
-import {Button, ButtonType, Checkbox, Loader, Tooltip} from "@surfnet/sds";
-import {isEmpty} from "../utils/Utils.js";
+import {Button, Checkbox, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import {applicationNameExists, getApplicationById, newApplication, updateApplication} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
@@ -59,7 +59,7 @@ export const ApplicationForm = () => {
     // }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const validateApplicationName = e => {
@@ -103,33 +103,38 @@ export const ApplicationForm = () => {
 
                 <div className="application-type">
                     <p>{I18n.t("application.type")}</p>
-                    <Checkbox name={I18n.t("application.type")}
-                              info={I18n.t("application.content")}
-                              value={application.type === "CONTENT"}
-                              onChange={() => setApplication({
-                                  ...application,
-                                  type: application.type === "CONTENT" ? "APP" : "CONTENT"
-                              })}
-                    />
+                    <div className="checkbox-container">
+                        <Checkbox id="application-type-content"
+                                  checked={application.type === "CONTENT"}
+                                  onCheckedChange={() => setApplication({
+                                      ...application,
+                                      type: application.type === "CONTENT" ? "APP" : "CONTENT"
+                                  })}
+                        />
+                        <label htmlFor="application-type-content"
+                               dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.content"))}}/>
+                    </div>
 
                     <div className={"info"}>
                         <span>{I18n.t("application.contentInfoPre")}</span>
-                        <Tooltip tip={I18n.t("application.contentInfoTip")}
-                                 standalone={true}
-                                 children={
-                                     <span className="link">{I18n.t("application.contentInfoLink")}</span>}
-                        />
+                        <Tooltip>
+                            <TooltipTrigger render={<span className="link">{I18n.t("application.contentInfoLink")}</span>}/>
+                            <TooltipContent className="content-info-tip"><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.contentInfoTip"))}}/></TooltipContent>
+                        </Tooltip>
                         <span>{I18n.t("application.contentInfoPost")}</span>
                     </div>
                 </div>
                 {isNew &&
                     <div className="fair-use">
                         <p>{I18n.t("application.terms")}</p>
-                        <Checkbox name={I18n.t("application.terms")}
-                                  info={I18n.t("application.termsInfo")}
-                                  value={checks}
-                                  onChange={() => setChecks(!checks)}
-                        />
+                        <div className="checkbox-container">
+                            <Checkbox id="application-terms"
+                                      checked={checks}
+                                      onCheckedChange={() => setChecks(!checks)}
+                            />
+                            <label htmlFor="application-terms"
+                                   dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
+                        </div>
                         <ul>
                             {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
                                 .map(check => <li key={check}>{check}</li>)}
@@ -138,11 +143,13 @@ export const ApplicationForm = () => {
                 }
                 <section className="actions">
                     <Button onClick={() => navigate(-1)}
-                            type={ButtonType.Secondary}
-                            txt={I18n.t("forms.cancel")}/>
+                            variant="secondary">
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                    </Button>
                     <Button onClick={() => doSaveApplication()}
-                            txt={I18n.t("forms.submit")}
-                            disabled={(isNew && !checks) || isEmpty(application.name) || duplicateApplicationName}/>
+                            disabled={(isNew && !checks) || isEmpty(application.name) || duplicateApplicationName}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.submit"))}}/>
+                    </Button>
                 </section>
             </div>
         </div>

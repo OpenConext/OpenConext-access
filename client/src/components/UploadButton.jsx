@@ -1,6 +1,7 @@
 import React from "react";
 import "./InputField.scss";
-import {Button} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
+import {sanitize} from "../utils/Utils";
 
 export default function UploadButton({
                                          name,
@@ -23,7 +24,9 @@ export default function UploadButton({
                    accept={acceptFileFormat}
                    style={{display: "none"}}
                    onChange={onFileUpload}/>
-            <Button txt={txt} onClick={onClick}/>
+            <Button onClick={onClick}>
+                <span dangerouslySetInnerHTML={{__html: sanitize(txt)}}/>
+            </Button>
         </div>
     );
 

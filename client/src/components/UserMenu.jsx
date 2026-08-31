@@ -2,8 +2,9 @@ import I18n from "../locale/I18n";
 import React, {useState} from "react";
 import "./UserMenu.scss";
 import {Link} from "react-router";
-import {isEmpty} from "../utils/Utils";
-import {Button, ButtonType, Loader, UserInfo} from "@surfnet/sds";
+import {isEmpty, sanitize} from "../utils/Utils";
+import {UserInfo} from "./UserInfo.jsx";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore";
 import CheckPlain from "../icons/check-plain.svg";
 import CaretDown from "../icons/caret_down.svg";
@@ -34,9 +35,10 @@ export const UserMenu = ({setIsAuthenticated}) => {
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setIsSwitchOrganizationOpen(false), 475)}>
                 <Button onClick={() => setIsSwitchOrganizationOpen(!isSwitchOrganizationOpen)}
-                        txt={I18n.t("userMenu.switchOrganization")}
-                        icon={<CaretDown/>}
-                        type={ButtonType.Secondary}/>
+                        variant="secondary">
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userMenu.switchOrganization"))}}/>
+                    <span data-icon="inline-end"><CaretDown/></span>
+                </Button>
                 {isSwitchOrganizationOpen &&
                     <section className="organization-switch-section sds--user-info--dropdown">
                         {organizations.map((org, index) =>
@@ -90,7 +92,7 @@ export const UserMenu = ({setIsAuthenticated}) => {
         )
     }
     if (isEmpty(user)) {
-        return <Loader/>;
+        return <div className="loading-container"><Spinner className="size-8"/></div>;
     }
     return (
         <div className='user-menu-container'>

@@ -9,11 +9,10 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {approvalJoinRequest} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
-import {MoreLessToggle} from "@surfnet/sds";
+import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
-import CheckIcon from "@surfnet/sds/icons/functional-icons/checkbox-check.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {CheckIcon, TrashIcon} from "@phosphor-icons/react";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, refreshState}) => {
 

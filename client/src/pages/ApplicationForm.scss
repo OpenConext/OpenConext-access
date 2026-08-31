@@ -23,7 +23,7 @@ div.application-form-container {
                 margin-bottom: var(--sds--space--1);
             }
 
-            .sds--checkbox-container {
+            .checkbox-container {
                 background-color: white;
                 padding: 15px;
                 border: 1px solid var(--sds--color--gray--400);
@@ -45,23 +45,22 @@ div.application-form-container {
             }
         }
 
-        .sds--tooltip-container {
-            .react-tooltip {
-                text-align: left;
-                word-break: break-word;
+    }
+}
 
+// curve-react's Tooltip renders its content in a portal, outside the
+// .application-form-container DOM tree, so this rule can't be scoped to it.
+[data-slot="tooltip-content"].content-info-tip {
+    text-align: left;
+    word-break: break-word;
+    max-width: none;
 
-                ul {
-                    list-style: initial;
-                    margin-top: 10px;
+    ul {
+        list-style: initial;
+        margin-top: 10px;
 
-                    li {
-                        margin-left: 15px;
-                    }
-                }
-            }
-
+        li {
+            margin-left: 15px;
         }
-
     }
 }

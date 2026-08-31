@@ -2,7 +2,7 @@ import {useState} from "react";
 import "./CollapseField.scss"
 import CaretUp from "../icons/caret_up.svg";
 import CaretDown from "../icons/caret_down.svg";
-import {Checkbox} from "@surfnet/sds";
+import {Checkbox} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 
 export const CollapseField = ({title, info, children, disabledToggle, checkRequired, name, checkValue}) => {
@@ -20,9 +20,9 @@ export const CollapseField = ({title, info, children, disabledToggle, checkRequi
     return (
         <div className="collapse-field" key={name}>
             <div className="collapse-field-inner">
-                {checkRequired && <Checkbox name={name}
-                                            value={checkValue}
-                                            onChange={e => checkRequired(e)}
+                {checkRequired && <Checkbox id={name}
+                                            checked={checkValue}
+                                            onCheckedChange={checked => checkRequired({target: {checked}})}
                 />}
                 <div className={`collapse-field-switch ${disabledToggle ? "disabled" : ""}`}
                      onClick={onCollapseToggle}>

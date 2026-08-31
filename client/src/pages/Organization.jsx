@@ -2,16 +2,16 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertType, Button, Chip, ChipType, Loader} from "@surfnet/sds";
+import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {InfoIcon} from "@phosphor-icons/react";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
 import {organizationApplicationsById, organizationMineById} from "../api/index.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import Divider from "../icons/divider.svg";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
-import CardView from "@surfnet/sds/icons/functional-icons/card-view.svg";
-import ListView from "@surfnet/sds/icons/functional-icons/list-or-table-view.svg";
+import {CaretRightIcon as ArrowRight, GridFourIcon as CardView, ListIcon as ListView} from "@phosphor-icons/react";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
@@ -97,9 +97,10 @@ const Organization = () => {
             return null;
         }
         return (
-            <Alert alertType={AlertType.Info}
-                   asChild={true}
-                   message={I18n.t("organization.alertInfo")}/>
+            <Alert>
+                <InfoIcon/>
+                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.alertInfo"))}}/>
+            </Alert>
         )
     }
 
@@ -129,7 +130,7 @@ const Organization = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const renderCardViewApplications = () => {
@@ -154,8 +155,9 @@ const Organization = () => {
                                     {!readOnly && <span className="navigation"><ArrowRight/></span>}
                                 </div>
                                 {(index === 0 && currentUserAuthority !== authorities.GUEST) &&
-                                    <Button onClick={() => navigate("/application/new")}
-                                            txt={I18n.t("organization.addApplication")}/>}
+                                    <Button onClick={() => navigate("/application/new")}>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.addApplication"))}}/>
+                                    </Button>}
                             </div>
                         )
                     })
@@ -242,8 +244,9 @@ const Organization = () => {
                         <div className="left">
                             <Logo/>
                             {mayCreateApplication &&
-                                <Button onClick={() => navigate("/application/new")}
-                                        txt={I18n.t("organization.addFirstApplication")}/>}
+                                <Button onClick={() => navigate("/application/new")}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.addFirstApplication"))}}/>
+                                </Button>}
                             {!mayCreateApplication &&
                                 <div className="no-app">
                                     <p>{I18n.t("organization.guestNoApplicationMessage")}</p>

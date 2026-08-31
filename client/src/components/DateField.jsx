@@ -1,7 +1,9 @@
 import React, {useRef} from "react";
 
 import CardIcon from "../icons/calendar-alt.svg";
-import {Tooltip} from "@surfnet/sds";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {InfoIcon} from "@phosphor-icons/react";
+import {sanitize} from "../utils/Utils";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -50,7 +52,10 @@ export const DateField = ({
     return (
         <div className="date-field">
             {name && <label className="date-field-label" htmlFor={name}>{name}
-                {toolTip && <Tooltip tip={toolTip}/>}
+                {toolTip && <Tooltip>
+                    <TooltipTrigger render={<InfoIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
+                </Tooltip>}
             </label>}
             <label className={"date-picker-container"} htmlFor={name}>
                 <DatePicker

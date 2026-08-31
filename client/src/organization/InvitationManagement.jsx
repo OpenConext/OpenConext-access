@@ -10,8 +10,7 @@ import {deleteAllInvitations, deleteInvitation, resendInvitation} from "../api/i
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {ArrowRightIcon as ArrowRight, TrashIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
 

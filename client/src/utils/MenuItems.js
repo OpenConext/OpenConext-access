@@ -1,16 +1,18 @@
 import {isEmpty} from "./Utils.js";
-import LaptopIcon from "@surfnet/sds/icons/illustrative-icons/laptop.svg";
-import HierarchyIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
-import LaptopFloatIcon from "@surfnet/sds/icons/illustrative-icons/laptop-1.svg";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import PolicyIcon from "@surfnet/sds/icons/functional-icons/lock.svg";
-import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
-import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
-import ConnectedIcon from "@surfnet/sds/icons/illustrative-icons/connected.svg";
-import StatsIcon from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
-import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
-import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
-import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
+import {
+    DesktopIcon as LaptopIcon,
+    TreeStructureIcon as HierarchyIcon,
+    LaptopIcon as LaptopFloatIcon,
+    IdentificationBadgeIcon as UserIcon,
+    LockIcon as PolicyIcon,
+    MonitorIcon as ScreenIcon,
+    HouseIcon as HomeIcon,
+    PlugsConnectedIcon as ConnectedIcon,
+    DatabaseIcon as StatsIcon,
+    UsersThreeIcon as TeamIcon,
+    HeadsetIcon as HeadPhonesIcon,
+    ChatCenteredTextIcon as FeedbackIcon
+} from "@phosphor-icons/react";
 import {authorities} from "./Permissions.js";
 import {useAppStore} from "../stores/AppStore.js";
 

@@ -2,11 +2,11 @@ import React, {useEffect, useState} from "react";
 import "./Contracts.scss";
 import "../components/Entities.scss";
 import I18n from "../locale/I18n";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
 import MenuIcon from "../icons/menu.svg";
-import SignIcon from "@surfnet/sds/icons/functional-icons/success.svg";
+import {CheckCircleIcon as SignIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {unsignedContracts, updateContract} from "../api";
 import {isEmpty} from "../utils/Utils.js";
@@ -123,7 +123,7 @@ export const Contracts = () => {
     ];
 
     if (loading) {
-        return <Loader/>;
+        return <div className="loading-container"><Spinner className="size-8"/></div>;
     }
 
     const {open, cancel, action, question, okButton} = confirmation;

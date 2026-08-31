@@ -2,12 +2,13 @@ import React, {useEffect, useState} from "react";
 import "./Users.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import {isEmpty} from "../utils/Utils";
-import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import {IdentificationBadgeIcon as UserIcon} from "@phosphor-icons/react";
+import {isEmpty, sanitize} from "../utils/Utils";
+import {ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
@@ -70,14 +71,15 @@ export const Users = () => {
             key: "icon",
             header: "",
             mapper: user => <div className="member-icon">
-                <Tooltip standalone={true}
-                         children={<UserIcon/>}
-                         tip={I18n.t("tooltips.userIcon",
-                             {
-                                 name: user.name,
-                                 createdAt: dateFromEpoch(user.createdAt),
-                                 lastActivity: dateFromEpoch(user.lastActivity)
-                             })}/>
+                <Tooltip>
+                    <TooltipTrigger render={<UserIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("tooltips.userIcon",
+                        {
+                            name: user.name,
+                            createdAt: dateFromEpoch(user.createdAt),
+                            lastActivity: dateFromEpoch(user.lastActivity)
+                        }))}}/></TooltipContent>
+                </Tooltip>
             </div>
         },
         {
@@ -121,19 +123,20 @@ export const Users = () => {
             hasLink: true,
             header: "",
             mapper: user => (currentUser.id !== user.id) ?
-                <Tooltip standalone={true}
-                         children={<ImpersonateIcon className="impersonate"
-                                                    onClick={() => impersonate(user)}/>}
-                         tip={I18n.t("users.impersonate",
-                             {
-                                 name: user.name
-                             })}/>
+                <Tooltip>
+                    <TooltipTrigger render={<ImpersonateIcon className="impersonate"
+                                                              onClick={() => impersonate(user)}/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("users.impersonate",
+                        {
+                            name: user.name
+                        }))}}/></TooltipContent>
+                </Tooltip>
                 : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
         })
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

@@ -1,6 +1,7 @@
 import React from "react";
 import "./SegmentedControl.scss";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
+import {sanitize} from "../utils/Utils";
 
 const SegmentedControl = ({options, option, optionLabelResolver, onClick}) => {
 
@@ -8,12 +9,13 @@ const SegmentedControl = ({options, option, optionLabelResolver, onClick}) => {
         <div className="access-segmented-control-container">
             <div className="access-segmented-control">
                 {options.map((o) =>
-                    <Button txt={optionLabelResolver(o)}
-                            key={o}
-                            active={o === option}
+                    <Button key={o}
+                            aria-expanded={o === option}
                             onClick={() => onClick(o)}
-                            type={o === option ? ButtonType.Primary : ButtonType.Secondary}
-                    />)}
+                            variant={o === option ? undefined : "secondary"}
+                    >
+                        <span dangerouslySetInnerHTML={{__html: sanitize(optionLabelResolver(o))}}/>
+                    </Button>)}
             </div>
 
         </div>)

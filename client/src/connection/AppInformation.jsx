@@ -1,7 +1,7 @@
 import "./AppInformation.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import InputField from "../components/InputField.jsx";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
@@ -15,8 +15,9 @@ import {
     logoSectionValid,
     privacySectionValid
 } from "../utils/Application.js";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
-import {Button, ButtonType, Loader, MoreLessToggle} from "@surfnet/sds";
+import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
+import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
+import {Button, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
@@ -334,7 +335,7 @@ export const AppInformation = ({
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const submitTxt = application.status !== APPLICATION_STATUSES.OPEN ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
@@ -363,19 +364,22 @@ export const AppInformation = ({
                     <div className={`actions ${section === sections.overview ? "orphan" : ""}`}>
                         {section !== sections.overview &&
                             <>
-                                <Button txt={I18n.t("forms.backToOverview")}
-                                        type={ButtonType.Secondary}
-                                        onClick={backToConnections}/>
-                                <Button txt={submitTxt}
-                                        disabled={storeAndNextDisabled()}
-                                        onClick={() => storeAndNext()}/>
+                                <Button variant="secondary"
+                                        onClick={backToConnections}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.backToOverview"))}}/>
+                                </Button>
+                                <Button disabled={storeAndNextDisabled()}
+                                        onClick={() => storeAndNext()}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(submitTxt)}}/>
+                                </Button>
                             </>
                         }
                         {section === sections.overview &&
-                            <Button txt={I18n.t("forms.overview")}
-                                    type={ButtonType.Secondary}
-                                    icon={<ArrowRight/>}
-                                    onClick={() => backToConnections()}/>
+                            <Button variant="secondary"
+                                    onClick={() => backToConnections()}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.overview"))}}/>
+                                <span data-icon="inline-end"><ArrowRight/></span>
+                            </Button>
                         }
                     </div>
                 </section>

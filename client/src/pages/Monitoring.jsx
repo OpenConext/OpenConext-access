@@ -4,7 +4,7 @@ import {useNavigate} from "react-router";
 import "./Monitoring.scss";
 import {monitoring} from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
+import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import CheckPlainIcon from "../icons/check-plain.svg";
 import MonitoringIncidentIcon from "../icons/monitoring_incident.svg";
 import SegmentedControl from "../components/SegmentedControl.jsx";

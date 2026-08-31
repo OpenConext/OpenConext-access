@@ -1,0 +1,54 @@
+.sds--branding {
+    display: flex;
+    font-weight: 700;
+    font-size: .875rem;
+}
+
+.sds--branding--negative {
+    color: #FFFFFF;
+}
+
+.sds--branding--negative svg.logo-surf .text {
+    fill: #050E1D;
+}
+
+.sds--branding--negative svg.logo-surf .shape {
+    fill: #FFFFFF;
+}
+
+.sds--branding--visual {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.sds--branding--textual {
+    flex-shrink: 0;
+}
+
+.sds--branding--name-up {
+    align-items: flex-start;
+    line-height: calc(21 / 14);
+}
+
+.sds--branding--name-bottom {
+    align-items: flex-end;
+    line-height: calc(12 / 14);
+    gap: 0.5rem;
+}
+
+.sds--logo.link {
+    cursor: pointer;
+}
+
+.sds--logo .sds--branding--visual svg {
+    width: 71px;
+    height: auto;
+}
+
+.sds--logo .sds--branding--visual svg .shape {
+    fill: #050E1D;
+}
+
+.sds--logo .sds--branding--visual svg .text {
+    fill: #FFFFFF;
+}

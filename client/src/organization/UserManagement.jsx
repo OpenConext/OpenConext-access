@@ -2,7 +2,7 @@ import "./UserManagement.scss";
 import React, {useCallback, useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {useNavigate, useParams} from "react-router";
 import {organizationUserManagementById} from "../api/index.js";
 import {TeamManagement} from "./TeamManagement.jsx";
@@ -105,7 +105,7 @@ export const UserManagement = ({refreshUser}) => {
 
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

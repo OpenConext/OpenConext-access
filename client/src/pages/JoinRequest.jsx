@@ -4,10 +4,11 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router";
 import {newJoinRequest, organizationLightById} from "../api/index.js";
-import {Button, ButtonType, Loader, Modal} from "@surfnet/sds";
+import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Spinner} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {sanitize} from "../utils/Utils";
 
 const JoinRequest = ({refreshUser}) => {
 
@@ -36,7 +37,7 @@ const JoinRequest = ({refreshUser}) => {
     }, [organisationId]);
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const createJoinRequest = () => {
@@ -66,17 +67,30 @@ const JoinRequest = ({refreshUser}) => {
                         multiline={true}
                         placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
             <section className="actions">
-                <Button type={ButtonType.Secondary}
-                        txt={I18n.t("forms.back")}
-                        onClick={() => navigate("/landing")}/>
-                <Button txt={I18n.t("joinRequest.requestAccess")}
-                        disabled={joinRequestCreated || duplicateJoinRequest}
-                        onClick={() => createJoinRequest()}/>
+                <Button variant="secondary"
+                        onClick={() => navigate("/landing")}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
+                </Button>
+                <Button disabled={joinRequestCreated || duplicateJoinRequest}
+                        onClick={() => createJoinRequest()}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("joinRequest.requestAccess"))}}/>
+                </Button>
             </section>
-            {joinRequestCreated && <Modal confirm={() => navigate("/home")}
-                                          title={I18n.t("joinRequest.modal.title")}
-                                          question={I18n.t("joinRequest.modal.success", {name: organization.name})}
-                                          confirmationButtonLabel={I18n.t("joinRequest.modal.proceed")}/>}
+            {joinRequestCreated && <Dialog open={true}>
+                <DialogContent showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle>{I18n.t("joinRequest.modal.title")}</DialogTitle>
+                    </DialogHeader>
+                    <p dangerouslySetInnerHTML={{
+                        __html: sanitize(I18n.t("joinRequest.modal.success", {name: organization.name}))
+                    }}/>
+                    <DialogFooter>
+                        <Button onClick={() => navigate("/home")}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("joinRequest.modal.proceed"))}}/>
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>}
             {duplicateJoinRequest && <section className="error">
                 <p className={"error"} dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("joinRequest.duplicate", {name: organization.name}))

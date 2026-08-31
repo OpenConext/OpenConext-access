@@ -3,9 +3,10 @@ import "./Connect.scss";
 import React from "react";
 import I18n from "../locale/I18n.js";
 import StudentPng from "../icons/student.png";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {useNavigate} from "react-router";
 import DOMPurify from "dompurify";
+import {sanitize} from "../utils/Utils";
 
 const Connect = () => {
 
@@ -35,9 +36,9 @@ const Connect = () => {
                     </ul>
                 </div>
                 <div className="button-container">
-                    <Button type={ButtonType.Primary}
-                            onClick={() => navigate("/login-info")}
-                            txt={I18n.t("connect.connect")}/>
+                    <Button onClick={() => navigate("/login-info")}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connect.connect"))}}/>
+                    </Button>
                 </div>
             </div>
         </div>

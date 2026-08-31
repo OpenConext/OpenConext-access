@@ -1,9 +1,10 @@
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
-import {Button} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {demoSeed} from "../api/index.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {useAppStore} from "../stores/AppStore.js";
+import {sanitize} from "../utils/Utils";
 
 export const Seed = () => {
     const setFlash = useAppStore(state => state.setFlash);
@@ -28,8 +29,9 @@ export const Seed = () => {
                 <div className="actions">
                     <span>{I18n.t("system.seed.info")}</span>
                     <Button onClick={() => setConfirmationOpen(true)}
-                            disabled={loading}
-                            txt={I18n.t("system.seed.trigger")}/>
+                            disabled={loading}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("system.seed.trigger"))}}/>
+                    </Button>
 
                 </div>
             </div>

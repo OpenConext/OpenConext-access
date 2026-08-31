@@ -1,7 +1,7 @@
 import React from "react";
-import AlertIcon from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import {WarningCircleIcon as AlertIcon} from "@phosphor-icons/react";
 import "./Tab.scss";
-import {BadgeNumber} from "@surfnet/sds";
+import {Badge} from "@surfnet/curve-react";
 
 export default function Tab({
                                 name,
@@ -37,7 +37,7 @@ export default function Tab({
     if (label && label.indexOf("(") > -1) {
         const count = label.substring(label.indexOf("(") + 1, label.indexOf(")"));
         label = label.substring(0, label.indexOf("(") - 1);
-        chipCount = <BadgeNumber value={count} small={true}/>
+        chipCount = <Badge variant="secondary">{count}</Badge>
     }
 
     return (

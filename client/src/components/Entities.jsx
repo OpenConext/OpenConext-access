@@ -1,14 +1,26 @@
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
-import {isEmpty} from "../utils/Utils";
+import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
+import {isEmpty, sanitize} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import "./Entities.scss";
-import {Button, ButtonType, Loader, Pagination, Tooltip} from "@surfnet/sds";
-import {pageCount, pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+    Spinner,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
+} from "@surfnet/curve-react";
+import {Button} from "@surfnet/curve-react";
+import {pageCount, pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination";
 import {useNavigate} from "react-router";
-import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+import {CaretDownIcon as ArrowDown, CaretUpIcon as ArrowUp, InfoIcon} from "@phosphor-icons/react";
 
 
 export const Entities = ({
@@ -112,9 +124,9 @@ export const Entities = ({
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 {showNew &&
                     <Button onClick={newEntity}
-                            type={ButtonType.Primary}
-                            className={`${hideTitle && !filters ? "no-title" : ""}`}
-                            txt={newLabel || I18n.t(`${modelName}.new`)}/>
+                            className={`${hideTitle && !filters ? "no-title" : ""}`}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(newLabel || I18n.t(`${modelName}.new`))}}/>
+                    </Button>
                 }
             </section>
         );
@@ -180,6 +192,45 @@ export const Entities = ({
         </tr>;
     }
 
+    const renderPagination = (total, onChange) => {
+        const nbrPages = Math.ceil(total / pageCount);
+        if (total <= pageCount) {
+            return null;
+        }
+        return (
+            <Pagination>
+                <PaginationContent>
+                    {page !== 1 && <PaginationItem>
+                        <PaginationPrevious href="#" iconOnly={true}
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                onChange(page - 1);
+                                            }}/>
+                    </PaginationItem>}
+                    {pageRangeWithDots(page, nbrPages).map((nbr, index) =>
+                        <PaginationItem key={`${nbr}_${index}`}>
+                            {typeof nbr === "string" ?
+                                <PaginationEllipsis/> :
+                                <PaginationLink href="#" isActive={nbr === page}
+                                                aria-current={nbr === page ? "page" : undefined}
+                                                onClick={e => {
+                                                    e.preventDefault();
+                                                    onChange(nbr);
+                                                }}>{nbr}</PaginationLink>}
+                        </PaginationItem>
+                    )}
+                    {page !== nbrPages && <PaginationItem>
+                        <PaginationNext href="#" iconOnly={true}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            onChange(page + 1);
+                                        }}/>
+                    </PaginationItem>}
+                </PaginationContent>
+            </Pagination>
+        );
+    };
+
     const renderEntities = sortedEntities => {
         const hasEntities = !isEmpty(sortedEntities);
         const total = sortedEntities.length;
@@ -201,7 +252,10 @@ export const Entities = ({
                                                className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
                                                onClick={() => !column.nonSortable && setSortedKey(column.key)}>
                                         {column.header}
-                                        {column.toolTip && <Tooltip tip={column.toolTip}/>}
+                                        {column.toolTip && <Tooltip>
+                                            <TooltipTrigger render={<InfoIcon/>}/>
+                                            <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(column.toolTip)}}/></TooltipContent>
+                                        </Tooltip>}
                                         {headerIcon(column, sorted, reverse)}
                                     </th>
                                 })}
@@ -214,20 +268,17 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                <Pagination currentPage={page}
-                            onChange={nbr => {
-                                setPage(nbr);
-                                callCustomSearch(query, sorted, reverse, nbr);
-                                storePageNumber(nbr);
-                            }}
-                            total={totalElements || total}
-                            pageCount={pageCount}/>
+                {renderPagination(totalElements || total, nbr => {
+                    setPage(nbr);
+                    callCustomSearch(query, sorted, reverse, nbr);
+                    storePageNumber(nbr);
+                })}
             </section>
         );
     };
 
     if (loading) {
-        return <Loader/>;
+        return <div className="loading-container"><Spinner className="size-8"/></div>;
     }
     const filteredEntities = filterEntities(query);
     const sortedEntities = customSearch ? filteredEntities : sortObjects(filteredEntities, sorted, reverse);

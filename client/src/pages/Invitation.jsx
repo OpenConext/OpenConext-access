@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {acceptInvitation, getInvitationByHash} from "../api";
 import {getParameterByName} from "../utils/QueryParameters.js";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import Welcome from "../icons/undraw/welcome.svg";
 import {SESSION_STORAGE_LOCATION} from "../utils/Login.js";
@@ -54,7 +54,7 @@ export const Invitation = ({refreshUser}) => {
 
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

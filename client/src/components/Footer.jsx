@@ -2,7 +2,7 @@ import React from "react";
 import I18n from "../locale/I18n";
 import "./Footer.scss"
 import {LanguageSelector} from "./LanguageSelector";
-import {Logo, LogoType} from "@surfnet/sds";
+import {Logo, LogoType} from "./Logo.jsx";
 
 export const Footer = () => {
 

@@ -3,8 +3,8 @@ import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {allAplicationsLight, migrateApplication, organizationsLight} from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
-import {isEmpty} from "../utils/Utils.js";
+import {Button, Spinner} from "@surfnet/curve-react";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -30,7 +30,7 @@ const ApplicationMigrate = () => {
     }, [refresh]);
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const doMigrate = confirm => {
@@ -90,9 +90,10 @@ const ApplicationMigrate = () => {
                     />
                     <div className="options">
                         <Button onClick={() => doMigrate(true)}
-                                type={ButtonType.DestructivePrimary}
-                                disabled={isEmpty(organization)}
-                                txt={I18n.t("applicationMigrate.migrate")}/>
+                                variant="destructive"
+                                disabled={isEmpty(organization)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationMigrate.migrate"))}}/>
+                        </Button>
                     </div>
                 </div>
             </div>

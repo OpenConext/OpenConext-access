@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
-import {Button} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {cronCleanup} from "../api/index.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import {allExpanded, defaultStyles, JsonView} from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
 
@@ -15,11 +15,13 @@ export const Cron = () => {
                 <div className="actions">
                     <span>{I18n.t("system.cron.info")}</span>
                     {isEmpty(results) &&
-                        <Button onClick={() => cronCleanup().then(res => setResults(res))}
-                                txt={I18n.t("system.cron.trigger")}/>}
+                        <Button onClick={() => cronCleanup().then(res => setResults(res))}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("system.cron.trigger"))}}/>
+                        </Button>}
                     {!isEmpty(results) &&
-                        <Button onClick={() => setResults({})}
-                                txt={I18n.t("system.cron.clear")}/>}
+                        <Button onClick={() => setResults({})}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("system.cron.clear"))}}/>
+                        </Button>}
                 </div>
                 {!isEmpty(results) &&
                     <div className="cron-results">

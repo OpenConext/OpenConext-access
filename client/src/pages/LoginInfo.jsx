@@ -3,10 +3,11 @@ import './LoginInfo.scss';
 import I18n from "../locale/I18n";
 import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
 import {login} from "../utils/Login.js";
 import DOMPurify from "dompurify";
+import {sanitize} from "../utils/Utils";
 
 export const LoginInfo = () => {
 
@@ -35,8 +36,9 @@ export const LoginInfo = () => {
                                 <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => login(config, true, true)}
-                                type={ButtonType.Secondary}
-                                txt={I18n.t("landing.loginInfo.commercial.login")}/>
+                                variant="secondary">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.commercial.login"))}}/>
+                        </Button>
                     </div>
                     <div className="card">
                         <h3>
@@ -47,8 +49,9 @@ export const LoginInfo = () => {
                                 <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => login(config, true, false)}
-                                type={ButtonType.Secondary}
-                                txt={I18n.t("landing.loginInfo.education.login")}/>
+                                variant="secondary">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.education.login"))}}/>
+                        </Button>
                     </div>
                 </div>
             </Background>

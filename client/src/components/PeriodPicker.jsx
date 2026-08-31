@@ -1,8 +1,8 @@
 import React from "react";
 import "./PeriodPicker.scss";
-import {Button, ButtonType} from "@surfnet/sds";
-import ArrowLeft from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import {Button} from "@surfnet/curve-react";
+import {CaretLeftIcon as ArrowLeft, CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
+import {sanitize} from "../utils/Utils";
 
 const PeriodPicker = ({value, onClick}) => {
     const currentYear = new Date().getFullYear();
@@ -12,16 +12,19 @@ const PeriodPicker = ({value, onClick}) => {
         <div className="access-period-picker-container">
             <div className="access-period-picker">
                 <Button onClick={() => onClick(value - 1)}
-                        icon={<ArrowLeft/>}
-                        type={ButtonType.Secondary}/>
-                <Button txt={value}
-                        active={true}
+                        variant="secondary">
+                    <span data-icon="inline-end"><ArrowLeft/></span>
+                </Button>
+                <Button aria-expanded={true}
                         disabled={true}
-                        type={ButtonType.Secondary}/>
+                        variant="secondary">
+                    <span dangerouslySetInnerHTML={{__html: sanitize(value)}}/>
+                </Button>
                 <Button onClick={atCurrentYear ? undefined : () => onClick(value + 1)}
                         disabled={atCurrentYear}
-                        type={ButtonType.Secondary}
-                        icon={<ArrowRight/>}/>
+                        variant="secondary">
+                    <span data-icon="inline-end"><ArrowRight/></span>
+                </Button>
             </div>
 
         </div>)

@@ -1,4 +1,4 @@
-@use "styles/tooltip" as *;
+@use "styles/sds-tokens" as *;
 @use "styles/forms" as *;
 @use "styles/responsive" as *;
 @use "styles/vars" as *;
@@ -120,6 +120,48 @@ strong {
 h1.large {
     font-size: 56px;
     font-weight: 600;
+}
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    width: 100%;
+}
+
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sds--space--1);
+
+    label {
+        cursor: pointer;
+    }
+}
+
+.radio-options-group {
+    display: flex;
+    gap: var(--sds--space--2);
+
+    &.column {
+        flex-direction: column;
+        gap: var(--sds--space--1);
+    }
+
+    &.row {
+        flex-direction: row;
+    }
+
+    .radio-item {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sds--space--1);
+
+        label {
+            cursor: pointer;
+        }
+    }
 }
 
 .card {

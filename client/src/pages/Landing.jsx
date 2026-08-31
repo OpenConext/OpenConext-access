@@ -2,15 +2,14 @@ import "./Landing.scss";
 import React, {useEffect, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {useNavigate} from "react-router";
 import {newOrganization, searchOrganizationsLandingPage} from "../api/index.js";
 import {useDebouncedCallback} from 'use-debounce';
 import {isEmpty} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import DOMPurify from "dompurify";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import {MagnifyingGlassIcon as SearchIcon, CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
@@ -109,7 +108,7 @@ const Landing = ({refreshUser}) => {
                                          question={question}
             />}
             <div className="search">
-                {loading && <Loader/>}
+                {loading && <Spinner/>}
                 <h2>{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
                 <p>{I18n.t("welcome.info")}</p>
                 <div className="inner-search">

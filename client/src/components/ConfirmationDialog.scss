@@ -1,0 +1,9 @@
+.confirmation-dialog {
+    &.large-width {
+        max-width: 40rem;
+    }
+
+    [data-slot="dialog-title"].error {
+        color: var(--destructive);
+    }
+}

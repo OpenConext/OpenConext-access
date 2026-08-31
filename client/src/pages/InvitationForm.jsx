@@ -3,10 +3,10 @@ import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {createInvitation, organizationForInvitationById} from "../api";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Button, Spinner} from "@surfnet/curve-react";
 import "./InvitationForm.scss";
 import InputField from "../components/InputField";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, sanitize} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import EmailField from "../components/EmailField";
@@ -197,12 +197,14 @@ export const InvitationForm = () => {
                 {renderFormElements(authorityOptions)}
 
                 <section className="actions">
-                    <Button type={ButtonType.Secondary}
-                            txt={I18n.t("forms.cancel")}
-                            onClick={() => navigate(-1)}/>
+                    <Button variant="secondary"
+                            onClick={() => navigate(-1)}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                    </Button>
                     <Button disabled={disabledSubmit}
-                            txt={I18n.t("invitation.invite")}
-                            onClick={submit}/>
+                            onClick={submit}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("invitation.invite"))}}/>
+                    </Button>
                 </section>
 
 
@@ -211,7 +213,7 @@ export const InvitationForm = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
     return (
         <div className="mod-invitation-form">

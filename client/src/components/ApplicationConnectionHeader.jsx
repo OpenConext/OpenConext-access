@@ -2,13 +2,13 @@ import I18n from "../locale/I18n";
 import "./ApplicationConnectionHeader.scss"
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import MenuIcon from "../icons/menu.svg";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {PencilSimpleIcon as PencilIcon, TrashIcon} from "@phosphor-icons/react";
 import React, {useState} from "react";
 import {useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import {Chip, ChipType, Loader} from "@surfnet/sds";
+import {Chip, ChipType} from "./Chip.jsx";
+import {Spinner} from "@surfnet/curve-react";
 import {hasApplicationDeleteAccess, hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
@@ -113,7 +113,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const {open, cancel, action, question, okButton, outstandingPolicies, policyWriteAccess} = confirmation;

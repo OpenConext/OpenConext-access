@@ -2,19 +2,21 @@ import React, {useEffect, useRef, useState} from "react";
 import "./Organizations.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Loader, Tooltip, Checkbox} from "@surfnet/sds";
+import {Checkbox, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, sanitize} from "../utils/Utils";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import {useDebouncedCallback} from "use-debounce";
-import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
+import {InfoIcon, UsersThreeIcon as TeamIcon} from "@phosphor-icons/react";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
-import ApproveIcon from "@surfnet/sds/icons/functional-icons/success.svg";
-import DisapproveIcon from "@surfnet/sds/icons/functional-icons/alarm-bell-off.svg";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {
+    CheckCircleIcon as ApproveIcon,
+    BellSlashIcon as DisapproveIcon,
+    PencilSimpleIcon as PencilIcon,
+    TrashIcon
+} from "@phosphor-icons/react";
 import MenuIcon from "../icons/menu.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import InputField from "../components/InputField.jsx";
@@ -213,12 +215,14 @@ export const Organizations = ({pendingApproval}) => {
                             onRef={el => inputRef.current = el}
                 />
                 <span className="action-icons">
-                    <Tooltip standalone={true}
-                             children={<span onClick={() => setOpenOrganizationId(null)}>❌</span>}
-                             tip={I18n.t("forms.cancel")}/>
-                    <Tooltip standalone={true}
-                             children={<span onClick={() => saveNewOrganizationName()}>🔁</span>}
-                             tip={I18n.t("forms.save")}/>
+                    <Tooltip>
+                        <TooltipTrigger render={<span onClick={() => setOpenOrganizationId(null)}>❌</span>}/>
+                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger render={<span onClick={() => saveNewOrganizationName()}>🔁</span>}/>
+                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.save"))}}/></TooltipContent>
+                    </Tooltip>
                 </span>
             </div>
         );
@@ -230,14 +234,15 @@ export const Organizations = ({pendingApproval}) => {
             key: "icon",
             header: "",
             mapper: org => <div className="member-icon">
-                <Tooltip standalone={true}
-                         children={<TeamIcon/>}
-                         tip={I18n.t("tooltips.organizationsIcon",
-                             {
-                                 name: org.name,
-                                 createdAt: dateFromEpoch(org.created_at || org.createdAt),
-                                 status: I18n.t(`organizations.${org.status.toLowerCase()}`)
-                             })}/>
+                <Tooltip>
+                    <TooltipTrigger render={<TeamIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("tooltips.organizationsIcon",
+                        {
+                            name: org.name,
+                            createdAt: dateFromEpoch(org.created_at || org.createdAt),
+                            status: I18n.t(`organizations.${org.status.toLowerCase()}`)
+                        }))}}/></TooltipContent>
+                </Tooltip>
             </div>
         },
         {
@@ -253,7 +258,7 @@ export const Organizations = ({pendingApproval}) => {
         {
             key: "manageIdentifier",
             header: I18n.t("organizations.isInternal"),
-            mapper: org => <div className="wrapper"><Checkbox value={!isEmpty(org.manageIdentifier)} readOnly={true}/></div>
+            mapper: org => <div className="wrapper"><Checkbox checked={!isEmpty(org.manageIdentifier)} readOnly={true}/></div>
         },
         {
             key: "adminEmail",
@@ -283,12 +288,15 @@ export const Organizations = ({pendingApproval}) => {
                                 <MenuIcon/>
                                 {dropDownActive === org.id && renderMenu(org)}
                             </span>
-                </div> : <Tooltip standalone={true} tip={I18n.t("organizations.manageOrganizationInMutable")}/>
+                </div> : <Tooltip>
+                    <TooltipTrigger render={<InfoIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organizations.manageOrganizationInMutable"))}}/></TooltipContent>
+                </Tooltip>
         }
     ];
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const {open, cancel, action, question, okButton} = confirmation;

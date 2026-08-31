@@ -1,8 +1,8 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useLocation, useNavigate} from "react-router";
-import {NavigationMenu} from "@surfnet/sds";
-import CheckIcon from "@surfnet/sds/icons/check.svg";
+import {NavigationMenu} from "./NavigationMenu.jsx";
+import {CheckIcon} from "@phosphor-icons/react";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {useMemo} from "react";

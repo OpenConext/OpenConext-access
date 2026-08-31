@@ -6,7 +6,7 @@ import {isEmpty} from "../utils/Utils.js";
 import "./Policies.scss";
 import I18n from "../locale/I18n";
 import {authorities} from "../utils/Permissions.js";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {useShallow} from "zustand/react/shallow";
 import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
@@ -100,7 +100,7 @@ const Policies = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const refreshPolicies = () => {

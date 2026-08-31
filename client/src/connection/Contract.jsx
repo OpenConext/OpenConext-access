@@ -3,12 +3,14 @@ import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore.js";
 import {contractByOrganization, createContractForOrganization, updateContractForOrganization} from "../api/index.js";
-import {Alert, AlertType, Button, ButtonType, Loader} from "@surfnet/sds";
+import {Alert, AlertDescription} from "@surfnet/curve-react";
+import {InfoIcon} from "@phosphor-icons/react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {countryOptions} from "../utils/countries.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {useShallow} from "zustand/react/shallow";
 
@@ -114,7 +116,7 @@ export const Contract = ({
     };
 
     if (loading || contract === null) {
-        return <Loader/>;
+        return <div className="loading-container"><Spinner className="size-8"/></div>;
     }
 
     const signed = !!contract.signedContract;
@@ -148,9 +150,11 @@ export const Contract = ({
                 )}
 
                 {(!signed && !isNew) && (
-                    <Alert alertType={AlertType.Info}
-                           asChild={true}
-                           message={I18n.t("contracts.awaiting")}/>
+                    <Alert>
+                        <InfoIcon/>
+                        <AlertDescription
+                            dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
+                    </Alert>
                 )}
 
                 <div className="contract-form">
@@ -240,18 +244,21 @@ export const Contract = ({
                 <div className="actions">
                     {!signed && (
                         <>
-                            <Button txt={I18n.t("forms.cancel")}
-                                    type={ButtonType.Secondary}
-                                    onClick={doCancel}/>
-                            <Button txt={I18n.t("contracts.update")}
-                                    disabled={!initial && !isFormValid()}
-                                    onClick={doUpdate}/>
+                            <Button variant="secondary"
+                                    onClick={doCancel}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                            </Button>
+                            <Button disabled={!initial && !isFormValid()}
+                                    onClick={doUpdate}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.update"))}}/>
+                            </Button>
                         </>
                     )}
                     {signed && (
-                        <Button txt={I18n.t("forms.backToOverview")}
-                                type={ButtonType.Secondary}
-                                onClick={doCancel}/>
+                        <Button variant="secondary"
+                                onClick={doCancel}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.backToOverview"))}}/>
+                        </Button>
                     )}
                 </div>
             </div>

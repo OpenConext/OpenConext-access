@@ -1,4 +1,4 @@
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
 import {login, SESSION_STORAGE_LOCATION} from "../utils/Login.js";
 import {useLocation} from "react-router";
@@ -11,5 +11,5 @@ export const LoginRedirect = () => {
     sessionStorage.setItem(SESSION_STORAGE_LOCATION, locationUrl);
     login(config);
 
-    return <Loader/>
+    return <div className="loading-container"><Spinner className="size-8"/></div>
 }

@@ -3,7 +3,8 @@ import React from "react";
 import "./SelectField.scss";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import {Tooltip} from "@surfnet/sds";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {InfoIcon} from "@phosphor-icons/react";
 import AlertIcon from "../icons/alert-triangle.svg";
 import I18n from "../locale/I18n.js";
 import DOMPurify from "dompurify";
@@ -18,10 +19,14 @@ export default function SelectField({
     return (
         <div className={`select-field ${className}`}>
             {name && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
-                {toolTip && <Tooltip tip={toolTip}/>}
-                {isAlert && <Tooltip standalone={true}
-                                     children={<AlertIcon/>}
-                                     tip={I18n.t("forms.changeRequest")}/>}
+                {toolTip && <Tooltip>
+                    <TooltipTrigger render={<InfoIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(toolTip)}}/></TooltipContent>
+                </Tooltip>}
+                {isAlert && <Tooltip>
+                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                </Tooltip>}
             </label>}
             {creatable &&
                 <CreatableSelect

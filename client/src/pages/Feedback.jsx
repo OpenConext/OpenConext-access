@@ -4,10 +4,11 @@ import I18n from "../locale/I18n";
 import "./Feedback.scss";
 import {feedback} from "../api";
 import DOMPurify from "dompurify";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {sanitize} from "../utils/Utils";
 
 export default function Feedback() {
     const setFlash = useAppStore(state => state.setFlash);
@@ -60,9 +61,9 @@ export default function Feedback() {
                 }}/>
                 </section>
                 <section className="actions">
-                    <Button type={ButtonType.Primary}
-                            onClick={() => sendFeedBack()}
-                            txt={I18n.t("forms.submit")}/>
+                    <Button onClick={() => sendFeedBack()}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.submit"))}}/>
+                    </Button>
                 </section>
             </div>
         </div>

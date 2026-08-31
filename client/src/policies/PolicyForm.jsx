@@ -1,17 +1,18 @@
 import "./PolicyForm.scss";
 import React, {Fragment, useState} from "react";
-import {Button, ButtonType, Chip} from "@surfnet/sds";
+import {Chip} from "../components/Chip.jsx";
+import {Button} from "@surfnet/curve-react";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
-import {isEmpty, splitListSemantically} from "../utils/Utils.js";
+import {isEmpty, splitListSemantically, sanitize} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {defaultAttributes, flatMapByValues, policyDesscription, policyTypes} from "../utils/Policy.js";
 import {getNetworkInfo} from "../utils/CidrNotation.js";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {TrashIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
@@ -429,9 +430,11 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
-                            <Button type={ButtonType.Delete}
+                            <Button variant="destructive"
                                     onClick={() => attributeDeleted(index)}
-                            />
+                            >
+                                <TrashIcon/>
+                            </Button>
                         </div>
                         {!isEmpty(attributeValueErrors[attribute.name]) &&
                             <ErrorIndicator adjustMargin={false}
@@ -446,9 +449,10 @@ export const PolicyForm = ({
                 {(!initial && policy.data.attributes.filter(attr => !isEmpty(attr.name) && !isEmpty(attr.value)).length === 0) &&
                     <ErrorIndicator msg={I18n.t("policies.attributesRequired")}/>}
                 <div className="add-attribute-container">
-                    <Button type={ButtonType.Secondary}
-                            onClick={() => attributeAdded({name: null})}
-                            txt={I18n.t("appAccess.addAttributePlaceholder")}/>
+                    <Button variant="secondary"
+                            onClick={() => attributeAdded({name: null})}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAttributePlaceholder"))}}/>
+                    </Button>
                 </div>
             </div>
 
@@ -531,9 +535,11 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => stepAttributeValueChanged(values, index)}
                             />
-                            <Button type={ButtonType.Delete}
+                            <Button variant="destructive"
                                     onClick={() => stepAttributeDeleted(index)}
-                            />
+                            >
+                                <TrashIcon/>
+                            </Button>
                         </div>
                         {!isEmpty(attributeValueErrors[attribute.name]) &&
                             <ErrorIndicator adjustMargin={false}
@@ -578,9 +584,11 @@ export const PolicyForm = ({
                                         onChange={e => cidrChanged(index, "prefix", e.target.value)}
                                         onBlur={() => cidrBlurred(index)}
                             />
-                            <Button type={ButtonType.Delete}
+                            <Button variant="destructive"
                                     onClick={() => cidrDeleted(index)}
-                            />
+                            >
+                                <TrashIcon/>
+                            </Button>
                         </div>
                         {!isEmpty(cidrErrors[index]) &&
                             <ErrorIndicator msg={cidrErrors[index]}/>
@@ -590,12 +598,14 @@ export const PolicyForm = ({
 
                 {/* Add buttons */}
                 <div className="add-buttons-row">
-                    <Button type={ButtonType.Secondary}
-                            onClick={stepAttributeAdded}
-                            txt={`+ ${I18n.t("appAccess.addAttributePlaceholder")}`}/>
-                    <Button type={ButtonType.Secondary}
-                            onClick={cidrAdded}
-                            txt={`+ ${I18n.t("appAccess.addIpRange")}`}/>
+                    <Button variant="secondary"
+                            onClick={stepAttributeAdded}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(`+ ${I18n.t("appAccess.addAttributePlaceholder")}`)}}/>
+                    </Button>
+                    <Button variant="secondary"
+                            onClick={cidrAdded}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(`+ ${I18n.t("appAccess.addIpRange")}`)}}/>
+                    </Button>
                 </div>
             </div>
         </>
@@ -607,13 +617,14 @@ export const PolicyForm = ({
                 <span className="delete-can" onClick={() => doDeletePolicy(true, policy)}>
                     <TrashIcon/>{I18n.t("forms.delete")}
                 </span>}
-            <Button type={ButtonType.Secondary}
-                    onClick={refreshPolicies}
-                    txt={I18n.t("forms.cancel")}/>
-            <Button type={ButtonType.Primary}
-                    onClick={() => submit()}
-                    disabled={!initial && !isValid()}
-                    txt={I18n.t(`appAccess.${isExistingPolicy ? "submitExisting" : "submitNew"}`)}/>
+            <Button variant="secondary"
+                    onClick={refreshPolicies}>
+                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+            </Button>
+            <Button onClick={() => submit()}
+                    disabled={!initial && !isValid()}>
+                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${isExistingPolicy ? "submitExisting" : "submitNew"}`))}}/>
+            </Button>
         </div>
     );
 

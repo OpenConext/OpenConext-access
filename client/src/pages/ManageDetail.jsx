@@ -10,10 +10,10 @@ import {
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
-import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+import {Button, Spinner} from "@surfnet/curve-react";
+import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
 import SelectField from "../components/SelectField.jsx";
@@ -50,7 +50,7 @@ const ManageDetail = () => {
     }, [manageType, manageId]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const importOrganisationChanged = option => {
@@ -88,13 +88,13 @@ const ManageDetail = () => {
                     />
                     <div className="options">
                         <Button onClick={() => doImport(true, false)}
-                                type={ButtonType.Primary}
-                                disabled={isEmpty(application)}
-                                txt={I18n.t("manageDetail.importAsNewConnection")}/>
+                                disabled={isEmpty(application)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("manageDetail.importAsNewConnection"))}}/>
+                        </Button>
                         <Button onClick={() => doImport(true, true)}
-                                type={ButtonType.Primary}
-                                disabled={isEmpty(organization)}
-                                txt={I18n.t("manageDetail.importAsNewApplication")}/>
+                                disabled={isEmpty(organization)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("manageDetail.importAsNewApplication"))}}/>
+                        </Button>
                     </div>
                 </div>
             </div>

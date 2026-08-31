@@ -3,14 +3,23 @@ import React, {useEffect, useMemo, useState} from "react";
 import {publicIdentityProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Loader, Pagination} from "@surfnet/sds";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious
+} from "@surfnet/curve-react";
+import {Spinner} from "@surfnet/curve-react";
 import StudentPng from "../icons/student.png";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
+import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerOrganizationName} from "../utils/Manage.js";
-import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
-import {pageNumberFromQueryParams, storePageNumber} from "../utils/Pagination.js";
+import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination.js";
 
 const pageCount = 10;
 
@@ -84,10 +93,48 @@ const Institutions = () => {
 
 
         if (loading) {
-            return <Loader/>
+            return <div className="loading-container"><Spinner className="size-8"/></div>
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredIdentityProviders.length / pageCount));
+
+        const renderPagination = (total, onChange) => {
+            const nbrPages = Math.ceil(total / pageCount);
+            if (total <= pageCount) {
+                return null;
+            }
+            return (
+                <Pagination>
+                    <PaginationContent>
+                        {page !== 1 && <PaginationItem>
+                            <PaginationPrevious href="#" iconOnly={true}
+                                                onClick={e => {
+                                                    e.preventDefault();
+                                                    onChange(page - 1);
+                                                }}/>
+                        </PaginationItem>}
+                        {pageRangeWithDots(page, nbrPages).map((nbr, index) =>
+                            <PaginationItem key={`${nbr}_${index}`}>
+                                {typeof nbr === "string" ?
+                                    <PaginationEllipsis/> :
+                                    <PaginationLink href="#" isActive={nbr === page}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        onChange(nbr);
+                                                    }}>{nbr}</PaginationLink>}
+                            </PaginationItem>
+                        )}
+                        {page !== nbrPages && <PaginationItem>
+                            <PaginationNext href="#" iconOnly={true}
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                onChange(page + 1);
+                                            }}/>
+                        </PaginationItem>}
+                    </PaginationContent>
+                </Pagination>
+            );
+        };
 
         return (
             <div className="institutions-container">
@@ -152,13 +199,10 @@ const Institutions = () => {
                             </ul>
                         </div>
                     </div>
-                    <Pagination currentPage={page}
-                                onChange={nbr => {
-                                    setPage(nbr);
-                                    storePageNumber(nbr);
-                                }}
-                                total={filteredIdentityProviders.length}
-                                pageCount={pageCount}/>
+                    {renderPagination(filteredIdentityProviders.length, nbr => {
+                        setPage(nbr);
+                        storePageNumber(nbr);
+                    })}
                 </div>
             </div>
         );

@@ -1,14 +1,16 @@
 import {useNavigate} from "react-router";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Button} from "@surfnet/curve-react";
 import I18n from "../locale/I18n";
 import React from "react";
 
 import "./Impersonating.scss";
-import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import {ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore";
 import {useShallow} from "zustand/react/shallow";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {sanitize} from "../utils/Utils";
 
 export const Impersonating = () => {
 
@@ -36,20 +38,22 @@ export const Impersonating = () => {
 
     return (
         <div className="impersonator ">
-            <Tooltip children={<ImpersonateIcon/>}
-                     standalone={true}
-                     tip={I18n.t("impersonate.impersonatorTooltip", {
-                         currentUser: currentUser.name,
-                         impersonator: impersonator.name
-                     })}/>
+            <Tooltip>
+                <TooltipTrigger render={<ImpersonateIcon/>}/>
+                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("impersonate.impersonatorTooltip", {
+                    currentUser: currentUser.name,
+                    impersonator: impersonator.name
+                }))}}/></TooltipContent>
+            </Tooltip>
 
             <p dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(I18n.t("impersonate.impersonator", {
                     name: currentUser.name
                 }))
             }}/>
-            <Button type={ButtonType.Secondary}
-                    onClick={() => endImpersonation()}
-                    txt={I18n.t("impersonate.exit")}/>
+            <Button variant="secondary"
+                    onClick={() => endImpersonation()}>
+                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("impersonate.exit"))}}/>
+            </Button>
         </div>)
 }

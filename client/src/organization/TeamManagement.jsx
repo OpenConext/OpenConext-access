@@ -11,8 +11,7 @@ import {changeOrganizationMembershipById, deleteOrganizationMembershipById} from
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {PencilSimpleIcon as PencilIcon, TrashIcon} from "@phosphor-icons/react";
 import {useShallow} from "zustand/react/shallow";
 import {isEmpty} from "../utils/Utils.js";
 

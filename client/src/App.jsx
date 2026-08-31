@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import './App.scss';
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router";
 import {allowedAttributes, arp, configuration, csrf, me, privacy} from "./api/index.js";
@@ -158,7 +158,7 @@ const App = () => {
     }, [impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     if (showErrorModal) {

@@ -1,8 +1,9 @@
 import "./ConnectionAlert.scss";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertType} from "@surfnet/sds";
-import {isEmpty, splitListSemantically} from "../utils/Utils.js";
+import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";
+import {InfoIcon, WarningIcon, XIcon} from "@phosphor-icons/react";
+import {isEmpty, sanitize, splitListSemantically} from "../utils/Utils.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
 
 
@@ -20,6 +21,17 @@ export const ConnectionAlert = ({
 
     const [alertClosed, setAlertClosed] = useState(false);
 
+    const renderAlert = ({warning = false, message, close, action, actionLabel}) => (
+        <Alert>
+            {warning ? <WarningIcon/> : <InfoIcon/>}
+            <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
+            {action && <button type="button" className="alert-action" onClick={action}>{actionLabel}</button>}
+            {close && <AlertAction>
+                <button type="button" onClick={close}><XIcon/></button>
+            </AlertAction>}
+        </Alert>
+    );
+
     const alertInfo = () => {
         if (alertClosed) {
             return null;
@@ -33,28 +45,24 @@ export const ConnectionAlert = ({
             connectionsNeedActivationNames = splitListSemantically(names, I18n.t("forms.and"));
         }
         if (isEmpty(application.connections)) {
-            return (
-                <Alert alertType={AlertType.Info}
-                       asChild={true}
-                       message={I18n.t("connection.welcome", {user: user.name, name: application.name})}/>
-            )
+            return renderAlert({
+                message: I18n.t("connection.welcome", {user: user.name, name: application.name})
+            });
         }
         if (connectionNeedsApproval && !appInformationComplete) {
-            return (
-                <Alert alertType={AlertType.Warning}
-                       asChild={true}
-                       message={I18n.t(`connection.applicationInformationHint${currentOrganization.manageIdentifier ? "" : "Vendor"}`)}/>
-            )
+            return renderAlert({
+                warning: true,
+                message: I18n.t(`connection.applicationInformationHint${currentOrganization.manageIdentifier ? "" : "Vendor"}`)
+            });
         }
         if (connectionComplete && connectionNeedsApproval)
-            return (
-                <Alert close={() => setAlertClosed(true)}
-                       alertType={AlertType.Warning}
-                       asChild={true}
-                       message={I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames})}
-                       action={() => customProdTabAction ? customProdTabAction() : setTab("allConnections", "activate")}
-                       actionLabel={I18n.t("connection.productionActivationAction")}/>
-            )
+            return renderAlert({
+                warning: true,
+                close: () => setAlertClosed(true),
+                message: I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames}),
+                action: () => customProdTabAction ? customProdTabAction() : setTab("allConnections", "activate"),
+                actionLabel: I18n.t("connection.productionActivationAction")
+            });
     }
 
     return (

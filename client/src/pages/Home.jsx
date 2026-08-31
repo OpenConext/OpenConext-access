@@ -4,9 +4,10 @@ import I18n from "../locale/I18n";
 import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
 import {Link, useNavigate} from "react-router";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
+import {sanitize} from "../utils/Utils";
 
 export const Home = () => {
 
@@ -44,8 +45,9 @@ export const Home = () => {
                             .map((info, index) =>
                                 <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
-                        <Button onClick={() => navigate("/connect")}
-                                txt={I18n.t("landing.applicationProviders.connect")}/>
+                        <Button onClick={() => navigate("/connect")}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.applicationProviders.connect"))}}/>
+                        </Button>
                     </div>
                     <div className="card">
                         <h3>
@@ -56,8 +58,9 @@ export const Home = () => {
                                 <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                             )}
                         <Button onClick={() => contactUs()}
-                                type={ButtonType.Secondary}
-                                txt={I18n.t("landing.institutions.contact")}/>
+                                variant="secondary">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.institutions.contact"))}}/>
+                        </Button>
                     </div>
                     <div className="card">
                         <h3>

@@ -3,14 +3,15 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Chip, ChipType, Loader} from "@surfnet/sds";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
 import {formatLongDate} from "../utils/Date.js";
-import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
+import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 
@@ -191,7 +192,7 @@ const ApplicationOverview = ({accessible}) => {
         }
 
         if (loading) {
-            return <Loader/>
+            return <div className="loading-container"><Spinner className="size-8"/></div>
         }
 
         const filters = () => {

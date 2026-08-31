@@ -5,7 +5,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import PeriodPicker from "../components/PeriodPicker.jsx";
-import {Button, ButtonIconPlacement} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import ExportIcon from "../icons/export.svg";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import StatsTable from "../components/StatsTable.jsx";
@@ -13,7 +13,7 @@ import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame, loginAggregated, uniqueLoginCount, publicServiceProviders, publicIdentityProviders} from "../api/index.js";
 import {providerName} from "../utils/Manage.js";
 import {authorities} from "../utils/Permissions.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Navigate} from "react-router";
 
 const periods = {
@@ -351,10 +351,10 @@ const Statistics = () => {
                         </div>
 
                         <Button onClick={handleExport}
-                                className="export"
-                                iconPlacement={ButtonIconPlacement.Left}
-                                txt={I18n.t("statistics.export")}
-                                icon={<ExportIcon/>}/>
+                                className="export">
+                            <span data-icon="inline-start"><ExportIcon/></span>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("statistics.export"))}}/>
+                        </Button>
 
                     </div>
                 </div>

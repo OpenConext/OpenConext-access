@@ -27,45 +27,6 @@ $min-width-pixels: 620px;
     }
 }
 
-.sds--tooltip-parent {
-    .sds--switch.sds--switch--active {
-        background-color: var(--sds--color--green--400);
-    }
-
-    .sds--switch.sds--switch--active:hover {
-        background-color: var(--sds--color--green--500);
-    }
-
-    input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual {
-        background-color: var(--sds--color--green--400);
-    }
-
-    input[type=checkbox]:not(:disabled):checked + label .sds--checkbox--visual:hover {
-        background-color: var(--sds--color--green--500);
-    }
-
-}
-
-.sds--radio-options {
-
-    input[type=radio]:not(:disabled):checked + label .sds--radio--visual {
-        border-color: var(--sds--color--green--400);
-    }
-
-    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:before {
-        background-color: var(--sds--color--green--400);
-    }
-
-    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:hover {
-        border-color: var(--sds--color--green--500);
-    }
-
-    input[type=radio]:not(:disabled):checked + label .sds--radio--visual:before:hover {
-        background-color: var(--sds--color--green--500);
-    }
-
-}
-
 .sds--footer--single-bar .sds--footer--inner nav.menu a:link, .sds--footer--single-bar .sds--footer--inner nav.menu a:visited {
     text-decoration: none;
     color: white;

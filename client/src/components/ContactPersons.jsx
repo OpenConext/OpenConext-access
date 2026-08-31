@@ -5,7 +5,8 @@ import {isEmpty, stopEvent} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {adminContactEqualsTech, contactPersonTypes, validEmailOrUrl} from "../utils/Application.js";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
+import {TrashIcon} from "@phosphor-icons/react";
 import {emailPlaceholder} from "../utils/Forms.js";
 
 
@@ -77,7 +78,7 @@ export const ContactPersons = ({
                                             onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
                                             button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0 && !readOnly) ?
                                                 <Button onClick={() => removeContactPerson(contactPerson.id)}
-                                                        type={ButtonType.Delete}/> : null}
+                                                        variant="destructive"><TrashIcon/></Button> : null}
                                 />
                                 {(!initial && isEmpty(contactPerson.email)) &&
                                     <ErrorIndicator

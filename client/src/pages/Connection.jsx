@@ -7,7 +7,7 @@ import {ApplicationConnectionHeader} from "../components/ApplicationConnectionHe
 import {Overview} from "../connection/Overview.jsx";
 import {Connections} from "../connection/Connections.jsx";
 import {getApplicationById, getIdentityProviders, getScopes} from "../api/index.js";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {APPLICATION_STATUSES, CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {AppInformation} from "../connection/AppInformation.jsx";
 import {contactSectionValid, convertServerApplicationToClient, logoSectionValid, privacySectionValid} from "../utils/Application.js";
@@ -208,7 +208,7 @@ export const Connection = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

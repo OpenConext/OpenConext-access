@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import {useNavigate, useParams} from "react-router";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 
 const RefreshRoute = () => {
 
@@ -14,7 +14,7 @@ const RefreshRoute = () => {
     }, [path, navigate]);
 
     return (
-        <Loader/>
+        <div className="loading-container"><Spinner className="size-8"/></div>
     );
 
 }

@@ -8,13 +8,13 @@ import {
     updateOrganizationMetaData,
     updateOrganizationName
 } from "../api/index.js";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import "./MyOrganization.scss";
 import I18n from "../locale/I18n";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
 import {authorities, isOrganizationAdmin} from "../utils/Permissions.js";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -101,7 +101,7 @@ const MyOrganization = ({refreshUser}) => {
     }, [externalOrganization, organization, user, adminUser])
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const doDelete = (e, confirmationRequired) => {
@@ -200,9 +200,10 @@ const MyOrganization = ({refreshUser}) => {
                 <p>{I18n.t("myOrganization.deleteWarning")}</p>
                 <div className="actions">
                     <Button onClick={e => doDelete(e, true)}
-                            type={ButtonType.DestructivePrimary}
-                            txt={I18n.t("myOrganization.deleteButton")}
-                    />
+                            variant="destructive"
+                    >
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.deleteButton"))}}/>
+                    </Button>
                 </div>
             </div>
         );
@@ -303,8 +304,9 @@ const MyOrganization = ({refreshUser}) => {
                     <div className="actions proceed">
                         <Button onClick={() => externalOrganization ? saveExternalOrganization() : saveInternalOrganization()}
                                 disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
-                                txt={I18n.t("myOrganization.proceedButton")}
-                        />
+                        >
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
+                        </Button>
                     </div>}
 
             </div>

@@ -1,8 +1,9 @@
 import React from "react";
-import {Button, Modal} from "@surfnet/sds";
+import {Button, Dialog, DialogContent, DialogHeader, DialogTitle} from "@surfnet/curve-react";
 import I18n from "../locale/I18n";
 import {policyTypes} from "../utils/Policy.js";
 import "./PolicyChoiceDialog.scss";
+import {sanitize} from "../utils/Utils";
 
 export default function PolicyChoiceDialog({
                                                confirm,
@@ -20,8 +21,9 @@ export default function PolicyChoiceDialog({
                         <span className="choice">{I18n.t(`policies.policyChoices.${policyType}Choice`)}</span>
                         <span className="explanation">{I18n.t(`policies.policyChoices.${policyType}Explanation`)}</span>
                         <div className={"button-container"}>
-                            <Button txt={I18n.t("forms.create")}
-                                    onClick={() => confirm("new", policies, policyType)}/>
+                            <Button onClick={() => confirm("new", policies, policyType)}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.create"))}}/>
+                            </Button>
                         </div>
 
                     </div>
@@ -31,12 +33,14 @@ export default function PolicyChoiceDialog({
     }
 
     return (
-        <Modal
-            children={renderContent()}
-            close={close}
-            className={"policy-choice-dialog"}
-            title={I18n.t("policies.policyChoices.title")}
-            full={false}/>
+        <Dialog open={true} onOpenChange={open => !open && close()}>
+            <DialogContent className="policy-choice-dialog">
+                <DialogHeader>
+                    <DialogTitle>{I18n.t("policies.policyChoices.title")}</DialogTitle>
+                </DialogHeader>
+                {renderContent()}
+            </DialogContent>
+        </Dialog>
     );
 
 }

@@ -3,8 +3,8 @@ import {useRef, useState} from "react";
 import NotFoundImage from "../icons/image-not-found.svg"
 import {srcUrl} from "../utils/Image.js";
 import I18n from "../locale/I18n";
-import {isEmpty} from "../utils/Utils.js";
-import {Button} from "@surfnet/sds"
+import {isEmpty, sanitize} from "../utils/Utils.js";
+import {Button} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
 import ReactCrop, {centerCrop, makeAspectCrop} from "react-image-crop";
@@ -177,8 +177,9 @@ export const ImageField = ({imageSource, onChange}) => {
                        accept="image/png, image/jpeg, image/jpg, image/svg+xml, image/webp"
                        onChange={onSelectFile}
                 />
-                <Button txt={I18n.t(`connection.logo.${isEmpty(imageSource) ? "add" : "edit"}`)}
-                        onClick={onButtonClick}/>
+                <Button onClick={onButtonClick}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`connection.logo.${isEmpty(imageSource) ? "add" : "edit"}`))}}/>
+                </Button>
                 <ul>
                     {I18n.translations[I18n.locale].connection.logo.disclaimers.map((disclaimer, index) =>
                         <li key={index}>{disclaimer}</li>

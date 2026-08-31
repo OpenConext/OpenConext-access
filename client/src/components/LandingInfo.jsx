@@ -5,7 +5,7 @@ import desk from "../icons/chatgpt/desk.webp";
 import badge from "../icons/chatgpt/badge.webp";
 import screen from "../icons/chatgpt/screen.webp";
 import "./LandingInfo.scss";
-import {Chip, ChipType} from "@surfnet/sds"
+import {Chip, ChipType} from "./Chip.jsx"
 
 export const LandingInfo = () => {
 

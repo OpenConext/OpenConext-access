@@ -1,15 +1,17 @@
 import "./Connections.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertType, Button, ButtonType, Chip, ChipType, Loader, RadioOptions, RadioOptionsOrientation, Switch, Tooltip} from "@surfnet/sds";
+import {Alert, AlertDescription, Button, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {InfoIcon, TrashIcon, WarningIcon, XCircleIcon} from "@phosphor-icons/react";
 import "jsondiffpatch/formatters/styles/html.css";
 
-import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
+import {XIcon as CloseIcon} from "@phosphor-icons/react";
 import ArrowRightIcon from "../icons/details-right.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import CaretDown from "../icons/caret_down.svg";
 import AlertIcon from "../icons/alert-triangle.svg";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
@@ -34,7 +36,7 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {connectOptions, convertClientConnectionToServer, convertServerConnectionToClient, generateOIDCClientID, sections, visibilities} from "../utils/Connection.js";
 import {CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right.svg";
+import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router";
@@ -231,6 +233,19 @@ export const Connections = ({
         setUrlMetaData(null);
         setMetaDataChoice(metaData.url);
     }
+
+    const renderRadioOptions = (name, value, labels, labelResolver, onChange, orientation = "column") => (
+        <RadioGroup value={value}
+                    onValueChange={onChange}
+                    className={`radio-options-group ${orientation}`}>
+            {labels.map(label =>
+                <div className="radio-item" key={`${name}_${label}`}>
+                    <RadioGroupItem value={label} id={`${name}_${label}`}/>
+                    <label htmlFor={`${name}_${label}`}>{labelResolver(label)}</label>
+                </div>
+            )}
+        </RadioGroup>
+    );
 
     const grantTypeChanged = (grantType, selected) => {
         let newGrantTypes = connection.grantTypes;
@@ -556,9 +571,10 @@ export const Connections = ({
                     <>
                         <div>
                             <span className="label">{I18n.t("connection.grantTypes")}
-                                {changeRequestsKeys.includes("grantTypes") && <Tooltip standalone={true}
-                                                                                       children={<AlertIcon/>}
-                                                                                       tip={I18n.t("forms.changeRequest")}/>}
+                                {changeRequestsKeys.includes("grantTypes") && <Tooltip>
+                                    <TooltipTrigger render={<AlertIcon/>}/>
+                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                                </Tooltip>}
                             </span>
                             <div className="grant-types">
                                 {Object.keys(grantTypes).map(grantType =>
@@ -566,21 +582,23 @@ export const Connections = ({
                                         <section className="grant-type">
                                             <span>{I18n.t(`connection.${grantType}`)}</span>
                                             <Switch name={grantType}
-                                                    value={connection.grantTypes.includes(grantTypes[grantType])}
-                                                    onChange={val => grantTypeChanged(grantTypes[grantType], val)}/>
+                                                    checked={connection.grantTypes.includes(grantTypes[grantType])}
+                                                    onCheckedChange={val => grantTypeChanged(grantTypes[grantType], val)}/>
                                         </section>
                                         {(grantType === grantTypes.authorization_code && connection.grantTypes.includes(grantTypes[grantType])) &&
                                             <section key="pkce" className="grant-type pkce">
                                                 <span className="pkce-label">{I18n.t("connection.pkce")}</span>
-                                                <Tooltip tip={I18n.t("connection.pkceTooltip")}/>
-                                                <RadioOptions name="pkce"
-                                                              value={connection.pkce}
-                                                              trueLabel={I18n.t("connection.required")}
-                                                              falseLabel={I18n.t("connection.optional")}
-                                                              onChange={() => setConnection({
-                                                                  ...connection,
-                                                                  pkce: !connection.pkce
-                                                              })}/>
+                                                <Tooltip>
+                                                    <TooltipTrigger render={<InfoIcon/>}/>
+                                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pkceTooltip"))}}/></TooltipContent>
+                                                </Tooltip>
+                                                {renderRadioOptions("pkce", connection.pkce ? "true" : "false",
+                                                    ["false", "true"],
+                                                    label => label === "true" ? I18n.t("connection.required") : I18n.t("connection.optional"),
+                                                    () => setConnection({
+                                                        ...connection,
+                                                        pkce: !connection.pkce
+                                                    }), "row")}
 
                                             </section>
                                         }
@@ -611,9 +629,10 @@ export const Connections = ({
                         <div className="redirect-urls-container">
                             <span className="label">{I18n.t("connection.redirectUrls")}
                                 <sup className="required">*</sup>
-                                {changeRequestsKeys.includes("redirectUrls") && <Tooltip standalone={true}
-                                                                                         children={<AlertIcon/>}
-                                                                                         tip={I18n.t("forms.changeRequest")}/>}</span>
+                                {changeRequestsKeys.includes("redirectUrls") && <Tooltip>
+                                    <TooltipTrigger render={<AlertIcon/>}/>
+                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                                </Tooltip>}</span>
                             <div className="redirect-urls">
                                 {connection.redirectUrls.map((value, index) =>
                                     <div className="redirect-url" key={index}>
@@ -624,9 +643,12 @@ export const Connections = ({
                                                         onRef={el => redirectUrlRefs.current[index] = el}
                                                         placeholder={I18n.t("connection.redirectUrlsPlaceholder")}
                                             />
-                                            <Button type={ButtonType.Delete} onClick={() => removeRedirectURL(index)}/>
-                                            <Button txt={I18n.t("connection.testSection")}
-                                                    onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}/>
+                                            <Button variant="destructive" onClick={() => removeRedirectURL(index)}>
+                                                <TrashIcon/>
+                                            </Button>
+                                            <Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
+                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
+                                            </Button>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -636,11 +658,11 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <Tooltip tip={I18n.t("connection.sslGradeTooltip")}
-                                     standalone={true}
-                                     children={<a href="/add" className="add-link"
-                                                  onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</a>}
-                            />
+                            <Tooltip>
+                                <TooltipTrigger render={<a href="/add" className="add-link"
+                                                            onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</a>}/>
+                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
+                            </Tooltip>
                         </div>
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
@@ -682,10 +704,11 @@ export const Connections = ({
                     <>
                         <div className="import-metadata">
                             <h2>{I18n.t("connection.configuration")}</h2>
-                            {!showImport && <Button txt={I18n.t("connection.import")}
-                                                    type={ButtonType.Secondary}
+                            {!showImport && <Button variant="secondary"
                                                     onClick={() => setShowImport(true)}
-                            />}
+                            >
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.import"))}}/>
+                            </Button>}
                         </div>
                         {showImport &&
                             <div className="show-import">
@@ -694,35 +717,34 @@ export const Connections = ({
                                     <CloseIcon onClick={() => setShowImport(false)}/>
 
                                 </div>
-                                <RadioOptions name={"how"}
-                                              value={metaDataChoice}
-                                              onChange={e => setMetaDataChoice(e.target.id.replace("how_", ""))}
-                                              isMultiple={true}
-                                              labels={Object.values(metaData)}
-                                              labelResolver={label => I18n.t(`connection.metadata.${label}`)}
-                                              orientation={RadioOptionsOrientation.column}/>
+                                {renderRadioOptions("how", metaDataChoice, Object.values(metaData),
+                                    label => I18n.t(`connection.metadata.${label}`),
+                                    value => setMetaDataChoice(value))}
                                 {metaDataChoice === metaData.url && <>
                                     <span className="label top">{I18n.t("connection.metadata.urlMetaData")}</span>
                                     <div className="meta-data-url">
                                         <InputField value={urlMetaData}
                                                     onChange={e => setUrlMetaData(e.target.value)}/>
-                                        <Button txt={I18n.t("connection.metadata.import")}
-                                                onClick={() => doParseMedaData()}
-                                                type={validUrlRegExp.test(urlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
-                                                disabled={!validUrlRegExp.test(urlMetaData)}/>
+                                        <Button onClick={() => doParseMedaData()}
+                                                variant={validUrlRegExp.test(urlMetaData) ? undefined : "secondary"}
+                                                disabled={!validUrlRegExp.test(urlMetaData)}>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.metadata.import"))}}/>
+                                        </Button>
                                     </div>
                                 </>}
                                 {metaDataChoice === metaData.file && <div className="meta-data-file">
                                     {fileName && <>
                                         <div className="file-name-section">
                                             <span>{fileName}</span>
-                                            <Button type={ButtonType.Delete}
-                                                    onClick={() => setFileName(null)}/>
+                                            <Button variant="destructive"
+                                                    onClick={() => setFileName(null)}>
+                                                <CloseIcon/>
+                                            </Button>
                                         </div>
-                                        <Button txt={I18n.t("connection.metadata.import")}
-                                                onClick={() => doParseMedaData()}
-                                                type={ButtonType.Primary}
-                                                disabled={false}/>
+                                        <Button onClick={() => doParseMedaData()}
+                                                disabled={false}>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.metadata.import"))}}/>
+                                        </Button>
                                     </>}
                                     {!fileName && <UploadButton name={"meta-date-file"}
                                                                 acceptFileFormat={".xml"}
@@ -735,10 +757,11 @@ export const Connections = ({
                                         <InputField value={xmlMetaData}
                                                     multiline={true}
                                                     onChange={e => setXmlMetaData(e.target.value)}/>
-                                        <Button txt={I18n.t("connection.metadata.import")}
-                                                onClick={() => doParseMedaData()}
-                                                type={!isEmpty(xmlMetaData) ? ButtonType.Primary : ButtonType.Secondary}
-                                                disabled={isEmpty(xmlMetaData)}/>
+                                        <Button onClick={() => doParseMedaData()}
+                                                variant={!isEmpty(xmlMetaData) ? undefined : "secondary"}
+                                                disabled={isEmpty(xmlMetaData)}>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.metadata.import"))}}/>
+                                        </Button>
                                     </div>
                                 </>}
 
@@ -773,7 +796,9 @@ export const Connections = ({
                                                         onBlur={e => acsLocationValueBlurred(e, index)}
                                                         onRef={el => acsLocationRefs.current[index] = el}
                                             />
-                                            <Button type={ButtonType.Delete} onClick={() => removeACSLocation(index)}/>
+                                            <Button variant="destructive" onClick={() => removeACSLocation(index)}>
+                                                <TrashIcon/>
+                                            </Button>
                                         </div>
                                         {invalidACSLocations[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -783,11 +808,11 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <Tooltip tip={I18n.t("connection.sslGradeTooltip")}
-                                     standalone={true}
-                                     children={<a href="/add" className="add-link"
-                                                  onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</a>}
-                            />
+                            <Tooltip>
+                                <TooltipTrigger render={<a href="/add" className="add-link"
+                                                            onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</a>}/>
+                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
+                            </Tooltip>
                         </div>
                         {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
@@ -863,18 +888,16 @@ export const Connections = ({
                 {(!pendingProd && !prodConnection) &&
                     <div className="visibility-options">
                         <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
-                        <RadioOptions name={"proceedWithProduction"}
-                                      value={proceedWithProduction ? "prodConnection" : "testConnection"}
-                                      onChange={() => setProceedWithProduction(!proceedWithProduction)}
-                                      isMultiple={true}
-                                      labels={["testConnection", "prodConnection"]}
-                                      labelResolver={label => I18n.t(`connection.productionStatusSection.${label}`)}
-                                      orientation={RadioOptionsOrientation.column}/>
+                        {renderRadioOptions("proceedWithProduction",
+                            proceedWithProduction ? "prodConnection" : "testConnection",
+                            ["testConnection", "prodConnection"],
+                            label => I18n.t(`connection.productionStatusSection.${label}`),
+                            () => setProceedWithProduction(!proceedWithProduction))}
                         {(!appInformationComplete && proceedWithProduction) &&
                             alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
                                 () => setTab("application"),
                                 I18n.t("connection.productionStatusSection.fillAppInformation"),
-                                AlertType.Warning)}
+                                "warning")}
                     </div>}
                 {(pendingProd && isEmpty(jiraKey)) &&
                     alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimer"))}
@@ -884,41 +907,37 @@ export const Connections = ({
                         <div className="identity-providers">
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.who")}
-                                    {changeRequestsKeys.includes("visibility") && <Tooltip standalone={true}
-                                                                                           children={<AlertIcon/>}
-                                                                                           tip={I18n.t("forms.changeRequest")}/>}
+                                    {changeRequestsKeys.includes("visibility") && <Tooltip>
+                                        <TooltipTrigger render={<AlertIcon/>}/>
+                                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                                    </Tooltip>}
                                 </p>
-                                <RadioOptions name={"visibility"}
-                                              value={connection.visibility}
-                                              onChange={e => setConnection({
-                                                  ...connection,
-                                                  visibility: e.target.id.replace("visibility_", "")
-                                              })}
-                                              isMultiple={true}
-                                              labels={[visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none]}
-                                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                                              orientation={RadioOptionsOrientation.column}/>
+                                {renderRadioOptions("visibility", connection.visibility,
+                                    [visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none],
+                                    label => I18n.t(`connection.visibilities.${label}`),
+                                    value => setConnection({
+                                        ...connection,
+                                        visibility: value
+                                    }))}
                             </div>
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.connect")}
-                                    {changeRequestsKeys.includes("connectOption") && <Tooltip standalone={true}
-                                                                                              children={<AlertIcon/>}
-                                                                                              tip={I18n.t("forms.changeRequest")}/>}
+                                    {changeRequestsKeys.includes("connectOption") && <Tooltip>
+                                        <TooltipTrigger render={<AlertIcon/>}/>
+                                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                                    </Tooltip>}
                                 </p>
-                                <RadioOptions name={"connectOption"}
-                                              value={connection.connectOption}
-                                              onChange={e => setConnection({
-                                                  ...connection,
-                                                  connectOption: e.target.id.replace("connectOption_", "")
-                                              })}
-                                              isMultiple={true}
-                                              labels={[
-                                                  connectOptions.connect_without_interaction_without_email,
-                                                  connectOptions.connect_without_interaction_with_email,
-                                                  connectOptions.connect_with_interaction
-                                              ]}
-                                              labelResolver={label => I18n.t(`connection.visibilities.${label}`)}
-                                              orientation={RadioOptionsOrientation.column}/>
+                                {renderRadioOptions("connectOption", connection.connectOption,
+                                    [
+                                        connectOptions.connect_without_interaction_without_email,
+                                        connectOptions.connect_without_interaction_with_email,
+                                        connectOptions.connect_with_interaction
+                                    ],
+                                    label => I18n.t(`connection.visibilities.${label}`),
+                                    value => setConnection({
+                                        ...connection,
+                                        connectOption: value
+                                    }))}
                             </div>
                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
@@ -947,9 +966,7 @@ export const Connections = ({
             <section className="inner-right-overview">
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
                 <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
-                <Alert alertType={AlertType.Warning}
-                       asChild={true}
-                       message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
@@ -1022,13 +1039,11 @@ export const Connections = ({
         const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)
         return (
             <section className="inner-right-informational">
-                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip standalone={true}
-                                                                                                             children={<AlertIcon/>}
-                                                                                                             tip={I18n.t("forms.changeRequest")}/>}</h3>
-                {isContentApp && <Alert alertType={AlertType.Warning}
-                                        asChild={true}
-                                        message={I18n.t("connection.informational.contentAppAlert")}/>
-                }
+                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip>
+                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                </Tooltip>}</h3>
+                {isContentApp && alertInfo(I18n.t("connection.informational.contentAppAlert"), null, null, "warning")}
                 {!isContentApp && <p className="disclaimer"
                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.disclaimer"))}}/>}
                 <SelectField
@@ -1077,8 +1092,8 @@ export const Connections = ({
                         <section className="additional-attributes">
                             <span>{I18n.t("connection.informational.additionalAttributes")}</span>
                             <Switch name="additionalAttributes"
-                                    value={showAdditionalAttributes || !isEmpty(connection.additionalAttributes)}
-                                    onChange={toggleAdditionalAttributes}/>
+                                    checked={showAdditionalAttributes || !isEmpty(connection.additionalAttributes)}
+                                    onCheckedChange={toggleAdditionalAttributes}/>
                         </section>
                         {(showAdditionalAttributes || !isEmpty(connection.additionalAttributes)) &&
                             <>
@@ -1097,8 +1112,8 @@ export const Connections = ({
                                                     <span>{arpInfo.attributes.find(attr => attr.name === optionalAttribute).info[I18n.locale]}</span>
                                                 </div>
                                                 <Switch name={`extraAttribute_${index}`}
-                                                        value={selected}
-                                                        onChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
+                                                        checked={selected}
+                                                        onCheckedChange={val => changeAdditionalAttributes(optionalAttribute, val)}/>
                                             </section>
                                             {(selected && !defaultArpValue && arpSource) &&
                                                 <InputField value={arpSource.value}
@@ -1118,9 +1133,7 @@ export const Connections = ({
                                                     msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
                                                 />}
                                             {(selected && arpAttribute.scopedValue && defaultArpValue) &&
-                                                <Alert alertType={AlertType.Warning}
-                                                       asChild={false}
-                                                       message={I18n.t("connection.informational.scopedValueAttributeDisclaimer")}/>
+                                                alertInfo(I18n.t("connection.informational.scopedValueAttributeDisclaimer"), null, null, "warning")
                                             }
                                         </div>
                                     )
@@ -1133,13 +1146,14 @@ export const Connections = ({
         );
     }
 
-    const alertInfo = (message, action, actionLabel, alertType = AlertType.Info) => {
+    const alertInfo = (message, action, actionLabel, alertType = "info") => {
+        const Icon = alertType === "error" ? XCircleIcon : alertType === "warning" ? WarningIcon : InfoIcon;
         return (
-            <Alert alertType={alertType}
-                   asChild={true}
-                   action={action}
-                   actionLabel={actionLabel}
-                   message={message}/>
+            <Alert variant={alertType === "error" ? "destructive" : "default"}>
+                <Icon/>
+                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
+                {action && <button type="button" className="alert-action" onClick={action}>{actionLabel}</button>}
+            </Alert>
         )
     }
 
@@ -1295,9 +1309,9 @@ export const Connections = ({
                     <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
-                            <Button txt={I18n.t("connection.pendingChanges")}
-                                    onClick={() => changeSection(sections.pendingChanges)}
-                            />
+                            <Button onClick={() => changeSection(sections.pendingChanges)}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pendingChanges"))}}/>
+                            </Button>
                         </div>
                     }
                     {(!isComplete &&
@@ -1307,9 +1321,10 @@ export const Connections = ({
                              tabIndex={1}
                              onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
                             <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
-                                    txt={I18n.t("connection.copyConnection")}
-                                    icon={<CaretDown/>}
-                                    type={ButtonType.Secondary}/>
+                                    variant="secondary">
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.copyConnection"))}}/>
+                                <span data-icon="inline-end"><CaretDown/></span>
+                            </Button>
                             {isCopyConnectionOpen &&
                                 <section className="copy-connection-section sds--user-info--dropdown">
                                     {application.connections
@@ -1347,25 +1362,30 @@ export const Connections = ({
                                 {!showOverviewButton &&
                                     <>
                                         <div className="sub-actions">
-                                            <Button txt={I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`)}
-                                                    type={ButtonType.Secondary}
-                                                    onClick={backToConnections}/>
+                                            <Button variant="secondary"
+                                                    onClick={backToConnections}>
+                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))}}/>
+                                            </Button>
                                             <div className="delete-connection">
-                                                <Button type={ButtonType.Delete}
-                                                        onClick={() => doDeleteConnection(true)}/>
+                                                <Button variant="destructive"
+                                                        onClick={() => doDeleteConnection(true)}>
+                                                    <TrashIcon/>
+                                                </Button>
                                             </div>
                                         </div>
-                                        <Button txt={submitTxt}
-                                                disabled={!valid}
-                                                onClick={() => storeAndNext(lastSection)}/>
+                                        <Button disabled={!valid}
+                                                onClick={() => storeAndNext(lastSection)}>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(submitTxt)}}/>
+                                        </Button>
                                     </>
                                 }
 
                                 {showOverviewButton &&
-                                    <Button txt={I18n.t("forms.overview")}
-                                            type={ButtonType.Secondary}
-                                            icon={<ArrowRight/>}
-                                            onClick={backToMainOverview}/>
+                                    <Button variant="secondary"
+                                            onClick={backToMainOverview}>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.overview"))}}/>
+                                        <span data-icon="inline-end"><ArrowRight/></span>
+                                    </Button>
                                 }
                             </div>}
 
@@ -1419,7 +1439,10 @@ export const Connections = ({
                             >
                                 {!isEmpty(conn.changeRequests) ? <AlertIcon/> : null}
                             </Chip>
-                            {toolTip && <Tooltip tip={toolTip}/>}
+                            {toolTip && <Tooltip>
+                                <TooltipTrigger render={<InfoIcon/>}/>
+                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
+                            </Tooltip>}
                         </div>
                     );
                 }
@@ -1469,13 +1492,14 @@ export const Connections = ({
                 />}
                 <div className="header">
                     <h3>{I18n.t(`connection.allConnections`)}</h3>
-                    <Button txt={I18n.t("testing.newConnection")}
-                            type={ButtonType.Secondary}
+                    <Button variant="secondary"
                             onClick={() => {
                                 setSection(sections.technical);
                                 setChangeRequestsKeys([]);
                                 initConnection(true);
-                            }}/>
+                            }}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("testing.newConnection"))}}/>
+                    </Button>
                 </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&
@@ -1490,7 +1514,7 @@ export const Connections = ({
 
     };
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
     const showInitialConnection = (isEmpty(connections) || connection?.new || connection?.id)
         && !isEmpty(connection);
@@ -1510,14 +1534,10 @@ export const Connections = ({
                                                      {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})
                                              }}/> :
                                              modal === modals.resetSecretDisclaimer ?
-                                                 <Alert alertType={AlertType.Error}
-                                                        asChild={true}
-                                                        message={I18n.t("connection.connectionOverview.secretResetDisclaimer")}/> :
+                                                 alertInfo(I18n.t("connection.connectionOverview.secretResetDisclaimer"), null, null, "error") :
                                                  modal === modals.resetSecret ?
                                                      <div>
-                                                         <Alert alertType={AlertType.Warning}
-                                                                asChild={true}
-                                                                message={I18n.t("connection.connectionOverview.disclaimer")}/>
+                                                         {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
                                                          <InputField name={I18n.t("connection.connectionOverview.secret")}
                                                                      value={connection.secret}
                                                                      disabled={true}

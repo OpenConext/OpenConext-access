@@ -1,9 +1,9 @@
 import "./UserHome.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Button, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import I18n from "../locale/I18n";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Navigate, useNavigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import DOMPurify from "dompurify";
@@ -65,12 +65,14 @@ const UserHome = () => {
                         <h5>{I18n.t("userHome.central.connectedApps")}</h5>
                         <p>{I18n.t("userHome.central.connectedAppsInfo")}</p>
                         <Button onClick={() => navigateInner(mainMenuItems.accessibleApps, "/accessible-apps")}
-                                txt={I18n.t("userHome.central.maintainAccess")}
-                                type={ButtonType.GhostLight}/>
+                                variant="ghost">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainAccess"))}}/>
+                        </Button>
                         <h5>{I18n.t("userHome.central.roles")}</h5>
                         <Button onClick={() => navigateInner(mainMenuItems.invite, "/external/invite")}
-                                txt={I18n.t("userHome.central.maintainRoles")}
-                                type={ButtonType.GhostLight}/>
+                                variant="ghost">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainRoles"))}}/>
+                        </Button>
                         <div className="sds--divider largest"/>
                         <h5>{I18n.t("userHome.central.teamCentral")}</h5>
                        {!isEmpty(admin) && <p dangerouslySetInnerHTML={{
@@ -80,8 +82,9 @@ const UserHome = () => {
                             }))
                         }}/>}
                         <Button onClick={() => navigateInner(mainMenuItems.users, `/users/${currentOrganization.id}`)}
-                                txt={I18n.t("userHome.central.maintainTeam")}
-                                type={ButtonType.GhostLight}/>
+                                variant="ghost">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainTeam"))}}/>
+                        </Button>
                     </InfoBlock>}
                 <InfoBlock>
                     <h3>{I18n.t("userHome.catalogue.title")}</h3>
@@ -90,12 +93,14 @@ const UserHome = () => {
                     <p>{I18n.t("userHome.catalogue.ourAppsInfo")}</p>
                     <Button
                         onClick={() => navigateInner(mainMenuItems.yourApps, `/organization/${currentOrganization.id}`)}
-                        txt={I18n.t("userHome.catalogue.maintainOurApps")}
-                        type={ButtonType.GhostLight}/>
+                        variant="ghost">
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.catalogue.maintainOurApps"))}}/>
+                    </Button>
                     <h5>{I18n.t("userHome.catalogue.allApps")}</h5>
                     <Button onClick={() => navigateInner(mainMenuItems.catalogue, "/catalogue")}
-                            txt={I18n.t("userHome.catalogue.openCatalogue")}
-                            type={ButtonType.GhostLight}/>
+                            variant="ghost">
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.catalogue.openCatalogue"))}}/>
+                    </Button>
                 </InfoBlock>
                 {!user.externalUser &&
 
@@ -104,8 +109,9 @@ const UserHome = () => {
                         <p>{I18n.t("userHome.decentral.subTitle")}</p>
                         <h5>{I18n.t("userHome.decentral.collaborations")}</h5>
                         <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
-                                txt={I18n.t("userHome.decentral.maintainCollaborations")}
-                                type={ButtonType.GhostLight}/>
+                                variant="ghost">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.decentral.maintainCollaborations"))}}/>
+                        </Button>
                         <div className="sds--divider"/>
                         <h5>{I18n.t("userHome.decentral.teamDecentral")}</h5>
                         {/*<p dangerouslySetInnerHTML={{*/}
@@ -115,8 +121,9 @@ const UserHome = () => {
                         {/*    }))*/}
                         {/*}}/>*/}
                         <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
-                                txt={I18n.t("userHome.decentral.maintainTeamDecentral")}
-                                type={ButtonType.GhostLight}/>
+                                variant="ghost">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.decentral.maintainTeamDecentral"))}}/>
+                        </Button>
                     </InfoBlock>}
                 {!user.externalUser &&
                     <InfoBlock className="full-row">

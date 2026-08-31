@@ -7,11 +7,12 @@ import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {Link, useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {Chip, ChipType, Loader} from "@surfnet/sds";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {Spinner} from "@surfnet/curve-react";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import MenuIcon from "../icons/menu.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {TrashIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {useShallow} from "zustand/react/shallow";
 
@@ -171,7 +172,7 @@ export const AppTeamManagement = ({
     };
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const {open, cancel, action, question, okButton} = confirmation;

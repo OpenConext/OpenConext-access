@@ -1,9 +1,10 @@
 import React from "react";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import {CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 
-import {Tooltip} from "@surfnet/sds";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {InfoIcon} from "@phosphor-icons/react";
 import "./InputField.scss";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, sanitize} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
 import {useNavigate} from "react-router";
@@ -52,10 +53,14 @@ export default function InputField({
     return (
         <div className={topClassName}>
             {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
-                {isAlert && <Tooltip standalone={true}
-                                     children={<AlertIcon/>}
-                                     tip={I18n.t("forms.changeRequest")}/>}
-                {toolTip && <Tooltip tip={toolTip}/>}
+                {isAlert && <Tooltip>
+                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                </Tooltip>}
+                {toolTip && <Tooltip>
+                    <TooltipTrigger render={<InfoIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
+                </Tooltip>}
             </label>}
             <div className="inner-input-field">
                 {(!multiline && !noInput) &&

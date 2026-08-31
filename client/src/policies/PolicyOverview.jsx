@@ -1,12 +1,13 @@
 import "./PolicyOverview.scss";
 import "../styles/access_card.scss";
 import React, {useState} from "react";
-import {Button, ButtonType, Chip, Tooltip} from "@surfnet/sds";
+import {Button, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Chip} from "../components/Chip.jsx";
+import {sanitize} from "../utils/Utils.js";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
 import {capitalize, isEmpty, splitListSemantically} from "../utils/Utils.js";
-import PencilIcon from "@surfnet/sds/icons/functional-icons/pencil.svg";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {PencilSimpleIcon as PencilIcon, TrashIcon} from "@phosphor-icons/react";
 import PauseIcon from "../icons/pause.svg";
 import ActivateIcon from "../icons/play.svg";
 import {deletePolicy, updatePolicy} from "../api/index.js";
@@ -145,17 +146,20 @@ export const PolicyOverview = ({
 
                 </div>
                 <div className="policy-actions">
-                    <Tooltip tip={I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`)}
-                             standalone={true}
-                             children={policy.data.active ?
-                                 <PauseIcon onClick={() => doUpdatePolicy(true, policy, false)}/> :
-                                 <ActivateIcon onClick={() => doUpdatePolicy(true, policy, true)}/>}/>
-                    <Tooltip tip={I18n.t("forms.edit")}
-                             standalone={true}
-                             children={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
-                    <Tooltip tip={I18n.t("forms.delete")}
-                             standalone={true}
-                             children={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
+                    <Tooltip>
+                        <TooltipTrigger render={policy.data.active ?
+                            <PauseIcon onClick={() => doUpdatePolicy(true, policy, false)}/> :
+                            <ActivateIcon onClick={() => doUpdatePolicy(true, policy, true)}/>}/>
+                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`))}}/></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger render={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
+                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.edit"))}}/></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger render={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
+                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/></TooltipContent>
+                    </Tooltip>
                 </div>
             </div>
         );
@@ -184,9 +188,9 @@ export const PolicyOverview = ({
                 </p>
                 <div className="grouped">
                     <h3>{I18n.t("appAccess.regularPolicies")}</h3>
-                    <Button type={ButtonType.Primary}
-                            onClick={() => policyDetails("reg", policyTypes.reg)}
-                            txt={I18n.t("forms.new")}/>
+                    <Button onClick={() => policyDetails("reg", policyTypes.reg)}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
+                    </Button>
                 </div>
                 <InfoBlock className="light-grey">
                     {isEmpty(regularPolicies) && <>
@@ -201,9 +205,9 @@ export const PolicyOverview = ({
                 </InfoBlock>
                 <div className="grouped">
                     <h3>{I18n.t("appAccess.stepUpPolicies")}</h3>
-                    <Button type={ButtonType.Primary}
-                            onClick={() => policyDetails("step", policyTypes.step)}
-                            txt={I18n.t("forms.new")}/>
+                    <Button onClick={() => policyDetails("step", policyTypes.step)}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
+                    </Button>
                 </div>
                 <InfoBlock className="light-grey">
                     {isEmpty(stepUpPolicies) && <>

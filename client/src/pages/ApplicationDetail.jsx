@@ -16,10 +16,13 @@ import I18n from "../locale/I18n.js";
 import ExternalLinkIcon from "../icons/external-link.svg";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router";
-import {Alert, AlertType, Button, ButtonIconPlacement, ButtonType, Chip, ChipType, Loader} from "@surfnet/sds";
+import {Alert, AlertDescription} from "@surfnet/curve-react";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {WarningIcon} from "@phosphor-icons/react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import StudentPng from "../icons/student2.png";
-import PlaceHolderImage from "@surfnet/sds/icons/placeholder-image.svg";
-import ArrowLeftIcon from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
+import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
 import AlertIcon from "../icons/alert-triangle.svg";
 
 import ExampleSVG from "../icons/wayf.svg";
@@ -34,7 +37,7 @@ import {
     providerOrganizationName,
     STEPUP_LEVELS
 } from "../utils/Manage.js";
-import {isEmpty, stopEvent} from "../utils/Utils.js";
+import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -211,7 +214,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const externalLink = (link, metaData, index) => {
@@ -481,17 +484,23 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const renderAccessApp = () => {
         return (
             <>
-                {readOnly && <Alert alertType={AlertType.Warning}
-                                    asChild={true}
-                                    children={<a href="/" onClick={e => cancelConnectionRequest(true, e)}>
-                                        {I18n.t("appAccess.cancelRequest")}</a>}
-                                    message={I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey})}/>
+                {readOnly && <Alert>
+                    <WarningIcon/>
+                    <AlertDescription>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
+                        <a href="/" onClick={e => cancelConnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</a>
+                    </AlertDescription>
+                </Alert>
                 }
-                {pendingDisconnect && <Alert alertType={AlertType.Warning}
-                                             asChild={true}
-                                             children={<a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
-                                                 {I18n.t("appAccess.cancelRequest")}</a>}
-                                             message={I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey})}/>
+                {pendingDisconnect && <Alert>
+                    <WarningIcon/>
+                    <AlertDescription>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
+                        <a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</a>
+                    </AlertDescription>
+                </Alert>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     <>
@@ -503,14 +512,14 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         <h3>{I18n.t("appAccess.users", {name: currentOrganization.name})}</h3>
                                         <p>{I18n.t("appAccess.config")}</p>
                                     </div>
-                                    <Button type={ButtonType.Primary}
-                                            onClick={() => {
+                                    <Button onClick={() => {
                                                 useAppStore.setState({
                                                     activeMenuItem: mainMenuItems.policies
                                                 });
                                                 navigate(`/policies?service=${encodeURIComponent(serviceProvider.data.entityid)}`);
-                                            }}
-                                            txt={I18n.t("appAccess.edit")}/>
+                                            }}>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.edit"))}}/>
+                                    </Button>
                                 </div>
                                 <div className="access-card large">
                                     <h4>{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
@@ -529,11 +538,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         <h3>{I18n.t("appAccess.outSideUsers")}</h3>
                                         <p>{I18n.t("appAccess.roleBasedAccess")}</p>
                                     </div>
-                                    <Button type={ButtonType.Primary}
-                                            onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
-                                                "_blank").focus()}
-                                            icon={<ExternalLinkIcon/>}
-                                            txt={I18n.t("appAccess.roleManagement")}/>
+                                    <Button onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
+                                                "_blank").focus()}>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.roleManagement"))}}/>
+                                        <span data-icon="inline-end"><ExternalLinkIcon/></span>
+                                    </Button>
                                 </div>
                                 {isEmpty(accessRoles) &&
                                     <div className="access-card grey">
@@ -688,11 +697,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                                         msg={I18n.t("assurance.loaTooLow")}/>}
                     <div className="assurance-actions">
                         <Button onClick={() => cancelAssuranceChanges()}
-                                type={ButtonType.Secondary}
-                                txt={I18n.t("forms.cancel")}/>
+                                variant="secondary">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                        </Button>
                         <Button onClick={() => submitAssuranceChanges()}
-                                disabled={mfaLoaTooLow || stepupLoaTooLow}
-                                txt={I18n.t("forms.save")}/>
+                                disabled={mfaLoaTooLow || stepupLoaTooLow}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.save"))}}/>
+                        </Button>
                     </div>
                 </div>
                 <div className="assurance-right">
@@ -747,10 +758,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 onChange={e => setConsent({...consent, ["explanation:nl"]: e.target.value})}/>
                     <div className="consent-actions">
                         <Button onClick={() => cancelConsentChanges()}
-                                type={ButtonType.Secondary}
-                                txt={I18n.t("forms.cancel")}/>
-                        <Button onClick={() => submitConsentChanges()}
-                                txt={I18n.t("forms.save")}/>
+                                variant="secondary">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                        </Button>
+                        <Button onClick={() => submitConsentChanges()}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.save"))}}/>
+                        </Button>
                     </div>
 
                 </div>
@@ -808,8 +821,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                       label={translationForConnectionStatus()}/>
                                 {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
                                     && <Button onClick={() => doRequestDisconnection(true)}
-                                               type={ButtonType.DestructiveSecondary}
-                                               txt={I18n.t("applicationConnect.disconnect")}/>
+                                               variant="destructive">
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationConnect.disconnect"))}}/>
+                                    </Button>
                                 }
                             </div>
                         </div>
@@ -1008,15 +1022,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     {providerName(I18n.locale, serviceProvider)}
                                 </p>
                             </div>
-                            {anonymous && <Button type={ButtonType.Secondary}
-                                                  icon={<ArrowLeftIcon/>}
-                                                  iconPlacement={ButtonIconPlacement.Left}
-                                                  onClick={goBackToApplications}
-                                                  txt={I18n.t("applicationDetail.back")}/>}
+                            {anonymous && <Button variant="secondary"
+                                                  onClick={goBackToApplications}>
+                                <span data-icon="inline-start"><ArrowLeftIcon/></span>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
+                            </Button>}
                             {(!anonymous && currentOrganization.manageIdentifier) &&
                                 <Button onClick={() => doRequestConnection(true)}
-                                        disabled={memberRequestSend}
-                                        txt={I18n.t(`applicationConnect.${connectButtonPostFixTxt}`)}/>}
+                                        disabled={memberRequestSend}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`applicationConnect.${connectButtonPostFixTxt}`))}}/>
+                                </Button>}
                         </div>
                         {renderDetailsApp()}
                     </div>

@@ -3,7 +3,8 @@ import {useAppStore} from "../stores/AppStore";
 import "./Profile.scss";
 import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
-import {Checkbox, Tooltip} from "@surfnet/sds";
+import {Checkbox, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {InfoIcon} from "@phosphor-icons/react";
 import {dateFromEpoch} from "../utils/Date.js";
 import {isEmpty} from "../utils/Utils.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -95,18 +96,24 @@ const Profile = () => {
                         <div className="multi-list">
                             <div className="external-user-container">
                                 <p>{I18n.t("profile.externalUser")}</p>
-                                <Tooltip tip={I18n.t("profile.externalUserTooltip")}/>
+                                <Tooltip>
+                                    <TooltipTrigger render={<InfoIcon/>}/>
+                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("profile.externalUserTooltip"))}}/></TooltipContent>
+                                </Tooltip>
                             </div>
-                            <Checkbox value={externalUser}
+                            <Checkbox checked={externalUser}
                                       readOnly={true}/>
                         </div>}
                     {!externalUser &&
                         <div className="multi-list">
                             <div className="external-user-container">
                                 <p>{I18n.t("profile.internalUser")}</p>
-                                <Tooltip tip={I18n.t("profile.internalUserTooltip")}/>
+                                <Tooltip>
+                                    <TooltipTrigger render={<InfoIcon/>}/>
+                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("profile.internalUserTooltip"))}}/></TooltipContent>
+                                </Tooltip>
                             </div>
-                            <Checkbox value={!externalUser}
+                            <Checkbox checked={!externalUser}
                                       readOnly={true}/>
                         </div>}
 

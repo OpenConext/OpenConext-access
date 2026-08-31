@@ -1,13 +1,14 @@
 import "./ChangeRequests.scss";
 import React, {Fragment, useState} from "react";
 import I18n from "../locale/I18n";
-import {Button, ButtonType, Chip, ChipType} from "@surfnet/sds";
+import {Chip, ChipType} from "../components/Chip.jsx";
+import {Button} from "@surfnet/curve-react";
 import {format} from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
 import DOMPurify from "dompurify";
 import {formatLongDate} from "../utils/Date.js";
 import {create} from "jsondiffpatch";
-import {stopEvent} from "../utils/Utils.js";
+import {stopEvent, sanitize} from "../utils/Utils.js";
 import {revokeChangeRequest} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 
@@ -87,9 +88,10 @@ export const ChangeRequests = ({
                     <div className="meta">
                         <Chip type={ChipType.Status_info} className={"open"}
                               label={I18n.t("changeRequests.open")}/>
-                        <Button type={ButtonType.DestructiveSecondary}
-                                onClick={() => doRevokeChangeRequest(true, changeRequest)}
-                                txt={I18n.t("changeRequests.revoke")}/>
+                        <Button variant="destructive"
+                                onClick={() => doRevokeChangeRequest(true, changeRequest)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("changeRequests.revoke"))}}/>
+                        </Button>
                     </div>
                 </div>
                 <div className="changes">

@@ -3,11 +3,12 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import PeriodPicker from "../components/PeriodPicker.jsx";
-import {Button, ButtonIconPlacement} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import ExportIcon from "../icons/export.svg";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame} from "../api/index.js";
+import {sanitize} from "../utils/Utils";
 
 const AUTO_REFRESH_INTERVAL = 30_000; // ms
 
@@ -378,10 +379,10 @@ const PublicStats = () => {
                                        allowNull={false}/>
                         </div>
                         <Button onClick={handleExport}
-                                className="export"
-                                iconPlacement={ButtonIconPlacement.Left}
-                                txt={I18n.t("statistics.export")}
-                                icon={<ExportIcon/>}/>
+                                className="export">
+                            <span data-icon="inline-start"><ExportIcon/></span>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("statistics.export"))}}/>
+                        </Button>
                     </div>
                 </div>
             </div>
