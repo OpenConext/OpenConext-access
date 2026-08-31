@@ -1,7 +1,7 @@
 import "./UserHome.scss";
 import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "@surfnet/curve-react";
+import {Button, Card, CardContent, CardDescription, CardTitle} from "@surfnet/curve-react";
 import {ArrowRightIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
@@ -10,6 +10,7 @@ import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
 import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
+import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
 
 const UserHome = () => {
 
@@ -48,18 +49,16 @@ const UserHome = () => {
         }));
     }
 
-    const welcomeCard = (key, Illustration, menuItem, path) => (
+    const welcomeCard = (key, Illustration, menuItem, path, linkColorClass) => (
         <Card key={key}>
-            <CardHeader>
-                <CardTitle>{I18n.t(`userHome.${key}.title`)}</CardTitle>
-            </CardHeader>
             <CardContent>
+                <CardTitle>{I18n.t(`userHome.${key}.title`)}</CardTitle>
                 {Illustration &&
                     <div className="illustration">
                         <Illustration/>
                     </div>}
                 <CardDescription>{I18n.t(`userHome.${key}.description`)}</CardDescription>
-                <Button onClick={() => navigateInner(menuItem, path)} variant="link">
+                <Button onClick={() => navigateInner(menuItem, path)} variant="link" className={linkColorClass}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
                     <ArrowRightIcon/>
                 </Button>
@@ -74,9 +73,9 @@ const UserHome = () => {
                 <p>{I18n.t("userHome.subTitle")}</p>
             </div>
             <div className="info-container">
-                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`)}
-                {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue")}
-                {welcomeCard("setupAccess", null, mainMenuItems.accessibleApps, "/accessible-apps")}
+                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-blue")}
+                {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
+                {welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
             </div>
         </div>
     )

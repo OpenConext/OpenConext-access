@@ -40,15 +40,9 @@
 
         .illustration {
             width: 100%;
-            height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 0;
 
             svg {
-                max-width: 220px;
-                max-height: 100%;
+                display: block;
                 width: 100%;
                 height: auto;
             }
@@ -56,6 +50,14 @@
 
         button {
             align-self: flex-start;
+        }
+
+        .link-blue {
+            color: #053eaa;
+        }
+
+        .link-purple {
+            color: #420984;
         }
     }
 }
