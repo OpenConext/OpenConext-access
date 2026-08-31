@@ -106,11 +106,11 @@ export const SharedMenu = () => {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" onClick={() => navigate("/")} className="brand-button">
                             <span className="brand-lockup">
-                                <span className="brand-path" aria-hidden="true"><LogoPath/></span>
                                 <span className="brand-tag">
                                     <LogoMark className="brand-mark"/>
                                     <span className="brand-label">Access</span>
                                 </span>
+                                <span className="brand-path" aria-hidden="true"><LogoPath/></span>
                             </span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

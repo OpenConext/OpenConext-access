@@ -1,16 +1,37 @@
 import {isEmpty} from "./Utils.js";
+// Original icon choices, kept for easy rollback:
+// import {
+//     DesktopIcon as LaptopIcon,
+//     TreeStructureIcon as HierarchyIcon,
+//     LaptopIcon as LaptopFloatIcon,
+//     IdentificationBadgeIcon as UserIcon,
+//     LockIcon as PolicyIcon,
+//     MonitorIcon as ScreenIcon,
+//     HouseIcon as HomeIcon,
+//     PlugsConnectedIcon as ConnectedIcon,
+//     DatabaseIcon as StatsIcon,
+//     UsersThreeIcon as TeamIcon,
+//     HeadsetIcon as HeadPhonesIcon,
+//     ChatCenteredTextIcon as FeedbackIcon
+// } from "@phosphor-icons/react";
+// Icons matched to the Figma sidebar's own component documentation
+// (node 9841:35924, https://www.figma.com/design/81StIVqfOKfwhWVjx7Ew81/SURF-Access?node-id=9841-35924).
+// Note: the actual rendered instance in that frame reuses one generic placeholder glyph
+// ("Phosphor Icon / Smiley") for every non-Home, non-Servicedesk item rather than distinct
+// icons per item — that placeholder is not used here. These are the specific icons Figma's
+// own component library documents for each slot instead.
 import {
-    DesktopIcon as LaptopIcon,
-    TreeStructureIcon as HierarchyIcon,
-    LaptopIcon as LaptopFloatIcon,
-    IdentificationBadgeIcon as UserIcon,
+    AppWindowIcon as ScreenIcon,
+    SquaresFourIcon as LaptopIcon,
+    LinkIcon as ConnectedIcon,
     LockIcon as PolicyIcon,
-    MonitorIcon as ScreenIcon,
+    UserCircleCheckIcon as TeamIcon,
+    FediverseLogoIcon as HierarchyIcon,
+    BuildingIcon as LaptopFloatIcon,
+    UserRectangleIcon as UserIcon,
+    ChartLineIcon as StatsIcon,
     HouseIcon as HomeIcon,
-    PlugsConnectedIcon as ConnectedIcon,
-    DatabaseIcon as StatsIcon,
-    UsersThreeIcon as TeamIcon,
-    HeadsetIcon as HeadPhonesIcon,
+    CropIcon as HeadPhonesIcon,
     ChatCenteredTextIcon as FeedbackIcon
 } from "@phosphor-icons/react";
 import {authorities} from "./Permissions.js";
