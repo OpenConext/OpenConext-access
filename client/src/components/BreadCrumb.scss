@@ -1,31 +1,6 @@
-@use "../styles/vars.scss" as *;
-
-.sds--breadcrumb {
-    padding: 16px 0 16px 35px;
-    color: black;
-    background-color: white;
-
-    @media (max-width: $medium) {
-        padding: 10px 15px 0 15px;
-    }
-
-    ol.sds--breadcrumb--list {
-        min-height: 32px;
-        position: relative;
-        transition: margin 150ms ease-in-out;
-        display: flex;
-        align-items: center;
-    }
-
-    li svg {
-        width: calc(5.47em / 14);
-        height: calc(11.25em / 14);
-        color: black;
-        fill: black;
-    }
-
-    span.last {
+nav[aria-label="breadcrumbs"] {
+    [data-slot="breadcrumb-page"] {
         font-weight: 700;
+        color: var(--foreground, #0a0a0a);
     }
-
 }

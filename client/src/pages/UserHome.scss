@@ -5,21 +5,57 @@
     padding: 40px 50px 0 50px;
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 24px;
 
+    .home-welcome {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        h2 {
+            margin: 0;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
 
     .info-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
-        width: 75%;
+        width: 100%;
         @include index.page-media;
         @media (max-width: $medium) {
             grid-template-columns: 1fr;
-            width: 100%;
         }
 
+        [data-slot="card-content"] {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .illustration {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 0;
+
+            svg {
+                max-width: 220px;
+                max-height: 100%;
+                width: 100%;
+                height: auto;
+            }
+        }
+
+        button {
+            align-self: flex-start;
+        }
     }
-
-
 }

@@ -85,12 +85,12 @@ export const allMenuGroups = [
                 name: mainMenuItems.home,
                 path: "/home",
                 Logo: HomeIcon
-            },
-            {
-                name: mainMenuItems.accessibleApps,
-                path: "/accessible-apps",
-                Logo: ConnectedIcon
-            },
+            }
+        ]
+    },
+    {
+        label: "applications",
+        items: [
             {
                 name: mainMenuItems.yourApps,
                 path: "/organization/organizationId",
@@ -100,10 +100,16 @@ export const allMenuGroups = [
                 name: mainMenuItems.catalogue,
                 path: "/catalogue",
                 Logo: LaptopIcon
-            }]
+            },
+            {
+                name: mainMenuItems.accessibleApps,
+                path: "/accessible-apps",
+                Logo: ConnectedIcon
+            }
+        ]
     },
     {
-        label: null,
+        label: "externalMaintenance",
         items: [
             {
                 name: mainMenuItems.policies,
@@ -123,7 +129,7 @@ export const allMenuGroups = [
         ]
     },
     {
-        label: null,
+        label: "organisation",
         items: [
             {
                 name: mainMenuItems.idp,

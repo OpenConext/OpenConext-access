@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Spinner} from "@surfnet/curve-react";
+import {SidebarInset, SidebarProvider, Spinner} from "@surfnet/curve-react";
 import './App.scss';
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router";
 import {allowedAttributes, arp, configuration, csrf, me, privacy} from "./api/index.js";
@@ -186,9 +186,9 @@ const App = () => {
             {isAuthenticated && <>
                 <Flash/>
                 {impersonator && <Impersonating/>}
-                <div className="container">
+                <SidebarProvider className="app-shell">
                     <SharedMenu currentLocation={currentLocation}/>
-                    <div className="pages">
+                    <SidebarInset>
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
                         {feedbackWidgetEnabled && <UserFeedbackWidget/>}
                         <Routes>
@@ -221,8 +221,8 @@ const App = () => {
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
-                    </div>
-                </div>
+                    </SidebarInset>
+                </SidebarProvider>
             </>}
 
             {!isAuthenticated &&

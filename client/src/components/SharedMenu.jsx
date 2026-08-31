@@ -1,22 +1,46 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useLocation, useNavigate} from "react-router";
-import {NavigationMenu} from "./NavigationMenu.jsx";
-import {CheckIcon} from "@phosphor-icons/react";
+import {useMemo} from "react";
+import {useShallow} from "zustand/react/shallow";
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarSeparator,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
+} from "@surfnet/curve-react";
+import {CaretUpDownIcon, CheckIcon, GearIcon} from "@phosphor-icons/react";
 
 import {useAppStore} from "../stores/AppStore.js";
-import {useMemo} from "react";
 import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
-import {useShallow} from "zustand/react/shallow";
+import {sanitize} from "../utils/Utils.js";
+import LogoMark from "../icons/figma/logo-mark.svg";
+import LogoPath from "../icons/figma/logo-path.svg";
 
 export const SharedMenu = () => {
 
-    const {menuItems, currentOrganization, activeMenuItem} = useAppStore(useShallow(state => ({
+    const {menuItems, currentOrganization, activeMenuItem, user} = useAppStore(useShallow(state => ({
         menuItems: state.menuItems,
         currentOrganization: state.currentOrganization,
-        activeMenuItem: state.activeMenuItem
+        activeMenuItem: state.activeMenuItem,
+        user: state.user
     })));
 
     const navigate = useNavigate();
@@ -33,9 +57,6 @@ export const SharedMenu = () => {
                         Logo: menuItem.Logo,
                         label: I18n.t(`navigation.${menuItem.name}`),
                         name: menuItem.name,
-                        // tooltip: isEmpty(I18n.translations[I18n.locale].navigation.tooltips[menuItem.name]) ? null :
-                        //     I18n.t(`navigation.tooltips.${menuItem.name}`),
-                        tooltip: null,
                         active: menuItem.name === activeMenuItem,
                         href: menuItem.path.replace("organizationId", currentOrganization?.id)
                     }))
@@ -43,31 +64,108 @@ export const SharedMenu = () => {
             .filter(menuGroup => menuGroup.items.length > 0);
     }, [activeMenuItem, menuItems, currentOrganization]);
 
-
     const setActiveMenuItem = menuItem => {
-        const href = menuItem.href;
-        navigate(href);
+        navigate(menuItem.href);
         useAppStore.setState(() => ({
             activeMenuItem: menuItem.name
         }));
+    }
+
+    const switchOrganization = organization => {
+        localStorage.setItem("organization", organization.id.toString());
+        window.location.href = "/home";
     }
 
     if (currentLocation.pathname === "/landing") {
         return null;
     }
 
+    const organizations = (user.organizationMemberships || []).map(om => om.organization);
+    const canSwitchOrganization = organizations.length > 1;
     const isPendingApproval = currentOrganization?.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;
+    const StatusIcon = isPendingApproval ? GearIcon : CheckIcon;
+    const statusTooltip = isPendingApproval ? I18n.t("organizations.tooltip") : I18n.t("organizations.tooltipApproved");
+
+    const organizationButtonContent = (
+        <>
+            <span className="organization-name">{currentOrganization?.name}</span>
+            <Tooltip>
+                <TooltipTrigger render={<StatusIcon className="organization-status"/>}/>
+                <TooltipContent side="bottom">
+                    <span dangerouslySetInnerHTML={{__html: sanitize(statusTooltip)}}/>
+                </TooltipContent>
+            </Tooltip>
+            {canSwitchOrganization && <CaretUpDownIcon className="organization-caret"/>}
+        </>
+    );
+
     return (
-        <NavigationMenu
-            groups={filteredMenuGroups}
-            logoLabel={"Access"}
-            logoAction={() => navigate("/")}
-            setActiveMenuItem={setActiveMenuItem}
-            title={currentOrganization?.name || ""}
-            settingToolTip={isPendingApproval ? I18n.t("organizations.tooltip") :
-                I18n.t("organizations.tooltipApproved")}
-            SettingLogo={isPendingApproval ? null : CheckIcon}
-            children={<SharedMenuFooter/>}
-        />
+        <Sidebar collapsible="icon">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="lg" onClick={() => navigate("/")} className="brand-button">
+                            <span className="brand-lockup">
+                                <span className="brand-path" aria-hidden="true"><LogoPath/></span>
+                                <span className="brand-tag">
+                                    <LogoMark className="brand-mark"/>
+                                    <span className="brand-label">Access</span>
+                                </span>
+                            </span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <SidebarSeparator/>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        {canSwitchOrganization ?
+                            <DropdownMenu>
+                                <DropdownMenuTrigger render={
+                                    <SidebarMenuButton size="lg">
+                                        {organizationButtonContent}
+                                    </SidebarMenuButton>
+                                }/>
+                                <DropdownMenuContent align="start" className="organization-switch-content">
+                                    <DropdownMenuGroup>
+                                        {organizations.map(org =>
+                                            <DropdownMenuItem key={org.id} onClick={() => switchOrganization(org)}>
+                                                <span className="organization-option-name">{org.name}</span>
+                                                {currentOrganization?.id === org.id && <CheckIcon/>}
+                                            </DropdownMenuItem>
+                                        )}
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            :
+                            <SidebarMenuButton size="lg" className="organization-name-static">
+                                {organizationButtonContent}
+                            </SidebarMenuButton>}
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                {filteredMenuGroups.map((group, index) =>
+                    <SidebarGroup key={index} className={group.className}>
+                        {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {group.items.map(item =>
+                                    <SidebarMenuItem key={item.name}>
+                                        <SidebarMenuButton isActive={item.active}
+                                                            onClick={() => setActiveMenuItem(item)}>
+                                            <item.Logo/>
+                                            <span>{item.label}</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                )}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
+            </SidebarContent>
+            <SidebarFooter className="group-data-[collapsible=icon]:hidden">
+                <SharedMenuFooter/>
+            </SidebarFooter>
+        </Sidebar>
     );
 }

@@ -1,13 +1,21 @@
 import I18n from "../locale/I18n";
-import React, {useState} from "react";
+import React from "react";
 import "./UserMenu.scss";
 import {Link} from "react-router";
-import {isEmpty, sanitize} from "../utils/Utils";
-import {UserInfo} from "./UserInfo.jsx";
-import {Button, Spinner} from "@surfnet/curve-react";
+import {isEmpty} from "../utils/Utils";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    Spinner
+} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore";
-import CheckPlain from "../icons/check-plain.svg";
-import CaretDown from "../icons/caret_down.svg";
+import {CaretDownIcon} from "@phosphor-icons/react";
 import {useLogout} from '../hooks/UseLogout.jsx';
 
 export const UserMenu = ({setIsAuthenticated}) => {
@@ -15,100 +23,40 @@ export const UserMenu = ({setIsAuthenticated}) => {
     const user = useAppStore(state => state.user);
     const currentOrganization = useAppStore(state => state.currentOrganization);
 
-    const [dropDownActive, setDropDownActive] = useState(false);
-    const [isSwitchOrganizationOpen, setIsSwitchOrganizationOpen] = useState(false);
-
     const logoutUser = useLogout();
 
-    const switchOrganization = organization => {
-        localStorage.setItem("organization", organization.id.toString());
-        window.location.href = `/home`;
-    }
-
-    const renderOrganizationSwitch = () => {
-        if (isEmpty(user) || !user.organizationMemberships || user.organizationMemberships.length < 2) {
-            return null;
-        }
-        const organizations = user.organizationMemberships.map(om => om.organization);
-        return (
-            <div className="organization-switch"
-                 tabIndex={1}
-                 onBlur={() => setTimeout(() => setIsSwitchOrganizationOpen(false), 475)}>
-                <Button onClick={() => setIsSwitchOrganizationOpen(!isSwitchOrganizationOpen)}
-                        variant="secondary">
-                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userMenu.switchOrganization"))}}/>
-                    <span data-icon="inline-end"><CaretDown/></span>
-                </Button>
-                {isSwitchOrganizationOpen &&
-                    <section className="organization-switch-section sds--user-info--dropdown">
-                        {organizations.map((org, index) =>
-                            <div key={index}
-                                 className="organization-option"
-                                 onClick={() => switchOrganization(org)}>
-                                <span className={`${currentOrganization.id === org.id ? "active" : ""}`}>
-                                    {org.name}
-                                </span>
-                                {currentOrganization.id === org.id && <span className="check">
-                                    <CheckPlain/>
-                                </span>}
-                            </div>
-                        )}
-                    </section>}
-            </div>
-        );
-    }
-
-    const renderMenu = () => {
-        return (<>
-                <ul>
-                    <li>
-                        <Link to="/profile">
-                            {I18n.t("landing.header.profile")}
-                        </Link>
-                    </li>
-                </ul>
-                {user.superUser && <ul>
-                    <li>
-                        <Link to="/changelog">
-                            {I18n.t("landing.header.changelog")}
-                        </Link>
-                    </li>
-                </ul>}
-                <ul>
-                    <li>
-                        <a href="/logout" onClick={e => logoutUser(e, setIsAuthenticated)}>
-                            {I18n.t("landing.header.logout")}
-                        </a>
-                    </li>
-                </ul>
-                {user.superUser && <ul>
-                    <li>
-                        <Link to="/system">
-                            {I18n.t("landing.header.system")}
-                        </Link>
-                    </li>
-                </ul>}
-            </>
-        )
-    }
     if (isEmpty(user)) {
         return <div className="loading-container"><Spinner className="size-8"/></div>;
     }
+
     return (
-        <div className='user-menu-container'>
-            {renderOrganizationSwitch()}
-            <div className="user-menu"
-                 tabIndex={2}
-                 onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
-                {user && <UserInfo isOpen={dropDownActive}
-                                   children={renderMenu()}
-                                   organisationName={user.schacHomeOrganization}
-                                   userName={user.name}
-                                   toggle={() => setDropDownActive(!dropDownActive)}
-                />}
-            </div>
-        </div>
+        <DropdownMenu>
+            <DropdownMenuTrigger render={
+                <Button variant="ghost" className="user-menu-trigger">
+                    <span className="user-menu-textual">
+                        <span className="user-menu-name">{user.name}</span>
+                        <span className="user-menu-organization">{currentOrganization?.name}</span>
+                    </span>
+                    <CaretDownIcon/>
+                </Button>
+            }/>
+            <DropdownMenuContent align="end" className="user-menu-content">
+                <DropdownMenuGroup>
+                    <DropdownMenuLabel>
+                        <span className="user-menu-name">{user.name}</span>
+                        <span className="user-menu-organization">{currentOrganization?.name}</span>
+                    </DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator/>
+                <DropdownMenuItem render={<Link to="/profile">{I18n.t("landing.header.profile")}</Link>}/>
+                {user.superUser &&
+                    <DropdownMenuItem render={<Link to="/changelog">{I18n.t("landing.header.changelog")}</Link>}/>}
+                <DropdownMenuItem onClick={e => logoutUser(e, setIsAuthenticated)}>
+                    {I18n.t("landing.header.logout")}
+                </DropdownMenuItem>
+                {user.superUser &&
+                    <DropdownMenuItem render={<Link to="/system">{I18n.t("landing.header.system")}</Link>}/>}
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
-
-
 }

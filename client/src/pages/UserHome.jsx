@@ -1,15 +1,15 @@
 import "./UserHome.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Button} from "@surfnet/curve-react";
+import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "@surfnet/curve-react";
+import {ArrowRightIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Navigate, useNavigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
-import DOMPurify from "dompurify";
-import {InfoBlock} from "../components/InfoBlock.jsx";
 import {useShallow} from "zustand/react/shallow";
-import {organizationAdminByOrganizationId} from "../api/index.js";
+import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
+import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 
 const UserHome = () => {
 
@@ -19,7 +19,6 @@ const UserHome = () => {
     })));
 
     const navigate = useNavigate();
-    const [admin, setAdmin] = useState(null);
 
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
@@ -35,18 +34,13 @@ const UserHome = () => {
                     {path: "/home", value: I18n.t("breadCrumb.home"), menuItemName: mainMenuItems.home}
                 ]
             });
-            if (currentOrganization?.id) {
-                organizationAdminByOrganizationId(currentOrganization.id)
-                    .then(res => {
-                        setAdmin(isEmpty(res) ? null : {email: res.email, name: res.name});
-                    });
-            }
         }
-    }, [currentOrganization, newLocation]);
+    }, [newLocation]);
 
     if (newLocation !== null) {
         return <Navigate to={newLocation} replace/>;
     }
+
     const navigateInner = (menuItem, path) => {
         navigate(path);
         useAppStore.setState(() => ({
@@ -54,84 +48,35 @@ const UserHome = () => {
         }));
     }
 
+    const welcomeCard = (key, Illustration, menuItem, path) => (
+        <Card key={key}>
+            <CardHeader>
+                <CardTitle>{I18n.t(`userHome.${key}.title`)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {Illustration &&
+                    <div className="illustration">
+                        <Illustration/>
+                    </div>}
+                <CardDescription>{I18n.t(`userHome.${key}.description`)}</CardDescription>
+                <Button onClick={() => navigateInner(menuItem, path)} variant="link">
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
+                    <ArrowRightIcon/>
+                </Button>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <div className="home-container">
-            <h2>{I18n.t("welcome.greeting", {name: user.firstName || user.name})}</h2>
+            <div className="home-welcome">
+                <h2>{I18n.t("userHome.title")}</h2>
+                <p>{I18n.t("userHome.subTitle")}</p>
+            </div>
             <div className="info-container">
-                {!user.externalUser &&
-                    <InfoBlock>
-                        <h3>{I18n.t("userHome.central.title")}</h3>
-                        <p>{I18n.t("userHome.central.subTitle")}</p>
-                        <h5>{I18n.t("userHome.central.connectedApps")}</h5>
-                        <p>{I18n.t("userHome.central.connectedAppsInfo")}</p>
-                        <Button onClick={() => navigateInner(mainMenuItems.accessibleApps, "/accessible-apps")}
-                                variant="ghost">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainAccess"))}}/>
-                        </Button>
-                        <h5>{I18n.t("userHome.central.roles")}</h5>
-                        <Button onClick={() => navigateInner(mainMenuItems.invite, "/external/invite")}
-                                variant="ghost">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainRoles"))}}/>
-                        </Button>
-                        <div className="sds--divider largest"/>
-                        <h5>{I18n.t("userHome.central.teamCentral")}</h5>
-                       {!isEmpty(admin) && <p dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(I18n.t("userHome.central.responsible", {
-                                email: admin.email,
-                                name: admin.name,
-                            }))
-                        }}/>}
-                        <Button onClick={() => navigateInner(mainMenuItems.users, `/users/${currentOrganization.id}`)}
-                                variant="ghost">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.central.maintainTeam"))}}/>
-                        </Button>
-                    </InfoBlock>}
-                <InfoBlock>
-                    <h3>{I18n.t("userHome.catalogue.title")}</h3>
-                    <p>{I18n.t("userHome.catalogue.subTitle")}</p>
-                    <h5>{I18n.t("userHome.catalogue.ourApps")}</h5>
-                    <p>{I18n.t("userHome.catalogue.ourAppsInfo")}</p>
-                    <Button
-                        onClick={() => navigateInner(mainMenuItems.yourApps, `/organization/${currentOrganization.id}`)}
-                        variant="ghost">
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.catalogue.maintainOurApps"))}}/>
-                    </Button>
-                    <h5>{I18n.t("userHome.catalogue.allApps")}</h5>
-                    <Button onClick={() => navigateInner(mainMenuItems.catalogue, "/catalogue")}
-                            variant="ghost">
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.catalogue.openCatalogue"))}}/>
-                    </Button>
-                </InfoBlock>
-                {!user.externalUser &&
-
-                    <InfoBlock className="grey">
-                        <h3>{I18n.t("userHome.decentral.title")}</h3>
-                        <p>{I18n.t("userHome.decentral.subTitle")}</p>
-                        <h5>{I18n.t("userHome.decentral.collaborations")}</h5>
-                        <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
-                                variant="ghost">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.decentral.maintainCollaborations"))}}/>
-                        </Button>
-                        <div className="sds--divider"/>
-                        <h5>{I18n.t("userHome.decentral.teamDecentral")}</h5>
-                        {/*<p dangerouslySetInnerHTML={{*/}
-                        {/*    __html: DOMPurify.sanitize(I18n.t("userHome.decentral.responsible", {*/}
-                        {/*        email: "todo@example.com",*/}
-                        {/*        name: "todo-name",*/}
-                        {/*    }))*/}
-                        {/*}}/>*/}
-                        <Button onClick={() => navigateInner(mainMenuItems.sram, "/external/sram")}
-                                variant="ghost">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.decentral.maintainTeamDecentral"))}}/>
-                        </Button>
-                    </InfoBlock>}
-                {!user.externalUser &&
-                    <InfoBlock className="full-row">
-                        <p className="strong">{I18n.t("userHome.tip.info")}</p>
-                        {I18n.translations[I18n.locale].userHome.tip.tips.map((tip, index) =>
-                            <p key={index}>{tip}</p>
-                        )}
-                    </InfoBlock>}
+                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`)}
+                {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue")}
+                {welcomeCard("setupAccess", null, mainMenuItems.accessibleApps, "/accessible-apps")}
             </div>
         </div>
     )

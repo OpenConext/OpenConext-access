@@ -1,23 +1,17 @@
 .authorized-header {
     display: flex;
-    width: 100%;
-    background-color: white;
     align-items: center;
+    gap: 8px;
+    width: 100%;
+    background-color: var(--background, white);
+    border-bottom: 1px solid var(--border, #d6d3d1);
+    padding: 4px 40px;
 
-    .user-menu-container {
-        margin: 0 60px 0 auto;
-
-        .sds--user-info--textual p.name, .sds--user-info--textual p.role {
-            color: black;
-        }
-
-        button.sds--user-info--button {
-            background-color: var(--sds--color--black--navigation);
-
-            svg {
-                color: white;
-            }
-        }
+    .authorized-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-left: auto;
     }
 }
 

@@ -1,33 +1,87 @@
-@use "../index";
+.brand-button {
+    height: auto !important;
+}
 
-.sds--navigation-menu {
-    min-width: 280px;
+.brand-lockup {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
 
-    &.collapsed {
-        min-width: 48px;
+.brand-path {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 34px;
+    z-index: 0;
+
+    svg {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
-
-    .sds--navigation-menu-title h2 {
-        word-break: break-word;
-    }
 }
 
-.sds--navigation-menu-children {
-    margin-top: auto;
-
-    &.collapsed {
-        display: none;
-    }
+.brand-tag {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 40px;
+    padding: 0 16px 0 8px;
+    border-radius: 8px;
+    background-color: black;
 }
 
-.container .sds--navigation-menu-items {
-    margin-bottom: 35px;
+.brand-mark {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
-.container .sds--navigation-menu .sds--navigation-menu-items {
-    gap: 0;
+.brand-label {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    color: white;
+    white-space: nowrap;
 }
 
-.sds--navigation-menu .sds--navigation-menu-items p.group-label {
+.organization-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: 600;
+    text-align: left;
+}
+
+.organization-status {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.organization-name-static {
+    cursor: default;
+}
+
+.organization-caret {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.organization-switch-content {
+    min-width: 240px;
+}
+
+.organization-option-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

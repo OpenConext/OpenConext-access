@@ -2,8 +2,9 @@ import React from "react";
 import "./AuthorizedHeader.scss";
 import {BreadCrumb} from "./BreadCrumb.jsx";
 import {UserMenu} from "./UserMenu.jsx";
+import {LanguageSwitcher} from "./LanguageSwitcher.jsx";
 import {useLocation} from "react-router";
-import {Button} from "@surfnet/curve-react";
+import {Button, SidebarTrigger} from "@surfnet/curve-react";
 import {useLogout} from "../hooks/UseLogout.jsx";
 import I18n from "../locale/I18n.js";
 import {sanitize} from "../utils/Utils";
@@ -25,8 +26,12 @@ export const AuthorizedHeader = ({setIsAuthenticated}) => {
 
     return (
         <div className="authorized-header">
+            <SidebarTrigger/>
             <BreadCrumb/>
-            <UserMenu setIsAuthenticated={setIsAuthenticated}/>
+            <div className="authorized-header-actions">
+                <LanguageSwitcher/>
+                <UserMenu setIsAuthenticated={setIsAuthenticated}/>
+            </div>
         </div>
     );
 }

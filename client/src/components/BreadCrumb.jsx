@@ -1,11 +1,18 @@
 import React from "react";
 import "./BreadCrumb.scss";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty} from "../utils/Utils";
 import DOMPurify from "dompurify";
-import ArrowRight from "../icons/arrow-right.svg";
 import {useNavigate} from "react-router";
 import {useShallow} from "zustand/react/shallow";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator
+} from "@surfnet/curve-react";
 
 export const BreadCrumb = () => {
 
@@ -16,13 +23,14 @@ export const BreadCrumb = () => {
 
     const navigate = useNavigate();
 
+    const paths = breadcrumbPaths.filter(p => !isEmpty(p));
 
-    if (isEmpty(breadcrumbPaths)) {
+    if (isEmpty(paths)) {
         return null;
     }
 
     const doNavigate = (e, breadcrumbItem) => {
-        stopEvent(e);
+        e.preventDefault();
         navigate(breadcrumbItem.path);
         clearFlash();
         if (breadcrumbItem.menuItemName) {
@@ -33,26 +41,28 @@ export const BreadCrumb = () => {
     }
 
     return (
-        <nav className="sds--breadcrumb sds--text--body--small" aria-label="breadcrumbs">
-            <ol className="sds--breadcrumb--list">
-                {breadcrumbPaths
-                    .filter(p => !isEmpty(p))
-                    .map((p, i) =>
-                        <li key={i}>
-                            {i !== 0 && <ArrowRight/>}
-                            {(((i + 1) !== breadcrumbPaths.length || breadcrumbPaths.length === 1) && p.path) &&
-                                <a href={p.path} onClick={e => doNavigate(e, p)}>
-                                    {<span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                                </a>}
-                            {((i + 1) !== breadcrumbPaths.length && !p.path) &&
-                                <span className={"last"}
-                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                            {((i + 1) === breadcrumbPaths.length && breadcrumbPaths.length !== 1) &&
-                                <span className={"last"}
-                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                        </li>)}
-            </ol>
-
-        </nav>
+        <Breadcrumb aria-label="breadcrumbs">
+            <BreadcrumbList>
+                {paths.map((p, i) => {
+                    const isLast = i === paths.length - 1;
+                    const isLink = p.path && (!isLast || paths.length === 1);
+                    return (
+                        <React.Fragment key={i}>
+                            {i !== 0 && <BreadcrumbSeparator/>}
+                            <BreadcrumbItem>
+                                {isLink ?
+                                    <BreadcrumbLink href={p.path} onClick={e => doNavigate(e, p)}>
+                                        <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>
+                                    </BreadcrumbLink>
+                                    :
+                                    <BreadcrumbPage>
+                                        <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>
+                                    </BreadcrumbPage>}
+                            </BreadcrumbItem>
+                        </React.Fragment>
+                    );
+                })}
+            </BreadcrumbList>
+        </Breadcrumb>
     );
 }

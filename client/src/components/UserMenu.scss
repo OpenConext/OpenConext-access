@@ -1,61 +1,39 @@
-.user-menu-container {
-    display: flex;
-    align-items: center;
-    gap: 25px;
+.user-menu-trigger {
+    height: auto;
 
-    .user-menu {
-        z-index: 7;
+    svg {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
     }
-
-    color: black;
-
-    button.sds--user-info--button {
-        background-color: white;
-
-        svg {
-            color: var(--sds--palette--main-color--400);
-        }
-    }
-
-    .sds--user-info--textual p.name, .sds--user-info--textual p.role {
-        color: white;
-    }
-
-    .organization-switch {
-        position: relative;
-    }
-
-    .organization-switch-section {
-        width: 100%;
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        z-index: 7;
-
-        div.organization-option {
-            padding: 12px 15px 4px 15px;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-
-            &:hover {
-                background-color: var(--sds--color--gray--250);
-            }
-
-            span.active {
-                font-weight: 600
-            }
-
-            span.check {
-                margin-left: auto;
-                svg {
-                    height: auto;
-                    width: 22px;
-                }
-
-            }
-        }
-    }
-
 }
 
+.user-menu-textual {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.3;
+}
+
+.user-menu-name {
+    font-size: 16px;
+}
+
+.user-menu-organization {
+    font-size: 14px;
+    color: var(--muted-foreground, #525252);
+}
+
+.user-menu-content {
+    min-width: 220px;
+
+    .user-menu-name {
+        display: block;
+        font-weight: 600;
+    }
+
+    .user-menu-organization {
+        display: block;
+        font-weight: 400;
+    }
+}
