@@ -168,6 +168,10 @@ const en = {
             description: "Determine who does and does not have access to enabled applications.",
             action: "To enabled apps",
         },
+        catalogue: {
+            title: "Application catalogue",
+            subTitle: "Discover new apps and make them available within your organization."
+        }
     },
     tabs: {
         users: "Users",
@@ -985,6 +989,8 @@ const en = {
         connectionMade: "Connected",
         status: "Status",
         created: "Date connected",
+        grid: "Grid",
+        list: "List",
         searchPlaceHolder: "Search...",
         all: "All categories",
         allSources: "All federations",

@@ -24,14 +24,19 @@
 
         }
 
-        .access-card-container {
-            display: flex;
+        .policy-card {
             width: 100%;
-            gap: 15px;
+            margin-bottom: 15px;
 
+            &.paused {
+                background-color: var(--sds--color--gray--background);
+            }
 
             svg {
-                fill: transparent;
+                // Phosphor's default (regular) icons rely on the SVG root's own
+                // fill="currentColor" attribute cascading down to their paths; forcing
+                // fill here (as this rule used to) blanks out any icon whose paths don't
+                // set their own fill, which is why the edit/delete icons were invisible.
                 cursor: pointer;
                 color: var(--sds--color--gray--500);
 
@@ -40,71 +45,79 @@
                 }
             }
 
-            .access-card {
-                margin-right: 15px;
+            .policy-card-content {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                width: 100%;
+            }
 
-                &.policy-breakdown {
-                    flex-direction: row;
-                    align-items: center;
+            .policy-name-container {
+                display: flex;
+                flex-direction: column;
+                width: 280px;
+                flex-shrink: 0;
 
-                    &.paused {
-                        background-color: var(--sds--color--gray--background);
+                p.policy-name {
+                    font-weight: 600;
+                    span {
+                        font-weight: normal;
                     }
+                }
+            }
 
-                    .policy-name-container {
-                        display: flex;
-                        flex-direction: column;
+            .policy-attributes-container {
+                display: flex;
+                flex-direction: column;
+                margin-top: 6px;
 
+                p {
+                    line-height: 20px;
+                    font-size: 16px;
 
-                        p.policy-name {
-                            font-weight: 600;
-                            span {
-                                font-weight: normal;
-                            }
-                        }
-
+                    &.logic {
+                        font-weight: 600;
                     }
+                }
+            }
 
-                    .policy-attributes-container {
-                        display: flex;
-                        flex-direction: column;
-                        margin-top: 6px;
+            .policy-type-badge {
+                white-space: nowrap;
+            }
 
-                        p {
-                            line-height: 20px;
-                            font-size: 16px;
+            .sds--chips {
+                color: black;
 
-                            &.logic {
-                                font-weight: 600;
-                            }
-                        }
-                    }
-
-                    .sds--chips {
-                        color: black;
-
-
-                        &.policy-chip-active {
-                            background-color: var(--sds--color--green--200);
-                        }
-
-                        &.policy-chip-paused {
-                            background-color: var(--sds--color--gray--250);
-                        }
-                    }
-
-                    .policy-paused-container {
-                        margin: 0 10px 0 auto;
-                    }
-
+                &.policy-chip-active {
+                    background-color: var(--sds--color--green--200);
                 }
 
+                &.policy-chip-paused {
+                    background-color: var(--sds--color--gray--250);
+                }
             }
 
             .policy-actions {
                 display: flex;
-                gap: 15px;
-                margin-top: 24px;
+                align-items: center;
+                gap: 8px;
+                margin-left: auto;
+
+                svg {
+                    width: 24px;
+                    height: 24px;
+                    padding: 16px;
+                    box-sizing: content-box;
+                    border-radius: 8px;
+
+                    &:hover {
+                        background-color: var(--sds--color--gray--background);
+                    }
+                }
+            }
+
+            .policy-paused-container {
+                flex-shrink: 0;
             }
         }
 

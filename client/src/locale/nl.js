@@ -169,6 +169,10 @@ const nl = {
             action: "Naar ingeschakelde apps",
         },
     },
+    catalogue: {
+        title: "Applicatiecatalogus",
+        subTitle: "Vind nieuwe apps en maak deze beschikbaar binnen je organisatie."
+    },
     tabs: {
         users: "Gebruikers",
         organizations: "Organisaties",
@@ -985,6 +989,8 @@ const nl = {
         connectionMade: "Verbonden",
         status: "Status",
         created: "Datum verbonden",
+        grid: "Grid",
+        list: "List",
         searchPlaceHolder: "Zoeken...",
         all: "Alle categorieën",
         allSources: "Alle federaties",

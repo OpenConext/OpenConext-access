@@ -4,16 +4,22 @@ import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
 import {Chip, ChipType} from "../components/Chip.jsx";
-import {Spinner} from "@surfnet/curve-react";
+import {Card, CardContent, InputGroup, InputGroupAddon, InputGroupInput, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
+import {SquaresFourIcon, ListBulletsIcon, MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
-import {CHANGE_REQUEST_TYPE, providerName, providerOrganizationName} from "../utils/Manage.js";
+import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
 import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
+
+const views = {
+    grid: "grid",
+    list: "list"
+}
 
 const ApplicationOverview = ({accessible}) => {
 
@@ -25,6 +31,8 @@ const ApplicationOverview = ({accessible}) => {
         })));
 
         const [loading, setLoading] = useState(true);
+        const [view, setView] = useState(views.list);
+        const [gridQuery, setGridQuery] = useState("");
         const [serviceProviders, setServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
         const [tagOptions, setTagOptions] = useState([]);
@@ -269,32 +277,96 @@ const ApplicationOverview = ({accessible}) => {
             }
         ];
 
+        const filteredServiceProviders = (tag === "all" && source === "all" && loa === "all" && consent === "all") ?
+            serviceProviders : serviceProviders.filter(filterSP);
+
+        const renderGridViewApplications = () => {
+            const queryLower = gridQuery.trim().toLowerCase();
+            const gridServiceProviders = isEmpty(queryLower) ? filteredServiceProviders :
+                filteredServiceProviders.filter(entity =>
+                    (entity.name || "").toLowerCase().includes(queryLower) ||
+                    (entity.vendor || "").toLowerCase().includes(queryLower));
+            return (
+                <div className="accessible-apps-grid">
+                    <div className="accessible-apps-grid-filters">
+                        <InputGroup className="accessible-apps-grid-search">
+                            <InputGroupInput type="search"
+                                             value={gridQuery}
+                                             onChange={e => setGridQuery(e.target.value)}
+                                             placeholder={I18n.t("accessibleApps.searchPlaceHolder")}/>
+                            <InputGroupAddon align="inline-end">
+                                <SearchIcon/>
+                            </InputGroupAddon>
+                        </InputGroup>
+                        {filters()}
+                    </div>
+                    <div className="accessible-apps-grid-cards">
+                        {gridServiceProviders.map(entity => {
+                            const logoUrl = entity.data.metaDataFields["logo:0:url"];
+                            return (
+                                <Card key={entity["_id"]} className="accessible-app-card"
+                                      onClick={() => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}>
+                                    <CardContent>
+                                        <div className="accessible-app-card-icon">
+                                            {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
+                                        </div>
+                                        <h4>{entity.name}</h4>
+                                        <div className="accessible-app-card-meta">
+                                            <span>{entity.vendor}</span>
+                                            <span>{formatLongDate(entity.created, true, false)}</span>
+                                        </div>
+                                        <p className="accessible-app-card-description">{providerDescription(I18n.locale, entity)}</p>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="accessible-apps-container">
                 <div className="accessible-apps-header-container">
-                    {accessible && <div className="accessible-apps-header">
-                        <h2 className="large">{I18n.t("accessibleApps.title")}</h2>
-                        <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
-                    </div>}
-                    {!accessible && <div className="accessible-apps-header">
-                        <h2 className="large">{I18n.t("userHome.catalogue.title")}</h2>
-                        <p>{I18n.t("userHome.catalogue.subTitle")}</p>
-                    </div>}
+                    <div className="accessible-apps-header-row">
+                        {accessible && <div className="accessible-apps-header">
+                            <h2 className="large">{I18n.t("accessibleApps.title")}</h2>
+                            <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
+                        </div>}
+                        {!accessible && <div className="accessible-apps-header">
+                            <h2 className="large">{I18n.t("userHome.catalogue.title")}</h2>
+                            <p>{I18n.t("userHome.catalogue.subTitle")}</p>
+                        </div>}
+                        {!isEmpty(serviceProviders) &&
+                            <Tabs value={view} onValueChange={setView} className="view-switcher-tabs">
+                                <TabsList>
+                                    <TabsTrigger value={views.list}>
+                                        <ListBulletsIcon/>
+                                        <span>{I18n.t("accessibleApps.list")}</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value={views.grid}>
+                                        <SquaresFourIcon/>
+                                        <span>{I18n.t("accessibleApps.grid")}</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </Tabs>}
+                    </div>
                 </div>
                 <div className="accessible-apps">
-                    <Entities
-                        entities={(tag === "all" && source === "all" && loa === "all" && consent === "all") ? serviceProviders : serviceProviders.filter(filterSP)}
-                        modelName="accessibleApps"
-                        defaultSort="name"
-                        columns={columns}
-                        filters={filters()}
-                        hideTitle={true}
-                        showNew={false}
-                        displaySearch={true}
-                        searchAttributes={["name", "vendor"]}
-                        rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
-                        newEntityFunc={() => navigate("/application/new")}
-                        inputFocus={true}/>
+                    {view === views.grid ? renderGridViewApplications() :
+                        <Entities
+                            entities={filteredServiceProviders}
+                            modelName="accessibleApps"
+                            defaultSort="name"
+                            columns={columns}
+                            filters={filters()}
+                            hideTitle={true}
+                            showNew={false}
+                            displaySearch={true}
+                            searchAttributes={["name", "vendor"]}
+                            rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
+                            newEntityFunc={() => navigate("/application/new")}
+                            inputFocus={true}/>}
                 </div>
             </div>
         );

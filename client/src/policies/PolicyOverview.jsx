@@ -1,7 +1,7 @@
 import "./PolicyOverview.scss";
 import "../styles/access_card.scss";
 import React, {useState} from "react";
-import {Button, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Badge, Button, Card, CardContent, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {Chip} from "../components/Chip.jsx";
 import {sanitize} from "../utils/Utils.js";
 import I18n from "../locale/I18n.js";
@@ -118,10 +118,16 @@ export const PolicyOverview = ({
 
     }
 
+    const renderPolicyType = policy => (
+        <Badge variant="outline" className="policy-type-badge">
+            {I18n.t(`policies.policyChoices.${policy.data.type === policyTypes.step ? "stepTitle" : "regTitle"}`)}
+        </Badge>
+    );
+
     const renderPolicy = (index, type, policy) => {
         return (
-            <div key={`${type}_${index}`} className="access-card-container">
-                <div className={`access-card policy-breakdown ${policy.data.active ? "" : "paused"}`}>
+            <Card key={`${type}_${index}`} className={`policy-card ${policy.data.active ? "" : "paused"}`}>
+                <CardContent className="policy-card-content">
                     <div className="policy-name-container">
                         {renderPolicyName(policy)}
                         {renderPolicyServiceProviders(policy)}
@@ -140,28 +146,28 @@ export const PolicyOverview = ({
 
                         </div>
                     </div>
+                    {renderPolicyType(policy)}
+                    <div className="policy-actions">
+                        <Tooltip>
+                            <TooltipTrigger render={policy.data.active ?
+                                <PauseIcon onClick={() => doUpdatePolicy(true, policy, false)}/> :
+                                <ActivateIcon onClick={() => doUpdatePolicy(true, policy, true)}/>}/>
+                            <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`))}}/></TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger render={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
+                            <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.edit"))}}/></TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger render={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
+                            <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/></TooltipContent>
+                        </Tooltip>
+                    </div>
                     <div className="policy-paused-container">
                         {renderPolicyChip(policy)}
                     </div>
-
-                </div>
-                <div className="policy-actions">
-                    <Tooltip>
-                        <TooltipTrigger render={policy.data.active ?
-                            <PauseIcon onClick={() => doUpdatePolicy(true, policy, false)}/> :
-                            <ActivateIcon onClick={() => doUpdatePolicy(true, policy, true)}/>}/>
-                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${policy.data.active ? "pause" : "activate"}`))}}/></TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger render={<PencilIcon onClick={() => policyDetails(policy.id)}/>}/>
-                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.edit"))}}/></TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger render={<TrashIcon onClick={() => doDeletePolicy(true, policy)}/>}/>
-                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/></TooltipContent>
-                    </Tooltip>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 

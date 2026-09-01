@@ -77,6 +77,7 @@ $width-percentage: 75%;
         .inner-right {
             @include card();
         }
+
         .sds--alert.sds--alert--status-info {
             margin: 25px 0 15px 0;
         }
@@ -284,12 +285,16 @@ $width-percentage: 75%;
             border-radius: 6px;
             padding: var(--sds--space--1-and-a-half);
 
+            [data-slot="radio-group"] {
+                // curve-react's RadioGroup ships with `w-full`, which fills the entire
+                // flex row and leaves no free space for `margin-left: auto` to consume.
+                // Shrink it to its content width first so the auto margin can push it right.
+                width: auto;
+                margin-left: auto;
+            }
+
             &.pkce {
                 background-color: #f3f5f7;
-
-                .sds--radio-options {
-                    margin-left: auto;
-                }
             }
 
             .pkce-label {
@@ -331,7 +336,7 @@ $width-percentage: 75%;
                 border-radius: 0 0 6px 6px;
             }
 
-            .sds--tooltip-parent {
+            [data-slot="switch"] {
                 margin-left: auto;
             }
         }
@@ -358,7 +363,6 @@ $width-percentage: 75%;
 
                 svg {
                     cursor: pointer;
-                    margin-left: 15px;
                 }
 
                 button.sds--btn--primary {
@@ -513,6 +517,9 @@ $width-percentage: 75%;
 
     .secret-link, .saml-test {
         margin-top: 15px;
+        a {
+            text-decoration: underline;
+        }
     }
 }
 
