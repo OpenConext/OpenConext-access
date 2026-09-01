@@ -38,6 +38,12 @@
             gap: 8px;
         }
 
+        [data-slot="card-title"] {
+            font-size: var(--text-xl-font-size);
+            line-height: var(--text-xl-line-height);
+            font-weight: var(--font-weight-semibold);
+        }
+
         .illustration {
             width: 100%;
 
@@ -47,6 +53,8 @@
                 height: auto;
             }
         }
+
+        
 
         button {
             align-self: flex-start;
@@ -58,6 +66,10 @@
 
         .link-purple {
             color: #420984;
+        }
+
+        .link-green {
+            color: #01653D;
         }
     }
 }

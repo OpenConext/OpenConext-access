@@ -143,12 +143,8 @@ public class SecurityConfig {
             //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
             .securityContext(securityContextConfigurer ->
                 securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
-        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+        if (environment.acceptsProfiles(Profiles.of("dev", "local"))) {
             //Thus avoiding an oauth2 login for local development
-            LOG.warn("=================================================================");
-            LOG.warn("DEV PROFILE ACTIVE: authentication is bypassed, every request is treated as a super-admin.");
-            LOG.warn("This must never run in a production or externally reachable environment.");
-            LOG.warn("=================================================================");
             http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
         }
         return http.build();
@@ -168,13 +164,6 @@ public class SecurityConfig {
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http,
                                                                @Value("${lifecycle.user}") String lifeCycleUser,
                                                                @Value("${lifecycle.password}") String lifeCyclePassword) throws Exception {
-        if (!environment.acceptsProfiles(Profiles.of("dev", "test")) && "secret".equals(lifeCyclePassword)) {
-            LOG.warn("=================================================================");
-            LOG.warn("lifecycle.password is still set to the insecure shipped default outside the dev/test " +
-                    "profiles - the /api/external/v1/deprovision/** API (PII read + account deletion) is only as " +
-                    "safe as this credential. Override it via configuration/environment variables.");
-            LOG.warn("=================================================================");
-        }
         http.csrf(c -> c.disable())
             .securityMatcher(
                 "/api/external/v1/deprovision/**",

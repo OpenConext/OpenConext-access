@@ -1,12 +1,16 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
 import {useLocation, useNavigate} from "react-router";
-import {useMemo} from "react";
+import React, {useMemo} from "react";
 import {useShallow} from "zustand/react/shallow";
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -14,12 +18,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarSeparator,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+    SidebarSeparator, SidebarTrigger,
     Tooltip,
     TooltipContent,
     TooltipTrigger
@@ -27,12 +26,12 @@ import {
 import {CaretUpDownIcon, CheckIcon, GearIcon} from "@phosphor-icons/react";
 
 import {useAppStore} from "../stores/AppStore.js";
-import {SharedMenuFooter} from "./SharedMenuFooter.jsx";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import {sanitize} from "../utils/Utils.js";
 import LogoMark from "../icons/figma/logo-mark.svg";
 import LogoPath from "../icons/figma/logo-path.svg";
+import {BreadCrumb} from "./BreadCrumb.jsx";
 
 export const SharedMenu = () => {
 
@@ -112,6 +111,7 @@ export const SharedMenu = () => {
                                 </span>
                                 <span className="brand-path" aria-hidden="true"><LogoPath/></span>
                             </span>
+                            <SidebarTrigger/>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -152,7 +152,7 @@ export const SharedMenu = () => {
                                 {group.items.map(item =>
                                     <SidebarMenuItem key={item.name}>
                                         <SidebarMenuButton isActive={item.active}
-                                                            onClick={() => setActiveMenuItem(item)}>
+                                                           onClick={() => setActiveMenuItem(item)}>
                                             <item.Logo/>
                                             <span>{item.label}</span>
                                         </SidebarMenuButton>
@@ -163,9 +163,9 @@ export const SharedMenu = () => {
                     </SidebarGroup>
                 )}
             </SidebarContent>
-            <SidebarFooter className="group-data-[collapsible=icon]:hidden">
-                <SharedMenuFooter/>
-            </SidebarFooter>
+            {/*<SidebarFooter className="group-data-[collapsible=icon]:hidden">*/}
+            {/*    <SharedMenuFooter/>*/}
+            {/*</SidebarFooter>*/}
         </Sidebar>
     );
 }

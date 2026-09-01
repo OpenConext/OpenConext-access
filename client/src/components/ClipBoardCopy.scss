@@ -41,7 +41,7 @@ div.copied {
     top: -20px;
     transition: opacity .4s ease;
 
-    &.hidden {
+    &.is-hidden {
         opacity: 0;
     }
 }

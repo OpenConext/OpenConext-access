@@ -13,6 +13,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator
 } from "@surfnet/curve-react";
+import {HouseIcon} from "@phosphor-icons/react";
 
 export const BreadCrumb = () => {
 
@@ -46,13 +47,16 @@ export const BreadCrumb = () => {
                 {paths.map((p, i) => {
                     const isLast = i === paths.length - 1;
                     const isLink = p.path && (!isLast || paths.length === 1);
+                    const isHome = i === 0 && p.path === "/home";
                     return (
                         <React.Fragment key={i}>
                             {i !== 0 && <BreadcrumbSeparator/>}
                             <BreadcrumbItem>
                                 {isLink ?
                                     <BreadcrumbLink href={p.path} onClick={e => doNavigate(e, p)}>
-                                        <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>
+                                        {isHome ?
+                                            <HouseIcon aria-label={DOMPurify.sanitize(p.value)}/> :
+                                            <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
                                     </BreadcrumbLink>
                                     :
                                     <BreadcrumbPage>

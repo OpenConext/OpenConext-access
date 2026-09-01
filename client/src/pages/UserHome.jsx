@@ -73,7 +73,7 @@ const UserHome = () => {
                 <p>{I18n.t("userHome.subTitle")}</p>
             </div>
             <div className="info-container">
-                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-blue")}
+                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
                 {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
                 {welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
             </div>

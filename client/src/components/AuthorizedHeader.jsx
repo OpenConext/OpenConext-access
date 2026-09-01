@@ -26,7 +26,6 @@ export const AuthorizedHeader = ({setIsAuthenticated}) => {
 
     return (
         <div className="authorized-header">
-            <SidebarTrigger/>
             <BreadCrumb/>
             <div className="authorized-header-actions">
                 <LanguageSwitcher/>

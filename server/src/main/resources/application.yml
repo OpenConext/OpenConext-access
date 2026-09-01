@@ -196,7 +196,7 @@ invite:
   password: invite_access_dashboard_secret
 
 statistics:
-  enabled: True
+  enabled: False
   url: "http://localhost:8081"
   user: access_dashboard
   password: secret

@@ -2,6 +2,7 @@
 @use "styles/forms" as *;
 @use "styles/responsive" as *;
 @use "styles/vars" as *;
+@use "styles/design-system" as *;
 
 @mixin page {
     margin: 0 auto;

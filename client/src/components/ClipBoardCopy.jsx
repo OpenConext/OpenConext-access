@@ -24,7 +24,7 @@ export default function ClipBoardCopy({txt}) {
                 }}>
                 <Duplicate/>
             </section>
-            <div className={`copied ${copied ? "" : "hidden"}`}>{I18n.t("forms.copied")}</div>
+            <div className={`copied ${copied ? "" : "is-hidden"}`}>{I18n.t("forms.copied")}</div>
         </>
     );
 
