@@ -197,7 +197,7 @@ h1.large {
         &.active {
             font-weight: 600;
             color: black;
-            border-bottom: 3px solid var(--sds--color--gray--500);
+            border-bottom: 3px solid var(--primary);
         }
         &.disabled {
             cursor: not-allowed;

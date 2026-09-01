@@ -83,3 +83,32 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+// Positioning anchor for the sidebar toggle, which curve-react's SidebarProvider
+// renders full-height/full-width around <Sidebar> — see SharedMenu.jsx for why the
+// trigger lives outside <Sidebar> as a sibling of this wrapper.
+[data-slot="sidebar-wrapper"] {
+    position: relative;
+}
+
+.sidebar-trigger-anchor {
+    position: absolute;
+    top: 16px;
+    z-index: 20;
+    transition: left .2s ease-linear;
+
+    &[data-state="expanded"] {
+        left: calc(var(--sidebar-width, 16rem) - 44px);
+    }
+
+    &[data-state="collapsed"] {
+        left: calc(var(--sidebar-width-icon, 3rem) - 40px);
+    }
+
+    // Below the md breakpoint the sidebar is a closed-by-default Sheet with no
+    // permanent footprint, so pin the trigger at a constant corner spot instead of
+    // tracking sidebar width.
+    &[data-mobile="true"] {
+        left: 12px;
+    }
+}

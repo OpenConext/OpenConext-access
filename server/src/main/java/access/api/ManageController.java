@@ -609,12 +609,13 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                 .orElseThrow(() -> new NotFoundException("No connection found for " + metaDataId));
         User userFromDB = reinitializeUser(user, userRepository);
         confirmApplicationWriteAccess(userFromDB, connection.getApplication());
-
-        //change request has non guessable identifier
-        manage.rejectChangeRequest(changeRequest);
-
-        jiraClient.comment(changeRequest.getTicketKey(), "Ticket can be closed by request of the requestor");
-
+        List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
+        changeRequests.stream().filter(cr -> cr.get("id").equals(changeRequest.getId()))
+            .findAny()
+                .ifPresent(cr -> {
+                    manage.rejectChangeRequest(changeRequest);
+                    jiraClient.comment((String) cr.get("ticketKey"), "Ticket can be closed by request of the requestor");
+                });
         return Results.okResult();
     }
 

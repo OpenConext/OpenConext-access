@@ -1,7 +1,7 @@
 import React from "react";
 import {CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 
-import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Field, FieldDescription, FieldLabel, Input, Textarea, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {InfoIcon} from "@phosphor-icons/react";
 import "./InputField.scss";
 import {isEmpty, sanitize} from "../utils/Utils";
@@ -43,16 +43,20 @@ export default function InputField({
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
-    let className = "sds--text-field--input";
-    if (error) {
-        className += "error ";
-    }
     const validExternalLink = externalLink && !isEmpty(value) && validUrlRegExp.test(value);
-    const isError = error ? "sds--text-field--status-error" : "";
-    const topClassName = `input-field sds--text-field ${isError} ${customClassName}`;
+
+    const onKeyDown = e => {
+        if (onEnter && e.key === "Enter") {//enter
+            onEnter(e);
+        } else if (onEscape && e.key === "Escape") {//escape
+            onEscape(e);
+        }
+    };
+
     return (
-        <div className={topClassName}>
-            {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+        <Field className={`input-field ${customClassName}`} data-invalid={error}>
+            {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}{required &&
+                <sup className="required">*</sup>}
                 {isAlert && <Tooltip>
                     <TooltipTrigger render={<AlertIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
@@ -61,10 +65,10 @@ export default function InputField({
                     <TooltipTrigger render={<InfoIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
                 </Tooltip>}
-            </label>}
+            </FieldLabel>}
             <div className="inner-input-field">
                 {(!multiline && !noInput) &&
-                    <input type={isInteger ? "number" : isUrl ? "url" : "text"}
+                    <Input type={isInteger ? "number" : isUrl ? "url" : "text"}
                            disabled={disabled}
                            value={value || ""}
                            onChange={onChange}
@@ -75,22 +79,16 @@ export default function InputField({
                            min={0}
                            ref={onRef}
                            placeholder={placeholder}
-                           className={`${className} sds--text-field--input`}
-                           onKeyDown={e => {
-                               if (onEnter && e.key === "Enter") {//enter
-                                   onEnter(e);
-                               } else if (onEscape && e.key === "Escape") {//escape
-                                   onEscape(e);
-                               }
-                           }}/>}
+                           aria-invalid={error}
+                           onKeyDown={onKeyDown}/>}
                 {(multiline && !noInput) &&
-                    <textarea disabled={disabled}
+                    <Textarea disabled={disabled}
                               value={value || ""}
                               onChange={onChange}
                               onBlur={onBlur}
                               id={name}
-
-                              className={`${className} sds--text-area ${large ? "large" : ""} ${small ? "small" : ""}`}
+                              aria-invalid={error}
+                              className={`${large ? "large" : ""} ${small ? "small" : ""}`}
                               onKeyDown={e => {
                                   if (onEnter && e.keyCode === 13) {//enter
                                       onEnter(e);
@@ -111,7 +109,7 @@ export default function InputField({
                     </div>}
                 {noInput && <span className="no-input">{value}</span>}
             </div>
-            {info && <span className="info">{info}</span>}
-        </div>
+            {info && <FieldDescription>{info}</FieldDescription>}
+        </Field>
     );
 }

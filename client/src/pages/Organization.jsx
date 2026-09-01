@@ -171,7 +171,6 @@ const Organization = () => {
             {
                 nonSortable: true,
                 key: "icon",
-
                 header: "",
                 mapper: application => isEmpty(application.logoUrl) ? <ImageNotFound/> :
                     <img src={application.logoUrl} alt={application.name}/>

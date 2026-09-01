@@ -21,7 +21,8 @@ import {
     SidebarSeparator, SidebarTrigger,
     Tooltip,
     TooltipContent,
-    TooltipTrigger
+    TooltipTrigger,
+    useSidebar
 } from "@surfnet/curve-react";
 import {CaretUpDownIcon, CheckIcon, GearIcon} from "@phosphor-icons/react";
 
@@ -44,6 +45,7 @@ export const SharedMenu = () => {
 
     const navigate = useNavigate();
     const currentLocation = useLocation();
+    const {state: sidebarState, isMobile} = useSidebar();
 
     const filteredMenuGroups = useMemo(() => {
         return allMenuGroups
@@ -99,7 +101,18 @@ export const SharedMenu = () => {
     );
 
     return (
-        <Sidebar collapsible="icon">
+        <>
+            {/*
+              Rendered as a sibling of <Sidebar>, not inside it: on mobile curve-react
+              swaps <Sidebar> for a closed Sheet, and on desktop it shrinks to a narrow
+              icon rail, so a trigger nested inside either would become unreachable.
+              Positioned via useSidebar()'s state/isMobile (see SharedMenu.scss) so it
+              stays aligned to the sidebar's current right edge in every state.
+            */}
+            <div className="sidebar-trigger-anchor" data-state={sidebarState} data-mobile={isMobile}>
+                <SidebarTrigger/>
+            </div>
+            <Sidebar collapsible="icon">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -111,7 +124,6 @@ export const SharedMenu = () => {
                                 </span>
                                 <span className="brand-path" aria-hidden="true"><LogoPath/></span>
                             </span>
-                            <SidebarTrigger/>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -166,6 +178,7 @@ export const SharedMenu = () => {
             {/*<SidebarFooter className="group-data-[collapsible=icon]:hidden">*/}
             {/*    <SharedMenuFooter/>*/}
             {/*</SidebarFooter>*/}
-        </Sidebar>
+            </Sidebar>
+        </>
     );
 }

@@ -47,6 +47,7 @@ public class ChangeRequest implements Serializable {
         this.id = (String) manageChangeRequest.get("id");
         this.type = (String) manageChangeRequest.get("type");
         this.metaDataId = (String) manageChangeRequest.get("metaDataId");
+        this.ticketKey = (String) manageChangeRequest.get("ticketKey");
     }
 
     public ChangeRequest(String metaDataId,

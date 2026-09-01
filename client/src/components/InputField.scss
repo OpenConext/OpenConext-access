@@ -1,43 +1,5 @@
-@use "../index";
-@use "../styles/vars.scss" as *;
-
 .input-field {
-    @include index.input-field;
-
-    display: flex;
-    position: relative;
-    flex-direction: column;
-
-    label {
-        position: relative;
-    }
-
-    textarea {
-        display: block;
-        width: 100%;
-        border: 1px solid var(--sds--color--gray--300);
-        padding: 6px 12px;
-        border-radius: $br;
-        font-size: 16px;
-        height: 48px;
-        color: black;
-
-        &[disabled] {
-            background-color: var(--sds--color--gray--200);
-            cursor: not-allowed;
-            color: black;
-        }
-
-        &.error {
-            border: 1px solid var(--sds--color--red--400);
-        }
-
-        &:focus {
-            outline: none;
-            box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
-        }
-
-    }
+    gap: 8px;
 
     textarea {
         height: 90px;
@@ -49,35 +11,22 @@
         &.large {
             height: 170px;
         }
-
     }
 
-    span.remove {
-        display: flex;
-        align-items: center;
-
-        em {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        svg.fa-trash {
-            margin: 0 5px 0 auto;
-            color: var(--sds--color--red--400);
-        }
+    sup.required {
+        color: var(--destructive, #dc2626);
+        margin-left: 2px;
     }
 
     div.inner-input-field {
         display: flex;
+        align-items: center;
         position: relative;
+        width: 100%;
 
-        button.sds--btn {
+        button {
             min-width: 120px;
             margin-left: 10px;
-
-            &.sds--btn--delete {
-                min-width: inherit;
-            }
         }
     }
 
@@ -116,12 +65,6 @@
         margin-bottom: 6px;
         display: block;
 
-    }
-
-    span.info {
-        margin-top: 6px;
-        display: block;
-        color: var(--sds--color--gray--500)
     }
 
     svg.alert-triangle {

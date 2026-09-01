@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@surfnet/curve-react";
-import {CaretDownIcon} from "@phosphor-icons/react";
+import {CaretDownIcon, CheckIcon} from "@phosphor-icons/react";
 
 export const LanguageSwitcher = () => {
 
@@ -31,7 +31,8 @@ export const LanguageSwitcher = () => {
             <DropdownMenuContent align="end">
                 {["nl", "en"].map(locale =>
                     <DropdownMenuItem key={locale} onClick={() => handleChooseLocale(locale)}>
-                        {I18n.translations[locale].code}
+                        <span className="language-option-name">{I18n.translations[locale].code}</span>
+                        {I18n.locale === locale && <CheckIcon/>}
                     </DropdownMenuItem>
                 )}
             </DropdownMenuContent>

@@ -13,6 +13,15 @@ import {
     PaginationNext,
     PaginationPrevious,
     Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
     Tooltip,
     TooltipContent,
     TooltipTrigger
@@ -20,7 +29,7 @@ import {
 import {Button} from "@surfnet/curve-react";
 import {pageCount, pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination";
 import {useNavigate} from "react-router";
-import {CaretDownIcon as ArrowDown, CaretUpIcon as ArrowUp, InfoIcon} from "@phosphor-icons/react";
+import {CaretDownIcon as ArrowDown, CaretUpIcon as ArrowUp, CaretUpDownIcon, InfoIcon} from "@phosphor-icons/react";
 
 
 export const Entities = ({
@@ -84,7 +93,7 @@ export const Entities = ({
         if (column.key === sorted) {
             return reverse ? <ArrowDown/> : <ArrowUp/>;
         }
-        return null;
+        return <CaretUpDownIcon/>;
     }
 
     const queryChanged = e => {
@@ -105,21 +114,16 @@ export const Entities = ({
             <section className={`entities-search ${showNew ? "" : "only-search"}`}>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
-                        <div className={"sds--text-field sds--text-field--has-icon"}>
-                            <div className="sds--text-field--shape">
-                                <div className="sds--text-field--input-and-icon">
-                                    <input className={"sds--text-field--input"}
-                                           type="search"
-                                           ref={searchRef}
-                                           onChange={queryChanged}
-                                           value={query}
-                                           placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>
-                                    <span className="sds--text-field--icon">
-                                    <SearchIcon/>
-                                </span>
-                                </div>
-                            </div>
-                        </div>}
+                        <InputGroup className="entities-search-input-group">
+                            <InputGroupInput type="search"
+                                             ref={searchRef}
+                                             onChange={queryChanged}
+                                             value={query}
+                                             placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>
+                            <InputGroupAddon align="inline-end">
+                                <SearchIcon/>
+                            </InputGroupAddon>
+                        </InputGroup>}
                 </div>
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 {showNew &&
@@ -178,18 +182,18 @@ export const Entities = ({
         const additionalClassName = isEmpty(rowClassNameResolver) ? "" : rowClassNameResolver(entity);
         const overrideClickable = typeof rowOverrideClickable === "function" && rowOverrideClickable(entity);
         const clickAble = (!overrideClickable && typeof rowLinkMapper === "function") ? "clickable" : "";
-        return <tr key={`tr_${entity.id}_${index}`}
+        return <TableRow key={`tr_${entity.id}_${index}`}
                    title={overrideClickable && notAllowedTitle ? notAllowedTitle : ""}
                    className={`${clickAble} ${onHover ? "hoverable" : ""} ${additionalClassName} ${overrideClickable ? "not-allowed" : ""}`}>
             {columns.map((column, i) =>
-                <td key={`td_${column.key}_${i}`}
+                <TableCell key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?
                         onRowClick(e, entity) : undefined}
                     data-label={typeof column === "string" ? column.header : ""}
                     className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
                     {getEntityValue(entity, column)}
-                </td>)}
-        </tr>;
+                </TableCell>)}
+        </TableRow>;
     }
 
     const renderPagination = (total, onChange) => {
@@ -242,32 +246,32 @@ export const Entities = ({
                     {actions}
                 </div>}
                 {hasEntities &&
-                    <div className={"sds--table"}>
-                        <table className={tableClassName || modelName}>
-                            <thead>
-                            <tr>
-                                {columns.map((column, i) => {
-                                    const showHeader = !actions || i < 1 || column.showHeader;
-                                    return <th key={`th_${column.key}_${i}`}
-                                               className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
-                                               onClick={() => !column.nonSortable && setSortedKey(column.key)}>
+                    <Table className={tableClassName || modelName}>
+                        <TableHeader>
+                        <TableRow>
+                            {columns.map((column, i) => {
+                                const showHeader = !actions || i < 1 || column.showHeader;
+                                return <TableHead key={`th_${column.key}_${i}`}
+                                           className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
+                                           onClick={() => !column.nonSortable && setSortedKey(column.key)}>
+                                    <span className="th-content">
                                         {column.header}
                                         {column.toolTip && <Tooltip>
                                             <TooltipTrigger render={<InfoIcon/>}/>
                                             <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(column.toolTip)}}/></TooltipContent>
                                         </Tooltip>}
                                         {headerIcon(column, sorted, reverse)}
-                                    </th>
-                                })}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {sortedEntities.map((entity, index) =>
-                                entityRow(entity, index)
-                            )}
-                            </tbody>
-                        </table>
-                    </div>}
+                                    </span>
+                                </TableHead>
+                            })}
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {sortedEntities.map((entity, index) =>
+                            entityRow(entity, index)
+                        )}
+                        </TableBody>
+                    </Table>}
                 {renderPagination(totalElements || total, nbr => {
                     setPage(nbr);
                     callCustomSearch(query, sorted, reverse, nbr);
