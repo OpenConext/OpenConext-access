@@ -628,7 +628,7 @@ export const Connections = ({
                         </div>
                         <div className="redirect-urls-container">
                             <span className="label">{I18n.t("connection.redirectUrls")}
-                                <sup className="required">*</sup>
+                                <sup className="required left-outline">*</sup>
                                 {changeRequestsKeys.includes("redirectUrls") && <Tooltip>
                                     <TooltipTrigger render={<AlertIcon/>}/>
                                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
@@ -667,6 +667,7 @@ export const Connections = ({
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
+
                         <SwitchField name={"claimsInIdToken"}
                                      isAlert={changeRequestsKeys.includes("claimsInIdToken")}
                                      value={connection.claimsInIdToken || false}
@@ -691,10 +692,12 @@ export const Connections = ({
                                         copyClipBoard={true}/>
                             <div className="input-field sds--text-field secret-link">
                                 <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
-                                <span>{I18n.t("connection.connectionOverview.secretReset")}</span>
-                                <a href="/" onClick={e => newClientSecret(e, true)}>
+                                <span>{I18n.t("connection.connectionOverview.secretReset")}
+                                    <a href="/" onClick={e => newClientSecret(e, true)}>
                                     {I18n.t("connection.connectionOverview.secretResetLink")}
                                 </a>
+                                </span>
+
                             </div>
                         </div>
                     </div>

@@ -13,11 +13,6 @@
         }
     }
 
-    sup.required {
-        color: var(--destructive, #dc2626);
-        margin-left: 2px;
-    }
-
     div.inner-input-field {
         display: flex;
         align-items: center;
@@ -70,8 +65,8 @@
     svg.alert-triangle {
         fill: black;
         color: white;
-        position: absolute;
-        top: -2px;
+        display: inline-block;
+        vertical-align: middle;
         margin-left: 6px;
     }
 }

@@ -101,7 +101,7 @@ export default function EmailField({
 
     return (
         <div className={`email-field ${error ? "error" : ""}`}>
-            <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+            <label htmlFor={name}>{name}{required && <sup className="required left-outline">*</sup>}
             </label>
             <div className={`inner-email-field ${error ? "error" : ""}`}>
                 {emails.map((mail, index) =>

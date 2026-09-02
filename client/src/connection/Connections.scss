@@ -108,8 +108,8 @@ $width-percentage: 75%;
                 svg.alert-triangle {
                     fill: black;
                     color: white;
-                    position: absolute;
-                    top: 3px;
+                    display: inline-block;
+                    vertical-align: middle;
                     margin-left: 6px;
                 }
 
@@ -369,11 +369,19 @@ $width-percentage: 75%;
                     margin-left: 15px;
                 }
             }
+
         }
 
         .sds--tooltip-container {
             margin-top: 12px;
         }
+
+        a {
+            margin-top: 8px;
+            display: inline-block;
+            text-decoration: underline;
+        }
+
     }
 
     .import-metadata {
@@ -452,8 +460,8 @@ $width-percentage: 75%;
             svg.alert-triangle {
                 fill: black;
                 color: white;
-                position: absolute;
-                top: -2px;
+                display: inline-block;
+                vertical-align: middle;
                 margin-left: 6px;
             }
 
@@ -513,10 +521,12 @@ $width-percentage: 75%;
         margin-top: 20px;
         padding: 20px;
         background-color: var(--sl-color-warning-50);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
 
     .secret-link, .saml-test {
-        margin-top: 15px;
         a {
             text-decoration: underline;
         }

@@ -50,8 +50,8 @@ span.label {
     svg.alert-triangle {
         fill: black;
         color: white;
-        position: absolute;
-        top: -2px;
+        display: inline-block;
+        vertical-align: middle;
         margin-left: 6px;
     }
 

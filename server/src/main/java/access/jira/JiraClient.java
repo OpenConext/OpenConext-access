@@ -54,7 +54,6 @@ public class JiraClient {
         }
     }
 
-    @SneakyThrows
     @SuppressWarnings("unchecked")
     public String create(JiraIssue issue) {
         if (!jiraConfig.isEnabled()) {
@@ -78,21 +77,38 @@ public class JiraClient {
         Map<String, Map<String, Object>> jiraIssue = Map.of("fields", fields);
 
         LOG.info("Sending JSON {} to JIRA", jiraIssue);
-
+        String url = jiraConfig.getBaseUrl() + "/issue";
         try {
-            Map<String, String> result = restTemplate.postForObject(jiraConfig.getBaseUrl() + "/issue", jiraIssue, Map.class);
+
+            Map<String, String> result = restTemplate.postForObject(url, jiraIssue, Map.class);
 
             LOG.info("Response {} from JIRA", result);
 
+            if (!result.containsKey("key")) {
+                mailBox.sendJiraError("create", url, jiraIssue.toString(), "Unexpected JIRA results", result.toString());
+            }
+
             return result.get("key");
-        } catch (HttpClientErrorException e) {
-            LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
-                    e.getStatusCode(),
-                    e.getStatusText(),
-                    e.getResponseBodyAsString(),
+        } catch (RuntimeException e) {
+            String responseBody;
+            if (e instanceof HttpClientErrorException clientException) {
+                responseBody = clientException.getResponseBodyAsString();
+                LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
+                    clientException.getStatusCode(),
+                    clientException.getStatusText(),
+                    clientException.getResponseBodyAsString(),
                     jiraIssue,
                     e);
-            mailBox.sendJiraError("create", jiraIssue.toString(), e.getMessage(), e.getResponseBodyAsString());
+            } else {
+                responseBody = e.getMessage();
+                LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
+                    "400",
+                    responseBody,
+                    responseBody,
+                    jiraIssue,
+                    e);
+            }
+            mailBox.sendJiraError("create", url, jiraIssue.toString(), e.getMessage(), responseBody);
             throw e;
         }
     }
@@ -116,25 +132,43 @@ public class JiraClient {
 
         try {
             ResponseEntity<Map> responseEntity = restTemplate.exchange(commentUrl, HttpMethod.POST, commentRequestEntity, Map.class);
-            LOG.info("Response {} from JIRA", responseEntity.getBody());
-        } catch (HttpClientErrorException e) {
-            LOG.error("Failed to post Jira comment: {} ({}) with response:{}, JSON Request: {}",
-                    e.getStatusCode(),
-                    e.getStatusText(),
-                    e.getResponseBodyAsString(),
-                    body,
+            Map responseBody = responseEntity.getBody();
+
+            LOG.info("Response {} from JIRA", responseBody);
+
+            if (!responseBody.containsKey("body")) {
+                mailBox.sendJiraError("create", commentUrl, body.toString(), "Unexpected JIRA results", responseBody.toString());
+            }
+        } catch (RuntimeException e) {
+            String responseBody;
+            if (e instanceof HttpClientErrorException clientException) {
+                responseBody = clientException.getResponseBodyAsString();
+                LOG.error("Failed to post Jira comment: {} ({}) with response:{}, JSON Request: {}",
+                    clientException.getStatusCode(),
+                    clientException.getStatusText(),
+                    clientException.getResponseBodyAsString(),
+                    body.toString(),
                     e);
-            mailBox.sendJiraError("comment", body.toString(), e.getMessage(), e.getResponseBodyAsString());
+            } else {
+                responseBody = e.getMessage();
+                LOG.error("Failed to create Jira issue: {} ({}) with response:{}, JSON Request: {}",
+                    "400",
+                    responseBody,
+                    responseBody,
+                    body.toString(),
+                    e);
+            }
+            mailBox.sendJiraError("comment", commentUrl, body.toString(), e.getMessage(), responseBody);
             throw e;
         }
     }
 
     private String resolveIssueType() {
         return this.mappings.get(this.jiraConfig.getEnvironment())
-                .get("issueTypes").entrySet().stream()
-                .filter(entry -> entry.getKey().equals("change"))
-                .map(entry -> entry.getValue())
-                .findFirst().get();
+            .get("issueTypes").entrySet().stream()
+            .filter(entry -> entry.getKey().equals("change"))
+            .map(entry -> entry.getValue())
+            .findFirst().get();
     }
 
     private String spCustomField() {

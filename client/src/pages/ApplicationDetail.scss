@@ -21,6 +21,10 @@ div.application-detail-container {
         }
     }
 
+    a {
+        text-decoration: underline;
+    }
+
     .connect-options-container {
         .sds--text-field-container > [class^="option-"] {
             padding: 14px 20px 14px 10px;

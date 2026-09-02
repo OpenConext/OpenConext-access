@@ -494,7 +494,7 @@ const en = {
             secret: "Client secret",
             authentication: "Authentication",
             samlConfig: "SAML Configuration",
-            secretReset: "For security reasons your current secret can not be displayed.",
+            secretReset: "For security reasons your current secret can not be displayed. ",
             secretResetLink: "Reset your secret when needed.",
             secretResetDisclaimer: "Note. Regenerating the secret will break your current connection.",
             secretResetTitle: "Reset your secret",

@@ -494,7 +494,7 @@ const nl = {
             secret: "Client‑secret",
             authentication: "Authenticatie",
             samlConfig: "SAML‑configuratie",
-            secretReset: "Om veiligheidsredenen kan je huidige secret niet meer worden weergegeven.",
+            secretReset: "Om veiligheidsredenen kan je huidige secret niet meer worden weergegeven. ",
             secretResetLink: "Reset je secret indien nodig.",
             secretResetDisclaimer: "Let op. Het opnieuw genereren van het secret verbreekt je huidige koppeling.",
             secretResetTitle: "Secret opnieuw genereren",

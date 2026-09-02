@@ -266,10 +266,11 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendJiraError(String operation, String requestPayload, String errorMessage, String responseBody) {
+    public void sendJiraError(String operation, String url, String requestPayload, String errorMessage, String responseBody) {
         String title = String.format(subjects.get("en").get("jiraError"), environment, operation);
         Map<String, Object> variables = new HashMap<>();
         variables.put("title", title);
+        variables.put("url", url);
         variables.put("operation", operation);
         variables.put("requestPayload", requestPayload);
         variables.put("errorMessage", errorMessage);

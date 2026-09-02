@@ -110,15 +110,17 @@
             }
         }
 
-        .sds--pagination {
-            margin-top: 25px;
-        }
+
     }
 
     [data-slot="table-container"] {
         border: 1px solid var(--border, #d6d3d1);
         border-radius: 6px;
         overflow: hidden;
+    }
+
+    [data-slot="pagination"] {
+        margin-top: 25px;
     }
 
     table {

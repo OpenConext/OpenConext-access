@@ -18,7 +18,7 @@ export default function SelectField({
                                     }) {
     return (
         <div className={`select-field ${className}`}>
-            {name && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+            {name && <label htmlFor={name}>{name}{required && <sup className="required left-outline">*</sup>}
                 {toolTip && <Tooltip>
                     <TooltipTrigger render={<InfoIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(toolTip)}}/></TooltipContent>

@@ -28,8 +28,8 @@
         svg.alert-triangle {
             fill: black;
             color: white;
-            position: absolute;
-            top: -2px;
+            display: inline-block;
+            vertical-align: middle;
             margin-left: 6px;
         }
 
@@ -37,6 +37,10 @@
 
     .switch-info {
         color: var(--sds--color--gray--500);
+    }
+
+    [data-slot="switch"] {
+        margin-left: auto;
     }
 }
 

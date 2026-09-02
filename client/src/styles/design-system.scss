@@ -28,6 +28,18 @@ small {
     font-size: var(--text-sm-font-size);
 }
 
+body {
+    font-size: var(--text-xs-font-size);
+}
+
+sup.required {
+    color: var(--destructive, #dc2626);
+    margin-left: 2px;
+
+    &.left-outline {
+        margin-left: 10px;
+    }
+}
 
 :root {
     --sds--color--gray--background: #F4F6F8;
