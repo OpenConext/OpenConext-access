@@ -74,10 +74,10 @@ const nl = {
     },
     navigation: {
         home: "Home",
-        apps: "Applicatie catalogus",
+        apps: "App-catalogus",
         accessibleApps: "Ingeschakelde apps",
-        yourApps: "Onze apps",
-        catalogue: "Alle overige apps",
+        yourApps: "Jouw apps",
+        catalogue: "App-catalogus",
         externalMaintenance: "Toegangsbeheer",
         invite: "Rollen",
         sram: "Samenwerkingen",

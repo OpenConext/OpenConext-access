@@ -41,6 +41,10 @@ sup.required {
     }
 }
 
+a.actionable {
+    text-decoration: underline;
+}
+
 :root {
     --sds--color--gray--background: #F4F6F8;
     --sl-color-warning: #FFC100;

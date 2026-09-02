@@ -45,6 +45,13 @@
         }
 
         .sds--user-info--dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            width: 11.875rem;
+            background-color: var(--sds--color--white);
+            border-radius: 0 0 .375rem .375rem;
+            box-shadow: 0 .25rem .25rem 0 var(--sds--color--pitch-black--dimmed--25);
             z-index: 7;
 
             ul {
@@ -77,6 +84,13 @@
                 height: auto;
             }
         }
+    }
+
+    // The table container clips overflow to keep its rounded corners, which
+    // also cuts off the dropdown when it's positioned near the bottom/edge
+    // of the table. Only relax the clipping while a dropdown is actually open.
+    [data-slot="table-container"]:has(.sds--user-info--dropdown) {
+        overflow: visible;
     }
 
 }

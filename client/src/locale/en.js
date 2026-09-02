@@ -74,10 +74,10 @@ const en = {
     },
     navigation: {
         home: "Home",
-        apps: "Application catalog",
+        apps: "App catalog",
         accessibleApps: "Enabled apps",
-        yourApps: "Our apps",
-        catalogue: "All other apps",
+        yourApps: "Your apps",
+        catalogue: "App catalog",
         externalMaintenance: "Access management",
         invite: "Roles",
         sram: "Collaborations",

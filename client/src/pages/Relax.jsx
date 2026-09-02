@@ -40,7 +40,7 @@ const Relax = () => {
             <RelaxIcon/>
             <div className="nudge-landing">
                 <span>{I18n.t("userHome.backToLanding")}</span>
-                <Link to={"/landing"}>
+                <Link to={"/landing"} className={"actionable"}>
                     <span>{I18n.t("userHome.backToLandingLink")}</span>
                 </Link>
             </div>
