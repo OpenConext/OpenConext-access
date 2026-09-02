@@ -20,17 +20,12 @@ import {
     SidebarMenuItem,
     SidebarSeparator,
     SidebarTrigger,
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
     useSidebar
 } from "@surfnet/curve-react";
-import {CaretUpDownIcon, CheckIcon, GearIcon} from "@phosphor-icons/react";
+import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 
 import {useAppStore} from "../stores/AppStore.js";
-import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
-import {sanitize} from "../utils/Utils.js";
 import LogoMark from "../icons/figma/logo-mark.svg";
 import LogoPath from "../icons/figma/logo-path.svg";
 
@@ -83,19 +78,10 @@ export const SharedMenu = () => {
 
     const organizations = (user.organizationMemberships || []).map(om => om.organization);
     const canSwitchOrganization = organizations.length > 1;
-    const isPendingApproval = currentOrganization?.status === ORGANIZATION_STATUSES.PENDING_APPROVAL;
-    const StatusIcon = isPendingApproval ? GearIcon : CheckIcon;
-    const statusTooltip = isPendingApproval ? I18n.t("organizations.tooltip") : I18n.t("organizations.tooltipApproved");
 
     const organizationButtonContent = (
         <>
             <span className="organization-name">{currentOrganization?.name}</span>
-            <Tooltip>
-                <TooltipTrigger render={<StatusIcon className="organization-status"/>}/>
-                <TooltipContent side="bottom">
-                    <span dangerouslySetInnerHTML={{__html: sanitize(statusTooltip)}}/>
-                </TooltipContent>
-            </Tooltip>
             {canSwitchOrganization && <CaretUpDownIcon className="organization-caret"/>}
         </>
     );
