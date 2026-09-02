@@ -1,7 +1,7 @@
 footer.shared-menu {
     margin-top: auto;
 
-    background: var(--sds--color--black--navigation);
+    background: var(--foreground);
 
     .sds--footer--inner {
         display: flex;
@@ -12,7 +12,7 @@ footer.shared-menu {
         hr {
             width: 100%;
             border: none;
-            border-top: 1px solid var(--sds--color--grey--500, rgba(255, 255, 255, 0.2));
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             margin: 0;
         }
 
@@ -23,7 +23,7 @@ footer.shared-menu {
         }
 
         .toggle__option {
-            color: var(--sl-color-neutral-200);
+            color: #CED1D7;
             border-radius: 8px;
 
             &:hover {
@@ -51,16 +51,10 @@ footer.shared-menu {
             }
 
             a:link, nav.menu a:visited:hover {
-                color: var(--sl-color-neutral-200)!important;
+                color: #CED1D7!important;
                 font-weight: normal;
             }
 
         }
     }
-}
-
-.sds--footer--single-bar .sds--footer--inner nav.menu a:link, .sds--footer--single-bar .sds--footer--inner nav.menu a:visited {
-    text-decoration: none;
-    color: var(--sl-color-neutral-200)!important;
-    font-weight: normal;
 }

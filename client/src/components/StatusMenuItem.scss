@@ -8,12 +8,12 @@
     cursor: pointer;
 
     &:hover {
-        background-color: var(--sds--color--green--100);
+        background-color: #DCF2E5;
     }
 
     &.active {
         cursor: initial;
-        background-color: var(--sds--color--gray--100);
+        background-color: var(--muted);
     }
 
     &.disabled:not(.active) {
@@ -26,7 +26,7 @@
     svg {
         margin-left:auto;
         fill: white;
-        color: var(--sds--color--gray--400);
+        color: var(--muted-foreground);
 
         &.alert-triangle {
             fill: black;

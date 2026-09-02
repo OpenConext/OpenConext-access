@@ -15,12 +15,12 @@
 
     .readonly-notice {
         padding: 12px 16px;
-        background-color: var(--sds--color--gray--100, #f5f5f5);
-        border-left: 4px solid var(--sds--color--gray--400, #bbb);
+        background-color: var(--muted, #f5f5f5);
+        border-left: 4px solid var(--border, #bbb);
         border-radius: 4px;
         margin-bottom: 24px;
         font-style: italic;
-        color: var(--sds--color--gray--700, #555);
+        color: var(--muted-foreground, #555);
     }
 
     .contract-inner {
@@ -32,23 +32,11 @@
             max-width: 100%;
         }
 
-        .sds--alert {
-            margin-bottom: 25px;
-        }
-
         .actions {
             display: flex;
             margin: 40px 0 25px 0;
             gap: 40px;
             padding-right: 0;
-
-            button.sds--btn--secondary {
-                margin-left: auto;
-            }
-
-            button.sds--btn--primary {
-                margin-left: 0;
-            }
         }
 
     }

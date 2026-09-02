@@ -8,7 +8,7 @@
     z-index: 9999;
 
     &__trigger {
-        background: var(--sl-color-green-200);
+        background: #B8E3C9;
         color: #000;
         border: none;
         border-radius: 999px;
@@ -42,7 +42,7 @@
         flex-direction: column;
         gap: 16px;
         textarea {
-            border-color: var(--sds--color--gray--300)!important;
+            border-color: var(--border)!important;
         }
     }
 
@@ -64,24 +64,6 @@
         font-size: 14px;
         margin-bottom: 4px;
     }
-}
-
-// Widen the modal when the preview panel is shown
-.sds--modal--container.feedback-preview-dialog {
-    max-width: 64rem;
-    width: 64rem;
-    z-index: 99999;
-}
-
-// While the feedback widget is open, lift its backdrop above all other modals
-// and hide other open modals without unmounting them (their React state is preserved).
-// Removing the feedback-open body class restores them instantly.
-body.feedback-open .sds--modal.sds--backdrop:has(.feedback-preview-dialog) {
-    z-index: 99998;
-}
-
-body.feedback-open .sds--modal.sds--backdrop:not(:has(.feedback-preview-dialog)) {
-    visibility: hidden;
 }
 
 // Mac Mail–style preview panel
@@ -244,13 +226,6 @@ body.feedback-open .sds--modal.sds--backdrop:not(:has(.feedback-preview-dialog))
     100% { background-position: -200% 0; }
 }
 
-.sds--modal--content .sds--text--rich a:link,
-.sds--modal--content .sds--text--rich a:hover,
-.sds--modal--content .sds--text--rich a {
-    color: black;
-    font-weight: 600;
-}
-
 body.feedback-capture .user-feedback-widget {
     visibility: hidden !important;
 }
@@ -270,10 +245,5 @@ body.feedback-capture .user-feedback-widget {
     .mail-preview {
         width: 100%;
         max-height: 300px;
-    }
-
-    .sds--modal--container.feedback-preview-dialog {
-        max-width: 95vw;
-        width: 95vw;
     }
 }

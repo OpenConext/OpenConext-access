@@ -11,15 +11,6 @@
         display: flex;
         flex-direction: column;
         gap: 25px;
-
-        .sds--loading-container {
-            position: fixed;
-
-            .sds-loading {
-                top: 160px;
-                left: 49%;
-            }
-        }
     }
 
     .sub-info {
@@ -36,7 +27,7 @@
             top: 12px;
             width: 20px;
             height: auto;
-            color: var(--sds--color--gray--400);
+            color: var(--muted-foreground);
         }
     }
 
@@ -51,7 +42,7 @@
             background-color: white;
             padding: 14px 18px 14px 14px;
             border-radius: $br;
-            border: 1px solid var(--sds--color--gray--300);
+            border: 1px solid var(--border);
             cursor: pointer;
 
             p {
@@ -60,7 +51,7 @@
 
             svg {
                 margin-left: auto;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
                 width: 12px;
                 height: auto;
 
@@ -70,7 +61,7 @@
             }
 
             &:hover {
-                background-color: var(--sds--color--white--dimmed--70);
+                background-color: var(--alpha-30);
 
                 svg {
                     color: black;
@@ -82,7 +73,7 @@
                 border: none;
 
                 &:hover {
-                    background-color: var(--sds--color--green--200);
+                    background-color: #B8E3C9;
                 }
             }
         }

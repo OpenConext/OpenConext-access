@@ -21,13 +21,13 @@ $width-percentage: 75%;
             max-width: 240px;
 
             button {
-                background-color: var(--sl-color-warning-100);
+                background-color: #FFD03A;
                 color: black;
 
                 &:disabled {
-                    background-color: var(--sl-color-warning-50);
+                    background-color: #FEFBE6;
                     cursor: not-allowed;
-                    color: var(--sds--color--gray--300);
+                    color: var(--muted-foreground);
                 }
             }
         }
@@ -49,7 +49,7 @@ $width-percentage: 75%;
                 cursor: pointer;
 
                 &:hover {
-                    background-color: var(--sds--color--gray--250);
+                    background-color: var(--border);
                 }
             }
         }
@@ -78,23 +78,6 @@ $width-percentage: 75%;
             @include card();
         }
 
-        .sds--alert.sds--alert--status-info {
-            margin: 25px 0 15px 0;
-        }
-
-        .sds--alert.sds--alert--status-warning {
-            margin: 25px 0 15px 0;
-
-            .sds--page-container {
-                width: 100%;
-                margin: 0;
-            }
-
-            .sds--alert--textual p {
-                font-weight: 400;
-            }
-        }
-
         .inner-right-informational {
             @include card(0);
 
@@ -121,7 +104,7 @@ $width-percentage: 75%;
 
             p.profile-info {
                 margin-top: 5px;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
             }
 
             p.attributes {
@@ -134,7 +117,7 @@ $width-percentage: 75%;
             }
 
             div.attributes {
-                background-color: var(--sds--color--gray--background);
+                background-color: var(--muted);
                 padding: 8px 15px;
                 display: grid;
                 border-radius: 8px;
@@ -142,7 +125,7 @@ $width-percentage: 75%;
 
                 span {
                     padding: 8px 0;
-                    border-bottom: 1px solid var(--sds--color--gray--250);
+                    border-bottom: 1px solid var(--border);
 
                     &:nth-last-of-type(-n+2) {
                         border-bottom: none;
@@ -154,32 +137,24 @@ $width-percentage: 75%;
                 display: flex;
                 align-items: center;
                 margin: 20px 0;
-                border: 1px solid var(--sl-color-grey-400);
+                border: 1px solid var(--border);
                 border-radius: 6px;
-                padding: var(--sds--space--1-and-a-half);
+                padding: 0.75rem;
                 width: 100%;
 
                 &.dormant {
-                    background-color: var(--sds--color--gray--background);
+                    background-color: var(--muted);
                 }
 
                 &.optional {
                     flex-direction: column;
                     align-items: flex-start;
-
-                    .sds--alert.sds--alert--status-warning {
-                        margin: 10px 0 10px 0;
-                    }
                 }
 
                 .optional-attribute {
                     display: flex;
                     align-items: center;
                     width: 100%;
-                }
-
-                .sds--tooltip-parent {
-                    margin-left: auto;
                 }
 
                 .additional-attribute-info {
@@ -212,7 +187,7 @@ $width-percentage: 75%;
             flex-direction: column;
             gap: 20px;
             padding: 15px;
-            background-color: var(--sds--color--gray--100);
+            background-color: var(--muted);
             border-radius: 6px;
 
             &.active {
@@ -226,7 +201,7 @@ $width-percentage: 75%;
 
             .switch-field {
                 padding: 15px;
-                border: 1px solid var(--sds--color--gray--200);
+                border: 1px solid var(--border);
                 border-radius: 6px;
                 margin-top: 0;
 
@@ -245,7 +220,7 @@ $width-percentage: 75%;
                 }
 
                 .idp-info p:last-child {
-                    color: var(--sds--color--gray--500)
+                    color: var(--muted-foreground)
                 }
 
             }
@@ -281,9 +256,9 @@ $width-percentage: 75%;
         .grant-type {
             display: flex;
             align-items: center;
-            border: 1px solid var(--sl-color-grey-400);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            padding: var(--sds--space--1-and-a-half);
+            padding: 0.75rem;
 
             [data-slot="radio-group"] {
                 // curve-react's RadioGroup ships with `w-full`, which fills the entire
@@ -364,16 +339,8 @@ $width-percentage: 75%;
                 svg {
                     cursor: pointer;
                 }
-
-                button.sds--btn--primary {
-                    margin-left: 15px;
-                }
             }
 
-        }
-
-        .sds--tooltip-container {
-            margin-top: 12px;
         }
 
         a {
@@ -394,7 +361,7 @@ $width-percentage: 75%;
     }
 
     .show-import {
-        background-color: var(--sds--color--gray--100);
+        background-color: var(--muted);
         padding: 20px;
 
         .show-import-header {
@@ -436,12 +403,7 @@ $width-percentage: 75%;
                 display: flex;
                 gap: 10px;
                 align-items: center;
-                color: var(--sds--color--gray--400);
-
-                button.sds--btn--delete {
-                    height: 22px;
-
-                }
+                color: var(--muted-foreground);
             }
 
             button:not(.sds--btn--delete) {
@@ -520,7 +482,7 @@ $width-percentage: 75%;
     .oidc-authentication-inner {
         margin-top: 20px;
         padding: 20px;
-        background-color: var(--sl-color-warning-50);
+        background-color: #FEFBE6;
         display: flex;
         flex-direction: column;
         gap: 15px;

@@ -1,9 +1,3 @@
-.sds--loading {
-    position: fixed;
-    top: 35%;
-    left: 49%;
-}
-
 .cut-of-lines {
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -18,17 +12,6 @@
     text-overflow: ellipsis;
 }
 
-.sds--card {
-    margin-bottom: 25px;
-    background-color: var(--sds--color--white);
-    border-radius: 0.175rem;
-    box-shadow: 0 0.1rem 0.1rem 0 var(--sds--color--pitch-black--dimmed--25);
-}
-
-button.sds--btn span {
-    text-align: center;
-}
-
 section.actions {
     display: flex;
     gap: 30px;
@@ -40,11 +23,11 @@ section.actions {
 span.label {
     display: block;
     font-weight: 600;
-    margin-bottom: var(--sds--space--1);
+    margin-bottom: 0.5rem;
     position: relative;
 
     &.standalone {
-        margin: 12px 0 var(--sds--space--1);
+        margin: 12px 0 0.5rem;
     }
 
     svg.alert-triangle {

@@ -1,7 +1,7 @@
 .access-card {
     background: white;
     margin: 10px 0;
-    border: 1px solid var(--sl-color-secondary-400);
+    border: 1px solid var(--border);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -9,12 +9,12 @@
     width: 100%;
 
     &.grey {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         font-style: italic;
     }
 
     &.border {
-        border: 1px solid var(--sl-color-neutral-400);
+        border: 1px solid var(--border);
 
     }
 
@@ -42,13 +42,13 @@
         border-radius: 38px;
         padding: 2px 12px;
         font-size: 16px;
-        background-color: var(--sl-color-neutral-100);
-        color: var(--sl-color-neutral-500);
+        background-color: var(--muted);
+        color: var(--muted-foreground);
         min-width: 100px;
         text-align: center;
 
         &.blue {
-            background-color: var(--sds--color--blue--400);
+            background-color: var(--primary);
             color: white;
         }
     }

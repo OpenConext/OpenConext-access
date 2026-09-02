@@ -1,4 +1,3 @@
-import "./ConnectionInUseWarning.scss";
 import React from "react";
 import {isEmpty} from "../utils/Utils.js";
 import I18n from "../locale/I18n";

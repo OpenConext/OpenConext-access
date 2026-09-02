@@ -32,12 +32,12 @@
             height: 10px;
 
             &.blue {
-                background-color: var(--sds--color--blue--400, #0077c8);
+                background-color: var(--primary, #0077c8);
                 border-radius: 50%;
             }
 
             &.green {
-                background-color: var(--sds--color--green--400, #00a650);
+                background-color: #008939;
             }
         }
     }

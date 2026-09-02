@@ -30,17 +30,17 @@ div.organization-outer-container {
             margin-left: auto;
             display: flex;
             gap: 12px;
-            color: var(--sds--color--gray--300);
+            color: var(--muted-foreground);
 
             svg:not(.divider) {
                 cursor: pointer;
 
                 &:hover {
-                    color: var(--sds--color--gray--500);
+                    color: var(--foreground);
                 }
 
                 &.active {
-                    color: var(--sds--color--gray--500);
+                    color: var(--foreground);
                     cursor: default;
                 }
             }
@@ -62,7 +62,7 @@ div.organization-outer-container {
 
             .entities-search {
                 padding: $page-padding;
-                background-color: var(--sds--color--gray--background);
+                background-color: var(--muted);
                 justify-content: normal;
 
                 button {

@@ -9,7 +9,7 @@ div.my-organization-outer-container {
     height: 100%;
 
     .my-organization-header-container {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         padding: 25px 50px 25px 50px;
 
         .top-header {
@@ -44,12 +44,12 @@ div.my-organization-outer-container {
             cursor: pointer;
 
             &:hover:not(.active) {
-                background-color: var(--sds--color--green--100);
+                background-color: #DCF2E5;
             }
 
             &.active {
                 cursor: initial;
-                background-color: var(--sds--color--gray--100);
+                background-color: var(--muted);
                 border-radius: 4px;
 
             }
@@ -66,7 +66,7 @@ div.my-organization-outer-container {
 
         p.info {
             margin-top: 5px;
-            color:var(--sds--color--gray--400);
+            color:var(--muted-foreground);
         }
 
     }

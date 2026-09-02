@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
 import {isEmpty, sanitize} from "../utils/Utils";
-import "./Flash.scss";
 import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";
 import {WarningIcon, XCircleIcon, XIcon} from "@phosphor-icons/react";
 import {toast} from "sonner";

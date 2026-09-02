@@ -19,16 +19,16 @@ div.email-field {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
-        border: 1px solid var(--sds--color--gray--400);
+        border: 1px solid var(--input);
         border-radius: $br;
 
         &:focus-within {
             outline: none;
-            box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
+            box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
         }
 
         &.error {
-            border: 1px solid var(--sds--color--red--400);
+            border: 1px solid var(--destructive);
         }
 
     }
@@ -48,12 +48,12 @@ div.email-field {
     }
 
     div.email-tag {
-        border: 1px solid var(--sds--color--gray--200);
+        border: 1px solid var(--border);
         border-radius: $br;
         margin: 10px 5px 0 5px;
         display: inline-block;
         position: relative;
-        background-color: var(--sds--color--gray--100);
+        background-color: var(--muted);
         padding: 4px 26px 4px 10px;
         max-height: 32px;
 
@@ -65,7 +65,7 @@ div.email-field {
             &.icon {
                 padding: 8px 14px;
                 cursor: pointer;
-                color: var(--sds--color--gray--400);
+                color: var(--muted-foreground);
                 position: absolute;
                 right: -8px;
                 top: -8px;
@@ -76,20 +76,20 @@ div.email-field {
                 }
 
                 &:hover {
-                    color: var(--sds--color--red--400);
+                    color: var(--destructive);
                 }
 
                 &.disabled {
                     cursor: not-allowed;
-                    color: var(--sds--color--green--400);
+                    color: #008939;
                 }
             }
         }
     }
 
     p.error {
-        color: var(--sds--color--red--400);
-        margin-top: var(--sds--space--1);
+        color: var(--destructive);
+        margin-top: 0.5rem;
     }
 
 

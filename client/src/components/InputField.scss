@@ -29,9 +29,9 @@
         margin-left: 10px;
         display: flex;
         border-radius: 4px;
-        border: 1px solid var(--sds--color--blue--400);
+        border: 1px solid var(--primary);
         font-size: 20px;
-        color: var(--sds--color--blue--200);
+        color: var(--primary);
         cursor: pointer;
 
         &:hover {
@@ -45,11 +45,11 @@
 
         svg {
 
-            color: var(--sds--color--blue--200);
+            color: var(--primary);
             cursor: pointer;
 
             &:hover {
-                color: var(--sds--color--blue--400);
+                color: var(--primary-strong);
             }
 
         }

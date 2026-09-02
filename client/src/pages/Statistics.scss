@@ -41,20 +41,6 @@
             gap: 16px;
             align-items: flex-end;
 
-            button.sds--btn--primary.export {
-                border: 1px solid var(--sl-color-neutral-200);
-                border-radius: 12px;
-                background: var(--sl-color-neutral-100);
-                color: var(--sds--color--blue--400);
-                white-space: nowrap;
-
-                svg.export-icon {
-                    width: 20px;
-                    height: auto;
-                    fill: none;
-                }
-            }
-
             .custom-date-range {
                 display: flex;
                 gap: 12px;
@@ -94,7 +80,7 @@
         display: flex;
         padding: 24px;
         background-color: white;
-        border: 1px solid var(--sl-color-neutral-200);
+        border: 1px solid var(--border);
     }
 
     .chart-section {
@@ -130,13 +116,13 @@
         }
 
         p.no-comparison {
-            color: var(--sl-color-neutral-500);
+            color: var(--muted-foreground);
             align-self: center;
         }
 
         span {
             &.blue {
-                background-color: var(--sds--color--blue--400);
+                background-color: var(--primary);
                 border-radius: 50%;
                 margin-bottom: 8px;
                 width: 16px;
@@ -144,7 +130,7 @@
             }
 
             &.green {
-                background-color: var(--sds--color--green--400);
+                background-color: #008939;
                 margin-bottom: 8px;
                 width: 16px;
                 height: 16px;

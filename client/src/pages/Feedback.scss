@@ -7,7 +7,7 @@
     height: 100%;
 
     .feedback-content-header {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         padding: 25px 50px 0 50px;
 
     }
@@ -19,11 +19,6 @@
         margin: 0;
         padding: $page-padding;
         max-width: 50%;
-
-        .sds--toaster {
-            max-width: initial;
-            margin: 25px 0;
-        }
 
         section.help {
             margin-top: 15px;

@@ -1,6 +1,6 @@
 .change-requests {
     .change-request {
-        border-color: var(--sds--color--gray--500);
+        border-color: var(--border);
         width: 100%;
         max-width: 100%;
         gap: 0;
@@ -10,7 +10,7 @@
             align-content: space-between;
             padding-bottom: 20px;
             margin-bottom: 15px;
-            border-bottom: 1px solid var(--sds--color--gray--500);
+            border-bottom: 1px solid var(--border);
 
             .audit-data {
                 display: flex;
@@ -36,7 +36,7 @@
             flex-direction: column;
             margin-bottom: 20px;
             padding: 15px;
-            background-color: var(--sds--color--gray--200);
+            background-color: var(--muted);
 
             h5 {
                 font-size: 16px;

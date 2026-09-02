@@ -3,7 +3,7 @@
     align-items: center;
     background-color: #f3f4f6;
     border-radius: 9999px;
-    border: 1px solid var(--sl-color-neutral-200);
+    border: 1px solid var(--border);
 
 }
 
@@ -13,7 +13,7 @@
     font-weight: 500;
     border-radius: 9999px;
     cursor: pointer;
-    color: var(--sds--color--gray--500);
+    color: var(--muted-foreground);
 
     &:hover {
         color: black;
@@ -26,10 +26,10 @@
     }
 
     &:first-child.active {
-        border-right: 1px solid var(--sl-color-neutral-200);
+        border-right: 1px solid var(--border);
     }
 
     &:last-child.active {
-        border-left: 1px solid var(--sl-color-neutral-200);
+        border-left: 1px solid var(--border);
     }
 }

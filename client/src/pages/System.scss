@@ -24,8 +24,8 @@ div.system-outer-container {
     .spinner {
         width: 24px;
         height: 24px;
-        border: 3px solid var(--sl-color-neutral-200);
-        border-top-color: var(--sds--color--blue--400);
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
         border-radius: 50%;
         animation: spin 0.7s linear infinite;
     }
@@ -38,7 +38,7 @@ div.system-outer-container {
 }
 
 .seed-success {
-    margin-top: var(--sds--space--3);
-    color: var(--sds--color--green--500, #2e7d32);
+    margin-top: 1.5rem;
+    color: #006731;
     font-weight: 500;
 }

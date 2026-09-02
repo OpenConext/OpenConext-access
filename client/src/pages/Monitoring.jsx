@@ -28,9 +28,9 @@ const INCIDENT_GROUPS_NUMBER_SLICE = 10;
 // labelKey is also the single source for the bar-segment color legend below.
 const SEVERITY_LEVELS = [
     {minMinutes: 0, maxMinutes: 1, cls: "ok", color: "#a8dfc0", labelKey: "legendOk"},
-    {minMinutes: 1, maxMinutes: 5, cls: "warn-light", color: "var(--sl-color-warning-50)", labelKey: "legendWarnLight"},
-    {minMinutes: 5, maxMinutes: 15, cls: "warn-heavy", color: "var(--sl-color-warning-600)", labelKey: "legendWarnHeavy"},
-    {minMinutes: 15, maxMinutes: Infinity, cls: "critical", color: "var(--sds--color--red--400)", labelKey: "legendCritical"},
+    {minMinutes: 1, maxMinutes: 5, cls: "warn-light", color: "#FEFBE6", labelKey: "legendWarnLight"},
+    {minMinutes: 5, maxMinutes: 15, cls: "warn-heavy", color: "#F5B800", labelKey: "legendWarnHeavy"},
+    {minMinutes: 15, maxMinutes: Infinity, cls: "critical", color: "var(--destructive)", labelKey: "legendCritical"},
 ];
 
 // Incidents shorter than the first non-ok severity threshold (minutes) are ignored.

@@ -8,7 +8,7 @@ div.connect-container {
 
     .connect-header-container {
         width: 100%;
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
     }
 
     .connect-header {
@@ -49,7 +49,7 @@ div.connect-container {
 
         .table-container {
             padding: 8px 15px 20px 15px ;
-            background-color: var(--sds--color--gray--100);
+            background-color: var(--muted);
             border-radius: 8px;
 
             p.sup-info {
@@ -64,12 +64,12 @@ div.connect-container {
             td {
                 padding: 6px 10px;
                 vertical-align: top;
-                border: 1px solid var(--sds--color--gray--300);
+                border: 1px solid var(--border);
 
                 &.left-top {
                     border: none;
                     font-weight: 600;
-                    color: var(--sds--color--blue--400);
+                    color: var(--primary);
                 }
 
                 p {
@@ -83,7 +83,7 @@ div.connect-container {
                 }
 
                 a {
-                    color: var(--sds--color--blue--400);
+                    color: var(--primary);
                     font-weight: 600;
                 }
             }

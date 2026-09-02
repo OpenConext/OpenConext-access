@@ -31,8 +31,8 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTi
         return null;
     }
 
-    const blue = resolveColor("--sds--color--blue--400", "#0077c8");
-    const green = resolveColor("--sds--color--green--400", "#00a650");
+    const blue = resolveColor("--primary", "#0077c8");
+    const green = "#008939";
 
     const pointRadius = fluent ? 0 : 5;
     const pointHoverRadius = fluent ? 4 : 7;

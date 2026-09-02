@@ -10,19 +10,6 @@
 
     @include index.page-media;
 
-    .external-alert-container {
-
-        .sds--alert {
-            width: 75%;
-            @include index.page-media;
-
-            .sds--alert--inner {
-                max-width: none;
-                width: 100%;
-            }
-        }
-    }
-
     .external-link {
         width: 40%;
         display: flex;
@@ -31,7 +18,7 @@
         border-radius: 4px;
         padding: 10px 20px 10px 10px;
         background-color: white;
-        border: 1px solid var(--sds--color--gray--200);
+        border: 1px solid var(--border);
         cursor: pointer;
 
         svg {

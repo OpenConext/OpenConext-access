@@ -11,24 +11,24 @@ section.copy-to-clipboard {
         margin: 0;
         width: 18px;
         height: auto;
-        color: var(--sds--color--gray--400);
+        color: var(--muted-foreground);
 
         &:hover {
-            color: var(--sds--color--black);
+            color: var(--foreground);
         }
 
         transition: color .4s ease;
     }
 
     &.copied, svg.copied {
-        color: var(--sds--color--green--400);
+        color: #008939;
     }
 
 }
 
 div.copied {
     position: absolute;
-    background-color: var(--sds--color--gray--500);
+    background-color: var(--muted-foreground);
     opacity: 1;
     border-radius: 6px;
     max-width: 280px;

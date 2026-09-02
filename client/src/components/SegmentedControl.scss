@@ -3,49 +3,9 @@
 
     .access-segmented-control {
 
-        border: 1px solid var(--sl-color-neutral-200);
+        border: 1px solid var(--border);
         border-radius: 12px;
-        background: var(--sl-color-neutral-100);
+        background: var(--muted);
         white-space: nowrap;
-
-        button.sds--btn {
-            font-weight: normal;
-            border: none;
-            border-radius: 12px;
-
-            &.sds--btn--primary {
-                background-color: white;
-                color: black;
-                border-radius: 12px;
-                border: 1px solid var(--sl-color-neutral-200);
-
-                &:first-child {
-                    border-top: none;
-                    border-bottom: none;
-                    border-left: none;
-                }
-
-                &:last-child {
-                    border-top: none;
-                    border-bottom: none;
-                    border-right: none;
-                }
-
-                &:not(:first-child):not(:last-child) {
-                    border-top: none;
-                    border-bottom: none;
-                }
-            }
-
-            &.sds--btn--secondary {
-                background: var(--sl-color-neutral-100);
-
-                &:hover {
-                    font-weight: 500;
-                    color: black;
-                }
-            }
-        }
-
     }
 }

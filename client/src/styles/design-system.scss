@@ -1,5 +1,3 @@
-$min-width-pixels: 620px;
-
 h1 {
     font-size: var(--text-4xl-font-size);
 }
@@ -45,71 +43,33 @@ a.actionable {
     text-decoration: underline;
 }
 
-:root {
-    --sds--color--gray--background: #F4F6F8;
-    --sl-color-warning: #FFC100;
-    --sl-color-warning-50: #FEFBE6;
-    --sl-color-warning-100: #FFD03A;
-    --sl-color-warning-600: #F5B800;
-    --sl-color-grey-100: #E1E4E8;
-    --sl-color-grey-400: #EAECF0;
-    --sl-color-green-100: #ECFCF3;
-    --sl-color-green-200: #B8E3C9;
-    --sl-color-neutral-100: #EEEFF1;
-    --sl-color-neutral-200: #CED1D7;
-    --sl-color-neutral-400: #888F99;
-    --sl-color-neutral-500: #5E6873;
-    --sl-color-secondary-400: #888F99;
-    --sl-color-informative-50: #DFF4FF;
-    --sl-color-succes-50: #DCF2E5;
-}
-
-.sds--card--big {
-    width: $min-width-pixels;
-
-    @media (max-width: 680px) {
-        width: 100%;
-    }
-}
-
-.sds--footer--single-bar .sds--footer--inner nav.menu a:link, .sds--footer--single-bar .sds--footer--inner nav.menu a:visited {
-    text-decoration: none;
-    color: white;
-
-    &:hover {
-        text-decoration: underline;
-        color: white;
-
-    }
-}
-
 .sds--chips.status-error {
-    background-color: var(--sl-color-warning-100);
+    background-color: #FFD03A;
     text-align: center;
 
     &:hover {
-        background-color: var(--sl-color-warning-100);
+        background-color: #FFD03A;
     }
 
     &.open {
-        background-color: var(--sds--color--gray--300);
+        background-color: var(--muted);
     }
 
     &.in_progress {
-        background-color: var(--sds--color--gray--300);
+        background-color: var(--muted);
     }
 
     &.multiple_connections {
-        background-color: var(--sds--color--gray--300);
+        background-color: var(--muted);
     }
 
     &.complete {
-        background-color: var(--sds--color--green--400);
+        background-color: #008939;
         color: white;
     }
 
     &.prod_ready {
-        background-color: var(--sds--color--green--400);
+        background-color: #008939;
         color: white;
     }
 
@@ -119,31 +79,18 @@ a.actionable {
     }
 
     &.pending_prod {
-        background-color: var(--sl-color-warning-100);
+        background-color: #FFD03A;
     }
 
     &.no_connections {
-        background-color: var(--sds--color--red--200);
+        background-color: var(--destructive-foreground);
     }
 
     &.open_change_requests {
-        background-color: var(--sl-color-warning-100);
+        background-color: #FFD03A;
     }
 }
 
 span.sds--chips--textual {
     text-align: center;
-}
-
-.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-group-item:not(:first-child) {
-    border-top: 1px solid var(--sl-color-neutral-500);
-}
-
-.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-group-item.custom-group {
-    border: 1px solid var(--sl-color-neutral-500);
-}
-
-.sds--navigation-menu .sds--navigation-menu-items .sds--navigation-menu-item svg {
-    width: 24px;
-    height: 24px;
 }

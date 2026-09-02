@@ -7,7 +7,7 @@
     width: 75%;
     flex-direction: column;
     gap: 25px;
-    background-color: var(--sds--color--gray--background);
+    background-color: var(--muted);
     @include index.page-media;
 
     &.full-width {

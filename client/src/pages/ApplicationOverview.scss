@@ -16,7 +16,7 @@ div.accessible-apps-container {
     .mod-entities {
         .entities-search {
             padding: 0 50px 25px 50px;
-            background-color: var(--sds--color--gray--background);
+            background-color: var(--muted);
         }
 
         .entities-list {
@@ -25,7 +25,7 @@ div.accessible-apps-container {
     }
 
     .accessible-apps-header-container {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         padding: 25px 50px 25px 50px;
 
         .accessible-apps-header-row {
@@ -94,13 +94,13 @@ div.accessible-apps-container {
                 display: flex;
                 justify-content: space-between;
                 width: 100%;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
                 margin-bottom: 4px;
             }
 
             .accessible-app-card-description {
                 margin: 0;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
                 display: -webkit-box;
                 -webkit-line-clamp: 3;
                 -webkit-box-orient: vertical;

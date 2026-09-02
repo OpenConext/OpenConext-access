@@ -16,7 +16,7 @@ div.manage-detail-container {
         padding: 0 25px;
 
         a {
-            color: var(--sds--color--gray--500);
+            color: var(--muted-foreground);
             text-decoration: none;
         }
     }
@@ -37,12 +37,12 @@ div.manage-detail-container {
             align-items: center;
             padding-bottom: 25px;
             margin-bottom: 15px;
-            border-bottom: 1px solid var(--sds--color--gray--300);
+            border-bottom: 1px solid var(--border);
 
             img {
                 width: 140px;
                 height: auto;
-                border: 1px solid var(--sds--color--gray--200);
+                border: 1px solid var(--border);
                 padding: 12px;
                 border-radius: 8px;
                 margin-right: 25px;
@@ -55,7 +55,7 @@ div.manage-detail-container {
                 gap: 12px;
 
                 p.organization {
-                    color: var(--sds--color--blue--400);
+                    color: var(--primary);
                     font-size: 20px;
                 }
 
@@ -76,7 +76,7 @@ div.manage-detail-container {
                 gap: 25px;
                 margin-top: 25px;
                 padding-top: 25px;
-                border-top: 1px solid var(--sds--color--gray--100);
+                border-top: 1px solid var(--border);
 
 
             }

@@ -1,4 +1,3 @@
-import "./ConnectionAlert.scss";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";

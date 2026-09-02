@@ -10,7 +10,7 @@ div.profile-outer-container {
     background-color: white;
 
     .profile-header-container {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         padding: 25px 50px 25px 50px;
 
         .top-header {
@@ -27,7 +27,7 @@ div.profile-outer-container {
     div.multi-list {
         p {
             font-weight: 600;
-            margin: 12px 0 var(--sds--space--1);
+            margin: 12px 0 0.5rem;
         }
         ul {
             list-style: initial;
@@ -38,9 +38,6 @@ div.profile-outer-container {
         .external-user-container {
             display: flex;
         }
-        .sds--checkbox-container {
-            margin-left: 4px;
-        }
     }
 
     div.user-container {
@@ -48,7 +45,7 @@ div.profile-outer-container {
         display: grid;
         border-radius: 8px;
         padding: 20px;
-        border: 1px solid var(--sds--color--gray--background);
+        border: 1px solid var(--border);
         grid-template-columns: [first] 1fr [second] 1fr;
 
         h5 {

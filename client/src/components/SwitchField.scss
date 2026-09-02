@@ -5,15 +5,10 @@
     padding-bottom: 10px;
 
     &:not(.last) {
-        border-bottom: 1px solid var(--sds--color--gray--200);
+        border-bottom: 1px solid var(--border);
     }
 
     align-items: center;
-
-
-    .sds--tooltip-parent {
-        margin-left: auto;
-    }
 
     .inner-switch {
         display: flex;
@@ -36,7 +31,7 @@
     }
 
     .switch-info {
-        color: var(--sds--color--gray--500);
+        color: var(--muted-foreground);
     }
 
     [data-slot="switch"] {

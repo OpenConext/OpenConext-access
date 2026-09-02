@@ -2,13 +2,9 @@
     display: flex;
     gap: 20px;
 
-    .sds--modal--close {
-        display: none;
-    }
-
     .image-field {
         border-radius: 6px;
-        border: 1px solid var(--sds--color--gray--200);
+        border: 1px solid var(--border);
         padding: 15px;
 
         svg, img {
@@ -17,7 +13,7 @@
 
             &.image-not-found {
                 width: 110px;
-                color: var(--sds--color--gray--300)
+                color: var(--muted-foreground)
             }
         }
 
@@ -33,7 +29,7 @@
 
             li {
                 margin-left: 15px;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
                 font-size: smaller;
             }
         }

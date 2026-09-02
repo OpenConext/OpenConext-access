@@ -2,7 +2,7 @@
 
 // Shared mixin for gray background sections (filters, step-up-settings)
 @mixin gray-panel {
-    background-color: var(--sds--color--gray--background);
+    background-color: var(--muted);
     padding: 20px;
 
     .input-select-inner.creatable {
@@ -54,11 +54,6 @@
             }
         }
     }
-
-    button.sds--btn--delete {
-        margin-left: 15px;
-        color: var(--sds--color--red--400);
-    }
 }
 
 .policy-form-container {
@@ -86,11 +81,11 @@
 
 
                     &.policy-chip-active {
-                        background-color: var(--sds--color--green--200);
+                        background-color: #B8E3C9;
                     }
 
                     &.policy-chip-paused {
-                        background-color: var(--sds--color--gray--250);
+                        background-color: var(--border);
                     }
                 }
             }
@@ -111,7 +106,7 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
-        border: 1px solid var(--sl-color-neutral-100);
+        border: 1px solid var(--border);
         border-radius: 10px;
         padding: 24px 32px 32px 32px;
 
@@ -125,14 +120,6 @@
             }
         }
 
-        .sds--segmented-control.sds--tooltip-parent {
-            margin-right: 8px;
-        }
-
-        .sds--segmented-control button {
-            min-width: 110px;
-        }
-
         .filters {
             @include gray-panel;
 
@@ -143,13 +130,6 @@
                 .select-field {
                     flex-grow: 2;
                     margin-right: 15px;
-                }
-
-                button.sds--btn--delete {
-                    margin: auto 0 0 auto;
-                    padding: 13px 13px;
-                    background-color: white;
-                    border: 1px solid var(--sds--color--gray--300);
                 }
             }
         }
@@ -217,7 +197,7 @@
             .when-label {
                 margin-left: 12px;
                 font-weight: 600;
-                color: var(--sds--color--gray--600);
+                color: var(--muted-foreground);
             }
         }
 
@@ -228,7 +208,7 @@
         .cidr-negation-row {
             margin-top: 25px;
             padding-top: 20px;
-            border-top: 1px solid var(--sds--color--gray--200);
+            border-top: 1px solid var(--border);
 
             .select-field.cidr-negation-select {
                 width: 280px;
@@ -255,10 +235,6 @@
                     }
                 }
 
-                button.sds--btn--delete {
-                    margin-bottom: 2px;
-                    color: var(--sds--color--red--400);
-                }
             }
 
             .cidr-info {
@@ -268,7 +244,7 @@
                 display: flex;
                 gap: 12px;
                 font-size: 14px;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
             }
         }
 
@@ -285,25 +261,20 @@
         margin: 35px 0 25px 0;
         gap: 20px;
         padding-top: 25px;
-        border-top: 1px solid var(--sds--color--gray--200);
+        border-top: 1px solid var(--border);
 
         svg {
-            fill: var(--sds--color--red--400);
-            color: var(--sds--color--red--400);
+            fill: var(--destructive);
+            color: var(--destructive);
         }
 
         span.delete-can {
             display: flex;
             align-items: center;
             gap: 12px;
-            color: var(--sds--color--red--400);
+            color: var(--destructive);
             font-weight: 600;
             cursor: pointer;
         }
-
-        button.sds--btn--secondary {
-            margin-left: auto;
-        }
-
     }
 }

@@ -9,7 +9,7 @@
     .policy-overview {
         a, a.visited {
             text-decoration: none;
-            color: var(--sl-color-neutral-500);
+            color: var(--muted-foreground);
         }
 
         .grouped {
@@ -29,7 +29,7 @@
             margin-bottom: 15px;
 
             &.paused {
-                background-color: var(--sds--color--gray--background);
+                background-color: var(--muted);
             }
 
             svg {
@@ -38,7 +38,7 @@
                 // fill here (as this rule used to) blanks out any icon whose paths don't
                 // set their own fill, which is why the edit/delete icons were invisible.
                 cursor: pointer;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
 
                 &:hover {
                     color: black;
@@ -88,11 +88,11 @@
                 color: black;
 
                 &.policy-chip-active {
-                    background-color: var(--sds--color--green--200);
+                    background-color: #B8E3C9;
                 }
 
                 &.policy-chip-paused {
-                    background-color: var(--sds--color--gray--250);
+                    background-color: var(--border);
                 }
             }
 
@@ -110,7 +110,7 @@
                     border-radius: 8px;
 
                     &:hover {
-                        background-color: var(--sds--color--gray--background);
+                        background-color: var(--muted);
                     }
                 }
             }

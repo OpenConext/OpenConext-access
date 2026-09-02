@@ -8,7 +8,7 @@
         max-width: $medium;
         margin: 0 auto;
         display: flex;
-        gap: var(--sds--space--1);
+        gap: 0.5rem;
 
         @media (max-width: $medium) {
             flex-direction: column;

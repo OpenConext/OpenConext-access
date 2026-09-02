@@ -53,7 +53,7 @@
             flex-shrink: 0;
             padding: 8px 14px;
             background: white;
-            border: 1px solid var(--sl-color-neutral-200);
+            border: 1px solid var(--border);
             border-radius: 8px;
 
             .legend-item {
@@ -68,7 +68,7 @@
                 width: 10px;
                 height: 10px;
                 border-radius: 2px;
-                border: 1px solid var(--sl-color-neutral-200);
+                border: 1px solid var(--border);
                 flex-shrink: 0;
 
                 &.ok {
@@ -76,15 +76,15 @@
                 }
 
                 &.warn-light {
-                    background: var(--sl-color-warning-50);
+                    background: #FEFBE6;
                 }
 
                 &.warn-heavy {
-                    background: var(--sl-color-warning-600);
+                    background: #F5B800;
                 }
 
                 &.critical {
-                    background: var(--sds--color--red--400);
+                    background: var(--destructive);
                 }
             }
         }
@@ -110,7 +110,7 @@
 
             .last-update-small {
                 font-size: 0.8rem;
-                color: var(--sl-color-neutral-500);
+                color: var(--muted-foreground);
             }
         }
 
@@ -133,7 +133,7 @@
     .monitoring-body {
         display: flex;
         background: white;
-        border: 1px solid var(--sl-color-neutral-200);
+        border: 1px solid var(--border);
         border-radius: 12px;
         overflow: visible;
         min-height: 520px;
@@ -142,7 +142,7 @@
         .service-list {
             width: 360px;
             flex-shrink: 0;
-            border-right: 1px solid var(--sl-color-neutral-200);
+            border-right: 1px solid var(--border);
             overflow-y: auto;
             max-height: 72vh;
             border-radius: 12px 0 0 12px;
@@ -153,7 +153,7 @@
             // Search bar wrapper — SDS classes handle the input styling
             .search-bar {
                 padding: 12px 14px;
-                border-bottom: 1px solid var(--sl-color-neutral-200);
+                border-bottom: 1px solid var(--border);
                 position: sticky;
                 top: 0;
                 background-color: white;
@@ -168,8 +168,8 @@
                 .spinner {
                     width: 24px;
                     height: 24px;
-                    border: 3px solid var(--sl-color-neutral-200);
-                    border-top-color: var(--sds--color--blue--400);
+                    border: 3px solid var(--border);
+                    border-top-color: var(--primary);
                     border-radius: 50%;
                     animation: spin 0.7s linear infinite;
                 }
@@ -180,8 +180,8 @@
                 padding: 6px 16px;
                 font-size: 0.82rem;
                 font-weight: 500;
-                color: var(--sl-color-neutral-500);
-                background: var(--sl-color-neutral-100);
+                color: var(--muted-foreground);
+                background: var(--muted);
                 border-bottom: 1px solid var(--sl-color-neutral-150, #eee);
                 letter-spacing: 0.01em;
             }
@@ -193,7 +193,7 @@
                 gap: 12px;
                 padding: 12px 16px;
                 cursor: pointer;
-                border-bottom: 1px solid var(--sl-color-neutral-100);
+                border-bottom: 1px solid var(--border);
                 transition: background 0.1s;
 
                 &:hover:not(.selected) {
@@ -226,7 +226,7 @@
 
                     span {
                         font-size: 0.8rem;
-                        color: var(--sl-color-neutral-500);
+                        color: var(--muted-foreground);
                     }
                 }
 
@@ -281,7 +281,7 @@
                     margin-bottom: 4px;
 
                     svg {
-                        color: var(--sds--color--green--400);
+                        color: #008939;
                         width: 62px;
                         circle {
                             fill: transparent;
@@ -296,13 +296,13 @@
                 }
 
                 .last-update-text {
-                    color: var(--sl-color-neutral-500);
+                    color: var(--muted-foreground);
                     margin: 0;
                     font-size: 0.88rem;
                 }
 
                 .select-hint {
-                    color: var(--sl-color-neutral-500);
+                    color: var(--muted-foreground);
                     font-style: italic;
                     margin: 4px 0 0;
                     font-size: 0.9rem;
@@ -323,7 +323,7 @@
                     margin: 0 0 16px;
 
                     .uptime-pct {
-                        color: var(--sds--color--green--500, #2e7d32);
+                        color: #006731;
                     }
                 }
 
@@ -346,15 +346,15 @@
                         }
 
                         &.warn-light {
-                            background: var(--sl-color-warning-50);
+                            background: #FEFBE6;
                         }
 
                         &.warn-heavy {
-                            background: var(--sl-color-warning-600);
+                            background: #F5B800;
                         }
 
                         &.critical {
-                            background: var(--sds--color--red--400);
+                            background: var(--destructive);
                         }
 
                         &:hover {
@@ -367,7 +367,7 @@
                     display: flex;
                     justify-content: space-between;
                     font-size: 0.78rem;
-                    color: var(--sl-color-neutral-500);
+                    color: var(--muted-foreground);
                     margin-bottom: 36px;
                 }
 
@@ -379,7 +379,7 @@
                 }
 
                 .no-incidents {
-                    color: var(--sl-color-neutral-500);
+                    color: var(--muted-foreground);
                     font-style: italic;
                     margin: 0;
                 }
@@ -476,17 +476,17 @@
                     // SEVERITY_LEVELS in Monitoring.jsx) so an incident's icon and its
                     // place in the uptime bar read as the same severity.
                     &--warn-light {
-                        background: var(--sl-color-warning-50);
-                        color: var(--sl-color-warning-600);
+                        background: #FEFBE6;
+                        color: #F5B800;
                     }
 
                     &--warn-heavy {
-                        background: var(--sl-color-warning-600);
+                        background: #F5B800;
                         color: white;
                     }
 
                     &--critical {
-                        background: var(--sds--color--red--400);
+                        background: var(--destructive);
                         color: white;
                     }
                 }
@@ -506,7 +506,7 @@
 
                     .event-time {
                         font-size: 0.8rem;
-                        color: var(--sl-color-neutral-500);
+                        color: var(--muted-foreground);
                     }
 
                     .event-note {
@@ -551,7 +551,7 @@
 // Tooltip rendered via React portal onto document.body — must be top-level
 .bar-tooltip {
     background: white;
-    border: 1px solid var(--sl-color-neutral-200);
+    border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     padding: 10px 14px;
@@ -594,8 +594,8 @@
         width: 12px;
         height: 12px;
         background: white;
-        border-right: 1px solid var(--sl-color-neutral-200);
-        border-bottom: 1px solid var(--sl-color-neutral-200);
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
         transform: translateX(-50%) rotate(45deg);
     }
 }

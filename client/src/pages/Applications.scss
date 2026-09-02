@@ -8,7 +8,7 @@ div.applications-container {
 
     .applications-header-container {
         width: 100%;
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
     }
 
     .applications-header {
@@ -61,11 +61,11 @@ div.applications-container {
             height: 70px;
 
             &:hover {
-                background-color: var(--sds--color--gray--200);
+                background-color: var(--border);
             }
 
             &:not(:first-child) {
-                border-top: 1px solid var(--sds--color--gray--300);
+                border-top: 1px solid var(--border);
             }
         }
 
@@ -81,7 +81,7 @@ div.applications-container {
 
             svg {
                 width: 48px;
-                color: var(--sds--color--gray--300);
+                color: var(--muted-foreground);
                 height: auto;
                 border-radius: 12px;
             }
@@ -98,7 +98,7 @@ div.applications-container {
 
                 .sp-org {
                     margin-left: auto;
-                    color: var(--sds--color--blue--400)
+                    color: var(--primary)
                 }
             }
         }
@@ -133,7 +133,7 @@ div.applications-container {
             padding: 20px;
             cursor: pointer;
             &:hover {
-                background-color: var(--sds--color--gray--100);
+                background-color: var(--muted);
             }
             .sp-info {
                 display: flex;
@@ -168,14 +168,6 @@ div.applications-container {
 
 
             }
-        }
-    }
-
-    .sds--pagination {
-        display: flex;
-
-        .sds--pagination--nav {
-            margin: 15px auto 15px auto;
         }
     }
 

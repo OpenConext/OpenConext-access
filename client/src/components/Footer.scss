@@ -3,10 +3,10 @@ footer.sds--footer {
     background-color: white;
 
     .sds--footer--inner nav.menu ul li a.external-link {
-        color: var(--sds--color--gray--400);
+        color: var(--muted-foreground);
 
         &:hover {
-            color: var(--sds--color--gray--500);
+            color: var(--foreground);
         }
     }
 

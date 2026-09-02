@@ -8,21 +8,21 @@
     border-radius: 4px;
     padding: 10px 20px 10px 10px;
     background-color: white;
-    border: 1px solid var(--sds--color--gray--200);
+    border: 1px solid var(--border);
     cursor: pointer;
 
     &.enabled:hover {
-        border: 1px solid var(--sds--color--green--400);
-        background-color: var(--sds--color--green--200);
-        color: var(--sds--color--green--500);
+        border: 1px solid #008939;
+        background-color: #B8E3C9;
+        color: #006731;
 
         svg {
-            fill: var(--sds--color--green--200);
+            fill: #B8E3C9;
         }
     }
 
     &.disabled {
-        color: var(--sds--color--gray--400);
+        color: var(--muted-foreground);
         cursor: initial;
 
         &:hover {

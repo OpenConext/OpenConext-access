@@ -6,10 +6,10 @@
     border-radius: 1rem;
     border: none;
     cursor: default;
-    background-color: #F4F6F8;
+    background-color: var(--muted);
 
     &:hover {
-        background-color: #EAECF0;
+        background-color: var(--border);
     }
 
     svg {
@@ -18,45 +18,45 @@
     }
 
     &.main-100 {
-        background-color: #F4F6F8;
+        background-color: var(--muted);
 
         &:hover {
-            background-color: #F4F6F8;
+            background-color: var(--muted);
         }
     }
 
     &.main-200 {
-        background-color: #EAECF0;
+        background-color: var(--border);
 
         &:hover {
-            background-color: #EAECF0;
+            background-color: var(--border);
         }
     }
 
     &.main-300 {
-        background-color: #B2B6BE;
+        background-color: var(--muted-foreground);
         color: #FFFFFF;
 
         &:hover {
-            background-color: #B2B6BE;
+            background-color: var(--muted-foreground);
         }
     }
 
     &.main-400 {
-        background-color: #5E6873;
+        background-color: var(--muted-foreground);
         color: #FFFFFF;
 
         &:hover {
-            background-color: #5E6873;
+            background-color: var(--muted-foreground);
         }
     }
 
     &.main-500 {
-        background-color: #050E1D;
+        background-color: var(--foreground);
         color: #FFFFFF;
 
         &:hover {
-            background-color: #050E1D;
+            background-color: var(--foreground);
         }
     }
 
@@ -87,11 +87,11 @@
     }
 
     &.status-default {
-        background-color: #5E6873;
+        background-color: var(--muted-foreground);
         color: #FFFFFF;
 
         &:hover {
-            background-color: #5E6873;
+            background-color: var(--muted-foreground);
         }
     }
 
@@ -114,20 +114,20 @@
     }
 
     &.status-error {
-        background-color: #FFCDCA;
+        background-color: var(--destructive-foreground);
         color: #050E1D;
 
         &:hover {
-            background-color: #FFCDCA;
+            background-color: var(--destructive-foreground);
         }
     }
 
     &.status-info {
-        background-color: #B3E5FF;
+        background-color: var(--accent);
         color: #050E1D;
 
         &:hover {
-            background-color: #B3E5FF;
+            background-color: var(--accent);
         }
     }
 }

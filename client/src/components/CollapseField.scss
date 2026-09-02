@@ -6,11 +6,7 @@
     border-radius: 4px;
     padding: 10px 20px 10px 10px;
     background-color: white;
-    border: 1px solid var(--sds--color--gray--100);
-
-    .sds--checkbox-container {
-        margin-right: 12px;
-    }
+    border: 1px solid var(--border);
 
     .collapse-field-inner {
         display: flex;

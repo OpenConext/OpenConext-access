@@ -143,7 +143,7 @@ public class SecurityConfig {
             //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin accepts an invitation
             .securityContext(securityContextConfigurer ->
                 securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
-        if (environment.acceptsProfiles(Profiles.of("dev" ))) {//, "local"
+        if (environment.acceptsProfiles(Profiles.of("dev", "local"))) {//,
             //Thus avoiding an oauth2 login for local development
             http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
         }

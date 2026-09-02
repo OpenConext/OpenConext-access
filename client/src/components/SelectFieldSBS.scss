@@ -31,7 +31,7 @@
         height: 48px;
 
         &.error {
-            border-color:  var(--sds--color--red--400);
+            border-color:  var(--destructive);
         }
 
         &.creatable {
@@ -53,11 +53,11 @@
         }
 
         .select-inner__multi-value {
-            background-color: var(--sds--palette--main-color--100);
+            background-color: var(--muted);
         }
 
         &[disabled] {
-            background-color: var(--sds--color--gray--100);
+            background-color: var(--muted);
             cursor: not-allowed;
         }
 

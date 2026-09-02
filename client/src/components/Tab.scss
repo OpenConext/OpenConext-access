@@ -34,7 +34,7 @@
     }
 
     &:not(.read-only):hover {
-        background-color: var(--sds--color--blue--100);
+        background-color: var(--accent);
 
         span.tab-label, svg {
             color: black;
@@ -47,11 +47,11 @@
 
     &:not(.active) {
         span.tab-label, svg {
-            color: var(--sds--color--black);
+            color: var(--foreground);
         }
 
         svg {
-            color: var(--sds--color--black);
+            color: var(--foreground);
         }
 
 
@@ -59,42 +59,38 @@
             cursor: not-allowed;
 
             span.tab-label, svg {
-                color: var(--sds--color--gray--300);
+                color: var(--muted-foreground);
             }
 
             svg {
-                fill: var(--sds--color--gray--300);
+                fill: var(--muted-foreground);
             }
         }
     }
 
     &.active {
-        color: var(--sds--color--black);
+        color: var(--foreground);
         border-bottom-color: var(--primary);
-        box-shadow: 0 0.0625rem 0 0 var(--sds--palette--support-color--400);
-        background-color: var(--sds--color--white);
+        box-shadow: 0 0.0625rem 0 0 #008939;
+        background-color: var(--card);
 
         span.tab-label, svg {
-            color: var(--sds--color--black);
+            color: var(--foreground);
         }
 
         svg {
-            fill: var(--sds--color--black);
+            fill: var(--foreground);
 
         }
     }
 
     button {
-        padding: var(--sds--space--1-and-a-half) var(--sds--space--2);
+        padding: 0.75rem 1rem;
         min-height: 3rem;
         font-weight: 600;
         display: flex;
         align-items: center;
         margin: auto;
-    }
-
-    .sds--badge--number {
-        margin-left: 4px;
     }
 
     span.notifier {

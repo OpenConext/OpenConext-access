@@ -14,12 +14,12 @@
 
     span.tool-tip-section {
         font-size: 14px;
-        color: var(--sds--color--gray--200);
+        color: var(--muted-foreground);
         cursor: pointer;
         padding: 0 4px;
 
         &:hover {
-            color: var(--sds--color--blue--300);
+            color: var(--primary);
         }
     }
 
@@ -31,14 +31,14 @@
 
         &:focus {
             outline: none;
-            box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
+            box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
         }
 
         div.calendar-icon svg {
             position: absolute;
             right: 12px;
             top: 12px;
-            color: var(--sds--color--blue--500);
+            color: var(--primary-strong);
             cursor: pointer;
             width: 20px;
             height: auto;
@@ -56,7 +56,7 @@
             display: block;
             width: 100%;
             border-radius: 6px;
-            border: 1px solid var(--sds--color--gray--400);
+            border: 1px solid var(--input);
             line-height: 33px;
             padding: 16px;
             font-size: 14px;
@@ -64,7 +64,7 @@
 
             &:focus {
                 outline: none;
-                box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
+                box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
             }
 
             &[disabled] {

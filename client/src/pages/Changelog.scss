@@ -10,7 +10,7 @@ div.changelog-outer-container {
     background-color: white;
 
     .changelog-header-container {
-        background-color: var(--sds--color--gray--background);
+        background-color: var(--muted);
         padding: 25px 50px 25px 50px;
 
         .top-header {
@@ -25,7 +25,7 @@ div.changelog-outer-container {
             background-color: white;
             border-radius: 8px;
             padding: 20px 30px;
-            border: 1px solid var(--sds--color--gray--background);
+            border: 1px solid var(--border);
 
             h2 {
                 margin-top: 35px;
@@ -40,7 +40,7 @@ div.changelog-outer-container {
             }
 
             em {
-                color: var(--sds--color--gray--text);
+                color: var(--muted-foreground);
             }
         }
     }

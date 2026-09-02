@@ -20,20 +20,20 @@ div.application-form-container {
         .application-type, .fair-use {
             p {
                 font-weight: 600;
-                margin-bottom: var(--sds--space--1);
+                margin-bottom: 0.5rem;
             }
 
             .checkbox-container {
                 background-color: white;
                 padding: 15px;
-                border: 1px solid var(--sds--color--gray--400);
+                border: 1px solid var(--input);
                 border-radius: .375rem;
             }
 
             div.info {
                 margin-top: 6px;
                 display: block;
-                color: var(--sds--color--gray--500);
+                color: var(--muted-foreground);
             }
 
             ul {
