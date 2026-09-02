@@ -85,6 +85,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url=http://localhost:8081",
                 "manage.enabled=true",
+                "statistics.enabled=true",
+                "statistics.url=http://localhost:8081",
                 "jira.enabled=false",
                 "s3storage.url=http://localhost:8081",
                 "invite.enabled=true",

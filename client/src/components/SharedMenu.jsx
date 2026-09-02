@@ -18,7 +18,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarSeparator, SidebarTrigger,
+    SidebarSeparator,
+    SidebarTrigger,
     Tooltip,
     TooltipContent,
     TooltipTrigger,
@@ -32,7 +33,6 @@ import {allMenuGroups} from "../utils/MenuItems.js";
 import {sanitize} from "../utils/Utils.js";
 import LogoMark from "../icons/figma/logo-mark.svg";
 import LogoPath from "../icons/figma/logo-path.svg";
-import {BreadCrumb} from "./BreadCrumb.jsx";
 
 export const SharedMenu = () => {
 
@@ -113,10 +113,10 @@ export const SharedMenu = () => {
                 <SidebarTrigger/>
             </div>
             <Sidebar collapsible="icon">
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" onClick={() => navigate("/")} className="brand-button">
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" onClick={() => navigate("/")} className="brand-button">
                             <span className="brand-lockup">
                                 <span className="brand-tag">
                                     <LogoMark className="brand-mark"/>
@@ -124,60 +124,60 @@ export const SharedMenu = () => {
                                 </span>
                                 <span className="brand-path" aria-hidden="true"><LogoPath/></span>
                             </span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <SidebarSeparator/>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        {canSwitchOrganization ?
-                            <DropdownMenu>
-                                <DropdownMenuTrigger render={
-                                    <SidebarMenuButton size="lg">
-                                        {organizationButtonContent}
-                                    </SidebarMenuButton>
-                                }/>
-                                <DropdownMenuContent align="start" className="organization-switch-content">
-                                    <DropdownMenuGroup>
-                                        {organizations.map(org =>
-                                            <DropdownMenuItem key={org.id} onClick={() => switchOrganization(org)}>
-                                                <span className="organization-option-name">{org.name}</span>
-                                                {currentOrganization?.id === org.id && <CheckIcon/>}
-                                            </DropdownMenuItem>
-                                        )}
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            :
-                            <SidebarMenuButton size="lg" className="organization-name-static">
-                                {organizationButtonContent}
-                            </SidebarMenuButton>}
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
-            <SidebarContent>
-                {filteredMenuGroups.map((group, index) =>
-                    <SidebarGroup key={index} className={group.className}>
-                        {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                {group.items.map(item =>
-                                    <SidebarMenuItem key={item.name}>
-                                        <SidebarMenuButton isActive={item.active}
-                                                           onClick={() => setActiveMenuItem(item)}>
-                                            <item.Logo/>
-                                            <span>{item.label}</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                    <SidebarSeparator/>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            {canSwitchOrganization ?
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger render={
+                                        <SidebarMenuButton size="lg">
+                                            {organizationButtonContent}
                                         </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                )}
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                )}
-            </SidebarContent>
-            {/*<SidebarFooter className="group-data-[collapsible=icon]:hidden">*/}
-            {/*    <SharedMenuFooter/>*/}
-            {/*</SidebarFooter>*/}
+                                    }/>
+                                    <DropdownMenuContent align="start" className="organization-switch-content">
+                                        <DropdownMenuGroup>
+                                            {organizations.map(org =>
+                                                <DropdownMenuItem key={org.id} onClick={() => switchOrganization(org)}>
+                                                    <span className="organization-option-name">{org.name}</span>
+                                                    {currentOrganization?.id === org.id && <CheckIcon/>}
+                                                </DropdownMenuItem>
+                                            )}
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                :
+                                <SidebarMenuButton size="lg" className="organization-name-static">
+                                    {organizationButtonContent}
+                                </SidebarMenuButton>}
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
+                <SidebarContent>
+                    {filteredMenuGroups.map((group, index) =>
+                        <SidebarGroup key={index} className={group.className}>
+                            {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {group.items.map(item =>
+                                        <SidebarMenuItem key={item.name}>
+                                            <SidebarMenuButton isActive={item.active}
+                                                               onClick={() => setActiveMenuItem(item)}>
+                                                <item.Logo/>
+                                                <span>{item.label}</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    )}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    )}
+                </SidebarContent>
+                {/*<SidebarFooter className="group-data-[collapsible=icon]:hidden">*/}
+                {/*    <SharedMenuFooter/>*/}
+                {/*</SidebarFooter>*/}
             </Sidebar>
         </>
     );

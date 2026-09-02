@@ -168,10 +168,10 @@ const nl = {
             description: "Bepaal wie er wel en wie er geen toegang tot ingeschakelde applicaties heeft.",
             action: "Naar ingeschakelde apps",
         },
-    },
-    catalogue: {
-        title: "Applicatiecatalogus",
-        subTitle: "Vind nieuwe apps en maak deze beschikbaar binnen je organisatie."
+        catalogue: {
+            title: "Applicatiecatalogus",
+            subTitle: "Vind nieuwe apps en maak deze beschikbaar binnen je organisatie.",
+        },
     },
     tabs: {
         users: "Gebruikers",
@@ -933,7 +933,7 @@ const nl = {
         you: "Jij",
         copied: "Gekopieerd",
         changeRequest: "Er is een openstaand wijzigingsverzoek voor dit attribuut.<br/><br/>De weergegeven waarde is de huidige waarde. Bekijk de openstaande wijzigingen voor de aangevraagde waarde.",
-        editPolicies: "Bewerk access regels"
+        editPolicies: "Bewerk access regels",
     },
     feedback: {
         title: "Feedback geven",

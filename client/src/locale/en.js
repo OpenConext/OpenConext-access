@@ -170,8 +170,8 @@ const en = {
         },
         catalogue: {
             title: "Application catalogue",
-            subTitle: "Discover new apps and make them available within your organization."
-        }
+            subTitle: "Discover new apps and make them available within your organization.",
+        },
     },
     tabs: {
         users: "Users",
@@ -933,7 +933,7 @@ const en = {
         you: "You",
         copied: "Copied",
         changeRequest: "There is an outstanding change request for this attribute.<br/><br/>The displayed value is the current value. See the outstanding changes for the requested value.",
-        editPolicies: "Edit access rules"
+        editPolicies: "Edit access rules",
     },
     feedback: {
         title: "Provide Feedback",

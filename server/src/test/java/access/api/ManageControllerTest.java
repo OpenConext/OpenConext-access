@@ -446,6 +446,7 @@ class ManageControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
         stubFor(put(urlPathMatching("/manage/api/internal/change-requests/reject"))
                 .willReturn(aResponse().withStatus(200)));
+        stubForGetChangeRequests(List.of());
 
         given()
                 .when()

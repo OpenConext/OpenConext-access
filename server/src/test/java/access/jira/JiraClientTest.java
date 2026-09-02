@@ -54,7 +54,8 @@ class JiraClientTest extends AbstractMailTest {
         String jiraKey = "CTX-1000";
         stubFor(post(urlPathMatching("/issue/" + jiraKey + "/comment")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
-                .withStatus(200)));
+                .withStatus(200)
+                .withBody("{\"body\":\"Comment\"}")));
 
         jiraClient.comment(jiraKey, "Comment");
     }
