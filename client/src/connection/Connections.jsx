@@ -652,9 +652,12 @@ export const Connections = ({
                                             <Button variant="destructive" onClick={() => removeRedirectURL(index)}>
                                                 <TrashIcon/>
                                             </Button>
-                                            <Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
-                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
-                                            </Button>
+                                            <Tooltip>
+                                                <TooltipTrigger render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
+                                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
+                                                </Button>}/>
+                                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
+                                            </Tooltip>
                                         </div>
                                         {invalidRedirects[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -664,11 +667,8 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <Tooltip>
-                                <TooltipTrigger render={<button type="button" className="add-link link-button"
-                                                            onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</button>}/>
-                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
-                            </Tooltip>
+                            <button type="button" className="add-link link-button mt-3.75!"
+                                    onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</button>
                         </div>
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}

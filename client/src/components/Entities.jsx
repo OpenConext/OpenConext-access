@@ -304,7 +304,7 @@ export const Entities = ({
     const filteredEntities = filterEntities(query);
     const sortedEntities = customSearch ? filteredEntities : sortObjects(filteredEntities, sorted, reverse);
     return (
-        <div className={`mod-entities ${className}`}>
+        <div className={`mod-entities ${className} w-full mt-3.75 mx-auto mb-0`}>
             {(!hideTitle) &&
                 <h3 className="text-[length:var(--text-lg-font-size)]">{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
             {displaySearch && renderSearch()}
