@@ -3,17 +3,21 @@ import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertDescription, Button, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {Chip, ChipType} from "../components/Chip.jsx";
-import {InfoIcon, TrashIcon, WarningIcon, XCircleIcon} from "@phosphor-icons/react";
+import {
+    InfoIcon,
+    TrashIcon,
+    WarningIcon,
+    XCircleIcon,
+    CaretRightIcon as ArrowRightIcon,
+    CaretDownIcon as CaretDown
+} from "@phosphor-icons/react";
 import "jsondiffpatch/formatters/styles/html.css";
 
 import {XIcon as CloseIcon} from "@phosphor-icons/react";
-import ArrowRightIcon from "../icons/details-right.svg";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
-import CaretDown from "../icons/caret_down.svg";
-import AlertIcon from "../icons/alert-triangle.svg";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
@@ -65,6 +69,8 @@ const modals = {
     resetSecret: "resetSecret",
     deletionWarning: "deletionWarning",
 }
+
+const AlertTriangleIcon = () => <WarningIcon weight="fill" className="alert-triangle"/>;
 
 export const Connections = ({
                                 application,
@@ -572,7 +578,7 @@ export const Connections = ({
                         <div>
                             <span className="label">{I18n.t("connection.grantTypes")}
                                 {changeRequestsKeys.includes("grantTypes") && <Tooltip>
-                                    <TooltipTrigger render={<AlertIcon/>}/>
+                                    <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                                 </Tooltip>}
                             </span>
@@ -630,7 +636,7 @@ export const Connections = ({
                             <span className="label">{I18n.t("connection.redirectUrls")}
                                 <sup className="required left-outline">*</sup>
                                 {changeRequestsKeys.includes("redirectUrls") && <Tooltip>
-                                    <TooltipTrigger render={<AlertIcon/>}/>
+                                    <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                                 </Tooltip>}</span>
                             <div className="redirect-urls">
@@ -911,7 +917,7 @@ export const Connections = ({
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.who")}
                                     {changeRequestsKeys.includes("visibility") && <Tooltip>
-                                        <TooltipTrigger render={<AlertIcon/>}/>
+                                        <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                                         <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                                     </Tooltip>}
                                 </p>
@@ -926,7 +932,7 @@ export const Connections = ({
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.connect")}
                                     {changeRequestsKeys.includes("connectOption") && <Tooltip>
-                                        <TooltipTrigger render={<AlertIcon/>}/>
+                                        <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                                         <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                                     </Tooltip>}
                                 </p>
@@ -1043,7 +1049,7 @@ export const Connections = ({
         return (
             <section className="inner-right-informational">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip>
-                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                 </Tooltip>}</h3>
                 {isContentApp && alertInfo(I18n.t("connection.informational.contentAppAlert"), null, null, "warning")}
@@ -1329,7 +1335,7 @@ export const Connections = ({
                                 <span data-icon="inline-end"><CaretDown/></span>
                             </Button>
                             {isCopyConnectionOpen &&
-                                <section className="copy-connection-section sds--user-info--dropdown">
+                                <section className="copy-connection-section dropdown-menu">
                                     {application.connections
                                         .filter(conn => conn.id && conn.name !== connection.name)
                                         .map((conn, index) =>
@@ -1354,7 +1360,7 @@ export const Connections = ({
                                                     isAlert={sectionValue === sections.pendingChanges}
                                                     action={() => changeSection(sectionValue)}
                                                     info={I18n.t(`connection.${sectionValue}`)}
-                                                    CustomIcon={sectionValue === sections.productionStatus && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertIcon : null}
+                                                    CustomIcon={sectionValue === sections.productionStatus && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertTriangleIcon : null}
                                                     active={section === sectionValue}/>)}
                         </div>
                     </section>
@@ -1440,7 +1446,7 @@ export const Connections = ({
                                   className={status}
                                   label={I18n.t(`connection.connections.${status}`)}
                             >
-                                {!isEmpty(conn.changeRequests) ? <AlertIcon/> : null}
+                                {!isEmpty(conn.changeRequests) ? <WarningIcon weight="fill" className="alert-triangle"/> : null}
                             </Chip>
                             {toolTip && <Tooltip>
                                 <TooltipTrigger render={<InfoIcon/>}/>

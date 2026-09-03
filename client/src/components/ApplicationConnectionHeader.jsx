@@ -1,8 +1,7 @@
 import I18n from "../locale/I18n";
 import "./ApplicationConnectionHeader.scss"
 import {isEmpty, stopEvent} from "../utils/Utils.js";
-import MenuIcon from "../icons/menu.svg";
-import {PencilSimpleIcon as PencilIcon, TrashIcon} from "@phosphor-icons/react";
+import {PencilSimpleIcon as PencilIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import React, {useState} from "react";
 import {useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
@@ -93,7 +92,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
     const renderMenu = () => {
         const mayDelete = hasApplicationDeleteAccess(user, application);
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     <li onClick={e => menuLink(e, `/application/${application.id}`)}>
                         <PencilIcon/>
@@ -148,7 +147,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                               className="application-type"/>}
                     <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
                           onClick={() => setDropDownActive(!dropDownActive)}>
-                    <MenuIcon/>
+                    <MenuIcon className="menu-icon"/>
                         {dropDownActive && renderMenu()}
                 </span>
                 </div>

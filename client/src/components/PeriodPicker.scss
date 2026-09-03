@@ -2,7 +2,8 @@
     display: flex;
 
     .access-period-picker {
-
+        display: flex;
+        align-items: center;
         border: 1px solid var(--border);
         border-radius: 12px;
         background: white;

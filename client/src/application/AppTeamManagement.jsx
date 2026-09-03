@@ -11,8 +11,7 @@ import {Chip, ChipType} from "../components/Chip.jsx";
 import {Spinner} from "@surfnet/curve-react";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
-import MenuIcon from "../icons/menu.svg";
-import {TrashIcon} from "@phosphor-icons/react";
+import {TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {useShallow} from "zustand/react/shallow";
 
@@ -76,7 +75,7 @@ export const AppTeamManagement = ({
 
     const renderMenu = membership => {
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     <li onClick={() => doDelete(membership, true)}>
                         <TrashIcon/>
@@ -146,7 +145,7 @@ export const AppTeamManagement = ({
                              onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
                             <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
-                                <MenuIcon/>
+                                <MenuIcon className="menu-icon"/>
                                 {dropDownActive === membership.id && renderMenu(membership)}
                             </span>
                         </div>

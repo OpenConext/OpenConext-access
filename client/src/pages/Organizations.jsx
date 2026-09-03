@@ -15,9 +15,9 @@ import {
     CheckCircleIcon as ApproveIcon,
     BellSlashIcon as DisapproveIcon,
     PencilSimpleIcon as PencilIcon,
-    TrashIcon
+    TrashIcon,
+    DotsThreeIcon as MenuIcon
 } from "@phosphor-icons/react";
-import MenuIcon from "../icons/menu.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import InputField from "../components/InputField.jsx";
 import {
@@ -164,7 +164,7 @@ export const Organizations = ({pendingApproval}) => {
             .filter(status => status !== organization.status)
             .sort();
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     {availableStatuses.map((status, index) =>
                         <li key={index}
@@ -285,7 +285,7 @@ export const Organizations = ({pendingApproval}) => {
                      onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
                             <span className={`menu ${dropDownActive === org.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? org.id : -1)}>
-                                <MenuIcon/>
+                                <MenuIcon className="menu-icon"/>
                                 {dropDownActive === org.id && renderMenu(org)}
                             </span>
                 </div> : <Tooltip>

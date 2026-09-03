@@ -10,8 +10,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {changeOrganizationMembershipById, deleteOrganizationMembershipById} from "../api/index.js";
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
-import MenuIcon from "../icons/menu.svg";
-import {PencilSimpleIcon as PencilIcon, TrashIcon} from "@phosphor-icons/react";
+import {PencilSimpleIcon as PencilIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import {useShallow} from "zustand/react/shallow";
 import {isEmpty} from "../utils/Utils.js";
 
@@ -86,7 +85,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
     const renderMenu = membership => {
 
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN) &&
                         <li onClick={() => changeOrganizationMembership(membership, authorities.ADMIN)}>
@@ -155,7 +154,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                         >
                             <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
-                                <MenuIcon/>
+                                <MenuIcon className="menu-icon"/>
                                 {dropDownActive === membership.id && renderMenu(membership)}
                             </span>
                         </div>

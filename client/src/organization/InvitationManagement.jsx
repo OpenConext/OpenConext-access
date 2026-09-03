@@ -9,8 +9,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {deleteAllInvitations, deleteInvitation, resendInvitation} from "../api/index.js";
 import SelectField from "../components/SelectField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
-import MenuIcon from "../icons/menu.svg";
-import {ArrowRightIcon as ArrowRight, TrashIcon} from "@phosphor-icons/react";
+import {ArrowRightIcon as ArrowRight, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
 
@@ -87,7 +86,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
 
     const renderMenu = invitation => {
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     <li onClick={() => doResend(invitation, true)}>
                         <ArrowRight/>
@@ -148,7 +147,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
                              onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
                             <span className={`menu ${dropDownActive === invitation.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? invitation.id : -1)}>
-                                <MenuIcon/>
+                                <MenuIcon className="menu-icon"/>
                                 {dropDownActive === invitation.id && renderMenu(invitation)}
                             </span>
                         </div>

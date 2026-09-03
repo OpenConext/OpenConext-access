@@ -1,7 +1,6 @@
 import {useState} from "react";
 import "./CollapseField.scss"
-import CaretUp from "../icons/caret_up.svg";
-import CaretDown from "../icons/caret_down.svg";
+import {CaretUpIcon as CaretUp, CaretDownIcon as CaretDown} from "@phosphor-icons/react";
 import {Checkbox} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 

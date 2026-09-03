@@ -43,7 +43,7 @@
             }
         }
 
-        .sds--user-info--dropdown {
+        .dropdown-menu {
             position: absolute;
             right: 0;
             top: 100%;
@@ -88,7 +88,7 @@
     // The table container clips overflow to keep its rounded corners, which
     // also cuts off the dropdown when it's positioned near the bottom/edge
     // of the table. Only relax the clipping while a dropdown is actually open.
-    [data-slot="table-container"]:has(.sds--user-info--dropdown) {
+    [data-slot="table-container"]:has(.dropdown-menu) {
         overflow: visible;
     }
 

@@ -1,7 +1,7 @@
 import React from "react";
 import "./SwitchField.scss";
 import {Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import AlertIcon from "../icons/alert-triangle.svg";
+import {WarningIcon as AlertIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {sanitize} from "../utils/Utils";
 
@@ -11,7 +11,7 @@ export default function SwitchField({name, value, onChange, label, info, last = 
             <div className={"inner-switch"}>
                 <span className="switch-label">{label}{isAlert &&
                     <Tooltip>
-                        <TooltipTrigger render={<AlertIcon/>}/>
+                        <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
                         <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                     </Tooltip>
                     }</span>

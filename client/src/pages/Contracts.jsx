@@ -5,8 +5,7 @@ import I18n from "../locale/I18n";
 import {Spinner} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
-import MenuIcon from "../icons/menu.svg";
-import {CheckCircleIcon as SignIcon} from "@phosphor-icons/react";
+import {CheckCircleIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {unsignedContracts, updateContract} from "../api";
 import {isEmpty} from "../utils/Utils.js";
@@ -52,7 +51,7 @@ export const Contracts = () => {
 
     const renderMenu = contract => {
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul>
                     <li onClick={() => doSignContract(contract, true)}>
                         <SignIcon/>
@@ -114,7 +113,7 @@ export const Contracts = () => {
                      onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
                     <span className={`menu ${dropDownActive === contract.id ? "drop-down" : ""}`}
                           onClick={() => setDropDownActive(dropDownActive === -1 ? contract.id : -1)}>
-                        <MenuIcon/>
+                        <MenuIcon className="menu-icon"/>
                         {dropDownActive === contract.id && renderMenu(contract)}
                     </span>
                 </div>

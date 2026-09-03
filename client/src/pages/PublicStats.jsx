@@ -4,7 +4,7 @@ import I18n from "../locale/I18n";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import PeriodPicker from "../components/PeriodPicker.jsx";
 import {Button} from "@surfnet/curve-react";
-import ExportIcon from "../icons/export.svg";
+import {ExportIcon} from "@phosphor-icons/react";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame} from "../api/index.js";

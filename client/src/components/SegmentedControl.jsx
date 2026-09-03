@@ -12,7 +12,7 @@ const SegmentedControl = ({options, option, optionLabelResolver, onClick}) => {
                     <Button key={o}
                             aria-expanded={o === option}
                             onClick={() => onClick(o)}
-                            variant={o === option ? undefined : "secondary"}
+                            variant={o === option ? undefined : "outline"}
                     >
                         <span dangerouslySetInnerHTML={{__html: sanitize(optionLabelResolver(o))}}/>
                     </Button>)}

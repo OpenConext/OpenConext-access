@@ -1,22 +1,4 @@
 .sds--chips {
-    padding: 0 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: .5em;
-    border-radius: 1rem;
-    border: none;
-    cursor: default;
-    background-color: var(--muted);
-
-    &:hover {
-        background-color: var(--border);
-    }
-
-    svg {
-        width: calc(15em / 16);
-        height: calc(18.75em / 16);
-    }
-
     &.main-100 {
         background-color: var(--muted);
 
@@ -130,15 +112,4 @@
             background-color: var(--accent);
         }
     }
-}
-
-.sds--chips--visual {
-    display: flex;
-}
-
-.sds--chips--textual {
-    padding: 0.5rem 0;
-    display: block;
-    font-weight: 600;
-    text-align: center;
 }

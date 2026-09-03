@@ -12,17 +12,17 @@ const PeriodPicker = ({value, onClick}) => {
         <div className="access-period-picker-container">
             <div className="access-period-picker">
                 <Button onClick={() => onClick(value - 1)}
-                        variant="secondary">
+                        variant="ghost">
                     <span data-icon="inline-end"><ArrowLeft/></span>
                 </Button>
                 <Button aria-expanded={true}
                         disabled={true}
-                        variant="secondary">
+                        variant="ghost">
                     <span dangerouslySetInnerHTML={{__html: sanitize(value)}}/>
                 </Button>
                 <Button onClick={atCurrentYear ? undefined : () => onClick(value + 1)}
                         disabled={atCurrentYear}
-                        variant="secondary">
+                        variant="ghost">
                     <span data-icon="inline-end"><ArrowRight/></span>
                 </Button>
             </div>

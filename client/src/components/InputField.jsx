@@ -2,13 +2,12 @@ import React from "react";
 import {CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 
 import {Field, FieldDescription, FieldLabel, Input, Textarea, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import {InfoIcon} from "@phosphor-icons/react";
+import {InfoIcon, WarningIcon as AlertIcon} from "@phosphor-icons/react";
 import "./InputField.scss";
 import {isEmpty, sanitize} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
 import {useNavigate} from "react-router";
-import AlertIcon from "../icons/alert-triangle.svg";
 import I18n from "../locale/I18n.js";
 
 export default function InputField({
@@ -58,7 +57,7 @@ export default function InputField({
             {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}{required &&
                 <sup className="required">*</sup>}
                 {isAlert && <Tooltip>
-                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                 </Tooltip>}
                 {toolTip && <Tooltip>

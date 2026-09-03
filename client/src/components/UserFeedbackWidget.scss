@@ -230,6 +230,13 @@ body.feedback-capture .user-feedback-widget {
     visibility: hidden !important;
 }
 
+.confirmation-dialog.feedback-preview-dialog {
+    @media (min-width: 1200px) {
+        max-width: 1024px;
+    }
+
+}
+
 @media (max-width: $medium) {
     .user-feedback-widget {
         right: 32px;

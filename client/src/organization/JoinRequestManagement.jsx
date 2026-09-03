@@ -8,11 +8,10 @@ import {authorities} from "../utils/Permissions.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {approvalJoinRequest} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
-import MenuIcon from "../icons/menu.svg";
 import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
-import {CheckIcon, TrashIcon} from "@phosphor-icons/react";
+import {CheckIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, refreshState}) => {
 
@@ -64,7 +63,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
 
     const renderMenu = joinRequest => {
         return (
-            <div className="sds--user-info--dropdown">
+            <div className="dropdown-menu">
                 <ul className="join-request-actions">
                     <li onClick={() => doApprove(joinRequest, true, true)}>
                         <CheckIcon/>
@@ -117,7 +116,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
                              onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
                             <span className={`menu ${dropDownActive === joinRequest.id ? "drop-down" : ""}`}
                                   onClick={() => setDropDownActive(dropDownActive === -1 ? joinRequest.id : -1)}>
-                                <MenuIcon/>
+                                <MenuIcon className="menu-icon"/>
                                 {dropDownActive === joinRequest.id && renderMenu(joinRequest)}
                             </span>
                         </div>

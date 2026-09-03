@@ -13,17 +13,15 @@ import {
     saveIdentityProviderConsent
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import ExternalLinkIcon from "../icons/external-link.svg";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router";
 import {Alert, AlertDescription} from "@surfnet/curve-react";
 import {Chip, ChipType} from "../components/Chip.jsx";
-import {WarningIcon} from "@phosphor-icons/react";
+import {WarningIcon, ArrowSquareOutIcon as ExternalLinkIcon} from "@phosphor-icons/react";
 import {Button, Spinner} from "@surfnet/curve-react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
-import AlertIcon from "../icons/alert-triangle.svg";
 
 import ExampleSVG from "../icons/wayf.svg";
 import {
@@ -718,7 +716,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             __html: DOMPurify.sanitize(I18n.t("consent.info"))
                         }}/>
                         <p className="warning">
-                            <AlertIcon/>
+                            <WarningIcon weight="fill" className="alert-triangle"/>
                             <span dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
                             }}/>

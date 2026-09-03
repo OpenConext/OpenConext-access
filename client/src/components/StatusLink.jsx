@@ -1,9 +1,11 @@
 import "./StatusLink.scss"
-import CaretRight from "../icons/caret_right.svg";
-import PendingIcon from "../icons/pending.svg";
-import TeamIcon from "../icons/teams.svg";
-import CompletedIcon from "../icons/completed.svg";
-import AlertIcon from "../icons/alert-triangle.svg";
+import {
+    CaretRightIcon as CaretRight,
+    CircleDashedIcon as PendingIcon,
+    UsersThreeIcon as TeamIcon,
+    CheckCircleIcon as CompletedIcon,
+    WarningIcon as AlertIcon
+} from "@phosphor-icons/react";
 import React from "react";
 import DOMPurify from "dompurify";
 
@@ -23,13 +25,13 @@ export const StatusLink = ({status, info, action, disabled, CustomIcon}) => {
         }
         switch (status) {
             case STATUS_LINK_TYPE.ACTIVE:
-                return <CompletedIcon/>
+                return <CompletedIcon weight="fill" className="completed"/>
             case STATUS_LINK_TYPE.PENDING:
-                return <PendingIcon/>
+                return <PendingIcon className="pending"/>
             case STATUS_LINK_TYPE.ALERT:
-                return <AlertIcon/>
+                return <AlertIcon weight="fill" className="alert-triangle"/>
             case STATUS_LINK_TYPE.TEAM:
-                return <TeamIcon/>
+                return <TeamIcon className="team"/>
         }
     }
 
@@ -39,7 +41,7 @@ export const StatusLink = ({status, info, action, disabled, CustomIcon}) => {
             {getIcon()}
             <span className="info"
                 dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-            <CaretRight/>
+            <CaretRight className="caret_right"/>
         </div>
     );
 }

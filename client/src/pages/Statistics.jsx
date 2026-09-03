@@ -6,7 +6,7 @@ import {useShallow} from "zustand/react/shallow";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import PeriodPicker from "../components/PeriodPicker.jsx";
 import {Button} from "@surfnet/curve-react";
-import ExportIcon from "../icons/export.svg";
+import {ExportIcon} from "@phosphor-icons/react";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import StatsTable from "../components/StatsTable.jsx";
 import {DateField} from "../components/DateField.jsx";
@@ -319,7 +319,7 @@ const Statistics = () => {
         <div className="statistics-container">
             <div className="statistics-header">
                 <div className="title">
-                    <h2 className="text-[length:var(--text-xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h2>
+                    <h1 className="text-[length:var(--text-2xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h1>
                     <p>{I18n.t(isSurfNet ? "statistics.loginAll" : "statistics.loginOwn")}</p>
                 </div>
                 <div className="statistics-menu">

@@ -4,8 +4,7 @@ import "./SelectField.scss";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import {InfoIcon} from "@phosphor-icons/react";
-import AlertIcon from "../icons/alert-triangle.svg";
+import {InfoIcon, WarningIcon as AlertIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n.js";
 import DOMPurify from "dompurify";
 
@@ -24,7 +23,7 @@ export default function SelectField({
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(toolTip)}}/></TooltipContent>
                 </Tooltip>}
                 {isAlert && <Tooltip>
-                    <TooltipTrigger render={<AlertIcon/>}/>
+                    <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                 </Tooltip>}
             </label>}

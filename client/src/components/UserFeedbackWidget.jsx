@@ -2,7 +2,7 @@ import React, {useCallback, useRef, useState} from "react";
 import {Checkbox} from "@surfnet/curve-react";
 import {useLocation} from "react-router";
 import DOMPurify from "dompurify";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import I18n from "../locale/I18n.js";
 import {sendFeedback} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";

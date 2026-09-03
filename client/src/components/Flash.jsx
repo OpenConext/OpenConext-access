@@ -14,7 +14,7 @@ export const Flash = () => {
 
     useEffect(() => {
         if (!isEmpty(flash) && !isAlert && !isEmpty(flash.msg)) {
-            toast.success(flash.msg);
+            toast.success(<span dangerouslySetInnerHTML={{__html: sanitize(flash.msg)}}/>);
             clearFlash();
         }
     }, [flash]); // eslint-disable-line react-hooks/exhaustive-deps

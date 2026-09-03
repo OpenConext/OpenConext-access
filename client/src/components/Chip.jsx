@@ -1,6 +1,6 @@
 import React from "react";
 import "./Chip.scss";
-import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Badge, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {sanitize} from "../utils/Utils";
 
 export const ChipType = {
@@ -23,13 +23,13 @@ export const Chip = (props) => {
     const chipType = props.type || ChipType.Main_100;
     const className = props.className || "";
     const chip = (
-        <button className={`sds--chips ${chipType} ${className}`}>
+        <Badge variant="secondary" className={`sds--chips ${chipType} ${className}`}>
             {props.children &&
                 <span className="sds--chips--visual">
                     {props.children}
                 </span>}
             <span className="sds--chips--textual sds--text--body--small">{props.label}</span>
-        </button>
+        </Badge>
     );
     if (!props.toolTip) {
         return chip;

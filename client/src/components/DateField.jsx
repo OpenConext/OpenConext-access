@@ -1,8 +1,7 @@
 import React, {useRef} from "react";
 
-import CardIcon from "../icons/calendar-alt.svg";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import {InfoIcon} from "@phosphor-icons/react";
+import {InfoIcon, CalendarBlankIcon as CardIcon} from "@phosphor-icons/react";
 import {sanitize} from "../utils/Utils";
 import DatePicker from "react-datepicker";
 

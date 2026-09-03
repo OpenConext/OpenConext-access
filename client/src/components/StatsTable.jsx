@@ -2,7 +2,7 @@ import "./StatsTable.scss";
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import ToggleSegmentButton from "./ToggleSegmentButton.jsx";
-import SearchIcon from "../icons/search.svg";
+import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import InputField from "./InputField.jsx";
 
 const INITIAL_ROWS = 6;

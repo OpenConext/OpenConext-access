@@ -1,11 +1,10 @@
 import "./StatusMenuItem.scss"
-import PendingIcon from "../icons/pending.svg";
-import CompletedIcon from "../icons/completed.svg";
-import AlertIcon from "../icons/alert-triangle.svg";
+import {CircleDashedIcon as PendingIcon, CheckCircleIcon as CompletedIcon, WarningIcon as AlertIcon} from "@phosphor-icons/react";
 
 export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert = false, hideIcon = false, CustomIcon = null}) => {
 
-    const icon = isAlert ? <AlertIcon/> : pending ? <PendingIcon/> : <CompletedIcon/>;
+    const icon = isAlert ? <AlertIcon weight="fill" className="alert-triangle"/> :
+        pending ? <PendingIcon className="pending"/> : <CompletedIcon weight="fill" className="completed"/>;
 
     const isActive = active ? "active" : "";
     const isDisabled = disabled ? "disabled" : "";

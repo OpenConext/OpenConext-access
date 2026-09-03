@@ -330,11 +330,11 @@ const ApplicationOverview = ({accessible}) => {
                 <div className="accessible-apps-header-container">
                     <div className="accessible-apps-header-row">
                         {accessible && <div className="accessible-apps-header">
-                            <h2 className="large text-[length:var(--text-xl-font-size)] mb-[18px]">{I18n.t("accessibleApps.title")}</h2>
+                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("accessibleApps.title")}</h1>
                             <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
                         </div>}
                         {!accessible && <div className="accessible-apps-header">
-                            <h2 className="large text-[length:var(--text-xl-font-size)] mb-[18px]">{I18n.t("userHome.catalogue.title")}</h2>
+                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("userHome.catalogue.title")}</h1>
                             <p>{I18n.t("userHome.catalogue.subTitle")}</p>
                         </div>}
                         {!isEmpty(serviceProviders) &&
