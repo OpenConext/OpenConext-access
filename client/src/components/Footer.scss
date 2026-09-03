@@ -1,12 +1,89 @@
+@use "../styles/vars" as *;
+
 footer.sds--footer {
     margin-top: auto;
     background-color: white;
+    border-top: 1px solid var(--border);
 
-    .sds--footer--inner nav.menu ul li a.external-link {
-        color: var(--muted-foreground);
+    .sds--footer--inner {
+        display: flex;
+        align-items: center;
+        gap: 35px;
+        padding: 20px 35px;
 
-        &:hover {
-            color: var(--foreground);
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        nav.menu {
+            margin: 0 auto 0 0;
+
+            @media (max-width: $mobile-width) {
+                margin: 0;
+                order: 1;
+            }
+
+            ul {
+                display: flex;
+                gap: 25px;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            li a.external-link {
+                color: var(--muted-foreground);
+                text-decoration: none;
+                font-weight: 400;
+
+                &:hover {
+                    color: var(--foreground);
+                }
+            }
+        }
+
+        .sds--language-switcher {
+            @media (max-width: $mobile-width) {
+                order: 2;
+            }
+
+            ul {
+                display: flex;
+                align-items: center;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            li {
+                display: flex;
+                align-items: center;
+            }
+
+            .link-button {
+                background: none;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+                color: var(--muted-foreground);
+                font-weight: 400;
+
+                &.is-active {
+                    color: var(--foreground);
+                    font-weight: 600;
+                }
+
+                &:hover {
+                    color: var(--foreground);
+                }
+            }
+
+            .sds--language-sds--divider {
+                color: var(--border);
+                margin: 0 8px;
+            }
         }
     }
 
