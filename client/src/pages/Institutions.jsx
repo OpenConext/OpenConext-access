@@ -19,7 +19,7 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
-import {pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination.js";
+import {pageHref, pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination.js";
 
 const pageCount = 10;
 
@@ -107,7 +107,7 @@ const Institutions = () => {
                 <Pagination>
                     <PaginationContent>
                         {page !== 1 && <PaginationItem>
-                            <PaginationPrevious href="#" iconOnly={true}
+                            <PaginationPrevious href={pageHref(page - 1)} iconOnly={true}
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     onChange(page - 1);
@@ -117,7 +117,7 @@ const Institutions = () => {
                             <PaginationItem key={`${nbr}_${index}`}>
                                 {typeof nbr === "string" ?
                                     <PaginationEllipsis/> :
-                                    <PaginationLink href="#" isActive={nbr === page}
+                                    <PaginationLink href={pageHref(nbr)} isActive={nbr === page}
                                                     onClick={e => {
                                                         e.preventDefault();
                                                         onChange(nbr);
@@ -125,7 +125,7 @@ const Institutions = () => {
                             </PaginationItem>
                         )}
                         {page !== nbrPages && <PaginationItem>
-                            <PaginationNext href="#" iconOnly={true}
+                            <PaginationNext href={pageHref(page + 1)} iconOnly={true}
                                             onClick={e => {
                                                 e.preventDefault();
                                                 onChange(page + 1);

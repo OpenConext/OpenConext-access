@@ -16,11 +16,11 @@ export const LanguageSelector = () => {
 
     const renderLocaleChooser = locale => {
         return (
-            <a href={"locale"} className={`${I18n.locale === locale ? "is-active" : "not-active"}`}
+            <button type="button" className={`link-button ${I18n.locale === locale ? "is-active" : "not-active"}`}
                title={I18n.t("footer.select_locale")}
                onClick={handleChooseLocale(locale)}>
                 {I18n.translations[locale].code}
-            </a>
+            </button>
         );
     }
 

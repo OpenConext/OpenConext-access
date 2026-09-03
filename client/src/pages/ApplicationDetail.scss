@@ -6,7 +6,7 @@ div.application-detail-container {
 
     $width: 920px;
 
-    a {
+    a, button.link-button {
         text-decoration: underline;
     }
 
@@ -82,7 +82,7 @@ div.application-detail-container {
         background-color: white;
         padding: 0 25px;
 
-        a {
+        a, button.link-button {
             color: var(--muted-foreground);
             text-decoration: none;
         }

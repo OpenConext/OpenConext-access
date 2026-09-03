@@ -19,7 +19,9 @@ import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {StretchedLink} from "../components/StretchedLink.jsx";
 import {
+    pageHref,
     pageNumberFromQueryParams,
     pageRangeWithDots,
     storePageNumber,
@@ -155,7 +157,7 @@ const Applications = () => {
                 <Pagination>
                     <PaginationContent>
                         {page !== 1 && <PaginationItem>
-                            <PaginationPrevious href="#" iconOnly={true}
+                            <PaginationPrevious href={pageHref(page - 1)} iconOnly={true}
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     onChange(page - 1);
@@ -165,7 +167,7 @@ const Applications = () => {
                             <PaginationItem key={`${nbr}_${index}`}>
                                 {typeof nbr === "string" ?
                                     <PaginationEllipsis/> :
-                                    <PaginationLink href="#" isActive={nbr === page}
+                                    <PaginationLink href={pageHref(nbr)} isActive={nbr === page}
                                                     onClick={e => {
                                                         e.preventDefault();
                                                         onChange(nbr);
@@ -173,7 +175,7 @@ const Applications = () => {
                             </PaginationItem>
                         )}
                         {page !== nbrPages && <PaginationItem>
-                            <PaginationNext href="#" iconOnly={true}
+                            <PaginationNext href={pageHref(page + 1)} iconOnly={true}
                                             onClick={e => {
                                                 e.preventDefault();
                                                 onChange(page + 1);
@@ -242,8 +244,8 @@ const Applications = () => {
                                         const metaData = sp.data.metaDataFields;
                                         return (
                                             <div key={index}
-                                                 className="application-card"
-                                                 onClick={() => navigate(`/application-detail/${sp.type}/${sp['_id']}`)}>
+                                                 className="application-card">
+                                                <StretchedLink to={`/application-detail/${sp.type}/${sp['_id']}`}/>
                                                 {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
                                                 {!metaData["logo:0:url"] && <PlaceHolderImage/>}
                                                 <div className="sp-info">
@@ -266,8 +268,8 @@ const Applications = () => {
                                         .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
                                         .map((idp, index) => {
                                                 return (
-                                                    <li key={index}
-                                                        onClick={() => navigate(`/application-detail/${idp.type}/${idp['_id']}`)}>
+                                                    <li key={index}>
+                                                        <StretchedLink to={`/application-detail/${idp.type}/${idp['_id']}`}/>
                                                         <div className="service-provider">
                                                             <div className="sp-info">
                                                             <span className="sp-name">

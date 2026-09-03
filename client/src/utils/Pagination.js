@@ -76,6 +76,12 @@ export const storePageNumber = nbr => {
     window.history.pushState({page: nbr}, "", url);
 }
 
+export const pageHref = nbr => {
+    const url = new URL(window.location);
+    url.searchParams.set("page", nbr);
+    return url.pathname + url.search;
+}
+
 export const storeQueryParameter = (name, value) => {
     const url = new URL(window.location);
     url.searchParams.set(name, value);

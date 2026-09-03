@@ -27,8 +27,8 @@ import {
     TooltipTrigger
 } from "@surfnet/curve-react";
 import {Button} from "@surfnet/curve-react";
-import {pageCount, pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination";
-import {useNavigate} from "react-router";
+import {pageCount, pageHref, pageNumberFromQueryParams, pageRangeWithDots, storePageNumber} from "../utils/Pagination";
+import {Link, useNavigate} from "react-router";
 import {CaretDownIcon as ArrowDown, CaretUpIcon as ArrowUp, CaretUpDownIcon, InfoIcon} from "@phosphor-icons/react";
 
 
@@ -43,6 +43,7 @@ export const Entities = ({
                              title,
                              filters,
                              rowLinkMapper,
+                             rowHrefMapper,
                              rowOverrideClickable = null,
                              tableClassName,
                              className = "",
@@ -182,17 +183,33 @@ export const Entities = ({
         const additionalClassName = isEmpty(rowClassNameResolver) ? "" : rowClassNameResolver(entity);
         const overrideClickable = typeof rowOverrideClickable === "function" && rowOverrideClickable(entity);
         const clickAble = (!overrideClickable && typeof rowLinkMapper === "function") ? "clickable" : "";
+        const href = (!overrideClickable && typeof rowHrefMapper === "function") ? rowHrefMapper(entity) : null;
+        let firstClickableColumnSeen = false;
         return <TableRow key={`tr_${entity.id}_${index}`}
                    title={overrideClickable && notAllowedTitle ? notAllowedTitle : ""}
                    className={`${clickAble} ${onHover ? "hoverable" : ""} ${additionalClassName} ${overrideClickable ? "not-allowed" : ""}`}>
-            {columns.map((column, i) =>
-                <TableCell key={`td_${column.key}_${i}`}
-                    onClick={e => (column.key !== "check" && !column.hasLink) ?
-                        onRowClick(e, entity) : undefined}
+            {columns.map((column, i) => {
+                const isClickableColumn = column.key !== "check" && !column.hasLink;
+                const showLinkOverlay = isClickableColumn && !isEmpty(href);
+                const isFirstClickableColumn = showLinkOverlay && !firstClickableColumnSeen;
+                if (isFirstClickableColumn) {
+                    firstClickableColumnSeen = true;
+                }
+                return <TableCell key={`td_${column.key}_${i}`}
+                    onClick={e => isClickableColumn ? onRowClick(e, entity) : undefined}
                     data-label={typeof column === "string" ? column.header : ""}
                     className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
+                    {showLinkOverlay &&
+                        <Link to={href}
+                              className="row-link-overlay"
+                              tabIndex={isFirstClickableColumn ? 0 : -1}
+                              onClick={e => {
+                                  e.preventDefault();
+                                  onRowClick(e, entity);
+                              }}/>}
                     {getEntityValue(entity, column)}
-                </TableCell>)}
+                </TableCell>;
+            })}
         </TableRow>;
     }
 
@@ -205,7 +222,7 @@ export const Entities = ({
             <Pagination>
                 <PaginationContent>
                     {page !== 1 && <PaginationItem>
-                        <PaginationPrevious href="#" iconOnly={true}
+                        <PaginationPrevious href={pageHref(page - 1)} iconOnly={true}
                                             onClick={e => {
                                                 e.preventDefault();
                                                 onChange(page - 1);
@@ -215,7 +232,7 @@ export const Entities = ({
                         <PaginationItem key={`${nbr}_${index}`}>
                             {typeof nbr === "string" ?
                                 <PaginationEllipsis/> :
-                                <PaginationLink href="#" isActive={nbr === page}
+                                <PaginationLink href={pageHref(nbr)} isActive={nbr === page}
                                                 aria-current={nbr === page ? "page" : undefined}
                                                 onClick={e => {
                                                     e.preventDefault();
@@ -224,7 +241,7 @@ export const Entities = ({
                         </PaginationItem>
                     )}
                     {page !== nbrPages && <PaginationItem>
-                        <PaginationNext href="#" iconOnly={true}
+                        <PaginationNext href={pageHref(page + 1)} iconOnly={true}
                                         onClick={e => {
                                             e.preventDefault();
                                             onChange(page + 1);

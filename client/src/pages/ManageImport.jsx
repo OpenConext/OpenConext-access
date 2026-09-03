@@ -90,6 +90,7 @@ export const ManageImport = () => {
                       inputFocus={true}
                       hideTitle={true}
                       rowLinkMapper={(e, entity) => showEntityDetails(entity)}
+                      rowHrefMapper={entity => `/manage/details/${entity["type"]}/${entity["_id"]}`}
                       customSearch={search}
                       totalElements={totalElements}
             />

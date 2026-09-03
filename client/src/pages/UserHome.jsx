@@ -5,7 +5,7 @@ import {Button, Card, CardContent, CardDescription, CardTitle} from "@surfnet/cu
 import {ArrowRightIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
-import {Navigate, useNavigate} from "react-router";
+import {Link, Navigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
@@ -18,8 +18,6 @@ const UserHome = () => {
         user: state.user,
         currentOrganization: state.currentOrganization
     })));
-
-    const navigate = useNavigate();
 
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
@@ -42,8 +40,7 @@ const UserHome = () => {
         return <Navigate to={newLocation} replace/>;
     }
 
-    const navigateInner = (menuItem, path) => {
-        navigate(path);
+    const setActiveMenuItemState = menuItem => {
         useAppStore.setState(() => ({
             activeMenuItem: menuItem
         }));
@@ -58,10 +55,12 @@ const UserHome = () => {
                         <Illustration/>
                     </div>}
                 <CardDescription>{I18n.t(`userHome.${key}.description`)}</CardDescription>
-                <Button onClick={() => navigateInner(menuItem, path)} variant="link" className={linkColorClass}>
-                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
-                    <ArrowRightIcon/>
-                </Button>
+                <Button variant="link" className={linkColorClass} nativeButton={false} render={
+                    <Link to={path} onClick={() => setActiveMenuItemState(menuItem)}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
+                        <ArrowRightIcon/>
+                    </Link>
+                }/>
             </CardContent>
         </Card>
     );

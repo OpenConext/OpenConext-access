@@ -18,6 +18,7 @@ import {CONNECTION_STATUSES} from "../utils/Manage.js";
 import {authorities, currentUserMembershipAuthority, hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
+import {StretchedLink} from "../components/StretchedLink.jsx";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
 import {useShallow} from "zustand/react/shallow";
@@ -144,8 +145,8 @@ const Organization = () => {
                             <div key={index} className="first-application">
                                 <div
                                     className={`application ${readOnly ? "read-only" : ""}`}
-                                    title={readOnly ? I18n.t("organization.readOnly", {orgName: organization.name}) : ""}
-                                    onClick={() => !readOnly && navigate(`/connection/${application.id}`)}>
+                                    title={readOnly ? I18n.t("organization.readOnly", {orgName: organization.name}) : ""}>
+                                    {!readOnly && <StretchedLink to={`/connection/${application.id}`}/>}
                                     {isEmpty(application.logoUrl) ? <ImageNotFound/> :
                                         <img src={application.logoUrl} alt={application.name}/>}
                                     <div className="application-info">
@@ -211,6 +212,7 @@ const Organization = () => {
                 displaySearch={true}
                 searchAttributes={["name"]}
                 rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(`/connection/${application.id}`)}
+                rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? `/connection/${application.id}` : undefined}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
                 newEntityFunc={() => navigate("/application/new")}

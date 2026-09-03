@@ -11,6 +11,7 @@ import InputField from "../components/InputField.jsx";
 import DOMPurify from "dompurify";
 import {MagnifyingGlassIcon as SearchIcon, CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {StretchedLink} from "../components/StretchedLink.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 
@@ -123,8 +124,8 @@ const Landing = ({refreshUser}) => {
                 <div className="organizations-container">
                     {!isEmpty(organizations) &&
                         organizations.map((org, index) =>
-                            <section key={index} className="organization"
-                                     onClick={() => navigate(`/join/${org.id}`)}>
+                            <section key={index} className="organization">
+                                <StretchedLink to={`/join/${org.id}`}/>
                                 <div>
                                     <p>{org.name}</p>
                                     <span>{I18n.t("welcome.organizationMembers", {

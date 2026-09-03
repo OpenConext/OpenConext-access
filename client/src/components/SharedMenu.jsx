@@ -1,6 +1,6 @@
 import I18n from "../locale/I18n";
 import "./SharedMenu.scss"
-import {useLocation, useNavigate} from "react-router";
+import {Link, useLocation} from "react-router";
 import React, {useMemo} from "react";
 import {useShallow} from "zustand/react/shallow";
 import {
@@ -38,7 +38,6 @@ export const SharedMenu = () => {
         user: state.user
     })));
 
-    const navigate = useNavigate();
     const currentLocation = useLocation();
     const {state: sidebarState, isMobile} = useSidebar();
 
@@ -60,16 +59,10 @@ export const SharedMenu = () => {
             .filter(menuGroup => menuGroup.items.length > 0);
     }, [activeMenuItem, menuItems, currentOrganization]);
 
-    const setActiveMenuItem = menuItem => {
-        navigate(menuItem.href);
+    const setActiveMenuItemState = menuItem => {
         useAppStore.setState(() => ({
             activeMenuItem: menuItem.name
         }));
-    }
-
-    const switchOrganization = organization => {
-        localStorage.setItem("organization", organization.id.toString());
-        window.location.href = "/home";
     }
 
     if (currentLocation.pathname === "/landing") {
@@ -102,15 +95,17 @@ export const SharedMenu = () => {
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" onClick={() => navigate("/")} className="brand-button">
-                            <span className="brand-lockup">
-                                <span className="brand-tag">
-                                    <LogoMark className="brand-mark"/>
-                                    <span className="brand-label">Access</span>
-                                </span>
-                                <span className="brand-path" aria-hidden="true"><LogoPath/></span>
-                            </span>
-                            </SidebarMenuButton>
+                            <SidebarMenuButton size="lg" className="brand-button" render={
+                                <Link to="/">
+                                    <span className="brand-lockup">
+                                        <span className="brand-tag">
+                                            <LogoMark className="brand-mark"/>
+                                            <span className="brand-label">Access</span>
+                                        </span>
+                                        <span className="brand-path" aria-hidden="true"><LogoPath/></span>
+                                    </span>
+                                </Link>
+                            }/>
                         </SidebarMenuItem>
                     </SidebarMenu>
                     <SidebarSeparator/>
@@ -126,10 +121,14 @@ export const SharedMenu = () => {
                                     <DropdownMenuContent align="start" className="organization-switch-content">
                                         <DropdownMenuGroup>
                                             {organizations.map(org =>
-                                                <DropdownMenuItem key={org.id} onClick={() => switchOrganization(org)}>
-                                                    <span className="organization-option-name">{org.name}</span>
-                                                    {currentOrganization?.id === org.id && <CheckIcon/>}
-                                                </DropdownMenuItem>
+                                                <DropdownMenuItem key={org.id}
+                                                    render={
+                                                        <Link to="/home" reloadDocument
+                                                              onClick={() => localStorage.setItem("organization", org.id.toString())}>
+                                                            <span className="organization-option-name">{org.name}</span>
+                                                            {currentOrganization?.id === org.id && <CheckIcon/>}
+                                                        </Link>
+                                                    }/>
                                             )}
                                         </DropdownMenuGroup>
                                     </DropdownMenuContent>
@@ -150,10 +149,13 @@ export const SharedMenu = () => {
                                     {group.items.map(item =>
                                         <SidebarMenuItem key={item.name}>
                                             <SidebarMenuButton isActive={item.active}
-                                                               onClick={() => setActiveMenuItem(item)}>
-                                                <item.Logo/>
-                                                <span>{item.label}</span>
-                                            </SidebarMenuButton>
+                                                               render={
+                                                                   <Link to={item.href}
+                                                                         onClick={() => setActiveMenuItemState(item)}>
+                                                                       <item.Logo/>
+                                                                       <span>{item.label}</span>
+                                                                   </Link>
+                                                               }/>
                                         </SidebarMenuItem>
                                     )}
                                 </SidebarMenu>

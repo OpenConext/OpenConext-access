@@ -489,7 +489,7 @@ $width-percentage: 75%;
     }
 
     .secret-link, .saml-test {
-        a {
+        a, button.link-button {
             text-decoration: underline;
         }
     }

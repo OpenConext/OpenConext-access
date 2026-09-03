@@ -90,9 +90,10 @@ export const ContactPersons = ({
                                     />}
                                 {(innerIndex === (sameContactPersons.length - 1) && contactPerson.type === contactPersonTypes.technical
                                         && sameContactPersons.length < 2 && !readOnly) &&
-                                    <a href="/add" onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
+                                    <button type="button" className="link-button"
+                                            onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                         {I18n.t("connection.contacts.addTechnicalContact")}
-                                    </a>}
+                                    </button>}
                                 {(!initial && contactPerson.type === contactPersonTypes.technical && !readOnly &&
                                         (innerIndex > 0 || sameContactPersons.length === 1) &&
                                         sameContactPersons.some(p => !validEmailOrUrl(p, p.type, sameContactPersons, false))) &&

@@ -665,8 +665,8 @@ export const Connections = ({
                                 )}
                             </div>
                             <Tooltip>
-                                <TooltipTrigger render={<a href="/add" className="add-link"
-                                                            onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</a>}/>
+                                <TooltipTrigger render={<button type="button" className="add-link link-button"
+                                                            onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</button>}/>
                                 <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
                             </Tooltip>
                         </div>
@@ -699,9 +699,9 @@ export const Connections = ({
                             <div className="input-field sds--text-field secret-link">
                                 <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
                                 <span>{I18n.t("connection.connectionOverview.secretReset")}
-                                    <a href="/" onClick={e => newClientSecret(e, true)}>
+                                    <button type="button" className="link-button" onClick={e => newClientSecret(e, true)}>
                                     {I18n.t("connection.connectionOverview.secretResetLink")}
-                                </a>
+                                </button>
                                 </span>
 
                             </div>
@@ -818,8 +818,8 @@ export const Connections = ({
                                 )}
                             </div>
                             <Tooltip>
-                                <TooltipTrigger render={<a href="/add" className="add-link"
-                                                            onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</a>}/>
+                                <TooltipTrigger render={<button type="button" className="add-link link-button"
+                                                            onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</button>}/>
                                 <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
                             </Tooltip>
                         </div>
@@ -1477,6 +1477,7 @@ export const Connections = ({
                       hideTitle={true}
                       showNew={false}
                       rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
+                      rowHrefMapper={conn => `/connection/${application.id}/allConnections/${conn.id}`}
                       displaySearch={false}
                       searchAttributes={["name", "protocol"]}
                       inputFocus={true}>

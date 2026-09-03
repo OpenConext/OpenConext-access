@@ -3,7 +3,7 @@ import "./TabHeader.scss"
 import {stopEvent} from "../utils/Utils.js";
 import React from "react";
 
-export const TabHeader = ({tabNames, tab, setTab, children, fullWidth = false}) => {
+export const TabHeader = ({tabNames, tab, setTab, hrefFor, children, fullWidth = false}) => {
 
     const doNavigate = (e, tabName) => {
         stopEvent(e);
@@ -15,7 +15,7 @@ export const TabHeader = ({tabNames, tab, setTab, children, fullWidth = false}) 
             {children}
             <div className="tabs-menu">
                 {tabNames.map(tabName => <a key={tabName}
-                                            href={`/${tabName}`}
+                                            href={hrefFor ? hrefFor(tabName) : `/${tabName}`}
                                             className={tabName === tab ? "active" : ""}
                                             onClick={e => doNavigate(e, tabName)}>
                     {I18n.t(`tabs.${tabName}`)}

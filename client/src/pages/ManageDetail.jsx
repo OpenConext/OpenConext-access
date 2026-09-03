@@ -152,7 +152,7 @@ const ManageDetail = () => {
         return (
             <>
                 <div className="manage-detail-top">
-                    <a href="/#" onClick={backToSystem}>{I18n.t("manageDetail.backToSystem")}</a>
+                    <a href="/system/import" onClick={backToSystem}>{I18n.t("manageDetail.backToSystem")}</a>
                 </div>
                 <div className="inner-manage-detail-container">
                     <div className="manage-detail">

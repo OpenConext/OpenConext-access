@@ -19,13 +19,13 @@ export const MoreLessToggle = (props) => {
     return (
         <span className="sds--more-less-toggle">
             {showMore ? txtToDisplay : props.txt}
-            {showMore && <a className={"show-more"} href="/more" onClick={toggleShowMore}>
+            {showMore && <button type="button" className="show-more link-button" onClick={toggleShowMore}>
                 {props.moreLabel || "More"}
-            </a>}
+            </button>}
             {showLess &&
-                <a className={"show-more"} href="/less" onClick={toggleShowMore}>
+                <button type="button" className="show-more link-button" onClick={toggleShowMore}>
                     {props.lessLabel || "Less"}
-                </a>}
+                </button>}
         </span>
     )
 };

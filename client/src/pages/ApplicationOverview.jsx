@@ -11,6 +11,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
+import {StretchedLink} from "../components/StretchedLink.jsx";
 import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -304,8 +305,8 @@ const ApplicationOverview = ({accessible}) => {
                         {gridServiceProviders.map(entity => {
                             const logoUrl = entity.data.metaDataFields["logo:0:url"];
                             return (
-                                <Card key={entity["_id"]} className="accessible-app-card"
-                                      onClick={() => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}>
+                                <Card key={entity["_id"]} className="accessible-app-card">
+                                    <StretchedLink to={`/application-detail/${entity.type}/${entity["_id"]}`}/>
                                     <CardContent>
                                         <div className="accessible-app-card-icon">
                                             {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
@@ -365,6 +366,7 @@ const ApplicationOverview = ({accessible}) => {
                             displaySearch={true}
                             searchAttributes={["name", "vendor"]}
                             rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
+                            rowHrefMapper={entity => `/application-detail/${entity.type}/${entity["_id"]}`}
                             newEntityFunc={() => navigate("/application/new")}
                             inputFocus={true}/>}
                 </div>

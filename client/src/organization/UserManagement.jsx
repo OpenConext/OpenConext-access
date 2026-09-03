@@ -113,6 +113,7 @@ export const UserManagement = ({refreshUser}) => {
             className={`user-management-outer-container with-applications`}>
             <TabHeader tab={currentTab}
                        setTab={tabChanged}
+                       hrefFor={name => `/users/${organizationId}/${name}`}
                        tabNames={tabNames}
             >
                 <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("userManagement.title")}</h1>

@@ -19,6 +19,18 @@ a.actionable {
     text-decoration: underline;
 }
 
+.stretched-link {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+button.link-button {
+    all: unset;
+    cursor: pointer;
+    display: inline;
+}
+
 .sds--chips.status-error {
     background-color: #FFD03A;
     text-align: center;

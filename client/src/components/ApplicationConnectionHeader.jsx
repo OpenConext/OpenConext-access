@@ -96,13 +96,13 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                 <ul>
                     <li onClick={e => menuLink(e, `/application/${application.id}`)}>
                         <PencilIcon/>
-                        <a href="/edit" onClick={e => menuLink(e, `/application/${application.id}`)}>
+                        <a href={`/application/${application.id}`} onClick={e => menuLink(e, `/application/${application.id}`)}>
                             {I18n.t(`forms.edit`)}
                         </a>
                     </li>
                     {mayDelete && <li onClick={e => doDelete(e, true)}>
                         <TrashIcon/>
-                        <a href="/delete" onClick={e => doDelete(e, true)}>
+                        <a href={`/organization/${currentOrganization.id}`} onClick={e => doDelete(e, true)}>
                             {I18n.t(`forms.delete`)}
                         </a>
                     </li>}
@@ -155,7 +155,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
 
             <div className="tabs-menu">
                 {tabs.map(tab => <a key={tab.name}
-                                    href={`/${tab.name}`}
+                                    href={`/connection/${application.id}/${tab.name}`}
                                     className={tab.name === currentTab ? "active" : tab.disabled ? "disabled" : ""}
                                     onClick={e => doNavigate(e, tab)}>
                     {I18n.t(`connection.${tab.name}`)}

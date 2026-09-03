@@ -512,11 +512,11 @@ export const Monitoring = () => {
 
                             )}
                             {incidentGroups.length > INCIDENT_GROUPS_NUMBER_SLICE &&
-                                <a href="/#"
-                                   className="show-more-toggle"
+                                <button type="button"
+                                   className="show-more-toggle link-button"
                                    onClick={e => toggleShowMore(e)}>
                                     {I18n.t(`monitoring.${showMore ? "showLess" : "showMore"}Incidents`)}
-                                </a>
+                                </button>
                             }
                         </div>
                     )}

@@ -52,6 +52,7 @@ div.applications-container {
     .applications-overview ul {
 
         li {
+            position: relative;
             padding: 10px 0 10px 0;
             cursor: pointer;
             height: 70px;
@@ -114,6 +115,7 @@ div.applications-container {
         }
 
         .application-card {
+            position: relative;
             width: 440px;
             height: 120px;
             display: flex;

@@ -5,6 +5,16 @@
     width: 100%;
     margin: 0 auto;
 
+    [data-slot="table-cell"] {
+        position: relative;
+    }
+
+    .row-link-overlay {
+        position: absolute;
+        inset: 0;
+        outline-offset: -2px;
+    }
+
     @media (max-width: $medium) {
         padding: 0 15px;
     }

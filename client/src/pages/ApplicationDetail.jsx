@@ -486,8 +486,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <WarningIcon/>
                     <AlertDescription>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <a href="/" onClick={e => cancelConnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</a>
+                        <button type="button" className="link-button" onClick={e => cancelConnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</button>
                     </AlertDescription>
                 </Alert>
                 }
@@ -495,8 +495,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <WarningIcon/>
                     <AlertDescription>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <a href="/" onClick={e => cancelDisconnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</a>
+                        <button type="button" className="link-button" onClick={e => cancelDisconnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</button>
                     </AlertDescription>
                 </Alert>
                 }
@@ -803,6 +803,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 <div className="application-detail-header-container">
                     <TabHeader tab={currentTab}
                                setTab={tabChanged}
+                               hrefFor={name => `/application-detail/${manageType}/${manageId}/${name}`}
                                tabNames={tabNames}
                     >
                         <div className="application-card-container">
@@ -839,9 +840,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             <div className="details-panel">
                 <p className="title">{I18n.t("applicationDetail.attributes")}</p>
                 <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                {!showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                {!showAttributes && <button type="button" className="link-button" onClick={toggleShowAttributes}>
                     {I18n.t("applicationDetail.details")}
-                </a>}
+                </button>}
                 {showAttributes && <div className="arp-attributes">
                     {!serviceProvider.data.arp.enabled &&
                         <p>{I18n.t("applicationDetail.noArp")}</p>
@@ -871,9 +872,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         </>
                     }
                 </div>}
-                {showAttributes && <a href="/" onClick={toggleShowAttributes}>
+                {showAttributes && <button type="button" className="link-button" onClick={toggleShowAttributes}>
                     {I18n.t("applicationDetail.hide")}
-                </a>}
+                </button>}
             </div>
         );
     }
@@ -882,9 +883,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return <div className="details-panel">
             <p className="title">{I18n.t("applicationDetail.privacy")}</p>
             <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-            {!showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+            {!showPrivacy && <button type="button" className="link-button" onClick={toggleShowPrivacy}>
                 {I18n.t("applicationDetail.details")}
-            </a>}
+            </button>}
             {showPrivacy &&
                 <div className="privacy-questions">
                     {privacy.map((item, index) => {
@@ -903,9 +904,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         }
                     )}
                 </div>}
-            {showPrivacy && <a href="/" onClick={toggleShowPrivacy}>
+            {showPrivacy && <button type="button" className="link-button" onClick={toggleShowPrivacy}>
                 {I18n.t("applicationDetail.hide")}
-            </a>}
+            </button>}
 
         </div>;
     }
@@ -1005,7 +1006,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
-                        <a href="/#" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</a>
+                        <button type="button" className="link-button" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</button>
                     </div>
                 }
                 <div className="inner-application-detail-container">

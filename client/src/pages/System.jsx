@@ -93,6 +93,7 @@ const System = () => {
         <div className="system-outer-container">
             <TabHeader tab={currentTab}
                        setTab={tabChanged}
+                       hrefFor={name => `/system/${name}`}
                        tabNames={config.demoSeedEnabled ? tabNames : tabNames.filter(tab => tab !== "seed")}
                        fullWidth={true}
             >

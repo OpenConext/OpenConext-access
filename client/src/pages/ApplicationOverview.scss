@@ -64,6 +64,7 @@ div.accessible-apps-container {
         }
 
         .accessible-app-card {
+            position: relative;
             cursor: pointer;
 
             .accessible-app-card-icon {

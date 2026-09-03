@@ -2,7 +2,7 @@ import {useState} from "react";
 import I18n from "../locale/I18n";
 import "./Navigation.scss"
 import {stopEvent, sanitize} from "../utils/Utils.js";
-import {useNavigate} from "react-router";
+import {Link, useNavigate} from "react-router";
 import {Button} from "@surfnet/curve-react";
 
 const tabNames = ["home", "connect", "institutions", "applications", "stats", "monitoring"];
@@ -29,9 +29,11 @@ export const Navigation = ({mobile, path}) => {
             </a>)}
             <div className="links">
                 {path !== "/login-info" &&
-                    <Button onClick={() => navigate("/login-info")}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
-                    </Button>}
+                    <Button nativeButton={false} render={
+                        <Link to="/login-info">
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
+                        </Link>
+                    }/>}
             </div>
         </div>
     );

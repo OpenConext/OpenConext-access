@@ -7,7 +7,7 @@ import "./InputField.scss";
 import {isEmpty, sanitize} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
-import {useNavigate} from "react-router";
+import {Link} from "react-router";
 import I18n from "../locale/I18n.js";
 
 export default function InputField({
@@ -40,7 +40,6 @@ export default function InputField({
                                        info = null,
                                         isAlert = false
                                    }) {
-    const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
     const validExternalLink = externalLink && !isEmpty(value) && validUrlRegExp.test(value);
 
@@ -97,9 +96,9 @@ export default function InputField({
                               cols={cols}/>}
                 {button && button}
                 {copyClipBoard && <ClipBoardCopy txt={value} right={true} input={true}/>}
-                {link && <div className="input-field-link" onClick={() => navigate(link)}>
+                {link && <Link to={link} className="input-field-link">
                     <ArrowRight/>
-                </div>}
+                </Link>}
                 {validExternalLink &&
                     <div className={`input-field-link`}>
                         <a href={value} rel="noopener noreferrer" target="_blank">
