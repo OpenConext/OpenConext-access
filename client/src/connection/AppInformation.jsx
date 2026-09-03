@@ -177,7 +177,7 @@ export const AppInformation = ({
     const renderLogoSection = () => {
         return (
             <section className="inner-right">
-                <h3>{I18n.t("connection.appInfo.label")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{I18n.t("connection.appInfo.label")}</h3>
 
                 <ImageField imageSource={application.logoUrl || ""}
                             onChange={logo => updateApplicationLogoUrl(logo)}
@@ -252,7 +252,7 @@ export const AppInformation = ({
     const renderPrivacySection = () => {
         return (
             <section className="inner-right">
-                <h3>{I18n.t("connection.privacy.label")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{I18n.t("connection.privacy.label")}</h3>
                 <p>{I18n.t("connection.privacy.info")}</p>
                 {privacyInfo.map((p, index) =>
                     <section key={index}>
@@ -291,13 +291,13 @@ export const AppInformation = ({
     const renderOverviewSection = () => {
         return (
             <section className="inner-right">
-                <h3>{I18n.t("connection.appOverview.label")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{I18n.t("connection.appOverview.label")}</h3>
                 <p>{I18n.t("connection.appOverview.info")}</p>
                 <div className="application">
                     {isEmpty(application.logoUrl) ? <ImageNotFound/> :
                         <img src={application.logoUrl} alt={application.name}/>}
                     <div className="application-info">
-                        <h3>{application.name}</h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{application.name}</h3>
                         <MoreLessToggle
                             txt={application.information[`description${I18n.locale.toUpperCase()}`]}
                             cutoffNumber={300}
@@ -342,7 +342,7 @@ export const AppInformation = ({
     return (
         <div className="app-information-container">
             <div className="app-header">
-                <h2>{I18n.t("connection.appInfo.title")}</h2>
+                <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connection.appInfo.title")}</h2>
             </div>
             <div className="app-information">
                 <section className="left">

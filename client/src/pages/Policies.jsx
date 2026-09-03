@@ -119,7 +119,7 @@ const Policies = () => {
         <div className="policies-outer-container">
             {!showPolicyDetails && <div className="policies-header-container">
                 <div className="top-header">
-                    <h2>{I18n.t("policies.title", {name: currentOrganization.name})}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("policies.title", {name: currentOrganization.name})}</h2>
                     <SelectField value={selectedServiceProviders}
                                  searchable={true}
                                  options={serviceProviderOptions}

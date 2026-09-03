@@ -59,7 +59,7 @@ const Profile = () => {
             className="profile-outer-container">
             ¬ <div className="profile-header-container">
             <div className="top-header">
-                <h1>{user.name}</h1>
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{user.name}</h1>
             </div>
             <p dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(I18n.t("profile.info",

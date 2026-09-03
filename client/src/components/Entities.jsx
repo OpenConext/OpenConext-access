@@ -289,7 +289,7 @@ export const Entities = ({
     return (
         <div className={`mod-entities ${className}`}>
             {(!hideTitle) &&
-                <h3>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
+                <h3 className="text-[length:var(--text-lg-font-size)]">{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h3>}
             {displaySearch && renderSearch()}
             {renderEntities(sortedEntities)}
             <div>{children}</div>

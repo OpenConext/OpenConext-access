@@ -218,7 +218,7 @@ export const InvitationForm = () => {
     return (
         <div className="mod-invitation-form">
             <TabHeader tab={"nope"} tabNames={[]}>
-                <h3>{I18n.t("invitation.title", {name: organization.name})}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("invitation.title", {name: organization.name})}</h3>
             </TabHeader>
             <div className={`invitation-form`}>
                 {renderForm()}

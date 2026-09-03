@@ -34,7 +34,7 @@ const ExternalApplication = () => {
 
     return (
         <div className="extern-application-container">
-            <h2>{I18n.t(`external.${app}.title`)}</h2>
+            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t(`external.${app}.title`)}</h2>
 
             {!alertClosed && <div className="external-alert-container">
                 <Alert>

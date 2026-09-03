@@ -16,7 +16,7 @@ export default function PolicyChoiceDialog({
             <div className="policy-choice">
                 {Object.keys(policyTypes).map(policyType =>
                     <div key={policyType} className="policy-card">
-                        <h3>{I18n.t(`policies.policyChoices.${policyType}Title`)}</h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t(`policies.policyChoices.${policyType}Title`)}</h3>
                         <span className="info">{I18n.t(`policies.policyChoices.${policyType}Info`)}</span>
                         <span className="choice">{I18n.t(`policies.policyChoices.${policyType}Choice`)}</span>
                         <span className="explanation">{I18n.t(`policies.policyChoices.${policyType}Explanation`)}</span>

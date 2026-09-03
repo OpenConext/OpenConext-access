@@ -30,7 +30,7 @@ const Relax = () => {
 
     return (
         <div className="relax-container">
-            <h2>{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
+            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
             <div>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",

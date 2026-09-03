@@ -310,7 +310,7 @@ const ApplicationOverview = ({accessible}) => {
                                         <div className="accessible-app-card-icon">
                                             {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
                                         </div>
-                                        <h4>{entity.name}</h4>
+                                        <h4 className="mb-1">{entity.name}</h4>
                                         <div className="accessible-app-card-meta">
                                             <span>{entity.vendor}</span>
                                             <span>{formatLongDate(entity.created, true, false)}</span>
@@ -330,11 +330,11 @@ const ApplicationOverview = ({accessible}) => {
                 <div className="accessible-apps-header-container">
                     <div className="accessible-apps-header-row">
                         {accessible && <div className="accessible-apps-header">
-                            <h2 className="large">{I18n.t("accessibleApps.title")}</h2>
+                            <h2 className="large text-[length:var(--text-xl-font-size)] mb-[18px]">{I18n.t("accessibleApps.title")}</h2>
                             <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
                         </div>}
                         {!accessible && <div className="accessible-apps-header">
-                            <h2 className="large">{I18n.t("userHome.catalogue.title")}</h2>
+                            <h2 className="large text-[length:var(--text-xl-font-size)] mb-[18px]">{I18n.t("userHome.catalogue.title")}</h2>
                             <p>{I18n.t("userHome.catalogue.subTitle")}</p>
                         </div>}
                         {!isEmpty(serviceProviders) &&

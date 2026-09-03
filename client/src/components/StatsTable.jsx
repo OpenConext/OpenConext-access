@@ -86,7 +86,7 @@ const StatsTable = ({
                             ]}
                         />
                     )}
-                    <h4>{I18n.t(`statistics.${titleKey}`)}</h4>
+                    <h4 className="m-0">{I18n.t(`statistics.${titleKey}`)}</h4>
                 </div>
                 {searchActive && (
                     <div className="stats-table-search-row">

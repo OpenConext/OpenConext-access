@@ -189,7 +189,7 @@ const Applications = () => {
                 <div className="applications-header-container">
                     <div className="applications-header">
                         <div className="left">
-                            <h1 className="large">{I18n.t("applications.title")}</h1>
+                            <h1 className="large text-[56px] mb-5">{I18n.t("applications.title")}</h1>
                             <p>{I18n.t("applications.subTitle")}</p>
                         </div>
                         <img src={StudentPng} alt="student"/>
@@ -236,7 +236,7 @@ const Applications = () => {
                         </div>
                         {showMostRecent &&
                             <div className="applications-overview-recent-container">
-                                <h2>{I18n.t("applications.recent")}</h2>
+                                <h2 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("applications.recent")}</h2>
                                 <div className="applications-overview-recent">
                                     {recentServiceProviders.map((sp, index) => {
                                         const metaData = sp.data.metaDataFields;

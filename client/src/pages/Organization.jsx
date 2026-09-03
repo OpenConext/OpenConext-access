@@ -224,7 +224,7 @@ const Organization = () => {
             {alertInfo()}
             <div className={`organization-header-container ${view === views.card ? "card-view" : ""}`}>
                 <div>
-                    <h1>{I18n.t("organization.applicationManagement")}</h1>
+                    <h1 className="text-[length:var(--text-2xl-font-size)] mb-[25px]">{I18n.t("organization.applicationManagement")}</h1>
                     {!isEmpty(organization.applications) &&
                         <p>{I18n.t("organization.info", {name: organization.name})}</p>}
                 </div>

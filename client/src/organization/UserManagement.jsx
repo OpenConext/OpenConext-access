@@ -115,7 +115,7 @@ export const UserManagement = ({refreshUser}) => {
                        setTab={tabChanged}
                        tabNames={tabNames}
             >
-                <h1>{I18n.t("userManagement.title")}</h1>
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("userManagement.title")}</h1>
             </TabHeader>
             <div className="user-management-container">
                 {renderCurrentTab()}

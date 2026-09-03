@@ -17,7 +17,7 @@ export const LoginInfo = () => {
         <div className="login-info-container">
             <div className="about">
                 <div className="top">
-                    <h1 className="title large">
+                    <h1 className="title large text-[56px] mb-[25px]">
                         {I18n.t("landing.loginInfo.title")}
                     </h1>
                     <p
@@ -28,7 +28,7 @@ export const LoginInfo = () => {
             <Background>
                 <div className="cards">
                     <div className="card">
-                        <h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.loginInfo.commercial.title")}
                         </h3>
                         {I18n.translations[I18n.locale].landing.loginInfo.commercial.info
@@ -41,7 +41,7 @@ export const LoginInfo = () => {
                         </Button>
                     </div>
                     <div className="card">
-                        <h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.loginInfo.education.title")}
                         </h3>
                         {I18n.translations[I18n.locale].landing.loginInfo.education.info

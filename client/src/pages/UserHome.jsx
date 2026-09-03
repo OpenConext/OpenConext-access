@@ -69,7 +69,7 @@ const UserHome = () => {
     return (
         <div className="home-container">
             <div className="home-welcome">
-                <h2>{I18n.t("userHome.title")}</h2>
+                <h2 className="text-[length:var(--text-xl-font-size)] m-0">{I18n.t("userHome.title")}</h2>
                 <p>{I18n.t("userHome.subTitle")}</p>
             </div>
             <div className="info-container">

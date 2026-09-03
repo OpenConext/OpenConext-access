@@ -10,12 +10,6 @@ div.application-detail-container {
         text-decoration: underline;
     }
 
-    .connect-options-container {
-        h3 {
-            margin-bottom: 20px;
-        }
-    }
-
     .application-detail-header-container {
         width: 100%;
         background-color: var(--muted);
@@ -26,10 +20,6 @@ div.application-detail-container {
         margin: 0 auto;
         padding: 75px 0;
         display: flex;
-
-        h1 {
-            margin-bottom: 20px;
-        }
 
         p {
             margin-right: 50px;
@@ -290,21 +280,12 @@ div.application-detail-container {
             }
         }
 
-        h2 {
-            margin-bottom: 20px;
-        }
-
         .info-block {
             padding: 24px 24px 24px 24px;
 
             &:not(:last-child) {
                 margin-bottom: 25px;
             }
-
-            h3 {
-                margin-bottom: 5px;
-            }
-
 
             .grouped {
                 display: flex;
@@ -371,14 +352,6 @@ div.application-detail-container {
             display: flex;
             flex-direction: column;
             width: 60%;
-
-            h2 {
-                margin-top: 40px;
-
-                &:first-child {
-                    margin-top: 0;
-                }
-            }
 
             p {
                 &.info {

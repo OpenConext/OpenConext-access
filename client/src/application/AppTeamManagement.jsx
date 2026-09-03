@@ -185,7 +185,7 @@ export const AppTeamManagement = ({
                                          question={question}
             />}
             <div className="application-header">
-                <h3>{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
                 <Chip type={ChipType.Status_success} label={I18n.t("appTeamManagement.createdBy",
                     {
                         name: application.createdBy,

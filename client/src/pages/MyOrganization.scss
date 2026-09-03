@@ -60,10 +60,6 @@ div.my-organization-outer-container {
         @include card(15px);
         width: 100%;
 
-        h3 {
-            margin: 0 0 25px 0;
-        }
-
         p.info {
             margin-top: 5px;
             color:var(--muted-foreground);

@@ -17,7 +17,7 @@ const Connect = () => {
             <div className="connect-header-container">
                 <div className="connect-header">
                     <div className="left">
-                        <h1 className="large">{I18n.t("connect.title")}</h1>
+                        <h1 className="large text-[56px] mb-5">{I18n.t("connect.title")}</h1>
                         <p>{I18n.t("connect.subTitle")}</p>
                     </div>
                     <img src={StudentPng} alt="student"/>
@@ -25,7 +25,7 @@ const Connect = () => {
             </div>
             <div className="inner-connect-container">
                 <div className="connect">
-                    <h2>{I18n.t("connect.formal")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connect.formal")}</h2>
                     <p>{I18n.t("connect.subTitle")}</p>
                     <p>{I18n.t("connect.formalInfo")}</p>
                 </div>

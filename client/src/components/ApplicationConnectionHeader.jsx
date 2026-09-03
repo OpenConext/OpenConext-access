@@ -141,7 +141,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
             <div className="top-header"
                  tabIndex={1}
                  onBlur={() => setTimeout(() => setDropDownActive(false), 275)}>
-                <h1>{application.name}</h1>
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{application.name}</h1>
                 <div className="menu-container">
                     {application.type === "CONTENT" &&
                         <Chip type={ChipType.Status_info} label={I18n.t("application.contentAbbreviation")}

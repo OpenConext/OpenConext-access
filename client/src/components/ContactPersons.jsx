@@ -52,7 +52,7 @@ export const ContactPersons = ({
     const contactPersonsGrouped = Object.groupBy(application.contactPersons, contact => contact.type);
     return (
         <section className="inner-right">
-            <h3>{I18n.t("connection.contacts.label")}</h3>
+            <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.contacts.label")}</h3>
             <p>{I18n.t("connection.contacts.info", {
                 example: emailPlaceholder("support", application?.organization?.name || application.name, I18n.t("forms.or"))
             })}</p>

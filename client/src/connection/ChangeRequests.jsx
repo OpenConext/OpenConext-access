@@ -278,7 +278,7 @@ export const ChangeRequests = ({
 
     return (
         <section className="inner-right change-requests">
-            <h3>{I18n.t("connection.pendingChanges")}</h3>
+            <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.pendingChanges")}</h3>
             <div className="info">
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("changeRequests.info1"))}}/>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("changeRequests.info2"))}}/>

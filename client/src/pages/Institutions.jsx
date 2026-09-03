@@ -141,7 +141,7 @@ const Institutions = () => {
                 <div className="institutions-header-container">
                     <div className="institutions-header">
                         <div className="left">
-                            <h1 className="large">{I18n.t("institutions.title")}</h1>
+                            <h1 className="large text-[56px] mb-5">{I18n.t("institutions.title")}</h1>
                             <p>{I18n.t("institutions.subTitle")}</p>
                         </div>
                         <img src={StudentPng} alt="student"/>

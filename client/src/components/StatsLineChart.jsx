@@ -115,7 +115,7 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTi
     return (
         <div className="stats-line-chart">
             <div className="chart-header">
-                <h4>{I18n.t("statistics.overTime")}</h4>
+                <h4 className="m-0">{I18n.t("statistics.overTime")}</h4>
                 <div className="chart-legend">
                     <span className="legend-item">
                         <span className="legend-dot blue"/>

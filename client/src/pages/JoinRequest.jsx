@@ -56,7 +56,7 @@ const JoinRequest = ({refreshUser}) => {
 
     return (
         <div className="join-request-container">
-            <h2>{organization.name}</h2>
+            <h2 className="text-[length:var(--text-xl-font-size)]">{organization.name}</h2>
             <p dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(I18n.t("joinRequest.info", {name: organization.name}))
             }}/>

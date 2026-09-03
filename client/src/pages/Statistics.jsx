@@ -319,7 +319,7 @@ const Statistics = () => {
         <div className="statistics-container">
             <div className="statistics-header">
                 <div className="title">
-                    <h2>{I18n.t("statistics.title")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h2>
                     <p>{I18n.t(isSurfNet ? "statistics.loginAll" : "statistics.loginOwn")}</p>
                 </div>
                 <div className="statistics-menu">
@@ -362,14 +362,14 @@ const Statistics = () => {
             <div className="main-stats">
                 <section className="cardy">
                     <div className="stat">
-                        <h1>{loading ? "—" : formatStatNumber(totalLogins)}</h1>
+                        <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalLogins)}</h1>
                         <p>{I18n.t("statistics.total")} </p>
                         <span className="blue"/>
                     </div>
                 </section>
                 <section className="cardy">
                     <div className="stat">
-                        <h1>{loading ? "—" : formatStatNumber(totalUnique)}</h1>
+                        <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalUnique)}</h1>
                         <p>{I18n.t("statistics.unique")} </p>
                         <span className="green"/>
                     </div>

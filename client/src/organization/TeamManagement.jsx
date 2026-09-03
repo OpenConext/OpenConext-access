@@ -196,7 +196,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
     const renderExplanations = () => {
         return (
             <div className="explanations">
-                <h2>{I18n.t("teamManagement.explanations.title")}</h2>
+                <h2 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("teamManagement.explanations.title")}</h2>
                 {["admin", "member", "guest"].map((role, index) => <
                         div key={role}>
                         <p className="role">{index + 1}. {I18n.t(`teamManagement.explanations.${role}`)}</p>

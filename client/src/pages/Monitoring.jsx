@@ -246,7 +246,7 @@ export const Monitoring = () => {
             {/* ── Header ─────────────────────────────────────────────────── */}
             <div className="monitoring-header">
                 <div className="monitoring-title">
-                    <h2>{I18n.t("monitoring.title")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] mb-2">{I18n.t("monitoring.title")}</h2>
                     <p>{I18n.t("monitoring.subTitle")}</p>
                 </div>
 
@@ -365,7 +365,7 @@ export const Monitoring = () => {
                             <div className="check-circle-large">
                                 <CheckCircleIcon/>
                             </div>
-                            <h3>{I18n.t("monitoring.noIssues")}</h3>
+                            <h3 className="text-[1.1rem] m-0">{I18n.t("monitoring.noIssues")}</h3>
                             <p className="last-update-text">
                                 {I18n.t("monitoring.lastUpdate", {time: lastUpdatedText})}
                             </p>
@@ -376,7 +376,7 @@ export const Monitoring = () => {
                     ) : (
                         <div className="detail-view">
                             {/* Uptime heading */}
-                            <h3 className="uptime-heading">
+                            <h3 className="uptime-heading text-[1.05rem] mb-4">
                                 {I18n.t("monitoring.uptimeTitle")}&nbsp;
                                 {selectedService.name}&nbsp;
                                 <span className="uptime-pct">
@@ -439,7 +439,7 @@ export const Monitoring = () => {
                             </div>
 
                             {/* Incident history */}
-                            <h3 className="incidents-heading">
+                            <h3 className="incidents-heading text-[1.05rem] mb-5">
                                 {I18n.t("monitoring.incidentHistory")}&nbsp;
                                 {selectedService.name}
                             </h3>

@@ -38,7 +38,7 @@ export default function Feedback() {
     return (
         <div className={"feedback-content-container"}>
             <div className={"feedback-content-header"}>
-                <h1>{I18n.t("feedback.title")}</h1>
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("feedback.title")}</h1>
             </div>
             <div className={"feedback-content"}>
                 <div className="sds--text-area">
@@ -50,7 +50,7 @@ export default function Feedback() {
                               onChange={e => setMessage(e.target.value)}/>
                 </div>
                 <section className="help">
-                    <h3 className="title"
+                    <h3 className="title text-[length:var(--text-lg-font-size)]"
                         dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("feedback.help"))}}/>
                     <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("feedback.helpInfo"))}}/>
                 </section>

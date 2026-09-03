@@ -193,7 +193,7 @@ export const PolicyOverview = ({
                         })}
                 </p>
                 <div className="grouped">
-                    <h3>{I18n.t("appAccess.regularPolicies")}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appAccess.regularPolicies")}</h3>
                     <Button onClick={() => policyDetails("reg", policyTypes.reg)}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
                     </Button>
@@ -210,7 +210,7 @@ export const PolicyOverview = ({
                     </>}
                 </InfoBlock>
                 <div className="grouped">
-                    <h3>{I18n.t("appAccess.stepUpPolicies")}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appAccess.stepUpPolicies")}</h3>
                     <Button onClick={() => policyDetails("step", policyTypes.step)}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
                     </Button>

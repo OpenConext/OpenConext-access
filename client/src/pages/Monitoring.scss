@@ -25,10 +25,6 @@
         .monitoring-title {
             flex: 0 1 auto;
 
-            h2 {
-                margin-bottom: 8px;
-            }
-
             p {
                 color: var(--sl-color-neutral-600);
                 margin: 0;
@@ -290,8 +286,6 @@
                 }
 
                 h3 {
-                    margin: 0;
-                    font-size: 1.1rem;
                     font-weight: 700;
                 }
 
@@ -318,9 +312,7 @@
 
                 // "Uptime {name} XX.XX%"
                 .uptime-heading {
-                    font-size: 1.05rem;
                     font-weight: 700;
-                    margin: 0 0 16px;
 
                     .uptime-pct {
                         color: #006731;
@@ -373,9 +365,7 @@
 
                 // Incident history heading
                 .incidents-heading {
-                    font-size: 1.05rem;
                     font-weight: 700;
-                    margin: 0 0 20px;
                 }
 
                 .no-incidents {

@@ -28,7 +28,7 @@ export const Overview = ({
                              appInformationComplete={appInformationComplete}/>
             <div className="application-connection">
                 <section className="sub-part">
-                    <h2>{I18n.t("connection.alllConnections")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connection.alllConnections")}</h2>
                     <StatusLink info={I18n.t("connection.production.catalogue")}
                                 action={() => setTab("application")}
                                 disabled={false}
@@ -47,7 +47,7 @@ export const Overview = ({
                     </p>
                 </section>
                 <section className="sub-part">
-                    <h2>{I18n.t("connection.team.name")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connection.team.name")}</h2>
                     <StatusLink info={I18n.t("connection.team.members")}
                                 action={() => setTab("appteam")}
                                 status={STATUS_LINK_TYPE.TEAM}/>

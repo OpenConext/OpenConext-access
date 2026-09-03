@@ -347,7 +347,7 @@ const PublicStats = () => {
         <div className="statistics-container">
             <div className="statistics-header">
                 <div className="title">
-                    <h2>{I18n.t("statistics.title")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h2>
                     <p>{I18n.t("statistics.loginPublic")}</p>
                 </div>
                 <div className="statistics-menu">
@@ -390,7 +390,7 @@ const PublicStats = () => {
             <div className="main-stats">
                 <section className="cardy">
                     <div className="stat">
-                        <h1>{loading ? "—" : formatStatNumber(totalLogins)}</h1>
+                        <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalLogins)}</h1>
                         <p>{I18n.t("statistics.total")}</p>
                         <span className="blue"/>
                     </div>
@@ -399,7 +399,7 @@ const PublicStats = () => {
                     <div className="stat">
                         {!loading && pctVsLast ? (
                             <>
-                                <h1>{pctVsLast}</h1>
+                                <h1 className="text-[length:var(--text-2xl-font-size)]">{pctVsLast}</h1>
                                 <p>{I18n.t("statistics.comparedToLastPeriod")}</p>
                             </>
                         ) : (
@@ -411,7 +411,7 @@ const PublicStats = () => {
                     <div className="stat">
                         {!loading && pctVs3 ? (
                             <>
-                                <h1>{pctVs3}</h1>
+                                <h1 className="text-[length:var(--text-2xl-font-size)]">{pctVs3}</h1>
                                 <p>{I18n.t("statistics.comparedToLast3Periods")}</p>
                             </>
                         ) : (

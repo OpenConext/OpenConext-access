@@ -506,7 +506,7 @@ export const Connections = ({
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return (
             <section className="inner-right">
-                <h3>{I18n.t("connection.technical")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.technical")}</h3>
                 <InputField value={connection.name || ""}
                             onChange={e => setConnection({...connection, name: e.target.value})}
                             name={I18n.t("connection.connectionName")}
@@ -680,7 +680,7 @@ export const Connections = ({
                 {connection.status !== CONNECTION_STATUSES.OPEN && (connection.protocol.value === PROTOCOLS.OIDC10_RP ||
                         connection.protocol.value === PROTOCOLS.OAUTH20_RS) &&
                     <div className="oidc-authentication">
-                        <h3>{I18n.t("connection.connectionOverview.authentication")}</h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.authentication")}</h3>
                         <div className="oidc-authentication-inner">
                             <InputField name={I18n.t("connection.connectionOverview.discovery")}
                                         value={config.discovery}
@@ -706,7 +706,7 @@ export const Connections = ({
                 {connection.protocol.value === PROTOCOLS.SAML20_SP &&
                     <>
                         <div className="import-metadata">
-                            <h2>{I18n.t("connection.configuration")}</h2>
+                            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connection.configuration")}</h2>
                             {!showImport && <Button variant="secondary"
                                                     onClick={() => setShowImport(true)}
                             >
@@ -822,7 +822,7 @@ export const Connections = ({
                                             adjustMargin={true}/>}
                         {connection.status !== CONNECTION_STATUSES.OPEN &&
                             <div className="oidc-authentication">
-                                <h3>{I18n.t("connection.connectionOverview.samlConfig")}</h3>
+                                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.samlConfig")}</h3>
                                 <div className="oidc-authentication-inner">
                                     <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
                                                 value={config.idpProxyMetaData}
@@ -885,7 +885,7 @@ export const Connections = ({
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return (
             <section className="inner-right">
-                <h3>{I18n.t("connection.productionStatus")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.productionStatus")}</h3>
                 {prodConnection && <p>{I18n.t("connection.productionStatusReady")}</p>}
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(false)}
                 {(!pendingProd && !prodConnection) &&
@@ -954,7 +954,7 @@ export const Connections = ({
         return (
             <section className="inner-right-overview">
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
-                <h3>{I18n.t("connection.connectionOverviewSAML.title")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverviewSAML.title")}</h3>
                 <p className="test"
                    dangerouslySetInnerHTML={{
                        __html: DOMPurify.sanitize(I18n.t("connection.connectionOverviewSAML.link",
@@ -968,7 +968,7 @@ export const Connections = ({
         return (
             <section className="inner-right-overview">
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
-                <h3>{I18n.t("connection.connectionOverview.copy")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.copy")}</h3>
                 {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
                 <p className="test"
                    dangerouslySetInnerHTML={{
@@ -994,7 +994,7 @@ export const Connections = ({
     const renderProductionStatusRequested = renderHeader => {
         return (
             <div className="production-status-requested">
-                {renderHeader && <h3>{I18n.t("connection.productionStatusRequested.info")}</h3>}
+                {renderHeader && <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.productionStatusRequested.info")}</h3>}
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostInfo",
                         {jiraKey: jiraKey}))
@@ -1042,7 +1042,7 @@ export const Connections = ({
         const scopeValuesPresent = allAttributes.some(name => arpInfo.attributes.find(attr => attr.name === name).scopedValue)
         return (
             <section className="inner-right-informational">
-                <h3>{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.informationProfile")}{changeRequestsKeys.includes("arp") && <Tooltip>
                     <TooltipTrigger render={<AlertIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                 </Tooltip>}</h3>
@@ -1309,7 +1309,7 @@ export const Connections = ({
         return (
             <>
                 <div className="testing-header">
-                    <h2>{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
                             <Button onClick={() => changeSection(sections.pendingChanges)}>
@@ -1494,7 +1494,7 @@ export const Connections = ({
                                   connectionNeedsApproval={connectionNeedsApproval}
                 />}
                 <div className="header">
-                    <h3>{I18n.t(`connection.allConnections`)}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t(`connection.allConnections`)}</h3>
                     <Button variant="secondary"
                             onClick={() => {
                                 setSection(sections.technical);

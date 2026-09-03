@@ -153,7 +153,7 @@ const MyOrganization = ({refreshUser}) => {
     const renderInternalGeneralSection = () => {
         return (
             <section className="inner-right">
-                <h3>{I18n.t("myOrganization.generalInformation")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t("myOrganization.generalInformation")}</h3>
                 <InputField name={I18n.t("myOrganization.name")}
                             value={organization.name}
                             disabled={true}/>
@@ -180,7 +180,7 @@ const MyOrganization = ({refreshUser}) => {
     const renderExternalGeneralSection = () => {
         return (
             <section className="inner-right">
-                <h3>{I18n.t("myOrganization.generalInformation")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t("myOrganization.generalInformation")}</h3>
                 <InputField name={I18n.t("myOrganization.name")}
                             value={organization.name}
                             disabled={!adminUser}
@@ -196,7 +196,7 @@ const MyOrganization = ({refreshUser}) => {
     const renderDeleteSection = () => {
         return (
             <div>
-                <h3>{I18n.t(`myOrganization.${sections.delete}`)}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t(`myOrganization.${sections.delete}`)}</h3>
                 <p>{I18n.t("myOrganization.deleteWarning")}</p>
                 <div className="actions">
                     <Button onClick={e => doDelete(e, true)}
@@ -278,13 +278,13 @@ const MyOrganization = ({refreshUser}) => {
             />}
             <div className="my-organization-header-container">
                 <div className="top-header">
-                    <h1>{I18n.t("myOrganization.title")}</h1>
+                    <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
                 </div>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
                         {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
             </div>
             <div className="my-organization">
-                <h1>{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
                 <div className="menu-container">
                     <div className="left-menu">
                         {availableSections

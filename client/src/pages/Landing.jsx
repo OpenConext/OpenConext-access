@@ -109,7 +109,7 @@ const Landing = ({refreshUser}) => {
             />}
             <div className="search">
                 {loading && <Spinner/>}
-                <h2>{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
+                <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
                 <p>{I18n.t("welcome.info")}</p>
                 <div className="inner-search">
                     <InputField value={search}

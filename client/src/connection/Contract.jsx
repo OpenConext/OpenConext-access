@@ -142,7 +142,7 @@ export const Contract = ({
             )}
             <div className="contract-inner">
                 <div className="app-header">
-                    <h2>{I18n.t("connection.contractSection.title")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("connection.contractSection.title")}</h2>
                 </div>
 
                 {signed && (

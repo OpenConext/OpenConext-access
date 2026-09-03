@@ -27,7 +27,7 @@ export const Home = () => {
         <div className="about-container">
             <div className="about">
                 <div className="top">
-                    <h1 className="title large">
+                    <h1 className="title large text-[56px] mb-[25px]">
                         {I18n.t("landing.header.title")}
                     </h1>
                     <p
@@ -38,7 +38,7 @@ export const Home = () => {
             <Background>
                 <div className="cards">
                     <div className="card">
-                        <h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.applicationProviders.title")}
                         </h3>
                         {I18n.translations[I18n.locale].landing.applicationProviders.info
@@ -50,7 +50,7 @@ export const Home = () => {
                         </Button>
                     </div>
                     <div className="card">
-                        <h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.institutions.title")}
                         </h3>
                         {I18n.translations[I18n.locale].landing.institutions.info
@@ -63,7 +63,7 @@ export const Home = () => {
                         </Button>
                     </div>
                     <div className="card">
-                        <h3>
+                        <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.joining.title")}
                         </h3>
                         {I18n.translations[I18n.locale].landing.joining.info

@@ -649,7 +649,7 @@ export const PolicyForm = ({
             />}
             <div className="policy-form-header">
                 <div className="header-top">
-                    <h2>{I18n.t(`appAccess.${isExistingPolicy ? (isStep ? "editStepUpPolicy" : "editPolicy") : (isStep ? "newStepUpPolicy" : "newPolicy")}`)}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] m-0">{I18n.t(`appAccess.${isExistingPolicy ? (isStep ? "editStepUpPolicy" : "editPolicy") : (isStep ? "newStepUpPolicy" : "newPolicy")}`)}</h2>
                     {isExistingPolicy &&
                         <div className="policy-header-actions">
                             {renderPolicyChip(policy)}

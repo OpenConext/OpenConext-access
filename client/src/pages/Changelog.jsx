@@ -64,7 +64,7 @@ const Changelog = () => {
         <div className="changelog-outer-container">
             <div className="changelog-header-container">
                 <div className="top-header">
-                    <h1>{I18n.t("changelog.title")}</h1>
+                    <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("changelog.title")}</h1>
                 </div>
                 <p>{I18n.t("changelog.info", {version: version, date: date})}</p>
             </div>

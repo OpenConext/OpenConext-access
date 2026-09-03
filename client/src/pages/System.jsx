@@ -96,7 +96,7 @@ const System = () => {
                        tabNames={config.demoSeedEnabled ? tabNames : tabNames.filter(tab => tab !== "seed")}
                        fullWidth={true}
             >
-                <h3>{I18n.t("landing.header.system")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("landing.header.system")}</h3>
             </TabHeader>
             <div className="system-container">
                 {renderCurrentTab()}

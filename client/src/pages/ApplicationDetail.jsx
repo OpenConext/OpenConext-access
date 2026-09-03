@@ -249,7 +249,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         if (confirmationModalOption === confirmationModalOptions.makeConnection) {
             return (
                 <div className="connect-options-container">
-                    <h3>{I18n.t("applicationConnect.defaultAccessTitle", {name: providerName(I18n.locale, serviceProvider)})}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)] mb-5">{I18n.t("applicationConnect.defaultAccessTitle", {name: providerName(I18n.locale, serviceProvider)})}</h3>
                     <p>{I18n.t("applicationConnect.defaultAccessInfo")}</p>
                     <p>{I18n.t("applicationConnect.defaultAccessInfo2")}</p>
                 </div>
@@ -257,7 +257,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else if (confirmationModalOption === confirmationModalOptions.requestConnectionByMember) {
             return (
                 <div className="connect-options-container">
-                    <h3>{I18n.t("applicationConnect.requestMember")}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)] mb-5">{I18n.t("applicationConnect.requestMember")}</h3>
                     <p dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(I18n.t("applicationConnect.memberRequestInfo.info",
                             {orgName: currentOrganization.name}))
@@ -274,7 +274,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         } else if (confirmationModalOption === confirmationModalOptions.requestConnection) {
             return (
                 <div className="connect-options-container">
-                    <h3>{I18n.t("applicationConnect.requestConnection")}</h3>
+                    <h3 className="text-[length:var(--text-lg-font-size)] mb-5">{I18n.t("applicationConnect.requestConnection")}</h3>
                     <p>{I18n.t("applicationConnect.requestConnectionInfo")}</p>
                 </div>
             );
@@ -505,11 +505,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     <>
                         <div className="app-access-central">
-                            <h2>{I18n.t("appAccess.title")}</h2>
+                            <h2 className="text-[length:var(--text-xl-font-size)] mb-5">{I18n.t("appAccess.title")}</h2>
                             <InfoBlock className="no-gap">
                                 <div className="grouped">
                                     <div>
-                                        <h3>{I18n.t("appAccess.users", {name: currentOrganization.name})}</h3>
+                                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[5px]">{I18n.t("appAccess.users", {name: currentOrganization.name})}</h3>
                                         <p>{I18n.t("appAccess.config")}</p>
                                     </div>
                                     <Button onClick={() => {
@@ -522,7 +522,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     </Button>
                                 </div>
                                 <div className="access-card large">
-                                    <h4>{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
+                                    <h4 className="text-[18px]">{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
                                         {name: currentOrganization.name})}</h4>
                                     {!isEmpty(policies) &&
                                         <Chip type={ChipType.Status_info}
@@ -535,7 +535,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <InfoBlock className="no-gap">
                                 <div className="grouped">
                                     <div>
-                                        <h3>{I18n.t("appAccess.outSideUsers")}</h3>
+                                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[5px]">{I18n.t("appAccess.outSideUsers")}</h3>
                                         <p>{I18n.t("appAccess.roleBasedAccess")}</p>
                                     </div>
                                     <Button onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
@@ -575,7 +575,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             </InfoBlock>
                         </div>
                         <div className="app-access-decentral">
-                            <h2>{I18n.t("appAccess.decentralAccess")}</h2>
+                            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("appAccess.decentralAccess")}</h2>
                             <InfoBlock className="no-gap grey row">
                                 <div className="not-allowed-container">
                                     <NotAllowedIcon/>
@@ -649,7 +649,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return (
             <div className="assurance-container">
                 <div className="assurance-left">
-                    <h2>{I18n.t("assurance.mfaTitle")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] mt-10 first:mt-0">{I18n.t("assurance.mfaTitle")}</h2>
                     <p className="info">{I18n.t("assurance.mfaInfo")}</p>
                     <div className="assurance-info">
                         <ul>
@@ -669,7 +669,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     />
                     {mfaLoaTooLow && <ErrorIndicator standalone={true}
                                                      msg={I18n.t("assurance.mfaLoaTooLow")}/>}
-                    <h2>{I18n.t("assurance.stepupTitle")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)] mt-10 first:mt-0">{I18n.t("assurance.stepupTitle")}</h2>
                     <p className="info">{I18n.t("assurance.stepupInfo")}</p>
                     <div className="assurance-info">
                         <p>{I18n.t("assurance.stepupBlock.choose")}</p>
@@ -708,7 +708,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 </div>
                 <div className="assurance-right">
                     <InfoBlock className="assurance-info-block">
-                        <h2>{I18n.t("assurance.tipsInfo")}</h2>
+                        <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("assurance.tipsInfo")}</h2>
                         <p>{I18n.t("assurance.tips.practice")}</p>
                         <ol>
                             <li>{I18n.t("assurance.tips.optionMfa")}</li>
@@ -735,7 +735,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return (
             <div className="consent-container">
                 <div className="consent-left">
-                    <h2>{I18n.t("consent.title")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("consent.title")}</h2>
                     <p className="info" dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(I18n.t("consent.info"))
                     }}/>
@@ -768,7 +768,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
                 </div>
                 <div className="consent-right">
-                    <h2>{I18n.t("consent.example")}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("consent.example")}</h2>
                     <ExampleSVG/>
                 </div>
             </div>
@@ -812,7 +812,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
                                 {!metaData["logo:0:url"] && <PlaceHolderImage/>}
                                 <div className="provider-details">
-                                    <h3>{providerName(I18n.locale, serviceProvider)}</h3>
+                                    <h3 className="text-[length:var(--text-lg-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
                                     <p>{providerDescription(I18n.locale, serviceProvider)}</p>
                                 </div>
                             </div>
@@ -999,7 +999,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <div className="application-detail-header-container">
                         <div className="application-detail-header">
                             <div className="left">
-                                <h1 className="large">{I18n.t("applicationDetail.title")}</h1>
+                                <h1 className="large text-[56px] mb-5">{I18n.t("applicationDetail.title")}</h1>
                                 <p>{I18n.t("applicationDetail.subTitle")}</p>
                             </div>
                             <img src={StudentPng} alt="student"/>
