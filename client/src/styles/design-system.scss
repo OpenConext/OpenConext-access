@@ -19,6 +19,36 @@ a.actionable {
     text-decoration: underline;
 }
 
+[data-slot="field"] {
+    margin-top: 15px;
+}
+
+[data-slot="alert"] {
+    margin: 15px 0;
+
+    > svg {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+.alert-description-with-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    button {
+        margin-left: 40px;
+    }
+}
+
+.connection-alert > svg {
+    grid-row: auto;
+    align-self: center;
+    transform: none;
+}
+
 .stretched-link {
     position: absolute;
     inset: 0;

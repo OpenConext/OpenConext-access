@@ -5,10 +5,6 @@
         border-radius: 10px;
         padding: 20px;
 
-        [data-slot="field"] {
-            margin-top: 15px;
-        }
-
         &.read-only {
             background-color: transparent;
 

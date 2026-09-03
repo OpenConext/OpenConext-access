@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";
+import {Alert, AlertAction, AlertDescription, Button} from "@surfnet/curve-react";
 import {InfoIcon, WarningIcon, XIcon} from "@phosphor-icons/react";
 import {isEmpty, sanitize, splitListSemantically} from "../utils/Utils.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
@@ -21,10 +21,12 @@ export const ConnectionAlert = ({
     const [alertClosed, setAlertClosed] = useState(false);
 
     const renderAlert = ({warning = false, message, close, action, actionLabel}) => (
-        <Alert>
-            {warning ? <WarningIcon/> : <InfoIcon/>}
-            <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
-            {action && <button type="button" className="alert-action" onClick={action}>{actionLabel}</button>}
+        <Alert className="connection-alert">
+            {warning ? <WarningIcon color="var(--warning)"/> : <InfoIcon/>}
+            <AlertDescription className="alert-description-with-action">
+                <span dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
+                {action && <Button size="sm" onClick={action}>{actionLabel}</Button>}
+            </AlertDescription>
             {close && <AlertAction>
                 <button type="button" onClick={close}><XIcon/></button>
             </AlertAction>}
