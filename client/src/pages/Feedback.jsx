@@ -41,14 +41,12 @@ export default function Feedback() {
                 <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("feedback.title")}</h1>
             </div>
             <div className={"feedback-content"}>
-                <div className="sds--text-area">
-                    <textarea name="feedback"
-                              id="feedback"
-                              value={message}
-                              rows="10"
-                              ref={inputRef}
-                              onChange={e => setMessage(e.target.value)}/>
-                </div>
+                <textarea name="feedback"
+                          id="feedback"
+                          value={message}
+                          rows="10"
+                          ref={inputRef}
+                          onChange={e => setMessage(e.target.value)}/>
                 <section className="help">
                     <h3 className="title text-[length:var(--text-lg-font-size)]"
                         dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("feedback.help"))}}/>

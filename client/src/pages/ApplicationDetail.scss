@@ -38,7 +38,7 @@ div.application-detail-container {
         flex-direction: column;
         gap: 15px;
 
-        .sds--chips--textual {
+        .custom-chip--textual {
             margin: auto;
         }
     }
@@ -258,7 +258,7 @@ div.application-detail-container {
         .app-access-central {
             width: 65%;
 
-            .sds--chips.policies-active {
+            .custom-chip.policies-active {
                 margin: 0 auto;
                 background-color: var(--warning);
                 color: white;

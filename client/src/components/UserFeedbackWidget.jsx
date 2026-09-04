@@ -161,16 +161,14 @@ export const UserFeedbackWidget = () => {
             <div className="user-feedback-widget__form">
                 <div className="user-feedback-widget__modal">
                     <p>{I18n.t("feedback.info")}</p>
-                    <div className="sds--text-area">
-                        <textarea
-                            name="feedback"
-                            id="feedback"
-                            value={message}
-                            rows="10"
-                            ref={inputRef}
-                            onChange={e => setMessage(e.target.value)}
-                        />
-                    </div>
+                    <textarea
+                        name="feedback"
+                        id="feedback"
+                        value={message}
+                        rows="10"
+                        ref={inputRef}
+                        onChange={e => setMessage(e.target.value)}
+                    />
                     <div className="user-feedback-widget__options">
                         <Checkbox
                             checked={includeScreenshot}

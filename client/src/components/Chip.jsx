@@ -23,12 +23,12 @@ export const Chip = (props) => {
     const chipType = props.type || ChipType.Main_100;
     const className = props.className || "";
     const chip = (
-        <Badge variant="secondary" className={`sds--chips ${chipType} ${className}`}>
+        <Badge variant="secondary" className={`custom-chip ${chipType} ${className}`}>
             {props.children &&
-                <span className="sds--chips--visual">
+                <span className="custom-chip--visual">
                     {props.children}
                 </span>}
-            <span className="sds--chips--textual sds--text--body--small">{props.label}</span>
+            <span className="custom-chip--textual">{props.label}</span>
         </Badge>
     );
     if (!props.toolTip) {

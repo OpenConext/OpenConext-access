@@ -406,7 +406,7 @@ $width-percentage: 75%;
                 color: var(--muted-foreground);
             }
 
-            button:not(.sds--btn--delete) {
+            button {
                 width: 240px;
                 margin-left: auto;
             }

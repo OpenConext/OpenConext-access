@@ -6,9 +6,9 @@ import {LanguageSelector} from "./LanguageSelector";
 export const Footer = () => {
 
     return (
-        <footer className="sds--footer sds--footer--single-bar">
+        <footer className="sds--footer">
             <div className="sds--footer--inner">
-                <nav className="menu sds--text--body--small">
+                <nav className="menu">
                     <ul>
                         <li>
                             <a className="external-link"

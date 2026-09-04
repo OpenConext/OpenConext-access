@@ -22,7 +22,7 @@ export const SharedMenuFooter = () => {
     };
 
     return (
-        <footer className="sds--footer sds--footer--single-bar shared-menu">
+        <footer className="sds--footer shared-menu">
             <div className="sds--footer--inner">
                 <ToggleSegmentButton value={I18n.locale}
                                      onChange={handleChooseLocale}
@@ -31,7 +31,7 @@ export const SharedMenuFooter = () => {
                                          {value: "en", label: I18n.translations.en.code}
                                      ]}/>
                 <hr/>
-                <nav className="menu sds--text--body--small">
+                <nav className="menu">
                     <ul>
                         <li>
                             <Link to={I18n.t("footer.versionLink")}>{I18n.t("footer.version", {version: version})}</Link>

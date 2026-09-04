@@ -20,6 +20,10 @@
         padding: $page-padding;
         max-width: 50%;
 
+        textarea {
+            width: 100%;
+        }
+
         section.help {
             margin-top: 15px;
         }

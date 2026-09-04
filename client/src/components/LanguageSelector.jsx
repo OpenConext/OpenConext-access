@@ -25,7 +25,7 @@ export const LanguageSelector = () => {
     }
 
     return (
-        <nav className="sds--language-switcher sds--text--body--small" aria-label="Language">
+        <nav className="sds--language-switcher" aria-label="Language">
             <ul>
                 <li>{renderLocaleChooser("nl")}
                     <span className="sds--language-sds--divider">|</span>
