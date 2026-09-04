@@ -112,6 +112,7 @@ export const Connections = ({
     const [urlMetaData, setUrlMetaData] = useState(null);
     const [fileName, setFileName] = useState(null);
     const [duplicateEntityID, setDuplicateEntityID] = useState(false);
+    const [duplicateScope, setDuplicateScope] = useState(false);
     const [initial, setInitial] = useState(true);
     const [showAdditionalAttributes, setShowAdditionalAttributes] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -204,6 +205,14 @@ export const Connections = ({
         return connection.id ? nbr > 1 : nbr === 1;
     }
 
+    const hasDuplicateScope = options => (options || []).some(option => option.__isNew__ &&
+        scopes.some(scope => scope.name.trim().toLowerCase() === (option.value || "").trim().toLowerCase()));
+
+    const scopesChanged = options => {
+        setConnection({...connection, scopes: options});
+        setDuplicateScope(hasDuplicateScope(options));
+    }
+
     const technicalValid = () => {
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const isSaml = connection.protocol.value === PROTOCOLS.SAML20_SP;
@@ -214,7 +223,8 @@ export const Connections = ({
             (!isRs && (isEmpty(connection.loginUrl) || invalidLoginUrl)) ||
             Object.values(invalidACSLocations).some(invalid => invalid) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
-            (isSaml && !isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))));
+            (isSaml && !isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))) ||
+            (isRs && duplicateScope));
     }
 
     const informationProfileValid = () => {
@@ -540,15 +550,18 @@ export const Connections = ({
                 />
                 {isRs &&
                     <SelectField name={I18n.t("connection.scopes")}
-                                 options={scopes.map(scope => ({label: scope.name, value: scope.name}))}
+                                 options={[]}
                                  value={connection.scopes}
                                  isMulti={true}
                                  searchable={true}
                                  creatable={true}
                                  placeholder={I18n.t("connection.scopePlaceholder")}
-                                 onChange={options => setConnection({...connection, scopes: options})}
+                                 onChange={scopesChanged}
                                  info={I18n.t("connection.scopeInfo")}
                     />}
+                {(isRs && duplicateScope) &&
+                    <ErrorIndicator msg={I18n.t("connection.duplicateScope")}
+                                    adjustMargin={true}/>}
 
                 {!isRs &&
                     <InputField value={connection.loginUrl || ""}
@@ -896,7 +909,7 @@ export const Connections = ({
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(false)}
                 {(!pendingProd && !prodConnection) &&
                     <div className="visibility-options">
-                        <p className="question">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
+                        <p className="question mb-2.5">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
                         {renderRadioOptions("proceedWithProduction",
                             proceedWithProduction ? "prodConnection" : "testConnection",
                             ["testConnection", "prodConnection"],

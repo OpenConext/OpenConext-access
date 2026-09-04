@@ -389,6 +389,7 @@ const en = {
         scopes: "Scopes",
         scopePlaceholder: "Search and add relevant scopes for this RS",
         scopeInfo: "Scopes are optional and if you require a new scope, you can create your own scope",
+        duplicateScope: "This scope already exists and can not be created again",
         metadata: {
             how: "How do you want to import the metadata?",
             url: "Extract metadata from url",

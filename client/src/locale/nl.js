@@ -389,6 +389,7 @@ const nl = {
         scopes: "Scopes",
         scopePlaceholder: "Zoek en voeg relevante scopes toe voor deze RS",
         scopeInfo: "Scopes zijn optioneel; neem voor een nieuwe scope contact op met <a class='actionable' href='mailto:support@surfconext.nl'>support@surfconext.nl</a>",
+        duplicateScope: "Deze scope bestaat al en kan niet opnieuw worden aangemaakt",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "Metadata ophalen van URL",
