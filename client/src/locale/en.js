@@ -113,6 +113,7 @@ const en = {
         joins: "Join Requests",
         invitations: "Invitations",
         home: "Home",
+        stats: "Statistics",
         feedback: "Feedback",
         profile: "Profile",
         changelog: "Changelog",

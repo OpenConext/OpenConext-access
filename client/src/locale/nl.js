@@ -113,6 +113,7 @@ const nl = {
         joins: "Aanvraag‑verzoeken",
         invitations: "Uitnodigingen",
         home: "Home",
+        stats: "Statistieken",
         feedback: "Feedback",
         profile: "Profiel",
         changelog: "Changelog",

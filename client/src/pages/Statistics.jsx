@@ -15,6 +15,7 @@ import {providerName} from "../utils/Manage.js";
 import {authorities} from "../utils/Permissions.js";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Navigate} from "react-router";
+import {mainMenuItems} from "../utils/MenuItems.js";
 
 const periods = {
     year: "year",
@@ -160,6 +161,13 @@ const Statistics = () => {
     // Fetch SP and IdP lists on mount for name resolution
     useEffect(() => {
         const locale = I18n.locale;
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.stats"), menuItemName: mainMenuItems.home},
+                {value: I18n.t("breadCrumb.stats")}
+            ]
+        });
+
         Promise.all([publicServiceProviders(), publicIdentityProviders()])
             .then(([sps, idps]) => {
                 const spLookup = {};

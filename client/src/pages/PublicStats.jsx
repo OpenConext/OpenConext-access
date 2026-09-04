@@ -15,6 +15,7 @@ const AUTO_REFRESH_INTERVAL = 30_000; // ms
 const periods = {
     minute: "minute",
     hour: "hour",
+    day: "day",
     week: "week",
     month: "month",
     quarter: "quarter",
@@ -26,11 +27,12 @@ const periods = {
 const rollingPeriods = new Set(["minute", "hour"]);
 
 // Scales that use a named year with PeriodPicker
-const yearPeriods = new Set(["week", "month", "quarter", "year"]);
+const yearPeriods = new Set(["day", "week", "month", "quarter", "year"]);
 
 const scaleForPeriod = {
     minute: "minute",
     hour: "hour",
+    day: "day",
     week: "week",
     month: "month",
     quarter: "quarter",
@@ -136,7 +138,7 @@ const labelForScale = (scale, timestamp) => {
         case "month":   return formatMonthLabel(timestamp);
         case "quarter": return formatQuarterLabel(timestamp);
         case "year":    return formatYearLabel(timestamp);
-        default:        return formatDayLabel(timestamp); // "day" scale for custom ranges
+        default:        return formatDayLabel(timestamp); // "day" scale, named period or custom range
     }
 };
 
