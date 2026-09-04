@@ -44,6 +44,17 @@ public class StatisticsController {
         return user.getAuthenticatingAuthority();
     }
 
+    /**
+     * Users who are restricted to their own IdP (see resolveIdpEntityId) always keep that restriction,
+     * regardless of any idpEntityId requested by the client. Only callers who are otherwise unrestricted
+     * (super users, or SURFnet users who see all IdPs) may narrow the results down to one IdP of their choosing -
+     * e.g. by selecting an institute in the statistics dashboard.
+     */
+    private String resolveIdpFilter(User user, String idpEntityId) {
+        String restrictedIdpEntityId = resolveIdpEntityId(user);
+        return restrictedIdpEntityId != null ? restrictedIdpEntityId : idpEntityId;
+    }
+
     //Used for retrieval of all logins for one SP
     @GetMapping("/loginTimeFrame")
     public List<Object> loginTimeFrame(User user,
@@ -51,13 +62,14 @@ public class StatisticsController {
                                        @RequestParam("to") long to,
                                        @RequestParam("scale") Scale scale,
                                        @RequestParam(value = "spEntityId", required = false) String spEntityId,
+                                       @RequestParam(value = "idpEntityId", required = false) String idpEntityId,
                                        @RequestParam(value = "includeUnique", required = false, defaultValue = "true") boolean includeUnique) {
         //Anonymous callers (this endpoint is permitAll, for the public statistics dashboard) may only ever see
-        //the platform-wide aggregate, never data scoped to one specific, attacker-chosen SP
-        if (user == null && StringUtils.hasText(spEntityId)) {
-            throw new UserRestrictionException("Authentication is required to filter statistics by spEntityId");
+        //the platform-wide aggregate, never data scoped to one specific, attacker-chosen SP or IdP
+        if (user == null && (StringUtils.hasText(spEntityId) || StringUtils.hasText(idpEntityId))) {
+            throw new UserRestrictionException("Authentication is required to filter statistics by spEntityId or idpEntityId");
         }
-        return statistics.loginTimeFrame(from, to, scale.name(), resolveIdpEntityId(user), spEntityId, includeUnique);
+        return statistics.loginTimeFrame(from, to, scale.name(), resolveIdpFilter(user, idpEntityId), spEntityId, includeUnique);
     }
 
     //Used for retrieval of all logins for all SPs
@@ -65,8 +77,9 @@ public class StatisticsController {
     public List<Object> loginAggregated(User user,
                                         @RequestParam("period") String period,
                                         @RequestParam(value = "spEntityId", required = false) String spEntityId,
+                                        @RequestParam(value = "idpEntityId", required = false) String idpEntityId,
                                         @RequestParam(value = "groupBy", required = false, defaultValue = "sp_id") String groupBy) {
-        return statistics.loginAggregated(period, resolveIdpEntityId(user), spEntityId, groupBy);
+        return statistics.loginAggregated(period, resolveIdpFilter(user, idpEntityId), spEntityId, groupBy);
     }
 
     //Used for retrieval of all logins for one SP without a period
@@ -74,8 +87,9 @@ public class StatisticsController {
     public List<Object> uniqueLoginCount(User user,
                                          @RequestParam("from") long from,
                                          @RequestParam("to") long to,
-                                         @RequestParam(value = "spEntityId") String spEntityId) {
-        return statistics.uniqueLoginCount(from, to, resolveIdpEntityId(user), spEntityId);
+                                         @RequestParam(value = "spEntityId") String spEntityId,
+                                         @RequestParam(value = "idpEntityId", required = false) String idpEntityId) {
+        return statistics.uniqueLoginCount(from, to, resolveIdpFilter(user, idpEntityId), spEntityId);
     }
 
 }

@@ -461,19 +461,22 @@ export function publicServiceProviderByDetail(type, identifier) {
 }
 
 //Stats
-export function loginTimeFrame(from, to, scale, spEntityId, includeUnique = true) {
+export function loginTimeFrame(from, to, scale, spEntityId, idpEntityId, includeUnique = true) {
     const sp = !isEmpty(spEntityId) ? `&spEntityId=${encodeURIComponent(spEntityId)}` : ''
-    return fetchJson(`/api/v1/stats/loginTimeFrame?from=${from}&to=${to}&scale=${scale}&includeUnique=${includeUnique}${sp}`)
+    const idp = !isEmpty(idpEntityId) ? `&idpEntityId=${encodeURIComponent(idpEntityId)}` : ''
+    return fetchJson(`/api/v1/stats/loginTimeFrame?from=${from}&to=${to}&scale=${scale}&includeUnique=${includeUnique}${sp}${idp}`)
 }
 
-export function loginAggregated(period, spEntityId, groupBy) {
+export function loginAggregated(period, spEntityId, idpEntityId, groupBy) {
     const sp = !isEmpty(spEntityId) ? `&spEntityId=${encodeURIComponent(spEntityId)}` : ''
+    const idp = !isEmpty(idpEntityId) ? `&idpEntityId=${encodeURIComponent(idpEntityId)}` : ''
     const gb = !isEmpty(groupBy) ? `&groupBy=${groupBy}` : ''
-    return fetchJson(`/api/v1/stats/loginAggregated?period=${period}${sp}${gb}`)
+    return fetchJson(`/api/v1/stats/loginAggregated?period=${period}${sp}${idp}${gb}`)
 }
 
-export function uniqueLoginCount(from, to, spEntityId) {
-    return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}`)
+export function uniqueLoginCount(from, to, spEntityId, idpEntityId) {
+    const idp = !isEmpty(idpEntityId) ? `&idpEntityId=${encodeURIComponent(idpEntityId)}` : ''
+    return fetchJson(`/api/v1/stats/uniqueLoginCount?from=${from}&to=${to}&spEntityId=${encodeURIComponent(spEntityId)}${idp}`)
 }
 
 //Contract

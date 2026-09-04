@@ -4,9 +4,6 @@ logging:
 
 server:
   port: 8886
-  error:
-    path: "/error"
-    include-message: always
   forward-headers-strategy: framework
   servlet:
     session:
@@ -63,6 +60,10 @@ spring:
   mail:
     host: localhost
     port: 1025
+  web:
+    error:
+      path: "/error"
+      include-message: always
 
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
@@ -158,7 +159,6 @@ gui:
 
 feature:
   enable-performance-seed: False
-  statistics-enabled: False
   stepup-required: False
 
 email:
@@ -196,9 +196,9 @@ invite:
   password: invite_access_dashboard_secret
 
 statistics:
-  enabled: False
-  url: "http://localhost:8081"
-  user: access_dashboard
+  enabled: true
+  url: "https://stats.test2.surfconext.nl/api/stats/"
+  user: dashboard
   password: secret
 
 s3storage:

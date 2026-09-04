@@ -11,7 +11,10 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-    Spinner
+    Spinner,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput
 } from "@surfnet/curve-react";
 import StudentPng from "../icons/student2.png";
 import {MagnifyingGlassIcon as SearchIcon, CaretRightIcon as ArrowIcon} from "@phosphor-icons/react";
@@ -200,41 +203,36 @@ const Applications = () => {
                 <div className="inner-applications-container">
                     <div className="applications">
                         <div className="applications-search">
-                            <div className={"sds--text-field sds--text-field--has-icon"}>
-                                <div className="sds--text-field--shape">
-                                    <div className="sds--text-field--input-and-icon">
-                                        <input className={"sds--text-field--input"}
-                                               type="search"
-                                               onChange={e => {
-                                                   setQuery(e.target.value);
-                                                   storeQueryParameter("query", e.target.value);
-                                               }}
-                                               value={query}
-                                               placeholder={I18n.t("applications.searchPlaceHolder")}/>
-                                        <span className="sds--text-field--icon">
-                                            <SearchIcon/>
-                                        </span>
-                                    </div>
-                                    <SelectField
-                                        value={sourceOptions.find(option => option.value === source)}
-                                        options={sourceOptions}
-                                        searchable={false}
-                                        onChange={option => {
-                                            setSource(option.value);
-                                            storeQueryParameter("source", option.value);
-                                        }}
-                                    />
-                                    <SelectField
-                                        value={tagOptions.find(option => option.value === tag)}
-                                        options={tagOptions}
-                                        searchable={false}
-                                        onChange={option => {
-                                            setTag(option.value)
-                                            storeQueryParameter("tag", option.value);
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            <InputGroup className="applications-search-input-group">
+                                <InputGroupInput type="search"
+                                                 onChange={e => {
+                                                     setQuery(e.target.value);
+                                                     storeQueryParameter("query", e.target.value);
+                                                 }}
+                                                 value={query}
+                                                 placeholder={I18n.t("applications.searchPlaceHolder")}/>
+                                <InputGroupAddon align="inline-end">
+                                    <SearchIcon/>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <SelectField
+                                value={sourceOptions.find(option => option.value === source)}
+                                options={sourceOptions}
+                                searchable={false}
+                                onChange={option => {
+                                    setSource(option.value);
+                                    storeQueryParameter("source", option.value);
+                                }}
+                            />
+                            <SelectField
+                                value={tagOptions.find(option => option.value === tag)}
+                                options={tagOptions}
+                                searchable={false}
+                                onChange={option => {
+                                    setTag(option.value)
+                                    storeQueryParameter("tag", option.value);
+                                }}
+                            />
                         </div>
                         {showMostRecent &&
                             <div className="applications-overview-recent-container">

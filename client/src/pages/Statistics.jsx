@@ -21,6 +21,7 @@ const periods = {
     quarter: "quarter",
     month: "month",
     week: "week",
+    day: "day",
     custom: "custom",
 }
 
@@ -29,6 +30,7 @@ const scaleForPeriod = {
     quarter: "quarter",
     month: "month",
     week: "week",
+    day: "day",
 }
 
 const buildPeriodString = (period, year) => {
@@ -43,18 +45,10 @@ const buildFromTo = (year) => {
     return {from, to};
 }
 
-const buildChartLabels = (scale) => {
-    switch (scale) {
-        case "month":
-            return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        case "week": {
-            const labels = [];
-            for (let i = 1; i <= 52; i++) labels.push(`W${i}`);
-            return labels;
-        }
-        default:
-            return [];
-    }
+// Non-ISO, but matches the plain W1..W52 numbering the chart has always used
+const weekOfYear = (d) => {
+    const firstOfYear = new Date(d.getFullYear(), 0, 1);
+    return Math.ceil((((d - firstOfYear) / 86400000) + firstOfYear.getDay() + 1) / 7);
 }
 
 const scaleForCustomRange = (from, to) => {
@@ -75,11 +69,31 @@ const formatCustomLabel = (timestamp, scale) => {
             const quarter = Math.ceil((d.getMonth() + 1) / 3);
             return `Q${quarter} ${d.getFullYear()}`;
         }
+        case "week":
+            return `W${weekOfYear(d)} ${d.getFullYear()}`;
         case "month":
             return d.toLocaleDateString("en-GB", {month: "short", year: "numeric"});
         default:
             return d.toLocaleDateString("en-GB", {day: "numeric", month: "short"});
     }
+}
+
+// The stats API returns count_user_id and distinct_count_user_id as separate rows sharing the same
+// grouping key (e.g. one row per sp_entity_id for logins, another for unique users) instead of one
+// combined row per key - merge them so each entity appears exactly once with both metrics.
+const mergeMetricRows = (rows, keyField) => {
+    const merged = new Map();
+    (rows || []).forEach(row => {
+        const key = row[keyField] ?? "";
+        const existing = merged.get(key);
+        merged.set(key, existing ? {
+            ...existing,
+            ...row,
+            count_user_id: (existing.count_user_id || 0) + (row.count_user_id || 0),
+            distinct_count_user_id: (existing.distinct_count_user_id || 0) + (row.distinct_count_user_id || 0),
+        } : {...row});
+    });
+    return Array.from(merged.values());
 }
 
 const formatStatNumber = (n) => {
@@ -132,6 +146,17 @@ const Statistics = () => {
     const [spMap, setSpMap] = useState({});
     const [idpMap, setIdpMap] = useState({});
 
+    // Changing the period changes which field (idField) identifies a table row (e.g. "sp_entity_id" vs
+    // "time" for the custom-period table), but the previously-fetched data lags a render behind until
+    // fetchData's effect resolves. Clearing it in the same event as the period switch avoids a render
+    // where the old data's rows get keyed by a field they don't vary on (React "duplicate key" warning).
+    const handlePeriodChange = (newPeriod) => {
+        setPeriod(newPeriod);
+        setTimeFrameData([]);
+        setPerAppData([]);
+        setPerInstituteData([]);
+    };
+
     // Fetch SP and IdP lists on mount for name resolution
     useEffect(() => {
         const locale = I18n.locale;
@@ -159,10 +184,12 @@ const Statistics = () => {
             const to = Math.floor(customTo.getTime() / 1000);
             const scale = scaleForCustomRange(customFrom, customTo);
             const spFilter = selectedSp || "";
+            const idpFilter = isSurfNet ? (selectedIdp || "") : "";
 
-            loginTimeFrame(from, to, scale, spFilter)
+            loginTimeFrame(from, to, scale, spFilter, idpFilter)
                 .then((data) => {
-                    const arr = Array.isArray(data) ? data : [data];
+                    const raw = Array.isArray(data) ? data : [data];
+                    const arr = mergeMetricRows(raw, "time");
                     const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
                     const totUnique = arr.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
                     setTotalLogins(totLogins);
@@ -180,6 +207,7 @@ const Statistics = () => {
         const scale = scaleForPeriod[period];
         const periodStr = buildPeriodString(period, periodValue);
         const spFilter = selectedSp || "";
+        const idpFilter = isSurfNet ? (selectedIdp || "") : "";
 
         // When "year" period is selected, make one call spanning 5 years (one point per year);
         // loginAggregated still uses only the selected year.
@@ -188,21 +216,21 @@ const Statistics = () => {
             const to5   = new Date(periodValue + 1, 0, 1).getTime() / 1000;
 
             const aggregatedPromises = [
-                loginAggregated(periodStr, spFilter, "sp_entity_id"),
-                uniqueLoginCount(from, to, spFilter),
+                loginAggregated(periodStr, spFilter, idpFilter, "sp_id"),
+                uniqueLoginCount(from, to, spFilter, idpFilter),
             ];
             if (isSurfNet) {
-                aggregatedPromises.push(loginAggregated(periodStr, spFilter, "idp_entity_id"));
+                aggregatedPromises.push(loginAggregated(periodStr, spFilter, idpFilter, "idp_id"));
             }
 
             Promise.all([
-                loginTimeFrame(from5, to5, "year", spFilter),
+                loginTimeFrame(from5, to5, "year", spFilter, idpFilter),
                 Promise.all(aggregatedPromises),
             ]).then(([timeFrame, [perApp, uniqueCount, perInstitute]]) => {
-                const arr = Array.isArray(timeFrame) ? timeFrame : [timeFrame];
+                const arr = mergeMetricRows(Array.isArray(timeFrame) ? timeFrame : [timeFrame], "time");
                 setTimeFrameData(arr);
-                setPerAppData(perApp || []);
-                setPerInstituteData(isSurfNet ? (perInstitute || []) : []);
+                setPerAppData(mergeMetricRows(perApp, "sp_entity_id"));
+                setPerInstituteData(isSurfNet ? mergeMetricRows(perInstitute, "idp_entity_id") : []);
 
                 const totLogins = arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
                 setTotalLogins(totLogins);
@@ -220,23 +248,24 @@ const Statistics = () => {
         }
 
         const promises = [
-            loginTimeFrame(from, to, scale, spFilter),
-            loginAggregated(periodStr, spFilter, "sp_entity_id"),
-            uniqueLoginCount(from, to, spFilter),
+            loginTimeFrame(from, to, scale, spFilter, idpFilter),
+            loginAggregated(periodStr, spFilter, idpFilter, "sp_id"),
+            uniqueLoginCount(from, to, spFilter, idpFilter),
         ];
 
         // Only fetch per-institute data for SURFnet users
         if (isSurfNet) {
-            promises.push(loginAggregated(periodStr, spFilter, "idp_entity_id"));
+            promises.push(loginAggregated(periodStr, spFilter, idpFilter, "idp_id"));
         }
 
         Promise.all(promises).then(([timeFrame, perApp, uniqueCount, perInstitute]) => {
-            setTimeFrameData(timeFrame || []);
-            setPerAppData(perApp || []);
-            setPerInstituteData(isSurfNet ? (perInstitute || []) : []);
+            const mergedTimeFrame = mergeMetricRows(timeFrame, "time");
+            setTimeFrameData(mergedTimeFrame);
+            setPerAppData(mergeMetricRows(perApp, "sp_entity_id"));
+            setPerInstituteData(isSurfNet ? mergeMetricRows(perInstitute, "idp_entity_id") : []);
 
             // Compute totals from timeFrame
-            const totLogins = (timeFrame || []).reduce((sum, d) => sum + (d.count_user_id || 0), 0);
+            const totLogins = mergedTimeFrame.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
             setTotalLogins(totLogins);
 
             if (typeof uniqueCount === "number") {
@@ -244,31 +273,26 @@ const Statistics = () => {
             } else if (uniqueCount && uniqueCount.distinct_count_user_id !== undefined) {
                 setTotalUnique(uniqueCount.distinct_count_user_id);
             } else {
-                const totUnique = (timeFrame || []).reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
+                const totUnique = mergedTimeFrame.reduce((sum, d) => sum + (d.distinct_count_user_id || 0), 0);
                 setTotalUnique(totUnique);
             }
             setLoading(false);
         }).catch(() => setLoading(false));
-    }, [period, periodValue, customFrom, customTo, selectedSp, isSurfNet]);
+    }, [period, periodValue, customFrom, customTo, selectedSp, selectedIdp, isSurfNet]);
 
     useEffect(() => {
         fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
     }, [fetchData]);
 
+    // The server only returns buckets that actually have data (e.g. 2 weeks out of 52), not one row per
+    // bucket across the whole range. Labels must therefore always be derived from each point's own "time"
+    // rather than a static, positionally-matched list - otherwise a sparse result renders under the wrong
+    // labels (e.g. week 35's data showing up under "W1").
     const chartLabels = useMemo(() => {
-        if (period === "custom") {
-            const scale = scaleForCustomRange(customFrom, customTo);
-            return timeFrameData.map(d => formatCustomLabel(d.time, scale));
-        }
-        // For "year", data has one point per year — derive labels from timestamps
-        if (period === "year") {
-            return timeFrameData.map(d => formatCustomLabel(d.time, "year"));
-        }
-        const scale = scaleForPeriod[period];
-        if (scale === "day" || scale === "quarter") {
-            return timeFrameData.map(d => formatCustomLabel(d.time, scale));
-        }
-        return buildChartLabels(scale);
+        const scale = period === "custom" ? scaleForCustomRange(customFrom, customTo)
+            : period === "year" ? "year"
+            : scaleForPeriod[period];
+        return timeFrameData.map(d => formatCustomLabel(d.time, scale));
     }, [period, customFrom, customTo, timeFrameData]);
 
     const spNameResolver = useCallback((entityId) => spMap[entityId] || entityId, [spMap]);
@@ -325,7 +349,7 @@ const Statistics = () => {
                 <div className="statistics-menu">
                     <h5 className="period">{I18n.t("statistics.period")}</h5>
                     <div className="statistics-menu-options">
-                        <SegmentedControl onClick={option => setPeriod(option)}
+                        <SegmentedControl onClick={handlePeriodChange}
                                           options={Object.keys(periods)}
                                           option={period}
                                           optionLabelResolver={option => I18n.t(`statistics.${option}`)}/>
@@ -386,6 +410,7 @@ const Statistics = () => {
                         <StatsTable data={perAppData}
                                     titleKey="perPeriod"
                                     nameResolver={customTimeResolver}
+                                    idField="time"
                                     selectable={false}/>
                     </section>
                 ) : isSurfNet ? (
@@ -394,17 +419,21 @@ const Statistics = () => {
                             <StatsTable data={perAppData}
                                         titleKey="perApp"
                                         nameResolver={spNameResolver}
+                                        idField="sp_entity_id"
                                         selectedId={selectedSp}
                                         onSelect={setSelectedSp}
-                                        filterLabel={selectedIdp ? idpNameResolver(selectedIdp) : null}/>
+                                        filterLabel={selectedIdp ? idpNameResolver(selectedIdp) : null}
+                                        onClearFilter={() => setSelectedIdp(null)}/>
                         </section>
                         <section className="cardy table-card">
                             <StatsTable data={perInstituteData}
                                         titleKey="perInstitute"
                                         nameResolver={idpNameResolver}
+                                        idField="idp_entity_id"
                                         selectedId={selectedIdp}
                                         onSelect={setSelectedIdp}
-                                        filterLabel={selectedSp ? spNameResolver(selectedSp) : null}/>
+                                        filterLabel={selectedSp ? spNameResolver(selectedSp) : null}
+                                        onClearFilter={() => setSelectedSp(null)}/>
                         </section>
                     </>
                 ) : (
@@ -413,6 +442,7 @@ const Statistics = () => {
                             <StatsTable data={perAppData}
                                         titleKey="loginsPerApp"
                                         nameResolver={spNameResolver}
+                                        idField="sp_entity_id"
                                         selectedId={selectedSp}
                                         onSelect={setSelectedSp}
                                         fixedMetric="logins"/>
@@ -421,6 +451,7 @@ const Statistics = () => {
                             <StatsTable data={perAppData}
                                         titleKey="uniquePerApp"
                                         nameResolver={spNameResolver}
+                                        idField="sp_entity_id"
                                         selectedId={selectedSp}
                                         onSelect={setSelectedSp}
                                         fixedMetric="unique"/>

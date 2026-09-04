@@ -18,8 +18,10 @@ const StatsTable = ({
                         selectedId,
                         onSelect,
                         filterLabel,
+                        onClearFilter,
                         fixedMetric,
-                        selectable = true
+                        selectable = true,
+                        idField
                     }) => {
     const [metric, setMetric] = useState(fixedMetric || "logins");
     const [mode, setMode] = useState("absolute");
@@ -34,9 +36,13 @@ const StatsTable = ({
     const sorted = [...data].sort((a, b) => (b[key] || 0) - (a[key] || 0));
     const maxVal = sorted.length > 0 ? sorted[0][key] || 1 : 1;
 
+    // Rows may carry both sp_entity_id and idp_entity_id (e.g. when cross-filtered by the other
+    // table's selection) - idField pins down which one actually identifies a row in this table.
+    const getEntityId = (row) => (idField ? row[idField] : (row.sp_entity_id || row.idp_entity_id || row.time)) || "";
+
     const displayData = (searchActive && searchQuery)
         ? sorted.filter(row => {
-            const entityId = row.sp_entity_id || row.idp_entity_id || row.time || "";
+            const entityId = getEntityId(row);
             const name = nameResolver ? nameResolver(entityId) : entityId;
             return name.toLowerCase().includes(searchQuery.toLowerCase());
         })
@@ -118,7 +124,7 @@ const StatsTable = ({
                     <span className="filter-label-text">
                         {I18n.t("statistics.showingResultsFor", {label: filterLabel})}
                     </span>
-                    <span className="clear-search" onClick={() => onSelect && onSelect(null)}>
+                    <span className="clear-search" onClick={() => onClearFilter ? onClearFilter() : (onSelect && onSelect(null))}>
                         {I18n.t("statistics.removeFilter")}
                     </span>
                 </div>
@@ -140,7 +146,7 @@ const StatsTable = ({
                     const val = row[key] || 0;
                     const pct = total > 0 ? (val / total) * 100 : 0;
                     const barWidth = (val / maxVal) * 100;
-                    const entityId = row.sp_entity_id || row.idp_entity_id || row.time || "";
+                    const entityId = getEntityId(row);
                     const name = nameResolver ? nameResolver(entityId) : entityId;
                     const isSelected = selectable && entityId === selectedId;
                     return (
@@ -167,10 +173,19 @@ const StatsTable = ({
                     );
                 })}
             </div>
-            {remaining > 0 && (
-                <button className="show-more" onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}>
-                    {I18n.t("statistics.showMore")} (+{Math.min(remaining, PAGE_SIZE)}{remaining > PAGE_SIZE ? ` of ${remaining}` : ""})
-                </button>
+            {(remaining > 0 || visibleCount > INITIAL_ROWS) && (
+                <div className="show-more-row">
+                    {remaining > 0 && (
+                        <button className="show-more" onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}>
+                            {I18n.t("statistics.showMore")} (+{Math.min(remaining, PAGE_SIZE)}{remaining > PAGE_SIZE ? ` of ${remaining}` : ""})
+                        </button>
+                    )}
+                    {visibleCount > INITIAL_ROWS && (
+                        <button className="show-more" onClick={() => setVisibleCount(INITIAL_ROWS)}>
+                            {I18n.t("statistics.showLess")}
+                        </button>
+                    )}
+                </div>
             )}
         </div>
     );

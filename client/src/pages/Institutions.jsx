@@ -10,7 +10,10 @@ import {
     PaginationItem,
     PaginationLink,
     PaginationNext,
-    PaginationPrevious
+    PaginationPrevious,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput
 } from "@surfnet/curve-react";
 import {Spinner} from "@surfnet/curve-react";
 import StudentPng from "../icons/student.png";
@@ -150,27 +153,22 @@ const Institutions = () => {
                 <div className="inner-institutions-container">
                     <div className="institutions">
                         <div className="institutions-search">
-                            <div className={"sds--text-field sds--text-field--has-icon"}>
-                                <div className="sds--text-field--shape">
-                                    <div className="sds--text-field--input-and-icon">
-                                        <input className={"sds--text-field--input"}
-                                               type="search"
-                                               onChange={e => setQuery(e.target.value)}
-                                               value={query}
-                                               placeholder={I18n.t("institutions.searchPlaceHolder")}/>
-                                        <span className="sds--text-field--icon">
-                                            <SearchIcon/>
-                                        </span>
-                                    </div>
-                                    <SelectField
-                                        value={categoryOptions.find(option => option.value === category)}
-                                        placeholder={I18n.t("institutions.categoryPlaceHolder")}
-                                        options={categoryOptions}
-                                        searchable={false}
-                                        onChange={option => setCategory(option.value)}
-                                    />
-                                </div>
-                            </div>
+                            <InputGroup className="institutions-search-input-group">
+                                <InputGroupInput type="search"
+                                                 onChange={e => setQuery(e.target.value)}
+                                                 value={query}
+                                                 placeholder={I18n.t("institutions.searchPlaceHolder")}/>
+                                <InputGroupAddon align="inline-end">
+                                    <SearchIcon/>
+                                </InputGroupAddon>
+                            </InputGroup>
+                            <SelectField
+                                value={categoryOptions.find(option => option.value === category)}
+                                placeholder={I18n.t("institutions.categoryPlaceHolder")}
+                                options={categoryOptions}
+                                searchable={false}
+                                onChange={option => setCategory(option.value)}
+                            />
                         </div>
                         <div className="institutions-overview">
                             <ul>

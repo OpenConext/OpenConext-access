@@ -61,7 +61,6 @@
             svg {
                 width: 16px;
                 height: 16px;
-                fill: transparent;
             }
 
             &:hover {
@@ -204,6 +203,12 @@
             font-size: 13px;
             font-weight: 600;
         }
+    }
+
+    .show-more-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
     }
 
     .show-more {

@@ -42,7 +42,16 @@ div.institutions-container {
         max-width: $width;
 
         .institutions-search {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             margin: 20px 0 15px 0;
+
+            .institutions-search-input-group {
+                width: 280px;
+                height: 40px;
+                flex-shrink: 0;
+            }
         }
 
         .select-field {

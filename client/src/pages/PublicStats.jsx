@@ -204,7 +204,7 @@ const PublicStats = () => {
             const to = Math.floor(customTo.getTime() / 1000);
             const scale = scaleForCustomRange(customFrom, customTo);
 
-            loginTimeFrame(from, to, scale, "", false)
+            loginTimeFrame(from, to, scale, "", "", false)
                 .then((data) => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
@@ -221,7 +221,7 @@ const PublicStats = () => {
             const {from, to} = buildRollingFromTo(period);
             const scale = scaleForPeriod[period];
 
-            loginTimeFrame(from, to, scale, "", false)
+            loginTimeFrame(from, to, scale, "", "", false)
                 .then((data) => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
@@ -244,7 +244,7 @@ const PublicStats = () => {
         if (period === "year") {
             const from5 = new Date(periodValue - 4, 0, 1).getTime() / 1000;
             const to5   = new Date(periodValue + 1, 0, 1).getTime() / 1000;
-            loginTimeFrame(from5, to5, "year", "", false)
+            loginTimeFrame(from5, to5, "year", "", "", false)
                 .then(data => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
@@ -258,9 +258,9 @@ const PublicStats = () => {
         }
 
         Promise.all([
-            loginTimeFrame(from, to, scale, "", false),
-            loginTimeFrame(prev.from, prev.to, scale, "", false),
-            loginTimeFrame(three.from, three.to, scale, "", false),
+            loginTimeFrame(from, to, scale, "", "", false),
+            loginTimeFrame(prev.from, prev.to, scale, "", "", false),
+            loginTimeFrame(three.from, three.to, scale, "", "", false),
         ]).then(([current, prevData, threeData]) => {
             const arr = Array.isArray(current) ? current : [current];
             const prevArr = Array.isArray(prevData) ? prevData : [prevData];

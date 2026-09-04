@@ -5,6 +5,7 @@ import "./Monitoring.scss";
 import {monitoring} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {MagnifyingGlassIcon as SearchIcon, CheckIcon as CheckPlainIcon} from "@phosphor-icons/react";
+import {InputGroup, InputGroupAddon, InputGroupInput} from "@surfnet/curve-react";
 import MonitoringIncidentIcon from "../icons/monitoring_incident.svg";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import {formatDate} from "../utils/Date.js";
@@ -294,22 +295,15 @@ export const Monitoring = () => {
                 {/* Left: service list */}
                 <div className="service-list">
                     <div className="search-bar">
-                        <div className="sds--text-field sds--text-field--has-icon">
-                            <div className="sds--text-field--shape">
-                                <div className="sds--text-field--input-and-icon">
-                                    <input
-                                        className="sds--text-field--input"
-                                        type="search"
-                                        placeholder={I18n.t("monitoring.searchPlaceholder")}
-                                        value={search}
-                                        onChange={e => setSearch(e.target.value)}
-                                    />
-                                    <span className="sds--text-field--icon">
-                                        <SearchIcon/>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <InputGroup className="monitoring-search-input-group">
+                            <InputGroupInput type="search"
+                                             placeholder={I18n.t("monitoring.searchPlaceholder")}
+                                             value={search}
+                                             onChange={e => setSearch(e.target.value)}/>
+                            <InputGroupAddon align="inline-end">
+                                <SearchIcon/>
+                            </InputGroupAddon>
+                        </InputGroup>
                     </div>
 
                     {loading && (
