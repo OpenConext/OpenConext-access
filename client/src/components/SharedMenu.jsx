@@ -81,16 +81,6 @@ export const SharedMenu = () => {
 
     return (
         <>
-            {/*
-              Rendered as a sibling of <Sidebar>, not inside it: on mobile curve-react
-              swaps <Sidebar> for a closed Sheet, and on desktop it shrinks to a narrow
-              icon rail, so a trigger nested inside either would become unreachable.
-              Positioned via useSidebar()'s state/isMobile (see SharedMenu.scss) so it
-              stays aligned to the sidebar's current right edge in every state.
-            */}
-            <div className="sidebar-trigger-anchor" data-state={sidebarState} data-mobile={isMobile}>
-                <SidebarTrigger/>
-            </div>
             <Sidebar collapsible="icon">
                 <SidebarHeader>
                     <SidebarMenu>

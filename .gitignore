@@ -58,3 +58,4 @@ server/src/main/resources/Changelog.md
 # For now ignore claude
 .claude
 SPRING_MIGRATION.md
+DesignSystem
