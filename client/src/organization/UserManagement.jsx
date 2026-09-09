@@ -43,7 +43,8 @@ export const UserManagement = ({refreshUser}) => {
                             menuItemName: mainMenuItems.users
                         },
                         {value: I18n.t(`breadCrumb.${currentTab}`)}
-                    ]
+                    ],
+                    activeMenuItem: mainMenuItems.users
                 });
                 const membership = (user.organizationMemberships || []).find(
                     membership => membership.organization.id === res.id

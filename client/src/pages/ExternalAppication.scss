@@ -2,38 +2,31 @@
 @use "../index";
 
 .extern-application-container {
-    padding: 35px 50px 0 50px;
+    padding: 32px 40px;
     width: 75%;
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 24px;
 
     @include index.page-media;
 
-    .external-link {
-        width: 40%;
+    .extern-application-header {
         display: flex;
-        align-items: center;
-        align-content: center;
-        border-radius: 4px;
-        padding: 10px 20px 10px 10px;
-        background-color: white;
-        border: 1px solid var(--border);
-        cursor: pointer;
+        flex-direction: column;
+        gap: 16px;
 
-        svg {
-            margin-right: 20px;
+        h1 {
+            margin: 0;
         }
 
-        .caret {
-            margin-left: auto;
-            display: flex;
-            svg {
-                width: 10px;
-                height: auto;
-                margin: auto;
-            }
+        p {
+            margin: 0;
+            font-size: 16px;
+            color: var(--sidebar-foreground);
         }
     }
 
+    button {
+        align-self: flex-start;
+    }
 }

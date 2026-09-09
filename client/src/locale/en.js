@@ -890,17 +890,17 @@ const en = {
     external: {
         invite: {
             title: "Roles",
-            alert: "Access roles are currently managed in SURFconcext Invite and will be moved to SURF Access in the future.",
-            link: "Open SURFconext <strong>Invite</strong>",
+            description: "You currently manage roles in SURF Invite. In the future this will move to SURF Access.",
+            link: "Open SURFconext Invite",
         },
         sram: {
             title: "Collaborations",
-            alert: "Collaborations are currently managed in SURF Research Access Management and will be moved to SURF Access in the future.",
+            description: "Collaborations are currently managed in SURF Research Access Management and will be moved to SURF Access in the future.",
             link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
             title: "SURF Servicedesk",
-            alert: "The service desk portal is the main customer support website of SURF.",
+            description: "The service desk portal is the main customer support website of SURF.",
             link: "Open <strong>SURF Servicedesk</strong>",
         },
     },

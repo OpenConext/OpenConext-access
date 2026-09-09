@@ -890,17 +890,17 @@ const nl = {
     external: {
         invite: {
             title: "Rollen",
-            alert: "Toegangsrollen worden momenteel beheerd in SURFconext Invite en zullen in de toekomst worden verplaatst naar SURF Access.",
-            link: "Open SURFconext <strong>Invite</strong>",
+            description: "Je beheert rollen nu nog in SURF Invite. In de toekomst verhuist dit naar SURF Access.",
+            link: "Open SURFconext Invite",
         },
         sram: {
             title: "Samenwerkingen",
-            alert: "Samenwerkingen worden momenteel beheerd in SURF Research Access Management en zullen in de toekomst worden verplaatst naar SURF Access.",
+            description: "Samenwerkingen worden momenteel beheerd in SURF Research Access Management en zullen in de toekomst worden verplaatst naar SURF Access.",
             link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
             title: "SURF Servicedesk",
-            alert: "Het service‑desk‑portaal is de belangrijkste klantenondersteuningswebsite van SURF.",
+            description: "Het service‑desk‑portaal is de belangrijkste klantenondersteuningswebsite van SURF.",
             link: "Open <strong>SURF Servicedesk</strong>",
         },
     },

@@ -17,30 +17,6 @@ div.organization-outer-container {
         padding: 25px 50px 0 50px;
         display: flex;
         width: 1010px;
-
-        &.card-view {
-            padding-bottom: 25px;
-        }
-
-        .view-switcher {
-            margin-left: auto;
-            display: flex;
-            gap: 12px;
-            color: var(--muted-foreground);
-
-            svg:not(.divider) {
-                cursor: pointer;
-
-                &:hover {
-                    color: var(--foreground);
-                }
-
-                &.active {
-                    color: var(--foreground);
-                    cursor: default;
-                }
-            }
-        }
     }
 
     div.organization-container {
@@ -75,26 +51,20 @@ div.organization-outer-container {
                     width: 30%;
                 }
 
+                &.type {
+                    width: 20%;
+                }
+
                 &.status {
-                    width: 30%;
-                    text-align: center;
+                    width: 35%;
                 }
 
                 &.createdAt {
-                    width: 20%;
-                }
-
-                &.white-space {
-                    width: 20%;
-                }
-            }
-
-            td {
-                &.status {
-                    text-align: center;
+                    width: 15%;
                 }
 
             }
+
         }
 
         .organization {

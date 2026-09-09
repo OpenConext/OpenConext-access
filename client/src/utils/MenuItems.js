@@ -189,12 +189,20 @@ export const allMenuGroups = [
 
 export const activeMenuItem = currentLocation => {
     const path = currentLocation.pathname;
+    const items = allMenuGroups.map(group => group.items).flat();
+
+    // Prefer an exact match first, e.g. "/external/sram" vs "/external/serviceDesk" -
+    // both share the "/external" prefix, so only a full-path match tells them apart.
+    const exactMatch = items.find(item => item.path === path);
+    if (exactMatch) {
+        return exactMatch.name;
+    }
+
+    // Fall back to a prefix match on the first two path segments for routes with a
+    // dynamic id, e.g. "/organization/:id" matching item.path "/organization/organizationId".
     const secondSlash = path.indexOf('/', 1);
     const strippedPath = secondSlash === -1 ? path : path.substring(0, secondSlash);
-    const activeItem = allMenuGroups
-        .map(group => group.items)
-        .flat()
-        .find(item => item.path.startsWith(strippedPath));
+    const activeItem = items.find(item => item.path.startsWith(strippedPath));
     return activeItem?.name || mainMenuItems.home;
 }
 
