@@ -18,9 +18,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarSeparator,
-    SidebarTrigger,
-    useSidebar
+    SidebarSeparator
 } from "@surfnet/curve-react";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 
@@ -39,7 +37,6 @@ export const SharedMenu = () => {
     })));
 
     const currentLocation = useLocation();
-    const {state: sidebarState, isMobile} = useSidebar();
 
     const filteredMenuGroups = useMemo(() => {
         return allMenuGroups
@@ -112,13 +109,13 @@ export const SharedMenu = () => {
                                         <DropdownMenuGroup>
                                             {organizations.map(org =>
                                                 <DropdownMenuItem key={org.id}
-                                                    render={
-                                                        <Link to="/home" reloadDocument
-                                                              onClick={() => localStorage.setItem("organization", org.id.toString())}>
-                                                            <span className="organization-option-name">{org.name}</span>
-                                                            {currentOrganization?.id === org.id && <CheckIcon/>}
-                                                        </Link>
-                                                    }/>
+                                                                  render={
+                                                                      <Link to="/home" reloadDocument
+                                                                            onClick={() => localStorage.setItem("organization", org.id.toString())}>
+                                                                          <span className="organization-option-name">{org.name}</span>
+                                                                          {currentOrganization?.id === org.id && <CheckIcon/>}
+                                                                      </Link>
+                                                                  }/>
                                             )}
                                         </DropdownMenuGroup>
                                     </DropdownMenuContent>

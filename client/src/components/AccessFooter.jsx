@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
-import {Link} from "react-router";
 import "./AccessFooter.scss"
 import {info} from "../api";
 

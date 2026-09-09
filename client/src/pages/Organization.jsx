@@ -10,15 +10,12 @@ import {useNavigate, useParams} from "react-router";
 import {organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
-import Divider from "../icons/divider.svg";
-import {CaretRightIcon as ArrowRight, GridFourIcon as CardView, ListIcon as ListView} from "@phosphor-icons/react";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
-import {authorities, currentUserMembershipAuthority, hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
+import {hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
-import {StretchedLink} from "../components/StretchedLink.jsx";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
 import {useShallow} from "zustand/react/shallow";
@@ -42,7 +39,6 @@ const Organization = () => {
     const view = views.list;
     const [organization, setOrganization] = useState({});
     const [isExternal, setIsExternal] = useState(true);
-    const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [mayCreateApplication, setMayCreateApplication] = useState(false);
     const [contactEmail, setContactEmail] = useState("");
     const navigate = useNavigate();
@@ -67,9 +63,6 @@ const Organization = () => {
                             {value: I18n.t("navigation.yourApps")}
                         ]
                     });
-                    const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
-                    const authority = currentUserMembershipAuthority(user, membership);
-                    setCurrentUserAuthority(authority);
                     setIsExternal(user.externalUser);
                     const mayCreateApplicationVar = hasCreateApplicationAccess(user, res);
                     setMayCreateApplication(mayCreateApplicationVar);
