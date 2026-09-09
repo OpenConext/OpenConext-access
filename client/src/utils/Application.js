@@ -38,18 +38,9 @@ export const validEmailOrUrl = (contactPerson, contactType, otherSameTypeContact
     return false;
 }
 
-export const adminContactEqualsTech = (application, techContactPerson = null) => {
-    const adminContact = (application?.contactPersons || []).find(c => c.type === contactPersonTypes.administrative);
-    const techContacts = isEmpty(techContactPerson) ? (application?.contactPersons || []).filter(c => c.type === contactPersonTypes.technical) :
-        [techContactPerson];
-    return !isEmpty(adminContact?.email) && !isEmpty(techContacts) &&
-        techContacts.some(c => c.email.toLowerCase().trim() === adminContact.email.toLowerCase().trim());
-
-}
-
 export const contactSectionValid = (application) => {
     const contactPersonsGrouped = Object.groupBy(application.contactPersons, contact => contact.type);
-    return !adminContactEqualsTech(application) && Object.values(contactPersonTypes)
+    return Object.values(contactPersonTypes)
         .every(contactType => {
             const contactPersons = (application?.contactPersons || []).filter(c => c.type === contactType);
             return contactPersons.every(contactPerson => !isEmpty(contactPerson?.email) &&

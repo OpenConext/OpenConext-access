@@ -84,6 +84,12 @@
     white-space: nowrap;
 }
 
+// Figma pins the "Support" group (SURF Servicedesk) to the bottom of the sidebar,
+// separated from the rest of the menu groups above it.
+.custom-group {
+    margin-top: auto;
+}
+
 // Positioning anchor for the sidebar toggle, which curve-react's SidebarProvider
 // renders full-height/full-width around <Sidebar> — see SharedMenu.jsx for why the
 // trigger lives outside <Sidebar> as a sibling of this wrapper.

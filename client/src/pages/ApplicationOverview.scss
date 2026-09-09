@@ -122,6 +122,7 @@ div.accessible-apps-container {
 
                 &.connectionRequest {
                     width: 10%;
+                    text-align: center;
                 }
 
                 &.vendor {
@@ -139,7 +140,7 @@ div.accessible-apps-container {
         tbody {
             td {
                 &.connectionRequest {
-                    text-align: right;
+                    text-align: center;
                 }
             }
         }

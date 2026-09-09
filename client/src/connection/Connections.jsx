@@ -1493,8 +1493,7 @@ export const Connections = ({
                       rowHrefMapper={conn => `/connection/${application.id}/allConnections/${conn.id}`}
                       displaySearch={false}
                       searchAttributes={["name", "protocol"]}
-                      inputFocus={true}>
-            </Entities>
+                      inputFocus={true}/>
         )
 
     };

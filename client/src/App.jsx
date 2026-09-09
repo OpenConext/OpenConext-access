@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound.jsx";
 import RefreshRoute from "./pages/RefreshRoute.jsx";
 import {Home} from "./pages/Home.jsx";
 import {Footer} from "./components/Footer.jsx";
+import {AccessFooter} from "./components/AccessFooter.jsx";
 import Organization from "./pages/Organization.jsx";
 import Institutions from "./pages/Institutions.jsx";
 import Connect from "./pages/Connect.jsx";
@@ -221,6 +222,7 @@ const App = () => {
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>
+                        <AccessFooter/>
                     </SidebarInset>
                 </SidebarProvider>
             </>}

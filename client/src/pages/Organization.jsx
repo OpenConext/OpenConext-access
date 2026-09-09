@@ -39,7 +39,7 @@ const Organization = () => {
     const {organizationId} = useParams();
 
     const [loading, setLoading] = useState(true);
-    const [view, setView] = useState(views.card);
+    const view = views.list;
     const [organization, setOrganization] = useState({});
     const [isExternal, setIsExternal] = useState(true);
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
@@ -134,39 +134,6 @@ const Organization = () => {
         return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
-    const renderCardViewApplications = () => {
-        return (
-            <div className="applications">
-                {organization.applications
-                    .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))
-                    .map((application, index) => {
-                        const readOnly = !hasApplicationWriteAccess(user, application);
-                        return (
-                            <div key={index} className="first-application">
-                                <div
-                                    className={`application ${readOnly ? "read-only" : ""}`}
-                                    title={readOnly ? I18n.t("organization.readOnly", {orgName: organization.name}) : ""}>
-                                    {!readOnly && <StretchedLink to={`/connection/${application.id}`}/>}
-                                    {isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                                        <img src={application.logoUrl} alt={application.name}/>}
-                                    <div className="application-info">
-                                        <h4>{application.name}</h4>
-                                    </div>
-                                    {renderApplicationStatus(application)}
-                                    {!readOnly && <span className="navigation"><ArrowRight/></span>}
-                                </div>
-                                {(index === 0 && currentUserAuthority !== authorities.GUEST) &&
-                                    <Button onClick={() => navigate("/application/new")}>
-                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.addApplication"))}}/>
-                                    </Button>}
-                            </div>
-                        )
-                    })
-                }
-            </div>
-        );
-    }
-
     const renderListViewApplications = () => {
         const columns = [
             {
@@ -182,6 +149,11 @@ const Organization = () => {
                 mapper: application => application.name
             },
             {
+                key: "type",
+                header: I18n.t("accessibleApps.type"),
+                mapper: application => application.name
+            },
+            {
                 key: "status",
                 header: I18n.t("accessibleApps.status"),
                 mapper: application => renderApplicationStatus(application)
@@ -190,12 +162,6 @@ const Organization = () => {
                 key: "createdAt",
                 header: I18n.t("accessibleApps.created"),
                 mapper: application => dateFromEpoch(application.createdAt)
-            },
-            {
-                nonSortable: true,
-                key: "white-space",
-                header: "",
-                mapper: () => ""
             }
 
         ];
@@ -204,19 +170,31 @@ const Organization = () => {
                 entities={organization.applications
                     .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))}
                 modelName="application-list-view"
-                newLabel={I18n.t("organization.addApplication")}
                 defaultSort="name"
                 columns={columns}
                 hideTitle={true}
-                showNew={user.superUser || isOrganizationMember(user, organization)}
+                showNew={false}
                 displaySearch={true}
                 searchAttributes={["name"]}
                 rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(`/connection/${application.id}`)}
                 rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? `/connection/${application.id}` : undefined}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
-                newEntityFunc={() => navigate("/application/new")}
-                inputFocus={true}/>
+                inputFocus={true}>
+                {(user.superUser || isOrganizationMember(user, organization)) &&
+                    <div className="button-group">
+                        <Button onClick={() => navigate("/resourceserver/new")}
+                                variant="secondary"
+                                className={"no-title"}>
+                            <span dangerouslySetInnerHTML={{__html: I18n.t("organization.addResourceServer")}}/>
+                        </Button>
+                        <Button onClick={() => navigate("/application/new")}
+                                className={"no-title"}>
+                            <span dangerouslySetInnerHTML={{__html: I18n.t("organization.addApplication")}}/>
+                        </Button>
+                    </div>}
+
+            </Entities>
         );
     }
 
@@ -230,14 +208,6 @@ const Organization = () => {
                     {!isEmpty(organization.applications) &&
                         <p>{I18n.t("organization.info", {name: organization.name})}</p>}
                 </div>
-                {!isEmpty(organization.applications) &&
-                    <div className="view-switcher">
-                        <CardView className={`${view === views.card ? "active" : "nope"}`}
-                                  onClick={() => setView(views.card)}/>
-                        <Divider/>
-                        <ListView className={`${view === views.list ? "active" : "nope"}`}
-                                  onClick={() => setView(views.list)} v/>
-                    </div>}
             </div>
             <div className="organization-container">
                 {isEmpty(organization.applications) &&
@@ -280,7 +250,7 @@ const Organization = () => {
                         </div>
                     </div>}
                 {!isEmpty(organization.applications) &&
-                    <div>{view === views.card ? renderCardViewApplications() : renderListViewApplications()}</div>
+                    <div>{renderListViewApplications()}</div>
                 }
             </div>
         </div>

@@ -824,10 +824,10 @@
     estree-walker "^2.0.2"
     picomatch "^4.0.2"
 
-"@surfnet/curve-react@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.3.2.tgz#749a3b8fe8a5ddbc4990d5d38d2d021d8f3ab29c"
-  integrity sha512-FTtw81KIvGbdOa5yC7XQ0IOJnPIdLuHmaIzaoerS5fmqOZwQQS0JHvUIQC8/hd0gMLTuMv/mmhosDHdSUJwYBQ==
+"@surfnet/curve-react@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.3.3.tgz#4fc256431e1091889476ed7308853c4a5ef4fe2e"
+  integrity sha512-VRWoOZ/4kogspNJX9Y4mLkWPjuvUqyW0QIm2ftdEqnkb9ARMvTiE/4aZcHfjpUKAWFOdhvRVP83YG+Q34LjqCw==
   dependencies:
     "@base-ui/react" "1.5.0"
     "@tanstack/react-table" "^8.21.3"

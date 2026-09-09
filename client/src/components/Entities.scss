@@ -63,6 +63,7 @@
         .search {
             position: relative;
             display: flex;
+            background-color: white;
 
             @media (max-width: $medium) {
                 margin-left: 0;
@@ -114,6 +115,7 @@
 
     table {
         width: 100%;
+        background-color: white;
         table-layout: fixed;
 
         thead {

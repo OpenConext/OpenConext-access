@@ -4,7 +4,7 @@ import "./ContactPersons.scss";
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import InputField from "../components/InputField.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
-import {adminContactEqualsTech, contactPersonTypes, validEmailOrUrl} from "../utils/Application.js";
+import {contactPersonTypes, validEmailOrUrl} from "../utils/Application.js";
 import {Button} from "@surfnet/curve-react";
 import {TrashIcon} from "@phosphor-icons/react";
 import {emailPlaceholder} from "../utils/Forms.js";
@@ -99,11 +99,6 @@ export const ContactPersons = ({
                                         sameContactPersons.some(p => !validEmailOrUrl(p, p.type, sameContactPersons, false))) &&
                                     <ErrorIndicator
                                         msg={I18n.t("connection.contacts.oneTechnicalEmail")}
-                                    />}
-                                {(contactPerson.type === contactPersonTypes.technical && !readOnly &&
-                                        adminContactEqualsTech(application, contactPerson))
-                                    && <ErrorIndicator
-                                        msg={I18n.t("connection.contacts.adminContactEqualsTech")}
                                     />}
                             </Fragment>
                         )

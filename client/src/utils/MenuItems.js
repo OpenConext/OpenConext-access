@@ -31,7 +31,7 @@ import {
     UserRectangleIcon as UserIcon,
     ChartLineIcon as StatsIcon,
     HouseIcon as HomeIcon,
-    CropIcon as HeadPhonesIcon,
+    LifebuoyIcon as HeadPhonesIcon,
     ChatCenteredTextIcon as FeedbackIcon
 } from "@phosphor-icons/react";
 import {authorities} from "./Permissions.js";
@@ -170,7 +170,7 @@ export const allMenuGroups = [
         ]
     },
     {
-        label: "support",
+        label: null,
         className: "custom-group",
         items: [
             {

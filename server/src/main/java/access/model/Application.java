@@ -80,7 +80,6 @@ public class Application implements NameHolder {
     @NotNull
     private ApplicationType type = ApplicationType.APP;
 
-
     public Application(String name, Organization organization, String createdBy, Map<String, Object> metaData) {
         this.name = name;
         this.organization = organization;

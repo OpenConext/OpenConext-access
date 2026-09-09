@@ -44,8 +44,7 @@ div.organization-outer-container {
     }
 
     div.organization-container {
-        height: 100%;
-        background-color: white;
+
 
         .no-app {
             p:last-child {
@@ -54,15 +53,14 @@ div.organization-outer-container {
         }
 
         .mod-entities {
-            background-color: white;
 
             .entities-search {
                 padding: $page-padding;
                 background-color: var(--muted);
                 justify-content: normal;
 
-                button {
-                    margin-left: 305px;
+                .button-group {
+                    margin-left: auto;
                 }
             }
 
