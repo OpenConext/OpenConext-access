@@ -84,18 +84,6 @@
                 white-space: nowrap;
             }
 
-            .custom-chip {
-                color: black;
-
-                &.policy-chip-active {
-                    background-color: #B8E3C9;
-                }
-
-                &.policy-chip-paused {
-                    background-color: var(--border);
-                }
-            }
-
             .policy-actions {
                 display: flex;
                 align-items: center;

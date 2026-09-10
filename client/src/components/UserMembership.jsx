@@ -1,5 +1,5 @@
 import "./UserMembership.scss";
-import {Chip, ChipType} from "./Chip.jsx";
+import {Badge} from "@surfnet/curve-react";
 import I18n from "../locale/I18n.js";
 
 export const UserMembership = ({user, currentUser}) => {
@@ -10,7 +10,7 @@ export const UserMembership = ({user, currentUser}) => {
                 <span className="email">{user.email}</span>
             </div>
             {user.id === currentUser.id &&
-                <Chip type={ChipType.Status_info} label={I18n.t("users.you")}/>
+                <Badge variant="secondary">{I18n.t("users.you")}</Badge>
             }
         </div>
     );

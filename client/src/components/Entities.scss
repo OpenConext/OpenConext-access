@@ -297,10 +297,6 @@
                     }
                 }
 
-                .custom-chip span {
-                    white-space: nowrap;
-                }
-
                 svg.bin-svg {
                     &:hover {
                         color: var(--destructive);
@@ -317,13 +313,6 @@
         span.email {
             color: var(--muted-foreground);
             word-break: keep-all;
-        }
-    }
-
-    div.chip-container {
-
-        .custom-chip {
-            margin: 0 auto;
         }
     }
 

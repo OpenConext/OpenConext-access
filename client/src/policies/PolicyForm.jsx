@@ -1,7 +1,6 @@
 import "./PolicyForm.scss";
 import React, {Fragment, useState} from "react";
-import {Chip} from "../components/Chip.jsx";
-import {Button} from "@surfnet/curve-react";
+import {Badge, Button} from "@surfnet/curve-react";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -632,8 +631,9 @@ export const PolicyForm = ({
         const active = policy.data.active;
         const activeTranslation = active ? "active" : "paused";
         return (
-            <Chip className={`policy-chip-${active ? "active" : "paused"}`}
-                  label={I18n.t(`appAccess.${activeTranslation}`)}/>
+            <Badge variant={active ? "success" : "secondary"}>
+                {I18n.t(`appAccess.${activeTranslation}`)}
+            </Badge>
         );
     }
 

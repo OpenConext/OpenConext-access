@@ -60,6 +60,21 @@ export const CONNECTION_STATUSES = {
     PROD_READY: "PROD_READY",
 }
 
+// Maps the derived connection-status string (see renderApplicationStatus / the
+// connections status column) to the Badge variant that best matches the
+// color it used to get from the now-removed .custom-chip.status-error CSS.
+export const CONNECTION_STATUS_BADGE_VARIANTS = {
+    open: "secondary",
+    in_progress: "secondary",
+    multiple_connections: "secondary",
+    complete: "success",
+    prod_ready: "success",
+    ready_for_prod: "default",
+    pending_prod: "warning",
+    open_change_requests: "warning",
+    no_connections: "danger",
+}
+
 export const APPLICATION_STATUSES = {
     OPEN: "OPEN",
     COMPLETE: "COMPLETE"

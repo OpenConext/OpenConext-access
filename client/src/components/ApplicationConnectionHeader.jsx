@@ -6,8 +6,7 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import {Chip, ChipType} from "./Chip.jsx";
-import {Spinner} from "@surfnet/curve-react";
+import {Badge, Spinner} from "@surfnet/curve-react";
 import {hasApplicationDeleteAccess, hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
@@ -143,8 +142,9 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                 <h1 className="text-[length:var(--text-2xl-font-size)]">{application.name}</h1>
                 <div className="menu-container">
                     {application.type === "CONTENT" &&
-                        <Chip type={ChipType.Status_info} label={I18n.t("application.contentAbbreviation")}
-                              className="application-type"/>}
+                        <Badge variant="info" className="mr-[18px]">
+                            {I18n.t("application.contentAbbreviation")}
+                        </Badge>}
                     <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
                           onClick={() => setDropDownActive(!dropDownActive)}>
                     <MenuIcon className="menu-icon"/>

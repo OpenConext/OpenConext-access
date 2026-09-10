@@ -3,8 +3,7 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Chip, ChipType} from "../components/Chip.jsx";
-import {Card, CardContent, InputGroup, InputGroupAddon, InputGroupInput, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
+import {Badge, Card, CardContent, InputGroup, InputGroupAddon, InputGroupInput, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
 import {SquaresFourIcon, ListBulletsIcon, MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
@@ -257,8 +256,8 @@ const ApplicationOverview = ({accessible}) => {
             {
                 key: "connectionRequest",
                 header: "",
-                mapper: entity => entity.connectionRequest && <Chip type={ChipType.Status_error}
-                                                                    label={I18n.t("accessibleApps.connectRequested")}/>
+                mapper: entity => entity.connectionRequest &&
+                    <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge>
             },
             {
                 key: "vendor",

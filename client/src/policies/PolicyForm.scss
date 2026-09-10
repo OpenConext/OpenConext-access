@@ -71,19 +71,6 @@
                 gap: 18px;
                 align-items: center;
                 margin-left: auto;
-
-                .custom-chip {
-                    color: black;
-
-
-                    &.policy-chip-active {
-                        background-color: #B8E3C9;
-                    }
-
-                    &.policy-chip-paused {
-                        background-color: var(--border);
-                    }
-                }
             }
         }
 

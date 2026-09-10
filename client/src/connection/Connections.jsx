@@ -1,8 +1,7 @@
 import "./Connections.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Button, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import {Chip, ChipType} from "../components/Chip.jsx";
+import {Alert, AlertDescription, Badge, Button, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {
     InfoIcon,
     TrashIcon,
@@ -39,7 +38,7 @@ import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {connectOptions, convertClientConnectionToServer, convertServerConnectionToClient, generateOIDCClientID, sections, visibilities} from "../utils/Connection.js";
-import {CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
+import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
 import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
@@ -1455,12 +1454,11 @@ export const Connections = ({
                     const status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
                     return (
                         <div className="status-chip">
-                            <Chip type={ChipType.Status_error}
-                                  className={status}
-                                  label={I18n.t(`connection.connections.${status}`)}
-                            >
-                                {!isEmpty(conn.changeRequests) ? <WarningIcon weight="fill" className="alert-triangle"/> : null}
-                            </Chip>
+                            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
+                                {!isEmpty(conn.changeRequests) ?
+                                    <WarningIcon weight="fill" className="alert-triangle" data-icon="inline-start"/> : null}
+                                {I18n.t(`connection.connections.${status}`)}
+                            </Badge>
                             {toolTip && <Tooltip>
                                 <TooltipTrigger render={<InfoIcon/>}/>
                                 <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>

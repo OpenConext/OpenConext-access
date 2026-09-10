@@ -5,7 +5,7 @@ import desk from "../icons/chatgpt/desk.webp";
 import badge from "../icons/chatgpt/badge.webp";
 import screen from "../icons/chatgpt/screen.webp";
 import "./LandingInfo.scss";
-import {Chip, ChipType} from "./Chip.jsx"
+import {Badge} from "@surfnet/curve-react";
 
 export const LandingInfo = () => {
 
@@ -17,8 +17,9 @@ export const LandingInfo = () => {
                     <div className={"info-title"}>
                         <h2 className="text-[length:var(--text-xl-font-size)]">{info[0]}</h2>
                         {<div className={"admin-function-container"}>
-                            <Chip label={I18n.t(`landing.${info[2] ? "adminFunction" : "studentFunction"}`)}
-                                  type={ChipType.Main_400}/>
+                            <Badge variant="default">
+                                {I18n.t(`landing.${info[2] ? "adminFunction" : "studentFunction"}`)}
+                            </Badge>
                         </div>}
                     </div>
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info[1])}}/>

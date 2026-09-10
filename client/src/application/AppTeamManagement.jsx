@@ -7,8 +7,7 @@ import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {Link, useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {Chip, ChipType} from "../components/Chip.jsx";
-import {Spinner} from "@surfnet/curve-react";
+import {Badge, Spinner} from "@surfnet/curve-react";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
@@ -185,11 +184,12 @@ export const AppTeamManagement = ({
             />}
             <div className="application-header">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
-                <Chip type={ChipType.Status_success} label={I18n.t("appTeamManagement.createdBy",
-                    {
+                <Badge variant="success" className="ml-auto">
+                    {I18n.t("appTeamManagement.createdBy", {
                         name: application.createdBy,
                         date: dateFromEpoch(application.createdAt)
-                    })}/>
+                    })}
+                </Badge>
             </div>
 
             <p className="info">

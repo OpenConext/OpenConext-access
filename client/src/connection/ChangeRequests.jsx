@@ -1,8 +1,7 @@
 import "./ChangeRequests.scss";
 import React, {Fragment, useState} from "react";
 import I18n from "../locale/I18n";
-import {Chip, ChipType} from "../components/Chip.jsx";
-import {Button} from "@surfnet/curve-react";
+import {Badge, Button} from "@surfnet/curve-react";
 import {format} from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
 import DOMPurify from "dompurify";
@@ -86,8 +85,9 @@ export const ChangeRequests = ({
                         <p className="created">{formatLongDate(created)}</p>
                     </div>
                     <div className="meta">
-                        <Chip type={ChipType.Status_info} className={"open"}
-                              label={I18n.t("changeRequests.open")}/>
+                        <Badge variant="secondary" className="open">
+                            {I18n.t("changeRequests.open")}
+                        </Badge>
                         <Button variant="destructive"
                                 onClick={() => doRevokeChangeRequest(true, changeRequest)}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("changeRequests.revoke"))}}/>

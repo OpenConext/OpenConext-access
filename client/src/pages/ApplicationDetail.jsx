@@ -15,10 +15,8 @@ import {
 import I18n from "../locale/I18n.js";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router";
-import {Alert, AlertDescription} from "@surfnet/curve-react";
-import {Chip, ChipType} from "../components/Chip.jsx";
+import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
 import {WarningIcon, ArrowSquareOutIcon as ExternalLinkIcon} from "@phosphor-icons/react";
-import {Button, Spinner} from "@surfnet/curve-react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
@@ -523,9 +521,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     <h4 className="text-[18px]">{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
                                         {name: currentOrganization.name})}</h4>
                                     {!isEmpty(policies) &&
-                                        <Chip type={ChipType.Status_info}
-                                              label={I18n.t("appAccess.policies", {nbr: policies.length})}
-                                              className={"policies-active"}/>
+                                        <Badge variant="warning" className="mx-auto">
+                                            {I18n.t("appAccess.policies", {nbr: policies.length})}
+                                        </Badge>
                                     }
                                     {renderLogo(currentOrganization?.identityProvider?.data?.metaDataFields)}
                                 </div>
@@ -777,14 +775,14 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return renderDetailsApp();
     }
 
-    const chipTypeForConnectionStatus = () => {
+    const badgeVariantForConnectionStatus = () => {
         if (readOnly) {
-            return ChipType.Status_error;
+            return "danger";
         }
         if (pendingDisconnect) {
-            return ChipType.Status_warning;
+            return "danger";
         }
-        return ChipType.Status_info;
+        return "secondary";
     }
 
     const translationForConnectionStatus = () => {
@@ -816,8 +814,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </div>
                             </div>
                             <div className="accessible-options">
-                                <Chip type={chipTypeForConnectionStatus()}
-                                      label={translationForConnectionStatus()}/>
+                                <Badge variant={badgeVariantForConnectionStatus()}>
+                                    {translationForConnectionStatus()}
+                                </Badge>
                                 {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
                                     && <Button onClick={() => doRequestDisconnection(true)}
                                                variant="destructive">

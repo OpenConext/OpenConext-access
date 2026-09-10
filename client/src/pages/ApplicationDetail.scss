@@ -37,10 +37,6 @@ div.application-detail-container {
         display: flex;
         flex-direction: column;
         gap: 15px;
-
-        .custom-chip--textual {
-            margin: auto;
-        }
     }
 
     .application-card-container {
@@ -257,12 +253,6 @@ div.application-detail-container {
 
         .app-access-central {
             width: 65%;
-
-            .custom-chip.policies-active {
-                margin: 0 auto;
-                background-color: var(--warning);
-                color: white;
-            }
         }
 
         .app-access-decentral {

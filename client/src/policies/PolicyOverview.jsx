@@ -2,7 +2,6 @@ import "./PolicyOverview.scss";
 import "../styles/access_card.scss";
 import React, {useState} from "react";
 import {Badge, Button, Card, CardContent, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
-import {Chip} from "../components/Chip.jsx";
 import {sanitize} from "../utils/Utils.js";
 import I18n from "../locale/I18n.js";
 import {InfoBlock} from "../components/InfoBlock.jsx";
@@ -79,8 +78,9 @@ export const PolicyOverview = ({
         const active = policy.data.active;
         const activeTranslation = active ? "active" : "paused";
         return (
-            <Chip className={`policy-chip-${active ? "active" : "paused"}`}
-                  label={I18n.t(`appAccess.${activeTranslation}`)}/>
+            <Badge variant={active ? "success" : "secondary"}>
+                {I18n.t(`appAccess.${activeTranslation}`)}
+            </Badge>
         );
     }
 

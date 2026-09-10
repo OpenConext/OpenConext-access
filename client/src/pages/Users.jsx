@@ -2,8 +2,7 @@ import React, {useEffect, useState} from "react";
 import "./Users.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType} from "../components/Chip.jsx";
-import {Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Badge, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import {IdentificationBadgeIcon as UserIcon} from "@phosphor-icons/react";
@@ -131,7 +130,7 @@ export const Users = () => {
                             name: user.name
                         }))}}/></TooltipContent>
                 </Tooltip>
-                : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
+                : <Badge variant="default">{I18n.t("forms.you")}</Badge>
         })
     }
 

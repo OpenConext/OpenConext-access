@@ -2,8 +2,7 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
-import {Chip, ChipType} from "../components/Chip.jsx";
+import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
 import {InfoIcon} from "@phosphor-icons/react";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
@@ -12,7 +11,7 @@ import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
-import {CONNECTION_STATUSES} from "../utils/Manage.js";
+import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Manage.js";
 import {hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
@@ -117,9 +116,9 @@ const Organization = () => {
             }
         }
         return (
-            <Chip type={ChipType.Status_error}
-                  className={status}
-                  label={I18n.t(`connection.connections.${status}`)}/>
+            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
+                {I18n.t(`connection.connections.${status}`)}
+            </Badge>
         );
     }
 
