@@ -30,7 +30,7 @@ export default function ConfirmationDialog({
                 {question && <p dangerouslySetInnerHTML={{__html: sanitize(question)}}/>}
                 {children}
                 {(cancel || confirm) && <DialogFooter>
-                    {cancel && <Button variant="secondary" onClick={cancel}>
+                    {cancel && <Button variant="outline" onClick={cancel}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("confirmationDialog.cancel"))}}/>
                     </Button>}
                     {confirm && <Button variant={isDeleteAction ? "destructive" : "default"}

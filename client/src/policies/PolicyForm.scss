@@ -15,6 +15,8 @@
 // Shared mixin for deletable attribute rows
 @mixin deletable-attribute-base {
     display: flex;
+    align-items: center;
+    gap: 12px;
 
     &:not(:first-child) {
         margin-top: 25px;
@@ -23,35 +25,14 @@
     .select-field {
         &.select-access-rule {
             width: 260px;
-            margin-right: 25px;
         }
 
         &.attribute-value {
             flex-grow: 2;
-
-            .input-select-inner {
-                border-radius: 0 6px 6px 0;
-            }
-        }
-
-        &.conditional-options {
-            .input-select-inner {
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
-            }
-
-            .select-inner__control--is-disabled {
-                border-radius: 0 !important;
-            }
         }
 
         &.attribute-name {
             width: 300px;
-
-            .input-select-inner {
-                border-radius: 6px 0 0 6px;
-            }
         }
     }
 }
@@ -60,6 +41,22 @@
     width: 100%;
 
     .policy-form-header {
+
+        .back-to-application {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            margin-bottom: 16px;
+            color: var(--primary-strong);
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
 
         .header-top {
             display: flex;
@@ -89,9 +86,6 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 24px 32px 32px 32px;
 
         .row {
             display: flex;
@@ -122,40 +116,54 @@
             margin-bottom: -6px;
         }
 
+        .policy-type-field {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+
+            .policy-type-badge {
+                align-self: flex-start;
+            }
+
+            .radio-item.policy-type-option {
+                align-items: flex-start;
+
+                label {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    cursor: pointer;
+
+                    p.primary-label-radio-option {
+                        font-weight: 600;
+                        margin: 0;
+                    }
+
+                    p:last-child {
+                        margin: 0;
+                        color: var(--muted-foreground);
+                    }
+                }
+            }
+        }
+
         .row-service-providers {
             display: flex;
+            gap: 12px;
 
             .select-field {
                 &.any-of-service-providers {
                     width: 180px;
-
-                    .input-select-inner {
-                        border-radius: 6px 0 0 6px;
-                        border-right: none;
-                    }
-
-                    .select-inner__control--is-disabled {
-                        border-radius: 6px 0 0 6px !important;
-                    }
                 }
 
                 &.service-providers {
                     flex-grow: 2;
-
-                    .input-select-inner {
-                        border-radius: 0 6px 6px 0;
-                    }
                 }
             }
         }
 
         .deletable-attribute {
             @include deletable-attribute-base;
-            align-items: center;
-
-            span.conditional-options {
-                margin: 0 15px;
-            }
         }
 
     }
@@ -258,6 +266,15 @@
             color: var(--destructive);
             font-weight: 600;
             cursor: pointer;
+        }
+
+        // Cancel and submit are grouped so they move together, independent of
+        // the global unscoped `.actions { justify-content: space-between }`
+        // rule in Connections.scss that this class name otherwise inherits.
+        .submit-actions {
+            display: flex;
+            gap: 16px;
+            margin-left: auto;
         }
     }
 }

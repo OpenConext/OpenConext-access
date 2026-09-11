@@ -67,7 +67,7 @@ const JoinRequest = ({refreshUser}) => {
                         multiline={true}
                         placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
             <section className="actions">
-                <Button variant="secondary"
+                <Button variant="outline"
                         onClick={() => navigate("/landing")}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
                 </Button>

@@ -1,25 +1,62 @@
-@use "../styles/mixins" as *;
 @use "../index";
 @use "../styles/vars" as *;
 
 .application-connection-form {
-    background-color: white;
     padding: $page-padding;
 
     .application-connection {
-        @include form;
-        width: 75%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
 
         @include index.page-media;
 
-        .sub-part {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        p.disclaimer {
+            color: var(--muted-foreground);
         }
 
-        p.pending {
-            color: var(--muted-foreground);
+        .overview-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+
+            .overview-card {
+                max-width: none;
+                padding: 24px;
+                gap: 16px;
+                flex: 1 1 280px;
+
+                &.connections-card {
+                    flex-basis: 440px;
+                }
+
+                .overview-card-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    width: 100%;
+                    cursor: pointer;
+
+                    h3 {
+                        font-weight: 600;
+                    }
+
+                    svg {
+                        color: var(--muted-foreground);
+                        flex-shrink: 0;
+                    }
+                }
+
+                p.team-count {
+                    font-style: italic;
+                }
+
+                .manage-team-button {
+                    align-self: flex-start;
+                }
+            }
         }
     }
 

@@ -1,10 +1,9 @@
 import "./PolicyOverview.scss";
 import "../styles/access_card.scss";
 import React, {useState} from "react";
-import {Badge, Button, Card, CardContent, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Badge, Card, CardContent, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {sanitize} from "../utils/Utils.js";
 import I18n from "../locale/I18n.js";
-import {InfoBlock} from "../components/InfoBlock.jsx";
 import {capitalize, isEmpty, splitListSemantically} from "../utils/Utils.js";
 import {PencilSimpleIcon as PencilIcon, TrashIcon, PauseIcon, PlayIcon as ActivateIcon} from "@phosphor-icons/react";
 import {deletePolicy, updatePolicy} from "../api/index.js";
@@ -78,7 +77,7 @@ export const PolicyOverview = ({
         const active = policy.data.active;
         const activeTranslation = active ? "active" : "paused";
         return (
-            <Badge variant={active ? "success" : "secondary"}>
+            <Badge variant={active ? "success" : "info"}>
                 {I18n.t(`appAccess.${activeTranslation}`)}
             </Badge>
         );
@@ -122,9 +121,9 @@ export const PolicyOverview = ({
         </Badge>
     );
 
-    const renderPolicy = (index, type, policy) => {
+    const renderPolicy = policy => {
         return (
-            <Card key={`${type}_${index}`} className={`policy-card ${policy.data.active ? "" : "paused"}`}>
+            <Card key={policy.id} className={`policy-card ${policy.data.active ? "" : "paused"}`}>
                 <CardContent className="policy-card-content">
                     <div className="policy-name-container">
                         {renderPolicyName(policy)}
@@ -171,9 +170,6 @@ export const PolicyOverview = ({
 
     const {open, cancel, action, question, okButton} = confirmation;
 
-    const regularPolicies = policies.filter(policy => policy.data.type === "reg")
-    const stepUpPolicies = policies.filter(policy => policy.data.type === "step")
-
     return (
         <div className="policy-overview-container">
             {open && <ConfirmationDialog confirm={action}
@@ -190,40 +186,14 @@ export const PolicyOverview = ({
                             names: splitListSemantically(selectedServiceProviders.map(sp => sp.label), I18n.t("forms.and"))
                         })}
                 </p>
-                <div className="grouped">
-                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appAccess.regularPolicies")}</h3>
-                    <Button onClick={() => policyDetails("reg", policyTypes.reg)}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
-                    </Button>
-                </div>
-                <InfoBlock className="light-grey">
-                    {isEmpty(regularPolicies) && <>
+                <div className="policy-list">
+                    {isEmpty(policies) &&
                         <div className="access-card grey border">
-                            {I18n.t("appAccess.noRegularPolicies")}
-                        </div>
-                    </>}
-                    {!isEmpty(regularPolicies) && <>
-                        {regularPolicies.map((policy, index) =>
-                            renderPolicy(index, "reg", policy))}
-                    </>}
-                </InfoBlock>
-                <div className="grouped">
-                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appAccess.stepUpPolicies")}</h3>
-                    <Button onClick={() => policyDetails("step", policyTypes.step)}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.new"))}}/>
-                    </Button>
+                            {I18n.t("appAccess.noPoliciesFound")}
+                        </div>}
+                    {!isEmpty(policies) &&
+                        policies.map(policy => renderPolicy(policy))}
                 </div>
-                <InfoBlock className="light-grey">
-                    {isEmpty(stepUpPolicies) && <>
-                        <div className="access-card grey border">
-                            {I18n.t("appAccess.noStepUpPolicies")}
-                        </div>
-                    </>}
-                    {!isEmpty(stepUpPolicies) && <>
-                        {stepUpPolicies.map((policy, index) =>
-                            renderPolicy(index, "step", policy))}
-                    </>}
-                </InfoBlock>
             </div>
         </div>
     );

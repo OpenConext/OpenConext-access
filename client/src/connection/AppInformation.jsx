@@ -17,7 +17,7 @@ import {
 } from "../utils/Application.js";
 import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
 import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
-import {Button, Spinner} from "@surfnet/curve-react";
+import {Button, Checkbox, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
@@ -48,6 +48,8 @@ export const AppInformation = ({
     const [initial, setInitial] = useState(true);
     const [loading, setLoading] = useState(false);
     const [focusedId, setFocusedId] = useState(null);
+    const [checks, setChecks] = useState(false);
+
     const inputRef = useRef(null);
 
     if (isEmpty(application.privacy.dpa_type)) {
@@ -78,7 +80,7 @@ export const AppInformation = ({
     const isDisabled = sectionName => {
         const isLogoSectionInvalid = !logoSectionValid(application);
         const isContactSectionInvalid = !contactSectionValid(application);
-        const isPrivacySectionInvalid = !privacySectionValid(privacyInfo, application);
+        const isPrivacySectionInvalid = !privacySectionValid(privacyInfo, application) || !checks;
         switch (sectionName) {
             case sections.logo: {
                 return isLogoSectionInvalid;
@@ -119,7 +121,7 @@ export const AppInformation = ({
             section === sections.contact ? sections.privacy : section === sections.privacy ? sections.overview : sections.overview);
         const proceed = (section === sections.logo && logoSectionValid(application)) ||
             (section === sections.contact && contactSectionValid(application)) ||
-            (section === sections.privacy && privacySectionValid(privacyInfo, application));
+            (section === sections.privacy && privacySectionValid(privacyInfo, application) && checks);
         if (proceed) {
             setLoading(true);
             let proceedToOverview = false;
@@ -284,6 +286,26 @@ export const AppInformation = ({
                         }
                     </section>
                 )}
+                    <div className="fair-use">
+                        <p>{I18n.t("application.terms")}</p>
+                        <div className="checkbox-container">
+                            <Checkbox id="application-terms"
+                                      checked={checks}
+                                      onCheckedChange={() => setChecks(!checks)}
+                            />
+                            <label htmlFor="application-terms"
+                                   dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
+                        </div>
+                        <ul>
+                            {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
+                                .map(check => <li key={check}>{check}</li>)}
+                        </ul>
+                        {(!initial && !checks) &&
+                            <ErrorIndicator msg={I18n.t("connection.privacy.termsAreRequired")}
+                            />
+                        }
+                    </div>
+
             </section>
         );
     };
@@ -364,7 +386,7 @@ export const AppInformation = ({
                     <div className={`actions ${section === sections.overview ? "orphan" : ""}`}>
                         {section !== sections.overview &&
                             <>
-                                <Button variant="secondary"
+                                <Button variant="outline"
                                         onClick={backToConnections}>
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.backToOverview"))}}/>
                                 </Button>
@@ -375,7 +397,7 @@ export const AppInformation = ({
                             </>
                         }
                         {section === sections.overview &&
-                            <Button variant="secondary"
+                            <Button variant="outline"
                                     onClick={() => backToConnections()}>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.overview"))}}/>
                                 <span data-icon="inline-end"><ArrowRight/></span>

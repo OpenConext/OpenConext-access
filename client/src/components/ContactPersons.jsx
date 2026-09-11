@@ -78,7 +78,7 @@ export const ContactPersons = ({
                                             onRef={el => contactPerson.id === focusedId && (inputRef.current = el)}
                                             button={(contactPerson.type === contactPersonTypes.technical && innerIndex > 0 && !readOnly) ?
                                                 <Button onClick={() => removeContactPerson(contactPerson.id)}
-                                                        variant="destructive"><TrashIcon/></Button> : null}
+                                                        variant="ghost" size="icon"><TrashIcon/></Button> : null}
                                 />
                                 {(!initial && isEmpty(contactPerson.email)) &&
                                     <ErrorIndicator

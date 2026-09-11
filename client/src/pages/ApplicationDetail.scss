@@ -10,6 +10,20 @@ div.application-detail-container {
         text-decoration: underline;
     }
 
+    // The tab navigation lives inside this container too, but must keep
+    // TabHeader's own underline-only-on-hover styling rather than inherit
+    // the blanket underline rule above.
+    .tab-header-container .tabs-menu a {
+        text-decoration: none;
+    }
+
+    // AlertDescription defaults every child <p> to muted-foreground; the first
+    // line in our alerts is meant to read as the alert's own bold title.
+    p.alert-title {
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
     .application-detail-header-container {
         width: 100%;
         background-color: var(--muted);
@@ -33,38 +47,56 @@ div.application-detail-container {
         }
     }
 
-    .accessible-options {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .application-card-container {
+    .application-header {
         display: flex;
         align-items: flex-start;
-        gap: 25px;
-    }
+        gap: 16px;
+        max-width: 800px;
 
-    .application-card {
-        display: flex;
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        gap: 15px;
-        padding: 30px;
-        width: 70%;
-        @media (max-width: $medium) {
-            width: 100%;
+        // Direct-child combinator: the app logo (img or placeholder svg) is
+        // the first child here, but a bare descendant selector would also
+        // catch icons nested deep inside e.g. the Deactivate button.
+        > img, > svg {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            flex-shrink: 0;
         }
 
-        img, svg {
-            width: 80px;
-            height: 80px;
+        .application-header-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+
+            .application-header-top {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+
+                button svg {
+                    margin-right: 6px;
+                }
+            }
+
+            p {
+                color: var(--foreground);
+                margin: 0;
+            }
+
+            .application-website {
+                color: var(--primary-strong);
+                font-weight: 500;
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
         }
     }
 
     .application-detail-page {
-        background-color: white;
         height: 100%;
         padding: 35px 50px;
     }
@@ -218,20 +250,97 @@ div.application-detail-container {
                 gap: 2px;
 
                 a, a:visited, a:hover {
-                    color: #0077C8;
+                    color: var(--primary-strong);
                 }
             }
         }
     }
 
-    .app-access {
-        width: 80%;
-        display: flex;
-        gap: 25px;
-        @media (max-width: $medium) {
+    // Shared by the Access tab's collapsible policy/role accordions and the
+    // Assurance tab's (non-collapsible) assurance rules section.
+    .access-accordion {
+        width: 100%;
+
+        .accordion-header-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             width: 100%;
-            flex-direction: column;
+
+            // AccordionTrigger renders its own wrapping header element (an <h3>)
+            // around the actual trigger button; that wrapper (always the first
+            // child here) needs the flex-grow, not the button, or it won't push
+            // our "Add" button sibling to the row's right edge.
+            > :first-child {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .accordion-trigger-title {
+                font-size: var(--text-xl-font-size);
+                font-weight: 600;
+                margin: 0;
+            }
+
+            button svg {
+                margin-right: 6px;
+            }
         }
+
+        .access-detail-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .access-detail-card-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+
+            .access-detail-card-text {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 280px;
+                flex-shrink: 0;
+
+                .card-title {
+                    font-weight: 600;
+                    font-size: 18px;
+                    margin: 0;
+                }
+
+                .card-applications {
+                    margin: 0;
+                }
+
+                .card-rule {
+                    display: block;
+                    color: var(--muted-foreground);
+                }
+            }
+
+            .role-user-count {
+                margin: 0;
+            }
+        }
+
+        em.role-ready {
+            display: block;
+            margin-top: 16px;
+            color: var(--muted-foreground);
+        }
+    }
+
+    .app-access {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
 
         &.read-only {
             z-index: 999;
@@ -248,15 +357,11 @@ div.application-detail-container {
         }
 
         .green {
-            color: #008939;
-        }
-
-        .app-access-central {
-            width: 65%;
+            color: var(--success-subtle-foreground);
         }
 
         .app-access-decentral {
-            width: 35%;
+            width: 100%;
 
             .not-allowed-container {
                 display: flex;
@@ -352,6 +457,10 @@ div.application-detail-container {
             .select-assurance {
                 margin-top: 20px;
             }
+
+            .access-accordion {
+                margin-top: 30px;
+            }
         }
 
         .assurance-info {
@@ -394,17 +503,6 @@ div.application-detail-container {
             display: flex;
             flex-direction: column;
             gap: 20px;
-
-            p.warning {
-                display: flex;
-                align-items: flex-start;
-            }
-
-            svg.alert-triangle {
-                fill: black;
-                color: white;
-                margin-right: 10px;
-            }
         }
     }
 }

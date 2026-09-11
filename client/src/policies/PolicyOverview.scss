@@ -12,21 +12,15 @@
             color: var(--muted-foreground);
         }
 
-        .grouped {
+        .policy-list {
             display: flex;
-            width: 100%;
-            margin: 25px 0;
-
-            button {
-                align-self: flex-start;
-                margin-left: auto;
-            }
-
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 25px;
         }
 
         .policy-card {
             width: 100%;
-            margin-bottom: 15px;
 
             &.paused {
                 background-color: var(--muted);

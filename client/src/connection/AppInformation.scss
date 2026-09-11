@@ -6,7 +6,6 @@
 $width-percentage: 75%;
 
 .app-information-container {
-    background-color: white;
     padding: $page-padding;
 
     .app-header {
@@ -20,6 +19,11 @@ $width-percentage: 75%;
         gap: 35px;
         width: $width-percentage;
         @include index.page-media;
+
+        .select-field label {
+            font-size: 14px;
+            font-weight: 500;
+        }
     }
 
     .left {
@@ -45,4 +49,36 @@ $width-percentage: 75%;
     .application {
         margin-top: 25px;
     }
+
+    .fair-use {
+        font-size: 14px;
+
+        p {
+            margin: 0.5rem 0;
+            font-weight: 500;
+        }
+
+        div.info {
+            margin-top: 6px;
+            display: block;
+            color: var(--muted-foreground);
+        }
+
+        ul {
+            list-style: initial;
+            margin-top: 15px;
+
+            li {
+                margin-left: 25px;
+            }
+        }
+
+        .checkbox-container {
+            background-color: white;
+            padding: 15px;
+            border: 1px solid var(--input);
+            border-radius: .375rem;
+        }
+    }
+
 }

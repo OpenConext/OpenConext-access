@@ -1,3 +1,11 @@
+// curve-react's shadcn-based components (Input, Select, Button, etc.) use Tailwind's
+// text-sm utility for form-element text, which resolves to the Tailwind theme token
+// --text-sm (0.875rem/14px). Override it here, outside any @layer, so it wins over
+// curve-react's compiled `@layer theme` declaration regardless of import order.
+:root {
+    --text-sm: 1rem;
+}
+
 sup.required {
     color: var(--destructive, #dc2626);
     margin-left: 2px;

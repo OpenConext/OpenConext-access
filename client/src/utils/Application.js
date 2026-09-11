@@ -39,7 +39,7 @@ export const validEmailOrUrl = (contactPerson, contactType, otherSameTypeContact
 }
 
 export const contactSectionValid = (application) => {
-    const contactPersonsGrouped = Object.groupBy(application.contactPersons, contact => contact.type);
+    const contactPersonsGrouped = Object.groupBy(application?.contactPersons || [], contact => contact.type);
     return Object.values(contactPersonTypes)
         .every(contactType => {
             const contactPersons = (application?.contactPersons || []).filter(c => c.type === contactType);

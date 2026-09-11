@@ -2,11 +2,11 @@ import React, {useEffect, useMemo, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {Navigate, useNavigate, useParams} from "react-router";
 import {getPolicyByIdentityProvider, getServiceProvidersAllowed} from "../api/index.js";
-import {isEmpty} from "../utils/Utils.js";
+import {isEmpty, sanitize} from "../utils/Utils.js";
 import "./Policies.scss";
 import I18n from "../locale/I18n";
 import {authorities} from "../utils/Permissions.js";
-import {Spinner} from "@surfnet/curve-react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {useShallow} from "zustand/react/shallow";
 import {groupByValues, policyTemplateRegular, policyTemplateStepUp, policyTypes} from "../utils/Policy.js";
 import {PolicyForm} from "../policies/PolicyForm.jsx";
@@ -32,8 +32,15 @@ const Policies = () => {
     const [currentPolicy, setCurrentPolicy] = useState(null);
     const [serviceProviderOptions, setServiceProviderOptions] = useState([])
     const [selectedServiceProviders, setSelectedServiceProviders] = useState([]);
+    const [selectedPolicyType, setSelectedPolicyType] = useState(null);
+    const [returnToApplication, setReturnToApplication] = useState(null);
 
     const navigate = useNavigate();
+
+    const policyTypeOptions = [
+        {value: policyTypes.reg, label: I18n.t("appAccess.regularPolicies")},
+        {value: policyTypes.step, label: I18n.t("appAccess.stepUpPolicies")},
+    ];
 
     const adminUser = useMemo(() => {
         return user.superUser || (user.organizationMemberships
@@ -41,12 +48,12 @@ const Policies = () => {
             && !isEmpty(currentOrganization.manageIdentifier));
     }, [user, currentOrganization]);
 
-    const toPolicyDetail = (policyIdentifier, policyType, allPolicies = policies) => {
+    const toPolicyDetail = (policyIdentifier, policyType, allPolicies = policies, serviceProviderEntityId = null) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "reg" || policyIdentifier === "step") {
-            newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(currentOrganization.identityProvider.data.entityid) :
-                policyTemplateRegular(currentOrganization.identityProvider.data.entityid);
+            newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(currentOrganization.identityProvider.data.entityid, serviceProviderEntityId) :
+                policyTemplateRegular(currentOrganization.identityProvider.data.entityid, serviceProviderEntityId);
         } else {
             newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
             if (isEmpty(newCurrentPolicy)) {
@@ -72,8 +79,18 @@ const Policies = () => {
         ]).then(res => {
             setPolicies(res[0].sort((p1, p2)=> p1.data.name.toLowerCase().localeCompare(p2.data.name)));
             setServiceProviders(res[1].sort((p1, p2)=> p1.data.metaDataFields["name:en"].toLowerCase().localeCompare(p2.data.metaDataFields["name:en"])));
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const returnManageType = urlSearchParams.get("manageType");
+            const returnManageId = urlSearchParams.get("manageId");
+            if (!isEmpty(returnManageType) && !isEmpty(returnManageId)) {
+                setReturnToApplication({
+                    manageType: returnManageType,
+                    manageId: returnManageId,
+                    appName: urlSearchParams.get("appName")
+                });
+            }
             if (page === "details" && !isEmpty(policyId)) {
-                toPolicyDetail(policyId, null, res[0]);
+                toPolicyDetail(policyId, null, res[0], urlSearchParams.get("entityId"));
             }
             useAppStore.setState({
                 breadcrumbPaths: [
@@ -86,7 +103,7 @@ const Policies = () => {
                 value: sp.data.entityid
             }));
             setServiceProviderOptions(options);
-            const service = new URLSearchParams(window.location.search).get("service");
+            const service = urlSearchParams.get("service");
             setSelectedServiceProviders(isEmpty(service) ? [] : [options.find(option => option.value === service)]);
             setLoading(false);
         }).catch(() => {
@@ -115,18 +132,41 @@ const Policies = () => {
             });
     }
 
+    const addNewPolicy = () => {
+        const newPolicyType = selectedPolicyType ? selectedPolicyType.value : policyTypes.reg;
+        toPolicyDetail(newPolicyType, newPolicyType);
+    }
+
+    const filteredPolicies = policies
+        .filter(policy => isEmpty(selectedServiceProviders) || policy.data.serviceProviderIds
+            .some(sp => selectedServiceProviders.some(sel => sp.name === sel.value)))
+        .filter(policy => isEmpty(selectedPolicyType) || policy.data.type === selectedPolicyType.value);
+
     return (
         <div className="policies-outer-container">
             {!showPolicyDetails && <div className="policies-header-container">
                 <div className="top-header">
                     <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("policies.title", {name: currentOrganization.name})}</h1>
-                    <SelectField value={selectedServiceProviders}
-                                 searchable={true}
-                                 options={serviceProviderOptions}
-                                 placeholder={I18n.t("policies.serviceProvidersPlaceholder")}
-                                 onChange={val => setSelectedServiceProviders(val)}
-                                 isMulti={true}
-                                 clearable={true}/>
+                    <p>{I18n.t("policies.subTitle")}</p>
+                </div>
+                <div className="policies-filters">
+                    <div className="filters">
+                        <SelectField value={selectedServiceProviders}
+                                     searchable={true}
+                                     options={serviceProviderOptions}
+                                     placeholder={I18n.t("policies.serviceProvidersPlaceholder")}
+                                     onChange={val => setSelectedServiceProviders(val)}
+                                     isMulti={true}
+                                     clearable={true}/>
+                        <SelectField value={selectedPolicyType}
+                                     options={policyTypeOptions}
+                                     placeholder={I18n.t("policies.policyTypesPlaceholder")}
+                                     onChange={val => setSelectedPolicyType(val)}
+                                     clearable={true}/>
+                    </div>
+                    <Button onClick={addNewPolicy}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("policies.newPolicy"))}}/>
+                    </Button>
                 </div>
             </div>}
             <div className="policies">
@@ -139,13 +179,12 @@ const Policies = () => {
                                     originalName={currentPolicy.originalName}
                                     refreshPolicies={refreshPolicies}
                                     serviceProviderOptions={serviceProviderOptions}
+                                    returnToApplication={returnToApplication}
                         />
                     }
                     {showPolicyOverview &&
                         <PolicyOverview
-                            policies={isEmpty(selectedServiceProviders) ? policies :
-                                policies.filter(policy => policy.data.serviceProviderIds
-                                    .some(sp => selectedServiceProviders.some(sel => sp.name === sel.value)))}
+                            policies={filteredPolicies}
                             currentOrganization={currentOrganization}
                             policyDetails={toPolicyDetail}
                             selectedServiceProviders={selectedServiceProviders}

@@ -71,6 +71,51 @@ const modals = {
 
 const AlertTriangleIcon = () => <WarningIcon weight="fill" className="alert-triangle"/>;
 
+const connectionStatusKey = connection => {
+    const productionConnectionNeedsActivation = connection.status === CONNECTION_STATUSES.COMPLETE;
+    return productionConnectionNeedsActivation ? "ready_for_prod" :
+        !isEmpty(connection.changeRequests) ? "open_change_requests" : connection.status.toLowerCase();
+}
+
+export const ConnectionStatusBadge = ({connection}) => {
+    const status = connectionStatusKey(connection);
+    return (
+        <div className="status-chip">
+            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
+                {!isEmpty(connection.changeRequests) &&
+                    <WarningIcon weight="fill" className="alert-triangle" data-icon="inline-start"/>}
+                {I18n.t(`connection.connections.${status}`)}
+            </Badge>
+        </div>
+    );
+}
+
+export const ConnectionsOverviewList = ({application, initConnection, viewConnection}) => {
+    const connections = application.connections;
+    if (isEmpty(connections)) {
+        return (
+            <div className="connections-overview-list">
+                <div className="connection-overview-item create" onClick={() => initConnection()}>
+                    <span className="placeholder-icon"/>
+                    <span className="name">{I18n.t("connection.overviewCards.createConnection")}</span>
+                    <ArrowRightIcon/>
+                </div>
+            </div>
+        );
+    }
+    return (
+        <div className="connections-overview-list">
+            {connections.map(conn =>
+                <div key={conn.id} className="connection-overview-item" onClick={() => viewConnection(conn)}>
+                    <span className="name cut-of-line">{conn.name}</span>
+                    <ConnectionStatusBadge connection={conn}/>
+                    <ArrowRightIcon/>
+                </div>
+            )}
+        </div>
+    );
+}
+
 export const Connections = ({
                                 application,
                                 connection,
@@ -661,7 +706,7 @@ export const Connections = ({
                                                         onRef={el => redirectUrlRefs.current[index] = el}
                                                         placeholder={I18n.t("connection.redirectUrlsPlaceholder")}
                                             />
-                                            <Button variant="destructive" onClick={() => removeRedirectURL(index)}>
+                                            <Button variant="ghost" size="icon" onClick={() => removeRedirectURL(index)}>
                                                 <TrashIcon/>
                                             </Button>
                                             <Tooltip>
@@ -757,7 +802,7 @@ export const Connections = ({
                                     {fileName && <>
                                         <div className="file-name-section">
                                             <span>{fileName}</span>
-                                            <Button variant="destructive"
+                                            <Button variant="ghost" size="icon"
                                                     onClick={() => setFileName(null)}>
                                                 <CloseIcon/>
                                             </Button>
@@ -817,7 +862,7 @@ export const Connections = ({
                                                         onBlur={e => acsLocationValueBlurred(e, index)}
                                                         onRef={el => acsLocationRefs.current[index] = el}
                                             />
-                                            <Button variant="destructive" onClick={() => removeACSLocation(index)}>
+                                            <Button variant="ghost" size="icon" onClick={() => removeACSLocation(index)}>
                                                 <TrashIcon/>
                                             </Button>
                                         </div>
@@ -1383,7 +1428,7 @@ export const Connections = ({
                                 {!showOverviewButton &&
                                     <>
                                         <div className="sub-actions">
-                                            <Button variant="secondary"
+                                            <Button variant="outline"
                                                     onClick={backToConnections}>
                                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))}}/>
                                             </Button>
@@ -1402,7 +1447,7 @@ export const Connections = ({
                                 }
 
                                 {showOverviewButton &&
-                                    <Button variant="secondary"
+                                    <Button variant="outline"
                                             onClick={backToMainOverview}>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.overview"))}}/>
                                         <span data-icon="inline-end"><ArrowRight/></span>
@@ -1448,24 +1493,7 @@ export const Connections = ({
             {
                 key: "status",
                 header: I18n.t("connection.connections.status"),
-                mapper: conn => {
-                    const productionConnectionNeedsActivation = conn.status === CONNECTION_STATUSES.COMPLETE;
-                    const toolTip = null;//I18n.translations[I18n.locale].connection.connections.tooltips[conn.status.toLowerCase()]
-                    const status = productionConnectionNeedsActivation ? "ready_for_prod" : !isEmpty(conn.changeRequests) ? "open_change_requests" : conn.status.toLowerCase();
-                    return (
-                        <div className="status-chip">
-                            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
-                                {!isEmpty(conn.changeRequests) ?
-                                    <WarningIcon weight="fill" className="alert-triangle" data-icon="inline-start"/> : null}
-                                {I18n.t(`connection.connections.${status}`)}
-                            </Badge>
-                            {toolTip && <Tooltip>
-                                <TooltipTrigger render={<InfoIcon/>}/>
-                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
-                            </Tooltip>}
-                        </div>
-                    );
-                }
+                mapper: conn => <ConnectionStatusBadge connection={conn}/>
             },
             {
                 key: "updatedAt",
@@ -1512,7 +1540,7 @@ export const Connections = ({
                 />}
                 <div className="header">
                     <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t(`connection.allConnections`)}</h3>
-                    <Button variant="secondary"
+                    <Button variant="default"
                             onClick={() => {
                                 setSection(sections.technical);
                                 setChangeRequestsKeys([]);

@@ -17,17 +17,10 @@ div.application-form-container {
             font-weight: 600;
         }
 
-        .application-type, .fair-use {
+        .application-type {
             p {
                 font-weight: 600;
                 margin-bottom: 0.5rem;
-            }
-
-            .checkbox-container {
-                background-color: white;
-                padding: 15px;
-                border: 1px solid var(--input);
-                border-radius: .375rem;
             }
 
             div.info {
@@ -44,6 +37,7 @@ div.application-form-container {
                 }
             }
         }
+
 
     }
 }

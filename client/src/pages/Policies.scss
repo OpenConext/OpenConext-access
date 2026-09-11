@@ -16,13 +16,28 @@ div.policies-outer-container {
             display: flex;
             gap: 15px;
             flex-direction: column;
-            max-width: 600px;
+        }
+
+        .policies-filters {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+
+            .filters {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+
+                > div {
+                    width: 320px;
+                }
+            }
         }
     }
 
     div.policies {
         padding: $page-padding;
-        background-color: white;
     }
 
     .app-policies {

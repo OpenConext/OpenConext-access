@@ -244,7 +244,7 @@ export const Contract = ({
                 <div className="actions">
                     {!signed && (
                         <>
-                            <Button variant="secondary"
+                            <Button variant="outline"
                                     onClick={doCancel}>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                             </Button>

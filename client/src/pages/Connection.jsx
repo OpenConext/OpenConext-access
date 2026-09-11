@@ -85,16 +85,25 @@ export const Connection = () => {
         connectionComplete,
         appInformationComplete,
         connectionNeedsApproval,
+        logoValid,
+        contactValid,
+        privacyValid,
     } = useMemo(() => {
+        const logoValid = logoSectionValid(application);
+        const contactValid = contactSectionValid(application);
+        const privacyValid = privacySectionValid(privacy, application);
         return {
             connectionComplete: !isEmpty(application.connections) &&
                 application.connections
                     .some(conn => conn.status !== CONNECTION_STATUSES.OPEN),
-            appInformationComplete: logoSectionValid(application) && contactSectionValid(application) && privacySectionValid(privacy, application)
+            appInformationComplete: logoValid && contactValid && privacyValid
                 && application.status !== APPLICATION_STATUSES.OPEN,
             connectionNeedsApproval: !isEmpty(currentOrganization.manageIdentifier) && !isEmpty(application.connections) &&
                 application.connections
-                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE)
+                    .some(conn => conn.status === CONNECTION_STATUSES.COMPLETE),
+            logoValid,
+            contactValid,
+            privacyValid,
         }
     }, [application, privacy, currentOrganization.manageIdentifier]);
 
@@ -140,6 +149,12 @@ export const Connection = () => {
         navigate(`/connection/${applicationId}/${newTab}`);
     }
 
+    const viewConnection = conn => {
+        setConnection(conn);
+        setCurrentTab("allConnections");
+        navigate(`/connection/${applicationId}/allConnections/${conn.id}`);
+    }
+
     const changeTab = (newTab, action = null) => {
         if (dirty) {
             refresh()
@@ -160,10 +175,14 @@ export const Connection = () => {
                                  user={user}
                                  currentOrganization={currentOrganization}
                                  initConnection={initConnection}
+                                 viewConnection={viewConnection}
                                  setTab={changeTab}
                                  connectionComplete={connectionComplete}
                                  appInformationComplete={appInformationComplete}
                                  connectionNeedsApproval={connectionNeedsApproval}
+                                 logoValid={logoValid}
+                                 contactValid={contactValid}
+                                 privacyValid={privacyValid}
                 />
             }
             case  "allConnections": {

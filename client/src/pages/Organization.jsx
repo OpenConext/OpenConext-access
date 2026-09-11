@@ -143,7 +143,7 @@ const Organization = () => {
             {
                 key: "type",
                 header: I18n.t("accessibleApps.type"),
-                mapper: application => application.name
+                mapper: () => I18n.t("organization.app")
             },
             {
                 key: "status",
@@ -175,11 +175,6 @@ const Organization = () => {
                 inputFocus={true}>
                 {(user.superUser || isOrganizationMember(user, organization)) &&
                     <div className="button-group">
-                        <Button onClick={() => navigate("/resourceserver/new")}
-                                variant="secondary"
-                                className={"no-title"}>
-                            <span dangerouslySetInnerHTML={{__html: I18n.t("organization.addResourceServer")}}/>
-                        </Button>
                         <Button onClick={() => navigate("/application/new")}
                                 className={"no-title"}>
                             <span dangerouslySetInnerHTML={{__html: I18n.t("organization.addApplication")}}/>
@@ -198,7 +193,8 @@ const Organization = () => {
                 <div>
                     <h1 className="text-[length:var(--text-2xl-font-size)] mb-[25px]">{I18n.t("organization.applicationManagement")}</h1>
                     {!isEmpty(organization.applications) &&
-                        <p>{I18n.t("organization.info", {name: organization.name})}</p>}
+                        <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("organization.info", {name: organization.name}))}}/>
+                    }
                 </div>
             </div>
             <div className="organization-container">

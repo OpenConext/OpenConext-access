@@ -197,7 +197,7 @@ export const InvitationForm = () => {
                 {renderFormElements(authorityOptions)}
 
                 <section className="actions">
-                    <Button variant="secondary"
+                    <Button variant="outline"
                             onClick={() => navigate(-1)}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                     </Button>

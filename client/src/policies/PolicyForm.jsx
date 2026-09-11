@@ -1,17 +1,25 @@
 import "./PolicyForm.scss";
 import React, {Fragment, useState} from "react";
-import {Badge, Button} from "@surfnet/curve-react";
+import {Badge, Button, RadioGroup, RadioGroupItem} from "@surfnet/curve-react";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
+import {useNavigate} from "react-router";
 import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
 import {isEmpty, splitListSemantically, sanitize} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {defaultAttributes, flatMapByValues, policyDesscription, policyTypes} from "../utils/Policy.js";
+import {
+    defaultAttributes,
+    flatMapByValues,
+    policyDesscription,
+    policyTemplateRegular,
+    policyTemplateStepUp,
+    policyTypes
+} from "../utils/Policy.js";
 import {getNetworkInfo} from "../utils/CidrNotation.js";
-import {TrashIcon} from "@phosphor-icons/react";
+import {TrashIcon, ArrowLeftIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
@@ -22,9 +30,11 @@ export const PolicyForm = ({
                                currentOrganization,
                                originalName,
                                refreshPolicies,
-                               serviceProviderOptions
+                               serviceProviderOptions,
+                               returnToApplication
                            }) => {
 
+    const navigate = useNavigate();
     const [initial, setInitial] = useState(true);
     const [duplicatePolicyName, setDuplicatePolicyName] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -59,6 +69,23 @@ export const PolicyForm = ({
 
     const internalUpdatePolicy = updates => {
         setPolicy({...policy, data: {...policy.data, ...updates}});
+    };
+
+    // Switching type before a policy is persisted starts from a clean template,
+    // since "reg" and "step" policies have incompatible data shapes (e.g. attributes
+    // vs loas). Once a policy has an id it's persisted and the type is locked.
+    const changePolicyType = newType => {
+        if (newType === policy.data.type) {
+            return;
+        }
+        const identityProviderEntityId = currentOrganization.identityProvider.data.entityid;
+        const freshPolicy = newType === policyTypes.step ?
+            policyTemplateStepUp(identityProviderEntityId) : policyTemplateRegular(identityProviderEntityId);
+        setPolicy(freshPolicy);
+        setInitial(true);
+        setDuplicatePolicyName(false);
+        setAttributeValueErrors({});
+        setCidrErrors({});
     };
 
     const internalUpdateLoa = updates => {
@@ -341,6 +368,32 @@ export const PolicyForm = ({
         }
     };
 
+    const renderPolicyTypeSection = () => (
+        <div className="policy-type-field">
+            <label className="stand-alone">{I18n.t("policies.policyChoices.typeLabel")}</label>
+            {isExistingPolicy ?
+                <Badge variant="outline" className="policy-type-badge">
+                    {I18n.t(`policies.policyChoices.${isStep ? "stepTitle" : "regTitle"}`)}
+                </Badge> :
+                <RadioGroup value={policy.data.type}
+                            onValueChange={changePolicyType}
+                            className="radio-options-group column">
+                    {[policyTypes.reg, policyTypes.step].map(type =>
+                        <div className="radio-item policy-type-option" key={type}>
+                            <RadioGroupItem value={type} id={`policy-type-${type}`}/>
+                            <label htmlFor={`policy-type-${type}`}>
+                                <p className="primary-label-radio-option">
+                                    {I18n.t(`policies.policyChoices.${type === policyTypes.step ? "stepTitle" : "regTitle"}`)}
+                                </p>
+                                <p>
+                                    {I18n.t(`policies.policyChoices.${type === policyTypes.step ? "stepInfo" : "regInfo"}`)}
+                                </p>
+                            </label>
+                        </div>)}
+                </RadioGroup>}
+        </div>
+    );
+
     const renderNameSection = () => (
         <>
             <InputField name={I18n.t("appAccess.targetGroup")}
@@ -429,7 +482,7 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
-                            <Button variant="destructive"
+                            <Button variant="ghost" size="icon"
                                     onClick={() => attributeDeleted(index)}
                             >
                                 <TrashIcon/>
@@ -448,7 +501,7 @@ export const PolicyForm = ({
                 {(!initial && policy.data.attributes.filter(attr => !isEmpty(attr.name) && !isEmpty(attr.value)).length === 0) &&
                     <ErrorIndicator msg={I18n.t("policies.attributesRequired")}/>}
                 <div className="add-attribute-container">
-                    <Button variant="secondary"
+                    <Button variant="outline"
                             onClick={() => attributeAdded({name: null})}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAttributePlaceholder"))}}/>
                     </Button>
@@ -534,7 +587,7 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => stepAttributeValueChanged(values, index)}
                             />
-                            <Button variant="destructive"
+                            <Button variant="ghost" size="icon"
                                     onClick={() => stepAttributeDeleted(index)}
                             >
                                 <TrashIcon/>
@@ -583,7 +636,7 @@ export const PolicyForm = ({
                                         onChange={e => cidrChanged(index, "prefix", e.target.value)}
                                         onBlur={() => cidrBlurred(index)}
                             />
-                            <Button variant="destructive"
+                            <Button variant="ghost" size="icon"
                                     onClick={() => cidrDeleted(index)}
                             >
                                 <TrashIcon/>
@@ -597,11 +650,11 @@ export const PolicyForm = ({
 
                 {/* Add buttons */}
                 <div className="add-buttons-row">
-                    <Button variant="secondary"
+                    <Button variant="outline"
                             onClick={stepAttributeAdded}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(`+ ${I18n.t("appAccess.addAttributePlaceholder")}`)}}/>
                     </Button>
-                    <Button variant="secondary"
+                    <Button variant="outline"
                             onClick={cidrAdded}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(`+ ${I18n.t("appAccess.addIpRange")}`)}}/>
                     </Button>
@@ -616,14 +669,16 @@ export const PolicyForm = ({
                 <span className="delete-can" onClick={() => doDeletePolicy(true, policy)}>
                     <TrashIcon/>{I18n.t("forms.delete")}
                 </span>}
-            <Button variant="secondary"
-                    onClick={refreshPolicies}>
-                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
-            </Button>
-            <Button onClick={() => submit()}
-                    disabled={!initial && !isValid()}>
-                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${isExistingPolicy ? "submitExisting" : "submitNew"}`))}}/>
-            </Button>
+            <div className="submit-actions">
+                <Button variant="outline"
+                        onClick={refreshPolicies}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                </Button>
+                <Button onClick={() => submit()}
+                        disabled={!initial && !isValid()}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${isExistingPolicy ? "submitExisting" : "submitNew"}`))}}/>
+                </Button>
+            </div>
         </div>
     );
 
@@ -648,6 +703,12 @@ export const PolicyForm = ({
                                          question={question}
             />}
             <div className="policy-form-header">
+                {returnToApplication &&
+                    <a className="back-to-application"
+                       onClick={() => navigate(`/application-detail/${returnToApplication.manageType}/${returnToApplication.manageId}`)}>
+                        <ArrowLeftIcon/>
+                        <span>{I18n.t("policies.backToApplication", {name: returnToApplication.appName})}</span>
+                    </a>}
                 <div className="header-top">
                     <h2 className="text-[length:var(--text-xl-font-size)] m-0">{I18n.t(`appAccess.${isExistingPolicy ? (isStep ? "editStepUpPolicy" : "editPolicy") : (isStep ? "newStepUpPolicy" : "newPolicy")}`)}</h2>
                     {isExistingPolicy &&
@@ -658,6 +719,7 @@ export const PolicyForm = ({
             </div>
 
             <div className="policy-form">
+                {renderPolicyTypeSection()}
                 {renderNameSection()}
                 {renderServiceProviders()}
                 {isStep ? renderStepUpSettings() : renderRegFilters()}

@@ -15,8 +15,20 @@ import {
 import I18n from "../locale/I18n.js";
 import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router";
-import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
-import {WarningIcon, ArrowSquareOutIcon as ExternalLinkIcon} from "@phosphor-icons/react";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+    Alert,
+    AlertDescription,
+    Badge,
+    Button,
+    Card,
+    CardContent,
+    Spinner
+} from "@surfnet/curve-react";
+import {WarningIcon, PlusIcon, XCircleIcon, PencilSimpleIcon, InfoIcon} from "@phosphor-icons/react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
@@ -34,6 +46,7 @@ import {
     STEPUP_LEVELS
 } from "../utils/Manage.js";
 import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
+import {policyBreakDowwn, policyTypes} from "../utils/Policy.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -91,13 +104,14 @@ const stepupLoaInteger = level => {
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
-    const {arp, privacy, user, config, setFlash, currentOrganization} = useAppStore(useShallow(state => ({
+    const {arp, privacy, user, config, setFlash, currentOrganization, allowedAttributes} = useAppStore(useShallow(state => ({
         arp: state.arp,
         privacy: state.privacy,
         user: state.user,
         config: state.config,
         setFlash: state.setFlash,
-        currentOrganization: state.currentOrganization
+        currentOrganization: state.currentOrganization,
+        allowedAttributes: state.allowedAttributes
     })));
 
     const navigate = useNavigate();
@@ -212,6 +226,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     if (loading) {
         return <div className="loading-container"><Spinner className="size-8"/></div>
     }
+
+    const regPolicies = policies.filter(policy => policy.data.type === policyTypes.reg);
+    const stepPolicies = policies.filter(policy => policy.data.type === policyTypes.step);
 
     const externalLink = (link, metaData, index) => {
         const attribute = link.languageProperty ?
@@ -477,6 +494,68 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         navigate(`/application-detail/${manageType}/${manageId}/${name}`);
     }
 
+    const openRoleManagement = () => window.open(`${config.invite}/applications/${serviceProvider.id}`, "_blank").focus();
+
+    // Carries enough context back through /policies for PolicyForm to show a
+    // "back to application" link and for a new rule to be pre-scoped to this SP.
+    const policyReturnParams = () => new URLSearchParams({
+        manageType,
+        manageId,
+        appName: providerName(I18n.locale, serviceProvider)
+    });
+
+    const navigateToAddPolicy = policyType => {
+        useAppStore.setState({activeMenuItem: mainMenuItems.policies});
+        const params = policyReturnParams();
+        params.set("entityId", serviceProvider.data.entityid);
+        navigate(`/policies/details/${policyType}?${params.toString()}`);
+    };
+
+    const navigateToEditPolicy = policy => {
+        useAppStore.setState({activeMenuItem: mainMenuItems.policies});
+        navigate(`/policies/details/${policy.id}?${policyReturnParams().toString()}`);
+    };
+
+    const renderPolicyCard = policy => (
+        <Card key={policy.id} size="sm" className="access-detail-card">
+            <CardContent className="access-detail-card-content">
+                <div className="access-detail-card-text">
+                    <p className="card-title">{policy.data.name}</p>
+                    <p className="card-applications">{I18n.t("appAccess.applications")}{providerName(I18n.locale, serviceProvider)}</p>
+                    {policyBreakDowwn(
+                        allowedAttributes,
+                        policy,
+                        I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`),
+                        I18n.t("forms.or"),
+                        I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`))
+                        .map((sentence, index) => <span key={index} className="card-rule">{sentence}</span>)}
+                </div>
+                <Badge variant="outline" className="policy-type-badge">
+                    {I18n.t(`policies.policyChoices.${policy.data.type === policyTypes.step ? "stepTitle" : "regTitle"}`)}
+                </Badge>
+                <Button variant="ghost" size="icon" onClick={() => navigateToEditPolicy(policy)}>
+                    <PencilSimpleIcon/>
+                </Button>
+            </CardContent>
+        </Card>
+    );
+
+    const renderRoleCard = (role, index) => (
+        <Card key={index} size="sm" className="access-detail-card">
+            <CardContent className="access-detail-card-content">
+                <div className="access-detail-card-text">
+                    <p className="card-title">{role.name}</p>
+                </div>
+                <p className="role-user-count" dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
+                }}/>
+                <Button variant="link" onClick={openRoleManagement}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.details"))}}/>
+                </Button>
+            </CardContent>
+        </Card>
+    );
+
     const renderAccessApp = () => {
         return (
             <>
@@ -499,88 +578,64 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 </Alert>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
-                    <>
-                        <div className="app-access-central">
-                            <h2 className="text-[length:var(--text-xl-font-size)] mb-5">{I18n.t("appAccess.title")}</h2>
-                            <InfoBlock className="no-gap">
-                                <div className="grouped">
-                                    <div>
-                                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[5px]">{I18n.t("appAccess.users", {name: currentOrganization.name})}</h3>
-                                        <p>{I18n.t("appAccess.config")}</p>
-                                    </div>
-                                    <Button onClick={() => {
-                                                useAppStore.setState({
-                                                    activeMenuItem: mainMenuItems.policies
-                                                });
-                                                navigate(`/policies?service=${encodeURIComponent(serviceProvider.data.entityid)}`);
-                                            }}>
-                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.edit"))}}/>
-                                    </Button>
-                                </div>
-                                <div className="access-card large">
-                                    <h4 className="text-[18px]">{I18n.t(`appAccess.${isEmpty(policies) ? "everyBody" : "notEveryBody"}`,
-                                        {name: currentOrganization.name})}</h4>
-                                    {!isEmpty(policies) &&
-                                        <Badge variant="warning" className="mx-auto">
-                                            {I18n.t("appAccess.policies", {nbr: policies.length})}
-                                        </Badge>
-                                    }
-                                    {renderLogo(currentOrganization?.identityProvider?.data?.metaDataFields)}
-                                </div>
-                            </InfoBlock>
-                            <InfoBlock className="no-gap">
-                                <div className="grouped">
-                                    <div>
-                                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[5px]">{I18n.t("appAccess.outSideUsers")}</h3>
-                                        <p>{I18n.t("appAccess.roleBasedAccess")}</p>
-                                    </div>
-                                    <Button onClick={() => window.open(`${config.invite}/applications/${serviceProvider.id}`,
-                                                "_blank").focus()}>
-                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.roleManagement"))}}/>
-                                        <span data-icon="inline-end"><ExternalLinkIcon/></span>
-                                    </Button>
-                                </div>
-                                {isEmpty(accessRoles) &&
-                                    <div className="access-card grey">
-                                        <p>{I18n.t("appAccess.noRoles")}</p>
+                    <Accordion defaultValue={["policies", "roles"]} className="access-accordion">
+                        <AccordionItem value="policies">
+                            <div className="accordion-header-row">
+                                <AccordionTrigger className="accordion-trigger-title">
+                                    {`${I18n.t("appAccess.regularPolicies")} (${regPolicies.length})`}
+                                </AccordionTrigger>
+                                <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.reg)}>
+                                    <PlusIcon/>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAccessRule"))}}/>
+                                </Button>
+                            </div>
+                            <AccordionContent>
+                                {isEmpty(regPolicies) &&
+                                    <div className="access-card grey border">
+                                        <p>{I18n.t("appAccess.noRegularPolicies")}</p>
                                     </div>}
+                                {!isEmpty(regPolicies) &&
+                                    <div className="access-detail-cards">
+                                        {regPolicies.map(policy => renderPolicyCard(policy))}
+                                    </div>}
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="roles">
+                            <div className="accordion-header-row">
+                                <AccordionTrigger className="accordion-trigger-title">
+                                    {`${I18n.t("appAccess.rolesTitle")} (${isEmpty(accessRoles) ? 0 : accessRoles.length})`}
+                                </AccordionTrigger>
+                                <Button variant="outline" onClick={openRoleManagement}>
+                                    <PlusIcon/>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
+                                </Button>
+                            </div>
+                            <AccordionContent>
+                                {!isAccessRoleReady(serviceProvider) &&
+                                    <Alert variant="danger">
+                                        <WarningIcon weight="fill"/>
+                                        <AlertDescription>
+                                            <p className="alert-title">{I18n.t("appAccess.noRolesTitle")}</p>
+                                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noRolesInfo"))}}/>
+                                        </AlertDescription>
+                                    </Alert>}
                                 {!isEmpty(accessRoles) &&
-                                    <>
-                                        <p>{I18n.t("appAccess.accessFor")}</p>
-                                        {accessRoles.map((role, index) =>
-                                            <div key={index} className="access-card column large">
-                                                <div>
-                                                    <p dangerouslySetInnerHTML={{
-                                                        __html: DOMPurify.sanitize(
-                                                            I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
-                                                    }}/>
-                                                    <p><strong>{role.name}</strong></p>
-                                                </div>
-                                                <div className={`chip ${role.eduIDOnly ? "blue" : ""}`}>
-                                                    {I18n.t(`appAccess.${role.eduIDOnly ? "eduIDOnly" : "everyIdp"}`)}
-                                                </div>
-
-
-                                            </div>)}
-                                    </>
-                                }
-                                <em className="role-ready" dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                        I18n.t(`appAccess.${isAccessRoleReady(serviceProvider) ? "roleReady" : "notRoleReady"}`))
-                                }}/>
-                            </InfoBlock>
-                        </div>
-                        <div className="app-access-decentral">
-                            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("appAccess.decentralAccess")}</h2>
-                            <InfoBlock className="no-gap grey row">
-                                <div className="not-allowed-container">
-                                    <NotAllowedIcon/>
-                                    <p
-                                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noDecentralAccess"))}}/>
-                                </div>
-                            </InfoBlock>
-                        </div>
-                    </>
+                                    <div className="access-detail-cards">
+                                        {accessRoles.map((role, index) => renderRoleCard(role, index))}
+                                    </div>}
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                    <div className="app-access-decentral">
+                        <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("appAccess.decentralAccess")}</h2>
+                        <InfoBlock className="no-gap grey row">
+                            <div className="not-allowed-container">
+                                <NotAllowedIcon/>
+                                <p
+                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noDecentralAccess"))}}/>
+                            </div>
+                        </InfoBlock>
+                    </div>
                 </div>
             </>
         );
@@ -691,9 +746,28 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     />
                     {stepupLoaTooLow && <ErrorIndicator standalone={true}
                                                         msg={I18n.t("assurance.loaTooLow")}/>}
+                    <div className="access-accordion">
+                        <div className="accordion-header-row">
+                            <h2 className="accordion-trigger-title text-[length:var(--text-xl-font-size)]">
+                                {`${I18n.t("assurance.rulesTitle")} (${stepPolicies.length})`}
+                            </h2>
+                            <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.step)}>
+                                <PlusIcon/>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAssuranceRule"))}}/>
+                            </Button>
+                        </div>
+                        {isEmpty(stepPolicies) &&
+                            <div className="access-card grey border">
+                                <p>{I18n.t("appAccess.noStepUpPolicies")}</p>
+                            </div>}
+                        {!isEmpty(stepPolicies) &&
+                            <div className="access-detail-cards">
+                                {stepPolicies.map(policy => renderPolicyCard(policy))}
+                            </div>}
+                    </div>
                     <div className="assurance-actions">
                         <Button onClick={() => cancelAssuranceChanges()}
-                                variant="secondary">
+                                variant="outline">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                         </Button>
                         <Button onClick={() => submitAssuranceChanges()}
@@ -703,24 +777,18 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>
                 </div>
                 <div className="assurance-right">
-                    <InfoBlock className="assurance-info-block">
-                        <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("assurance.tipsInfo")}</h2>
-                        <p>{I18n.t("assurance.tips.practice")}</p>
-                        <ol>
-                            <li>{I18n.t("assurance.tips.optionMfa")}</li>
-                            <li>{I18n.t("assurance.tips.optionSurf")}</li>
-                        </ol>
-                        <p className="info" dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(I18n.t("consent.info"))
-                        }}/>
-                        <p className="warning">
-                            <WarningIcon weight="fill" className="alert-triangle"/>
-                            <span dangerouslySetInnerHTML={{
+                    <Alert variant="info">
+                        <InfoIcon weight="fill"/>
+                        <AlertDescription>
+                            <p className="alert-title">{I18n.t("assurance.tips.title")}</p>
+                            <p>{I18n.t("assurance.tips.practice")}</p>
+                            <p>{I18n.t("assurance.tips.optionMfa")}</p>
+                            <p>{I18n.t("assurance.tips.optionSurf")}</p>
+                            <p dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
                             }}/>
-                        </p>
-                        <p>{I18n.t("assurance.tips.authentication")}</p>
-                    </InfoBlock>
+                        </AlertDescription>
+                    </Alert>
                 </div>
 
             </div>
@@ -754,7 +822,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 onChange={e => setConsent({...consent, ["explanation:nl"]: e.target.value})}/>
                     <div className="consent-actions">
                         <Button onClick={() => cancelConsentChanges()}
-                                variant="secondary">
+                                variant="outline">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                         </Button>
                         <Button onClick={() => submitConsentChanges()}>
@@ -777,12 +845,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const badgeVariantForConnectionStatus = () => {
         if (readOnly) {
-            return "danger";
+            return "warning";
         }
         if (pendingDisconnect) {
-            return "danger";
+            return "warning";
         }
-        return "secondary";
+        return "success";
     }
 
     const translationForConnectionStatus = () => {
@@ -796,6 +864,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderAccessibleApp = () => {
+        const website = I18n.locale === "en" ? metaData["OrganizationURL:en"] :
+            (metaData["OrganizationURL:nl"] || metaData["OrganizationURL:en"]);
         return (
             <>
                 <div className="application-detail-header-container">
@@ -804,25 +874,27 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                hrefFor={name => `/application-detail/${manageType}/${manageId}/${name}`}
                                tabNames={tabNames}
                     >
-                        <div className="application-card-container">
-                            <div className="application-card">
-                                {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                <div className="provider-details">
-                                    <h3 className="text-[length:var(--text-lg-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
-                                    <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                        <div className="application-header">
+                            {renderLogo(metaData)}
+                            <div className="application-header-details">
+                                <div className="application-header-top">
+                                    <h3 className="text-[length:var(--text-2xl-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
+                                    <Badge variant={badgeVariantForConnectionStatus()}>
+                                        {translationForConnectionStatus()}
+                                    </Badge>
+                                    {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
+                                        && <Button onClick={() => doRequestDisconnection(true)}
+                                                   variant="ghost">
+                                            <XCircleIcon/>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationConnect.disconnect"))}}/>
+                                        </Button>
+                                    }
                                 </div>
-                            </div>
-                            <div className="accessible-options">
-                                <Badge variant={badgeVariantForConnectionStatus()}>
-                                    {translationForConnectionStatus()}
-                                </Badge>
-                                {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
-                                    && <Button onClick={() => doRequestDisconnection(true)}
-                                               variant="destructive">
-                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationConnect.disconnect"))}}/>
-                                    </Button>
-                                }
+                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
+                                {!isEmpty(website) &&
+                                    <a className="application-website" href={website} target="_blank" rel="noopener noreferrer">
+                                        {website.replace(/^https?:\/\//, "")}
+                                    </a>}
                             </div>
                         </div>
                     </TabHeader>
@@ -1020,7 +1092,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     {providerName(I18n.locale, serviceProvider)}
                                 </p>
                             </div>
-                            {anonymous && <Button variant="secondary"
+                            {anonymous && <Button variant="outline"
                                                   onClick={goBackToApplications}>
                                 <span data-icon="inline-start"><ArrowLeftIcon/></span>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
