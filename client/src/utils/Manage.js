@@ -64,12 +64,12 @@ export const CONNECTION_STATUSES = {
 // connections status column) to the Badge variant that best matches the
 // color it used to get from the now-removed .custom-chip.status-error CSS.
 export const CONNECTION_STATUS_BADGE_VARIANTS = {
-    open: "secondary",
+    open: "ghost",
     in_progress: "secondary",
-    multiple_connections: "secondary",
-    complete: "success",
+    multiple_connections: "info",
+    complete: "default",
     prod_ready: "success",
-    ready_for_prod: "default",
+    ready_for_prod: "info",
     pending_prod: "warning",
     open_change_requests: "warning",
     no_connections: "danger",
