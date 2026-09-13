@@ -4,16 +4,7 @@ import I18n from "../locale/I18n";
 import InputField from "../components/InputField.jsx";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore.js";
-import {
-    Button,
-    Checkbox,
-    RadioGroup,
-    RadioGroupItem,
-    Spinner,
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger
-} from "@surfnet/curve-react";
+import {Button, RadioGroup, RadioGroupItem, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import {applicationNameExists, getApplicationById, newApplication, updateApplication} from "../api/index.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -139,7 +130,7 @@ export const ApplicationForm = () => {
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                     </Button>
                     <Button onClick={() => doSaveApplication()}
-                            disabled={isNew  || isEmpty(application.name) || duplicateApplicationName}>
+                            disabled={isNew || isEmpty(application.name) || duplicateApplicationName}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.submit"))}}/>
                     </Button>
                 </section>
