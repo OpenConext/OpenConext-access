@@ -130,7 +130,7 @@ export const ApplicationForm = () => {
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                     </Button>
                     <Button onClick={() => doSaveApplication()}
-                            disabled={isNew || isEmpty(application.name) || duplicateApplicationName}>
+                            disabled={isEmpty(application.name) || duplicateApplicationName}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.submit"))}}/>
                     </Button>
                 </section>
