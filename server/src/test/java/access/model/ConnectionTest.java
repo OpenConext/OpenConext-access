@@ -135,7 +135,7 @@ class ConnectionTest {
 
         assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
         assertTrue(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
-        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TEST_CONNECTION));
     }
 
     @Test
@@ -196,7 +196,7 @@ class ConnectionTest {
     void testIsCompleteReturnsFalseOnEmptyFlags() {
         assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TECHNICAL));
         assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
-        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TEST_CONNECTION));
     }
 
     @Test
@@ -206,7 +206,7 @@ class ConnectionTest {
         );
 
         assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION));
-        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS));
+        assertFalse(ConnectionSectionFlags.isComplete(connection.getSectionsComplete(), ConnectionSectionFlags.TEST_CONNECTION));
     }
 
     // --- allComplete() ---
@@ -237,7 +237,10 @@ class ConnectionTest {
                 ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.INFORMATION)
         );
         connection.setSectionsComplete(
-                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.PRODUCTION_STATUS)
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.TEST_CONNECTION)
+        );
+        connection.setSectionsComplete(
+                ConnectionSectionFlags.complete(connection.getSectionsComplete(), ConnectionSectionFlags.PUBLISH)
         );
 
         assertTrue(ConnectionSectionFlags.allComplete(connection.getSectionsComplete()));

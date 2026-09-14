@@ -22,7 +22,8 @@ section.actions {
 
 span.label {
     display: block;
-    font-weight: 600;
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
     margin-bottom: 0.5rem;
     position: relative;
 

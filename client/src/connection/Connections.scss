@@ -376,6 +376,7 @@ $width-percentage: 75%;
             display: flex;
 
             p {
+                margin-bottom: 15px;
                 font-weight: 600;
             }
 
@@ -435,6 +436,16 @@ $width-percentage: 75%;
                 margin-left: 6px;
             }
 
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+
+            label {
+                cursor: pointer;
+            }
         }
     }
 

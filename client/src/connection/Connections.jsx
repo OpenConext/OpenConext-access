@@ -1,7 +1,7 @@
 import "./Connections.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Badge, Button, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {Alert, AlertAction, AlertDescription, Badge, Button, Checkbox, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {
     InfoIcon,
     TrashIcon,
@@ -164,7 +164,6 @@ export const Connections = ({
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [jiraKey, setJiraKey] = useState(null);
-    const [proceedWithProduction, setProceedWithProduction] = useState(false);
 
     const connections = application.connections;
 
@@ -198,6 +197,7 @@ export const Connections = ({
     }
 
     const isDisabled = sectionName => {
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         switch (sectionName) {
             case sections.technical: {
                 return false;
@@ -205,8 +205,11 @@ export const Connections = ({
             case sections.informationProfile: {
                 return !sections.isComplete(connection, sections.technical) || !technicalValid();
             }
-            case sections.productionStatus: {
-                return !sections.isComplete(connection, sections.informationProfile) || !technicalValid();
+            case sections.testConnection: {
+                return !sections.isComplete(connection, isRs ? sections.technical : sections.informationProfile) || !technicalValid();
+            }
+            case sections.publish: {
+                return !sections.isComplete(connection, sections.testConnection) || !technicalValid();
             }
         }
         return false;
@@ -263,11 +266,11 @@ export const Connections = ({
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return !(duplicateEntityID || isEmpty(connection.name) || (isEmpty(connection.entityID) && !isOidc && !isRs) ||
             isDuplicateConnectionName() ||
-            Object.values(invalidRedirects).some(invalid => invalid) ||
+            (isOidc && Object.values(invalidRedirects).some(invalid => invalid)) ||
             (!isRs && (isEmpty(connection.loginUrl) || invalidLoginUrl)) ||
-            Object.values(invalidACSLocations).some(invalid => invalid) ||
+            (isSaml && Object.values(invalidACSLocations).some(invalid => invalid)) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
-            (isSaml && !isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))) ||
+            (isSaml && (isEmpty(connection.acsLocations || isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))))) ||
             (isRs && duplicateScope));
     }
 
@@ -294,14 +297,17 @@ export const Connections = ({
         setMetaDataChoice(metaData.url);
     }
 
-    const renderRadioOptions = (name, value, labels, labelResolver, onChange, orientation = "column") => (
+    const renderRadioOptions = (name, value, labels, labelResolver, onChange, orientation = "column", descriptionResolver = null) => (
         <RadioGroup value={value}
                     onValueChange={onChange}
                     className={`radio-options-group ${orientation}`}>
             {labels.map(label =>
                 <div className="radio-item" key={`${name}_${label}`}>
                     <RadioGroupItem value={label} id={`${name}_${label}`}/>
-                    <label htmlFor={`${name}_${label}`}>{labelResolver(label)}</label>
+                    <div className="radio-item-content">
+                        <label htmlFor={`${name}_${label}`}>{labelResolver(label)}</label>
+                        {descriptionResolver && <p className="radio-item-description">{descriptionResolver(label)}</p>}
+                    </div>
                 </div>
             )}
         </RadioGroup>
@@ -865,6 +871,13 @@ export const Connections = ({
                                             <Button variant="ghost" size="icon" onClick={() => removeACSLocation(index)}>
                                                 <TrashIcon/>
                                             </Button>
+                                            <Tooltip>
+                                                <TooltipTrigger render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
+                                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
+                                                </Button>}/>
+                                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
+                                            </Tooltip>
+
                                         </div>
                                         {invalidACSLocations[index.toString()] &&
                                             <ErrorIndicator msg={I18n.t("forms.invalidURL",
@@ -874,11 +887,8 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <Tooltip>
-                                <TooltipTrigger render={<button type="button" className="add-link link-button"
-                                                            onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</button>}/>
-                                <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
-                            </Tooltip>
+                            <button type="button" className="add-link link-button mt-3.75!"
+                                    onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</button>
                         </div>
                         {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
@@ -942,34 +952,68 @@ export const Connections = ({
         );
     }
 
-    const renderProductionStatusSection = () => {
+    const renderTestConnectionSection = () => {
+        const isOidcOrRs = connection.protocol.value === PROTOCOLS.OIDC10_RP ||
+            connection.protocol.value === PROTOCOLS.OAUTH20_RS;
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
+        const showFreshlyGeneratedSecret = isOidcOrRs && !isEmpty(connection.originalSecret);
+        return (
+            <section className="inner-right">
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.testConnection")}</h3>
+                <p>{I18n.t("connection.testConnectionSection.info")}</p>
+                {showFreshlyGeneratedSecret &&
+                    <>
+                        {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
+                        <div className="oidc-authentication-inner">
+                            <InputField name={I18n.t("connection.connectionOverview.discovery")}
+                                        value={config.discovery}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                            <InputField name={I18n.t("connection.connectionOverview.clientID")}
+                                        value={connection.entityID}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                            <InputField name={I18n.t("connection.connectionOverview.secret")}
+                                        value={connection.originalSecret}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                        </div>
+                    </>}
+                {!isOidcOrRs &&
+                    <div className="oidc-authentication-inner">
+                        <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
+                                    value={config.idpProxyMetaData}
+                                    disabled={true}
+                                    copyClipBoard={true}/>
+                        <p className="saml-test"
+                           dangerouslySetInnerHTML={{
+                               __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
+                                   , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
+                           }}/>
+                    </div>}
+                {!isRs && renderTestIdPSection()}
+            </section>
+        );
+    }
+
+    const renderPublishSection = () => {
         const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         return (
             <section className="inner-right">
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.productionStatus")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.publish")}</h3>
                 {prodConnection && <p>{I18n.t("connection.productionStatusReady")}</p>}
                 {!isEmpty(jiraKey) && renderProductionStatusRequested(false)}
-                {(!pendingProd && !prodConnection) &&
-                    <div className="visibility-options">
-                        <p className="question mb-2.5">{I18n.t("connection.productionStatusSection.proceedHow")}</p>
-                        {renderRadioOptions("proceedWithProduction",
-                            proceedWithProduction ? "prodConnection" : "testConnection",
-                            ["testConnection", "prodConnection"],
-                            label => I18n.t(`connection.productionStatusSection.${label}`),
-                            () => setProceedWithProduction(!proceedWithProduction))}
-                        {(!appInformationComplete && proceedWithProduction) &&
-                            alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
-                                () => setTab("application"),
-                                I18n.t("connection.productionStatusSection.fillAppInformation"),
-                                "warning")}
-                    </div>}
                 {(pendingProd && isEmpty(jiraKey)) &&
                     alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimer"))}
-                {(!isRs && ((proceedWithProduction && appInformationComplete) || prodConnection)) &&
+                {(!pendingProd && !appInformationComplete) &&
+                    alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
+                        () => setTab("application"),
+                        I18n.t("connection.productionStatusSection.fillAppInformation"),
+                        "warning")}
+                {(!isRs && !pendingProd) &&
                     <>
-                        <h4>{I18n.t("connection.production.access")}</h4>
                         <div className="identity-providers">
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.who")}
@@ -979,12 +1023,14 @@ export const Connections = ({
                                     </Tooltip>}
                                 </p>
                                 {renderRadioOptions("visibility", connection.visibility,
-                                    [visibilities.visible_to_all, visibilities.visible_to_idp_only, visibilities.visible_to_none],
+                                    [visibilities.visible_to_all, visibilities.visible_to_none],
                                     label => I18n.t(`connection.visibilities.${label}`),
                                     value => setConnection({
                                         ...connection,
                                         visibility: value
-                                    }))}
+                                    }),
+                                    "column",
+                                    label => I18n.t(`connection.visibilities.${label}Description`))}
                             </div>
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.connect")}
@@ -1005,10 +1051,21 @@ export const Connections = ({
                                         connectOption: value
                                     }))}
                             </div>
+                            <div className="visibility-options">
+                                <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}</p>
+                                <div className="checkbox-field">
+                                    <Checkbox id="eduIdAccessEnabled"
+                                              checked={connection.eduIdAccessEnabled || false}
+                                              onCheckedChange={checked => setConnection({
+                                                  ...connection,
+                                                  eduIdAccessEnabled: checked
+                                              })}/>
+                                    <label htmlFor="eduIdAccessEnabled">{I18n.t("connection.visibilities.eduIdAccessLabel")}</label>
+                                </div>
+                            </div>
                             <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
                     </>}
-                {(!pendingProd && !prodConnection && !proceedWithProduction && !isRs) && renderTestIdPSection()}
             </section>
         );
     }
@@ -1215,10 +1272,13 @@ export const Connections = ({
     const alertInfo = (message, action, actionLabel, alertType = "info") => {
         const Icon = alertType === "error" ? XCircleIcon : alertType === "warning" ? WarningIcon : InfoIcon;
         return (
-            <Alert variant={alertType === "error" ? "destructive" : "default"}>
+            <Alert variant={alertType === "error" ? "danger" : alertType === "warning" ? "warning" : "default"}>
                 <Icon/>
                 <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
-                {action && <button type="button" className="alert-action" onClick={action}>{actionLabel}</button>}
+                {action && <AlertAction onClick={action}>
+                    <Button size="sm" variant="outline">{actionLabel}</Button>
+                    </AlertAction>}
+
             </Alert>
         )
     }
@@ -1233,8 +1293,11 @@ export const Connections = ({
             case sections.informationProfile: {
                 return renderInformationProfileSection();
             }
-            case sections.productionStatus: {
-                return renderProductionStatusSection();
+            case sections.testConnection: {
+                return renderTestConnectionSection();
+            }
+            case sections.publish: {
+                return renderPublishSection();
             }
             case sections.overview: {
                 return isOidc || isRs ? renderOIDCOverview() : renderSAMLOverview();
@@ -1253,7 +1316,7 @@ export const Connections = ({
     }
 
     const storeAndNextDisabled = () => {
-        if (section === sections.productionStatus && proceedWithProduction && !appInformationComplete) {
+        if (section === sections.publish && !appInformationComplete) {
             return true;
         }
         if (initial) {
@@ -1266,8 +1329,11 @@ export const Connections = ({
             case sections.informationProfile: {
                 return !informationProfileValid();
             }
-            case sections.productionStatus: {
-                return proceedWithProduction && !appInformationComplete;
+            case sections.testConnection: {
+                return false;
+            }
+            case sections.publish: {
+                return !appInformationComplete;
             }
             case sections.pendingChanges: {
                 return false;
@@ -1278,14 +1344,16 @@ export const Connections = ({
     const determineNextSection = currentSection => {
         switch (currentSection) {
             case sections.technical:
-                return connection.protocol.value === PROTOCOLS.OAUTH20_RS ? sections.productionStatus : sections.informationProfile;
+                return connection.protocol.value === PROTOCOLS.OAUTH20_RS ? sections.testConnection : sections.informationProfile;
             case sections.informationProfile:
-                return sections.productionStatus;
+                return sections.testConnection;
+            case sections.testConnection:
+                return sections.publish;
             default:
                 return sections.overview;
         }
     }
-    const storeAndNext = (finished = false) => {
+    const storeAndNext = () => {
         setInitial(false);
         const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
@@ -1298,10 +1366,12 @@ export const Connections = ({
         }
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
-            section === sections.productionStatus;
+            section === sections.testConnection ||
+            section === sections.publish;
         if (proceed) {
             setLoading(true);
-            const promise = connection.id ? (proceedWithProduction ? uppdateAndRequestConnectionProductionStatus : updateConnection) : newConnection;
+            const isPublishing = section === sections.publish;
+            const promise = !connection.id ? newConnection : (isPublishing ? uppdateAndRequestConnectionProductionStatus : updateConnection);
             const body = convertClientConnectionToServer(application, connection, arpInfo);
             if (!sections.allCompleted(body)) {
                 sections.complete(body, section);
@@ -1310,7 +1380,7 @@ export const Connections = ({
                 //Resource servers do not have an informationProfile
                 sections.complete(body, sections.informationProfile);
             }
-            if (finished && isOpen) {
+            if (isOpen && nextSection === sections.testConnection) {
                 if (isOidc || isRs) {
                     body.metaData.entityID = generateOIDCClientID();
                 }
@@ -1320,12 +1390,11 @@ export const Connections = ({
                 .then(res => {
                     setInitial(true);
                     setDirty(true);
-                    setProceedWithProduction(false);
                     setFlash(I18n.t(`connection.flash.${connection.id ? "updated" : "created"}`, {
                         name: connection.name
                     }));
-                    const resultFromServer = proceedWithProduction ? res.connection : res;
-                    if (proceedWithProduction) {
+                    const resultFromServer = isPublishing ? res.connection : res;
+                    if (isPublishing) {
                         setJiraKey(res.jiraKey);
                     }
                     const convertedConnection = convertServerConnectionToClient(resultFromServer, protocolOptions, profileOptions, arpInfo);
@@ -1356,18 +1425,34 @@ export const Connections = ({
         changeSection(sections.technical);
     }
 
+    const saveAndPostponePublish = () => {
+        setLoading(true);
+        const body = convertClientConnectionToServer(application, connection, arpInfo);
+        updateConnection(body)
+            .then(() => {
+                setDirty(true);
+                setFlash(I18n.t("connection.flash.updated", {name: connection.name}));
+                setLoading(false);
+                backToConnections();
+            })
+            .catch(() => {
+                setLoading(false);
+            });
+    }
+
     const backToMainOverview = () => {
         refresh();
         setTab("overview");
     }
 
     const renderInitialConnection = () => {
-        const lastSection = section === sections.productionStatus;
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
         const showOverviewButton = section === sections.overview;
         const submitTxt = (requiresChangeRequest && config.testEnvironment) ? I18n.t("connection.requiresChangeRequest") :
+            section === sections.publish ? I18n.t("connection.productionStatusSection.requestProduction") :
+            section === sections.testConnection ? I18n.t("connection.productionStatusSection.doneAndContinue") :
             isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
@@ -1417,7 +1502,7 @@ export const Connections = ({
                                                     isAlert={sectionValue === sections.pendingChanges}
                                                     action={() => changeSection(sectionValue)}
                                                     info={I18n.t(`connection.${sectionValue}`)}
-                                                    CustomIcon={sectionValue === sections.productionStatus && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertTriangleIcon : null}
+                                                    CustomIcon={sectionValue === sections.publish && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertTriangleIcon : null}
                                                     active={section === sectionValue}/>)}
                         </div>
                     </section>
@@ -1429,8 +1514,10 @@ export const Connections = ({
                                     <>
                                         <div className="sub-actions">
                                             <Button variant="outline"
-                                                    onClick={backToConnections}>
-                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))}}/>
+                                                    onClick={section === sections.publish ? saveAndPostponePublish : backToConnections}>
+                                                <span dangerouslySetInnerHTML={{__html: sanitize(section === sections.publish ?
+                                                    I18n.t("connection.productionStatusSection.postponePublish") :
+                                                    I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))}}/>
                                             </Button>
                                             <div className="delete-connection">
                                                 <Button variant="destructive"
@@ -1440,7 +1527,7 @@ export const Connections = ({
                                             </div>
                                         </div>
                                         <Button disabled={!valid}
-                                                onClick={() => storeAndNext(lastSection)}>
+                                                onClick={() => storeAndNext()}>
                                             <span dangerouslySetInnerHTML={{__html: sanitize(submitTxt)}}/>
                                         </Button>
                                     </>
@@ -1467,7 +1554,7 @@ export const Connections = ({
             setChangeRequestsKeys(newChangeRequestKeys);
             return sections.pendingChanges;
         }
-        return queryParameters.indexOf("activate") > 1 ? sections.productionStatus : sections.technical;
+        return queryParameters.indexOf("activate") > 1 ? sections.publish : sections.technical;
     }
 
     const showConnectionDetails = (conn, queryParameters = "") => {

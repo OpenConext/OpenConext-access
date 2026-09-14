@@ -30,6 +30,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
         ...connection,
         application: {id: application.id},
         protocol: connection.protocol.value,
+        eduIdAccessEnabled: connection.eduIdAccessEnabled || false,
         metaData: {
             redirectUrls: connection.redirectUrls,
             entityID: connection.entityID,
@@ -116,7 +117,8 @@ export const sections = {
     pendingChanges: "pendingChanges",
     technical: "technical",
     informationProfile: "informationProfile",
-    productionStatus: "productionStatus",
+    testConnection: "testConnection",
+    publish: "publish",
     overview: "overview",
 
     complete(connection, section) {
@@ -128,7 +130,8 @@ export const sections = {
     },
 
     allCompleted(connection) {
-        const all = getSectionValue(sections.technical) | getSectionValue(sections.informationProfile) | getSectionValue(sections.productionStatus);
+        const all = getSectionValue(sections.technical) | getSectionValue(sections.informationProfile) |
+            getSectionValue(sections.testConnection) | getSectionValue(sections.publish);
         return (connection.sectionsComplete & all) === all;
     },
 
@@ -142,8 +145,11 @@ const getSectionValue = section => {
         case sections.informationProfile: {
             return 2;
         }
-        case sections.productionStatus: {
+        case sections.testConnection: {
             return 4;
+        }
+        case sections.publish: {
+            return 8;
         }
     }
     return 0;

@@ -23,9 +23,9 @@ export const ConnectionAlert = ({
     const renderAlert = ({warning = false, message, close, action, actionLabel}) => (
         <Alert className="connection-alert" variant={warning ? "warning" : "info"}>
             {warning ? <WarningIcon color="var(--warning)"/> : <InfoIcon/>}
-            <AlertDescription className="alert-description-with-action">
+            <AlertDescription  className="alert-description-with-action">
                 <span dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
-                {action && <Button size="sm" variant={"outline"} onClick={action}>{actionLabel}</Button>}
+                {action && <Button size="sm" variant={"link"} onClick={action}>{actionLabel}</Button>}
             </AlertDescription>
             {close && <AlertAction>
                 <button type="button" onClick={close}><XIcon/></button>

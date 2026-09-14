@@ -6,7 +6,8 @@ public enum ConnectionSectionFlags {
 
     TECHNICAL(1),
     INFORMATION(2),
-    PRODUCTION_STATUS(4);
+    TEST_CONNECTION(4),
+    PUBLISH(8);
 
     @Getter
     private final int value;
@@ -32,7 +33,7 @@ public enum ConnectionSectionFlags {
 
     // Check if ALL sections are complete
     public static boolean allComplete(int current) {
-        int all = TECHNICAL.value | INFORMATION.value | PRODUCTION_STATUS.value;
+        int all = TECHNICAL.value | INFORMATION.value | TEST_CONNECTION.value | PUBLISH.value;
         return (current & all) == all;
     }
 }

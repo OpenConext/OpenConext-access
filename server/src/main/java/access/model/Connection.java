@@ -78,6 +78,9 @@ public class Connection implements NameHolder {
     @Column(name = "test_idp_initialized")
     private boolean testIdpInitialized;
 
+    @Column(name = "edu_id_access_enabled")
+    private boolean eduIdAccessEnabled;
+
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 
@@ -136,6 +139,7 @@ public class Connection implements NameHolder {
         this.protocol = connectionData.protocol;
         this.status = connectionData.status;
         this.sectionsComplete = connectionData.sectionsComplete;
+        this.eduIdAccessEnabled = connectionData.eduIdAccessEnabled;
     }
 
 

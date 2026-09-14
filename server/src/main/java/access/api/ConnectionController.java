@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.passay.data.EnglishCharacterData;
 import org.passay.generate.PasswordGenerator;
 import org.passay.rule.CharacterRule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -82,6 +84,7 @@ public class ConnectionController implements UserAccessRights {
     private final ObjectMapper objectMapper;
     private final Config config;
     private final OrganizationRepository organizationRepository;
+    private final List<String> eduidIdpEntityIdentifiers;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
@@ -90,7 +93,8 @@ public class ConnectionController implements UserAccessRights {
                                 JiraClient jiraClient,
                                 ConnectionProviderConverter connectionProviderConverter,
                                 ObjectMapper objectMapper,
-                                Config config, OrganizationRepository organizationRepository) {
+                                Config config, OrganizationRepository organizationRepository,
+                                @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
@@ -100,6 +104,7 @@ public class ConnectionController implements UserAccessRights {
         this.objectMapper = objectMapper;
         this.config = config;
         this.organizationRepository = organizationRepository;
+        this.eduidIdpEntityIdentifiers = Stream.of(eduidIdpEntityId.split(",")).map(String::trim).toList();
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -272,7 +277,22 @@ public class ConnectionController implements UserAccessRights {
                 .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
                 .toList();
             data.put("allowedEntities", newAllowedEntities);
-            manage.saveIdentityProvider(provider);
+            manage.saveIdentityProvider(idpData);
+        });
+
+        eduidIdpEntityIdentifiers.forEach(eduidIdpEntityId -> {
+            Map<String, Object> eduidIdpProvider = manage.identityProviderByEntityID(eduidIdpEntityId);
+            Map<String, Object> data = getData(eduidIdpProvider);
+            List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
+                .getOrDefault("allowedEntities", new ArrayList<>());
+            List<Map<String, String>> newAllowedEntities = new ArrayList<>(allowedEntities.stream()
+                .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
+                .toList());
+            if (connection.isEduIdAccessEnabled()) {
+                newAllowedEntities.add(Map.of("name", entityId));
+            }
+            data.put("allowedEntities", newAllowedEntities);
+            manage.saveIdentityProvider(eduidIdpProvider);
         });
 
         if (config.isTestEnvironment()) {
