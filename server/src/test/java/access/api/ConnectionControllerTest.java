@@ -38,9 +38,9 @@ class ConnectionControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         Map<String, Object> metaData = Map.of(
-                "entityID", "https://engine.test",
-                "redirectUrls", List.of("https://redirect.url"),
-                "grantTypes", List.of("authorization_code")
+            "entityID", "https://engine.test",
+            "redirectUrls", List.of("https://redirect.url"),
+            "grantTypes", List.of("authorization_code")
         );
 
         Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp);
@@ -50,14 +50,14 @@ class ConnectionControllerTest extends AbstractTest {
         connectionData.put("application", Map.of("id", application.getId()));
 
         Connection savedConnection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .post("/api/v1/connections")
-                .as(Connection.class);
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .post("/api/v1/connections")
+            .as(Connection.class);
 
         Connection connectionFromDB = connectionRepository.findById(savedConnection.getId()).get();
         assertEquals(connection.getName(), connectionFromDB.getName());
@@ -69,8 +69,8 @@ class ConnectionControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         Map<String, Object> metaData = Map.of(
-                "entityID", "https://engine.test",
-                "grants", List.of("authorization_code")
+            "entityID", "https://engine.test",
+            "grants", List.of("authorization_code")
         );
 
         Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp);
@@ -80,15 +80,15 @@ class ConnectionControllerTest extends AbstractTest {
         connectionData.put("application", Map.of("id", application.getId()));
 
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .post("/api/v1/connections")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .post("/api/v1/connections")
+            .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -102,14 +102,14 @@ class ConnectionControllerTest extends AbstractTest {
         connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
 
         Connection savedConnection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .put("/api/v1/connections")
-                .as(Connection.class);
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(Connection.class);
 
         Connection connectionFromDB = connectionRepository.findById(savedConnection.getId()).get();
         assertEquals(connection.getName(), connectionFromDB.getName());
@@ -131,15 +131,15 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForGetProvider(EntityType.saml20_idp, "7");
 
         Map<String, Object> savedConnection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .put("/api/v1/connections")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
         String manageIdentifier = (String) savedConnection.get("manageIdentifier");
         assertNotNull(manageIdentifier);
         assertEquals(0, savedConnection.get("manageVersion"));
@@ -149,15 +149,15 @@ class ConnectionControllerTest extends AbstractTest {
         connection.setManageIdentifier(manageIdentifier);
         stubForGetProvider(connection);
         Connection connectionFromFind = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", connection.getId())
-                .get("/api/v1/connections/{connectionId}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connection.getId())
+            .get("/api/v1/connections/{connectionId}")
+            .as(new TypeRef<>() {
+            });
         assertEquals(manageIdentifier, connectionFromFind.getManageIdentifier());
         assertEquals("https://engine.test.surfconext.nl", connectionFromFind.getMetaData().get("entityID"));
     }
@@ -191,11 +191,11 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForGetProvider(connection);
         Map<String, String> manageResponse = Map.of("id", "1");
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
         stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
 
         List<Map<String, Object>> existingChangeRequests = getChangeRequests();
         Map<String, Object> existingChangeRequest = existingChangeRequests.getFirst();
@@ -205,15 +205,15 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForGetChangeRequests(existingChangeRequests);
 
         Map<String, Object> savedConnection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .put("/api/v1/connections")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
         String manageIdentifier = (String) savedConnection.get("manageIdentifier");
         assertNotNull(manageIdentifier);
         assertEquals(1, savedConnection.get("manageVersion"));
@@ -242,7 +242,7 @@ class ConnectionControllerTest extends AbstractTest {
         metaData.put("claimsInIdToken", true);
 
         Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
-        metaData.put("arp", ManageData .getData(provider).get("arp"));
+        metaData.put("arp", ManageData.getData(provider).get("arp"));
 
         //Otherwise rest-assured does not deserialize the Application
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
@@ -253,24 +253,24 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForGetProvider(connection);
         Map<String, String> manageResponse = Map.of("id", "1");
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
         stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
         //This ensures a new change request is created
         super.stubForGetChangeRequests(List.of());
 
         Map<String, Object> savedConnection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connectionData)
-                .put("/api/v1/connections")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
         String manageIdentifier = (String) savedConnection.get("manageIdentifier");
         assertNotNull(manageIdentifier);
         assertEquals(1, savedConnection.get("manageVersion"));
@@ -283,16 +283,16 @@ class ConnectionControllerTest extends AbstractTest {
         Connection connection = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
 
         Map<String, Map<String, Object>> data = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("manageType", connection.getProtocol())
-                .pathParam("manageIdentifier", connection.getManageIdentifier())
-                .get("/api/v1/connections/{manageType}/{manageIdentifier}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("manageType", connection.getProtocol())
+            .pathParam("manageIdentifier", connection.getManageIdentifier())
+            .get("/api/v1/connections/{manageType}/{manageIdentifier}")
+            .as(new TypeRef<>() {
+            });
 
         assertEquals(connection.getId().intValue(), data.get("connection").get("id"));
     }
@@ -301,17 +301,36 @@ class ConnectionControllerTest extends AbstractTest {
     void find404() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("manageType", EntityType.oidc10_rp)
-                .pathParam("manageIdentifier", "nope")
-                .get("/api/v1/connections/{manageType}/{manageIdentifier}")
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("manageType", EntityType.oidc10_rp)
+            .pathParam("manageIdentifier", "nope")
+            .get("/api/v1/connections/{manageType}/{manageIdentifier}")
+            .then()
+            .statusCode(HttpStatus.NOT_FOUND.value());
 
+    }
+
+    @Test
+    void findRelyingParties() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(ADMIN_SUB);
+
+        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
+
+        List<Map<String, Object>> connections = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
+            .get("/api/v1/connections/organization/{organizationId}")
+            .as(new TypeRef<>() {
+            });
+        assertEquals(2, connections.size());
     }
 
     @SneakyThrows
@@ -321,20 +340,20 @@ class ConnectionControllerTest extends AbstractTest {
 
         String provider = IOUtils.toString(new ClassPathResource("/manage/playground_rp.json").getInputStream(), Charset.defaultCharset());
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/" + MANAGE_IDENTIFIER)).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(provider)));
+            .withHeader("Content-Type", "application/json")
+            .withBody(provider)));
         stubForGetChangeRequests(getChangeRequests());
 
         Map<String, Object> connection = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_PROD))
-                .get("/api/v1/connections/{connectionId}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_PROD))
+            .get("/api/v1/connections/{connectionId}")
+            .as(new TypeRef<>() {
+            });
         //See /manage/playground_rp.json
         assertEquals(244, connection.get("manageVersion"));
         assertEquals(ConnectionStatus.PROD_READY.name(), connection.get("status"));
@@ -349,19 +368,19 @@ class ConnectionControllerTest extends AbstractTest {
         String body = IOUtils.toString(new ClassPathResource("/manage/change_requests.json").getInputStream(), Charset.defaultCharset());
         String url = String.format("/manage/api/internal/change-requests/%s/%s", EntityType.oidc10_rp, MANAGE_IDENTIFIER);
         stubFor(get(urlPathMatching(url)).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)));
 
         List<Map<String, Object>> changeRequests = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_PROD))
-                .get("/api/v1/connections/change-requests/{connectionId}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_PROD))
+            .get("/api/v1/connections/change-requests/{connectionId}")
+            .as(new TypeRef<>() {
+            });
         assertEquals(2, changeRequests.size());
     }
 
@@ -369,15 +388,15 @@ class ConnectionControllerTest extends AbstractTest {
     void resetSecret() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Map<String, String> newSecret = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_TEST))
-                .put("/api/v1/connections/reset-secret/{connectionId}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", seedIdentifiers.get(BUDDY_CHECK_TEST))
+            .put("/api/v1/connections/reset-secret/{connectionId}")
+            .as(new TypeRef<>() {
+            });
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
         assertEquals(newSecret.get("secret"), connection.getMetaData().get("secret"));
     }
@@ -388,15 +407,15 @@ class ConnectionControllerTest extends AbstractTest {
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_TEST);
 
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", connectionId)
-                .delete("/api/v1/connections/{connectionId}")
-                .then()
-                .statusCode(204);
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connectionId)
+            .delete("/api/v1/connections/{connectionId}")
+            .then()
+            .statusCode(204);
 
         Optional<Connection> optionalConnection = connectionRepository.findById(connectionId);
         assertFalse(optionalConnection.isPresent());
@@ -411,15 +430,15 @@ class ConnectionControllerTest extends AbstractTest {
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_TEST);
 
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", connectionId)
-                .delete("/api/v1/connections/{connectionId}")
-                .then()
-                .statusCode(HttpStatus.FORBIDDEN.value());
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connectionId)
+            .delete("/api/v1/connections/{connectionId}")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value());
 
         assertTrue(connectionRepository.findById(connectionId).isPresent());
     }
@@ -432,15 +451,15 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForDeleteProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER);
 
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", connectionId)
-                .delete("/api/v1/connections/{connectionId}")
-                .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connectionId)
+            .delete("/api/v1/connections/{connectionId}")
+            .then()
+            .statusCode(HttpStatus.NO_CONTENT.value());
 
         Optional<Connection> optionalConnection = connectionRepository.findById(connectionId);
         assertFalse(optionalConnection.isPresent());
@@ -454,42 +473,42 @@ class ConnectionControllerTest extends AbstractTest {
 
         Map<String, String> jiraResponse = Map.of("key", "CTX-1000");
         stubFor(post(urlPathMatching("/issue")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(jiraResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(jiraResponse))));
 
         Map<String, String> manageResponse = Map.of("id", "1");
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(manageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
 
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/null")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(Map.of("data", Map.of("entityid", "https://mock-rp"))))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(Map.of("data", Map.of("entityid", "https://mock-rp"))))));
         stubForGetProvider(EntityType.saml20_idp, "7");
         Map<String, Object> postManageResponse = Map.of(
-                "id", UUID.randomUUID().toString(),
-                "version", 1,
-                "data", Map.of(
-                        "eid", 9L,
-                        "state", State.prodaccepted.name(),
-                        "metaDataFields", Map.of("secret", "secret")));
+            "id", UUID.randomUUID().toString(),
+            "version", 1,
+            "data", Map.of(
+                "eid", 9L,
+                "state", State.prodaccepted.name(),
+                "metaDataFields", Map.of("secret", "secret")));
         stubFor(post(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(postManageResponse))));
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(postManageResponse))));
         Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
         super.stubForSaveIdentityProvider(idp);
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(connection)
-                .put("/api/v1/connections/update-request-production-status")
-                .then()
-                .statusCode(HttpStatus.CREATED.value());
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connection)
+            .put("/api/v1/connections/update-request-production-status")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
 
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
         assertEquals(State.prodaccepted, connectionFromDB.getState());
@@ -502,25 +521,25 @@ class ConnectionControllerTest extends AbstractTest {
         Long connectionId = seedIdentifiers.get(BUDDY_CHECK_PROD);
 
         List<Connection> connections = List.of(
-                connection(EntityType.saml20_sp, "4"),
-                connection(EntityType.oidc10_rp, "5")
+            connection(EntityType.saml20_sp, "4"),
+            connection(EntityType.oidc10_rp, "5")
         );
         List<Map<String, Object>> identityProviders = localManage.identityProvidersByAllowedConnections(connections);
         String body = objectMapper.writeValueAsString(identityProviders);
         stubFor(post(urlEqualTo("/manage/api/internal/delete-consequences")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)));
 
         List<Map<String, Object>> providers = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("connectionId", connectionId)
-                .get("/api/v1/connections/identity-providers-allowed-connections/{connectionId}")
-                .as(new TypeRef<>() {
-                });
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connectionId)
+            .get("/api/v1/connections/identity-providers-allowed-connections/{connectionId}")
+            .as(new TypeRef<>() {
+            });
 
         assertEquals(2, providers.size());
     }

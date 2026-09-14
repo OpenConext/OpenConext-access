@@ -90,7 +90,7 @@ const Organization = () => {
             return null;
         }
         return (
-            <Alert>
+            <Alert variant={"info"}>
                 <InfoIcon/>
                 <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.alertInfo"))}}/>
             </Alert>

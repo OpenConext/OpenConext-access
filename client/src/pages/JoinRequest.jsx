@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {useNavigate, useParams} from "react-router";
 import {newJoinRequest, organizationLightById} from "../api/index.js";
-import {Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Spinner} from "@surfnet/curve-react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -41,14 +41,15 @@ const JoinRequest = ({refreshUser}) => {
     }
 
     const createJoinRequest = () => {
+        setJoinRequestCreated(true);
         newJoinRequest({
             organizationId: organisationId,
             message: message,
             language: I18n.locale,
         }).then(() => {
-            setJoinRequestCreated(true);
             setFlash(I18n.t("joinRequest.flash", {name: organization.name}));
-            refreshUser();
+            refreshUser(() => navigate("/relax"));
+
         }).catch(() => {
             setDuplicateJoinRequest(true);
         });
@@ -56,46 +57,33 @@ const JoinRequest = ({refreshUser}) => {
 
     return (
         <div className="join-request-container">
-            <h2 className="text-[length:var(--text-xl-font-size)]">{organization.name}</h2>
-            <p dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(I18n.t("joinRequest.info", {name: organization.name}))
-            }}/>
-            <InputField name={I18n.t("joinRequest.optionalMessage")}
-                        info={I18n.t("joinRequest.optionalMessageInfo")}
-                        onChange={e => setMessage(e.target.value)}
-                        value={message}
-                        multiline={true}
-                        placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
-            <section className="actions">
-                <Button variant="outline"
-                        onClick={() => navigate("/landing")}>
-                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
-                </Button>
-                <Button disabled={joinRequestCreated || duplicateJoinRequest}
-                        onClick={() => createJoinRequest()}>
-                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("joinRequest.requestAccess"))}}/>
-                </Button>
-            </section>
-            {joinRequestCreated && <Dialog open={true}>
-                <DialogContent showCloseButton={false}>
-                    <DialogHeader>
-                        <DialogTitle>{I18n.t("joinRequest.modal.title")}</DialogTitle>
-                    </DialogHeader>
-                    <p dangerouslySetInnerHTML={{
-                        __html: sanitize(I18n.t("joinRequest.modal.success", {name: organization.name}))
-                    }}/>
-                    <DialogFooter>
-                        <Button onClick={() => navigate("/home")}>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("joinRequest.modal.proceed"))}}/>
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>}
-            {duplicateJoinRequest && <section className="error">
-                <p className={"error"} dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("joinRequest.duplicate", {name: organization.name}))
+            <div className="join-request-inner">
+                <h2 className="text-[length:var(--text-xl-font-size)]">{organization.name}</h2>
+                <p dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("joinRequest.info", {name: organization.name}))
                 }}/>
-            </section>}
+                <InputField name={I18n.t("joinRequest.optionalMessage")}
+                            info={I18n.t("joinRequest.optionalMessageInfo")}
+                            onChange={e => setMessage(e.target.value)}
+                            value={message}
+                            multiline={true}
+                            placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
+                <section className="actions">
+                    <Button variant="outline"
+                            onClick={() => navigate("/landing")}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
+                    </Button>
+                    <Button disabled={joinRequestCreated || duplicateJoinRequest}
+                            onClick={() => createJoinRequest()}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("joinRequest.requestAccess"))}}/>
+                    </Button>
+                </section>
+                {duplicateJoinRequest && <section className="error">
+                    <p className={"error"} dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("joinRequest.duplicate", {name: organization.name}))
+                    }}/>
+                </section>}
+            </div>
         </div>
 
     )

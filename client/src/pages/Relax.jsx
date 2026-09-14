@@ -3,8 +3,7 @@ import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
-import {Link, useNavigate} from "react-router";
-import RelaxIcon from "../icons/undraw/relax.svg";
+import {useNavigate} from "react-router";
 import DOMPurify from "dompurify";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
@@ -30,19 +29,13 @@ const Relax = () => {
 
     return (
         <div className="relax-container">
-            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
-            <div>
+            <div className="relax-container-inner">
+                <h1>{I18n.t("userHome.infoJoinRequestHeader")}</h1>
                 <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("userHome.infoJoinRequest",
-                        {name: user.joinRequests[0].organization.name}))
+                        {name: user.joinRequests[0].organization.name, email: user.email}))
                 }}/>
-            </div>
-            <RelaxIcon/>
-            <div className="nudge-landing">
-                <span>{I18n.t("userHome.backToLanding")}</span>
-                <Link to={"/landing"} className={"actionable"}>
-                    <span>{I18n.t("userHome.backToLandingLink")}</span>
-                </Link>
+                <p>{I18n.t("userHome.close")}</p>
             </div>
         </div>
     )

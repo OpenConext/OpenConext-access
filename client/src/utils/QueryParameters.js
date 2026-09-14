@@ -6,7 +6,7 @@ export function replaceQueryParameter(windowLocationSearch, name, value) {
     return "?" + urlSearchParams.toString();
 }
 
-export function getParameterByName(name, windowLocationSearch) {
+export function getParameterByName(name, windowLocationSearch = window.location.search) {
     const urlSearchParams = new URLSearchParams(windowLocationSearch);
     return urlSearchParams.get(name);
 }

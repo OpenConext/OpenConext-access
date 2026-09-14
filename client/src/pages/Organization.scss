@@ -9,6 +9,11 @@ div.organization-outer-container {
     flex-direction: column;
     height: 100%;
 
+
+    [data-slot="alert"] {
+        margin: 15px 15px 5px 15px;
+        width: 92%;
+    }
     &.with-applications {
         background-color: transparent;
     }

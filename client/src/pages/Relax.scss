@@ -2,21 +2,25 @@
 @use "../index";
 
 .relax-container {
-    padding: 60px 50px 0 50px;
-    width: 50%;
+    padding: 0 50px 0 50px;
+    min-height: 100vh;
+    background-color: white;
     display: flex;
-    flex-direction: column;
-    gap: 25px;
 
     @include index.page-media;
 
-    .nudge-landing {
+    .relax-container-inner {
+        margin: 50px auto 0 auto;
+        width: 460px;
         display: flex;
-        gap: 3px;
+        flex-direction: column;
+        gap: 25px;
+
     }
-    svg {
-        width: 180px;
-        height: auto;
-        margin: 40px 0 25px;
+
+    h1 {
+        font-size: var(--text-2xl-font-size, 30px);
+        font-weight: var(--font-weight-semibold, 600);
+        line-height: var(--text-2xl-line-height, 36px); /* 120% */
     }
 }

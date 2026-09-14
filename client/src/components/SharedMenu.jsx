@@ -62,7 +62,8 @@ export const SharedMenu = () => {
         }));
     }
 
-    if (currentLocation.pathname === "/landing") {
+    if (currentLocation.pathname === "/landing" || currentLocation.pathname.startsWith("/join")
+        || currentLocation.pathname.startsWith("/relax")) {
         return null;
     }
 

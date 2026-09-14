@@ -1,8 +1,8 @@
 import "./UserHome.scss";
 import React, {useEffect} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Button, Card, CardContent, CardDescription, CardTitle} from "@surfnet/curve-react";
-import {ArrowRightIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, AlertTitle, Button, Card, CardContent, CardDescription, CardTitle} from "@surfnet/curve-react";
+import {ArrowRightIcon, HourglassIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Link, Navigate} from "react-router";
@@ -11,6 +11,7 @@ import {useShallow} from "zustand/react/shallow";
 import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
 import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
+import {getParameterByName} from "../utils/QueryParameters.js";
 
 const UserHome = () => {
 
@@ -46,6 +47,19 @@ const UserHome = () => {
         }));
     }
 
+    const alertInfo = () => {
+        const isNew = getParameterByName("new");
+        if (isNew) {
+            return (
+                <Alert variant={"info"}>
+                    <HourglassIcon/>
+                    <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationTitle", {name: currentOrganization?.name}))}}/>
+                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationDescription"))}}/>
+                </Alert>
+            )
+        }
+    }
+
     const welcomeCard = (key, Illustration, menuItem, path, linkColorClass) => (
         <Card key={key}>
             <CardContent>
@@ -64,17 +78,18 @@ const UserHome = () => {
             </CardContent>
         </Card>
     );
-
+    const isVendor = isEmpty(currentOrganization?.manageIdentifier);
     return (
         <div className="home-container">
+            {alertInfo()}
             <div className="home-welcome">
                 <h1 className="text-[length:var(--text-2xl-font-size)] m-0">{I18n.t("userHome.title")}</h1>
                 <p>{I18n.t("userHome.subTitle")}</p>
             </div>
             <div className="info-container">
                 {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
-                {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
-                {welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
+                {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
+                {!isVendor && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
             </div>
         </div>
     )

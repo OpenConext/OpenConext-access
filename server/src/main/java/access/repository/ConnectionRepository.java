@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +21,8 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     @EntityGraph(attributePaths = {"application.organization"})
     Optional<Connection> findByProtocolAndManageIdentifier(EntityType entityType, String manageIdentifier);
+
+    List<Connection> findByProtocolAndApplicationOrganizationId(EntityType entityType, Long organizationId);
 
     @Modifying
     @Query(value = "DELETE FROM connections WHERE id = ?1", nativeQuery = true)

@@ -52,7 +52,7 @@ const ApplicationOverview = ({accessible}) => {
                 activeMenuItem: accessible ? mainMenuItems.accessibleApps : mainMenuItems.catalogue
             });
 
-            publicServiceProviders(currentOrganization.manageIdentifier)
+            publicServiceProviders(currentOrganization?.manageIdentifier)
                 .then(res => {
                     //Scope the services on the allowed-entities of the IdP of the user
                     const openConnectionRequests = (currentOrganization.changeRequests || [])

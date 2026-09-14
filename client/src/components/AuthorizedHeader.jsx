@@ -14,7 +14,8 @@ export const AuthorizedHeader = ({setIsAuthenticated}) => {
     const currentLocation = useLocation();
     const logoutUser = useLogout();
 
-    if (currentLocation.pathname === "/landing") {
+    if (currentLocation.pathname === "/landing" || currentLocation.pathname.startsWith("/join")
+        || currentLocation.pathname.startsWith("/relax")) {
         return (
             <div className="guest-authorized-header">
                 <Button onClick={() => logoutUser(null, setIsAuthenticated)}

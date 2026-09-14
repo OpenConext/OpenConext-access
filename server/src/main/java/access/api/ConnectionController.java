@@ -21,6 +21,7 @@ import access.model.State;
 import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.ConnectionRepository;
+import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import tools.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -80,6 +81,7 @@ public class ConnectionController implements UserAccessRights {
     private final ConnectionProviderConverter connectionProviderConverter;
     private final ObjectMapper objectMapper;
     private final Config config;
+    private final OrganizationRepository organizationRepository;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
@@ -88,7 +90,7 @@ public class ConnectionController implements UserAccessRights {
                                 JiraClient jiraClient,
                                 ConnectionProviderConverter connectionProviderConverter,
                                 ObjectMapper objectMapper,
-                                Config config) {
+                                Config config, OrganizationRepository organizationRepository) {
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
@@ -97,6 +99,7 @@ public class ConnectionController implements UserAccessRights {
         this.connectionProviderConverter = connectionProviderConverter;
         this.objectMapper = objectMapper;
         this.config = config;
+        this.organizationRepository = organizationRepository;
     }
 
     private List<CharacterRule> initPasswordGeneratorRules() {
@@ -223,6 +226,26 @@ public class ConnectionController implements UserAccessRights {
 
         List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
         return ResponseEntity.ok(changeRequests);
+    }
+
+    @SneakyThrows
+    @GetMapping(value = "/organization/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Connection>> relyingPartiesByOrganization(User user, @PathVariable("organizationId") Long organizationId) {
+        List<Connection> connections = connectionRepository.findByProtocolAndApplicationOrganizationId(EntityType.oidc10_rp, organizationId);
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+        user = reinitializeUser(user, userRepository);
+        confirmOrganizationMembership(user, organization, Authority.MEMBER);
+
+        connections.forEach(connection -> {
+            if (StringUtils.hasText(connection.getManageIdentifier())) {
+                Map<String, Object> provider = manage.providerByConnection(connection);
+                if (connection.mergeMetaData(provider, false)) {
+                    connectionRepository.save(connection);
+                }
+            }
+        });
+
+        return ResponseEntity.ok(connections);
     }
 
     @PutMapping(value = "/reset-secret/{connectionId}", produces = MediaType.APPLICATION_JSON_VALUE)
