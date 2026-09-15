@@ -48,7 +48,6 @@ export const AppInformation = ({
     const [initial, setInitial] = useState(true);
     const [loading, setLoading] = useState(false);
     const [focusedId, setFocusedId] = useState(null);
-    const [checks, setChecks] = useState(false);
 
     const inputRef = useRef(null);
 
@@ -80,7 +79,7 @@ export const AppInformation = ({
     const isDisabled = sectionName => {
         const isLogoSectionInvalid = !logoSectionValid(application);
         const isContactSectionInvalid = !contactSectionValid(application);
-        const isPrivacySectionInvalid = !privacySectionValid(privacyInfo, application) || !checks;
+        const isPrivacySectionInvalid = !privacySectionValid(privacyInfo, application) || !application.fairUseTermsAccepted;
         switch (sectionName) {
             case sections.logo: {
                 return isLogoSectionInvalid;
@@ -107,7 +106,7 @@ export const AppInformation = ({
                 return !contactSectionValid(application);
             }
             case sections.privacy: {
-                return !privacySectionValid(privacyInfo, application)
+                return !privacySectionValid(privacyInfo, application) || !application.fairUseTermsAccepted;
             }
             case sections.overview: {
                 return true;
@@ -121,7 +120,7 @@ export const AppInformation = ({
             section === sections.contact ? sections.privacy : section === sections.privacy ? sections.overview : sections.overview);
         const proceed = (section === sections.logo && logoSectionValid(application)) ||
             (section === sections.contact && contactSectionValid(application)) ||
-            (section === sections.privacy && privacySectionValid(privacyInfo, application) && checks);
+            (section === sections.privacy && privacySectionValid(privacyInfo, application) && application.fairUseTermsAccepted);
         if (proceed) {
             setLoading(true);
             let proceedToOverview = false;
@@ -161,6 +160,13 @@ export const AppInformation = ({
     const updateApplicationLogoUrl = (value) => {
         const newApplication = {...application, logoUrl: value};
         setApplication(newApplication);
+    }
+
+    const acceptFairUseTerms = () => {
+        if (application.fairUseTermsAccepted) {
+            return;
+        }
+        setApplication({...application, fairUseTermsAccepted: true});
     }
 
     const tagOption = tag => {
@@ -290,8 +296,9 @@ export const AppInformation = ({
                         <p>{I18n.t("application.terms")}</p>
                         <div className="checkbox-container">
                             <Checkbox id="application-terms"
-                                      checked={checks}
-                                      onCheckedChange={() => setChecks(!checks)}
+                                      checked={application.fairUseTermsAccepted}
+                                      disabled={application.fairUseTermsAccepted}
+                                      onCheckedChange={acceptFairUseTerms}
                             />
                             <label htmlFor="application-terms"
                                    dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
@@ -300,7 +307,7 @@ export const AppInformation = ({
                             {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
                                 .map(check => <li key={check}>{check}</li>)}
                         </ul>
-                        {(!initial && !checks) &&
+                        {(!initial && !application.fairUseTermsAccepted) &&
                             <ErrorIndicator msg={I18n.t("connection.privacy.termsAreRequired")}
                             />
                         }

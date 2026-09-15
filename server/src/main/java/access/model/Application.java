@@ -48,6 +48,9 @@ public class Application implements NameHolder {
     @Column(name = "sections_complete")
     private int sectionsComplete;
 
+    @Column(name = "fair_use_terms_accepted")
+    private boolean fairUseTermsAccepted;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -127,6 +130,7 @@ public class Application implements NameHolder {
         this.target = applicationData.target;
         this.logoUrl = applicationData.logoUrl;
         this.status = applicationData.status;
+        this.fairUseTermsAccepted = this.fairUseTermsAccepted || applicationData.fairUseTermsAccepted;
     }
 
 }
