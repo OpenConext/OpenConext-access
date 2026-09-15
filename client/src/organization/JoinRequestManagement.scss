@@ -15,15 +15,6 @@
         align-items: center;
     }
 
-    .mod-entities {
-        width: 75%;
-        margin: 0;
-        @media (max-width: $full-mode) {
-            width: 100%;
-        }
-
-    }
-
     table.joinRequestManagement {
         thead {
             th.user__name {

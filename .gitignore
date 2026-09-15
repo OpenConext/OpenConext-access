@@ -40,7 +40,6 @@ dependency.tree
 NOTES.txt
 TODO*.md
 spieldata
-.run/
 queries
 pom.xml.versionsBackup
 dependency.tree

@@ -97,7 +97,6 @@
 @mixin form-content {
     display: flex;
     flex-direction: column;
-    background-color: #f7f9fa;
     padding: $page-padding;
 }
 
@@ -178,7 +177,7 @@ h1.large {
 }
 
 .card {
-    background: white;
+
     border: 1px solid var(--border);
     border-radius: 10px;
     flex-direction: column;

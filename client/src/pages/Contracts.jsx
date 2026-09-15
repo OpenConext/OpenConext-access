@@ -5,7 +5,7 @@ import I18n from "../locale/I18n";
 import {Spinner} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
-import {CheckCircleIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
+import {CheckIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {unsignedContracts, updateContract} from "../api";
 import {isEmpty} from "../utils/Utils.js";
@@ -54,7 +54,7 @@ export const Contracts = () => {
             <div className="dropdown-menu">
                 <ul>
                     <li onClick={() => doSignContract(contract, true)}>
-                        <SignIcon/>
+                        <SignIcon weight={"regular"} size={"20px"}/>
                         <span>{I18n.t("contracts.sign")}</span>
                     </li>
                 </ul>

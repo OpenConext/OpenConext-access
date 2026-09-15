@@ -6,6 +6,7 @@ import {isEmpty} from "../utils/Utils.js";
 import {useNavigate} from "react-router";
 import DOMPurify from "dompurify";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {Button} from "@surfnet/curve-react";
 
 const Relax = () => {
     const user = useAppStore(state => state.user);
@@ -36,6 +37,9 @@ const Relax = () => {
                         {name: user.joinRequests[0].organization.name, email: user.email}))
                 }}/>
                 <p>{I18n.t("userHome.close")}</p>
+                <Button onClick={() => navigate("/home")}>
+                    {I18n.t("userHome.toAccess")}
+                </Button>
             </div>
         </div>
     )

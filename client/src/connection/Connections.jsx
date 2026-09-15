@@ -1,22 +1,37 @@
 import "./Connections.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {Alert, AlertAction, AlertDescription, Badge, Button, Checkbox, RadioGroup, RadioGroupItem, Spinner, Switch, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
 import {
+    ArrowRightIcon as ArrowRight,
+    CaretDownIcon as CaretDown,
+    CaretRightIcon as ArrowRightIcon,
+    CircleDashedIcon as PendingIcon,
     InfoIcon,
     TrashIcon,
     WarningIcon,
     XCircleIcon,
-    CaretRightIcon as ArrowRightIcon,
-    CaretDownIcon as CaretDown
+    XIcon as CloseIcon
 } from "@phosphor-icons/react";
+import {
+    Alert,
+    AlertAction,
+    AlertDescription,
+    Badge,
+    Button,
+    Checkbox,
+    RadioGroup,
+    RadioGroupItem,
+    Spinner,
+    Switch,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
+} from "@surfnet/curve-react";
 import "jsondiffpatch/formatters/styles/html.css";
-
-import {XIcon as CloseIcon} from "@phosphor-icons/react";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
+import {isEmpty, sanitize, stopEvent} from "../utils/Utils.js";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
@@ -39,7 +54,6 @@ import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {connectOptions, convertClientConnectionToServer, convertServerConnectionToClient, generateOIDCClientID, sections, visibilities} from "../utils/Connection.js";
 import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
-import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import SwitchField from "../components/SwitchField.jsx";
 import {useNavigate} from "react-router";
@@ -96,7 +110,7 @@ export const ConnectionsOverviewList = ({application, initConnection, viewConnec
         return (
             <div className="connections-overview-list">
                 <div className="connection-overview-item create" onClick={() => initConnection()}>
-                    <span className="placeholder-icon"/>
+                    <PendingIcon className="pending" size={20} weight="regular"/>
                     <span className="name">{I18n.t("connection.overviewCards.createConnection")}</span>
                     <ArrowRightIcon/>
                 </div>
@@ -696,8 +710,7 @@ export const Connections = ({
                             </div>
                         </div>
                         <div className="redirect-urls-container">
-                            <span className="label">{I18n.t("connection.redirectUrls")}
-                                <sup className="required left-outline">*</sup>
+                            <span className="label no-margin">{I18n.t("connection.redirectUrls")}
                                 {changeRequestsKeys.includes("redirectUrls") && <Tooltip>
                                     <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
@@ -716,9 +729,10 @@ export const Connections = ({
                                                 <TrashIcon/>
                                             </Button>
                                             <Tooltip>
-                                                <TooltipTrigger render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
-                                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
-                                                </Button>}/>
+                                                <TooltipTrigger
+                                                    render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
+                                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
+                                                    </Button>}/>
                                                 <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
                                             </Tooltip>
                                         </div>
@@ -730,8 +744,8 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <button type="button" className="add-link link-button mt-3.75!"
-                                    onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</button>
+                            <Button variant="link"
+                                    onClick={e => addRedirectURL(e)}>{I18n.t("connection.addRedirectUrl")}</Button>
                         </div>
                         {(!initial && isEmpty(connection.redirectUrls.filter(redirectUrl => !isEmpty(redirectUrl.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
@@ -858,7 +872,7 @@ export const Connections = ({
                                             adjustMargin={true}/>}
 
                         <div className="acs-locations-container">
-                            <span className="label">{I18n.t("connection.acsLocations")}</span>
+                            <span className="label no-margin">{I18n.t("connection.acsLocations")}</span>
                             <div className="acs-locations">
                                 {connection.acsLocations.map((value, index) =>
                                     <div className="acs-location" key={index}>
@@ -872,9 +886,10 @@ export const Connections = ({
                                                 <TrashIcon/>
                                             </Button>
                                             <Tooltip>
-                                                <TooltipTrigger render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
-                                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
-                                                </Button>}/>
+                                                <TooltipTrigger
+                                                    render={<Button onClick={() => createAndClickLink(`https://www.ssllabs.com/ssltest/analyze.html?d=${domainName(value)}`)}>
+                                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.testSection"))}}/>
+                                                    </Button>}/>
                                                 <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.sslGradeTooltip"))}}/></TooltipContent>
                                             </Tooltip>
 
@@ -887,8 +902,10 @@ export const Connections = ({
                                     </div>
                                 )}
                             </div>
-                            <button type="button" className="add-link link-button mt-3.75!"
-                                    onClick={e => addACSLocation(e)}>{I18n.t("connection.addACSLocation")}</button>
+                            <Button variant="link"
+                                    onClick={e => addACSLocation(e)}>
+                                {I18n.t("connection.addACSLocation")}
+                            </Button>
                         </div>
                         {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
@@ -1277,7 +1294,7 @@ export const Connections = ({
                 <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
                 {action && <AlertAction onClick={action}>
                     <Button size="sm" variant="outline">{actionLabel}</Button>
-                    </AlertAction>}
+                </AlertAction>}
 
             </Alert>
         )
@@ -1452,8 +1469,8 @@ export const Connections = ({
         const showOverviewButton = section === sections.overview;
         const submitTxt = (requiresChangeRequest && config.testEnvironment) ? I18n.t("connection.requiresChangeRequest") :
             section === sections.publish ? I18n.t("connection.productionStatusSection.requestProduction") :
-            section === sections.testConnection ? I18n.t("connection.productionStatusSection.doneAndContinue") :
-            isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+                section === sections.testConnection ? I18n.t("connection.productionStatusSection.doneAndContinue") :
+                    isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
         return (
             <>
                 <div className="testing-header">
@@ -1513,18 +1530,20 @@ export const Connections = ({
                                 {!showOverviewButton &&
                                     <>
                                         <div className="sub-actions">
-                                            <Button variant="outline"
-                                                    onClick={section === sections.publish ? saveAndPostponePublish : backToConnections}>
-                                                <span dangerouslySetInnerHTML={{__html: sanitize(section === sections.publish ?
-                                                    I18n.t("connection.productionStatusSection.postponePublish") :
-                                                    I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))}}/>
-                                            </Button>
                                             <div className="delete-connection">
                                                 <Button variant="destructive"
                                                         onClick={() => doDeleteConnection(true)}>
                                                     <TrashIcon/>
                                                 </Button>
                                             </div>
+                                            <Button variant="outline"
+                                                    onClick={section === sections.publish ? saveAndPostponePublish : backToConnections}>
+                                                <span dangerouslySetInnerHTML={{
+                                                    __html: sanitize(section === sections.publish ?
+                                                        I18n.t("connection.productionStatusSection.postponePublish") :
+                                                        I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))
+                                                }}/>
+                                            </Button>
                                         </div>
                                         <Button disabled={!valid}
                                                 onClick={() => storeAndNext()}>

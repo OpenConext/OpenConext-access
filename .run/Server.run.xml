@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="access-server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="access.AccessServerApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

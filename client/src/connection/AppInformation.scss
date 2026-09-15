@@ -33,7 +33,7 @@ $width-percentage: 75%;
     }
 
     .status-menu {
-        @include card(15px);
+        @include card(15px, 24px, 0);
     }
 
     .right {

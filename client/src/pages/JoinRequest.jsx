@@ -7,7 +7,6 @@ import {newJoinRequest, organizationLightById} from "../api/index.js";
 import {Button, Spinner} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import InputField from "../components/InputField.jsx";
-import {mainMenuItems} from "../utils/MenuItems.js";
 import {sanitize} from "../utils/Utils";
 
 const JoinRequest = ({refreshUser}) => {
@@ -24,12 +23,6 @@ const JoinRequest = ({refreshUser}) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        useAppStore.setState({
-            breadcrumbPaths: [
-                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                {value: I18n.t("breadCrumb.landing")}
-            ]
-        });
         organizationLightById(organisationId).then(res => {
             setOrganization(res);
             setLoading(false);

@@ -153,11 +153,13 @@ const nl = {
         nudgeLandingLink: " Je kunt een lidmaatschapsverzoek indienen of je eigen organisatie aanmaken.",
         infoJoinRequestHeader: "Aanvraag-verzoek aangevragd",
         infoJoinRequest: "Je aanvraag-verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>. Je ontvangt een e-mail op <strong>{{email}}</strong> zodra het verzoek is geaccepteerd",
-        close: "Je kunt dit venster nu sluiten",
+        close: "Je kunt dit venster nu sluiten of je kunt alvast een kijkje nemen in SURF Access.",
+        toAccess: "Naar SURF Access",
         backToLanding: "Ga terug naar ",
         backToLandingLink: " maak je eigen organisatie aan.",
         newOrganizationTitle: "Organisatie {{name}} is aangemaakt en wordt door ons gecontroleerd.",
         newOrganizationDescription: "We controleren de gegevens meestal binnen 3 werkdagen.",
+        newJoinRequestDescription: "Je verzoek om lid te worden van {{name}} is verstuurd ter goedkeuring aan de beheerder van deze organisatie.",
         title: "Welkom bij SURF Access",
         subTitle: "Jouw centrale plek voor applicaties en toegangsbeheer",
         addApps: {
@@ -585,7 +587,7 @@ const nl = {
             administrativePlaceholder: "admin",
             emailOrWebsite: "E‑mailadres of URL",
             technical: "Technisch contact",
-            technicalDisclaimer: "Moet verschillen van het administratieve contact en 1 moet een echt email zijn",
+            technicalDisclaimer: "Er moet minimaal één e-mail zijn",
             technicalPlaceholder: "technisch",
             support: "Support‑contact",
             supportDisclaimer: "Dit wordt getoond aan eindgebruikers.",
@@ -594,8 +596,7 @@ const nl = {
             otherDisclaimer: "Dit wordt getoond aan eindgebruikers.",
             otherPlaceholder: "Andere.",
             addTechnicalContact: "+ nog een contact toevoegen",
-            oneTechnicalEmail: "Eén echte e-mail is verplicht",
-            adminContactEqualsTech: "Technisch contact moet verschillen van het administratieve contact",
+            oneTechnicalEmail: "Eén echte e-mail is verplicht"
         },
         privacy: {
             label: "Privacy & beveiliging",

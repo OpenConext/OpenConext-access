@@ -145,6 +145,7 @@ export const InvitationForm = () => {
                 />
 
                 {(organization.applications.length > 0 && invitation.intendedAuthority !== authorities.ADMIN) &&
+                   <div>
                     <SelectField
                         value={organization.applications
                             .filter(app => invitation.applicationIdentifiers.includes(app.id))
@@ -161,7 +162,10 @@ export const InvitationForm = () => {
                         onChange={applicationChanged}
                         toolTip={I18n.t("invitation.applicationsTooltip")}
                         clearable={true}
-                    />}
+                    />
+                       <span className="field-tip">{I18n.t("invitation.applicationsTooltip")}</span>
+                   </div>
+                }
 
                 <InputField name={I18n.t("invitation.message")}
                             value={invitation.message}

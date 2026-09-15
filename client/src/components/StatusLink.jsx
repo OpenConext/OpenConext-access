@@ -3,7 +3,7 @@ import {
     CaretRightIcon as CaretRight,
     CircleDashedIcon as PendingIcon,
     UsersThreeIcon as TeamIcon,
-    CheckCircleIcon as CompletedIcon,
+    CheckIcon as CompletedIcon,
     WarningIcon as AlertIcon
 } from "@phosphor-icons/react";
 import React from "react";
@@ -25,13 +25,13 @@ export const StatusLink = ({status, info, action, disabled, CustomIcon}) => {
         }
         switch (status) {
             case STATUS_LINK_TYPE.ACTIVE:
-                return <CompletedIcon weight="fill" className="completed"/>
+                return <CompletedIcon weight="bold" color={"var(--primary-strong)"} size={20} className="completed"/>
             case STATUS_LINK_TYPE.PENDING:
-                return <PendingIcon className="pending"/>
+                return <PendingIcon className="pending" size={20} weight="regular"/>
             case STATUS_LINK_TYPE.ALERT:
-                return <AlertIcon weight="fill" className="alert-triangle"/>
+                return <AlertIcon weight="fill" size={20} className="alert-triangle"/>
             case STATUS_LINK_TYPE.TEAM:
-                return <TeamIcon className="team"/>
+                return <TeamIcon size={20} className="team"/>
         }
     }
 

@@ -255,7 +255,7 @@ $width-percentage: 75%;
     }
 
     .status-menu {
-        @include card(15px);
+        @include card(15px, 24px, 0);
     }
 
     .grant-types {
@@ -455,7 +455,7 @@ $width-percentage: 75%;
     display: flex;
 
     .delete-connection {
-        margin-left: 20px;
+        margin-right: 20px;
 
         svg {
             width: 22px;
@@ -527,14 +527,6 @@ $width-percentage: 75%;
 
         &.create {
             color: var(--muted-foreground);
-
-            .placeholder-icon {
-                width: 20px;
-                height: 20px;
-                flex-shrink: 0;
-                border: 1.5px dashed var(--muted-foreground);
-                border-radius: 9999px;
-            }
         }
     }
 }

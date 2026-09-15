@@ -153,11 +153,13 @@ const en = {
         nudgeLandingLink: " You can request to join one or create your own.",
         infoJoinRequestHeader: "Join request created",
         infoJoinRequest: "Your request has been sent to the administrators of <strong>{{name}}</strong>. You will receive an email at <strong>{{email}}</strong> once the request has been accepted.",
-        close: "You can now close this window.",
+        close: "You can now close this window or take a look at SURF Access.",
+        toAccess: "To SURF Access",
         backToLanding: "Go back to ",
         backToLandingLink: " create your own organisation.",
         newOrganizationTitle: "The {{name}} organization has been created and is being reviewed by us.",
         newOrganizationDescription: "We usually review the details within 3 business days.",
+        newJoinRequestDescription: "Your request to join {{name}} has been sent to this organization's administrator for approval.",
         title: "Welcome to SURF Access",
         subTitle: "Your central place for applications and access management",
         addApps: {
@@ -585,7 +587,7 @@ const en = {
             administrativePlaceholder: "admin",
             emailOrWebsite: "Email address or URL",
             technical: "Technical contact",
-            technicalDisclaimer: "Must be different from the administrative contact and must contain one real email",
+            technicalDisclaimer: "Must contain one real email",
             technicalPlaceholder: "technical",
             support: "Support contact",
             supportDisclaimer: "This will be shown to end users.",
@@ -594,8 +596,7 @@ const en = {
             otherDisclaimer: "This will be shown to end users.",
             otherPlaceholder: "other",
             addTechnicalContact: "+ add another contact",
-            oneTechnicalEmail: "One real email is required",
-            adminContactEqualsTech: "Technical contact must be different from the administrative contact",
+            oneTechnicalEmail: "One real email is required"
         },
         privacy: {
             label: "Privacy & Security",

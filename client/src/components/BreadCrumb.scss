@@ -1,6 +1,9 @@
 nav[aria-label="breadcrumbs"] {
     [data-slot="breadcrumb-page"] {
-        font-weight: 700;
         color: var(--foreground, #0a0a0a);
+    }
+    a {
+        color: var(--muted-foreground);
+        text-decoration: none;
     }
 }

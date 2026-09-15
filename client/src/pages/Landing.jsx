@@ -41,16 +41,13 @@ const Landing = ({refreshUser}) => {
     }, 850);
 
     useEffect(() => {
-        if (!isEmpty(currentOrganization?.id)) {
-            navigate(`/home?new=true`);
-        }
         useAppStore.setState({
             breadcrumbPaths: [
                 {value: I18n.t("breadCrumb.landing")}
             ]
         });
         ref.current?.focus();
-    }, [currentOrganization?.id, navigate]);
+    }, []);
 
     const onChangeSearch = e => {
         const val = e.target.value;

@@ -55,18 +55,18 @@ const ApplicationOverview = ({accessible}) => {
             publicServiceProviders(currentOrganization?.manageIdentifier)
                 .then(res => {
                     //Scope the services on the allowed-entities of the IdP of the user
-                    const openConnectionRequests = (currentOrganization.changeRequests || [])
+                    const openConnectionRequests = (currentOrganization?.changeRequests || [])
                         .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
                             changeRequest.pathUpdateType === "ADDITION")
                         .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
                         .filter(Boolean);
                     if (accessible) {
-                        const allowedAll = currentOrganization.identityProvider?.data?.allowedall;
-                        const allowedEntities = (currentOrganization.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
+                        const allowedAll = currentOrganization?.identityProvider?.data?.allowedall || false;
+                        const allowedEntities = (currentOrganization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
                         res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid))
                     } else {
                         //In the case of eduID / external user, we don't have an identityProvider
-                        const allowedEntities = (currentOrganization.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
+                        const allowedEntities = (currentOrganization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
                         res = res.filter(entity => !allowedEntities.includes(entity.data.entityid) && !openConnectionRequests.includes(entity.data.entityid))
                     }
                     res.forEach(entity => {
@@ -130,12 +130,12 @@ const ApplicationOverview = ({accessible}) => {
                         })));
                     setSource(defaultSource.value);
                     setSourceOptions(newSourceOptions);
-                    const isVendor = isEmpty(currentOrganization.manageIdentifier);
+                    const isVendor = isEmpty(currentOrganization?.manageIdentifier);
                     if (isVendor || !accessible) {
                         setLoading(false);
                     } else {
                         // LoA options from config.acrValues
-                        const stepupEntities = currentOrganization.identityProvider?.data?.stepupEntities || [];
+                        const stepupEntities = currentOrganization?.identityProvider?.data?.stepupEntities || [];
                         const defaultLoa = {value: "all", label: `${I18n.t("accessibleApps.allLoa")} (${res.length})`};
                         const newLoaOptions = [defaultLoa].concat(
                             (config.acrValues || []).map(uri => {
@@ -148,7 +148,7 @@ const ApplicationOverview = ({accessible}) => {
                         setLoaOptions(newLoaOptions);
 
                         // Consent options from disableConsent types (deduplicated)
-                        const disableConsent = currentOrganization.identityProvider?.data?.disableConsent || [];
+                        const disableConsent = currentOrganization?.identityProvider?.data?.disableConsent || [];
                         const consentTypes = [...new Set(disableConsent.map(e => e.type))];
                         const defaultConsent = {
                             value: "all",
@@ -166,7 +166,10 @@ const ApplicationOverview = ({accessible}) => {
                     }
 
                 })
-                .catch(() => {
+                .catch(e => {
+                    debugger;
+                    console.log(e);
+
                     navigate("/404");
                 });
         }, [accessible]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -182,18 +185,18 @@ const ApplicationOverview = ({accessible}) => {
             if (source !== "all") {
                 sourceHit = !isEmpty(fed) && fed === source;
             }
-            const isVendor = isEmpty(currentOrganization.manageIdentifier);
+            const isVendor = isEmpty(currentOrganization?.manageIdentifier);
             if (isVendor || !accessible) {
                 return tagHit && sourceHit;
             }
             let loaHit = true;
             if (loa !== "all") {
-                const stepupEntities = currentOrganization.identityProvider?.data?.stepupEntities || [];
+                const stepupEntities = currentOrganization?.identityProvider?.data?.stepupEntities || [];
                 loaHit = stepupEntities.some(e => e.name === sp.data.entityid && e.level === loa);
             }
             let consentHit = true;
             if (consent !== "all") {
-                const disableConsent = currentOrganization.identityProvider?.data?.disableConsent || [];
+                const disableConsent = currentOrganization?.identityProvider?.data?.disableConsent || [];
                 consentHit = disableConsent.some(e => e.name === sp.data.entityid && e.type === consent);
             }
             return tagHit && sourceHit && loaHit && consentHit;
@@ -218,7 +221,7 @@ const ApplicationOverview = ({accessible}) => {
                                  searchable={false}
                                  onChange={option => setTag(option.value)}
                     />
-                    {accessible && !isEmpty(currentOrganization.manageIdentifier) &&
+                    {accessible && !isEmpty(currentOrganization?.manageIdentifier) &&
                         <>
                             <SelectField className="select-loas"
                                          value={loaOptions.find(option => option.value === loa)}
@@ -331,7 +334,7 @@ const ApplicationOverview = ({accessible}) => {
                     <div className="accessible-apps-header-row">
                         {accessible && <div className="accessible-apps-header">
                             <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("accessibleApps.title")}</h1>
-                            <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization.identityProvider)})}</p>
+                            <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization?.identityProvider)})}</p>
                         </div>}
                         {!accessible && <div className="accessible-apps-header">
                             <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("userHome.catalogue.title")}</h1>

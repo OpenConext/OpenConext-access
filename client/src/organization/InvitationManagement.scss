@@ -4,14 +4,6 @@
 
 .organization-invitations {
 
-    .mod-entities {
-        width: 90%;
-        margin: 0;
-        @media (max-width: $full-mode) {
-            width: 100%;
-        }
-    }
-
     .menu.drop-down {
         position: relative;
     }

@@ -24,8 +24,7 @@ import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 
 import {useAppStore} from "../stores/AppStore.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
-import LogoMark from "../icons/figma/logo-mark.svg";
-import LogoPath from "../icons/figma/logo-path.svg";
+import Logo from "../icons/logo2.svg";
 
 export const SharedMenu = () => {
 
@@ -84,14 +83,8 @@ export const SharedMenu = () => {
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" className="brand-button" render={
-                                <Link to="/">
-                                    <span className="brand-lockup">
-                                        <span className="brand-tag">
-                                            <LogoMark className="brand-mark"/>
-                                            <span className="brand-label">Access</span>
-                                        </span>
-                                        <span className="brand-path" aria-hidden="true"><LogoPath/></span>
-                                    </span>
+                                <Link to="/" className="brand-logo">
+                                    <Logo/>
                                 </Link>
                             }/>
                         </SidebarMenuItem>

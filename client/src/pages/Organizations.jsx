@@ -12,7 +12,7 @@ import {useDebouncedCallback} from "use-debounce";
 import {InfoIcon, UsersThreeIcon as TeamIcon} from "@phosphor-icons/react";
 import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {
-    CheckCircleIcon as ApproveIcon,
+    CheckIcon as ApproveIcon,
     BellSlashIcon as DisapproveIcon,
     PencilSimpleIcon as PencilIcon,
     TrashIcon,
@@ -150,11 +150,11 @@ export const Organizations = ({pendingApproval}) => {
     const iconFromStatus = status => {
         switch (status) {
             case ORGANIZATION_STATUSES.APPROVED:
-                return <ApproveIcon/>;
+                return <ApproveIcon size={"20px"}/>;
             case ORGANIZATION_STATUSES.PENDING_APPROVAL:
-                return <ApproveIcon/>;
+                return <ApproveIcon size={"20px"}/>;
             case ORGANIZATION_STATUSES.DISAPPROVED:
-                return <DisapproveIcon/>;
+                return <DisapproveIcon size={"20px"}/>;
         }
 
     }

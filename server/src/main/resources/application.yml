@@ -119,7 +119,7 @@ config:
   identity_providers:
       - name: "SXS IdP"
         entityid: "http://mock-idp"
-        descriptionEN: "A test IdP that allows you to simulate attribute sets yourself. You can find the metadata <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>here</a>"
+        descriptionEN: "A test IdP that allows you to simulate attribute sets yourself. You can find the metadata <a class='' href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>here</a>"
         descriptionNL: "Een test-IdP waarmee je zelf attributen-sets kunt simuleren. De metadata vind je <a href='https://mujina-idp.test.surfconext.nl/metadata' target='_blank'>hier</a>"
       - name: "SXS Dummy"
         entityid: "https://idp.diy.surfconext.nl"

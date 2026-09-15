@@ -15,8 +15,14 @@ sup.required {
     }
 }
 
-a.actionable {
+a {
     text-decoration: underline;
+    color: var(--primary-strong);
+}
+
+span.field-tip {
+    margin-top: 5px;
+    color: var(--muted-foreground);
 }
 
 [data-slot="field"] {

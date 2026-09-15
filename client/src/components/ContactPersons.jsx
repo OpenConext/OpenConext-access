@@ -68,10 +68,6 @@ export const ContactPersons = ({
                             <Fragment key={innerIndex}>
                                 <InputField value={contactPerson.email}
                                             name={readOnly ? null : I18n.t("connection.contacts.emailOrWebsite")}
-                                            placeholder={emailPlaceholder(
-                                                I18n.t(`connection.contacts.${contactPerson.type}Placeholder`), application?.organization?.name || application.name,
-                                                I18n.t("forms.or")
-                                            )}
                                             required={true}
                                             disabled={readOnly}
                                             onChange={e => updateContactPerson(contactPerson.id, e)}
@@ -90,10 +86,10 @@ export const ContactPersons = ({
                                     />}
                                 {(innerIndex === (sameContactPersons.length - 1) && contactPerson.type === contactPersonTypes.technical
                                         && sameContactPersons.length < 2 && !readOnly) &&
-                                    <button type="button" className="link-button"
+                                    <Button variant="link"
                                             onClick={e => addContactPerson(e, contactPersonTypes.technical)}>
                                         {I18n.t("connection.contacts.addTechnicalContact")}
-                                    </button>}
+                                    </Button>}
                                 {(!initial && contactPerson.type === contactPersonTypes.technical && !readOnly &&
                                         (innerIndex > 0 || sameContactPersons.length === 1) &&
                                         sameContactPersons.some(p => !validEmailOrUrl(p, p.type, sameContactPersons, false))) &&

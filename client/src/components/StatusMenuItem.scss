@@ -3,28 +3,24 @@
     align-items: center;
     align-content: center;
     width: 100%;
-    padding: 8px 8px;
-    background-color: white;
+    padding: 8px 24px;
     cursor: pointer;
 
     &:hover {
-        background-color: #DCF2E5;
+        background-color: var(--secondary);
     }
 
     &.active {
         cursor: initial;
-        background-color: var(--muted);
+        background-color: var(--accent);
     }
 
     &.disabled:not(.active) {
         cursor: not-allowed;
-        &:hover:not(.active) {
-            background-color: white;
-        }
     }
 
     svg {
-        margin-left:auto;
+        margin-right: 20px;
         color: var(--muted-foreground);
 
         &.alert-triangle {

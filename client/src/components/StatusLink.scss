@@ -5,29 +5,18 @@
     align-items: center;
     align-content: center;
     width: 100%;
-    border-radius: 4px;
-    padding: 10px 20px 10px 10px;
-    background-color: white;
-    border: 1px solid var(--border);
+    padding: 10px 0 10px 10px;
     cursor: pointer;
 
     &.enabled:hover {
-        border: 1px solid #008939;
-        background-color: #B8E3C9;
-        color: #006731;
+        background-color: var(--accent);
 
-        svg {
-            fill: #006731;
-        }
     }
 
     &.disabled {
         color: var(--muted-foreground);
         cursor: initial;
 
-        &:hover {
-            background-color: white;
-        }
     }
 
     svg.pending, svg.completed, svg.team, svg.alert-triangle {

@@ -2,50 +2,9 @@
     height: auto !important;
 }
 
-.brand-lockup {
-    display: inline-flex;
-    align-items: center;
-}
-
-.brand-tag {
-    position: relative;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    height: 40px;
-    padding: 0 16px 0 8px;
-    border-radius: 8px;
-    background-color: black;
-    margin-right: -36px;
-}
-
-.brand-path {
-    position: relative;
-    z-index: 1;
-    width: 74px;
-    height: 56px;
-    flex-shrink: 0;
-
-    svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-}
-
-.brand-mark {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.brand-label {
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.04em;
-    color: white;
-    white-space: nowrap;
+a.brand-logo svg {
+    width: 161px;
+    height: auto;
 }
 
 .organization-name {
@@ -95,4 +54,11 @@
 // trigger lives outside <Sidebar> as a sibling of this wrapper.
 [data-slot="sidebar-wrapper"] {
     position: relative;
+}
+
+[data-slot="sidebar-container"] {
+    a {
+        color: black;
+        text-decoration: none;
+    }
 }

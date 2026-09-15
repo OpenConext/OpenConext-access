@@ -23,8 +23,6 @@ const UserHome = () => {
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
         newLocation = "/landing"
-    } else if (!isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
-        newLocation = "/relax"
     }
 
     useEffect(() => {
@@ -51,10 +49,18 @@ const UserHome = () => {
         const isNew = getParameterByName("new");
         if (isNew) {
             return (
-                <Alert variant={"info"}>
+                <Alert variant={"info"} className="w-[520px]">
                     <HourglassIcon/>
                     <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationTitle", {name: currentOrganization?.name}))}}/>
                     <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationDescription"))}}/>
+                </Alert>
+            )
+        }
+        if (!currentOrganization?.id && !isEmpty(user.joinRequests)) {
+            return (
+                <Alert variant={"info"} className="w-[520px]">
+                    <HourglassIcon/>
+                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newJoinRequestDescription", {name: user.joinRequests[0].organization.name}))}}/>
                 </Alert>
             )
         }
@@ -81,13 +87,13 @@ const UserHome = () => {
     const isVendor = isEmpty(currentOrganization?.manageIdentifier);
     return (
         <div className="home-container">
-            {alertInfo()}
             <div className="home-welcome">
                 <h1 className="text-[length:var(--text-2xl-font-size)] m-0">{I18n.t("userHome.title")}</h1>
                 <p>{I18n.t("userHome.subTitle")}</p>
             </div>
+            {alertInfo()}
             <div className="info-container">
-                {welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
+                {currentOrganization?.id && welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
                 {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
                 {!isVendor && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
             </div>

@@ -101,7 +101,7 @@ export default function EmailField({
 
     return (
         <div className={`email-field ${error ? "error" : ""}`}>
-            <label htmlFor={name}>{name}{required && <sup className="required left-outline">*</sup>}
+            <label htmlFor={name}>{name}
             </label>
             <div className={`inner-email-field ${error ? "error" : ""}`}>
                 {emails.map((mail, index) =>
@@ -132,8 +132,9 @@ export default function EmailField({
                                   }
                               }
                           }}
-                          placeholder={emails.length === 0 ? I18n.t("invitation.inviteesTooltip") : ""} cols={3}/>
+                          cols={3}/>
             </div>
+            <span className="field-tip">{I18n.t("invitation.inviteesTooltip")}</span>
             {(!isEmpty(emailErrors) && value === "") && <p className="error">
                 {I18n.t("invitation.invalidEmails", {emails: Array.from(new Set(emailErrors)).join(", ")})}
             </p>}

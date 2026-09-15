@@ -49,8 +49,6 @@ export const UserMenu = ({setIsAuthenticated}) => {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator/>
                 <DropdownMenuItem render={<Link to="/profile">{I18n.t("landing.header.profile")}</Link>}/>
-                {user.superUser &&
-                    <DropdownMenuItem render={<Link to="/changelog">{I18n.t("landing.header.changelog")}</Link>}/>}
                 <DropdownMenuItem onClick={e => logoutUser(e, setIsAuthenticated)}>
                     {I18n.t("landing.header.logout")}
                 </DropdownMenuItem>

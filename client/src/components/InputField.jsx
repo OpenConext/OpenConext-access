@@ -53,8 +53,7 @@ export default function InputField({
 
     return (
         <Field className={`input-field ${customClassName}`} data-invalid={error}>
-            {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}{required &&
-                <sup className="required">*</sup>}
+            {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}
                 {isAlert && <Tooltip>
                     <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
