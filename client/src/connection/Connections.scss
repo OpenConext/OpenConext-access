@@ -194,25 +194,36 @@ $width-percentage: 75%;
             flex-direction: column;
             gap: 20px;
             padding: 15px;
-            background-color: var(--muted);
-            border-radius: 6px;
 
             &.active {
-                border-top-left-radius: 0;
-                border-top-right-radius: 0;
+                border-color: var(--primary);
             }
 
         }
 
         .test-idp-section {
 
+            .test-accounts-title {
+                display: flex;
+                align-items: baseline;
+                gap: 4px;
+                font-weight: 600;
+
+                .optional {
+                    font-weight: 400;
+                    color: var(--muted-foreground);
+                }
+            }
+
             .switch-field {
                 padding: 15px;
                 border: 1px solid var(--border);
                 border-radius: 6px;
-                margin-top: 0;
+                margin-top: 15px;
 
                 &.active {
+                    border-color: var(--primary);
+                    border-bottom-color: var(--border);
                     border-bottom-left-radius: 0;
                     border-bottom-right-radius: 0;
                 }
@@ -223,6 +234,8 @@ $width-percentage: 75%;
                 align-items: center;
 
                 .idp-info p:first-child {
+                    font-size: var(--text-base-font-size);
+                    line-height: var(--text-base-line-height);
                     font-weight: 600;
                 }
 

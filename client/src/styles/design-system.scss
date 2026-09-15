@@ -6,6 +6,10 @@
     --text-sm: 1rem;
 }
 
+::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.9;
+}
 sup.required {
     color: var(--destructive, #dc2626);
     margin-left: 2px;

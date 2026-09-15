@@ -612,7 +612,7 @@ const nl = {
             title: "Contract",
         },
         productionStatusSection: {
-            dummyIdP: "Activeer dummy-IdP's na bevestiging",
+            dummyIdP: "Activeer dummy accounts",
             next: "Opslaan en uitproberen",
             requestProduction: "Publicatie aanvragen",
             postponePublish: "Ik doe dit later - naar Koppeling(en)",
@@ -624,6 +624,9 @@ const nl = {
         },
         testConnectionSection: {
             info: "Gebruik de gegevens hieronder om te testen of je kunt inloggen bij je applicatie via deze koppeling.",
+            testAccountsTitle: "Test accounts",
+            testAccountsOptional: "(optioneel)",
+            testAccountsInfo: "Onderstaande test accounts kun je gebruiken om te testen of je kunt inloggen bij je applicatie via deze koppeling. Gebruik de inloggegevens hieronder na activering van de test accounts.",
         },
     },
     testing: {

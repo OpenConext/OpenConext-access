@@ -612,7 +612,7 @@ const en = {
             title: "Contract",
         },
         productionStatusSection: {
-            dummyIdP: "Activate dummy IdP's after comfirmation",
+            dummyIdP: "Activate dummy accounts",
             next: "Save and try out",
             requestProduction: "Request publication",
             postponePublish: "I'll do this later - to Connections",
@@ -624,6 +624,9 @@ const en = {
         },
         testConnectionSection: {
             info: "Use the details below to test whether you can log in to your application via this connection.",
+            testAccountsTitle: "Test accounts",
+            testAccountsOptional: "(optional)",
+            testAccountsInfo: "Use the test accounts below to test whether you can log in to your application via this connection. Use the credentials below after activating the test accounts.",
         },
     },
     testing: {

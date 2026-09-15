@@ -320,7 +320,7 @@ export const Connections = ({
                     <RadioGroupItem value={label} id={`${name}_${label}`}/>
                     <div className="radio-item-content">
                         <label htmlFor={`${name}_${label}`}>{labelResolver(label)}</label>
-                        {descriptionResolver && <p className="radio-item-description">{descriptionResolver(label)}</p>}
+                        {descriptionResolver && <span className="radio-item-description">{descriptionResolver(label)}</span>}
                     </div>
                 </div>
             )}
@@ -940,6 +940,11 @@ export const Connections = ({
         const dummyIdpsActive = !isEmpty(connection.allowedEntities)
         return (
             <section className="test-idp-section">
+                <p className="test-accounts-title">
+                    <span>{I18n.t("connection.testConnectionSection.testAccountsTitle")}</span>
+                    <span className="optional">{I18n.t("connection.testConnectionSection.testAccountsOptional")}</span>
+                </p>
+                <p>{I18n.t("connection.testConnectionSection.testAccountsInfo")}</p>
                 <SwitchField name={"activateTest"}
                              value={!isEmpty(allowedEntities)}
                              className={dummyIdpsActive ? "active" : ""}
@@ -1376,7 +1381,7 @@ export const Connections = ({
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const isOpen = connection.status === CONNECTION_STATUSES.OPEN;
         let nextSection;
-        if (!isOpen) {
+        if (!isOpen && section !== sections.testConnection && section !== sections.publish) {
             nextSection = section;
         } else {
             nextSection = determineNextSection(section);
