@@ -8,6 +8,30 @@
         height: 100%;
     }
 
+    .invitation-outer {
+        display: flex;
+        gap: 40xp;
+        align-items: flex-start;
+
+    }
+
+    [data-slot="alert"] {
+        margin-top: 40px;
+
+        [data-slot="alert-description"] {
+            margin-top: 15px;
+        }
+
+        p.role {
+            margin: 0;
+        }
+
+        p.paragraph {
+            margin: 0 0 15px 15px;
+        }
+
+    }
+
     .invitation-form {
         padding: $page-padding;
         max-width: 50%;

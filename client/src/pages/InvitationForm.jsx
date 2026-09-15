@@ -3,7 +3,7 @@ import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {createInvitation, organizationForInvitationById} from "../api";
-import {Button, Spinner} from "@surfnet/curve-react";
+import {Alert, AlertDescription, AlertTitle, Button, Spinner} from "@surfnet/curve-react";
 import "./InvitationForm.scss";
 import InputField from "../components/InputField";
 import {isEmpty, sanitize} from "../utils/Utils";
@@ -13,6 +13,7 @@ import EmailField from "../components/EmailField";
 import {allAuthorities, authorities, authorityWeights, currentUserMembershipAuthority, hasApplicationWriteAccess} from "../utils/Permissions.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
+import {InfoIcon} from "@phosphor-icons/react";
 
 export const InvitationForm = () => {
     const navigate = useNavigate();
@@ -145,26 +146,26 @@ export const InvitationForm = () => {
                 />
 
                 {(organization.applications.length > 0 && invitation.intendedAuthority !== authorities.ADMIN) &&
-                   <div>
-                    <SelectField
-                        value={organization.applications
-                            .filter(app => invitation.applicationIdentifiers.includes(app.id))
-                            .map(applicationOption)}
-                        options={organization.applications
-                            .filter(app => !invitation.applicationIdentifiers.includes(app.id))
-                            //All applications must either be owned by the current User or an ApplicationMembership must exists
-                            .filter(app => hasApplicationWriteAccess(user, app))
-                            .map(applicationOption)}
-                        name={I18n.t("invitation.applications")}
-                        searchable={true}
-                        placeholder={I18n.t("invitation.applicationsPlaceHolder")}
-                        isMulti={true}
-                        onChange={applicationChanged}
-                        toolTip={I18n.t("invitation.applicationsTooltip")}
-                        clearable={true}
-                    />
-                       <span className="field-tip">{I18n.t("invitation.applicationsTooltip")}</span>
-                   </div>
+                    <div>
+                        <SelectField
+                            value={organization.applications
+                                .filter(app => invitation.applicationIdentifiers.includes(app.id))
+                                .map(applicationOption)}
+                            options={organization.applications
+                                .filter(app => !invitation.applicationIdentifiers.includes(app.id))
+                                //All applications must either be owned by the current User or an ApplicationMembership must exists
+                                .filter(app => hasApplicationWriteAccess(user, app))
+                                .map(applicationOption)}
+                            name={I18n.t("invitation.applications")}
+                            searchable={true}
+                            placeholder={I18n.t("invitation.applicationsPlaceHolder")}
+                            isMulti={true}
+                            onChange={applicationChanged}
+                            toolTip={I18n.t("invitation.applicationsTooltip")}
+                            clearable={true}
+                        />
+                        <span className="field-tip">{I18n.t("invitation.applicationsTooltip")}</span>
+                    </div>
                 }
 
                 <InputField name={I18n.t("invitation.message")}
@@ -188,6 +189,25 @@ export const InvitationForm = () => {
             </>
         );
     }
+
+    const renderExplanations = () => {
+        return (
+            <Alert variant={"info"} className="w-[520px]">
+                <InfoIcon/>
+                <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("teamManagement.explanations.title"))}}/>
+                <AlertDescription>
+                    {["admin", "member", "guest"].map((role, index) => <
+                            div key={role}>
+                            <p className="role">{index + 1}. {I18n.t(`teamManagement.explanations.${role}`)}</p>
+                            <p className="paragraph">
+                                {I18n.t(`teamManagement.explanations.${role}Rights`)}
+                            </p>
+                        </div>
+                    )}
+                </AlertDescription>
+            </Alert>
+        );
+    };
 
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
@@ -224,8 +244,11 @@ export const InvitationForm = () => {
             <TabHeader tab={"nope"} tabNames={[]}>
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("invitation.title", {name: organization.name})}</h3>
             </TabHeader>
-            <div className={`invitation-form`}>
-                {renderForm()}
+            <div className={`invitation-outer`}>
+                <div className={`invitation-form`}>
+                    {renderForm()}
+                </div>
+                {renderExplanations()}
             </div>
         </div>
     );

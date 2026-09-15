@@ -192,23 +192,6 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
         )
     };
 
-    const renderExplanations = () => {
-        return (
-            <div className="explanations">
-                <h2 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("teamManagement.explanations.title")}</h2>
-                {["admin", "member", "guest"].map((role, index) => <
-                        div key={role}>
-                        <p className="role">{index + 1}. {I18n.t(`teamManagement.explanations.${role}`)}</p>
-                        <p className="paragraph">
-                            {I18n.t(`teamManagement.explanations.${role}Rights`)}
-                        </p>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-
     const {open, cancel, action, question, okButton} = confirmation;
     return (
         <div className="organization-memberships">
@@ -219,7 +202,6 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                                          question={question}
             />}
             {renderOrganizationMembers()}
-            {renderExplanations()}
         </div>
     )
 }
