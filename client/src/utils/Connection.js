@@ -1,5 +1,6 @@
 //Deliberate design choice to have a different format on the server to have all complex data in the metaData attribute
 import {isEmpty} from "./Utils.js";
+import {PROTOCOLS} from "./Manage.js";
 
 export const convertClientConnectionToServer = (application, connection, arpInfo) => {
     const {motivations, additionalAttributes, profile, profileMotivation} = connection;
@@ -58,7 +59,7 @@ export const convertServerConnectionToClient = (connection, protocolOptions, pro
     //Resource servers have no ARP
     let arpFields = {};
     const {arp} = connection.metaData;
-    if (arp) {
+    if (!isEmpty(arp) || connection.protocol !== PROTOCOLS.OAUTH20_RS) {
         const {profile, attributes, motivation} = arp;
         const profileAttributesNames = arpInfo.profiles.find(p => p.name === profile).attributes;
         const profileAttributes = arpInfo.attributes.filter(attr => profileAttributesNames.includes(attr.name));
@@ -119,7 +120,6 @@ export const sections = {
     informationProfile: "informationProfile",
     testConnection: "testConnection",
     publish: "publish",
-    overview: "overview",
 
     complete(connection, section) {
         connection.sectionsComplete = connection.sectionsComplete | getSectionValue(section);

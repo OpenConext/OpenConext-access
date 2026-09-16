@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from "react";
-import {Checkbox} from "@surfnet/curve-react";
+import {Checkbox, Label} from "@surfnet/curve-react";
 import {useLocation} from "react-router";
 import DOMPurify from "dompurify";
 import html2canvas from "html2canvas-pro";
@@ -169,14 +169,13 @@ export const UserFeedbackWidget = () => {
                         ref={inputRef}
                         onChange={e => setMessage(e.target.value)}
                     />
-                    <div className="user-feedback-widget__options">
+                    <Label className="user-feedback-widget__options">
                         <Checkbox
                             checked={includeScreenshot}
-                            id={"includeScreenshot"}
                             onCheckedChange={() => setIncludeScreenshot(!includeScreenshot)}
                         />
-                        <span>{I18n.t("feedback.includeScreenshot")}</span>
-                    </div>
+                        {I18n.t("feedback.includeScreenshot")}
+                    </Label>
                     <section className="disclaimer">
                         <span
                             dangerouslySetInnerHTML={{

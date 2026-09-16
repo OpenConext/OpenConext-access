@@ -454,7 +454,8 @@ const nl = {
             details: "Details",
             requestProductionStatus: "Productiestatus aanvragen",
             requestProductionStatusConfirmation: "Weet je zeker dat je productiestatus wilt aanvragen voor {{name}}?",
-            requestProductionStatusPostInfo: "Je verzoek voor productiestatus is verzonden en je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong></strong",
+            requestProductionStatusPostTitle: "Publicatie van je koppeling is aangevraagd",
+            requestProductionStatusPostDescription: "Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>",
         },
         informational: {
             disclaimer: "Verwerk alleen informatie die <strong>strikt noodzakelijk</strong> is voor het functioneren van je applicatie.",
@@ -508,6 +509,7 @@ const nl = {
             placeholder: "Selecteer één of meer instellingen",
             institution: "Instelling‑IdP",
             eduIdAccess: "Toegang voor eduID-gebruikers",
+            eduIdAccessInfo: "Als je deze optie aanvinkt krijgen alle eduID-gebruikers toegang tot de applicatiekoppeling. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Lees meer over eduID</a>",
             eduIdAccessLabel: "eduID-gebruikers mogen inloggen via deze koppeling",
         },
         connectionOverview: {
@@ -531,9 +533,6 @@ const nl = {
         connectionOverviewSAML: {
             title: "De SAML‑koppeling is klaar",
             link: "Volg de <a class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test‑instructies</a> om te zien of alles werkt.",
-        },
-        productionStatusRequested: {
-            info: "Productie status",
         },
         appInfo: {
             title: "Informatie voor de catalogus",
@@ -618,9 +617,10 @@ const nl = {
             postponePublish: "Ik doe dit later - naar Koppeling(en)",
             doneAndContinue: "Klaar en doorgaan",
             appInformationIncomplete: "Voordat de status 'productieklaar' wordt aangevraagd, moet alle applicatie-informatie zijn ingevuld",
-            pendingProdDisclaimer: "Deze koppeling wacht op de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
+            pendingProdDisclaimerTitle: "Deze koppeling wacht op de status 'gereed voor productie'",
+            pendingProdDisclaimerDescription: "Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
             prodDisclaimer: "Deze koppeling heeft de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
-            fillAppInformation: "Do it now",
+            fillAppInformation: "Doe het nu",
         },
         testConnectionSection: {
             info: "Gebruik de gegevens hieronder om te testen of je kunt inloggen bij je applicatie via deze koppeling.",
@@ -1025,6 +1025,7 @@ const nl = {
         connectionMade: "Verbonden",
         status: "Status",
         type: "Type",
+        connections: "Koppelingen",
         created: "Aangemaakt",
         grid: "Grid",
         list: "List",

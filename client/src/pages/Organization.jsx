@@ -48,7 +48,12 @@ const Organization = () => {
         } else {
             organizationApplicationsById(organizationId)
                 .then(res => {
-                    res.applications = res.applications.map(application => convertServerApplicationToClient(application))
+                    res.applications = res.applications.map(application => {
+                        const converted = convertServerApplicationToClient(application);
+                        //own property so it can be used as a sortable column key without colliding with the connections array itself
+                        converted.connectionCount = (converted.connections || []).length;
+                        return converted;
+                    })
                     setOrganization(res);
                     const newMenuItems = menuItemsForUser(user, res);
                     //the URL may be bookmarked
@@ -149,6 +154,11 @@ const Organization = () => {
                 key: "status",
                 header: I18n.t("accessibleApps.status"),
                 mapper: application => renderApplicationStatus(application)
+            },
+            {
+                key: "connectionCount",
+                header: I18n.t("accessibleApps.connections"),
+                mapper: application => application.connectionCount
             },
             {
                 key: "createdAt",

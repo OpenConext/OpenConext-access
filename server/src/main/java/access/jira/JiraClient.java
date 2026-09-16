@@ -1,5 +1,6 @@
 package access.jira;
 
+import access.config.Config;
 import access.exception.InvalidInputException;
 import access.mail.MailBox;
 import access.model.EntityType;
@@ -29,13 +30,14 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
-@EnableConfigurationProperties(JiraConfig.class)
+@EnableConfigurationProperties({JiraConfig.class, Config.class})
 @Service
 public class JiraClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);
 
     private final JiraConfig jiraConfig;
+    private final Config config;
     private final MailBox mailBox;
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
@@ -43,8 +45,9 @@ public class JiraClient {
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
-    public JiraClient(JiraConfig jiraConfig, ObjectMapper objectMapper, MailBox mailBox) {
+    public JiraClient(JiraConfig jiraConfig, Config config, ObjectMapper objectMapper, MailBox mailBox) {
         this.jiraConfig = jiraConfig;
+        this.config = config;
         this.mailBox = mailBox;
         this.mappings = objectMapper.readValue(new ClassPathResource("jira/mappings.json").getInputStream(), new TypeReference<>() {
         });
@@ -67,6 +70,11 @@ public class JiraClient {
         EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();
         fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", entityType.name()));
         fields.put("customfield_" + emailToCustomField(), issue.getEmailTo());
+        if (StringUtils.hasText(issue.getManageIdentifier())) {
+            String accessCatalogusAppURL = String.format("%s/application-detail/%s/%s",
+                config.getClientUrl(), issue.getEntityType().name(), issue.getManageIdentifier());
+            fields.put("customfield_" + accessCatalogusAppURLCustomField(), accessCatalogusAppURL);
+        }
         fields.put("issuetype", ImmutableMap.of("id", issueType));
         fields.put("summary", issue.getSummary());
         fields.put("description", issue.getDescription());
@@ -185,6 +193,10 @@ public class JiraClient {
 
     private String emailToCustomField() {
         return this.customField("emailTo");
+    }
+
+    private String accessCatalogusAppURLCustomField() {
+        return this.customField("accessCatalogusAppURL");
     }
 
     private String customField(String name) {

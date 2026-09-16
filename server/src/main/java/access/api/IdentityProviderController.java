@@ -162,7 +162,8 @@ public class IdentityProviderController implements UserAccessRights {
                         changeRequestURL),
                 summary,
                 EntityType.valueOf((String) serviceProvider.get("type")),
-                email
+                email,
+                null
         ));
         Map<String, Object> auditData = Map.of("user", email,
                 "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
@@ -227,7 +228,8 @@ public class IdentityProviderController implements UserAccessRights {
                         changeRequestURL),
                 summary,
                 EntityType.valueOf((String) serviceProvider.get("type")),
-                user.getEmail()
+                user.getEmail(),
+                null
         ));
         Map<String,Object> auditData = Map.of("user", user.getEmail(),
                 "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",

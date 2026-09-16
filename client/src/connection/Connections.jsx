@@ -6,6 +6,7 @@ import {
     CaretDownIcon as CaretDown,
     CaretRightIcon as ArrowRightIcon,
     CircleDashedIcon as PendingIcon,
+    HourglassHighIcon,
     InfoIcon,
     TrashIcon,
     WarningIcon,
@@ -16,9 +17,11 @@ import {
     Alert,
     AlertAction,
     AlertDescription,
+    AlertTitle,
     Badge,
     Button,
     Checkbox,
+    Label,
     RadioGroup,
     RadioGroupItem,
     Spinner,
@@ -662,49 +665,54 @@ export const Connections = ({
                                 </Tooltip>}
                             </span>
                             <div className="grant-types">
-                                {Object.keys(grantTypes).map(grantType =>
-                                    <Fragment key={grantType}>
-                                        <section className="grant-type">
-                                            <span>{I18n.t(`connection.${grantType}`)}</span>
-                                            <Switch name={grantType}
-                                                    checked={connection.grantTypes.includes(grantTypes[grantType])}
-                                                    onCheckedChange={val => grantTypeChanged(grantTypes[grantType], val)}/>
-                                        </section>
-                                        {(grantType === grantTypes.authorization_code && connection.grantTypes.includes(grantTypes[grantType])) &&
-                                            <section key="pkce" className="grant-type pkce">
-                                                <span className="pkce-label">{I18n.t("connection.pkce")}</span>
-                                                <Tooltip>
-                                                    <TooltipTrigger render={<InfoIcon/>}/>
-                                                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pkceTooltip"))}}/></TooltipContent>
-                                                </Tooltip>
-                                                {renderRadioOptions("pkce", connection.pkce ? "true" : "false",
-                                                    ["false", "true"],
-                                                    label => label === "true" ? I18n.t("connection.required") : I18n.t("connection.optional"),
-                                                    () => setConnection({
-                                                        ...connection,
-                                                        pkce: !connection.pkce
-                                                    }), "row")}
-
+                                {Object.keys(grantTypes).map(grantType => {
+                                    const active = connection.grantTypes.includes(grantTypes[grantType]);
+                                    const expanded = active && (grantType === grantTypes.authorization_code ||
+                                        grantType === grantTypes.refresh_token);
+                                    return (
+                                        <div key={grantType} className={`grant-type-card ${expanded ? "expanded" : ""}`}>
+                                            <section className="grant-type">
+                                                <span>{I18n.t(`connection.${grantType}`)}</span>
+                                                <Switch name={grantType}
+                                                        checked={active}
+                                                        onCheckedChange={val => grantTypeChanged(grantTypes[grantType], val)}/>
                                             </section>
-                                        }
-                                        {(grantType === grantTypes.refresh_token && connection.grantTypes.includes(grantTypes[grantType])) &&
-                                            <>
-                                                <section key="refresh_token_validity"
-                                                         className="grant-type refresh-token-validity">
-                                                    <InputField name={I18n.t("connection.refreshTokenValidity")}
-                                                                value={isEmpty(connection.refreshTokenValidity) ? 3600 : connection.refreshTokenValidity}
-                                                                isInteger={true}
-                                                                maxLength={3600 * 24}
-                                                                customClassName="refresh-token-validity"
-                                                                onBlur={checkRefreshTokenValidity}
-                                                                onChange={changeRefreshTokenValidity}/>
-                                                </section>
-                                                {isMaxRefreshValidity &&
-                                                    <em className="warning">{I18n.t("connection.refreshTokenMax", {max: 3600 * 24})}</em>}
-                                            </>
+                                            {(grantType === grantTypes.authorization_code && active) &&
+                                                <section className="grant-type pkce">
+                                                    <span className="pkce-label">{I18n.t("connection.pkce")}</span>
+                                                    <Tooltip>
+                                                        <TooltipTrigger render={<InfoIcon/>}/>
+                                                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pkceTooltip"))}}/></TooltipContent>
+                                                    </Tooltip>
+                                                    {renderRadioOptions("pkce", connection.pkce ? "true" : "false",
+                                                        ["false", "true"],
+                                                        label => label === "true" ? I18n.t("connection.required") : I18n.t("connection.optional"),
+                                                        () => setConnection({
+                                                            ...connection,
+                                                            pkce: !connection.pkce
+                                                        }), "row")}
 
-                                        }
-                                    </Fragment>)}
+                                                </section>
+                                            }
+                                            {(grantType === grantTypes.refresh_token && active) &&
+                                                <>
+                                                    <section className="grant-type refresh-token-validity">
+                                                        <InputField name={I18n.t("connection.refreshTokenValidity")}
+                                                                    value={isEmpty(connection.refreshTokenValidity) ? 3600 : connection.refreshTokenValidity}
+                                                                    isInteger={true}
+                                                                    maxLength={3600 * 24}
+                                                                    customClassName="refresh-token-validity"
+                                                                    onBlur={checkRefreshTokenValidity}
+                                                                    onChange={changeRefreshTokenValidity}/>
+                                                    </section>
+                                                    {isMaxRefreshValidity &&
+                                                        <em className="warning">{I18n.t("connection.refreshTokenMax", {max: 3600 * 24})}</em>}
+                                                </>
+
+                                            }
+                                        </div>
+                                    );
+                                })}
                                 {(!initial && isEmpty(connection.grantTypes)) &&
                                     <ErrorIndicator
                                         msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.grantType")})}
@@ -762,32 +770,6 @@ export const Connections = ({
                                      info={I18n.t("connection.claimsInIdTokenTooltip")}
                         />
                     </>
-                }
-                {connection.status !== CONNECTION_STATUSES.OPEN && (connection.protocol.value === PROTOCOLS.OIDC10_RP ||
-                        connection.protocol.value === PROTOCOLS.OAUTH20_RS) &&
-                    <div className="oidc-authentication">
-                        <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.authentication")}</h3>
-                        <div className="oidc-authentication-inner">
-                            <InputField name={I18n.t("connection.connectionOverview.discovery")}
-                                        value={config.discovery}
-                                        disabled={true}
-                                        copyClipBoard={true}/>
-                            <InputField name={I18n.t("connection.connectionOverview.clientID")}
-                                        value={connection.entityID}
-                                        disabled={true}
-                                        copyClipBoard={true}/>
-                            <div className="secret-link">
-                                <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
-                                <span>{I18n.t("connection.connectionOverview.secretReset")}
-
-                                </span>
-                                <Button variant="link" onClick={e => newClientSecret(e, true)}>
-                                    {I18n.t("connection.connectionOverview.secretResetLink")}
-                                </Button>
-
-                            </div>
-                        </div>
-                    </div>
                 }
 
                 {connection.protocol.value === PROTOCOLS.SAML20_SP &&
@@ -961,7 +943,7 @@ export const Connections = ({
                              label={I18n.t("connection.productionStatusSection.dummyIdP")}
                 />
                 {dummyIdpsActive &&
-                    <section className={`identity-providers ${dummyIdpsActive ? "active" : ""}`}>
+                    <section className={`identity-providers ${dummyIdpsActive ? "active" : ""}` }>
                         {iDps.map((idp, index) =>
                             <div key={index} className="idp">
                                 <div className="idp-info">
@@ -983,13 +965,13 @@ export const Connections = ({
             connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const showFreshlyGeneratedSecret = isOidcOrRs && !isEmpty(connection.originalSecret);
+        const showRefreshSecret = isOidcOrRs && isEmpty(connection.originalSecret);
         return (
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.testConnection")}</h3>
                 <p>{I18n.t("connection.testConnectionSection.info")}</p>
-                {showFreshlyGeneratedSecret &&
-                    <>
-                        {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
+                        {showFreshlyGeneratedSecret &&
+                            alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, null, "warning")}
                         <div className="oidc-authentication-inner">
                             <InputField name={I18n.t("connection.connectionOverview.discovery")}
                                         value={config.discovery}
@@ -999,12 +981,23 @@ export const Connections = ({
                                         value={connection.entityID}
                                         disabled={true}
                                         copyClipBoard={true}/>
+                            {showFreshlyGeneratedSecret &&
                             <InputField name={I18n.t("connection.connectionOverview.secret")}
                                         value={connection.originalSecret}
                                         disabled={true}
-                                        copyClipBoard={true}/>
+                                        copyClipBoard={true}/>}
+                            {showRefreshSecret &&
+                            <div className="secret-link">
+                                <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
+                                <span>{I18n.t("connection.connectionOverview.secretReset")}
+
+                                </span>
+                                <Button variant="link" onClick={e => newClientSecret(e, true)}>
+                                    {I18n.t("connection.connectionOverview.secretResetLink")}
+                                </Button>
+
+                            </div>}
                         </div>
-                    </>}
                 {!isOidcOrRs &&
                     <div className="oidc-authentication-inner">
                         <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
@@ -1030,17 +1023,18 @@ export const Connections = ({
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.publish")}</h3>
                 {prodConnection && <p>{I18n.t("connection.productionStatusReady")}</p>}
-                {!isEmpty(jiraKey) && renderProductionStatusRequested(false)}
+                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
                 {(pendingProd && isEmpty(jiraKey)) &&
-                    alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimer"))}
+                    alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimerDescription"),
+                        I18n.t("connection.productionStatusSection.pendingProdDisclaimerTitle"))}
                 {(!pendingProd && !appInformationComplete) &&
-                    alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"),
+                    alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"), null,
                         () => setTab("application"),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
                 {(!isRs && !pendingProd) &&
                     <>
-                        <div className="identity-providers">
+                        <div className="visibility-options-container">
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.who")}
                                     {changeRequestsKeys.includes("visibility") && <Tooltip>
@@ -1079,73 +1073,37 @@ export const Connections = ({
                             </div>
                             <div className="visibility-options">
                                 <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}</p>
-                                <div className="checkbox-field">
-                                    <Checkbox id="eduIdAccessEnabled"
-                                              checked={connection.eduIdAccessEnabled || false}
+                                <p className="eduid-access-info"
+                                   dangerouslySetInnerHTML={{
+                                       __html: DOMPurify.sanitize(I18n.t("connection.visibilities.eduIdAccessInfo"),
+                                           {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
+                                   }}/>
+                                <Label>
+                                    <Checkbox checked={connection.eduIdAccessEnabled || false}
                                               onCheckedChange={checked => setConnection({
                                                   ...connection,
                                                   eduIdAccessEnabled: checked
                                               })}/>
-                                    <label htmlFor="eduIdAccessEnabled">{I18n.t("connection.visibilities.eduIdAccessLabel")}</label>
-                                </div>
+                                    {I18n.t("connection.visibilities.eduIdAccessLabel")}
+                                </Label>
+                                <p className="disclaimer" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                             </div>
-                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
                         </div>
                     </>}
             </section>
         );
     }
 
-    const renderSAMLOverview = () => {
+    const renderProductionStatusRequested = () => {
         return (
-            <section className="inner-right-overview">
-                {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverviewSAML.title")}</h3>
-                <p className="test"
-                   dangerouslySetInnerHTML={{
-                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverviewSAML.link",
-                           {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]}))
-                   }}/>
-            </section>
-        )
-    }
-
-    const renderOIDCOverview = () => {
-        return (
-            <section className="inner-right-overview">
-                {!isEmpty(jiraKey) && renderProductionStatusRequested(true)}
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.copy")}</h3>
-                {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
-                <p className="test"
-                   dangerouslySetInnerHTML={{
-                       __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                           , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
-                   }}/>
-                <InputField name={I18n.t("connection.connectionOverview.discovery")}
-                            value={config.discovery}
-                            disabled={true}
-                            copyClipBoard={true}/>
-                <InputField name={I18n.t("connection.connectionOverview.clientID")}
-                            value={connection.entityID}
-                            disabled={true}
-                            copyClipBoard={true}/>
-                <InputField name={I18n.t("connection.connectionOverview.secret")}
-                            value={connection.originalSecret}
-                            disabled={true}
-                            copyClipBoard={true}/>
-            </section>
-        )
-    }
-
-    const renderProductionStatusRequested = renderHeader => {
-        return (
-            <div className="production-status-requested">
-                {renderHeader && <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.productionStatusRequested.info")}</h3>}
-                <p dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostInfo",
+            <Alert variant="info">
+                <HourglassHighIcon/>
+                <AlertTitle>{I18n.t("connection.connections.requestProductionStatusPostTitle")}</AlertTitle>
+                <AlertDescription dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostDescription",
                         {jiraKey: jiraKey}))
                 }}/>
-            </div>
+            </Alert>
         );
     }
 
@@ -1192,7 +1150,7 @@ export const Connections = ({
                     <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
                 </Tooltip>}</h3>
-                {isContentApp && alertInfo(I18n.t("connection.informational.contentAppAlert"), null, null, "warning")}
+                {isContentApp && alertInfo(I18n.t("connection.informational.contentAppAlert"), null, null, null, "warning")}
                 {!isContentApp && <p className="disclaimer"
                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.informational.disclaimer"))}}/>}
                 <SelectField
@@ -1282,7 +1240,7 @@ export const Connections = ({
                                                     msg={I18n.t("forms.required", {name: I18n.t("connection.informational.motivation")})}
                                                 />}
                                             {(selected && arpAttribute.scopedValue && defaultArpValue) &&
-                                                alertInfo(I18n.t("connection.informational.scopedValueAttributeDisclaimer"), null, null, "warning")
+                                                alertInfo(I18n.t("connection.informational.scopedValueAttributeDisclaimer"), null, null, null, "warning")
                                             }
                                         </div>
                                     )
@@ -1295,12 +1253,13 @@ export const Connections = ({
         );
     }
 
-    const alertInfo = (message, action, actionLabel, alertType = "info") => {
+    const alertInfo = (description, title, action, actionLabel, alertType = "info") => {
         const Icon = alertType === "error" ? XCircleIcon : alertType === "warning" ? WarningIcon : InfoIcon;
         return (
-            <Alert variant={alertType === "error" ? "danger" : alertType === "warning" ? "warning" : "default"}>
+            <Alert variant={alertType === "error" ? "danger" : alertType === "warning" ? "warning" : "info"}>
                 <Icon/>
-                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(message)}}/>
+                {title && <AlertTitle>{title}</AlertTitle>}
+                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(description)}}/>
                 {action && <AlertAction onClick={action}>
                     <Button size="sm" variant="outline">{actionLabel}</Button>
                 </AlertAction>}
@@ -1324,9 +1283,6 @@ export const Connections = ({
             }
             case sections.publish: {
                 return renderPublishSection();
-            }
-            case sections.overview: {
-                return isOidc || isRs ? renderOIDCOverview() : renderSAMLOverview();
             }
             case sections.pendingChanges: {
                 return <ChangeRequests connectionName={connection.name}
@@ -1375,8 +1331,8 @@ export const Connections = ({
                 return sections.testConnection;
             case sections.testConnection:
                 return sections.publish;
-            default:
-                return sections.overview;
+            case sections.publish:
+                return sections.publish;
         }
     }
     const storeAndNext = () => {
@@ -1475,7 +1431,7 @@ export const Connections = ({
         const valid = !storeAndNextDisabled();
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
-        const showOverviewButton = section === sections.overview;
+        const showOverviewButton = section === sections.publish && !isEmpty(jiraKey);
         const submitTxt = (requiresChangeRequest && config.testEnvironment) ? I18n.t("connection.requiresChangeRequest") :
             section === sections.publish ? I18n.t("connection.productionStatusSection.requestProduction") :
                 section === sections.testConnection ? I18n.t("connection.productionStatusSection.doneAndContinue") :
@@ -1483,9 +1439,12 @@ export const Connections = ({
         return (
             <>
                 <div className="testing-header">
+                    <div className="testing-header-info">
                     <h2 className="text-[length:var(--text-xl-font-size)]">
                         {I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}
                     </h2>
+                    <ConnectionStatusBadge connection={connection}/>
+                    </div>
                     <div className="ml-auto flex">
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
@@ -1527,7 +1486,6 @@ export const Connections = ({
                     <section className="left">
                         <div className="status-menu">
                             {Object.values(sections)
-                                .filter(s => s !== sections.overview)
                                 .filter(s => typeof s !== "function")
                                 .filter(s => connection.protocol.value !== PROTOCOLS.OAUTH20_RS || s !== sections.informationProfile)
                                 .filter(s => s !== sections.pendingChanges || !isEmpty(connection.changeRequests))
@@ -1702,10 +1660,10 @@ export const Connections = ({
                                                      {ADD_ATTR: ["href"], ADD_TAGS: ["a"]})
                                              }}/> :
                                              modal === modals.resetSecretDisclaimer ?
-                                                 alertInfo(I18n.t("connection.connectionOverview.secretResetDisclaimer"), null, null, "error") :
+                                                 alertInfo(I18n.t("connection.connectionOverview.secretResetDisclaimer"), null, null, null, "error") :
                                                  modal === modals.resetSecret ?
                                                      <div>
-                                                         {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, "warning")}
+                                                         {alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, null, "warning")}
                                                          <InputField name={I18n.t("connection.connectionOverview.secret")}
                                                                      value={connection.secret}
                                                                      disabled={true}

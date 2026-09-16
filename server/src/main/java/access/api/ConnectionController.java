@@ -308,7 +308,7 @@ public class ConnectionController implements UserAccessRights {
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Production status requested by %s for %s.",
             user.getName(), connection.getName());
-        String jiraKey = jiraClient.create(new JiraIssue(
+        JiraIssue jiraIssue = new JiraIssue(
             entityId,
             null,// There is no identity provider for requesting production status
             String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
@@ -317,8 +317,10 @@ public class ConnectionController implements UserAccessRights {
                 changeRequestURL),
             summary,
             connection.getProtocol(),
-            user.getEmail()
-        ));
+            user.getEmail(),
+            connection.getManageIdentifier()
+        );
+        String jiraKey = jiraClient.create(jiraIssue);
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
             "notes", String.format("Production status requested by %s for %s. See Jira %s",
                 user.getName(), connection.getName(), jiraKey));
@@ -410,7 +412,8 @@ public class ConnectionController implements UserAccessRights {
                         changeRequestURL),
                     summary,
                     connection.getProtocol(),
-                    user.getEmail()
+                    user.getEmail(),
+                    null
                 ));
                 Map<String, Object> auditData = Map.of("user", user.getEmail(),
                     "notes", String.format("Data change requested by %s for %s. See Jira %s",

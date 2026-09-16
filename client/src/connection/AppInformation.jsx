@@ -17,7 +17,7 @@ import {
 } from "../utils/Application.js";
 import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
 import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
-import {Button, Checkbox, Spinner} from "@surfnet/curve-react";
+import {Button, Checkbox, Label, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
@@ -294,15 +294,13 @@ export const AppInformation = ({
                 )}
                     <div className="fair-use">
                         <p>{I18n.t("application.terms")}</p>
-                        <div className="checkbox-container">
-                            <Checkbox id="application-terms"
-                                      checked={application.fairUseTermsAccepted}
+                        <Label className="checkbox-container">
+                            <Checkbox checked={application.fairUseTermsAccepted}
                                       disabled={application.fairUseTermsAccepted}
                                       onCheckedChange={acceptFairUseTerms}
                             />
-                            <label htmlFor="application-terms"
-                                   dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
-                        </div>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
+                        </Label>
                         <ul>
                             {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
                                 .map(check => <li key={check}>{check}</li>)}

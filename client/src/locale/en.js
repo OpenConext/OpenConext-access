@@ -454,7 +454,8 @@ const en = {
             details: "Details",
             requestProductionStatus: "Request production status",
             requestProductionStatusConfirmation: "Are you sure you want to request production status for {{name}}",
-            requestProductionStatusPostInfo: "Your request for production-ready status is sent and you will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
+            requestProductionStatusPostTitle: "Your request for production-ready status is sent",
+            requestProductionStatusPostDescription: "You will be contacted by mail within <strong>3 working days</strong>. Your reference number of our internal ticketing system is <strong>{{jiraKey}}</strong>",
         },
         informational: {
             disclaimer: "Only process information that is <strong>strictly necessary</strong> for the functioning of your application.",
@@ -508,6 +509,7 @@ const en = {
             placeholder: "Select one or more institutions",
             institution: "Institution IdP",
             eduIdAccess: "Access for eduID users",
+            eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Read more about eduID</a>",
             eduIdAccessLabel: "eduID users may log in via this connection",
         },
         connectionOverview: {
@@ -531,9 +533,6 @@ const en = {
         connectionOverviewSAML: {
             title: "The SAML connection is ready",
             link: "Follow the <a class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910223/Connect+to+the+test+environment' target='_blank'>test instructions</a> to see if everything works.",
-        },
-        productionStatusRequested: {
-            info: "Production status",
         },
         appInfo: {
             title: "Information for the catalog",
@@ -618,7 +617,8 @@ const en = {
             postponePublish: "I'll do this later - to Connections",
             doneAndContinue: "Done and continue",
             appInformationIncomplete: "Before requesting production-ready status, all the application information must be filled in",
-            pendingProdDisclaimer: "This connection is pending production-ready status. If you want to test connections, create a new connection",
+            pendingProdDisclaimerTitle: "This connection is pending production-ready status.",
+            pendingProdDisclaimerDescription: "If you want to test connections, create a new connection",
             prodDisclaimer: "This connection has production-ready status. If you want to test connections, create a new connection",
             fillAppInformation: "Do it now",
         },
@@ -1025,6 +1025,7 @@ const en = {
         connectionMade: "Connected",
         status: "Status",
         type: "Type",
+        connections: "Connections",
         created: "Created",
         grid: "Grid",
         list: "List",

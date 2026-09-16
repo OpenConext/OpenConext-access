@@ -53,7 +53,7 @@ div.organization-outer-container {
         table.application-list-view {
             th {
                 &.name {
-                    width: 35%;
+                    width: 31%;
                 }
 
                 &.type {
@@ -61,13 +61,22 @@ div.organization-outer-container {
                 }
 
                 &.status {
-                    width: 35%;
+                    width: 21%;
+                }
+
+                &.connectionCount {
+                    width: 18%;
+                    text-align: center;
                 }
 
                 &.createdAt {
                     width: 15%;
                 }
 
+            }
+
+            td.connectionCount {
+                text-align: center;
             }
 
         }

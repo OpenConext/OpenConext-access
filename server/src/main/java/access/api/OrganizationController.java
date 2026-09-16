@@ -259,7 +259,8 @@ public class OrganizationController implements UserAccessRights {
                     String.format("%s/system/organizationPendingApproval", config.getClientUrl())),
                 summary,
                 EntityType.oidc10_rp,
-                user.getEmail()
+                user.getEmail(),
+                null
             ));
             LOG.info("Created Jira issue for new Organization: " + jiraKey);
             newOrganization.setTicketKey(jiraKey);

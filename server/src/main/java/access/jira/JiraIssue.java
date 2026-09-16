@@ -19,5 +19,6 @@ public class JiraIssue {
     private String summary;
     private EntityType entityType;
     private String emailTo;
+    private String manageIdentifier;
 
 }

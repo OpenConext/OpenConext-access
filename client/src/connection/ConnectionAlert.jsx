@@ -4,7 +4,7 @@ import {Alert, AlertAction, AlertDescription, Button} from "@surfnet/curve-react
 import {InfoIcon, WarningIcon, XIcon} from "@phosphor-icons/react";
 import {isEmpty, sanitize, splitListSemantically} from "../utils/Utils.js";
 import {CONNECTION_STATUSES} from "../utils/Manage.js";
-
+import "./ConnectionAlert.scss";
 
 export const ConnectionAlert = ({
                                     user,
@@ -17,8 +17,6 @@ export const ConnectionAlert = ({
                                     customProdTabAction = null,
                                     fullWidth = false
                                 }) => {
-
-    const [alertClosed, setAlertClosed] = useState(false);
 
     const renderAlert = ({warning = false, message, close, action, actionLabel}) => (
         <Alert className="connection-alert" variant={warning ? "warning" : "info"}>
@@ -38,9 +36,6 @@ export const ConnectionAlert = ({
     );
 
     const alertInfo = () => {
-        if (alertClosed) {
-            return null;
-        }
         let connectionsNeedActivationNames = [];
         if ((!isEmpty(currentOrganization.manageIdentifier)) && !isEmpty(application.connections)) {
             const names = application.connections

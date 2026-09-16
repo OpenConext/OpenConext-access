@@ -54,6 +54,23 @@ $width-percentage: 75%;
             }
         }
     }
+    .testing-header-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .secret-link, .saml-test {
+        margin-top: 15px;
+
+        button {
+            margin: 0;
+            padding: 0;
+        }
+
+        span.label {
+            margin: 0;
+        }
+    }
 
     .testing {
         display: flex;
@@ -96,7 +113,7 @@ $width-percentage: 75%;
             }
 
             p.profile-info {
-                margin-top: 5px;
+                margin: 5px 0 8px 0;
                 color: var(--muted-foreground);
             }
 
@@ -106,14 +123,19 @@ $width-percentage: 75%;
 
             p.scoped-value-disclaimer {
                 margin: 8px 0;
-                font-size: 14px;
+                color: var(--base-muted-foreground, #525252);
+                font-size: var(--text-sm-font-size, 16px);
             }
 
             div.attributes {
-                background-color: var(--muted);
+                border-radius: var(--border-radius-rounded-xl, 14px);
+                border: var(--border-width-border, 1px) solid var(--custom-foreground-10, rgba(10, 10, 10, 0.10));
+                background: var(--base-card, #FFF);
+
+                /* shadow/xs */
+                box-shadow: var(--shadow-xs-offset-x, 0) var(--shadow-xs-offset-y, 1px) var(--shadow-xs-blur-radius, 2px) var(--shadow-xs-spread-radius, 0) var(--shadow-xs-color, rgba(0, 0, 0, 0.05));
                 padding: 8px 15px;
                 display: grid;
-                border-radius: 8px;
                 grid-template-columns: [first] 1fr [second] 1fr;
 
                 span {
@@ -134,6 +156,7 @@ $width-percentage: 75%;
                 border-radius: 6px;
                 padding: 0.75rem;
                 width: 100%;
+                background-color: white;
 
                 &.dormant {
                     background-color: var(--muted);
@@ -183,18 +206,6 @@ $width-percentage: 75%;
 
         }
 
-        .identity-providers {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 15px;
-
-            &.active {
-                border-color: var(--primary);
-            }
-
-        }
-
         .test-idp-section {
 
             .test-accounts-title {
@@ -210,18 +221,35 @@ $width-percentage: 75%;
             }
 
             .switch-field {
-                padding: 15px;
+                padding: 12px;
                 border: 1px solid var(--border);
-                border-radius: 6px;
+                border-radius: 10px;
                 margin-top: 15px;
 
                 &.active {
                     border-color: var(--primary);
-                    border-bottom-color: var(--border);
-                    border-bottom-left-radius: 0;
-                    border-bottom-right-radius: 0;
+                    border-bottom: none;
+                    border-radius: 10px 10px 0 0;
+                    background-color: white;
                 }
             }
+
+            .identity-providers {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+                padding: 15px;
+                border: 1px solid var(--primary);
+                border-top: 1px solid var(--border);
+                border-radius: 0 0 10px 10px;
+                background-color: white;
+
+                &.active {
+                    border-color: var(--primary);
+                    border-top-color: var(--border);
+                }
+            }
+
 
             .idp {
                 display: flex;
@@ -254,25 +282,27 @@ $width-percentage: 75%;
 
     }
 
-    .production-status-requested {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
     .status-menu {
         @include card(15px, 24px, 0);
     }
 
     .grant-types {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .grant-type-card {
+            display: flex;
+            flex-direction: column;
+        }
 
         .grant-type {
             display: flex;
             align-items: center;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 10px;
             padding: 0.75rem;
+            background-color: white;
 
             [data-slot="radio-group"] {
                 // curve-react's RadioGroup ships with `w-full`, which fills the entire
@@ -282,17 +312,11 @@ $width-percentage: 75%;
                 margin-left: auto;
             }
 
-            &.pkce {
-                background-color: #f3f5f7;
-            }
-
             .pkce-label {
                 margin-top: 10px;
             }
 
             &.refresh-token-validity {
-                background-color: #f3f5f7;
-
                 .sds--text-field {
                     flex-direction: row;
                     width: 100%;
@@ -312,22 +336,26 @@ $width-percentage: 75%;
                 }
             }
 
-            &:first-child {
-                border-radius: 6px 6px 0 0;
-                border-bottom: none;
-            }
-
-            &:not(:first-child):not(:last-child) {
-                border-radius: 0;
-                border-bottom: none;
-            }
-
-            &:last-child {
-                border-radius: 0 0 6px 6px;
-            }
-
             [data-slot="switch"] {
                 margin-left: auto;
+            }
+        }
+
+        // The active/expanded grant type (Authorization Code with its PKCE
+        // choice, or Refresh tokens with its validity input) reads as one
+        // continuous primary-bordered card: the switch row loses its bottom
+        // border and the sub-content loses its top border, so they join.
+        .grant-type-card.expanded {
+            .grant-type:first-child {
+                border-color: var(--primary);
+                border-bottom: 1px solid var(--border);
+                border-radius: 10px 10px 0 0;
+            }
+
+            .pkce, .refresh-token-validity {
+                border-color: var(--primary);
+                border-top: none;
+                border-radius: 0 0 10px 10px;
             }
         }
     }
@@ -347,6 +375,7 @@ $width-percentage: 75%;
                 width: 100%;
                 display: flex;
                 align-items: end;
+
                 .sds--text-field {
                     width: 100%;
                 }
@@ -430,21 +459,24 @@ $width-percentage: 75%;
     }
 
     .visibility-options {
-        p.question {
-            font-weight: 600;
-            margin-bottom: 15px;
-            position: relative;
 
+        &:not(:first-child) {
+            margin-top: 20px;
         }
 
-        .checkbox-field {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
+        p.question {
+            margin-bottom: 12px;
+            position: relative;
+            font-weight: var(--font-weight-medium, 500);
+        }
 
-            label {
-                cursor: pointer;
-            }
+        p.eduid-access-info {
+            margin: 0 0 12px 0;
+            color: var(--muted-foreground);
+        }
+
+        p.disclaimer {
+            margin: 20px 0 18px 0;
         }
     }
 
@@ -525,24 +557,13 @@ $width-percentage: 75%;
     margin-top: 10px;
 
     .oidc-authentication-inner {
+        @include card(24px, 24px, 24px);
         margin-top: 20px;
-        padding: 20px;
-        background-color: #FEFBE6;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+        background-color: var(--card, white);
+        border-color: var(--border);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 
-    .secret-link, .saml-test {
-        margin-top: 15px;
-        button {
-            margin: 0;
-            padding: 0;
-        }
-        span.label {
-            margin: 0;
-        }
-    }
 }
 
 
