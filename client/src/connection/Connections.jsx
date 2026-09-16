@@ -5,7 +5,9 @@ import {
     ArrowRightIcon as ArrowRight,
     CaretDownIcon as CaretDown,
     CaretRightIcon as ArrowRightIcon,
+    CheckCircleIcon,
     CircleDashedIcon as PendingIcon,
+    CopyIcon,
     HourglassHighIcon,
     InfoIcon,
     TrashIcon,
@@ -1019,10 +1021,30 @@ export const Connections = ({
         const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
+        //Same URL as the accessCatalogusAppURL custom field JiraClient sends to Jira
+        const accessCatalogusAppURL = `${config.clientUrl}/application-detail/${connection.protocol.value}/${connection.manageIdentifier}`;
+        const copyAccessCatalogusAppURL = () => {
+            navigator.clipboard.writeText(accessCatalogusAppURL)
+                .then(() => setFlash(I18n.t("forms.copied")));
+        }
         return (
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.publish")}</h3>
-                {prodConnection && <p>{I18n.t("connection.productionStatusReady")}</p>}
+                {prodConnection &&
+                    <Alert variant="success">
+                        <CheckCircleIcon/>
+                        <AlertTitle>{I18n.t("connection.productionStatusSection.readyTitle")}</AlertTitle>
+                        <AlertDescription>
+                            <p>{I18n.t("connection.productionStatusSection.readyDescription")}</p>
+                            <p>{accessCatalogusAppURL}</p>
+                        </AlertDescription>
+                        <AlertAction>
+                            <Button size="sm" variant="outline" onClick={copyAccessCatalogusAppURL}>
+                                <CopyIcon/>
+                                {I18n.t("connection.productionStatusSection.copyUrl")}
+                            </Button>
+                        </AlertAction>
+                    </Alert>}
                 {!isEmpty(jiraKey) && renderProductionStatusRequested()}
                 {(pendingProd && isEmpty(jiraKey)) &&
                     alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimerDescription"),
@@ -1032,7 +1054,7 @@ export const Connections = ({
                         () => setTab("application"),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
-                {(!isRs && !pendingProd) &&
+                {!isRs &&
                     <>
                         <div className="visibility-options-container">
                             <div className="visibility-options">

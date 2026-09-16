@@ -358,7 +358,6 @@ const nl = {
         visibility: "Zichtbaarheid in de catalogus",
         testConnection: "Verbinding testen",
         publish: "Publiceren",
-        productionStatusReady: "Deze koppeling is live en gereed om te worden gebruikt in productie",
         help: "Hulp nodig?",
         callSurf: "Plan een gesprek met SURF",
         supportTicket: "Maak een support‑ticket",
@@ -620,6 +619,9 @@ const nl = {
             pendingProdDisclaimerTitle: "Deze koppeling wacht op de status 'gereed voor productie'",
             pendingProdDisclaimerDescription: "Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
             prodDisclaimer: "Deze koppeling heeft de status 'gereed voor productie'. Als je koppelingen wilt testen, maak dan een nieuwe koppeling aan.",
+            readyTitle: "De koppeling is live!",
+            readyDescription: "De koppeling is klaar voor gebruik:",
+            copyUrl: "Kopieer URL",
             fillAppInformation: "Doe het nu",
         },
         testConnectionSection: {

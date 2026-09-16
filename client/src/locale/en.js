@@ -358,7 +358,6 @@ const en = {
         visibility: "Visibility in the catalog",
         testConnection: "Test connection",
         publish: "Publish",
-        productionStatusReady: "This connection is live and ready to be used in production",
         help: "Need help?",
         callSurf: "Plan a call with SURF",
         supportTicket: "Create a support ticket",
@@ -620,6 +619,9 @@ const en = {
             pendingProdDisclaimerTitle: "This connection is pending production-ready status.",
             pendingProdDisclaimerDescription: "If you want to test connections, create a new connection",
             prodDisclaimer: "This connection has production-ready status. If you want to test connections, create a new connection",
+            readyTitle: "The connection is live!",
+            readyDescription: "The connection is ready to use:",
+            copyUrl: "Copy URL",
             fillAppInformation: "Do it now",
         },
         testConnectionSection: {
