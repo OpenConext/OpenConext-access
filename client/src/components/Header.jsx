@@ -3,8 +3,11 @@ import Logo from "../icons/logo-surf.svg";
 import "./Header.scss";
 import {Navigation} from "./Navigation.jsx";
 import {useEffect} from "react";
+import {useCustomization} from "../contexts/CustomizationContext.tsx";
 
 export const Header = ({currentLocation}) => {
+
+    const { logo } = useCustomization();
 
     useEffect(() => {
         //force re-render on location change
@@ -14,7 +17,7 @@ export const Header = ({currentLocation}) => {
         <div className="header-container">
             <div className="header-inner">
                 <Link className="logo" to={"/"}>
-                    <Logo/>
+                    {logo ?? <Logo/>}
                 </Link>
                 <Navigation mobile={false} path={currentLocation.pathname}/>
             </div>
