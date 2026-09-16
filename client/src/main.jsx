@@ -7,16 +7,21 @@ import './index.scss';
 import {StrictMode} from "react";
 import {Toaster, TooltipProvider} from "@surfnet/curve-react";
 
+import {CustomizationContextProvider} from "./contexts/CustomizationContext";
+import {appCustomization} from "./appCustomizations";
+
 const root = createRoot(document.getElementById("root"));
 root.render(
     <StrictMode>
-        <TooltipProvider>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/*" element={<App/>}/>
-                </Routes>
-            </BrowserRouter>
-            <Toaster/>
-        </TooltipProvider>
+        <CustomizationContextProvider logo={appCustomization.logo}>
+            <TooltipProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/*" element={<App/>}/>
+                    </Routes>
+                </BrowserRouter>
+                <Toaster/>
+            </TooltipProvider>
+        </CustomizationContextProvider>
     </StrictMode>
 );

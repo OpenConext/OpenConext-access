@@ -59,3 +59,6 @@ server/src/main/resources/Changelog.md
 SPRING_MIGRATION.md
 DesignSystem
 ignore
+
+client/src/appCustomizations/myCustomizations/*
+client/src/appCustomizations/myCustomizations/.*
