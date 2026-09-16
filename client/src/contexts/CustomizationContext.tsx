@@ -8,22 +8,17 @@ export const AppCustomizationContext = createContext<AppCustomization>({
     logo: '[CustomLogo-DefaultFromContext]'
 });
 
-export type CustomizationContextProps = AppCustomization & {
+export type CustomizationContextProps = {
+    appCustomization: AppCustomization;
     children: ReactNode;
 }
 
-export const CustomizationContextProvider: FC<CustomizationContextProps> = ({logo,children}) => {
+export const CustomizationContextProvider: FC<CustomizationContextProps> = ({children, appCustomization}) => {
     return (
-        <AppCustomizationContext.Provider value={{ logo }}>
+        <AppCustomizationContext.Provider value={appCustomization}>
             {children}
         </AppCustomizationContext.Provider>
     );
 }
 
-export const useCustomization = () => {
-    const { logo } = useContext(AppCustomizationContext);
-
-    return {
-        logo,
-    }
-}
+export const useCustomization = () => useContext(AppCustomizationContext)

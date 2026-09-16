@@ -13,7 +13,7 @@ import {appCustomization} from "./appCustomizations";
 const root = createRoot(document.getElementById("root"));
 root.render(
     <StrictMode>
-        <CustomizationContextProvider logo={appCustomization.logo}>
+        <CustomizationContextProvider appCustomization={appCustomization}>
             <TooltipProvider>
                 <BrowserRouter>
                     <Routes>
