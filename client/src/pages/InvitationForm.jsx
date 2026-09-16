@@ -51,7 +51,8 @@ export const InvitationForm = () => {
                             menuItemName: mainMenuItems.users
                         },
                         {value: I18n.t("breadCrumb.invitations")}
-                    ]
+                    ],
+                    activeMenuItem: mainMenuItems.users
                 });
                 setLoading(false);
                 const membership = (user.organizationMemberships || []).find(membership => membership.organization.id === res.id);
