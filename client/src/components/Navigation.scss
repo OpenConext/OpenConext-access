@@ -42,7 +42,7 @@
 
     }
 
-    .links {
+    div.links {
         margin: 0 40px 0 auto;
         display: flex;
         gap: 15px;
@@ -52,6 +52,10 @@
             flex-direction: column;
             margin: 16px 0 0 0;
             gap: 50px;
+        }
+
+        a {
+            text-decoration: none;
         }
     }
 

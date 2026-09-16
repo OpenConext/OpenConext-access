@@ -120,7 +120,7 @@ export const Entities = ({
                                              ref={searchRef}
                                              onChange={queryChanged}
                                              value={query}
-                                             placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>
+                                             />
                             <InputGroupAddon align="inline-end">
                                 <SearchIcon/>
                             </InputGroupAddon>

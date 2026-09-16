@@ -1613,17 +1613,22 @@ export const Connections = ({
                 mapper: () => <ArrowRightIcon/>
             },
         ]
-
         return (
             <Entities entities={connections}
                       modelName="table-connections"
                       defaultSort="name"
                       columns={columns}
-                      hideTitle={true}
-                      showNew={false}
+                      title={I18n.t(`connection.allConnections`)}
+                      newLabel={I18n.t("testing.newConnection")}
+                      showNew={true}
+                      newEntityFunc={() => {
+                          setSection(sections.technical);
+                          setChangeRequestsKeys([]);
+                          initConnection(true);
+                      }}
                       rowLinkMapper={(e, conn) => showConnectionDetails(conn)}
                       rowHrefMapper={conn => `/connection/${application.id}/allConnections/${conn.id}`}
-                      displaySearch={false}
+                      displaySearch={true}
                       searchAttributes={["name", "protocol"]}
                       inputFocus={true}/>
         )
@@ -1644,17 +1649,6 @@ export const Connections = ({
                                   appInformationComplete={appInformationComplete}
                                   connectionNeedsApproval={connectionNeedsApproval}
                 />}
-                <div className="header">
-                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t(`connection.allConnections`)}</h3>
-                    <Button variant="default"
-                            onClick={() => {
-                                setSection(sections.technical);
-                                setChangeRequestsKeys([]);
-                                initConnection(true);
-                            }}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("testing.newConnection"))}}/>
-                    </Button>
-                </div>
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&
                     <p dangerouslySetInnerHTML={{
