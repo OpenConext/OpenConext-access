@@ -31,7 +31,9 @@ export const ConnectionAlert = ({
                     </Button>
                 </AlertAction>}
             </AlertDescription>
-
+            {close && <AlertAction>
+                <button type="button" onClick={close}><XIcon/></button>
+            </AlertAction>}
         </Alert>
     );
 

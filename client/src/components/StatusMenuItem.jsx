@@ -13,7 +13,7 @@ export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert
     return (
         <div className={`status-menu-item ${isActive} ${isDisabled}`}
              onClick={() => !disabled && action()}>
-            {( !CustomIcon) && icon}
+            {(!hideIcon && !CustomIcon) && icon}
             {CustomIcon && <CustomIcon/>}
             <span className="info">{info}</span>
         </div>

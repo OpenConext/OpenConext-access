@@ -17,9 +17,8 @@ import {useShallow} from "zustand/react/shallow";
 
 const Landing = ({refreshUser}) => {
 
-    const {user, currentOrganization, setFlash} = useAppStore(useShallow(state => ({
+    const {user, setFlash} = useAppStore(useShallow(state => ({
         user: state.user,
-        currentOrganization: state.currentOrganization,
         setFlash: state.setFlash
     })));
 

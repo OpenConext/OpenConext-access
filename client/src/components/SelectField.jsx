@@ -40,6 +40,7 @@ export default function SelectField({
                     isDisabled={disabled}
                     onChange={onChange}
                     options={options}
+                    required={required}
                 />}
             {!creatable && <Select
                 className={`input-select-inner ${small ? " small" : ""}`}
@@ -52,6 +53,7 @@ export default function SelectField({
                 options={options}
                 isSearchable={searchable}
                 isClearable={clearable}
+                required={required}
             />}
             {info && <p className="select-info"
                         dangerouslySetInnerHTML={{

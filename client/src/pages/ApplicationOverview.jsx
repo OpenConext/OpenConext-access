@@ -167,7 +167,6 @@ const ApplicationOverview = ({accessible}) => {
 
                 })
                 .catch(e => {
-                    debugger;
                     console.log(e);
 
                     navigate("/404");

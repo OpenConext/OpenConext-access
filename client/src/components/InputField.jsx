@@ -76,6 +76,7 @@ export default function InputField({
                            min={0}
                            ref={onRef}
                            placeholder={placeholder}
+                           required={required}
                            aria-invalid={error}
                            onKeyDown={onKeyDown}/>}
                 {(multiline && !noInput) &&
@@ -84,6 +85,7 @@ export default function InputField({
                               onChange={onChange}
                               onBlur={onBlur}
                               id={name}
+                              required={required}
                               aria-invalid={error}
                               className={`${large ? "large" : ""} ${small ? "small" : ""}`}
                               onKeyDown={e => {

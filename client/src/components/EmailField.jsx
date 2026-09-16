@@ -132,6 +132,7 @@ export default function EmailField({
                                   }
                               }
                           }}
+                          required={required}
                           cols={3}/>
             </div>
             <span className="field-tip">{I18n.t("invitation.inviteesTooltip")}</span>
