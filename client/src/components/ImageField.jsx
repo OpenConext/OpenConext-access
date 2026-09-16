@@ -1,6 +1,6 @@
 import "./ImageField.scss";
 import {useRef, useState} from "react";
-import NotFoundImage from "../icons/image-not-found.svg"
+import NotFoundImage from "../icons/image-placeholder.svg"
 import {srcUrl} from "../utils/Image.js";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
