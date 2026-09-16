@@ -63,7 +63,6 @@ export const ConnectionAlert = ({
         if (connectionComplete && connectionNeedsApproval)
             return renderAlert({
                 warning: true,
-                close: () => setAlertClosed(true),
                 message: I18n.t("connection.productionActivationHint", {name: connectionsNeedActivationNames}),
                 action: () => customProdTabAction ? customProdTabAction() : setTab("allConnections", "activate"),
                 actionLabel: I18n.t("connection.productionActivationAction")

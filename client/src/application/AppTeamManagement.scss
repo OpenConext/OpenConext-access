@@ -1,29 +1,12 @@
-@use "../styles/mixins" as *;
 @use "../styles/vars" as *;
-@use "../index";
 
 $page_width: 75%;
 
 .application-memberships {
     padding: $page-padding;
 
-    .application-header {
-        display: flex;
-        width: $page_width;
-    }
-
     p.info {
         margin: 15px 0;
-    }
-
-    .menu.drop-down {
-        position: relative;
-    }
-
-    @include index.menu-header;
-
-    ul li {
-        padding: 12px 0 12px 0;
     }
 
     .mod-entities {
@@ -33,6 +16,12 @@ $page_width: 75%;
             width: 100%;
         }
 
+        // Entities defaults to a right-aligned search bar when `showNew` is
+        // unset, but this page always renders the "Gebruiker toevoegen"
+        // dropdown as a search-row child, so the two need to split apart.
+        .entities-search.only-search {
+            justify-content: space-between;
+        }
     }
 
     table.appTeamManagement {
@@ -41,12 +30,16 @@ $page_width: 75%;
                 width: 40%;
             }
 
-            th.created {
-                width: 30%;
+            th.role {
+                width: 25%;
+            }
+
+            th.createdAt {
+                width: 25%;
             }
 
             th.buttons {
-                width: 20%;
+                width: 10%;
             }
         }
 

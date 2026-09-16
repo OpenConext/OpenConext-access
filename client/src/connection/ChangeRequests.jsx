@@ -98,9 +98,9 @@ export const ChangeRequests = ({
                     {deltaToText(delta)}
                 </div>
                 <div className="change-request-toggle">
-                    <button type="button" className="link-button" onClick={e => toggleIsJsonDiffOpen(e, changeRequest )}>
+                    <Button  variant="link" onClick={e => toggleIsJsonDiffOpen(e, changeRequest )}>
                         {I18n.t(`changeRequests.${isJsonDiffOpen[changeRequest.id] ? "hide" : "show"}`)}
-                    </button>
+                    </Button>
                 </div>
                 {isJsonDiffOpen[changeRequest.id] &&
                     <div className="jsondiffpatch-unchanged-hidden" dangerouslySetInnerHTML={{__html: htmlDiff}}/>}

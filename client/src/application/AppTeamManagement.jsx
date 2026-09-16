@@ -7,11 +7,11 @@ import {UserMembership} from "../components/UserMembership.jsx";
 import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
 import {Link, useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {Badge, Spinner} from "@surfnet/curve-react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {createApplicationMembership, deleteApplicationMembershipById, organizationUsersById} from "../api/index.js";
 import {useAppStore} from "../stores/AppStore.js";
-import {TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
-import SelectField from "../components/SelectField.jsx";
+import {TrashIcon} from "@phosphor-icons/react";
+import {AddApplicationMemberMenu} from "./AddApplicationMemberMenu.jsx";
 import {useShallow} from "zustand/react/shallow";
 
 export const AppTeamManagement = ({
@@ -27,7 +27,6 @@ export const AppTeamManagement = ({
     const navigate = useNavigate();
 
     const [confirmation, setConfirmation] = useState({});
-    const [dropDownActive, setDropDownActive] = useState(-1);
     const [currentUserAuthority, setCurrentUserAuthority] = useState({});
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
@@ -43,6 +42,7 @@ export const AppTeamManagement = ({
                                 .find(m => m.id === membership.organizationMembershipIdentifier);
                             if (organizationMembership) {
                                 membership.user = organizationMembership.user;
+                                membership.authority = organizationMembership.authority;
                             }
                             return membership;
                         }
@@ -72,19 +72,6 @@ export const AppTeamManagement = ({
         }
     }
 
-    const renderMenu = membership => {
-        return (
-            <div className="dropdown-menu">
-                <ul>
-                    <li onClick={() => doDelete(membership, true)}>
-                        <TrashIcon/>
-                        <span>{I18n.t("forms.delete")}</span>
-                    </li>
-                </ul>
-            </div>
-        )
-    }
-
     const organizationMemberOption = organizationMember => {
         return {
             value: organizationMember.id,
@@ -92,28 +79,12 @@ export const AppTeamManagement = ({
         }
     }
 
-    const organizationMemberChanged = option => {
-        createApplicationMembership(option.value, application.id, organization.id)
+    const addApplicationMember = option => {
+        return createApplicationMembership(option.value, application.id, organization.id)
             .then(() => {
                 refresh();
                 setFlash(I18n.t("appTeamManagement.flashCreated", {name: option.label}));
-            })
-    }
-
-    const filters = () => {
-        return (
-            <SelectField
-                value={null}
-                options={organization.organizationMemberships
-                    .filter(member => !applicationMemberships.some(appMember => appMember.organizationMembershipIdentifier === member.id))
-                    .filter(member => member.authority !== authorities.ADMIN)
-                    .map(organizationMemberOption)}
-                placeholder={I18n.t("appTeamManagement.addPlaceHolder")}
-                searchable={true}
-                onChange={organizationMemberChanged}
-                clearable={false}
-            />
-        )
+            });
     }
 
     const renderApplicationMembers = () => {
@@ -124,6 +95,11 @@ export const AppTeamManagement = ({
                 mapper: membership => {
                     return <UserMembership user={membership.user} currentUser={currentUser}/>
                 }
+            },
+            {
+                key: "role",
+                header: I18n.t("appTeamManagement.role"),
+                mapper: membership => membership.authority ? I18n.t(`roles.${membership.authority.toLowerCase()}`) : ""
             },
             {
                 key: "createdAt",
@@ -139,19 +115,18 @@ export const AppTeamManagement = ({
                         return null;
                     }
                     return (
-                        <div className="top-header"
-                             tabIndex={1}
-                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                            <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
-                                <MenuIcon className="menu-icon"/>
-                                {dropDownActive === membership.id && renderMenu(membership)}
-                            </span>
-                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => doDelete(membership, true)}>
+                            <TrashIcon/>
+                        </Button>
                     );
                 }
             }
         ]
+
+        const options = organization.organizationMemberships
+            .filter(member => !applicationMemberships.some(appMember => appMember.organizationMembershipIdentifier === member.id))
+            .filter(member => member.authority !== authorities.ADMIN)
+            .map(organizationMemberOption);
 
         return (
             <Entities
@@ -160,12 +135,15 @@ export const AppTeamManagement = ({
                 defaultSort="user__name"
                 hideTitle={true}
                 columns={columns}
-                filters={filters()}
-                showNew={true}
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
-                newEntityFunc={() => navigate(`/invitation/${organization.id}/${application.id}`)}
-                inputFocus={true}/>
+                inputFocus={true}>
+                {currentUserAuthority !== authorities.GUEST &&
+                    <AddApplicationMemberMenu options={options}
+                                               organizationId={organization.id}
+                                               applicationId={application.id}
+                                               onAdd={addApplicationMember}/>}
+            </Entities>
         )
     };
 
@@ -182,15 +160,7 @@ export const AppTeamManagement = ({
                                          confirmationTxt={okButton}
                                          question={question}
             />}
-            <div className="application-header">
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("appTeamManagement.maintain", {name: application.name})}</h3>
-                <Badge variant="success" className="ml-auto">
-                    {I18n.t("appTeamManagement.createdBy", {
-                        name: application.createdBy,
-                        date: dateFromEpoch(application.createdAt)
-                    })}
-                </Badge>
-            </div>
+            <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("appTeamManagement.maintain")}</h2>
 
             <p className="info">
                 {I18n.t("appTeamManagement.organizationMembersPre")}

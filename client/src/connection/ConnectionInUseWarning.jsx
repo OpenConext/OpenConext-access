@@ -3,6 +3,7 @@ import {isEmpty} from "../utils/Utils.js";
 import I18n from "../locale/I18n";
 import {providerName} from "../utils/Manage.js";
 import DOMPurify from "dompurify";
+import "./ConnectionInUseWarning.scss";
 
 export const units = {
     organization: "organization",

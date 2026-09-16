@@ -83,7 +83,7 @@ const modals = {
     deletionWarning: "deletionWarning",
 }
 
-const AlertTriangleIcon = () => <WarningIcon weight="fill" className="alert-triangle"/>;
+const AlertTriangleIcon = () => <WarningIcon weight="regular" color={"var(--warning-subtle-foreground)"} className="alert-triangle"/>;
 
 const connectionStatusKey = connection => {
     const productionConnectionNeedsActivation = connection.status === CONNECTION_STATUSES.COMPLETE;
@@ -463,7 +463,9 @@ export const Connections = ({
     }
 
     const doDeleteConnection = confirmationRequired => {
-        if (confirmationRequired) {
+        if (!connection.id) {
+            backToMainOverview();
+        } else if (confirmationRequired) {
             setLoading(true);
             //First, fetch all the possible identityProviders affected by the deletion of this connection,
             //and check if there are any outstanding policies that block deletion
@@ -756,6 +758,7 @@ export const Connections = ({
                                      value={connection.claimsInIdToken || false}
                                      onChange={val => setConnection({...connection, claimsInIdToken: val})}
                                      label={I18n.t("connection.claimsInIdToken")}
+                                     className={"no-top-margin"}
                                      info={I18n.t("connection.claimsInIdTokenTooltip")}
                         />
                     </>
@@ -773,13 +776,14 @@ export const Connections = ({
                                         value={connection.entityID}
                                         disabled={true}
                                         copyClipBoard={true}/>
-                            <div className="input-field sds--text-field secret-link">
+                            <div className="secret-link">
                                 <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
                                 <span>{I18n.t("connection.connectionOverview.secretReset")}
-                                    <button type="button" className="link-button" onClick={e => newClientSecret(e, true)}>
-                                    {I18n.t("connection.connectionOverview.secretResetLink")}
-                                </button>
+
                                 </span>
+                                <Button variant="link" onClick={e => newClientSecret(e, true)}>
+                                    {I18n.t("connection.connectionOverview.secretResetLink")}
+                                </Button>
 
                             </div>
                         </div>
@@ -1479,7 +1483,10 @@ export const Connections = ({
         return (
             <>
                 <div className="testing-header">
-                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}</h2>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">
+                        {I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}
+                    </h2>
+                    <div className="ml-auto flex">
                     {!isEmpty(connection.changeRequests) &&
                         <div className="action-button">
                             <Button onClick={() => changeSection(sections.pendingChanges)}>
@@ -1492,7 +1499,8 @@ export const Connections = ({
                                 (isEmpty(connection.id) && application.connections.length === 1))) &&
                         <div className="copy-connection"
                              tabIndex={1}
-                             onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}>
+                             onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}
+                        >
                             <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
                                     variant="secondary">
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.copyConnection"))}}/>
@@ -1507,6 +1515,13 @@ export const Connections = ({
                                                   onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
                                 </section>}
                         </div>}
+
+                        <Button variant="ghost"
+                                onClick={() => doDeleteConnection(true)}>
+                            <TrashIcon/><span>{I18n.t("forms.delete")}</span>
+                        </Button>
+                    </div>
+
                 </div>
                 <div className="testing">
                     <section className="left">
@@ -1535,12 +1550,6 @@ export const Connections = ({
                                 {!showOverviewButton &&
                                     <>
                                         <div className="sub-actions">
-                                            <div className="delete-connection">
-                                                <Button variant="destructive"
-                                                        onClick={() => doDeleteConnection(true)}>
-                                                    <TrashIcon/>
-                                                </Button>
-                                            </div>
                                             <Button variant="outline"
                                                     onClick={section === sections.publish ? saveAndPostponePublish : backToConnections}>
                                                 <span dangerouslySetInnerHTML={{

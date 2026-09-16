@@ -37,6 +37,7 @@ $width-percentage: 75%;
         }
 
         .copy-connection-section {
+            background-color: white;
             width: 100%;
             z-index: 9;
             position: absolute;
@@ -87,13 +88,6 @@ $width-percentage: 75%;
             h3 {
                 position: relative;
 
-                svg.alert-triangle {
-                    fill: black;
-                    color: white;
-                    display: inline-block;
-                    vertical-align: middle;
-                    margin-left: 6px;
-                }
 
             }
 
@@ -441,14 +435,6 @@ $width-percentage: 75%;
             margin-bottom: 15px;
             position: relative;
 
-            svg.alert-triangle {
-                fill: black;
-                color: white;
-                display: inline-block;
-                vertical-align: middle;
-                margin-left: 6px;
-            }
-
         }
 
         .checkbox-field {
@@ -466,15 +452,6 @@ $width-percentage: 75%;
 
 .sub-actions {
     display: flex;
-
-    .delete-connection {
-        margin-right: 20px;
-
-        svg {
-            width: 22px;
-        }
-    }
-
 }
 
 .actions {
@@ -557,8 +534,13 @@ $width-percentage: 75%;
     }
 
     .secret-link, .saml-test {
-        a, button.link-button {
-            text-decoration: underline;
+        margin-top: 15px;
+        button {
+            margin: 0;
+            padding: 0;
+        }
+        span.label {
+            margin: 0;
         }
     }
 }

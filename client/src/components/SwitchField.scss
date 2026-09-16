@@ -4,6 +4,9 @@
     margin-top: 20px;
     padding-bottom: 10px;
 
+    &.no-top-margin {
+        margin-top: 0;
+    }
     &:not(.last) {
         border-bottom: 1px solid var(--border);
     }
@@ -19,14 +22,6 @@
     .switch-label {
         font-weight: 600;
         position: relative;
-
-        svg.alert-triangle {
-            fill: black;
-            color: white;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 6px;
-        }
 
     }
 

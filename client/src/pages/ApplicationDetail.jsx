@@ -563,8 +563,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <WarningIcon/>
                     <AlertDescription>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <button type="button" className="link-button" onClick={e => cancelConnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</button>
+                        <Button variant="link" onClick={e => cancelConnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</Button>
                     </AlertDescription>
                 </Alert>
                 }
@@ -572,8 +572,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <WarningIcon/>
                     <AlertDescription>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <button type="button" className="link-button" onClick={e => cancelDisconnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</button>
+                        <Button variant="link" onClick={e => cancelDisconnectionRequest(true, e)}>
+                            {I18n.t("appAccess.cancelRequest")}</Button>
                     </AlertDescription>
                 </Alert>
                 }
@@ -911,9 +911,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             <div className="details-panel">
                 <p className="title">{I18n.t("applicationDetail.attributes")}</p>
                 <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                {!showAttributes && <button type="button" className="link-button" onClick={toggleShowAttributes}>
+                {!showAttributes && <Button variant="link" onClick={toggleShowAttributes}>
                     {I18n.t("applicationDetail.details")}
-                </button>}
+                </Button>}
                 {showAttributes && <div className="arp-attributes">
                     {!serviceProvider.data.arp.enabled &&
                         <p>{I18n.t("applicationDetail.noArp")}</p>
@@ -943,9 +943,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         </>
                     }
                 </div>}
-                {showAttributes && <button type="button" className="link-button" onClick={toggleShowAttributes}>
+                {showAttributes && <Button variant="link" onClick={toggleShowAttributes}>
                     {I18n.t("applicationDetail.hide")}
-                </button>}
+                </Button>}
             </div>
         );
     }
@@ -954,9 +954,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return <div className="details-panel">
             <p className="title">{I18n.t("applicationDetail.privacy")}</p>
             <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-            {!showPrivacy && <button type="button" className="link-button" onClick={toggleShowPrivacy}>
+            {!showPrivacy && <Button variant="link" onClick={toggleShowPrivacy}>
                 {I18n.t("applicationDetail.details")}
-            </button>}
+            </Button>}
             {showPrivacy &&
                 <div className="privacy-questions">
                     {privacy.map((item, index) => {
@@ -975,9 +975,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         }
                     )}
                 </div>}
-            {showPrivacy && <button type="button" className="link-button" onClick={toggleShowPrivacy}>
+            {showPrivacy && <Button variant="link" onClick={toggleShowPrivacy}>
                 {I18n.t("applicationDetail.hide")}
-            </button>}
+            </Button>}
 
         </div>;
     }
@@ -1077,7 +1077,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
-                        <button type="button" className="link-button" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</button>
+                        <Button variant="link" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</Button>
                     </div>
                 }
                 <div className="inner-application-detail-container">

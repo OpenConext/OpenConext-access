@@ -4,8 +4,10 @@ import React from "react";
 
 export const StatusMenuItem = ({pending, info, action, active, disabled, isAlert = false, hideIcon = false, CustomIcon = null}) => {
 
-    const icon = isAlert ? <AlertIcon weight="fill" size={20} className="alert-triangle"/> :
-        pending ? <PendingIcon className="pending" size={20} weight="regular"/> : <CompletedIcon weight="bold" color={"var(--primary-strong)"} className="completed" size={20}/>;
+    const icon = isAlert ?
+        <AlertIcon weight="fill" size={20} className="alert-triangle" color={"var(--warning)"}/> : pending ?
+            <PendingIcon className="pending" size={20} weight="regular"/> :
+            <CompletedIcon weight="bold" color={"var(--primary-strong)"} className="completed" size={20}/>;
 
     const isActive = active ? "active" : "";
     const isDisabled = disabled ? "disabled" : "";

@@ -8,8 +8,16 @@
 
 ::placeholder {
     color: var(--muted-foreground);
-    opacity: 0.9;
 }
+
+svg.alert-triangle {
+    fill: var(--warning-subtle-foreground);
+
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
 sup.required {
     color: var(--destructive, #dc2626);
     margin-left: 2px;

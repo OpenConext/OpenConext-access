@@ -21,8 +21,6 @@
         }
 
         svg.alert-triangle {
-            fill: black;
-            color: white;
             position: absolute;
             top: -2px;
             margin-left: 6px;
@@ -57,8 +55,8 @@
 
         .select-inner__control--is-focused {
             outline: none;
-            box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
-            border: 1px solid var(--border) !important;
+            border: 1px solid var(--ring) !important;
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
             min-height: 48px;
         }
 

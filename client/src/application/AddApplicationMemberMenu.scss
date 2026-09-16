@@ -1,0 +1,45 @@
+.add-application-member-content {
+    width: 384px;
+    max-width: min(384px, calc(100vw - 32px));
+    padding: 24px;
+    border-radius: var(--radius-xl, 14px);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: visible;
+}
+
+.add-application-member-title {
+    padding: 0;
+    font-size: var(--text-base-font-size, 18px);
+    font-weight: 500;
+    color: var(--card-foreground);
+}
+
+.add-application-member-group {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.add-application-member-invite {
+    display: block;
+    white-space: normal;
+    padding: 0;
+    cursor: pointer;
+
+    .link {
+        color: var(--primary-strong);
+    }
+
+    &:focus {
+        background-color: transparent;
+    }
+}
+
+.add-application-member-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+}
