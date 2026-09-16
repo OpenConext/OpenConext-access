@@ -54,11 +54,13 @@ $width-percentage: 75%;
             }
         }
     }
+
     .testing-header-info {
         display: flex;
         align-items: center;
         gap: 15px;
     }
+
     .secret-link, .saml-test {
         margin-top: 15px;
 
@@ -564,6 +566,24 @@ $width-percentage: 75%;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 
+
+}
+
+.saml-meta-data {
+    margin-top: 15px;
+    display: flex;
+    padding: 0 16px 20px 16px ;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-6, 24px);
+    align-self: stretch;
+
+    border-radius: var(--border-radius-rounded-lg, 10px);
+    border: 1px solid var(--base-sidebar-border, #D6D3D1);
+    background: var(--base-card, #FFF);
+
+    /* shadow/xs */
+    box-shadow: var(--shadow-xs-offset-x, 0) var(--shadow-xs-offset-y, 1px) var(--shadow-xs-blur-radius, 2px) var(--shadow-xs-spread-radius, 0) var(--shadow-xs-color, rgba(0, 0, 0, 0.05));
 }
 
 

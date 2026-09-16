@@ -508,7 +508,7 @@ const en = {
             placeholder: "Select one or more institutions",
             institution: "Institution IdP",
             eduIdAccess: "Access for eduID users",
-            eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Read more about eduID</a>",
+            eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Read more about eduID</a>",
             eduIdAccessLabel: "eduID users may log in via this connection",
         },
         connectionOverview: {
@@ -517,6 +517,7 @@ const en = {
             test: "Use the following login details to connect to the production environment. Follow the <a class='actionable' class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructions</a> to see if everything works.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
+            entityID: "Entity ID",
             secret: "Client secret",
             authentication: "Authentication",
             samlConfig: "SAML Configuration",

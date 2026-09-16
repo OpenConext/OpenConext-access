@@ -971,9 +971,10 @@ export const Connections = ({
         return (
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.testConnection")}</h3>
-                <p>{I18n.t("connection.testConnectionSection.info")}</p>
                         {showFreshlyGeneratedSecret &&
                             alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, null, "warning")}
+                {isOidcOrRs && <>
+                         <p>{I18n.t("connection.testConnectionSection.info")}</p>
                         <div className="oidc-authentication-inner">
                             <InputField name={I18n.t("connection.connectionOverview.discovery")}
                                         value={config.discovery}
@@ -1000,17 +1001,24 @@ export const Connections = ({
 
                             </div>}
                         </div>
+                </>}
                 {!isOidcOrRs &&
                     <div className="oidc-authentication-inner">
-                        <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
-                                    value={config.idpProxyMetaData}
-                                    disabled={true}
-                                    copyClipBoard={true}/>
                         <p className="saml-test"
                            dangerouslySetInnerHTML={{
                                __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
                                    , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
                            }}/>
+                        <div className="saml-meta-data">
+                        <InputField name={I18n.t("connection.connectionOverview.entityID")}
+                                    value={connection.entityID}
+                                    disabled={true}
+                                    copyClipBoard={true}/>
+                        <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
+                                    value={config.idpProxyMetaData}
+                                    disabled={true}
+                                    copyClipBoard={true}/>
+                        </div>
                     </div>}
                 {!isRs && renderTestIdPSection()}
             </section>
