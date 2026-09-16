@@ -1291,8 +1291,6 @@ export const Connections = ({
     }
 
     const renderSection = () => {
-        const isOidc = connection.protocol.value === PROTOCOLS.OIDC10_RP;
-        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         switch (section) {
             case sections.technical: {
                 return renderTechnicalSection();

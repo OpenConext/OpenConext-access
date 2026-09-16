@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import I18n from "../locale/I18n";
 import {Alert, AlertAction, AlertDescription, Button} from "@surfnet/curve-react";
 import {InfoIcon, WarningIcon, XIcon} from "@phosphor-icons/react";
