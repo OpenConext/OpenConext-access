@@ -1,6 +1,5 @@
 @use "../styles/mixins" as *;
 @use "../styles/vars" as *;
-@use "../index";
 
 .organization-memberships {
     display: flex;
@@ -12,16 +11,6 @@
 
     .mod-entities {
         margin: 0;
-    }
-
-    .menu.drop-down {
-        position: relative;
-    }
-
-    @include index.menu-header;
-
-    ul li {
-        padding: 12px 0 12px 0;
     }
 
     table.teamManagement {

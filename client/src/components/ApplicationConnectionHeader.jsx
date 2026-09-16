@@ -3,10 +3,19 @@ import "./ApplicationConnectionHeader.scss"
 import {isEmpty, stopEvent} from "../utils/Utils.js";
 import {PencilSimpleIcon as PencilIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import React, {useState} from "react";
-import {useNavigate} from "react-router";
+import {Link, useNavigate} from "react-router";
 import {deleteApplicationById, identityProvidersByUsedConnectionsForApplication, policiesByServiceProviders} from "../api/index.js";
 import ConfirmationDialog from "./ConfirmationDialog.jsx";
-import {Badge, Spinner} from "@surfnet/curve-react";
+import {
+    Badge,
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Spinner
+} from "@surfnet/curve-react";
 import {hasApplicationDeleteAccess, hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
@@ -28,11 +37,6 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
         if (!tab.disabled) {
             setTab(tab.name);
         }
-    }
-
-    const menuLink = (e, link) => {
-        stopEvent(e);
-        navigate(link);
     }
 
     const doDelete = (e, confirmationRequired) => {
@@ -91,22 +95,27 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
     const renderMenu = () => {
         const mayDelete = hasApplicationDeleteAccess(user, application);
         return (
-            <div className="dropdown-menu">
-                <ul>
-                    <li onClick={e => menuLink(e, `/application/${application.id}`)}>
-                        <PencilIcon/>
-                        <a href={`/application/${application.id}`} onClick={e => menuLink(e, `/application/${application.id}`)}>
-                            {I18n.t(`forms.edit`)}
-                        </a>
-                    </li>
-                    {mayDelete && <li onClick={e => doDelete(e, true)}>
-                        <TrashIcon/>
-                        <a href={`/organization/${currentOrganization.id}`} onClick={e => doDelete(e, true)}>
-                            {I18n.t(`forms.delete`)}
-                        </a>
-                    </li>}
-                </ul>
-            </div>
+            <DropdownMenu open={dropDownActive} onOpenChange={setDropDownActive}>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem render={
+                            <Link to={`/application/${application.id}`} className="menu-item-link">
+                                <PencilIcon/>
+                                {I18n.t("forms.edit")}
+                            </Link>
+                        }/>
+                        {mayDelete && <DropdownMenuItem onClick={e => doDelete(e, true)}>
+                            <TrashIcon/>
+                            {I18n.t("forms.delete")}
+                        </DropdownMenuItem>}
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         )
     }
 
@@ -136,20 +145,16 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                                          question={question}
             />}
 
-            <div className="top-header"
-                 tabIndex={1}
-                 onBlur={() => setTimeout(() => setDropDownActive(false), 275)}>
-                <h1 className="text-[length:var(--text-2xl-font-size)]">{application.name}</h1>
+            <div className="top-header">
+                <div className="top-header-title">
+                    <h1 className="text-[length:var(--text-2xl-font-size)]">{application.name}</h1>
+                    {renderMenu()}
+                </div>
                 <div className="menu-container">
                     {application.type === "CONTENT" &&
                         <Badge variant="info" className="mr-[18px]">
                             {I18n.t("application.contentAbbreviation")}
                         </Badge>}
-                    <span className={`menu ${dropDownActive ? "drop-down" : ""}`}
-                          onClick={() => setDropDownActive(!dropDownActive)}>
-                    <MenuIcon className="menu-icon"/>
-                        {dropDownActive && renderMenu()}
-                </span>
                 </div>
             </div>
 

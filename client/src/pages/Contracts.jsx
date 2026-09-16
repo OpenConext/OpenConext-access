@@ -2,7 +2,15 @@ import React, {useEffect, useState} from "react";
 import "./Contracts.scss";
 import "../components/Entities.scss";
 import I18n from "../locale/I18n";
-import {Spinner} from "@surfnet/curve-react";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Spinner
+} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
 import {CheckIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
@@ -18,7 +26,6 @@ export const Contracts = () => {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(new Date());
-    const [dropDownActive, setDropDownActive] = useState(-1);
     const [confirmation, setConfirmation] = useState({});
 
     useEffect(() => {
@@ -40,7 +47,6 @@ export const Contracts = () => {
         } else {
             setLoading(true);
             setConfirmation({open: false});
-            setDropDownActive(-1);
             updateContract(contract.application.id, {...contract, signedContract: true}).then(() => {
                 setLoading(false);
                 setFlash(I18n.t("contracts.flash.signed", {name: contract.signeeName}));
@@ -51,14 +57,21 @@ export const Contracts = () => {
 
     const renderMenu = contract => {
         return (
-            <div className="dropdown-menu">
-                <ul>
-                    <li onClick={() => doSignContract(contract, true)}>
-                        <SignIcon weight={"regular"} size={"20px"}/>
-                        <span>{I18n.t("contracts.sign")}</span>
-                    </li>
-                </ul>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => doSignContract(contract, true)}>
+                            <SignIcon weight="regular"/>
+                            {I18n.t("contracts.sign")}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         );
     };
 
@@ -107,17 +120,7 @@ export const Contracts = () => {
             key: "buttons",
             header: "",
             nonSortable: true,
-            mapper: contract => (
-                <div className="top-header"
-                     tabIndex={1}
-                     onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                    <span className={`menu ${dropDownActive === contract.id ? "drop-down" : ""}`}
-                          onClick={() => setDropDownActive(dropDownActive === -1 ? contract.id : -1)}>
-                        <MenuIcon className="menu-icon"/>
-                        {dropDownActive === contract.id && renderMenu(contract)}
-                    </span>
-                </div>
-            ),
+            mapper: contract => renderMenu(contract),
         },
     ];
 

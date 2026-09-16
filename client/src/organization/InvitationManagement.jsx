@@ -12,6 +12,14 @@ import {useAppStore} from "../stores/AppStore.js";
 import {ArrowRightIcon as ArrowRight, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@surfnet/curve-react";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -28,7 +36,6 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
-    const [dropDownActive, setDropDownActive] = useState(-1);
 
     const doDelete = (invitation, confirmationRequired) => {
         if (confirmationRequired) {
@@ -86,18 +93,25 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
 
     const renderMenu = invitation => {
         return (
-            <div className="dropdown-menu">
-                <ul>
-                    <li onClick={() => doResend(invitation, true)}>
-                        <ArrowRight/>
-                        <span>{I18n.t("invitationsManagement.resend")}</span>
-                    </li>
-                    <li onClick={() => doDelete(invitation, true)}>
-                        <TrashIcon/>
-                        <span>{I18n.t("invitationsManagement.revoke")}</span>
-                    </li>
-                </ul>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => doResend(invitation, true)}>
+                            <ArrowRight/>
+                            {I18n.t("invitationsManagement.resend")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => doDelete(invitation, true)}>
+                            <TrashIcon/>
+                            {I18n.t("invitationsManagement.revoke")}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         )
     }
 
@@ -141,17 +155,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
                         invitation.intendedAuthority === authorities.ADMIN) {
                         return null;
                     }
-                    return (
-                        <div className="top-header"
-                             tabIndex={1}
-                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                            <span className={`menu ${dropDownActive === invitation.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? invitation.id : -1)}>
-                                <MenuIcon className="menu-icon"/>
-                                {dropDownActive === invitation.id && renderMenu(invitation)}
-                            </span>
-                        </div>
-                    );
+                    return renderMenu(invitation);
                 }
             }
         ]

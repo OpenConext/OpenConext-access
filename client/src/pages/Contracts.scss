@@ -1,18 +1,6 @@
-@use "../index";
-
 .mod-contracts {
     position: relative;
     max-width: 100%;
-
-    .menu.drop-down {
-        position: relative;
-    }
-
-    @include index.menu-header;
-
-    ul li {
-        padding: 12px 0 12px 0;
-    }
 
     table.contracts {
 

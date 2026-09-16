@@ -6,8 +6,16 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 9999;
+    // The trigger is rotated -90deg below, which visually shrinks the pill
+    // down to a narrow tab; but this wrapper's own (unrotated) layout box
+    // stays at the button's pre-rotation size, so its untransformed corners
+    // sit over page content, silently intercepting clicks meant for it (e.g.
+    // an action menu in a table row near the widget). Let clicks pass
+    // through the wrapper and only capture them on the trigger itself.
+    pointer-events: none;
 
     &__trigger {
+        pointer-events: auto;
         background: #B8E3C9;
         color: #000;
         border: none;

@@ -12,6 +12,14 @@ import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
 import {isEmpty} from "../utils/Utils.js";
 import {useShallow} from "zustand/react/shallow";
 import {CheckIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@surfnet/curve-react";
 
 export const JoinRequestManagement = ({organization, currentUserAuthority, refreshState}) => {
 
@@ -21,7 +29,6 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
     })));
 
     const [confirmation, setConfirmation] = useState({});
-    const [dropDownActive, setDropDownActive] = useState(-1);
 
     const doApprove = (joinRequest, approved, confirmationRequired) => {
         if (confirmationRequired) {
@@ -63,18 +70,25 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
 
     const renderMenu = joinRequest => {
         return (
-            <div className="dropdown-menu">
-                <ul className="join-request-actions">
-                    <li onClick={() => doApprove(joinRequest, true, true)}>
-                        <CheckIcon/>
-                        <span>{I18n.t("joinRequestManagement.approve")}</span>
-                    </li>
-                    <li onClick={() => doApprove(joinRequest, false, true)}>
-                        <TrashIcon/>️
-                        <span>{I18n.t("joinRequestManagement.deny")}</span>
-                    </li>
-                </ul>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => doApprove(joinRequest, true, true)}>
+                            <CheckIcon/>
+                            {I18n.t("joinRequestManagement.approve")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => doApprove(joinRequest, false, true)}>
+                            <TrashIcon/>
+                            {I18n.t("joinRequestManagement.deny")}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         )
     }
 
@@ -110,17 +124,7 @@ export const JoinRequestManagement = ({organization, currentUserAuthority, refre
                     if (currentUserAuthority !== authorities.ADMIN) {
                         return null;
                     }
-                    return (
-                        <div className="top-header"
-                             tabIndex={1}
-                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                            <span className={`menu ${dropDownActive === joinRequest.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? joinRequest.id : -1)}>
-                                <MenuIcon className="menu-icon"/>
-                                {dropDownActive === joinRequest.id && renderMenu(joinRequest)}
-                            </span>
-                        </div>
-                    );
+                    return renderMenu(joinRequest);
                 }
             }
         ]

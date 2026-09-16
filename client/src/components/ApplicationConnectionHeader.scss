@@ -10,10 +10,27 @@
 
     @include index.page-media;
 
-    @include index.menu-header;
+    .top-header {
+        display: flex;
+        align-items: center;
+    }
+
+    .top-header-title {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
 
     .menu-container {
         margin-left: auto;
     }
+}
+
+// The "Edit" dropdown item renders as a react-router <Link>, which picks up
+// the global anchor color/underline (design-system.scss); override it so it
+// reads the same as the "Delete" item next to it.
+.menu-item-link {
+    color: inherit;
+    text-decoration: none;
 }
 

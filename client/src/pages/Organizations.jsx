@@ -2,7 +2,19 @@ import React, {useEffect, useRef, useState} from "react";
 import "./Organizations.scss";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Checkbox, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {
+    Button,
+    Checkbox,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    Spinner,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
+} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {isEmpty, sanitize} from "../utils/Utils";
 import {useAppStore} from "../stores/AppStore";
@@ -39,7 +51,6 @@ export const Organizations = ({pendingApproval}) => {
     const [totalElements, setTotalElements] = useState(0);
     const [organizations, setOrganizations] = useState([]);
     const [confirmation, setConfirmation] = useState({});
-    const [dropDownActive, setDropDownActive] = useState(-1);
 
     const [openOrganizationId, setOpenOrganizationId] = useState(null);
     const [newOrganizationName, setNewOrganizationName] = useState(null);
@@ -164,29 +175,35 @@ export const Organizations = ({pendingApproval}) => {
             .filter(status => status !== organization.status)
             .sort();
         return (
-            <div className="dropdown-menu">
-                <ul>
-                    {availableStatuses.map((status, index) =>
-                        <li key={index}
-                            onClick={() => doUpdateOrganizationStatus(organization, status, true)}>
-                            {iconFromStatus(status)}
-                            <span>{I18n.t(`organizations.${status.toLowerCase()}_action`)}</span>
-                        </li>
-                    )}
-                    {<li onClick={() => {
-                        setOpenOrganizationId(organization.id);
-                        setNewOrganizationName(organization.name);
-                    }
-                    }>
-                        <PencilIcon/>
-                        <span>{I18n.t("forms.edit")}</span>
-                    </li>}
-                    {<li onClick={() => doDelete(true, organization)}>
-                        <TrashIcon/>
-                        <span>{I18n.t("forms.delete")}</span>
-                    </li>}
-                </ul>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        {availableStatuses.map((status, index) =>
+                            <DropdownMenuItem key={index}
+                                               onClick={() => doUpdateOrganizationStatus(organization, status, true)}>
+                                {iconFromStatus(status)}
+                                {I18n.t(`organizations.${status.toLowerCase()}_action`)}
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => {
+                            setOpenOrganizationId(organization.id);
+                            setNewOrganizationName(organization.name);
+                        }}>
+                            <PencilIcon/>
+                            {I18n.t("forms.edit")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => doDelete(true, organization)}>
+                            <TrashIcon/>
+                            {I18n.t("forms.delete")}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         )
     }
 
@@ -280,15 +297,7 @@ export const Organizations = ({pendingApproval}) => {
             header: "",
             nonSortable: true,
             mapper: org => isEmpty(org.manageIdentifier) ?
-                <div className="top-header"
-                     tabIndex={1}
-                     onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}>
-                            <span className={`menu ${dropDownActive === org.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? org.id : -1)}>
-                                <MenuIcon className="menu-icon"/>
-                                {dropDownActive === org.id && renderMenu(org)}
-                            </span>
-                </div> : <Tooltip>
+                renderMenu(org) : <Tooltip>
                     <TooltipTrigger render={<InfoIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organizations.manageOrganizationInMutable"))}}/></TooltipContent>
                 </Tooltip>

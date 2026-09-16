@@ -13,6 +13,14 @@ import {useAppStore} from "../stores/AppStore.js";
 import {PencilSimpleIcon as PencilIcon, TrashIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import {useShallow} from "zustand/react/shallow";
 import {isEmpty} from "../utils/Utils.js";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@surfnet/curve-react";
 
 const authorityOptions = [{value: "ALL", label: I18n.t("roles.all")}]
     .concat(allAuthorities.map(authority => ({
@@ -31,7 +39,6 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
 
     const [confirmation, setConfirmation] = useState({});
     const [authority, setAuthority] = useState(authorityOptions[0].value);
-    const [dropDownActive, setDropDownActive] = useState(-1);
 
     const doDelete = (membership, confirmationRequired) => {
         if (confirmationRequired) {
@@ -85,30 +92,37 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
     const renderMenu = membership => {
 
         return (
-            <div className="dropdown-menu">
-                <ul>
-                    {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.ADMIN)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeAdmin")}</span>
-                        </li>}
-                    {(membership.authority !== authorities.MEMBER && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.MEMBER)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeMember")}</span>
-                        </li>}
-                    {(membership.authority !== authorities.GUEST && currentUserAuthority === authorities.ADMIN) &&
-                        <li onClick={() => changeOrganizationMembership(membership, authorities.GUEST)}>
-                            <PencilIcon/>
-                            <span>{I18n.t("teamManagement.makeGuest")}</span>
-                        </li>}
-                    {currentUserAuthority === authorities.ADMIN &&
-                        <li onClick={() => doDelete(membership, true)}>
-                            <TrashIcon/>
-                            <span>{I18n.t("forms.delete")}</span>
-                        </li>}
-                </ul>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="icon">
+                        <MenuIcon weight="bold"/>
+                    </Button>
+                }/>
+                <DropdownMenuContent align="end" className="action-menu-content">
+                    <DropdownMenuGroup>
+                        {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN) &&
+                            <DropdownMenuItem onClick={() => changeOrganizationMembership(membership, authorities.ADMIN)}>
+                                <PencilIcon/>
+                                {I18n.t("teamManagement.makeAdmin")}
+                            </DropdownMenuItem>}
+                        {(membership.authority !== authorities.MEMBER && currentUserAuthority === authorities.ADMIN) &&
+                            <DropdownMenuItem onClick={() => changeOrganizationMembership(membership, authorities.MEMBER)}>
+                                <PencilIcon/>
+                                {I18n.t("teamManagement.makeMember")}
+                            </DropdownMenuItem>}
+                        {(membership.authority !== authorities.GUEST && currentUserAuthority === authorities.ADMIN) &&
+                            <DropdownMenuItem onClick={() => changeOrganizationMembership(membership, authorities.GUEST)}>
+                                <PencilIcon/>
+                                {I18n.t("teamManagement.makeGuest")}
+                            </DropdownMenuItem>}
+                        {currentUserAuthority === authorities.ADMIN &&
+                            <DropdownMenuItem onClick={() => doDelete(membership, true)}>
+                                <TrashIcon/>
+                                {I18n.t("forms.delete")}
+                            </DropdownMenuItem>}
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
         )
     }
 
@@ -147,18 +161,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                     if (membership.authority === authorities.ADMIN && !isEmpty(organization.manageIdentifier)) {
                         return null;
                     }
-                    return (
-                        <div className="top-header"
-                             tabIndex={1}
-                             onBlur={() => setTimeout(() => setDropDownActive(-1), 175)}
-                        >
-                            <span className={`menu ${dropDownActive === membership.id ? "drop-down" : ""}`}
-                                  onClick={() => setDropDownActive(dropDownActive === -1 ? membership.id : -1)}>
-                                <MenuIcon className="menu-icon"/>
-                                {dropDownActive === membership.id && renderMenu(membership)}
-                            </span>
-                        </div>
-                    );
+                    return renderMenu(membership);
                 }
             }
         ]

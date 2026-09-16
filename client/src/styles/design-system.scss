@@ -78,3 +78,10 @@ button.link-button {
     cursor: pointer;
     display: inline;
 }
+
+// DropdownMenuContent defaults its width to the trigger's own width
+// (`w-(--anchor-width)`, floored by `min-w-32`), which is too narrow for an
+// icon-only "..." trigger and wraps longer item labels like "Make admin".
+.action-menu-content {
+    min-width: 200px;
+}
