@@ -2389,10 +2389,10 @@ html-url-attributes@^3.0.0:
   resolved "https://registry.yarnpkg.com/html-url-attributes/-/html-url-attributes-3.0.1.tgz#83b052cd5e437071b756cd74ae70f708870c2d87"
   integrity sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==
 
-html2canvas-pro@^2.4.2:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.4.2.tgz#87d81e53607320fba45694317d37fca821d4a5e3"
-  integrity sha512-W0QvhquArW7jnorC66FaCpP1LflcUJUdyLTUD8zAz0ka8kJv/PLW45W+lg5ZonBU1lOtKZU+FOntr+XTu1iPcA==
+html2canvas-pro@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.4.3.tgz#85568af420a516cbd34c7fa85e47acf256a9d4c8"
+  integrity sha512-ov+EmxDc2abD2uKYpZdFWHkQkl3pu2fH0N98khT1Ojfqr3DJOuGyFIFTSfSyaWxddK9jSJu8sM7aUATxM26mDg==
   dependencies:
     css-line-break "^2.1.0"
     text-segmentation "^1.0.3"
