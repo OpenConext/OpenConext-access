@@ -137,7 +137,7 @@ export const InvitationForm = () => {
                     value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                         || authorityOptions[authorityOptions.length - 1]}
                     options={authorityOptions}
-                    name={I18n.t("invitation.intendedAuthority")}
+                    name={I18n.t("invitation.intendedAuthorityLong")}
                     searchable={false}
                     disabled={authorityOptions.length === 1}
                     onChange={authorityChanged}

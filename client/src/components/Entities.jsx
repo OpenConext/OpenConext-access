@@ -62,10 +62,16 @@ export const Entities = ({
                              defaultSort,
                              rowClassNameResolver,
                              inputFocus = false,
-                             notAllowedTitle = ""
+                             notAllowedTitle = "",
+                             query: controlledQuery,
+                             onQueryChange
                          }) => {
 
-    const [query, setQuery] = useState("");
+    const [internalQuery, setInternalQuery] = useState("");
+    //Allows a parent to keep the search query in sync with another view of the same data (e.g. a grid/list toggle)
+    const isControlledQuery = controlledQuery !== undefined;
+    const query = isControlledQuery ? controlledQuery : internalQuery;
+    const setQuery = isControlledQuery ? onQueryChange : setInternalQuery;
     const [sorted, setSorted] = useState(defaultSort);
     const [reverse, setReverse] = useState(false);
     const [page, setPage] = useState(pageNumberFromQueryParams());

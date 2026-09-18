@@ -245,6 +245,15 @@ export const Organizations = ({pendingApproval}) => {
         );
     }
 
+    const adminEmail = org => {
+        if (org.adminEmail) {
+            return org.adminEmail;
+        }
+        const admin = (org.organizationMemberships || []).find(om => om.authority === "ADMIN")
+        return admin?.user?.email || "-";
+
+    }
+
     const columns = [
         {
             nonSortable: true,
@@ -280,7 +289,7 @@ export const Organizations = ({pendingApproval}) => {
         {
             key: "adminEmail",
             header: I18n.t("organizations.adminEmail"),
-            mapper: org => org.adminEmail
+            mapper: adminEmail
         },
         {
             key: "createdAt",

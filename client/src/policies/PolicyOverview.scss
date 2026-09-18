@@ -1,10 +1,7 @@
 @use "../styles/vars.scss" as *;
 
 .policy-overview-container {
-    width: 75%;
-    @media (max-width: $medium) {
-        width: 100%;
-    }
+    width: 100%;
 
     .policy-overview {
         a, a.visited {

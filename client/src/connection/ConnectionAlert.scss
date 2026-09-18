@@ -1,3 +1,14 @@
 .alert-container {
     max-width: 680px;
 }
+
+.alert-description-with-action .alert-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.alert-text-title {
+    font-weight: 500;
+    color: var(--foreground);
+}

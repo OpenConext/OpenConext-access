@@ -31,7 +31,7 @@ const ApplicationOverview = ({accessible}) => {
         })));
 
         const [loading, setLoading] = useState(true);
-        const [view, setView] = useState(views.list);
+        const [view, setView] = useState(views.grid);
         const [gridQuery, setGridQuery] = useState("");
         const [serviceProviders, setServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
@@ -42,6 +42,15 @@ const ApplicationOverview = ({accessible}) => {
         const [consentOptions, setConsentOptions] = useState([]);
         const [loa, setLoa] = useState(null);
         const [loaOptions, setLoaOptions] = useState([]);
+
+        //ApplicationOverview is reused (not remounted) when navigating between /catalogue and
+        ///accessible-apps - both routes render the same component type, just a different "accessible"
+        //prop - so the searchbox must be explicitly reset here rather than relying on unmount
+        const [previousAccessible, setPreviousAccessible] = useState(accessible);
+        if (previousAccessible !== accessible) {
+            setPreviousAccessible(accessible);
+            setGridQuery("");
+        }
 
         useEffect(() => {
             useAppStore.setState({
@@ -305,6 +314,7 @@ const ApplicationOverview = ({accessible}) => {
                     <div className="accessible-apps-grid-cards">
                         {gridServiceProviders.map(entity => {
                             const logoUrl = entity.data.metaDataFields["logo:0:url"];
+                            const description = providerDescription(I18n.locale, entity);
                             return (
                                 <Card key={entity["_id"]} className="accessible-app-card">
                                     <StretchedLink to={`/application-detail/${entity.type}/${entity["_id"]}`}/>
@@ -312,12 +322,10 @@ const ApplicationOverview = ({accessible}) => {
                                         <div className="accessible-app-card-icon">
                                             {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
                                         </div>
-                                        <h4 className="mb-1">{entity.name}</h4>
-                                        <div className="accessible-app-card-meta">
-                                            <span>{entity.vendor}</span>
-                                            <span>{formatLongDate(entity.created, true, false)}</span>
-                                        </div>
-                                        <p className="accessible-app-card-description">{providerDescription(I18n.locale, entity)}</p>
+                                        <h4 className="font-bold mb-1">{entity.name}</h4>
+                                        <span className="accessible-app-card-vendor">{entity.vendor}</span>
+                                        {!isEmpty(description) &&
+                                            <p className="accessible-app-card-description">{description}</p>}
                                     </CardContent>
                                 </Card>
                             );
@@ -342,13 +350,13 @@ const ApplicationOverview = ({accessible}) => {
                         {!isEmpty(serviceProviders) &&
                             <Tabs value={view} onValueChange={setView} className="view-switcher-tabs">
                                 <TabsList>
-                                    <TabsTrigger value={views.list}>
-                                        <ListBulletsIcon/>
-                                        <span>{I18n.t("accessibleApps.list")}</span>
-                                    </TabsTrigger>
                                     <TabsTrigger value={views.grid}>
                                         <SquaresFourIcon/>
                                         <span>{I18n.t("accessibleApps.grid")}</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value={views.list}>
+                                        <ListBulletsIcon/>
+                                        <span>{I18n.t("accessibleApps.list")}</span>
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>}
@@ -365,6 +373,8 @@ const ApplicationOverview = ({accessible}) => {
                             hideTitle={true}
                             showNew={false}
                             displaySearch={true}
+                            query={gridQuery}
+                            onQueryChange={setGridQuery}
                             searchAttributes={["name", "vendor"]}
                             rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
                             rowHrefMapper={entity => `/application-detail/${entity.type}/${entity["_id"]}`}

@@ -2,19 +2,40 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router";
 import {
+    contractByOrganization,
+    createContractForOrganization,
     deleteOrganizationById,
     identityProvidersByUsedConnectionsForOrganization,
     organizationMineById,
+    updateContractForOrganization,
     updateOrganizationMetaData,
     updateOrganizationName
 } from "../api/index.js";
 import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import "./MyOrganization.scss";
 import I18n from "../locale/I18n";
-import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import DOMPurify from "dompurify";
 import {authorities, isOrganizationAdmin} from "../utils/Permissions.js";
-import {Button, Spinner} from "@surfnet/curve-react";
+import {
+    Alert,
+    AlertDescription,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogMedia,
+    AlertDialogTitle,
+    Button,
+    Field,
+    FieldDescription,
+    FieldLabel,
+    Input,
+    Spinner
+} from "@surfnet/curve-react";
+import {BuildingOfficeIcon, EnvelopeIcon, InfoIcon, TrashIcon} from "@phosphor-icons/react";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -22,19 +43,22 @@ import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import {currentOrganizationFromUser} from "../utils/Organization.js";
-import {Contract} from "../connection/Contract.jsx";
+import {countryOptions} from "../utils/countries.js";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
+import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import ErrorIndicator from "../components/ErrorIndicator.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
-    general: "general",
-    contract: "contract",
-    delete: "delete"
+    general: "general"
 }
+
+const CONTRACT_REQUIRED_FIELDS = ["organizationName", "signeeName", "email"];
 
 const MyOrganization = ({refreshUser}) => {
     const user = useAppStore(state => state.user);
     const setFlash = useAppStore(state => state.setFlash);
+    const config = useAppStore(state => state.config);
 
     const {organizationId} = useParams();
     const {tab} = useParams();
@@ -48,6 +72,13 @@ const MyOrganization = ({refreshUser}) => {
     const [initial, setInitial] = useState(true);
     const [originalOrganizationName, setOriginalOrganizationName] = useState("");
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
+
+    const [contract, setContract] = useState(null);
+    const [isNewContract, setIsNewContract] = useState(true);
+    const [contractLoading, setContractLoading] = useState(true);
+    const [contractInitial, setContractInitial] = useState(true);
+    const [submitConfirmation, setSubmitConfirmation] = useState(false);
+    const [jiraModal, setJiraModal] = useState({open: false, ticketKey: null});
 
     const inputRef = useRef(null);
 
@@ -68,8 +99,9 @@ const MyOrganization = ({refreshUser}) => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);
                     setOriginalOrganizationName(res.name);
-                    setExternalOrganization(isEmpty(res.manageIdentifier));
-                    const currentSection = isEmpty(tab) ? (isEmpty(res.manageIdentifier) ? sections.general : sections.contactPersons) : tab;
+                    const isExternal = isEmpty(res.manageIdentifier);
+                    setExternalOrganization(isExternal);
+                    const currentSection = isExternal ? sections.general : (isEmpty(tab) ? sections.contactPersons : tab);
                     setSection(currentSection);
                     navigate(`/idp/${organizationId}/${currentSection}`);
                     setLoading(false);
@@ -94,12 +126,43 @@ const MyOrganization = ({refreshUser}) => {
         }
     }, [focusedId]);
 
+    const defaultContract = () => ({
+        signeeName: user.name || "",
+        signeeTitle: "",
+        email: user.email || "",
+        telephone: "",
+        address: "",
+        country: "",
+        organizationName: organization.name || "",
+    });
+
+    const loadContract = () => {
+        return contractByOrganization(organization.id)
+            .then(res => {
+                setContract(res);
+                setIsNewContract(false);
+                setContractLoading(false);
+            })
+            .catch(() => {
+                setContract(defaultContract());
+                setIsNewContract(true);
+                setContractLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        if (!externalOrganization || isEmpty(organization.id)) {
+            return;
+        }
+        loadContract();
+    }, [externalOrganization, organization.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const availableSections = useMemo(() => {
         return Object.values(sections)
-            .filter(s => s !== sections.delete || (externalOrganization && (user.superUser || isOrganizationAdmin(user, organization))))
             .filter(s => s !== sections.contactPersons || !externalOrganization)
-            .filter(s => s !== sections.contract || (externalOrganization && adminUser))
-    }, [externalOrganization, organization, user, adminUser])
+    }, [externalOrganization])
+
+    const canDeleteOrganization = externalOrganization && (user.superUser || isOrganizationAdmin(user, organization));
 
     if (loading) {
         return <div className="loading-container"><Spinner className="size-8"/></div>
@@ -116,10 +179,8 @@ const MyOrganization = ({refreshUser}) => {
                     setAffectedIdentityProviders(res);
                     setConfirmation({
                         open: true,
-                        cancel: () => setConfirmation({open: false}),
                         action: () => doDelete(null, false),
-                        question: I18n.t("organization.deleteConfirmation", {name: organization.name}),
-                        okButton: I18n.t(isEmpty(res) ? "forms.delete" : "forms.deleteAnyway")
+                        okButton: I18n.t(isEmpty(res) ? "myOrganization.deleteButton" : "forms.deleteAnyway")
                     });
                 })
         } else {
@@ -178,36 +239,23 @@ const MyOrganization = ({refreshUser}) => {
         )
     }
 
-    const renderExternalGeneralSection = () => {
-        return (
-            <section className="inner-right">
-                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t("myOrganization.generalInformation")}</h3>
-                <InputField name={I18n.t("myOrganization.name")}
-                            value={organization.name}
-                            disabled={!adminUser}
-                            onChange={e => setOrganization({...organization, name: e.target.value})}/>
-            </section>
-        )
+    const renderCurrentSection = () => {
+        switch (section) {
+            case sections.contactPersons: {
+                return renderContactPersonsSection();
+            }
+            case sections.general: {
+                return renderInternalGeneralSection();
+            }
+            case null: {
+                return null;
+            }
+        }
     }
 
-    const renderContractSection = () => {
-        return <Contract organization={organization} user={user} changeTab={changeTab}/>;
-    }
-
-    const renderDeleteSection = () => {
-        return (
-            <div>
-                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t(`myOrganization.${sections.delete}`)}</h3>
-                <p>{I18n.t("myOrganization.deleteWarning")}</p>
-                <div className="actions">
-                    <Button onClick={e => doDelete(e, true)}
-                            variant="destructive"
-                    >
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.deleteButton"))}}/>
-                    </Button>
-                </div>
-            </div>
-        );
+    const changeTab = s => {
+        navigate(`/idp/${organizationId}/${s}`);
+        setSection(s);
     }
 
     const saveInternalOrganization = () => {
@@ -225,91 +273,284 @@ const MyOrganization = ({refreshUser}) => {
         }
     }
 
-    const saveExternalOrganization = () => {
+    const updateContractField = (field, value) => {
+        setContract(prev => ({...prev, [field]: value}));
+    }
+
+    const isContractFormValid = () => contract && CONTRACT_REQUIRED_FIELDS.every(field => !isEmpty(contract[field]));
+
+    const saveOrganizationNameOnly = () => {
+        setLoading(true);
+        updateOrganizationName(organization.id, organization.name)
+            .then(() => {
+                refreshUser(() => setLoading(false));
+                setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
+            });
+    }
+
+    const doSubmitExternalOrganization = () => {
         setInitial(false);
-        if (!isEmpty(organization.name)) {
-            setLoading(true);
-            updateOrganizationName(organization.id, organization.name)
-                .then(() => {
+        setContractInitial(false);
+        const signed = !!contract.signedContract;
+        if (isEmpty(organization.name)) {
+            return;
+        }
+        if (!signed && !isContractFormValid()) {
+            return;
+        }
+        if (signed) {
+            saveOrganizationNameOnly();
+        } else {
+            setSubmitConfirmation(true);
+        }
+    }
+
+    const confirmSubmitExternalOrganization = () => {
+        setSubmitConfirmation(false);
+        setLoading(true);
+        const body = {...contract, providerName: organization.name};
+        if (isNewContract) {
+            delete body.signedContract;
+        }
+        const contractCall = isNewContract
+            ? createContractForOrganization(organization.id, body)
+            : updateContractForOrganization(organization.id, body);
+        Promise.all([updateOrganizationName(organization.id, organization.name), contractCall])
+            .then(([, contractRes]) => {
+                if (isNewContract && contractRes.ticketKey) {
+                    setLoading(false);
+                    setJiraModal({open: true, ticketKey: contractRes.ticketKey});
+                } else {
                     refreshUser(() => setLoading(false));
                     setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
-                });
+                }
+            })
+            .catch(() => {
+                setLoading(false);
+                setFlash(I18n.t("forms.error"), "error");
+            });
+    }
+
+    const doCancelExternalOrganization = () => {
+        setInitial(true);
+        setContractInitial(true);
+        setContractLoading(true);
+        organizationMineById(organizationId).then(res => {
+            setOrganization(convertServerApplicationToClient(res));
+        });
+        loadContract();
+    }
+
+    const renderDescribedField = (id, label, description, value, disabled, onChange, error) => (
+        <div>
+            <Field className="input-field">
+                <FieldLabel htmlFor={id}>{label}</FieldLabel>
+                <FieldDescription>{description}</FieldDescription>
+                <Input id={id} className="bg-white" value={value || ""} disabled={disabled} onChange={onChange}/>
+            </Field>
+            {error && <ErrorIndicator msg={error}/>}
+        </div>
+    );
+
+    const renderExternalOrganizationSettings = () => {
+        if (contractLoading || contract === null) {
+            return <div className="loading-container"><Spinner className="size-8"/></div>;
         }
+        const signed = !!contract.signedContract;
+        return (
+            <div className="external-organization-settings">
+                <section>
+                    <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.generalSectionTitle")}</h3>
+                    {renderDescribedField(
+                        "organization-name",
+                        I18n.t("myOrganization.nameLabel"),
+                        I18n.t("myOrganization.nameDescription"),
+                        organization.name,
+                        !adminUser,
+                        e => setOrganization({...organization, name: e.target.value}),
+                        (!initial && isEmpty(organization.name)) ? I18n.t("forms.required", {name: I18n.t("myOrganization.nameLabel")}) : null
+                    )}
+                </section>
+
+                <section>
+                    <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.contractSectionTitle")}</h3>
+
+                    {signed &&
+                        <p className="readonly-notice">{I18n.t("contracts.signedReadonly")}</p>}
+                    {(!signed && !isNewContract) &&
+                        <Alert>
+                            <InfoIcon/>
+                            <AlertDescription
+                                dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
+                        </Alert>}
+
+                    {renderDescribedField(
+                        "contract-organization-name",
+                        I18n.t("contracts.organizationName"),
+                        I18n.t("contracts.organizationNameDescription"),
+                        contract.organizationName,
+                        signed,
+                        e => updateContractField("organizationName", e.target.value),
+                        (!contractInitial && isEmpty(contract.organizationName)) ? I18n.t("forms.required", {name: I18n.t("contracts.organizationName")}) : null
+                    )}
+
+                    <div className="field-row">
+                        <InputField name={I18n.t("contracts.signeeTitle")}
+                                    value={contract.signeeTitle}
+                                    disabled={signed}
+                                    optional={true}
+                                    onChange={e => updateContractField("signeeTitle", e.target.value)}/>
+                        <InputField name={I18n.t("contracts.signeeName")}
+                                    value={contract.signeeName}
+                                    disabled={signed}
+                                    onChange={e => updateContractField("signeeName", e.target.value)}/>
+                    </div>
+                    {(!contractInitial && isEmpty(contract.signeeName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.signeeName")})}/>}
+
+                    <InputField name={I18n.t("contracts.email")}
+                                value={contract.email}
+                                disabled={signed}
+                                onChange={e => updateContractField("email", e.target.value)}/>
+                    {(!contractInitial && isEmpty(contract.email)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.email")})}/>}
+
+                    <InputField name={I18n.t("contracts.telephone")}
+                                value={contract.telephone}
+                                disabled={signed}
+                                onChange={e => updateContractField("telephone", e.target.value)}/>
+
+                    <InputField name={I18n.t("contracts.address")}
+                                value={contract.address}
+                                disabled={signed}
+                                optional={true}
+                                onChange={e => updateContractField("address", e.target.value)}/>
+
+                    <SelectField name={I18n.t("contracts.country")}
+                                 options={countryOptions(I18n.locale)}
+                                 value={countryOptions(I18n.locale).find(o => o.value === contract.country) || null}
+                                 disabled={signed}
+                                 optional={true}
+                                 onChange={option => updateContractField("country", option ? option.value : "")}
+                                 searchable={true}
+                                 clearable={true}/>
+                </section>
+
+                <div className="form-actions">
+                    <Button variant="outline" onClick={doCancelExternalOrganization}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                    </Button>
+                    <Button onClick={doSubmitExternalOrganization}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
+                    </Button>
+                </div>
+            </div>
+        );
     }
 
-    const renderCurrentSection = () => {
-        switch (section) {
-            case sections.contactPersons: {
-                return renderContactPersonsSection();
-            }
-            case sections.general: {
-                return externalOrganization ? renderExternalGeneralSection() : renderInternalGeneralSection();
-            }
-            case sections.contract: {
-                return renderContractSection();
-            }
-            case sections.delete: {
-                return renderDeleteSection();
-            }
-            case null: {
-                return null;
-            }
-        }
-    }
-
-    const changeTab = s => {
-        navigate(`/idp/${organizationId}/${s}`);
-        setSection(s);
-    }
-
-    const {open, cancel, action, question, okButton} = confirmation;
+    const {open, action, okButton} = confirmation;
     return (
         <div
             className="my-organization-outer-container">
-            {open && <ConfirmationDialog confirm={action}
-                                         cancel={cancel}
-                                         confirmationHeader={I18n.t("forms.delete")}
-                                         confirmationTxt={okButton}
-                                         isDeleteAction={true}
-                                         children={<ConnectionInUseWarning
-                                             identityProviders={affectedIdentityProviders}
-                                             unit={units.organization}
-                                             applicationName="N/A"/>}
-                                         question={question}
-            />}
+            <AlertDialog open={!!open} onOpenChange={isOpen => !isOpen && setConfirmation({open: false})}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogMedia className="bg-danger-subtle text-danger-subtle-foreground">
+                            <BuildingOfficeIcon/>
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>{I18n.t("myOrganization.deleteConfirmationTitle")}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.deleteWarning"))}}/>
+                            {!isEmpty(affectedIdentityProviders) &&
+                                <ConnectionInUseWarning identityProviders={affectedIdentityProviders}
+                                                        unit={units.organization}
+                                                        applicationName="N/A"/>}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                        </AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={action}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(okButton)}}/>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={submitConfirmation} onOpenChange={isOpen => !isOpen && setSubmitConfirmation(false)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogMedia>
+                            <EnvelopeIcon/>
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>{I18n.t("contracts.submitConfirmation.title")}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {I18n.t("contracts.submitConfirmation.message")}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmSubmitExternalOrganization}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.submitConfirmation.confirm"))}}/>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            {jiraModal.open &&
+                <ConfirmationDialog
+                    confirm={() => {
+                        setJiraModal({open: false, ticketKey: null});
+                        setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
+                        setIsNewContract(false);
+                        refreshUser();
+                    }}
+                    confirmationHeader={I18n.t("contracts.jiraModal.title")}
+                    confirmationTxt={I18n.t("confirmationDialog.ok")}
+                    question={I18n.t(`contracts.jiraModal.message${config.testEnvironment ? "Test" : ""}`, {jiraKey: jiraModal.ticketKey})}
+                />}
             <div className="my-organization-header-container">
                 <div className="top-header">
                     <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
+                    {canDeleteOrganization &&
+                        <Button variant="ghost" onClick={e => doDelete(e, true)}>
+                            <TrashIcon/>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/>
+                        </Button>}
                 </div>
                 <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
                         {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})}}/>
             </div>
             <div className="my-organization">
-                <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
-                <div className="menu-container">
-                    <div className="left-menu">
-                        {availableSections
-                            .map((s, index) =>
-                                <StatusMenuItem key={index}
-                                                hideIcon={true}
-                                                active={s === section}
-                                                action={() => changeTab(s)}
-                                                info={I18n.t(`myOrganization.${s}`)}/>
-                            )}
-                    </div>
-                    <div className="right-menu">
-                        {renderCurrentSection()}
-                    </div>
-                </div>
-                {(section !== sections.delete && section !== sections.contract && adminUser) &&
-                    <div className="actions proceed">
-                        <Button onClick={() => externalOrganization ? saveExternalOrganization() : saveInternalOrganization()}
-                                disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
-                        >
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
-                        </Button>
-                    </div>}
-
+                {externalOrganization ? renderExternalOrganizationSettings() : (
+                    <>
+                        <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
+                        <div className="menu-container">
+                            <div className="left-menu">
+                                {availableSections
+                                    .map((s, index) =>
+                                        <StatusMenuItem key={index}
+                                                        hideIcon={true}
+                                                        active={s === section}
+                                                        action={() => changeTab(s)}
+                                                        info={I18n.t(`myOrganization.${s}`)}/>
+                                    )}
+                            </div>
+                            <div className="right-menu">
+                                {renderCurrentSection()}
+                            </div>
+                        </div>
+                        {adminUser &&
+                            <div className="actions proceed">
+                                <Button onClick={saveInternalOrganization}
+                                        disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
+                                >
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
+                                </Button>
+                            </div>}
+                    </>
+                )}
             </div>
         </div>
 

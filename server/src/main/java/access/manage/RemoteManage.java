@@ -309,8 +309,10 @@ public class RemoteManage implements Manage {
 
         Map<String, Object> baseQuery = getBaseQuery(false);
         baseQuery.put("state", State.prodaccepted.name());
-        ((List) baseQuery.get("REQUESTED_ATTRIBUTES")).add("metaDataFields.coin:institution_type");
-
+        List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
+        requestedAttributes.add("metaDataFields.coin:institution_type");
+        requestedAttributes.add("metaDataFields.description:en");
+        requestedAttributes.add("metaDataFields.description:nl");
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
                 url,
                 EntityType.saml20_idp.name());
@@ -326,6 +328,8 @@ public class RemoteManage implements Manage {
         List requestedAttributes = (List) baseQuery.get("REQUESTED_ATTRIBUTES");
         requestedAttributes.add("metaDataFields.coin:interfed_source");
         requestedAttributes.add("metaDataFields.coin:ss:hidden");
+        requestedAttributes.add("metaDataFields.description:en");
+        requestedAttributes.add("metaDataFields.description:nl");
         requestedAttributes.add("metaDataFields.coin:ss:idp_visible_only");
         requestedAttributes.add("metaDataFields.application_tags");
 

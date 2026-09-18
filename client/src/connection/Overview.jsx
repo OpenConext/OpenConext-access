@@ -82,12 +82,6 @@ export const Overview = ({
                         </Button>
                     </section>
                 </div>
-                {isEmpty(currentOrganization.manageIdentifier) &&
-                    <StatusLink info={I18n.t("connection.production.contract")}
-                                action={() => navigate(`/idp/${currentOrganization.id}/contract`)}
-                                disabled={false}
-                                status={currentOrganization.contractSigned ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>}
-                <p className="disclaimer">{I18n.t("connection.production.disclaimer")}</p>
             </div>
         </div>
     )

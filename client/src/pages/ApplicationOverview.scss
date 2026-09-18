@@ -49,8 +49,9 @@ div.accessible-apps-container {
 
         .accessible-apps-grid-search {
             width: 320px;
-            height: 40px;
+            height: 50px;
             flex-shrink: 0;
+            background-color: white;
         }
 
         .accessible-apps-grid-cards {
@@ -81,11 +82,9 @@ div.accessible-apps-container {
                 }
             }
 
-            .accessible-app-card-meta {
-                display: flex;
-                justify-content: space-between;
+            .accessible-app-card-vendor {
+                display: block;
                 width: 100%;
-                color: var(--muted-foreground);
                 margin-bottom: 4px;
             }
 

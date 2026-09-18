@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from "react";
-import {Checkbox, Label} from "@surfnet/curve-react";
+import {Checkbox, Label, Textarea} from "@surfnet/curve-react";
 import {useLocation} from "react-router";
 import DOMPurify from "dompurify";
 import html2canvas from "html2canvas-pro";
@@ -161,7 +161,7 @@ export const UserFeedbackWidget = () => {
             <div className="user-feedback-widget__form">
                 <div className="user-feedback-widget__modal">
                     <p>{I18n.t("feedback.info")}</p>
-                    <textarea
+                    <Textarea
                         name="feedback"
                         id="feedback"
                         value={message}

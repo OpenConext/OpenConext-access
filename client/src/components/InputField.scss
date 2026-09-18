@@ -1,6 +1,12 @@
 .input-field {
     gap: 8px;
 
+    .optional {
+        margin-left: 4px;
+        font-weight: 400;
+        color: var(--muted-foreground);
+    }
+
     textarea {
         height: 90px;
         background-color: white;

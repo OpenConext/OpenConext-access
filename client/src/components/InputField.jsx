@@ -38,7 +38,8 @@ export default function InputField({
                                        customClassName = "",
                                        required = false,
                                        info = null,
-                                        isAlert = false
+                                        isAlert = false,
+                                       optional = false
                                    }) {
     placeholder = disabled ? "" : placeholder;
     const validExternalLink = externalLink && !isEmpty(value) && validUrlRegExp.test(value);
@@ -54,6 +55,7 @@ export default function InputField({
     return (
         <Field className={`input-field ${customClassName}`} data-invalid={error}>
             {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}
+                {optional && <span className="optional">{I18n.t("forms.optional")}</span>}
                 {isAlert && <Tooltip>
                     <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>

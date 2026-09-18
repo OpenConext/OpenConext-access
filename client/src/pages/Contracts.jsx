@@ -93,11 +93,6 @@ export const Contracts = () => {
             mapper: contract => <span>{contract.providerName}</span>,
         },
         {
-            key: "applicationName",
-            header: I18n.t("contracts.applicationName"),
-            mapper: contract => <span>{contract.applicationName}</span>,
-        },
-        {
             key: "ticketKey",
             header: I18n.t("contracts.ticketKey"),
             mapper: contract => contract.ticketKey

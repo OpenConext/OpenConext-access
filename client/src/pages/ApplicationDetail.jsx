@@ -28,7 +28,7 @@ import {
     CardContent,
     Spinner
 } from "@surfnet/curve-react";
-import {WarningIcon, PlusIcon, XCircleIcon, PencilSimpleIcon, InfoIcon} from "@phosphor-icons/react";
+import {WarningIcon, PlusIcon, XCircleIcon, PencilSimpleIcon, InfoIcon, ClockIcon, HourglassHighIcon} from "@phosphor-icons/react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
@@ -561,7 +561,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             <>
                 {readOnly &&
                     <Alert variant={"info"} className={"max-w-[800px]"}>
-                        <InfoIcon/>
+                        <HourglassHighIcon/>
                         <AlertDescription>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
                             <Button variant="link" onClick={e => cancelConnectionRequest(true, e)}>
@@ -847,7 +847,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const badgeVariantForConnectionStatus = () => {
         if (readOnly) {
-            return "warning";
+            return "outline";
         }
         if (pendingDisconnect) {
             return "warning";
@@ -882,6 +882,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 <div className="application-header-top">
                                     <h3 className="text-[length:var(--text-2xl-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
                                     <Badge variant={badgeVariantForConnectionStatus()}>
+                                        {readOnly && <ClockIcon data-icon="inline-start"/>}
                                         {translationForConnectionStatus()}
                                     </Badge>
                                     {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
