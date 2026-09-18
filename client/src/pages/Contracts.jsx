@@ -2,22 +2,13 @@ import React, {useEffect, useState} from "react";
 import "./Contracts.scss";
 import "../components/Entities.scss";
 import I18n from "../locale/I18n";
-import {
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    Spinner
-} from "@surfnet/curve-react";
+import {Button, DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger, Spinner} from "@surfnet/curve-react";
 import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
 import {CheckIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {unsignedContracts, signContract} from "../api";
+import {signContract, unsignedContracts} from "../api";
 import {isEmpty} from "../utils/Utils.js";
-import {useShallow} from "zustand/react/shallow";
 
 export const Contracts = () => {
 
@@ -136,16 +127,16 @@ export const Contracts = () => {
             />}
             {isEmpty(contracts) && <p>{I18n.t("contracts.noContracts")}</p>}
             {!isEmpty(contracts) && <Entities entities={contracts}
-                      modelName="contracts"
-                      defaultSort="signeeName"
-                      columns={columns}
-                      showNew={false}
-                      inputFocus={true}
-                      hideTitle={false}
-                      title={I18n.t("contracts.unsigned")}
-                      searchAttributes={["signeeName", "email", "providerName", "applicationName"]}
-                      totalElements={contracts.length}
-                      loading={loading}/>}
+                                              modelName="contracts"
+                                              defaultSort="signeeName"
+                                              columns={columns}
+                                              showNew={false}
+                                              inputFocus={true}
+                                              hideTitle={false}
+                                              title={I18n.t("contracts.unsigned")}
+                                              searchAttributes={["signeeName", "email", "providerName", "applicationName"]}
+                                              totalElements={contracts.length}
+                                              loading={loading}/>}
         </div>
     );
 };
