@@ -96,7 +96,7 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
             <DropdownMenu>
                 <DropdownMenuTrigger render={
                     <Button variant="ghost" size="icon">
-                        <MenuIcon weight="bold"/>
+                        <MenuIcon weight="bold" size={34} className="size-[34px]"/>
                     </Button>
                 }/>
                 <DropdownMenuContent align="end" className="action-menu-content">

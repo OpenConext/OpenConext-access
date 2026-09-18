@@ -26,6 +26,12 @@
             margin-left: 6px;
         }
 
+        .optional {
+            margin-left: 4px;
+            font-weight: 400;
+            color: var(--muted-foreground);
+        }
+
     }
 
     .input-select-inner {

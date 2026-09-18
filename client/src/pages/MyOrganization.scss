@@ -29,30 +29,9 @@ div.my-organization-outer-container {
     }
 
     .left-menu {
-        @include card(15px);
+        @include card(15px, 24px, 0);
         min-width: 280px;
         align-self: flex-start;
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            align-content: center;
-            width: 100%;
-            padding: 8px 8px;
-            background-color: white;
-            cursor: pointer;
-
-            &:hover:not(.active) {
-                background-color: #DCF2E5;
-            }
-
-            &.active {
-                cursor: initial;
-                background-color: var(--muted);
-                border-radius: 4px;
-
-            }
-        }
     }
 
     .right-menu {

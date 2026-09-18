@@ -327,7 +327,7 @@ class ConnectionControllerTest extends AbstractTest {
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .pathParam("organizationId", seedIdentifiers.get(SHARE_LOGICS))
-            .get("/api/v1/connections/organization/{organizationId}")
+            .get("/api/v1/connections/relying-parties/{organizationId}")
             .as(new TypeRef<>() {
             });
         assertEquals(2, connections.size());

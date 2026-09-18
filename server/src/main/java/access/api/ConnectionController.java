@@ -200,7 +200,13 @@ public class ConnectionController implements UserAccessRights {
     @PutMapping("/update-request-production-status")
     public ResponseEntity<Map<String, Object>> updateWithProductionReadyRequest(User user, @Validated @RequestBody Connection connectionData) {
         LOG.debug("/update connection by " + user.getEmail());
-        Connection connection = doUpdateConnection(user, connectionData);
+        Connection connection = this.doUpdateConnection(user, connectionData);
+        if (connection.getStatus().equals(ConnectionStatus.PENDING_PROD) ||
+            connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
+            //not allowed to ask for production status twice
+            throw new InvalidInputException(String.format("User %s is requesting production status with status already %s",
+                user.getEmail(), connection.getStatus()));
+        }
         String jiraKey = this.doRequestProductionStatus(user, connection);
         Map<String, Object> body = Map.of("connection", connection, "jiraKey", jiraKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
@@ -211,8 +217,16 @@ public class ConnectionController implements UserAccessRights {
             throw new InvalidInputException("Connection is not valid");
         }
         Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());
-
+        boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
+        List<String> previousAllowedResourceServers = isResourceServer ?
+            allowedResourceServerNames(connection) : Collections.emptyList();
         connection.merge(connectionData);
+
+        if (connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled()) {
+            Map<String, Object> provider = manage.providerByConnection(connection);
+            String entityId = (String) ((Map) provider.get("data")).get("entityid");
+            this.addOrRemoveEduIDIdp(user, connection, entityId);
+        }
 
         if (connection.changeRequestRequired() && !config.isTestEnvironment()) {
             //Not allowed to sync the connection to Manage. Create or update outstanding ChangeRequest
@@ -221,7 +235,63 @@ public class ConnectionController implements UserAccessRights {
         } else {
             connection = saveConnection(connection);
         }
+
+        if (isResourceServer) {
+            this.syncAllowedResourceServers(connection, previousAllowedResourceServers);
+        }
         return connection;
+    }
+
+    //The 'afnemers' (customers) of a resource server are the relying parties allowed to request tokens for it.
+    //Manage stores this the other way around - on each relying party's own 'allowedResourceServers' - so any
+    //addition or removal made here must be pushed to the affected relying parties individually.
+    //The local metaData cache on the resource server's own Connection can be stale (e.g. a previous sync failed,
+    //or a relying party was changed directly in Manage), so the current state is queried from Manage instead
+    private List<String> allowedResourceServerNames(Connection connection) {
+        String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
+        if (!StringUtils.hasText(resourceServerEntityId)) {
+            return List.of();
+        }
+        List<Map<String, Object>> relyingParties = manage.relyingPartiesByAllowedResourceServer(resourceServerEntityId);
+        return relyingParties.stream().map(relyingParty -> getEntityID(relyingParty)).toList();
+    }
+
+    //The desired new set of allowed relying parties, as just submitted by the user - unlike allowedResourceServerNames
+    //this must be read from metaData, since nothing has been synced to Manage for this submission yet
+    @SuppressWarnings("unchecked")
+    private List<String> submittedAllowedResourceServerNames(Connection connection) {
+        List<Map<String, String>> allowedResourceServers = (List<Map<String, String>>) connection.getMetaData()
+            .getOrDefault("allowedResourceServers", new ArrayList<>());
+        return allowedResourceServers.stream().map(resourceServer -> resourceServer.get("name")).toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void syncAllowedResourceServers(Connection connection, List<String> previousNames) {
+        String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
+        if (!StringUtils.hasText(resourceServerEntityId)) {
+            return;
+        }
+        List<String> currentNames = submittedAllowedResourceServerNames(connection);
+        List<String> added = currentNames.stream().filter(name -> !previousNames.contains(name)).toList();
+        List<String> removed = previousNames.stream().filter(name -> !currentNames.contains(name)).toList();
+        if (added.isEmpty() && removed.isEmpty()) {
+            return;
+        }
+        List<String> affectedNames = Stream.concat(added.stream(), removed.stream()).distinct().toList();
+        List<Map<String, Object>> relyingParties = manage.relyingPartiesByEntityID(affectedNames);
+        relyingParties.forEach(relyingParty -> {
+            Map<String, Object> data = getData(relyingParty);
+            List<Map<String, String>> allowedResourceServers = ((List<Map<String, String>>) data
+                .getOrDefault("allowedResourceServers", new ArrayList<>()))
+                .stream()
+                .filter(resourceServer -> !resourceServer.get("name").equals(resourceServerEntityId))
+                .collect(Collectors.toCollection(ArrayList::new));
+            if (added.contains(getEntityID(relyingParty))) {
+                allowedResourceServers.add(Map.of("name", resourceServerEntityId));
+            }
+            data.put("allowedResourceServers", allowedResourceServers);
+            manage.updateProvider(relyingParty);
+        });
     }
 
     @SneakyThrows
@@ -234,20 +304,21 @@ public class ConnectionController implements UserAccessRights {
     }
 
     @SneakyThrows
-    @GetMapping(value = "/organization/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/relying-parties/{organizationId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Connection>> relyingPartiesByOrganization(User user, @PathVariable("organizationId") Long organizationId) {
-        List<Connection> connections = connectionRepository.findByProtocolAndApplicationOrganizationId(EntityType.oidc10_rp, organizationId);
         Organization organization = organizationRepository.getReferenceById(organizationId);
         user = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(user, organization, Authority.MEMBER);
 
-        connections.forEach(connection -> {
-            if (StringUtils.hasText(connection.getManageIdentifier())) {
+        List<Connection> connections = connectionRepository.findByProtocolAndApplicationOrganizationId(EntityType.oidc10_rp, organizationId);
+        connections.
+            stream()
+            .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
+            .forEach(connection -> {
                 Map<String, Object> provider = manage.providerByConnection(connection);
                 if (connection.mergeMetaData(provider, false)) {
                     connectionRepository.save(connection);
                 }
-            }
         });
 
         return ResponseEntity.ok(connections);
@@ -267,7 +338,7 @@ public class ConnectionController implements UserAccessRights {
 
     private String doRequestProductionStatus(User user, Connection connection) {
         Map<String, Object> provider = manage.providerByConnection(connection);
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        String entityId = getEntityID(provider);
         config.getIdentityProviders().forEach(idp -> {
             Map<String, Object> idpData = manage.identityProviderByEntityID(idp.get("entityid"));
             Map<String, Object> data = getData(idpData);
@@ -278,21 +349,6 @@ public class ConnectionController implements UserAccessRights {
                 .toList();
             data.put("allowedEntities", newAllowedEntities);
             manage.saveIdentityProvider(idpData);
-        });
-
-        eduidIdpEntityIdentifiers.forEach(eduidIdpEntityId -> {
-            Map<String, Object> eduidIdpProvider = manage.identityProviderByEntityID(eduidIdpEntityId);
-            Map<String, Object> data = getData(eduidIdpProvider);
-            List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
-                .getOrDefault("allowedEntities", new ArrayList<>());
-            List<Map<String, String>> newAllowedEntities = new ArrayList<>(allowedEntities.stream()
-                .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
-                .toList());
-            if (connection.isEduIdAccessEnabled()) {
-                newAllowedEntities.add(Map.of("name", entityId));
-            }
-            data.put("allowedEntities", newAllowedEntities);
-            manage.saveIdentityProvider(eduidIdpProvider);
         });
 
         if (config.isTestEnvironment()) {
@@ -340,6 +396,26 @@ public class ConnectionController implements UserAccessRights {
         connection.setStatus(ConnectionStatus.PENDING_PROD);
         saveConnection(connection);
         return jiraKey;
+    }
+
+    private void addOrRemoveEduIDIdp(User user, Connection connection, String entityId) {
+        //Only superusers and organization admins are allowed to do this
+        if (user.isSuperUser() || getOrganizationMembership(user, connection.getApplication().getOrganization(), Authority.ADMIN).isPresent()) {
+            eduidIdpEntityIdentifiers.forEach(eduidIdpEntityId -> {
+                Map<String, Object> eduidIdpProvider = manage.identityProviderByEntityID(eduidIdpEntityId);
+                Map<String, Object> data = getData(eduidIdpProvider);
+                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
+                    .getOrDefault("allowedEntities", new ArrayList<>());
+                List<Map<String, String>> newAllowedEntities = new ArrayList<>(allowedEntities.stream()
+                    .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
+                    .toList());
+                if (connection.isEduIdAccessEnabled()) {
+                    newAllowedEntities.add(Map.of("name", entityId));
+                }
+                data.put("allowedEntities", newAllowedEntities);
+                manage.saveIdentityProvider(eduidIdpProvider);
+            });
+        }
     }
 
     @DeleteMapping({"", "/{connectionId}"})

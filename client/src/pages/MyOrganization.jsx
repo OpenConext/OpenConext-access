@@ -23,6 +23,7 @@ import SelectField from "../components/SelectField.jsx";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import {currentOrganizationFromUser} from "../utils/Organization.js";
 import {Contract} from "../connection/Contract.jsx";
+import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
@@ -289,11 +290,11 @@ const MyOrganization = ({refreshUser}) => {
                     <div className="left-menu">
                         {availableSections
                             .map((s, index) =>
-                                <div key={index}
-                                     className={`menu-item ${s === section ? "active" : ""}`}
-                                     onClick={() => changeTab(s)}>
-                                    <span>{I18n.t(`myOrganization.${s}`)}</span>
-                                </div>
+                                <StatusMenuItem key={index}
+                                                hideIcon={true}
+                                                active={s === section}
+                                                action={() => changeTab(s)}
+                                                info={I18n.t(`myOrganization.${s}`)}/>
                             )}
                     </div>
                     <div className="right-menu">

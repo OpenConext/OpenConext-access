@@ -559,23 +559,25 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const renderAccessApp = () => {
         return (
             <>
-                {readOnly && <Alert>
-                    <WarningIcon/>
-                    <AlertDescription>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <Button variant="link" onClick={e => cancelConnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</Button>
-                    </AlertDescription>
-                </Alert>
+                {readOnly &&
+                    <Alert variant={"info"} className={"max-w-[800px]"}>
+                        <InfoIcon/>
+                        <AlertDescription>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
+                            <Button variant="link" onClick={e => cancelConnectionRequest(true, e)}>
+                                {I18n.t("appAccess.cancelRequest")}</Button>
+                        </AlertDescription>
+                    </Alert>
                 }
-                {pendingDisconnect && <Alert>
-                    <WarningIcon/>
-                    <AlertDescription>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                        <Button variant="link" onClick={e => cancelDisconnectionRequest(true, e)}>
-                            {I18n.t("appAccess.cancelRequest")}</Button>
-                    </AlertDescription>
-                </Alert>
+                {pendingDisconnect &&
+                    <Alert variant={"info"} className={"max-w-[800px]"}>
+                        <InfoIcon/>
+                        <AlertDescription>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
+                            <Button variant="link" onClick={e => cancelDisconnectionRequest(true, e)}>
+                                {I18n.t("appAccess.cancelRequest")}</Button>
+                        </AlertDescription>
+                    </Alert>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
                     <Accordion defaultValue={["policies", "roles"]} className="access-accordion">

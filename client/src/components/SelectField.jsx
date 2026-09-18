@@ -13,11 +13,12 @@ export default function SelectField({
                                         toolTip = null, searchable = false, small = false,
                                         clearable = false, isMulti = false, creatable = false,
                                         onInputChange = null, required = false, info = null,
-                                        className = "", isAlert = false
+                                        className = "", isAlert = false, optional = false
                                     }) {
     return (
         <div className={`select-field ${className}`}>
             {name && <label htmlFor={name}>{name}
+                {optional && <span className="optional">{I18n.t("forms.optional")}</span>}
                 {toolTip && <Tooltip>
                     <TooltipTrigger render={<InfoIcon/>}/>
                     <TooltipContent><span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(toolTip)}}/></TooltipContent>

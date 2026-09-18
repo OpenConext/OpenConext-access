@@ -46,10 +46,11 @@ import {
     parseMedaData,
     parseMedaDataUrl,
     policiesByServiceProviders,
+    relyingPartiesByOrganization,
     resetConnectionSecret,
     uniqueEntityID,
     updateConnection,
-    uppdateAndRequestConnectionProductionStatus
+    updateAndRequestConnectionProductionStatus
 } from "../api/index.js";
 import UploadButton from "../components/UploadButton.jsx";
 import {useAppStore} from "../stores/AppStore.js";
@@ -67,7 +68,7 @@ import {createAndClickLink, domainName} from "../utils/Forms.js";
 import {ChangeRequests} from "./ChangeRequests.jsx";
 import {useShallow} from "zustand/react/shallow";
 import {ConnectionInUseWarning, units} from "./ConnectionInUseWarning.jsx";
-import {hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
+import {hasPolicyWriteAccess, isOrganizationAdmin, policyServiceProvider} from "../utils/Permissions.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 
 const metaData = {
@@ -88,7 +89,7 @@ const modals = {
     deletionWarning: "deletionWarning",
 }
 
-const AlertTriangleIcon = () => <WarningIcon weight="regular" color={"var(--warning-subtle-foreground)"} className="alert-triangle"/>;
+const PendingProdIcon = () => <HourglassHighIcon weight="regular" size={20} className="pending"/>;
 
 const connectionStatusKey = connection => {
     const productionConnectionNeedsActivation = connection.status === CONNECTION_STATUSES.COMPLETE;
@@ -183,6 +184,7 @@ export const Connections = ({
     const [changeRequestsKeys, setChangeRequestsKeys] = useState([]);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
     const [jiraKey, setJiraKey] = useState(null);
+    const [relyingParties, setRelyingParties] = useState([]);
 
     const connections = application.connections;
 
@@ -211,6 +213,12 @@ export const Connections = ({
         });
     }, [application]);// eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (section === sections.customers && connection.protocol.value === PROTOCOLS.OAUTH20_RS) {
+            relyingPartiesByOrganization(currentOrganization.id).then(res => setRelyingParties(res));
+        }
+    }, [section]);// eslint-disable-line react-hooks/exhaustive-deps
+
     const isPending = sectionName => {
         return !sections.isComplete(connection, sectionName);
     }
@@ -228,6 +236,9 @@ export const Connections = ({
                 return !sections.isComplete(connection, isRs ? sections.technical : sections.informationProfile) || !technicalValid();
             }
             case sections.publish: {
+                return !sections.isComplete(connection, sections.testConnection) || !technicalValid();
+            }
+            case sections.customers: {
                 return !sections.isComplete(connection, sections.testConnection) || !technicalValid();
             }
         }
@@ -621,6 +632,7 @@ export const Connections = ({
                 />
                 {isRs &&
                     <SelectField name={I18n.t("connection.scopes")}
+                                 optional={true}
                                  options={[]}
                                  value={connection.scopes}
                                  isMulti={true}
@@ -628,7 +640,7 @@ export const Connections = ({
                                  creatable={true}
                                  placeholder={I18n.t("connection.scopePlaceholder")}
                                  onChange={scopesChanged}
-                                 info={I18n.t("connection.scopeInfo")}
+                                 info={I18n.t("connection.scopeInfo", {schachome: currentOrganization.schacHomeOrganization.replaceAll(".", "-")})}
                     />}
                 {(isRs && duplicateScope) &&
                     <ErrorIndicator msg={I18n.t("connection.duplicateScope")}
@@ -898,23 +910,6 @@ export const Connections = ({
                         {(!initial && isEmpty(connection.acsLocations.filter(acsLocation => !isEmpty(acsLocation.trim())))) &&
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.acsLocation")})}
                                             adjustMargin={true}/>}
-                        {connection.status !== CONNECTION_STATUSES.OPEN &&
-                            <div className="oidc-authentication">
-                                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.connectionOverview.samlConfig")}</h3>
-                                <div className="oidc-authentication-inner">
-                                    <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
-                                                value={config.idpProxyMetaData}
-                                                disabled={true}
-                                                copyClipBoard={true}/>
-                                    <p className="saml-test"
-                                       dangerouslySetInnerHTML={{
-                                           __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
-                                               , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
-                                       }}/>
-                                </div>
-                            </div>
-                        }
-
                     </>
                 }
             </section>
@@ -925,7 +920,7 @@ export const Connections = ({
         const iDps = config.identityProviders;
         const allowedEntities = connection.allowedEntities || [];
         const testEntityIdentifiers = iDps.map(idp => idp.entityid);
-        const dummyIdpsActive = !isEmpty(connection.allowedEntities)
+        const dummyIdpsActive = !isEmpty(connection.allowedEntities);
         return (
             <section className="test-idp-section">
                 <p className="test-accounts-title">
@@ -945,7 +940,7 @@ export const Connections = ({
                              label={I18n.t("connection.productionStatusSection.dummyIdP")}
                 />
                 {dummyIdpsActive &&
-                    <section className={`identity-providers ${dummyIdpsActive ? "active" : ""}` }>
+                    <section className={`identity-providers ${dummyIdpsActive ? "active" : ""}`}>
                         {iDps.map((idp, index) =>
                             <div key={index} className="idp">
                                 <div className="idp-info">
@@ -963,33 +958,43 @@ export const Connections = ({
     }
 
     const renderTestConnectionSection = () => {
-        const isOidcOrRs = connection.protocol.value === PROTOCOLS.OIDC10_RP ||
-            connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
-        const showFreshlyGeneratedSecret = isOidcOrRs && !isEmpty(connection.originalSecret);
-        const showRefreshSecret = isOidcOrRs && isEmpty(connection.originalSecret);
+        const isRp = connection.protocol.value === PROTOCOLS.OIDC10_RP;
+        const isRsOrRp = isRs || isRp;
+        const showFreshlyGeneratedSecret = isRsOrRp && !isEmpty(connection.originalSecret);
+        const showRefreshSecret = isRsOrRp && isEmpty(connection.originalSecret);
+        const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
+
         return (
             <section className="inner-right">
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.testConnection")}</h3>
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t(`connection.${isRs ? "testAndPublish" : "testConnection"}`)}</h3>
+                {(isRs && prodConnection) &&
+                    <Alert variant="success">
+                        <CheckCircleIcon/>
+                        <AlertTitle>{I18n.t("connection.productionStatusSection.readyTitle")}</AlertTitle>
+                    </Alert>}
+                {(isRs && !isEmpty(jiraKey)) && renderProductionStatusRequested()}
+                {isRp && <p>{I18n.t("connection.testConnectionSection.info")}</p>}
+                {isRs && <p>{I18n.t("connection.testConnectionSection.infoRS")}</p>}
+                {showFreshlyGeneratedSecret &&
+                    alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, null, "warning")}
+                {isRsOrRp && <>
+
+                    <div className="oidc-authentication">
+                        <InputField name={I18n.t("connection.connectionOverview.discovery")}
+                                    value={config.discovery}
+                                    disabled={true}
+                                    copyClipBoard={true}/>
+                        <InputField name={I18n.t("connection.connectionOverview.clientID")}
+                                    value={connection.entityID}
+                                    disabled={true}
+                                    copyClipBoard={true}/>
                         {showFreshlyGeneratedSecret &&
-                            alertInfo(I18n.t("connection.connectionOverview.disclaimer"), null, null, null, "warning")}
-                {isOidcOrRs && <>
-                         <p>{I18n.t("connection.testConnectionSection.info")}</p>
-                        <div className="oidc-authentication-inner">
-                            <InputField name={I18n.t("connection.connectionOverview.discovery")}
-                                        value={config.discovery}
-                                        disabled={true}
-                                        copyClipBoard={true}/>
-                            <InputField name={I18n.t("connection.connectionOverview.clientID")}
-                                        value={connection.entityID}
-                                        disabled={true}
-                                        copyClipBoard={true}/>
-                            {showFreshlyGeneratedSecret &&
                             <InputField name={I18n.t("connection.connectionOverview.secret")}
                                         value={connection.originalSecret}
                                         disabled={true}
                                         copyClipBoard={true}/>}
-                            {showRefreshSecret &&
+                        {showRefreshSecret &&
                             <div className="secret-link">
                                 <span className="label">{I18n.t("connection.connectionOverview.secret")}</span>
                                 <span>{I18n.t("connection.connectionOverview.secretReset")}
@@ -1000,27 +1005,27 @@ export const Connections = ({
                                 </Button>
 
                             </div>}
-                        </div>
+                    </div>
                 </>}
-                {!isOidcOrRs &&
-                    <div className="oidc-authentication-inner">
+                {!isRsOrRp &&
+                    <div>
                         <p className="saml-test"
                            dangerouslySetInnerHTML={{
                                __html: DOMPurify.sanitize(I18n.t("connection.connectionOverview.test")
                                    , {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
                            }}/>
                         <div className="saml-meta-data">
-                        <InputField name={I18n.t("connection.connectionOverview.entityID")}
-                                    value={connection.entityID}
-                                    disabled={true}
-                                    copyClipBoard={true}/>
-                        <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
-                                    value={config.idpProxyMetaData}
-                                    disabled={true}
-                                    copyClipBoard={true}/>
+                            <InputField name={I18n.t("connection.connectionOverview.entityID")}
+                                        value={connection.entityID}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
+                            <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
+                                        value={config.idpProxyMetaData}
+                                        disabled={true}
+                                        copyClipBoard={true}/>
                         </div>
                     </div>}
-                {!isRs && renderTestIdPSection()}
+                {(!isRs && !prodConnection) && renderTestIdPSection()}
             </section>
         );
     }
@@ -1043,7 +1048,7 @@ export const Connections = ({
                         <CheckCircleIcon/>
                         <AlertTitle>{I18n.t("connection.productionStatusSection.readyTitle")}</AlertTitle>
                         <AlertDescription>
-                            <p>{I18n.t("connection.productionStatusSection.readyDescription")}</p>
+                            <p dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.productionStatusSection.readyDescription"))}}/>
                             <p>{accessCatalogusAppURL}</p>
                         </AlertDescription>
                         <AlertAction>
@@ -1101,25 +1106,51 @@ export const Connections = ({
                                         connectOption: value
                                     }))}
                             </div>
-                            <div className="visibility-options">
-                                <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}</p>
-                                <p className="eduid-access-info"
-                                   dangerouslySetInnerHTML={{
-                                       __html: DOMPurify.sanitize(I18n.t("connection.visibilities.eduIdAccessInfo"),
-                                           {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
-                                   }}/>
-                                <Label>
-                                    <Checkbox checked={connection.eduIdAccessEnabled || false}
-                                              onCheckedChange={checked => setConnection({
-                                                  ...connection,
-                                                  eduIdAccessEnabled: checked
-                                              })}/>
-                                    {I18n.t("connection.visibilities.eduIdAccessLabel")}
-                                </Label>
-                                <p className="disclaimer" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
-                            </div>
+                            {(user.superUser || isOrganizationAdmin(user, currentOrganization)) &&
+                                <div className="visibility-options">
+                                    <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}</p>
+                                    <p className="eduid-access-info"
+                                       dangerouslySetInnerHTML={{
+                                           __html: DOMPurify.sanitize(I18n.t("connection.visibilities.eduIdAccessInfo"),
+                                               {ADD_ATTR: ["target"], ADD_TAGS: ["a", "rel"]})
+                                       }}/>
+                                    <Label>
+                                        <Checkbox checked={connection.eduIdAccessEnabled || false}
+                                                  onCheckedChange={checked => setConnection({
+                                                      ...connection,
+                                                      eduIdAccessEnabled: checked
+                                                  })}/>
+                                        {I18n.t("connection.visibilities.eduIdAccessLabel")}
+                                    </Label>
+                                    <p className="disclaimer" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("connection.visibilities.disclaimer"))}}/>
+                                </div>}
                         </div>
                     </>}
+            </section>
+        );
+    }
+
+    const renderCustomersSection = () => {
+        const options = relyingParties
+            .filter(relyingParty => !isEmpty(relyingParty.metaData?.entityID))
+            .map(relyingParty => ({value: relyingParty.metaData.entityID, label: relyingParty.name}));
+        const allowedResourceServers = connection.allowedResourceServers || [];
+        const value = allowedResourceServers
+            .map(resourceServer => options.find(option => option.value === resourceServer.name) ||
+                {value: resourceServer.name, label: resourceServer.name});
+        return (
+            <section className="inner-right">
+                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.customers")}</h3>
+                <SelectField name={I18n.t("connection.customersSection.question")}
+                             options={options}
+                             value={value}
+                             isMulti={true}
+                             searchable={true}
+                             onChange={selectedOptions => setConnection({
+                                 ...connection,
+                                 allowedResourceServers: (selectedOptions || []).map(option => ({name: option.value}))
+                             })}
+                />
             </section>
         );
     }
@@ -1312,6 +1343,9 @@ export const Connections = ({
             case sections.publish: {
                 return renderPublishSection();
             }
+            case sections.customers: {
+                return renderCustomersSection();
+            }
             case sections.pendingChanges: {
                 return <ChangeRequests connectionName={connection.name}
                                        changeRequests={connection.changeRequests}
@@ -1348,6 +1382,9 @@ export const Connections = ({
             case sections.pendingChanges: {
                 return false;
             }
+            case sections.customers: {
+                return false;
+            }
         }
     }
 
@@ -1357,10 +1394,20 @@ export const Connections = ({
                 return connection.protocol.value === PROTOCOLS.OAUTH20_RS ? sections.testConnection : sections.informationProfile;
             case sections.informationProfile:
                 return sections.testConnection;
-            case sections.testConnection:
-                return sections.publish;
+            case sections.testConnection: {
+                if (connection.protocol.value !== PROTOCOLS.OAUTH20_RS) {
+                    return sections.publish;
+                }
+                //Stay on this step right after the production request was just made, so the Jira ticket
+                //alert can be shown - only advance to customers on the follow-up "Next" click
+                const alreadyRequested = connection.status === CONNECTION_STATUSES.PENDING_PROD ||
+                    connection.status === CONNECTION_STATUSES.PROD_READY;
+                return alreadyRequested ? sections.customers : sections.testConnection;
+            }
             case sections.publish:
                 return sections.publish;
+            case sections.customers:
+                return sections.customers;
         }
     }
     const storeAndNext = () => {
@@ -1377,11 +1424,15 @@ export const Connections = ({
         const proceed = (section === sections.technical && technicalValid()) ||
             (section === sections.informationProfile && informationProfileValid()) ||
             section === sections.testConnection ||
-            section === sections.publish;
+            section === sections.publish ||
+            section === sections.customers;
         if (proceed) {
             setLoading(true);
-            const isPublishing = section === sections.publish;
-            const promise = !connection.id ? newConnection : (isPublishing ? uppdateAndRequestConnectionProductionStatus : updateConnection);
+            const isPendingProdOrProdReady = connection.status === CONNECTION_STATUSES.PENDING_PROD ||
+                connection.status === CONNECTION_STATUSES.PROD_READY;
+            const isPublishing = (section === sections.publish || (section === sections.testConnection && isRs)) &&
+                !isPendingProdOrProdReady;
+            const promise = !connection.id ? newConnection : (isPublishing ? updateAndRequestConnectionProductionStatus : updateConnection);
             const body = convertClientConnectionToServer(application, connection, arpInfo);
             if (!sections.allCompleted(body)) {
                 sections.complete(body, section);
@@ -1457,51 +1508,60 @@ export const Connections = ({
 
     const renderInitialConnection = () => {
         const valid = !storeAndNextDisabled();
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const isComplete = connection.status !== CONNECTION_STATUSES.OPEN;
         const requiresChangeRequest = connection.status === CONNECTION_STATUSES.PROD_READY;
         const showOverviewButton = section === sections.publish && !isEmpty(jiraKey);
+        const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
+        const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
         const submitTxt = (requiresChangeRequest && config.testEnvironment) ? I18n.t("connection.requiresChangeRequest") :
-            section === sections.publish ? I18n.t("connection.productionStatusSection.requestProduction") :
-                section === sections.testConnection ? I18n.t("connection.productionStatusSection.doneAndContinue") :
+            section === sections.publish ? ((prodConnection || pendingProd) ? I18n.t("connection.save") : I18n.t("connection.productionStatusSection.requestProduction")) :
+                section === sections.testConnection ? (isRs ?
+                        (pendingProd ? I18n.t("connection.productionStatusSection.nextStep") :
+                            prodConnection ? I18n.t("connection.save") : I18n.t("connection.productionStatusSection.requestProduction")) :
+                        I18n.t("connection.productionStatusSection.doneAndContinue")) :
                     isComplete ? I18n.t("connection.save") : I18n.t("connection.saveAndNext");
+        const cancelTxt = section === sections.publish ?
+            ((prodConnection || pendingProd) ? I18n.t("forms.backToConnections") : I18n.t("connection.productionStatusSection.postponePublish")) :
+            I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`);
         return (
             <>
                 <div className="testing-header">
                     <div className="testing-header-info">
-                    <h2 className="text-[length:var(--text-xl-font-size)]">
-                        {I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}
-                    </h2>
-                    <ConnectionStatusBadge connection={connection}/>
+                        <h2 className="text-[length:var(--text-xl-font-size)]">
+                            {I18n.t(`connection.${isComplete ? "existing" : "new"}Connection`, {name: connection.name})}
+                        </h2>
+                        <ConnectionStatusBadge connection={connection}/>
                     </div>
                     <div className="ml-auto flex">
-                    {!isEmpty(connection.changeRequests) &&
-                        <div className="action-button">
-                            <Button onClick={() => changeSection(sections.pendingChanges)}>
-                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pendingChanges"))}}/>
-                            </Button>
-                        </div>
-                    }
-                    {(!isComplete &&
-                            (application.connections?.length > 1 ||
-                                (isEmpty(connection.id) && application.connections.length === 1))) &&
-                        <div className="copy-connection"
-                             tabIndex={1}
-                             onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}
-                        >
-                            <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
-                                    variant="secondary">
-                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.copyConnection"))}}/>
-                                <span data-icon="inline-end"><CaretDown/></span>
-                            </Button>
-                            {isCopyConnectionOpen &&
-                                <section className="copy-connection-section dropdown-menu">
-                                    {application.connections
-                                        .filter(conn => conn.id && conn.name !== connection.name)
-                                        .map((conn, index) =>
-                                            <span key={index}
-                                                  onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
-                                </section>}
-                        </div>}
+                        {!isEmpty(connection.changeRequests) &&
+                            <div className="action-button">
+                                <Button onClick={() => changeSection(sections.pendingChanges)}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pendingChanges"))}}/>
+                                </Button>
+                            </div>
+                        }
+                        {(!isComplete &&
+                                (application.connections?.length > 1 ||
+                                    (isEmpty(connection.id) && application.connections.length === 1))) &&
+                            <div className="copy-connection"
+                                 tabIndex={1}
+                                 onBlur={() => setTimeout(() => setIsCopyConnectionOpen(false), 475)}
+                            >
+                                <Button onClick={() => setIsCopyConnectionOpen(!isCopyConnectionOpen)}
+                                        variant="secondary">
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.copyConnection"))}}/>
+                                    <span data-icon="inline-end"><CaretDown/></span>
+                                </Button>
+                                {isCopyConnectionOpen &&
+                                    <section className="copy-connection-section dropdown-menu">
+                                        {application.connections
+                                            .filter(conn => conn.id && conn.name !== connection.name)
+                                            .map((conn, index) =>
+                                                <span key={index}
+                                                      onClick={() => copyConnectionData(conn.id)}>{conn.name}</span>)}
+                                    </section>}
+                            </div>}
 
                         <Button variant="ghost"
                                 onClick={() => doDeleteConnection(true)}>
@@ -1515,18 +1575,25 @@ export const Connections = ({
                         <div className="status-menu">
                             {Object.values(sections)
                                 .filter(s => typeof s !== "function")
+                                .filter(s => connection.protocol.value !== PROTOCOLS.OAUTH20_RS || s !== sections.publish)
                                 .filter(s => connection.protocol.value !== PROTOCOLS.OAUTH20_RS || s !== sections.informationProfile)
+                                .filter(s => connection.protocol.value === PROTOCOLS.OAUTH20_RS || s !== sections.customers)
                                 .filter(s => s !== sections.pendingChanges || !isEmpty(connection.changeRequests))
-                                .map(sectionValue =>
-                                    <StatusMenuItem key={sectionValue}
-                                                    pending={isPending(sectionValue)}
-                                                    hideIcon={connection.status !== CONNECTION_STATUSES.OPEN && sectionValue !== sections.pendingChanges}
-                                                    disabled={isDisabled(sectionValue)}
-                                                    isAlert={sectionValue === sections.pendingChanges}
-                                                    action={() => changeSection(sectionValue)}
-                                                    info={I18n.t(`connection.${sectionValue}`)}
-                                                    CustomIcon={sectionValue === sections.publish && connection.status === CONNECTION_STATUSES.PENDING_PROD ? AlertTriangleIcon : null}
-                                                    active={section === sectionValue}/>)}
+                                .map(sectionValue => {
+                                    const isPublishOrTestAndPublishStep = (sectionValue === sections.publish && !isRs) ||
+                                        (sectionValue === sections.testConnection && isRs);
+                                    const CustomIcon = (isPublishOrTestAndPublishStep && connection.status === CONNECTION_STATUSES.PENDING_PROD) ?
+                                        PendingProdIcon : null;
+                                    return <StatusMenuItem key={sectionValue}
+                                                           pending={isPending(sectionValue)}
+                                                           hideIcon={connection.status !== CONNECTION_STATUSES.OPEN && sectionValue !== sections.pendingChanges}
+                                                           disabled={isDisabled(sectionValue)}
+                                                           isAlert={sectionValue === sections.pendingChanges}
+                                                           action={() => changeSection(sectionValue)}
+                                                           info={I18n.t(`connection.${sectionValue === sections.testConnection && isRs ? "testAndPublish" : sectionValue}`)}
+                                                           CustomIcon={CustomIcon}
+                                                           active={section === sectionValue}/>;
+                                })}
                         </div>
                     </section>
                     <section className="right">
@@ -1539,9 +1606,7 @@ export const Connections = ({
                                             <Button variant="outline"
                                                     onClick={section === sections.publish ? saveAndPostponePublish : backToConnections}>
                                                 <span dangerouslySetInnerHTML={{
-                                                    __html: sanitize(section === sections.publish ?
-                                                        I18n.t("connection.productionStatusSection.postponePublish") :
-                                                        I18n.t(`forms.${isComplete ? "backToConnections" : "cancel"}`))
+                                                    __html: sanitize(cancelTxt)
                                                 }}/>
                                             </Button>
                                         </div>
@@ -1649,6 +1714,18 @@ export const Connections = ({
                                   appInformationComplete={appInformationComplete}
                                   connectionNeedsApproval={connectionNeedsApproval}
                 />}
+                {isEmpty(connections) &&
+                    <div className="header">
+                        <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t(`connection.allConnections`)}</h3>
+                        <Button variant="default"
+                                onClick={() => {
+                                    setSection(sections.technical);
+                                    setChangeRequestsKeys([]);
+                                    initConnection(true);
+                                }}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("testing.newConnection"))}}/>
+                        </Button>
+                    </div>}
                 {!isEmpty(connections) && renderConnectionsTable(connections)}
                 {isEmpty(connections) &&
                     <p dangerouslySetInnerHTML={{

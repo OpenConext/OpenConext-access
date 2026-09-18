@@ -171,6 +171,25 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> relyingPartiesByEntityID(List<String> entityIdentifiers) {
+        return this.allProviders.get(EntityType.oidc10_rp).stream()
+                .filter(provider -> entityIdentifiers.contains((String) ((Map) provider.get("data")).get("entityid")))
+                .toList();
+    }
+
+    @Override
+    public List<Map<String, Object>> relyingPartiesByAllowedResourceServer(String resourceServerEntityId) {
+        return this.allProviders.get(EntityType.oidc10_rp).stream()
+                .filter(provider -> {
+                    List<Map<String, String>> allowedResourceServers = (List<Map<String, String>>) getData(provider)
+                            .getOrDefault("allowedResourceServers", List.of());
+                    return allowedResourceServers.stream()
+                            .anyMatch(resourceServer -> resourceServerEntityId.equals(resourceServer.get("name")));
+                })
+                .toList();
+    }
+
+    @Override
     public List<Map<String, Object>> uniqueEntityId(EntityType entityType, String entityID) {
         return allProviders.get(entityType).stream()
                 .filter(provider -> getData(provider).get("entityid").equals(entityID))

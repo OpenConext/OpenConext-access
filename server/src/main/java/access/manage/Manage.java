@@ -34,6 +34,10 @@ public interface Manage {
 
     List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers);
 
+    List<Map<String, Object>> relyingPartiesByEntityID(List<String> entityIdentifiers);
+
+    List<Map<String, Object>> relyingPartiesByAllowedResourceServer(String resourceServerEntityId);
+
     List<Map<String, Object>> uniqueEntityId(EntityType entityType, String entityID);
 
     Map<String, Object> createChangeRequest(ChangeRequest changeRequest);

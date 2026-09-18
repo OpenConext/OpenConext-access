@@ -39,6 +39,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             acsLocations: connection.acsLocations,
             contactPersons: connection.contactPersons,
             allowedEntities: connection.allowedEntities,
+            allowedResourceServers: connection.allowedResourceServers,
             pkce: connection.pkce,
             scopes: connection.scopes,
             secret: connection.secret,
@@ -120,6 +121,7 @@ export const sections = {
     informationProfile: "informationProfile",
     testConnection: "testConnection",
     publish: "publish",
+    customers: "customers",
 
     complete(connection, section) {
         connection.sectionsComplete = connection.sectionsComplete | getSectionValue(section);
@@ -150,6 +152,9 @@ const getSectionValue = section => {
         }
         case sections.publish: {
             return 8;
+        }
+        case sections.customers: {
+            return 16;
         }
     }
     return 0;

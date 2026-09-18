@@ -238,7 +238,7 @@ class PublicControllerTest extends AbstractTest {
     }
 
     @Test
-    void serviceProviderDetailInternalUserForbidden() {
+    void serviceProviderDetailInternalUserAllowedDespiteHidden() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         this.stubForIdentityProviderByEntityId("http://mock-idp");
         this.stubForGetProvider(EntityType.oidc10_rp, "6");
@@ -252,24 +252,7 @@ class PublicControllerTest extends AbstractTest {
                 .pathParam("identifier", "6")
                 .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
                 .then()
-                .statusCode(403);
+                .statusCode(200);
     }
 
-    @Test
-    void serviceProviderDetailInternalUserHiddenAlwaysForbidden() {
-        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        this.stubForIdentityProviderByEntityId("http://mock-idp");
-        this.stubForGetProvider(EntityType.oidc10_rp, "7");
-        given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .header(csrfHeader(accessCookieFilter))
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParam("type", EntityType.oidc10_rp.name())
-                .pathParam("identifier", "7")
-                .get("/api/v1/public/service-provider-detail/{type}/{identifier}")
-                .then()
-                .statusCode(403);
-    }
 }

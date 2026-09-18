@@ -354,12 +354,16 @@ export function deleteConnectionById(connectionId) {
     return fetchDelete(`/api/v1/connections/${connectionId}`);
 }
 
-export function uppdateAndRequestConnectionProductionStatus(connection) {
+export function updateAndRequestConnectionProductionStatus(connection) {
     return postPutJson("/api/v1/connections/update-request-production-status", connection, "PUT");
 }
 
 export function identityProvidersByUsedConnection(connectionId) {
     return fetchJson(`/api/v1/connections/identity-providers-allowed-connections/${connectionId}`);
+}
+
+export function relyingPartiesByOrganization(organizationId) {
+    return fetchJson(`/api/v1/connections/relying-parties/${organizationId}`);
 }
 
 //OrganizationMemberships

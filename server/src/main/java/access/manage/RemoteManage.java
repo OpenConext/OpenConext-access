@@ -261,6 +261,35 @@ public class RemoteManage implements Manage {
                 }).toList();
     }
 
+    //Unlike serviceProvidersByEntityID, this returns the full provider record (ALL_ATTRIBUTES, not the light
+    //REQUESTED_ATTRIBUTES projection) since callers use this as the base for a subsequent updateProvider
+    @Override
+    public List<Map<String, Object>> relyingPartiesByEntityID(List<String> entityIdentifiers) {
+        LOG.debug("relyingPartiesByEntityID for : " + entityIdentifiers);
+
+        Map<String, Object> baseQuery = getBaseQuery(true);
+        baseQuery.put("entityid", entityIdentifiers);
+        String searchUrl = String.format("%s/manage/api/internal/search/%s",
+                url,
+                EntityType.oidc10_rp.name());
+        List<Map<String, Object>> providers = restTemplate.postForObject(searchUrl, baseQuery, List.class);
+        return providers.stream().map(this::sanitizeProvider).toList();
+    }
+
+    //Ground truth of the relying parties currently linked to a resource server, queried directly from Manage
+    //rather than relying on the (potentially stale) local metaData cache on the resource server's own Connection
+    @Override
+    public List<Map<String, Object>> relyingPartiesByAllowedResourceServer(String resourceServerEntityId) {
+        LOG.debug("relyingPartiesByAllowedResourceServer for : " + resourceServerEntityId);
+
+        Map<String, Object> query = Map.of(
+                "data.allowedResourceServers.name", resourceServerEntityId
+        );
+        String searchUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.oidc10_rp.name());
+        List<Map<String, Object>> providers = restTemplate.postForObject(searchUrl, query, List.class);
+        return providers.stream().map(this::sanitizeProvider).toList();
+    }
+
     @Override
     public List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID) {
         LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);

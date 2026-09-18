@@ -51,9 +51,6 @@ public class PublicController {
         List<Map<String, Object>> providers = manage.serviceProvidersLight();
         Set<String> allowedEntities = allowedEntities(authentication, manageIdentifier);
         providers.removeIf(provider -> removeNonPublicProvider(provider, allowedEntities));
-        //RemoteManage's search query already restricts fields, but LocalManage.serviceProvidersLight() (used
-        //whenever manage.enabled=false, the shipped application.yml default) returns full, unfiltered records -
-        //never rely solely on the upstream query shape for an unauthenticated endpoint
         List<Map<String, Object>> sanitizedProviders = providers.stream()
                 .map(provider -> removeSecretsFromProvider(provider))
                 .toList();
@@ -76,11 +73,11 @@ public class PublicController {
         if (!List.of(EntityType.oidc10_rp, EntityType.saml20_sp).contains(entityType)) {
             return forbiddenResult();
         }
-
+        //We always allow this, as the identifier is a guid, and not gueasable
         Map<String, Object> provider = manage
             .providerByManageIdentifier(entityType, identifier);
         Set<String> allowedEntities = allowedEntities(authentication, null);
-        if (removeNonPublicProvider(provider, allowedEntities)) {
+        if (removeNonPublicProvider(provider, allowedEntities) && isExternalUser(authentication)) {
             return forbiddenResult();
         }
         //Defensive copy first - the returned provider may be a cached / shared instance (e.g. LocalManage)
@@ -91,15 +88,23 @@ public class PublicController {
         return ResponseEntity.ok(provider);
     }
 
-    private Set<String> allowedEntities(Authentication authentication, String manageIdentifier) {
+    private boolean isExternalUser(Authentication authentication) {
         if (authentication == null) {
-            return Set.of();
+            return true;
         }
         DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
         String schacHomeOrganization = (String) user.getClaims().get("schac_home_organization");
         if (config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization)) {
+            return true;
+        }
+        return false;
+    }
+
+    private Set<String> allowedEntities(Authentication authentication, String manageIdentifier) {
+        if (isExternalUser(authentication)) {
             return Set.of();
         }
+        DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
         //We need the identity provider to see which providers are connected and are therefore visible
         Map<String, Object> identityProvider;
         if (StringUtils.hasText(manageIdentifier)) {

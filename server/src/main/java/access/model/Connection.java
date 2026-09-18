@@ -226,8 +226,7 @@ public class Connection implements NameHolder {
          * to prodaccepted, then we set the status to production ready
          */
         this.state = State.valueOf((String) data.getOrDefault("state", "testaccepted"));
-        if (ConnectionStatus.PENDING_PROD.equals(this.status) &&
-            this.state.equals(State.prodaccepted)) {
+        if (ConnectionStatus.PENDING_PROD.equals(this.status) && this.state.equals(State.prodaccepted)) {
             this.status = ConnectionStatus.PROD_READY;
         }
         return changed;

@@ -61,7 +61,7 @@ $width-percentage: 75%;
         gap: 15px;
     }
 
-    .secret-link, .saml-test {
+    .secret-link {
         margin-top: 15px;
 
         button {
@@ -95,6 +95,10 @@ $width-percentage: 75%;
 
         .inner-right {
             @include card();
+
+            [data-slot="alert"] {
+                margin: 0;
+            }
         }
 
         .inner-right-informational {
@@ -555,21 +559,7 @@ $width-percentage: 75%;
     }
 }
 
-.oidc-authentication {
-    margin-top: 10px;
-
-    .oidc-authentication-inner {
-        @include card(24px, 24px, 24px);
-        margin-top: 20px;
-        background-color: var(--card, white);
-        border-color: var(--border);
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-
-
-}
-
-.saml-meta-data {
+.saml-meta-data , .oidc-authentication{
     margin-top: 15px;
     display: flex;
     padding: 0 16px 20px 16px ;
