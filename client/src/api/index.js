@@ -484,16 +484,8 @@ export function uniqueLoginCount(from, to, spEntityId, idpEntityId) {
 }
 
 //Contract
-export function contractByApplication(applicationId) {
-    return fetchJson(`/api/v1/contracts/${applicationId}`);
-}
-
-export function createContract(applicationId, contract) {
-    return postPutJson(`/api/v1/contracts/${applicationId}`, contract, "POST");
-}
-
-export function updateContract(applicationId, contract) {
-    return postPutJson(`/api/v1/contracts/${applicationId}`, contract, "PUT");
+export function signContract(organizationId, contract) {
+    return postPutJson(`/api/v1/contracts/${organizationId}`, contract, "PUT");
 }
 
 export function contractByOrganization(organizationId) {

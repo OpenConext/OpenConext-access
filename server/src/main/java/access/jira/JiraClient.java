@@ -69,10 +69,10 @@ public class JiraClient {
         EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();
         fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", entityType.name()));
         fields.put("customfield_" + emailToCustomField(), issue.getEmailTo());
-        //TODO, Jira does not allow for this custom_field. See https://github.com/OpenConext/OpenConext-access/issues/256
-        if (StringUtils.hasText(issue.getManageIdentifier())) {
+        String manageIdentifier = issue.getManageIdentifier();
+        if (StringUtils.hasText(manageIdentifier)) {
             String accessCatalogusAppURL = String.format("%s/application-detail/%s/%s",
-                config.getClientUrl(), issue.getEntityType().name(), issue.getManageIdentifier());
+                config.getClientUrl(), issue.getEntityType().name(), manageIdentifier);
             fields.put("customfield_" + accessCatalogusAppURLCustomField(), accessCatalogusAppURL);
         }
         fields.put("issuetype", ImmutableMap.of("id", issueType));

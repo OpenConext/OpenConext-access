@@ -47,18 +47,23 @@ import {countryOptions} from "../utils/countries.js";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
+import {useShallow} from "zustand/react/shallow";
 
 const sections = {
     contactPersons: "contactPersons",
     general: "general"
 }
 
-const CONTRACT_REQUIRED_FIELDS = ["organizationName", "signeeName", "email"];
+const CONTRACT_REQUIRED_FIELDS = ["organizationName", "signeeName", "email", "telephone"];
 
 const MyOrganization = ({refreshUser}) => {
-    const user = useAppStore(state => state.user);
-    const setFlash = useAppStore(state => state.setFlash);
-    const config = useAppStore(state => state.config);
+
+    const {user, setFlash, config, currentOrganization} = useAppStore(useShallow(state => ({
+        user: state.user,
+        setFlash: state.setFlash,
+        config: state.config,
+        currentOrganization: state.currentOrganization
+    })));
 
     const {organizationId} = useParams();
     const {tab} = useParams();
@@ -371,14 +376,14 @@ const MyOrganization = ({refreshUser}) => {
                         (!initial && isEmpty(organization.name)) ? I18n.t("forms.required", {name: I18n.t("myOrganization.nameLabel")}) : null
                     )}
                 </section>
-
+                {isOrganizationAdmin(user, currentOrganization) &&
                 <section>
                     <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.contractSectionTitle")}</h3>
 
                     {signed &&
                         <p className="readonly-notice">{I18n.t("contracts.signedReadonly")}</p>}
                     {(!signed && !isNewContract) &&
-                        <Alert>
+                        <Alert variant={"info"}>
                             <InfoIcon/>
                             <AlertDescription
                                 dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
@@ -419,6 +424,8 @@ const MyOrganization = ({refreshUser}) => {
                                 value={contract.telephone}
                                 disabled={signed}
                                 onChange={e => updateContractField("telephone", e.target.value)}/>
+                    {(!contractInitial && isEmpty(contract.telephone)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.telephone")})}/>}
 
                     <InputField name={I18n.t("contracts.address")}
                                 value={contract.address}
@@ -434,7 +441,7 @@ const MyOrganization = ({refreshUser}) => {
                                  onChange={option => updateContractField("country", option ? option.value : "")}
                                  searchable={true}
                                  clearable={true}/>
-                </section>
+                </section>}
 
                 <div className="form-actions">
                     <Button variant="outline" onClick={doCancelExternalOrganization}>

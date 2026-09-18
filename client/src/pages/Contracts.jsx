@@ -15,8 +15,9 @@ import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
 import {CheckIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
-import {unsignedContracts, updateContract} from "../api";
+import {unsignedContracts, signContract} from "../api";
 import {isEmpty} from "../utils/Utils.js";
+import {useShallow} from "zustand/react/shallow";
 
 export const Contracts = () => {
 
@@ -47,7 +48,7 @@ export const Contracts = () => {
         } else {
             setLoading(true);
             setConfirmation({open: false});
-            updateContract(contract.application.id, {...contract, signedContract: true}).then(() => {
+            signContract(contract.organization.id, {...contract, signedContract: true}).then(() => {
                 setLoading(false);
                 setFlash(I18n.t("contracts.flash.signed", {name: contract.signeeName}));
                 setRefresh(new Date());
@@ -133,7 +134,8 @@ export const Contracts = () => {
                                          confirmationTxt={okButton}
                                          question={question}
             />}
-            <Entities entities={contracts}
+            {isEmpty(contracts) && <p>{I18n.t("contracts.noContracts")}</p>}
+            {!isEmpty(contracts) && <Entities entities={contracts}
                       modelName="contracts"
                       defaultSort="signeeName"
                       columns={columns}
@@ -143,8 +145,7 @@ export const Contracts = () => {
                       title={I18n.t("contracts.unsigned")}
                       searchAttributes={["signeeName", "email", "providerName", "applicationName"]}
                       totalElements={contracts.length}
-                      children={isEmpty(contracts) ? <p>{I18n.t("contracts.noContracts")}</p> : null}
-                      loading={loading}/>
+                      loading={loading}/>}
         </div>
     );
 };
