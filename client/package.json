@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "tsc": "tsc --noEmit",
     "lint": "eslint ./src",
     "preview": "vite preview",
     "test": "vitest"
@@ -60,6 +61,7 @@
     "http-proxy-middleware": "4.2.0",
     "sass": "1.104.0",
     "tailwindcss": "4.3.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "5.0.0"
