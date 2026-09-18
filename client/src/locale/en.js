@@ -365,6 +365,7 @@ const en = {
         testAndPublish: "Test and publish",
         publish: "Publish",
         customers: "Customers",
+        noCustomers: "Your organisation does not have any OIDC connections, nothing to add here",
         help: "Need help?",
         callSurf: "Plan a call with SURF",
         supportTicket: "Create a support ticket",

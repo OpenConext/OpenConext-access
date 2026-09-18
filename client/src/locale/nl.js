@@ -365,6 +365,7 @@ const nl = {
         testAndPublish: "Testen en publiceren",
         publish: "Publiceren",
         customers: "Afnemers",
+        noCustomers: "Je organisatie heeft geen OIDC koppelingen, niks om toe te voegen hier",
         help: "Hulp nodig?",
         callSurf: "Plan een gesprek met SURF",
         supportTicket: "Maak een support‑ticket",

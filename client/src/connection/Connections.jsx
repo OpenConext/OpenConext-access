@@ -1140,17 +1140,20 @@ export const Connections = ({
                 {value: resourceServer.name, label: resourceServer.name});
         return (
             <section className="inner-right">
-                <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.customers")}</h3>
-                <SelectField name={I18n.t("connection.customersSection.question")}
-                             options={options}
-                             value={value}
-                             isMulti={true}
-                             searchable={true}
-                             onChange={selectedOptions => setConnection({
-                                 ...connection,
-                                 allowedResourceServers: (selectedOptions || []).map(option => ({name: option.value}))
-                             })}
-                />
+                {isEmpty(options) && <p>{I18n.t("connection.noCustomers")}</p>}
+                {!isEmpty(options) && <>
+                    <h3 className="text-[length:var(--text-lg-font-size)]">{I18n.t("connection.customers")}</h3>
+                    <SelectField name={I18n.t("connection.customersSection.question")}
+                                 options={options}
+                                 value={value}
+                                 isMulti={true}
+                                 searchable={true}
+                                 onChange={selectedOptions => setConnection({
+                                     ...connection,
+                                     allowedResourceServers: (selectedOptions || []).map(option => ({name: option.value}))
+                                 })}
+                    />
+                </>}
             </section>
         );
     }
