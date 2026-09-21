@@ -247,6 +247,13 @@ const en = {
         targetSRAMInfo: "They are given access because they have an attribute or role.",
         terms: "9. Fair Use terms",
         termsInfo: "I confirm that my application meets the conditions below.",
+        checks: {
+            personal: "My application stores personal data securely",
+            duration: "I will not store personal data longer than necessary",
+            privacy: "I will not provide personal data to third parties",
+            safe: "I will keep my application secure and available",
+            support: "I am available for questions and problems",
+        },
         flash: "Application {{name}} saved.",
         deleteConfirmation: "Are you sure you want to delete this application?",
         deleteFlash: "The application has been deleleted",

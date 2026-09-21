@@ -247,6 +247,13 @@ const nl = {
         targetSRAMInfo: "Zij krijgen toegang omdat zij een attribuut of rol hebben.",
         terms: "Fair Use‑voorwaarden",
         termsInfo: "Ik bevestig dat mijn applicatie aan onderstaande voorwaarden voldoet",
+        checks: {
+            personal: "Mijn applicatie slaat persoonlijke gegevens veilig op",
+            duration: "Ik bewaar persoonlijke gegevens niet langer dan nodig",
+            privacy: "Ik verstrek geen persoonlijke gegevens aan derden",
+            safe: "Ik houd mijn applicatie veilig en beschikbaar",
+            support: "Ik ben beschikbaar voor vragen en problemen",
+        },
         flash: "Applicatie {{name}} opgeslagen.",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
         deleteFlash: "De applicatie is verwijderd",

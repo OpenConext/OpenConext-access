@@ -159,7 +159,14 @@ function extractTranslationsPaths(source) {
     while ((match = startRegex.exec(source)) !== null) {
         let i = match.index + match[0].length;
         const segments = [];
-        let truncated = false;
+
+        // If the whole `I18n.translations[...]` chain is passed straight into
+        // Object.values(...)/Object.keys(...)/Object.entries(...), every property
+        // under the resolved path is consumed dynamically (typically iterated with
+        // .map()), not just the literal path itself - treat the resolved path as a
+        // wildcard prefix rather than an exact key, same as a truncated `[...]` access.
+        const precedingText = source.slice(Math.max(0, match.index - 40), match.index);
+        let truncated = /Object\.(values|keys|entries)\(\s*$/.test(precedingText);
         while (i < source.length) {
             if (source[i] === ".") {
                 const idMatch = /^\.([a-zA-Z_$][a-zA-Z0-9_$]*)/.exec(source.slice(i));
