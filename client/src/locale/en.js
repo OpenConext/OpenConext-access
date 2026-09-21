@@ -603,6 +603,7 @@ const en = {
             readyTitle: "The connection is live!",
             readyDescription: "The connection is ready to use. Share the link<br/>below with institutions that wish to activate the application",
             copyUrl: "Copy URL",
+            contractRequired: "Before requesting production-ready status,</br>the contract must be signed.",
             fillAppInformation: "Do it now",
         },
         testConnectionSection: {

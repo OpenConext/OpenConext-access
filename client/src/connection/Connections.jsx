@@ -735,8 +735,7 @@ export const Connections = ({
                                 })}
                                 {(!initial && isEmpty(connection.grantTypes)) &&
                                     <ErrorIndicator
-                                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.grantType")})}
-                                        adjustMargin={true}/>}
+                                        msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.grantType")})}/>}
                             </div>
                         </div>
                         <div className="redirect-urls-container">
@@ -1040,6 +1039,7 @@ export const Connections = ({
         const pendingProd = connection.status === CONNECTION_STATUSES.PENDING_PROD;
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
+        const contractRequired = !currentOrganization.contractSigned && isEmpty(currentOrganization.manageIdentifier);
         //Same URL as the accessCatalogusAppURL custom field JiraClient sends to Jira
         const accessCatalogusAppURL = `${config.clientUrl}/application-detail/${connection.protocol.value}/${connection.manageIdentifier}`;
         const copyAccessCatalogusAppURL = () => {
@@ -1073,6 +1073,11 @@ export const Connections = ({
                 {(!pendingProd && !appInformationComplete) &&
                     alertInfo(I18n.t("connection.productionStatusSection.appInformationIncomplete"), null,
                         () => setTab("application"),
+                        I18n.t("connection.productionStatusSection.fillAppInformation"),
+                        "warning")}
+                {(appInformationComplete && contractRequired) &&
+                    alertInfo(I18n.t("connection.productionStatusSection.contractRequired"), null,
+                        () => navigate(`/idp/${currentOrganization.id}/general`),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
                 {!isRs &&
@@ -1372,8 +1377,9 @@ export const Connections = ({
     }
 
     const storeAndNextDisabled = () => {
-        if (section === sections.publish && !appInformationComplete) {
-            return true;
+        if (section === sections.publish) {
+            const contractRequired = !currentOrganization.contractSigned && isEmpty(currentOrganization.manageIdentifier);
+            return !appInformationComplete || contractRequired;
         }
         if (initial) {
             return false;
