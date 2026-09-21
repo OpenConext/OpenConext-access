@@ -1053,16 +1053,18 @@ export const Connections = ({
                     <Alert variant="success">
                         <CheckCircleIcon/>
                         <AlertTitle>{I18n.t("connection.productionStatusSection.readyTitle")}</AlertTitle>
-                        <AlertDescription>
-                            <p dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.productionStatusSection.readyDescription"))}}/>
-                            <p>{accessCatalogusAppURL}</p>
+                        <AlertDescription className="alert-description-with-action">
+                            <span>
+                                <p dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.productionStatusSection.readyDescription"))}}/>
+                                <p>{accessCatalogusAppURL}</p>
+                            </span>
+                            <AlertAction>
+                                <Button size="sm" variant="outline" onClick={copyAccessCatalogusAppURL}>
+                                    <CopyIcon/>
+                                    {I18n.t("connection.productionStatusSection.copyUrl")}
+                                </Button>
+                            </AlertAction>
                         </AlertDescription>
-                        <AlertAction>
-                            <Button size="sm" variant="outline" onClick={copyAccessCatalogusAppURL}>
-                                <CopyIcon/>
-                                {I18n.t("connection.productionStatusSection.copyUrl")}
-                            </Button>
-                        </AlertAction>
                     </Alert>}
                 {!isEmpty(jiraKey) && renderProductionStatusRequested()}
                 {(pendingProd && isEmpty(jiraKey)) &&
@@ -1329,11 +1331,12 @@ export const Connections = ({
             <Alert variant={alertType === "error" ? "danger" : alertType === "warning" ? "warning" : "info"}>
                 <Icon/>
                 {title && <AlertTitle>{title}</AlertTitle>}
-                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(description)}}/>
-                {action && <AlertAction onClick={action}>
-                    <Button size="sm" variant="outline">{actionLabel}</Button>
-                </AlertAction>}
-
+                <AlertDescription className={action ? "alert-description-with-action" : undefined}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(description)}}/>
+                    {action && <AlertAction onClick={action}>
+                        <Button size="sm" variant="outline">{actionLabel}</Button>
+                    </AlertAction>}
+                </AlertDescription>
             </Alert>
         )
     }

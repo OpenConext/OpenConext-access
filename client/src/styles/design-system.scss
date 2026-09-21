@@ -52,13 +52,37 @@ span.field-tip {
 
 .alert-description-with-action {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     flex-wrap: wrap;
+    row-gap: 8px;
 
-    button {
-        margin-left: 40px;
+    // AlertAction is always `position: absolute` in curve-react (regardless of where
+    // it's placed in the DOM), so simply nesting it inside this flex container does
+    // NOT make it participate in the flex layout - it stays removed from flow and the
+    // text wraps without any awareness of it, still overlapping once a line runs long
+    // enough. Cancel the absolute positioning here so it becomes a real flex item, and
+    // push it to the end of its row with the same margin-left:auto trick used to
+    // right-align a flex item - this reproduces the original absolute layout's
+    // top-right placement (top-2.5/right-3) without the overlap, on one row when the
+    // text is short enough to share it, or on its own row (still right-aligned) when
+    // the text wraps.
+    [data-slot="alert-action"] {
+        position: static;
+        top: auto;
+        right: auto;
+        margin-left: auto;
     }
+}
+
+// AlertAction being absolutely positioned is also why curve-react reserves pr-18
+// (4.5rem) on the alert itself - room for the button to float over. Once the action
+// lives in normal flow (see .alert-description-with-action above), that reservation
+// just wastes space and pushes the button's right edge 4.5rem from the alert's edge
+// instead of the original right-3 (12px). Restore the alert's normal right padding so
+// margin-left:auto lands the button flush with the same 12px margin as before.
+[data-slot="alert"]:has(.alert-description-with-action) {
+    padding-right: 1rem;
 }
 
 .connection-alert > svg {
