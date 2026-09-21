@@ -693,18 +693,24 @@ export const Connections = ({
                                             </section>
                                             {(grantType === grantTypes.authorization_code && active) &&
                                                 <section className="grant-type pkce">
-                                                    <span className="pkce-label">{I18n.t("connection.pkce")}</span>
-                                                    <Tooltip>
-                                                        <TooltipTrigger render={<InfoIcon/>}/>
-                                                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pkceTooltip"))}}/></TooltipContent>
-                                                    </Tooltip>
+                                                    <span className="pkce-label">{I18n.t("connection.clientTypeQuestion")}</span>
                                                     {renderRadioOptions("pkce", connection.pkce ? "true" : "false",
                                                         ["false", "true"],
-                                                        label => label === "true" ? I18n.t("connection.required") : I18n.t("connection.optional"),
-                                                        () => setConnection({
+                                                        label => I18n.t(`connection.clientType.${label === "true" ? "public" : "confidential"}`),
+                                                        value => setConnection({
                                                             ...connection,
-                                                            pkce: !connection.pkce
-                                                        }), "row")}
+                                                            pkce: value === "true"
+                                                        }), "column",
+                                                        label => (
+                                                            <span className="pkce-description">
+                                                                {I18n.t(`connection.clientType.${label === "true" ? "public" : "confidential"}Description`)}
+                                                                {label === "true" &&
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger render={<InfoIcon/>}/>
+                                                                        <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("connection.pkceTooltip"))}}/></TooltipContent>
+                                                                    </Tooltip>}
+                                                            </span>
+                                                        ))}
 
                                                 </section>
                                             }

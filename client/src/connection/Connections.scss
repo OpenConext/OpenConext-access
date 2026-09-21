@@ -318,6 +318,27 @@ $width-percentage: 75%;
                 margin-left: auto;
             }
 
+            &.pkce {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+
+                .pkce-label {
+                    font-weight: var(--font-weight-medium, 500);
+                }
+
+                .pkce-description {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                [data-slot="radio-group"] {
+                    width: 100%;
+                    margin-left: 0;
+                }
+            }
+
             &.refresh-token-validity {
                 .sds--text-field {
                     flex-direction: row;

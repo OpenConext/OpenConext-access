@@ -12,7 +12,7 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Manage.js";
-import {hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
+import {currentUserMembershipAuthority, hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
@@ -183,13 +183,14 @@ const Organization = () => {
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
                 inputFocus={true}>
-                {(user.superUser || isOrganizationMember(user, organization)) &&
+                {(user.superUser || hasCreateApplicationAccess(user, organization)) &&
                     <div className="button-group">
                         <Button onClick={() => navigate("/application/new")}
                                 className={"no-title"}>
                             <span dangerouslySetInnerHTML={{__html: I18n.t("organization.addApplication")}}/>
                         </Button>
                     </div>}
+
 
             </Entities>
         );

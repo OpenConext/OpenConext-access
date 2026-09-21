@@ -12,6 +12,7 @@ import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
 import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
 import {getParameterByName} from "../utils/QueryParameters.js";
+import {hasCreateApplicationAccess} from "../utils/Permissions.js";
 
 const UserHome = () => {
 
@@ -85,6 +86,7 @@ const UserHome = () => {
         </Card>
     );
     const isVendor = isEmpty(currentOrganization?.manageIdentifier);
+    const maySeeAccessibleApps = hasCreateApplicationAccess(user, currentOrganization)
     return (
         <div className="home-container">
             <div className="home-welcome">
@@ -95,7 +97,7 @@ const UserHome = () => {
             <div className="info-container">
                 {currentOrganization?.id && welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
                 {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
-                {!isVendor && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
+                {(!isVendor && maySeeAccessibleApps) && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
             </div>
         </div>
     )
