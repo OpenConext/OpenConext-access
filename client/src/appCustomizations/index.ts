@@ -1,8 +1,17 @@
 import {AppCustomization} from "../contexts/CustomizationContext";
 import {appCustomization as defaultAppCustomization} from "./defaultCustomApp";
+import {AppTranslationOverride} from "../locale/translationType";
+
+type MyCustomizationsModule = {
+    appCustomization?: AppCustomization;
+    enOverride?: AppTranslationOverride;
+    nlOverride?: AppTranslationOverride;
+};
 
 const overrides = import.meta.glob("./myCustomizations/index.ts", {eager: true}) as
-    Record<string, { appCustomization: AppCustomization }>;
+    Record<string, MyCustomizationsModule>;
+const mod: MyCustomizationsModule = overrides["./myCustomizations/index.ts"] ?? {};
 
-export const appCustomization: AppCustomization =
-    overrides["./myCustomizations/index.ts"]?.appCustomization ?? defaultAppCustomization;
+export const appCustomization: AppCustomization = mod.appCustomization ?? defaultAppCustomization;
+export const enOverride: AppTranslationOverride | undefined = mod.enOverride;
+export const nlOverride: AppTranslationOverride | undefined = mod.nlOverride;

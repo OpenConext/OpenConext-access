@@ -1,4 +1,6 @@
-const nl = {
+import {AppTranslation} from "./translationType";
+
+const nl: AppTranslation = {
     code: "NL",
     languages: {
         language: "Taal",

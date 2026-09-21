@@ -1,5 +1,6 @@
 import en from "./en";
 import nl from "./nl";
+import { enOverride, nlOverride } from '../appCustomizations/index.ts'
 
 import {I18n as I18nRemote} from "i18n-js";
 
@@ -11,6 +12,11 @@ const I18n = new I18nRemote({
     en: en,
     nl: nl,
 });
+
+I18n.store({
+    en: enOverride,
+    nl: nlOverride,
+})
 
 // DetermineLanguage based on parameter, cookie and finally navigator
 let parameterByName = getParameterByName("lang", window.location.search);
