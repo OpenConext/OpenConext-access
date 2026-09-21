@@ -12,7 +12,7 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
 import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Manage.js";
-import {currentUserMembershipAuthority, hasApplicationWriteAccess, hasCreateApplicationAccess, isOrganizationMember} from "../utils/Permissions.js";
+import {hasApplicationWriteAccess, hasCreateApplicationAccess} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
