@@ -34,6 +34,12 @@ a.brand-logo svg {
 
 .organization-switch-content {
     min-width: 240px;
+    // DropdownMenuContent renders through a portal, so it isn't a DOM descendant of
+    // [data-slot="sidebar-container"] — style its links via its own className instead.
+    a {
+        color: black;
+        text-decoration: none;
+    }
 }
 
 .organization-option-name {
@@ -56,7 +62,7 @@ a.brand-logo svg {
     position: relative;
 }
 
-[data-slot="sidebar-container"] {
+[data-slot="sidebar-container"], [data-slot="sidebar-menu-item"] {
     a {
         color: black;
         text-decoration: none;
