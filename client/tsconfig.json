@@ -16,7 +16,8 @@
     "strict": true,
     "resolveJsonModule": true,
     "target": "ES2022",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "preserveSymlinks": true
   },
   "exclude": ["node_modules"]
 }
