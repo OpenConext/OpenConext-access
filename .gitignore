@@ -60,5 +60,9 @@ SPRING_MIGRATION.md
 DesignSystem
 ignore
 
-client/src/appCustomizations/myCustomizations/*
-client/src/appCustomizations/myCustomizations/.*
+# macOS
+.DS_Store
+
+# Folders for customizing the app
+app-customizations
+client/src/appCustomizations/myCustomizations
