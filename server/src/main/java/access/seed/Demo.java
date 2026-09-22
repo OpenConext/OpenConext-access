@@ -1,7 +1,6 @@
 package access.seed;
 
 import access.api.ConnectionController;
-import access.manage.Contact;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.*;
@@ -59,8 +58,10 @@ public class Demo {
         // -------------------------------------------------------------------------
         // Organization 1: Dummy IdP (has manageIdentifier)
         // -------------------------------------------------------------------------
+
+        Map<String, Object> mujinaIdp = manage.identityProviderByEntityID("http://mock-idp");
         Organization dummyIdp = new Organization("Dummy IdP", "dummy-idp.example.com",
-                "ad93daef-0911-e511-80d0-005056956c1a", 1);
+            (String) mujinaIdp.get("id"), 1);
         dummyIdp.setStatus(OrganizationStatus.APPROVED);
         organizationRepository.save(dummyIdp);
 
@@ -88,8 +89,10 @@ public class Demo {
         applicationRepository.save(prodApp);
 
         // OIDC connection — PROD_READY
+        String entityIDOIDC = "https://prod-app.example.com";
+        deleteProvider(entityIDOIDC, EntityType.oidc10_rp);
         Connection prodAppOidc = new Connection("Prod App OIDC", prodApp, Map.of(
-                "entityID", "https://prod-app.example.com",
+                "entityID", entityIDOIDC,
                 "redirectUrls", List.of("https://prod-app.example.com/redirect"),
                 "grantTypes", List.of("authorization_code")
         ), EntityType.oidc10_rp);
@@ -98,8 +101,10 @@ public class Demo {
         connectionController.create(adminExample, prodAppOidc);
 
         // SAML connection — PENDING_PROD
+        String entityIDSAML = "https://prod-app-saml.example.com";
+        deleteProvider(entityIDOIDC, EntityType.saml20_sp);
         Connection prodAppSaml = new Connection("Prod App SAML", prodApp, Map.of(
-                "entityID", "https://prod-app-saml.example.com",
+                "entityID", entityIDSAML,
                 "acsLocations", List.of("https://prod-app-saml.example.com/acs"),
                 "arp", Map.of("attributes", Map.of(), "enabled", true)
         ), EntityType.saml20_sp);
@@ -156,5 +161,17 @@ public class Demo {
 
         LOG.info("Demo seed completed successfully");
         return Map.of("status", "ok");
+    }
+
+    private void deleteProvider(String entityIDOIDC, EntityType entityType) {
+        try {
+            Map<String, Object> rp = manage.serviceProviderByEntityID(entityIDOIDC, entityType);
+            Connection connection = new Connection();
+            connection.setProtocol(entityType);
+            connection.setManageIdentifier((String) rp.get("id"));
+            manage.deleteProvider(connection);
+        } catch (RuntimeException e) {
+            //Just ignore
+        }
     }
 }

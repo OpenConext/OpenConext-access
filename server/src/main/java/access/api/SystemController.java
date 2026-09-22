@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.cron.ResourceCleaner;
 import access.exception.NotAllowedException;
+import access.exception.UserRestrictionException;
 import access.model.User;
 import access.seed.Demo;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,7 +53,7 @@ public class SystemController implements UserAccessRights {
         LOG.debug(String.format("/seed/demo for user %s", user.getEmail()));
         confirmSuperUser(user);
         if (!config.isDemoSeedEnabled()) {
-            throw new NotAllowedException("Demo seed is not enabled");
+            throw new UserRestrictionException("Demo seed is not enabled");
         }
         Map<String, Object> result = demo.seed();
         return ResponseEntity.ok(result);

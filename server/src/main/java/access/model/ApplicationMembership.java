@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
+import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
 @Entity(name = "application_memberships")
 @NoArgsConstructor
@@ -55,7 +57,7 @@ public class ApplicationMembership implements NameHolder {
 
     //We need info, about the application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "applicationIdentifier")
-    public Long getApplicationIndentifier() {
+    public Long getApplicationIdentifier() {
         Application application = getApplication();
         if (application != null && Hibernate.isInitialized(application)) {
             return application.getId();
@@ -80,4 +82,10 @@ public class ApplicationMembership implements NameHolder {
         return organizationMembership.getId();
     }
 
+        @JsonProperty(value = "userInfo", access = JsonProperty.Access.READ_ONLY)
+    public Map<String, Serializable> getUserIdentifier() {
+        OrganizationMembership organizationMembership = this.getOrganizationMembership();
+        Hibernate.initialize(organizationMembership);
+        return organizationMembership.getUserInfo();
+    }
 }

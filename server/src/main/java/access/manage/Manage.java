@@ -32,6 +32,8 @@ public interface Manage {
 
     Map<String, Object> identityProviderByEntityID(String entityID);
 
+    Map<String, Object> serviceProviderByEntityID(String entityID, EntityType entityType);
+
     List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers);
 
     List<Map<String, Object>> relyingPartiesByEntityID(List<String> entityIdentifiers);

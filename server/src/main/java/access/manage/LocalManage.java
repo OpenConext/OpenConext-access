@@ -152,6 +152,17 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public Map<String, Object> serviceProviderByEntityID(String entityID, EntityType entityType) {
+        return this.allProviders.get(entityType).stream()
+            .filter(provider -> {
+                Map<String, Object> data = (Map<String, Object>) provider.get("data");
+                return entityID.equalsIgnoreCase((String) data.get("entityid"));
+            })
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No identityProviders found for entityID: " + entityID));
+    }
+
+    @Override
     public Map<String, Object> identityProviderByEntityID(String entityID) {
         return this.allProviders.get(EntityType.saml20_idp).stream()
                 .filter(provider -> {

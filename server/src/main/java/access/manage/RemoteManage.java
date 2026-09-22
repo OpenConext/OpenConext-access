@@ -243,6 +243,24 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public Map<String, Object> serviceProviderByEntityID(String entityID, EntityType entityType) {
+        LOG.debug("serviceProviderByEntityID for : " + entityID);
+        Map<String, Object> baseQuery = getBaseQuery(true);
+        baseQuery.put("entityid", entityID);
+
+        String searchUrl = String.format("%s/manage/api/internal/search/%s",
+            url,
+            entityType.name());
+        List<Map<String, Object>> serviceProviders = restTemplate.postForObject(
+            searchUrl,
+            baseQuery, List.class);
+        if (serviceProviders.isEmpty()) {
+            throw new NotFoundException("No serviceProviders found for entityID: " + entityID);
+        }
+        return sanitizeProvider(serviceProviders.getFirst());
+    }
+
+    @Override
     public List<Map<String, Object>> serviceProvidersByEntityID(List<String> entityIdentifiers) {
         LOG.debug("serviceProvidersByEntityID for : " + entityIdentifiers);
 

@@ -22,7 +22,12 @@ export const Overview = ({
                              privacyValid,
                          }) => {
 
-    const teamMemberCount = 1 + (application.applicationMemberships || []).length;
+    const teamMemberCount = (application.applicationMemberships || []).length;
+    const includingYou = (application.applicationMemberships || []).some(appMembership => appMembership.userInfo.id === user.id);
+    let includingYouLocale = "";
+    if (includingYou) {
+        includingYouLocale = I18n.t(`connection.overviewCards.${teamMemberCount === 1 ? "teamMemberSoloYou" : "teamMemberMultiYou"}`);
+    }
 
     const renderCardHeader = (title, action) => (
         <div className="overview-card-header" onClick={action}>
@@ -69,8 +74,8 @@ export const Overview = ({
                         {renderCardHeader(I18n.t("connection.overviewCards.appTeam"), () => setTab("appteam"))}
                         <p className="team-count">
                             {teamMemberCount === 1 ?
-                                I18n.t("connection.overviewCards.teamMemberSolo") :
-                                I18n.t("connection.overviewCards.teamMemberMulti", {count: teamMemberCount})}
+                                I18n.t("connection.overviewCards.teamMemberSolo") + includingYouLocale :
+                                I18n.t("connection.overviewCards.teamMemberMulti", {count: teamMemberCount}) + includingYouLocale}
                         </p>
                         <Button variant="outline"
                                 className="manage-team-button"

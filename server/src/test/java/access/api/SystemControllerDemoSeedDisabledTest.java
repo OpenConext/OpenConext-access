@@ -24,7 +24,7 @@ class SystemControllerDemoSeedDisabledTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .post("/api/v1/system/seed/demo")
                 .then()
-                .statusCode(HttpStatus.CONFLICT.value());
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
 }
