@@ -25,12 +25,10 @@ import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {useAppStore} from "../stores/AppStore.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import Logo from "../icons/logo2.svg";
-import {useCustomization} from "../contexts/CustomizationContext.tsx";
+import {OverridableComponent} from "../contexts/CustomizationContext.tsx";
 
 export const SharedMenu = () => {
 
-    // Todo: replace with correct one
-    const { logoLoggedIn } = useCustomization();
     const {menuItems, currentOrganization, activeMenuItem, user} = useAppStore(useShallow(state => ({
         menuItems: state.menuItems,
         currentOrganization: state.currentOrganization,
@@ -87,7 +85,9 @@ export const SharedMenu = () => {
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" className="brand-button" render={
                                 <Link to="/" className="brand-logo">
-                                    {logoLoggedIn ?? <Logo/>}
+                                    <OverridableComponent appCustomizationReactNodeKey="logoLoggedIn">
+                                        <Logo />
+                                    </OverridableComponent>
                                 </Link>
                             }/>
                         </SidebarMenuItem>
