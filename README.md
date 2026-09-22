@@ -64,11 +64,11 @@ rm client/src/appCustomizations/myCustomizations
 #### Server
 Symlink to server
 ```shell
-
+ln -s ../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
 ```
 Removing symlink
 ```shell
-
+rm server/src/main/resources/myCustomizations
 ```
 
 ### Access Server
