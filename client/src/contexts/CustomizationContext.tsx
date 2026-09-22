@@ -1,11 +1,13 @@
 import {createContext, FC, ReactNode, useContext} from "react";
 
 export type AppCustomization = {
-    logo: ReactNode | string; // string for demo-purposes, later a nice to have as URL
+    logoPublic: ReactNode | string; // string for demo-purposes, later a nice to have as URL
+    logoLoggedIn: ReactNode | string;
 }
 
 export const AppCustomizationContext = createContext<AppCustomization>({
-    logo: '[CustomLogo-DefaultFromContext]'
+    logoPublic: '[CustomLogo-DefaultFromContext]',
+    logoLoggedIn: '[CustomLoggedInLogo-DefaultFromContext]',
 });
 
 export type CustomizationContextProps = {

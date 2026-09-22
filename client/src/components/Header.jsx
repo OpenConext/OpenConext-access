@@ -7,7 +7,7 @@ import {useCustomization} from "../contexts/CustomizationContext.tsx";
 
 export const Header = ({currentLocation}) => {
 
-    const { logo } = useCustomization();
+    const { logoPublic } = useCustomization();
 
     useEffect(() => {
         //force re-render on location change
@@ -17,7 +17,7 @@ export const Header = ({currentLocation}) => {
         <div className="header-container">
             <div className="header-inner">
                 <Link className="logo" to={"/"}>
-                    {logo ?? <Logo/>}
+                    {logoPublic ?? <Logo/>}
                 </Link>
                 <Navigation mobile={false} path={currentLocation.pathname}/>
             </div>
