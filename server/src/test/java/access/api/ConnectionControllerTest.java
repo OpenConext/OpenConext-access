@@ -189,6 +189,8 @@ class ConnectionControllerTest extends AbstractTest {
 
         //Now stub all interaction with Manage (getProvider, saveChangeRequests, getChangeRequests)
         super.stubForGetProvider(connection);
+        //Stubs the eduID identity provider lookup / change-requests check triggered for every PROD_READY connection
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
         Map<String, String> manageResponse = Map.of("id", "1");
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
@@ -251,6 +253,8 @@ class ConnectionControllerTest extends AbstractTest {
 
         //Now stub all interaction with Manage (getProvider, saveChangeRequests, getChangeRequests)
         super.stubForGetProvider(connection);
+        //Stubs the eduID identity provider lookup / change-requests check triggered for every PROD_READY connection
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
         Map<String, String> manageResponse = Map.of("id", "1");
         stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
             .withHeader("Content-Type", "application/json")
@@ -275,6 +279,163 @@ class ConnectionControllerTest extends AbstractTest {
         assertNotNull(manageIdentifier);
         assertEquals(1, savedConnection.get("manageVersion"));
         assertEquals(ConnectionStatus.PROD_READY.name(), savedConnection.get("status"));
+    }
+
+    @SneakyThrows
+    @Test
+    void updateEduIdAccessRequestsChangeRequestAndJiraTicket() {
+        //Toggling eduID access on a PROD_READY connection must not sync Manage directly (see
+        //ConnectionController#eduIdAccessChangeRequest): a ChangeRequest per configured eduID identity provider
+        //(see application.yml eduid-idp-entity-id) must be created instead, tied to one Jira ticket
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        //See server/src/main/resources/manage/oidc10_rp.json
+        connection.setManageIdentifier("5");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connection.setEduIdAccessEnabled(false);
+        connectionRepository.save(connection);
+
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+        connectionData.put("eduIdAccessEnabled", true);
+
+        super.stubForGetProvider(connection);
+        //Both configured eduID identity providers resolve to this same stub - see application.yml eduid-idp-entity-id
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        //No pre-existing change requests for the connection's own metadata, nor for the eduID identity providers
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/oidc10_rp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("[]")));
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/saml20_idp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("[]")));
+
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
+
+        Map<String, Object> savedConnection = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
+        assertEquals(ConnectionStatus.PROD_READY.name(), savedConnection.get("status"));
+
+        //One eduID access change request is created per configured eduID identity provider (jira.enabled=false in
+        //tests, so JiraClient#create returns a synthetic ticket key without an actual HTTP call to Jira)
+        verify(2, postRequestedFor(urlPathMatching("/manage/api/internal/change-requests"))
+            .withRequestBody(containing("EduIDAccessRequest")));
+
+        //The requested state is stored locally, even though Manage itself is not updated until the change request is approved
+        Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
+        assertTrue(connectionFromDB.isEduIdAccessEnabled());
+    }
+
+    @SneakyThrows
+    @Test
+    void updateEduIdAccessDoesNotDuplicateOutstandingChangeRequest() {
+        //If an identical change request is already outstanding in Manage, no new ChangeRequest may be created
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connection.setManageIdentifier("5");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connection.setEduIdAccessEnabled(false);
+        connectionRepository.save(connection);
+        //See server/src/main/resources/manage/oidc10_rp.json - manageIdentifier "5" resolves to this entityid,
+        //which is what ConnectionController#doUpdateConnection looks up via manage.providerByConnection
+        String entityId = "https://calendar";
+
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+        connectionData.put("eduIdAccessEnabled", true);
+
+        super.stubForGetProvider(connection);
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/oidc10_rp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("[]")));
+        //An identical ADDITION change request for this entityId is already outstanding for the eduID identity provider
+        Map<String, Object> outstandingChangeRequest = Map.of(
+            "type", "saml20_idp",
+            "pathUpdateType", "ADDITION",
+            "requestType", "EduIDAccessRequest",
+            "pathUpdates", Map.of("allowedEntities", Map.of("name", entityId))
+        );
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/saml20_idp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(List.of(outstandingChangeRequest)))));
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
+
+        Map<String, Object> savedConnection = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
+        assertEquals(ConnectionStatus.PROD_READY.name(), savedConnection.get("status"));
+
+        //No new eduID access change request is created since an identical one is already outstanding
+        verify(0, postRequestedFor(urlPathMatching("/manage/api/internal/change-requests"))
+            .withRequestBody(containing("EduIDAccessRequest")));
+
+        Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
+        assertTrue(connectionFromDB.isEduIdAccessEnabled());
+    }
+
+    @SneakyThrows
+    @Test
+    void findConnectionShowsOutstandingEduIdAccessChangeRequest() {
+        //The publish section in the client shows a warning when an eduID access change request is outstanding,
+        //driven by Connection#eduIdAccessChangeRequestPending as populated by ConnectionController#find
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connection.setManageIdentifier("5");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connectionRepository.save(connection);
+        String entityId = (String) connection.getMetaData().get("entityID");
+
+        super.stubForGetProvider(connection);
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/oidc10_rp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("[]")));
+        Map<String, Object> outstandingChangeRequest = Map.of(
+            "type", "saml20_idp",
+            "pathUpdateType", "ADDITION",
+            "requestType", "EduIDAccessRequest",
+            "pathUpdates", Map.of("allowedEntities", Map.of("name", entityId))
+        );
+        stubFor(get(urlPathMatching("/manage/api/internal/change-requests/saml20_idp/.*")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(List.of(outstandingChangeRequest)))));
+
+        Map<String, Object> connectionFromApi = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .pathParam("connectionId", connection.getId())
+            .get("/api/v1/connections/{connectionId}")
+            .as(new TypeRef<>() {
+            });
+
+        assertEquals(true, connectionFromApi.get("eduIdAccessChangeRequestPending"));
     }
 
     @Test
@@ -343,6 +504,8 @@ class ConnectionControllerTest extends AbstractTest {
             .withHeader("Content-Type", "application/json")
             .withBody(provider)));
         stubForGetChangeRequests(getChangeRequests());
+        //Stubs the eduID identity provider lookup / change-requests check triggered for every PROD_READY connection
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
 
         Map<String, Object> connection = given()
             .when()
@@ -358,6 +521,7 @@ class ConnectionControllerTest extends AbstractTest {
         assertEquals(244, connection.get("manageVersion"));
         assertEquals(ConnectionStatus.PROD_READY.name(), connection.get("status"));
         assertEquals(2, ((List) connection.get("changeRequests")).size());
+        assertEquals(false, connection.get("eduIdAccessChangeRequestPending"));
     }
 
     @SneakyThrows

@@ -1080,6 +1080,8 @@ export const Connections = ({
                         () => navigate(`/idp/${currentOrganization.id}/general`),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
+                {connection.eduIdAccessChangeRequestPending &&
+                    alertInfo(I18n.t("connection.visibilities.eduIdAccessChangeRequestPending"), null, null, null, "warning")}
                 {!isRs &&
                     <>
                         <div className="visibility-options-container">
@@ -1121,7 +1123,12 @@ export const Connections = ({
                             </div>
                             {(user.superUser || isOrganizationAdmin(user, currentOrganization)) &&
                                 <div className="visibility-options">
-                                    <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}</p>
+                                    <p className="question">{I18n.t("connection.visibilities.eduIdAccess")}
+                                        {connection.eduIdAccessChangeRequestPending && <Tooltip>
+                                            <TooltipTrigger render={<WarningIcon weight="fill" className="alert-triangle"/>}/>
+                                            <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                                        </Tooltip>}
+                                    </p>
                                     <p className="eduid-access-info"
                                        dangerouslySetInnerHTML={{
                                            __html: DOMPurify.sanitize(I18n.t("connection.visibilities.eduIdAccessInfo"),

@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +59,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -84,6 +86,7 @@ public class ApplicationController implements UserAccessRights {
     private final ConnectionProviderConverter connectionProviderConverter;
     private final OrganizationRepository organizationRepository;
     private final Map<String, Object> arpInfo;
+    private final List<String> eduidIdpEntityIdentifiers;
 
     public ApplicationController(ApplicationRepository applicationRepository,
                                  ApplicationMembershipRepository applicationMembershipRepository,
@@ -93,11 +96,13 @@ public class ApplicationController implements UserAccessRights {
                                  S3Storage s3Storage,
                                  ConnectionProviderConverter connectionProviderConverter,
                                  OrganizationRepository organizationRepository,
-                                 ObjectMapper objectMapper) throws IOException {
+                                 ObjectMapper objectMapper,
+                                 @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) throws IOException {
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
         this.manage = manage;
+        this.eduidIdpEntityIdentifiers = Stream.of(eduidIdpEntityId.split(",")).map(String::trim).toList();
         this.userRepository = userRepository;
         this.s3Storage = s3Storage;
         this.connectionProviderConverter = connectionProviderConverter;
@@ -156,6 +161,9 @@ public class ApplicationController implements UserAccessRights {
                 if (status.equals(ConnectionStatus.PROD_READY) || status.equals(ConnectionStatus.PENDING_PROD)) {
                     List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
                     connection.convertChangeRequests(changeRequests);
+                    if (status.equals(ConnectionStatus.PROD_READY) && !connection.getProtocol().equals(EntityType.oauth20_rs)) {
+                        connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                    }
                     boolean isTestAccepted = getData(provider).get("state").equals(State.testaccepted.name());
                     //If a connection is PENDING_PROD and does not have a prodaccepted change request we can conclude that it is rejected in Manage
                     if (status.equals(ConnectionStatus.PENDING_PROD) && isTestAccepted &&
@@ -182,6 +190,26 @@ public class ApplicationController implements UserAccessRights {
         ManageData.removeSecrets(application);
 
         return ResponseEntity.ok(application);
+    }
+
+    //Unlike #changeRequests / #convertChangeRequests - which are scoped to a connection's own manage entity -
+    //an eduID access change request (see ConnectionController#eduIdAccessChangeRequest) is scoped to the eduID
+    //identity provider(s), so it must be queried separately
+    @SuppressWarnings("unchecked")
+    private boolean isEduIdAccessChangeRequestOutstanding(Connection connection) {
+        String entityId = (String) connection.getMetaData().get("entityID");
+        if (!StringUtils.hasText(entityId)) {
+            return false;
+        }
+        return eduidIdpEntityIdentifiers.stream()
+            .map(manage::identityProviderByEntityID)
+            .map(manage::getChangeRequestsIdentityProvider)
+            .flatMap(List::stream)
+            .anyMatch(changeRequest -> {
+                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
+                Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
+                return entityId.equals(allowedEntities.get("name"));
+            });
     }
 
     @PostMapping({"", "/"})

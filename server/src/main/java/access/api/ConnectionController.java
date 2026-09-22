@@ -134,6 +134,9 @@ public class ConnectionController implements UserAccessRights {
             }
             if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
                 connection.convertChangeRequests(manage.getChangeRequests(connection));
+                if (!connection.getProtocol().equals(EntityType.oauth20_rs)) {
+                    connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                }
             }
         }
         return ResponseEntity.ok(connection);
@@ -220,18 +223,28 @@ public class ConnectionController implements UserAccessRights {
         boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
         List<String> previousAllowedResourceServers = isResourceServer ?
             allowedResourceServerNames(connection) : Collections.emptyList();
+        //Capture before merge() overwrites connection#eduIdAccessEnabled with connectionData's value
+        boolean eduIdAccessChanged = connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled();
         connection.merge(connectionData);
 
-        if (connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled()) {
+        if (eduIdAccessChanged) {
             Map<String, Object> provider = manage.providerByConnection(connection);
             String entityId = (String) ((Map) provider.get("data")).get("entityid");
-            this.addOrRemoveEduIDIdp(user, connection, entityId);
+            if (connection.changeRequestRequired() && !config.isTestEnvironment()) {
+                //Not allowed to sync eduID access to Manage directly. Create or update outstanding ChangeRequest(s)
+                this.eduIdAccessChangeRequest(user, connection, entityId);
+            } else {
+                this.addOrRemoveEduIDIdp(user, connection, entityId);
+            }
         }
 
         if (connection.changeRequestRequired() && !config.isTestEnvironment()) {
             //Not allowed to sync the connection to Manage. Create or update outstanding ChangeRequest
             connection = this.productionReadyChangeRequests(connection, user);
             connection.convertChangeRequests(manage.getChangeRequests(connection));
+            if (!isResourceServer) {
+                connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+            }
         } else {
             connection = saveConnection(connection);
         }
@@ -416,6 +429,96 @@ public class ConnectionController implements UserAccessRights {
                 manage.saveIdentityProvider(eduidIdpProvider);
             });
         }
+    }
+
+    //Once a connection is production ready, its eduID access can no longer be toggled directly in Manage - instead,
+    //like the other production-ready changes in #productionReadyChangeRequests, a ChangeRequest per eduID identity
+    //provider is created (or left as-is if an identical one is already outstanding) together with a single Jira ticket
+    @SuppressWarnings("unchecked")
+    private void eduIdAccessChangeRequest(User user, Connection connection, String entityId) {
+        //Only superusers and organization admins are allowed to do this
+        if (!(user.isSuperUser() || getOrganizationMembership(user, connection.getApplication().getOrganization(), Authority.ADMIN).isPresent())) {
+            return;
+        }
+        PathUpdateType pathUpdateType = connection.isEduIdAccessEnabled() ? PathUpdateType.ADDITION : PathUpdateType.REMOVAL;
+        Map<String, Object> pathUpdates = Map.of("allowedEntities", Map.of("name", entityId));
+
+        List<Map<String, Object>> eduIdIdentityProviders = eduidIdpEntityIdentifiers.stream()
+            .map(manage::identityProviderByEntityID)
+            .toList();
+        //Skip any eduID identity provider that already has an identical outstanding change request
+        List<Map<String, Object>> identityProvidersRequiringChangeRequest = eduIdIdentityProviders.stream()
+            .filter(eduidIdpProvider -> {
+                ChangeRequest changeRequest = new ChangeRequest(
+                    (String) eduidIdpProvider.get("id"),
+                    EntityType.saml20_idp,
+                    pathUpdates,
+                    true,
+                    pathUpdateType,
+                    RequestType.EduIDAccessRequest);
+                List<Map<String, Object>> existingChangeRequests = manage.getChangeRequestsIdentityProvider(eduidIdpProvider);
+                return !isNewChangeRequestDuplicate(existingChangeRequests, Optional.of(changeRequest));
+            })
+            .toList();
+
+        if (identityProvidersRequiringChangeRequest.isEmpty()) {
+            //Already an identical outstanding change request for every eduID identity provider - nothing to do
+            return;
+        }
+
+        String changeRequestURL = manage.changeRequestURLConnectionRequest(EntityType.saml20_idp,
+            (String) identityProvidersRequiringChangeRequest.getFirst().get("id"));
+        String action = pathUpdateType.equals(PathUpdateType.ADDITION) ? "requested" : "revoked";
+        String lineSeparator = System.lineSeparator();
+        String summary = String.format("Access for eduID users %s by %s for %s.", action, user.getName(), connection.getName());
+        String jiraKey = jiraClient.create(new JiraIssue(
+            entityId,
+            null,// There is no single identity provider for an eduID access request
+            String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
+                summary,
+                lineSeparator,
+                lineSeparator,
+                changeRequestURL),
+            summary,
+            connection.getProtocol(),
+            user.getEmail(),
+            connection.getManageIdentifier()
+        ));
+        Map<String, Object> auditData = Map.of("user", user.getEmail(),
+            "notes", String.format("Access for eduID users %s by %s for %s. See Jira %s",
+                action, user.getName(), connection.getName(), jiraKey));
+
+        identityProvidersRequiringChangeRequest.forEach(eduidIdpProvider -> {
+            ChangeRequest changeRequest = new ChangeRequest(
+                (String) eduidIdpProvider.get("id"),
+                EntityType.saml20_idp,
+                pathUpdates,
+                true,
+                pathUpdateType,
+                RequestType.EduIDAccessRequest);
+            changeRequest.setTicketKey(jiraKey);
+            changeRequest.setAuditData(auditData);
+            manage.createChangeRequest(changeRequest);
+        });
+    }
+
+    //Unlike #changeRequests / #convertChangeRequests - which are scoped to this connection's own manage entity -
+    //an eduID access change request is scoped to the eduID identity provider(s), so it must be queried separately
+    @SuppressWarnings("unchecked")
+    private boolean isEduIdAccessChangeRequestOutstanding(Connection connection) {
+        String entityId = (String) connection.getMetaData().get("entityID");
+        if (!StringUtils.hasText(entityId)) {
+            return false;
+        }
+        return eduidIdpEntityIdentifiers.stream()
+            .map(manage::identityProviderByEntityID)
+            .map(manage::getChangeRequestsIdentityProvider)
+            .flatMap(List::stream)
+            .anyMatch(changeRequest -> {
+                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
+                Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
+                return entityId.equals(allowedEntities.get("name"));
+            });
     }
 
     @DeleteMapping({"", "/{connectionId}"})

@@ -182,6 +182,8 @@ class ApplicationControllerTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(provider)));
         super.stubForGetChangeRequests(getChangeRequests());
+        //Stubs the eduID identity provider lookup / change-requests check triggered for every PROD_READY connection
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
         Map<String, Object> application = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

@@ -333,7 +333,8 @@ const en = {
         productionConnectionHint: "Connect to our production environment. To activate the application, all additional information must be provided.",
         applicationInformationHint: "Before a connection to production can be activated, all additional information must be added.",
         applicationInformationHintVendor: "Before a connection to production can be activated, all additional information must be added and the contract must be signed.",
-        productionActivationHint: "Request activation for {{name}}.",
+        productionActivationHint: "Request activation.",
+        productionActivationDescription: "To use {{name}} you need production status.",
         productionActivationAction: "Do it now",
         productActivationPending: "The request for activation of your production connection has been received. SURF will contact you within three business days.",
         newConnection: "New connection",
@@ -503,6 +504,7 @@ const en = {
             eduIdAccess: "Access for eduID users",
             eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Read more about eduID</a>",
             eduIdAccessLabel: "eduID users may log in via this connection",
+            eduIdAccessChangeRequestPending: "There is an outstanding change request for eduID access. The requested change will only take effect once it has been approved.",
         },
         connectionOverview: {
             disclaimer: "The client secret is displayed once below. Make sure you copy it now, otherwise a new secret will have to be requested.",

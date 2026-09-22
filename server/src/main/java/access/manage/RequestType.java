@@ -2,5 +2,5 @@ package access.manage;
 
 public enum RequestType {
 
-    ProductionStatusRequest, LinkRequest, UnlinkRequest, Change, LinkInvite, UnlinkInvite;
+    ProductionStatusRequest, LinkRequest, UnlinkRequest, Change, LinkInvite, UnlinkInvite, EduIDAccessRequest;
 }

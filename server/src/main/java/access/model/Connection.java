@@ -102,6 +102,12 @@ public class Connection implements NameHolder {
     @Transient
     private List<Map<String, Object>> changeRequests = new ArrayList<>();
 
+    //Whether a Manage change request is outstanding for the eduID access allowedEntities of this connection -
+    //this is not part of #changeRequests as those are scoped to this connection's own manage entity, while the
+    //eduID access change request is scoped to the eduID identity provider(s) manage entity
+    @Transient
+    private boolean eduIdAccessChangeRequestPending;
+
     public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol) {
         this.name = name;
         this.application = application;
@@ -254,6 +260,13 @@ public class Connection implements NameHolder {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<Map<String, Object>> getChangeRequests() {
         return this.changeRequests;
+    }
+
+    //Explicit getter (like #getChangeRequests) is required for a @Transient property to be serialized -
+    //Hibernate7Module only auto-includes mapped (non-transient) attributes
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public boolean isEduIdAccessChangeRequestPending() {
+        return this.eduIdAccessChangeRequestPending;
     }
 
     @JsonIgnore

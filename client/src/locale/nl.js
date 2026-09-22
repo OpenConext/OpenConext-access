@@ -333,7 +333,8 @@ const nl = {
         productionConnectionHint: "Verbind met onze productieomgeving. Om de applicatie te activeren moeten alle aanvullende gegevens worden verstrekt.",
         applicationInformationHint: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd.",
         applicationInformationHintVendor: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd en moet het contract worden getekend.",
-        productionActivationHint: "Vraag activering aan voor {{name}}.",
+        productionActivationHint: "Vraag activering aan",
+        productionActivationDescription: "Om {{name}} te gebruiken heb je productie status nodig.",
         productionActivationAction: "Doe het nu",
         productActivationPending: "Het verzoek voor activering van je productiekoppeling is ontvangen. SURF neemt binnen drie werkdagen contact met je op.",
         newConnection: "Nieuwe koppeling",
@@ -503,6 +504,7 @@ const nl = {
             eduIdAccess: "Toegang voor eduID-gebruikers",
             eduIdAccessInfo: "Als je deze optie aanvinkt krijgen alle eduID-gebruikers toegang tot de applicatiekoppeling. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Lees meer over eduID</a>",
             eduIdAccessLabel: "eduID-gebruikers mogen inloggen via deze koppeling",
+            eduIdAccessChangeRequestPending: "Er is een openstaand wijzigingsverzoek voor toegang voor eduID-gebruikers. De aangevraagde wijziging gaat pas in nadat deze is goedgekeurd.",
         },
         connectionOverview: {
             disclaimer: "Het client‑secret wordt één keer hieronder weergegeven. Kopieer het nu; anders moet een nieuw secret worden aangevraagd.",

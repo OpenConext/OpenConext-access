@@ -54,6 +54,8 @@ class SystemControllerTest extends AbstractTest {
 
     @Test
     void demoSeed() throws JacksonException {
+        // Demo.seed() looks up the Dummy IdP organization's manageIdentifier via the mock-idp entityID
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
         // Both connections are new (no manageIdentifier), so saveProvider issues a POST
         Map<String, Object> response = Map.of(
                 "id", UUID.randomUUID().toString(),
