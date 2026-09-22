@@ -46,6 +46,31 @@ GRANT ALL privileges ON `access`.* TO 'access'@'%';
 
 Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_0900_ai_ci` from script above
 
+### App Customization
+
+Clone customization repository into the `app-customizations`. In this example we use the SURF version, it can be replaced with your own version of this repository with customizations
+```shell
+git clone git@github.com:OpenConext/OpenConext-access-custom-surf.git app-customizations
+```
+#### Client
+Symlink to client
+```shell
+ln -s ../../../app-customizations/client client/src/appCustomizations/myCustomizations
+```
+Removing symlink
+```shell
+rm client/src/appCustomizations/myCustomizations
+```
+#### Server
+Symlink to server
+```shell
+
+```
+Removing symlink
+```shell
+
+```
+
 ### Access Server
 
 The access server uses Spring Boot and Maven. To run locally, type:

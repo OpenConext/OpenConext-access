@@ -6,8 +6,8 @@ export type AppCustomization = {
 }
 
 export const AppCustomizationContext = createContext<AppCustomization>({
-    logoPublic: <></>,
-    logoLoggedIn: <></>,
+    logoPublic: undefined,
+    logoLoggedIn: undefined,
 });
 
 export type CustomizationContextProps = {
@@ -34,8 +34,8 @@ export type OverridableComponentProps = {
     children: ReactNode
 }
 
-export const OverridableComponent: React.FC<OverridableComponentProps> = ({ appCustomizationReactNodeKey, children}) => {
+export const OverridableComponent: FC<OverridableComponentProps> = ({ appCustomizationReactNodeKey, children}) => {
     const comp = useCustomization()[appCustomizationReactNodeKey];
 
-    return comp ?? children;
+    return comp || children;
 }
