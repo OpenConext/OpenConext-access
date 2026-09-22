@@ -118,7 +118,7 @@ const nl = {
     welcome: {
         greeting: "Welkom {{name}}",
         info: "Selecteer je organisatie of voeg een nieuwe toe. Dit helpt ons je te koppelen met de juiste omgeving.",
-        subInfo: "Gebruik waar mogelijk de naam zoals geregistreerd bij de Kamer van Koophandel.",
+        subInfo: "Gebruik de volledige, officiële naam van je organisatie, zodat andere gebruikers deze herkennen.",
         searchPlaceholder: "Zoek je organisatie...",
         found: "GEVONDEN",
         organizationMembers: "{{memberCount}} {{user}} en {{applicationCount}} {{application}}. Vraag toegang aan.",

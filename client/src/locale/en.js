@@ -118,7 +118,7 @@ const en = {
     welcome: {
         greeting: "Welcome {{name}}",
         info: "Select your organisation or add a new one. This will help us connect you to the right environment.",
-        subInfo: "Use the name as registered with the Chamber of Commerce, where possible.",
+        subInfo: "Use your organization's full, official name so that other users recognize it.",
         searchPlaceholder: "Search for your organisation...",
         found: "FOUND",
         organizationMembers: "{{memberCount}} {{user}} and {{applicationCount}} {{application}}. Request access.",
