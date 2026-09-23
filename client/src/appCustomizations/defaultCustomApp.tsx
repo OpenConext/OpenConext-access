@@ -1,6 +1,5 @@
 import {AppCustomization} from "../contexts/CustomizationContext";
 
 export const appCustomization: AppCustomization  = {
-    logoPublic: undefined,
-    logoLoggedIn: undefined,
+    appLogo: undefined,
 }
