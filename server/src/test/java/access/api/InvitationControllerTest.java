@@ -304,6 +304,70 @@ class InvitationControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void acceptInvitationForNewOrgWhileAdminOfOtherOrgs() {
+        //MULTIPLE_ORG_SUB is already a MEMBER of both ShareLogics and Logistics (see AbstractTest#doSeed)
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
+
+        Map<String, Object> before = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, ((List<Map<String, Object>>) before.get("organizationMemberships")).size());
+
+        Organization farWind = organizationRepository.findByNameContainingIgnoreCase(FAR_WIND).getFirst();
+        User inviter = userRepository.findBySubIgnoreCase(MANAGE_SUB).get();
+        User invitee = userRepository.findBySubIgnoreCase(MULTIPLE_ORG_SUB).get();
+
+        Invitation invitation = new Invitation(
+                Language.en,
+                UUID.randomUUID().toString(),
+                invitee.getEmail(),
+                "Join FarWind as admin",
+                Authority.ADMIN,
+                farWind,
+                inviter,
+                Set.of()
+        );
+        invitation = invitationRepository.save(invitation);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new AcceptInvitation(invitation.getHash(), invitation.getId()))
+                .put("/api/v1/invitations/accept")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        Map<String, Object> after = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(new TypeRef<>() {
+                });
+        List<Map<String, Object>> afterMemberships = (List<Map<String, Object>>) after.get("organizationMemberships");
+        //The pre-existing memberships in ShareLogics and Logistics must be untouched, and a new one for FarWind added
+        assertEquals(3, afterMemberships.size());
+
+        Map<String, Map<String, Object>> byOrgName = new HashMap<>();
+        afterMemberships.forEach(m -> {
+            Map<String, Object> org = (Map<String, Object>) m.get("organization");
+            byOrgName.put((String) org.get("name"), m);
+        });
+        assertEquals(Authority.MEMBER.name(), byOrgName.get(SHARE_LOGICS).get("authority"));
+        assertEquals(Authority.MEMBER.name(), byOrgName.get(LOGISTICS).get("authority"));
+        assertEquals(Authority.ADMIN.name(), byOrgName.get(FAR_WIND).get("authority"));
+    }
+
+    @Test
     void findByHash() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
         Map<String, Object> invitation = given()
