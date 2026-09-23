@@ -85,7 +85,7 @@ export const SharedMenu = () => {
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" className="brand-button" render={
                                 <Link to="/" className="brand-logo">
-                                    <OverridableComponent appCustomizationReactNodeKey="logoLoggedIn">
+                                    <OverridableComponent appCustomizationReactNodeKey="appLogo">
                                         <Logo />
                                     </OverridableComponent>
                                 </Link>

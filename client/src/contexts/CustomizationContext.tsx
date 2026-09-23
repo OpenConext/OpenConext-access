@@ -1,13 +1,11 @@
 import {createContext, FC, ReactNode, useContext} from "react";
 
 export type AppCustomization = {
-    logoPublic: ReactNode;
-    logoLoggedIn: ReactNode;
+    appLogo: ReactNode;
 }
 
 export const AppCustomizationContext = createContext<AppCustomization>({
-    logoPublic: undefined,
-    logoLoggedIn: undefined,
+    appLogo: undefined,
 });
 
 export type CustomizationContextProps = {
