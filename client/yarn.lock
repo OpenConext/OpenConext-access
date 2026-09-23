@@ -2394,10 +2394,10 @@ html-url-attributes@^3.0.0:
   resolved "https://registry.yarnpkg.com/html-url-attributes/-/html-url-attributes-3.0.1.tgz#83b052cd5e437071b756cd74ae70f708870c2d87"
   integrity sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==
 
-html2canvas-pro@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.4.3.tgz#85568af420a516cbd34c7fa85e47acf256a9d4c8"
-  integrity sha512-ov+EmxDc2abD2uKYpZdFWHkQkl3pu2fH0N98khT1Ojfqr3DJOuGyFIFTSfSyaWxddK9jSJu8sM7aUATxM26mDg==
+html2canvas-pro@^2.4.4:
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.4.4.tgz#db5451385eddb6c7bc533615c2a13f0a1f475d48"
+  integrity sha512-SKpDtcVCSkbpV8R9ts5SQUC8cZyw5le0F/7kQMO+5s1NigLrDYvOe4Sl5wBe1hZaxAPymzbqgp/KX5ZVHuWghA==
   dependencies:
     css-line-break "^2.1.0"
     text-segmentation "^1.0.3"
@@ -2707,10 +2707,10 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-isomorphic-dompurify@4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-dompurify/-/isomorphic-dompurify-4.2.0.tgz#f6828c4f3151ec3781ebf590214bea627ec0252c"
-  integrity sha512-0rp/dna3nh3lQNZrWRJTZzRS8rSYBFXq7zuDOMn0MiklhFyND8fQqQbAcVFv1MkRJ2xDhgR6G7E0bl1msYQKTQ==
+isomorphic-dompurify@4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/isomorphic-dompurify/-/isomorphic-dompurify-4.3.0.tgz#0c2af165e33321cd53078ff8f0896a2fb1be49d2"
+  integrity sha512-prq6x6sxb/da0HP4S81hiK2Hc444CIvNeZ+gj7A9oDE0r6tqUmQ90ylb9BwhP44ZSCxwUAcTPNoQY0mmjpRHcA==
   dependencies:
     dompurify "^3.4.12"
     jsdom "^30.0.0"
