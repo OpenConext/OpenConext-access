@@ -172,6 +172,9 @@ public class InvitationController implements UserAccessRights {
         } else {
             //Add missing applicationMemberships
             OrganizationMembership organizationMembership = organizationMembershipOptional.get();
+            if (!organizationMembership.getAuthority().equals(invitation.getIntendedAuthority())) {
+                organizationMembership.setAuthority(invitation.getIntendedAuthority());
+            }
             List<Long> applicationIdentifiers = organizationMembership.getApplicationMemberships().stream()
                     .map(applicationMembership -> applicationMembership.getApplication().getId())
                     .toList();

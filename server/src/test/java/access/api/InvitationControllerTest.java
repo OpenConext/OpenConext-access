@@ -232,6 +232,77 @@ class InvitationControllerTest extends AbstractMailTest {
         assertEquals(application.getId().intValue(), applicationMap.get("applicationIdentifier"));
     }
 
+    @SneakyThrows
+    @Test
+    void acceptWithInternalUserUpdatesExistingAuthority() {
+        this.stubForStats();
+        String sub = "urn:collab:person:idp-uu:internal_user_promoted";
+        //There will be an organization created JIT for this login, with authority MEMBER
+        String authenticatingAuthority = "https://idp-uu";
+        String schacHomeOrganization = "idp.uu";
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", sub,
+                m -> {
+                    m.put("schac_home_organization", schacHomeOrganization);
+                    m.put("surf-crm-id", ORGANISATION_GUID);
+                    return m;
+                });
+        super.stubForIdentityProviderByInstitutionalGUID(ORGANISATION_GUID);
+        super.stubForGetChangeRequests(getChangeRequests());
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+
+        Map<String, Object> res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(new TypeRef<>() {
+                });
+        User user = objectMapper.convertValue(res, User.class);
+        assertEquals(1, user.getOrganizationMemberships().size());
+        OrganizationMembership existingMembership = user.getOrganizationMemberships().iterator().next();
+        assertEquals(Authority.MEMBER, existingMembership.getAuthority());
+        Organization organization = existingMembership.getOrganization();
+
+        //Now an ADMIN invites this already-provisioned MEMBER to become ADMIN
+        String hash = UUID.randomUUID().toString();
+        Invitation invitation = new Invitation(
+                Language.en,
+                hash,
+                sub,
+                "Please become admin",
+                Authority.ADMIN,
+                organization,
+                userRepository.findBySubIgnoreCase(SUPER_SUB).get(),
+                Set.of()
+        );
+        invitation = invitationRepository.save(invitation);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new AcceptInvitation(invitation.getHash(), invitation.getId()))
+                .put("/api/v1/invitations/accept")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        //The user's existing organization membership authority must now reflect the invitation
+        Map<String, Object> userFromMe = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(new TypeRef<>() {
+                });
+        List<Map<String, Object>> organizationMemberships = (List<Map<String, Object>>) userFromMe.get("organizationMemberships");
+        assertEquals(1, organizationMemberships.size());
+        Map<String, Object> organizationMembership = organizationMemberships.getFirst();
+        assertEquals(Authority.ADMIN.name(), organizationMembership.get("authority"));
+    }
+
     @Test
     void findByHash() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow("urn:collab:person:eduid.nl:new_user");
