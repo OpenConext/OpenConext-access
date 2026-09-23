@@ -21,7 +21,11 @@
     width: 100%;
     background-color: white;
 
-    button {
-        margin: 25px 60px 0 auto;
+    button:first-child {
+        margin: 25px 0 0 auto;
+    }
+
+    button:last-child {
+        margin: 25px 60px 0 25px;
     }
 }

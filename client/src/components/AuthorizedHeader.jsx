@@ -18,6 +18,7 @@ export const AuthorizedHeader = ({setIsAuthenticated}) => {
         || currentLocation.pathname.startsWith("/relax")) {
         return (
             <div className="guest-authorized-header">
+                <LanguageSwitcher/>
                 <Button onClick={() => logoutUser(null, setIsAuthenticated)}
                         variant="secondary">
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.logout"))}}/>
