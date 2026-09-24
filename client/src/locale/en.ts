@@ -12,7 +12,7 @@ const en: AppTranslation = {
     },
     landing: {
         header: {
-            title: "SURF Access",
+            title: "{{productName}}",
             subTitle: "Enabling users in higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Sign in / sign up",
             profile: "Profile",
@@ -21,7 +21,7 @@ const en: AppTranslation = {
         },
         loginInfo: {
             title: "Sign in / Sign up",
-            subTitle: "You can sign in to SURF Access using an existing institution account, or with an eduID if you don’t have one. Choose the option that applies to you below.",
+            subTitle: "You can sign in to {{productName}} using an existing institution account, or with an eduID if you don’t have one. Choose the option that applies to you below.",
             commercial: {
                 title: "You work for a (commercial) organisation",
                 info: [
@@ -49,7 +49,7 @@ const en: AppTranslation = {
         applicationProviders: {
             title: "For application providers",
             info: [
-                "Make your application securely accessible to education and research by participating in SURF Access. We take care of authentication, authorisation, and privacy and security agreements.",
+                "Make your application securely accessible to education and research by participating in {{productName}}. We take care of authentication, authorisation, and privacy and security agreements.",
                 "Connecting is free and starts in a sandbox environment."
             ],
             connect: "How to connect",
@@ -58,15 +58,15 @@ const en: AppTranslation = {
             title: "For institutions",
             info: [
                 "Give students, staff and researchers simple access to multiple applications using their institution account.",
-                "SURF Access provides single sign-on, takes care of central policies and is made to be privacy friendly."
+                "{{productName}} provides single sign-on, takes care of central policies and is made to be privacy friendly."
             ],
             contact: "Contact us",
             contactMail: "mailto:support@surfaccess.nl",
         },
         joining: {
-            title: "Participants in SURF Access",
+            title: "Participants in {{productName}}",
             info: [
-                "SURF Access securely connects over 1 million users to thousands of applications and content services. Institutions and application providers participate in the trusted federation, provided by SURF."
+                "{{productName}} securely connects over 1 million users to thousands of applications and content services. Institutions and application providers participate in the trusted federation, provided by SURF."
             ],
             links: {
                 prefix: "Explore ",
@@ -89,7 +89,7 @@ const en: AppTranslation = {
         organizationMaintenance: "Manage organisation",
         organisation: "Organisation",
         idp: "My organisation",
-        users: "SURF Access users",
+        users: "{{productName}} users",
         applications: "Applications",
         policies: "Rules",
         teams: "Teams",
@@ -146,14 +146,14 @@ const en: AppTranslation = {
         nudgeLandingLink: " You can request to join one or create your own.",
         infoJoinRequestHeader: "Join request created",
         infoJoinRequest: "Your request has been sent to the administrators of <strong>{{name}}</strong>. You will receive an email at <strong>{{email}}</strong> once the request has been accepted.",
-        close: "You can now close this window or take a look at SURF Access.",
-        toAccess: "To SURF Access",
+        close: "You can now close this window or take a look at {{productName}}.",
+        toAccess: "To {{productName}}",
         backToLanding: "Go back to ",
         backToLandingLink: " create your own organisation.",
         newOrganizationTitle: "The {{name}} organization has been created and is being reviewed by us.",
         newOrganizationDescription: "We usually review the details within 3 business days.",
         newJoinRequestDescription: "Your request to join {{name}} has been sent to this organization's administrator for approval.",
-        title: "Welcome to SURF Access",
+        title: "Welcome to {{productName}}",
         subTitle: "Your central place for applications and access management",
         addApps: {
             title: "Add your app(s)",
@@ -221,7 +221,7 @@ const en: AppTranslation = {
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",
-        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from Manage) are immutable in SURF Access. Only external organisations from external (commercial) service providers are mutable.",
+        manageOrganizationInMutable: "Internal organisations (e.g. IdP's from Manage) are immutable in {{productName}}. Only external organisations from external (commercial) service providers are mutable.",
         flash: {
             updated: "Organisation {{name}} now has the status {{status}}",
             deleted: "Organisation {{name}} has been deleted",
@@ -266,9 +266,9 @@ const en: AppTranslation = {
         policyWriteAccess: "This application cannot be deleted because there are outstanding access rules. You can edit or delete the access rules, and then delete this application.",
     },
     organization: {
-        alertInfo: "Welcome to SURF Access. Through this self-service portal, you can make your application available to higher education and research institutions in the Netherlands.",
+        alertInfo: "Welcome to {{productName}}. Through this self-service portal, you can make your application available to higher education and research institutions in the Netherlands.",
         applicationManagement: "Our apps",
-        info: "All applications added to SURF Access by <strong>{{name}}</strong>.",
+        info: "All applications added to {{productName}} by <strong>{{name}}</strong>.",
         addFirstApplication: "Add your first application",
         addApplication: "Add new application",
         app: "APP",
@@ -297,7 +297,7 @@ const en: AppTranslation = {
         change_requests: "Change request",
         contract: "Contract",
         appteam: "App team",
-        welcome: "Welcome {{user}}. {{name}} is not yet connected to SURF Access. Start by creating a new connection.",
+        welcome: "Welcome {{user}}. {{name}} is not yet connected to {{productName}}. Start by creating a new connection.",
         contractRequiredHint: {
             title: "Agreement required for publication",
             description: "Fill in all the details under My organisation.",
@@ -322,7 +322,7 @@ const en: AppTranslation = {
         },
         overviewCards: {
             title: "Overview",
-            subTitle: "Fill in all the information below to publish your application on SURF Access.",
+            subTitle: "Fill in all the information below to publish your application on {{productName}}.",
             appInformation: "App information",
             appInformationLogo: "Logo and description",
             appInformationContact: "Contact details",
@@ -664,7 +664,7 @@ const en: AppTranslation = {
         makeMember: "Make member",
         makeGuest: "Make guest",
         explanations: {
-            title: "SURF Access roles",
+            title: "{{productName}} roles",
             admin: "Admin",
             adminRights: "Admins can control all features and manage members and guests.",
             member: "Member",
@@ -715,7 +715,7 @@ const en: AppTranslation = {
     },
     appTeamManagement: {
         name: "Name / email",
-        role: "SURF Access role",
+        role: "{{productName}} role",
         createdAt: "Active since",
         maintain: "App team",
         searchPlaceHolder: "Search for members",
@@ -726,11 +726,11 @@ const en: AppTranslation = {
         addPlaceHolder: "Select user",
         addSubmit: "Add",
         inviteNewUserPre: "Is the user not in the list yet? ",
-        inviteNewUserLink: "Invite a new user for SURF Access",
+        inviteNewUserLink: "Invite a new user for {{productName}}",
         remove: "Remove from appteam",
         deleteConfirmation: "Are you sure you want to delete the application role for {{name}}?",
         organizationMembersPre: "You can add users to this app team. They can also be found under ",
-        organizationMembersLink: "SURF Access users",
+        organizationMembersLink: "{{productName}} users",
         organizationMembersPost: ".",
         flashCreated: "Created application membership for {{name}}",
     },
@@ -762,7 +762,7 @@ const en: AppTranslation = {
         title: "New invitation for {{name}} membership",
         invitees: "Invitees",
         intendedAuthority: "Role",
-        intendedAuthorityLong: "SURF Access role",
+        intendedAuthorityLong: "{{productName}} role",
         message: "Personal note",
         messagePlaceholder: "Add an optional personal note to your invitation",
         inviteesPlaceholder: "Invitee email addresses",
@@ -782,7 +782,7 @@ const en: AppTranslation = {
     },
     institutions: {
         title: "Institutions",
-        subTitle: "Browse the institutions currently connected to SURF Access, categorized into education, research and affiliated institutions.",
+        subTitle: "Browse the institutions currently connected to {{productName}}, categorized into education, research and affiliated institutions.",
         category: "Category",
         all: "All categories",
         other: "Other",
@@ -790,7 +790,7 @@ const en: AppTranslation = {
     },
     applications: {
         title: "Applications",
-        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        subTitle: "Browse applications currently connected to {{productName}}, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
         category: "Category",
         all: "All categories",
         allSources: "All federations",
@@ -800,7 +800,7 @@ const en: AppTranslation = {
     },
     applicationDetail: {
         title: "Applications",
-        subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        subTitle: "Browse applications currently connected to {{productName}}, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
         back: "Terug",
         attributes: "Attributes",
         attributesInfo: "The application needs to receive attributes to function correctly.",
@@ -860,10 +860,10 @@ const en: AppTranslation = {
     },
     connect: {
         title: "How to connect",
-        subTitle: "Connecting to SURF Access is not complicated, the steps to connect a new application are self-explanatoy. The proces consists of a formal and a technical part. SURF Access is a service for members of the SURF cooperative. Participation is free for commercial organisations.",
+        subTitle: "Connecting to {{productName}} is not complicated, the steps to connect a new application are self-explanatoy. The proces consists of a formal and a technical part. {{productName}} is a service for members of the SURF cooperative. Participation is free for commercial organisations.",
         formal: "How does it work?",
         serviceBullets: [
-            "<strong>Step 1</strong>: Log in to SURF Access",
+            "<strong>Step 1</strong>: Log in to {{productName}}",
             "<strong>Step 2</strong>: Choose your organisatie. Use eduID if you do not have an institution account.",
             "<strong>Step 3</strong>: Create a new application. Enter the required information.",
             "<strong>Step 4</strong>: Create a new connection for the application. Enter the required formal and technical information. ",
@@ -920,12 +920,12 @@ const en: AppTranslation = {
     external: {
         invite: {
             title: "Roles",
-            description: "You currently manage roles in SURF Invite. In the future this will move to SURF Access.",
+            description: "You currently manage roles in SURF Invite. In the future this will move to {{productName}}.",
             link: "Open SURFconext Invite",
         },
         sram: {
             title: "Collaborations",
-            description: "Collaborations are currently managed in SURF Research Access Management and will be moved to SURF Access in the future.",
+            description: "Collaborations are currently managed in SURF Research Access Management and will be moved to {{productName}} in the future.",
             link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
@@ -1110,7 +1110,7 @@ const en: AppTranslation = {
         defaultAccessInfo: "This application is directly connectable, no vendor permission is required.",
         defaultAccessInfo2: "After connecting, access to the application can be set up immediately.",
         memberRequestInfo: {
-            info: "In order to connect an application to the SURF Access platform, approval must be given by the SURF Access Manager of {{orgName}}.",
+            info: "In order to connect an application to the {{productName}} platform, approval must be given by the {{productName}} Manager of {{orgName}}.",
             subInfo: "Please indicate below why you want to activate this application. We will send the message to them, and you will also receive a copy.",
         },
         messagePlaceholder: "Your message",
@@ -1296,7 +1296,7 @@ const en: AppTranslation = {
         tipsInfo: "Tips from SURF",
         tips: {
             title: "Two systems of two-step verification",
-            practice: "SURF Access supports two-step verification:",
+            practice: "{{productName}} supports two-step verification:",
             optionMfa: "via your organisation’s identity provider.",
             optionSurf: "via SURFSecureID.",
             warning: "<strong>Please note</strong>: if you enable <em>both</em> systems, users will be required to perform two-factor authentication using <em>both</em> systems.",

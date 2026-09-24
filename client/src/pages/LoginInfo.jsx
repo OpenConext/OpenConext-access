@@ -1,6 +1,6 @@
 import React from "react";
 import './LoginInfo.scss';
-import I18n from "../locale/I18n";
+import I18n, {tArray} from "../locale/I18n";
 import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
 import {Button} from "@surfnet/curve-react";
@@ -31,10 +31,9 @@ export const LoginInfo = () => {
                         <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.loginInfo.commercial.title")}
                         </h3>
-                        {I18n.translations[I18n.locale].landing.loginInfo.commercial.info
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                            )}
+                        {tArray("landing.loginInfo.commercial.info", (info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
+                        )}
                         <Button onClick={() => login(config, true, true)}
                                 variant="secondary">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.commercial.login"))}}/>
@@ -44,10 +43,9 @@ export const LoginInfo = () => {
                         <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.loginInfo.education.title")}
                         </h3>
-                        {I18n.translations[I18n.locale].landing.loginInfo.education.info
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                            )}
+                        {tArray("landing.loginInfo.education.info", (info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
+                        )}
                         <Button onClick={() => login(config, true, false)}
                                 variant="secondary">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.education.login"))}}/>
