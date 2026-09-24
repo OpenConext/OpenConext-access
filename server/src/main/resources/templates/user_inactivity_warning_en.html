@@ -17,18 +17,18 @@
         {{/environment}}
         <p class="title" style="">Dear {{user.name}},</p>
 
-        <p>Your OpenConext Access account has not been used since <strong>{{lastActivity}}</strong>.
+        <p>Your {{productName}} account has not been used since <strong>{{lastActivity}}</strong>.
             Accounts that remain inactive will be deleted.</p>
 
         <p>If no action is taken, your account will be <strong>deleted on {{deletionDate}}</strong>.
             Your memberships in organisations and any associated access rights will be removed.</p>
 
-        <p>To keep your account, simply log in to OpenConext Access before the deletion date.</p>
+        <p>To keep your account, simply log in to {{productName}} before the deletion date.</p>
 
         <div style="display: flex;">
             <a class="button" href="{{{ clientUrl }}}"
                style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
-                <span style="color: white;margin: auto 0 auto 25px;">Log in to OpenConext Access</span>
+                <span style="color: white;margin: auto 0 auto 25px;">Log in to {{productName}}</span>
             </a>
         </div>
     </div>
