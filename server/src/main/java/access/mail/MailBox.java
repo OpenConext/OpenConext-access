@@ -39,6 +39,7 @@ public class MailBox {
     private final String supportEmail;
     private final String jiraErrorEmail;
     private final String environment;
+    private final String productName;
 
     private final Map<String, Map<String, String>> subjects;
 
@@ -61,6 +62,7 @@ public class MailBox {
             String jiraErrorEmail,
             String clientUrl,
             String environment,
+            String productName,
             ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
@@ -69,6 +71,7 @@ public class MailBox {
         this.jiraErrorEmail = jiraErrorEmail;
         this.clientUrl = clientUrl;
         this.environment = environment;
+        this.productName = productName;
         ClassPathResource subjectsOverride = new ClassPathResource("myCustomizations/templates/subjects.json");
         ClassPathResource subjectsDefault = new ClassPathResource("templates/subjects.json");
         ClassPathResource subjectsResource = subjectsOverride.exists() ? subjectsOverride : subjectsDefault;
@@ -226,7 +229,7 @@ public class MailBox {
                                  String screenshotName, String screenshotContentType) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
-        variables.put("title", "SURF Access feedback form");
+        variables.put("title", this.productName + " feedback form");
         String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
         variables.put("message", message.replaceAll("\n", "<br/>"));
@@ -304,6 +307,7 @@ public class MailBox {
 
     private String sendMail(String templateName, String subject, Map<String, Object> variables,
                             MailAttachment attachment, String... to) throws MessagingException, IOException {
+        variables.putIfAbsent("productName", this.productName);
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 

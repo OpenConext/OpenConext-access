@@ -14,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class Config {
 
+    private String productName;
     private String clientUrl;
     private String baseUrl;
     private List<String> externalSchacHomeOrganizations;
@@ -37,6 +38,7 @@ public class Config {
     private String jiraBrowseBaseUrl;
 
     public Config(Config base) {
+        this.productName = base.productName;
         this.clientUrl = base.clientUrl;
         this.baseUrl = base.baseUrl;
         this.discovery = base.discovery;
