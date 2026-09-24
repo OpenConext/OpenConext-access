@@ -68,6 +68,13 @@ div.accessible-apps-container {
             position: relative;
             cursor: pointer;
 
+            .accessible-app-card-badge {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                z-index: 1;
+            }
+
             .accessible-app-card-icon {
                 width: 100%;
                 aspect-ratio: 1;

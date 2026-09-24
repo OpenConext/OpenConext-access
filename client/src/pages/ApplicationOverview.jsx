@@ -318,6 +318,9 @@ const ApplicationOverview = ({accessible}) => {
                             return (
                                 <Card key={entity["_id"]} className="accessible-app-card">
                                     <StretchedLink to={`/application-detail/${entity.type}/${entity["_id"]}`}/>
+                                    {entity.connectionRequest &&
+                                        <Badge variant="danger"
+                                               className="accessible-app-card-badge">{I18n.t("accessibleApps.connectRequested")}</Badge>}
                                     <CardContent>
                                         <div className="accessible-app-card-icon">
                                             {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
