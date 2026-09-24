@@ -1,6 +1,9 @@
 import {AppTranslation} from "./translationType";
 
 const nl: AppTranslation = {
+    globalVariables: {
+        productName: "OpenConext Access",
+    },
     code: "NL",
     languages: {
         language: "Taal",
