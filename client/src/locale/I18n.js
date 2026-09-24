@@ -38,4 +38,8 @@ I18n.missingTranslation.register("report-error", (i18n, scope) => {
 });
 I18n.missingBehavior = "report-error";
 
+// Allows inserting always-available variables in translations
+const _t = I18n.t.bind(I18n);
+I18n.t = (scope, options = {}) => _t(scope, { productName: _t("globalVariables.productName"), ...options });
+
 export default I18n;
