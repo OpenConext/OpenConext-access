@@ -1,6 +1,6 @@
 import React from "react";
 import './Home.scss';
-import I18n from "../locale/I18n";
+import I18n, {tArray} from "../locale/I18n";
 import Logo from "../icons/landing/logo.svg";
 import {Background} from "../components/Background.jsx";
 import {Link, useNavigate} from "react-router";
@@ -41,10 +41,9 @@ export const Home = () => {
                         <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.applicationProviders.title")}
                         </h3>
-                        {I18n.translations[I18n.locale].landing.applicationProviders.info
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                            )}
+                        {tArray("landing.applicationProviders.info", (info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
+                        )}
                         <Button onClick={() => navigate("/connect")}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.applicationProviders.connect"))}}/>
                         </Button>
@@ -53,10 +52,9 @@ export const Home = () => {
                         <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.institutions.title")}
                         </h3>
-                        {I18n.translations[I18n.locale].landing.institutions.info
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                            )}
+                        {tArray("landing.institutions.info", (info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
+                        )}
                         <Button onClick={() => contactUs()}
                                 variant="secondary">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.institutions.contact"))}}/>
@@ -66,10 +64,9 @@ export const Home = () => {
                         <h3 className="text-[length:var(--text-lg-font-size)]">
                             {I18n.t("landing.joining.title")}
                         </h3>
-                        {I18n.translations[I18n.locale].landing.joining.info
-                            .map((info, index) =>
-                                <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                            )}
+                        {tArray("landing.joining.info", (info, index) =>
+                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
+                        )}
                         <p className="links">
                             <span>{I18n.t("landing.joining.links.prefix")}</span>
                             <Link to="/institutions">

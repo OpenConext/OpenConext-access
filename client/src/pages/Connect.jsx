@@ -1,7 +1,7 @@
 import "./Connect.scss";
 
 import React from "react";
-import I18n from "../locale/I18n.js";
+import I18n, {tArray} from "../locale/I18n.js";
 import StudentPng from "../icons/student.png";
 import {Button} from "@surfnet/curve-react";
 import {useNavigate} from "react-router";
@@ -31,8 +31,9 @@ const Connect = () => {
                 </div>
                 <div className="connect">
                     <ul>
-                        {I18n.translations[I18n.locale].connect.serviceBullets
-                            .map((s, index) => <li key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(s)}}/>)}
+                        {tArray("connect.serviceBullets", (s, index) =>
+                            <li key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(s)}}/>
+                        )}
                     </ul>
                 </div>
                 <div className="button-container">

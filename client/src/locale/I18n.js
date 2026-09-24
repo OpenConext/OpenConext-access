@@ -42,4 +42,7 @@ I18n.missingBehavior = "report-error";
 const _t = I18n.t.bind(I18n);
 I18n.t = (scope, options = {}) => _t(scope, { productName: _t("globalVariables.productName"), ...options });
 
+export const tArray = (scope, mapFn) =>
+    I18n.t(scope).map((_, i) => mapFn(I18n.t(`${scope}.${i}`), i));
+
 export default I18n;

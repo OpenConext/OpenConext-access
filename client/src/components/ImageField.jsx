@@ -2,7 +2,7 @@ import "./ImageField.scss";
 import {useRef, useState} from "react";
 import NotFoundImage from "../icons/image-placeholder.svg"
 import {srcUrl} from "../utils/Image.js";
-import I18n from "../locale/I18n";
+import I18n, {tArray} from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import {Button} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
@@ -181,7 +181,7 @@ export const ImageField = ({imageSource, onChange}) => {
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`connection.logo.${isEmpty(imageSource) ? "add" : "edit"}`))}}/>
                 </Button>
                 <ul>
-                    {I18n.translations[I18n.locale].connection.logo.disclaimers.map((disclaimer, index) =>
+                    {tArray("connection.logo.disclaimers", (disclaimer, index) =>
                         <li key={index}>{disclaimer}</li>
                     )}
                 </ul>
