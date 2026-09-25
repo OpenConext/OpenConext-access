@@ -238,7 +238,7 @@ const App = () => {
                         <Route path="/connect" element={<Connect/>}/>
                         <Route path="/applications" element={<Applications/>}/>
                         <Route path="/stats" element={<PublicStats/>}/>
-                        <Route path="/monitoring" element={<Monitoring/>}/>
+                        <Route path="/status" element={<Monitoring/>}/>
                         <Route path="/login-info" element={<LoginInfo/>}/>
                         <Route path="/application-detail/:manageType/:manageId/:tab?"
                                element={<ApplicationDetail anonymous={true}/>}/>

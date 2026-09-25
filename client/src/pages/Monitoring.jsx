@@ -130,6 +130,16 @@ function groupIncidentsByDate(incidents) {
         }));
 }
 
+// SURFconext is pinned first and eduID test last; every other group keeps its relative order in between.
+const FIRST_GROUP_NAME = "SURFconext";
+const LAST_GROUP_NAME = "eduID test";
+
+function groupSortPriority(groupName) {
+    if (groupName === FIRST_GROUP_NAME) return 0;
+    if (groupName === LAST_GROUP_NAME) return 2;
+    return 1;
+}
+
 // ─── icons ────────────────────────────────────────────────────────────────────
 
 function CheckCircleIcon() {
@@ -183,7 +193,7 @@ export const Monitoring = () => {
             params.delete(SERVICE_QUERY_PARAM);
         }
         const query = params.toString();
-        navigate(`/monitoring${query ? `?${query}` : ""}`, {replace: true});
+        navigate(`/status${query ? `?${query}` : ""}`, {replace: true});
     };
 
     const selectedService = useMemo(() => {
@@ -205,7 +215,8 @@ export const Monitoring = () => {
                     !q || s.name.toLowerCase().includes(q)
                 ),
             }))
-            .filter(group => group.services.length > 0);
+            .filter(group => group.services.length > 0)
+            .sort((a, b) => groupSortPriority(a.name) - groupSortPriority(b.name));
     }, [status, search]);
 
     const uptimeSegments = useMemo(() => {

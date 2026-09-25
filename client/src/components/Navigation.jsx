@@ -5,7 +5,7 @@ import {stopEvent, sanitize} from "../utils/Utils.js";
 import {Link, useNavigate} from "react-router";
 import {Button} from "@surfnet/curve-react";
 
-const tabNames = ["home", "connect", "institutions", "applications", "stats", "monitoring"];
+const tabNames = ["home", "connect", "institutions", "applications", "stats", "status"];
 
 export const Navigation = ({mobile, path}) => {
 
