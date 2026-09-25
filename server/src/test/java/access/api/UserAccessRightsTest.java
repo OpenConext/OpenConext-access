@@ -112,6 +112,59 @@ class UserAccessRightsTest {
     }
 
     @Test
+    void confirmApplicationMembershipDeleteAccess() {
+        userAccessRights.confirmApplicationMembershipDeleteAccess(new User(true, Map.of()), new ApplicationMembership());
+
+        //Acting user is ADMIN of the organization - always allowed, regardless of guest's other applications
+        User admin = new User(false, Map.of());
+        admin.setId(1L);
+        Organization organization = new Organization("name", "sho");
+        organization.setId(1L);
+        OrganizationMembership adminMembership = new OrganizationMembership(admin, organization, Authority.ADMIN);
+        admin.addOrganizationMembership(adminMembership);
+        organization.addOrganizationMembership(adminMembership);
+
+        Application application = new Application();
+        application.setId(1L);
+        application.setOrganization(organization);
+
+        User guestUser = new User(false, Map.of());
+        guestUser.setId(2L);
+        OrganizationMembership guestMembership = new OrganizationMembership(guestUser, organization, Authority.GUEST);
+        ApplicationMembership guestApplicationMembership = new ApplicationMembership(application, guestMembership);
+        guestMembership.addApplicationMembership(guestApplicationMembership);
+
+        userAccessRights.confirmApplicationMembershipDeleteAccess(admin, guestApplicationMembership);
+
+        //Acting user is a plain MEMBER, and is the owner of the only application the guest has access to - allowed
+        User member = new User(false, Map.of());
+        member.setId(3L);
+        OrganizationMembership memberMembership = new OrganizationMembership(member, organization, Authority.MEMBER);
+        member.addOrganizationMembership(memberMembership);
+        organization.addOrganizationMembership(memberMembership);
+        memberMembership.addApplicationMembership(new ApplicationMembership(application, memberMembership));
+        application.setOwner(member);
+
+        userAccessRights.confirmApplicationMembershipDeleteAccess(member, guestApplicationMembership);
+
+        //Guest also has access to a second application, owned by someone else - MEMBER is no longer allowed
+        Application secondApplication = new Application();
+        secondApplication.setId(2L);
+        secondApplication.setOrganization(organization);
+        secondApplication.setOwner(admin);
+        ApplicationMembership secondGuestApplicationMembership = new ApplicationMembership(secondApplication, guestMembership);
+        guestMembership.addApplicationMembership(secondGuestApplicationMembership);
+
+        assertThrows(UserRestrictionException.class,
+                () -> userAccessRights.confirmApplicationMembershipDeleteAccess(member, guestApplicationMembership));
+
+        //Non-guest targets are unaffected by the "owner of all applications" restriction
+        OrganizationMembership secondMemberMembership = new OrganizationMembership(new User(false, Map.of()), organization, Authority.MEMBER);
+        ApplicationMembership memberApplicationMembership = new ApplicationMembership(application, secondMemberMembership);
+        userAccessRights.confirmApplicationMembershipDeleteAccess(member, memberApplicationMembership);
+    }
+
+    @Test
     void getOrganizationMembership() {
         User user = new User(false,Map.of());
         Organization organization = new Organization("name", "sho");

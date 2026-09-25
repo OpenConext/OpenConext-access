@@ -4,7 +4,7 @@ import I18n from "../locale/I18n";
 import {Entities} from "../components/Entities.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {UserMembership} from "../components/UserMembership.jsx";
-import {authorities, currentUserMembershipAuthority} from "../utils/Permissions.js";
+import {authorities, currentUserMembershipAuthority, hasApplicationMembershipDeleteAccess} from "../utils/Permissions.js";
 import {Link, useNavigate} from "react-router";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import {Button, Spinner} from "@surfnet/curve-react";
@@ -112,6 +112,13 @@ export const AppTeamManagement = ({
                 nonSortable: true,
                 mapper: membership => {
                     if (currentUserAuthority === authorities.GUEST) {
+                        return null;
+                    }
+                    //Issue #992: a plain MEMBER may only remove a GUEST if they are the creator of this
+                    //application (the server additionally requires ownership of every application the guest
+                    //has access to within the organization)
+                    if (currentUserAuthority === authorities.MEMBER &&
+                        !hasApplicationMembershipDeleteAccess(currentUser, application, membership)) {
                         return null;
                     }
                     return (

@@ -62,6 +62,26 @@ export const hasApplicationWriteAccess = (user, application) => {
     return false;
 }
 
+export const hasApplicationMembershipDeleteAccess = (user, application, membership) => {
+    if (user.superUser) {
+        return true;
+    }
+    const currentOrgMembership = user.organizationMemberships
+        .find(orgMembership => orgMembership.organization.id === application.organization.id);
+    if (isEmpty(currentOrgMembership)) {
+        return false;
+    }
+    if (currentOrgMembership.authority === authorities.ADMIN) {
+        return true;
+    }
+    //A plain MEMBER may only remove a GUEST if they are the creator of this application - the server
+    //additionally requires ownership of every application the guest has access to within the organization
+    if (membership.authority === authorities.GUEST) {
+        return application.ownerIdentifier === user.id;
+    }
+    return hasApplicationWriteAccess(user, application);
+}
+
 export const hasApplicationDeleteAccess = (user, application) => {
     if (user.superUser) {
         return true;

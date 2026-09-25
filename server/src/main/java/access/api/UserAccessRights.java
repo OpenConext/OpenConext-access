@@ -3,6 +3,7 @@ package access.api;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.model.Application;
+import access.model.ApplicationMembership;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.OrganizationMembership;
@@ -76,6 +77,37 @@ public interface UserAccessRights {
             throw new UserRestrictionException(
                     String.format("User %s is not allowed to access application %s",
                             user.getEmail(), application.getName()));
+        }
+    }
+
+    default void confirmApplicationMembershipDeleteAccess(User user, ApplicationMembership applicationMembership) {
+        Application application = applicationMembership.getApplication();
+        //Reuses the app-scoped write-access check: requires org ADMIN, or MEMBER/GUEST-tier callers to
+        //actually be a member/owner of this specific application
+        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
+        if (user.isSuperUser()) {
+            return;
+        }
+        Organization organization = application.getOrganization();
+        OrganizationMembership actingMembership = getOrganizationMembership(user, organization, Authority.MEMBER)
+                .orElseThrow(() -> new UserRestrictionException(
+                        String.format("User %s is not a member of organization %s",
+                                user.getEmail(), organization.getName())));
+        if (actingMembership.getAuthority().equals(Authority.ADMIN)) {
+            return;
+        }
+        //Non-admins may only remove a GUEST's application access if they are the creator of every
+        //application this guest has access to within the organization - not just the one being removed here
+        OrganizationMembership targetMembership = applicationMembership.getOrganizationMembership();
+        if (targetMembership.getAuthority().equals(Authority.GUEST)) {
+            boolean ownerOfAllGuestApplications = targetMembership.getApplicationMemberships().stream()
+                    .allMatch(membership -> membership.getApplication().getOwner() != null &&
+                            membership.getApplication().getOwner().getId().equals(user.getId()));
+            if (!ownerOfAllGuestApplications) {
+                throw new UserRestrictionException(
+                        String.format("User %s is not the creator of all applications of guest %s",
+                                user.getEmail(), targetMembership.getUser().getEmail()));
+            }
         }
     }
 

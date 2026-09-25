@@ -62,6 +62,7 @@ export const Entities = ({
                              defaultSort,
                              rowClassNameResolver,
                              inputFocus = false,
+                             searchAlignLeft = false,
                              notAllowedTitle = "",
                              query: controlledQuery,
                              onQueryChange
@@ -118,7 +119,7 @@ export const Entities = ({
     const renderSearch = () => {
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
-            <section className={`entities-search ${showNew ? "" : "only-search"}`}>
+            <section className={`entities-search ${showNew ? "" : "only-search"} ${searchAlignLeft ? "search-align-left" : ""}`}>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
                         <InputGroup className="entities-search-input-group">

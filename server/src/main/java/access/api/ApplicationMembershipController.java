@@ -80,11 +80,14 @@ public class ApplicationMembershipController implements UserAccessRights {
                 .orElseThrow(() -> new NotFoundException("ApplicationMembership not found"));
 
         user = reinitializeUser(user ,userRepository);
-        //Mirror create()'s authorization scope exactly: app-scoped confirmApplicationWriteAccess (which requires
-        //either org ADMIN, or MEMBER/GUEST-tier callers to actually be a member/owner of this specific
-        //application), not the broader org-wide confirmOrganizationMembership - otherwise a MEMBER with no
-        //relationship to this application at all could still delete its memberships
-        confirmApplicationWriteAccess(user, applicationMembership.getApplication(), Authority.MEMBER);
+        //Mirror create()'s authorization scope (app-scoped, not the broader org-wide
+        //confirmOrganizationMembership), plus: a MEMBER may only remove a GUEST if they are the creator of
+        //every application that guest has access to - see confirmApplicationMembershipDeleteAccess. That check
+        //loads the owning OrganizationMembership.applicationMemberships collection into the persistence context,
+        //so we must also remove this membership from it - otherwise cascade=ALL re-inserts the row on flush
+        //after applicationMembershipRepository.delete() below runs
+        confirmApplicationMembershipDeleteAccess(user, applicationMembership);
+        applicationMembership.getOrganizationMembership().getApplicationMemberships().remove(applicationMembership);
         applicationMembershipRepository.delete(applicationMembership);
 
         return deleteResult();

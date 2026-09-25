@@ -33,7 +33,7 @@ import {
     TableHeader,
     TableRow
 } from "@surfnet/curve-react";
-import {CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PencilSimpleIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
+import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PencilSimpleIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 
@@ -533,6 +533,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 }}/>
                 <Button variant="link" onClick={openRoleManagement}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.details"))}}/>
+                    <ArrowSquareOutIcon/>
                 </Button>
             </CardContent>
         </Card>
@@ -589,7 +590,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </p>
                                 <div className="accordion-header-actions">
                                     <Button variant="outline" onClick={openRoleManagement}>
-                                        <PlusIcon/>
+                                        <ArrowSquareOutIcon/>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
                                     </Button>
                                     <AccordionTrigger className="accordion-toggle"/>

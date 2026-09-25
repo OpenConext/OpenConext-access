@@ -32,6 +32,10 @@
             justify-content: flex-end;
         }
 
+        &.search-align-left {
+            justify-content: flex-start;
+        }
+
         @media (max-width: $medium) {
             flex-direction: column;
             align-items: normal;

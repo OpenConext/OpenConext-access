@@ -4,8 +4,7 @@ import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
 import {Badge, Card, CardContent, InputGroup, InputGroupAddon, InputGroupInput, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
-import {SquaresFourIcon, ListBulletsIcon, MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
-import SelectField from "../components/SelectField.jsx";
+import {ListBulletsIcon, MagnifyingGlassIcon as SearchIcon, SquaresFourIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
@@ -25,23 +24,14 @@ const ApplicationOverview = ({accessible}) => {
 
         const navigate = useNavigate();
 
-        const {currentOrganization, config} = useAppStore(useShallow(state => ({
-            currentOrganization: state.currentOrganization,
-            config: state.config
+        const {currentOrganization} = useAppStore(useShallow(state => ({
+            currentOrganization: state.currentOrganization
         })));
 
         const [loading, setLoading] = useState(true);
-        const [view, setView] = useState(accessible ? views.list: views.grid);
+        const [view, setView] = useState(accessible ? views.list : views.grid);
         const [gridQuery, setGridQuery] = useState("");
         const [serviceProviders, setServiceProviders] = useState([]);
-        const [tag, setTag] = useState(null);
-        const [tagOptions, setTagOptions] = useState([]);
-        const [source, setSource] = useState(null);
-        const [sourceOptions, setSourceOptions] = useState([]);
-        const [consent, setConsent] = useState(null);
-        const [consentOptions, setConsentOptions] = useState([]);
-        const [loa, setLoa] = useState(null);
-        const [loaOptions, setLoaOptions] = useState([]);
 
         //ApplicationOverview is reused (not remounted) when navigating between /catalogue and
         ///accessible-apps - both routes render the same component type, just a different "accessible"
@@ -88,165 +78,16 @@ const ApplicationOverview = ({accessible}) => {
                         .sort((sp1, sp2) => sp1.name.toLowerCase()
                             .localeCompare(sp2.name.toLowerCase()));
                     setServiceProviders(res);
-                    const tagCounts = res.reduce((acc, sp) => {
-                        const tags = sp.data.metaDataFields.application_tags;
-                        if (!isEmpty(tags)) {
-                            tags.forEach(tag => {
-                                if (acc[tag]) {
-                                    acc[tag] = acc[tag] + 1
-                                } else {
-                                    acc[tag] = 1;
-                                }
-                            })
-                        }
-                        return acc;
-                    }, {});
-                    const defaultTag = {
-                        value: "all",
-                        label: `${I18n.t("accessibleApps.all")} (${res.length})`
-                    };
-                    let newTagOptions = [defaultTag];
-                    newTagOptions = newTagOptions.concat(Object.entries(tagCounts)
-                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
-                        .map(entry => ({
-                            value: entry[0],
-                            label: `${entry[0]} (${entry[1]})`
-                        })));
-                    setTag(defaultTag.value);
-                    setTagOptions(newTagOptions);
-                    //Sources
-                    const sourceCounts = res.reduce((acc, sp) => {
-                        const fed = sp.data.metaDataFields["coin:interfed_source"];
-                        if (!isEmpty(fed)) {
-                            if (acc[fed]) {
-                                acc[fed] = acc[fed] + 1
-                            } else {
-                                acc[fed] = 1;
-                            }
-                        }
-                        return acc;
-                    }, {});
-                    const defaultSource = {
-                        value: "all",
-                        label: `${I18n.t("accessibleApps.allSources")} (${res.length})`
-                    };
-                    let newSourceOptions = [defaultSource];
-                    newSourceOptions = newSourceOptions.concat(Object.entries(sourceCounts)
-                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
-                        .map(entry => ({
-                            value: entry[0],
-                            label: `${entry[0]} (${entry[1]})`
-                        })));
-                    setSource(defaultSource.value);
-                    setSourceOptions(newSourceOptions);
-                    const isVendor = isEmpty(currentOrganization?.manageIdentifier);
-                    if (isVendor || !accessible) {
-                        setLoading(false);
-                    } else {
-                        // LoA options from config.acrValues
-                        const stepupEntities = currentOrganization?.identityProvider?.data?.stepupEntities || [];
-                        const defaultLoa = {value: "all", label: `${I18n.t("accessibleApps.allLoa")} (${res.length})`};
-                        const newLoaOptions = [defaultLoa].concat(
-                            (config.acrValues || []).map(uri => {
-                                const key = uri.substring(uri.lastIndexOf("/") + 1).replace(".", "_");
-                                const count = stepupEntities.filter(e => e.level === uri).length;
-                                return {value: uri, label: `${I18n.t(`accessibleApps.loa.${key}`)} (${count})`};
-                            })
-                        );
-                        setLoa(defaultLoa.value);
-                        setLoaOptions(newLoaOptions);
-
-                        // Consent options from disableConsent types (deduplicated)
-                        const disableConsent = currentOrganization?.identityProvider?.data?.disableConsent || [];
-                        const consentTypes = [...new Set(disableConsent.map(e => e.type))];
-                        const defaultConsent = {
-                            value: "all",
-                            label: `${I18n.t("accessibleApps.allConsent")} (${res.length})`
-                        };
-                        const newConsentOptions = [defaultConsent].concat(
-                            consentTypes.map(type => {
-                                const count = disableConsent.filter(e => e.type === type).length;
-                                return {value: type, label: `${I18n.t(`accessibleApps.consent.${type}`)} (${count})`};
-                            })
-                        );
-                        setConsent(defaultConsent.value);
-                        setConsentOptions(newConsentOptions);
-                        setLoading(false);
-                    }
-
+                    setView(accessible ? views.list : views.grid);
+                    setLoading(false);
                 })
-                .catch(e => {
-                    console.log(e);
-
+                .catch(() => {
                     navigate("/404");
                 });
         }, [accessible]);// eslint-disable-line react-hooks/exhaustive-deps
 
-        const filterSP = sp => {
-            let tagHit = true;
-            const tags = sp.data.metaDataFields.application_tags;
-            if (tag !== "all") {
-                tagHit = !isEmpty(tags) && tags.includes(tag);
-            }
-            let sourceHit = true;
-            const fed = sp.data.metaDataFields["coin:interfed_source"];
-            if (source !== "all") {
-                sourceHit = !isEmpty(fed) && fed === source;
-            }
-            const isVendor = isEmpty(currentOrganization?.manageIdentifier);
-            if (isVendor || !accessible) {
-                return tagHit && sourceHit;
-            }
-            let loaHit = true;
-            if (loa !== "all") {
-                const stepupEntities = currentOrganization?.identityProvider?.data?.stepupEntities || [];
-                loaHit = stepupEntities.some(e => e.name === sp.data.entityid && e.level === loa);
-            }
-            let consentHit = true;
-            if (consent !== "all") {
-                const disableConsent = currentOrganization?.identityProvider?.data?.disableConsent || [];
-                consentHit = disableConsent.some(e => e.name === sp.data.entityid && e.type === consent);
-            }
-            return tagHit && sourceHit && loaHit && consentHit;
-        }
-
         if (loading) {
             return <div className="loading-container"><Spinner className="size-8"/></div>
-        }
-
-        const filters = () => {
-            return (
-                <>
-                    <SelectField className="select-sources"
-                                 value={sourceOptions.find(option => option.value === source)}
-                                 options={sourceOptions}
-                                 searchable={false}
-                                 onChange={option => setSource(option.value)}
-                    />
-                    <SelectField className="select-tags"
-                                 value={tagOptions.find(option => option.value === tag)}
-                                 options={tagOptions}
-                                 searchable={false}
-                                 onChange={option => setTag(option.value)}
-                    />
-                    {accessible && !isEmpty(currentOrganization?.manageIdentifier) &&
-                        <>
-                            <SelectField className="select-loas"
-                                         value={loaOptions.find(option => option.value === loa)}
-                                         options={loaOptions}
-                                         searchable={false}
-                                         onChange={option => setLoa(option.value)}
-                            />
-                            <SelectField className="select-consent"
-                                         value={consentOptions.find(option => option.value === consent)}
-                                         options={consentOptions}
-                                         searchable={false}
-                                         onChange={option => setConsent(option.value)}
-                            />
-
-                        </>}
-                </>
-            );
         }
 
         const columns = [
@@ -264,13 +105,15 @@ const ApplicationOverview = ({accessible}) => {
                 header: I18n.t("accessibleApps.name"),
                 mapper: entity => entity.name
             },
-            {
-                key: "connectionRequest",
-                header: I18n.t("accessibleApps.status"),
-                mapper: entity => entity.connectionRequest ?
-                    <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge> :
-                    <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge>
-            },
+
+            accessible ?
+                {
+                    key: "connectionRequest",
+                    header: I18n.t("accessibleApps.status"),
+                    mapper: entity => entity.connectionRequest ?
+                        <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge> :
+                        <Badge variant="success">{I18n.t("accessibleApps.connectActive")}</Badge>
+                } : null,
             {
                 key: "vendor",
                 header: I18n.t("accessibleApps.vendor"),
@@ -287,10 +130,9 @@ const ApplicationOverview = ({accessible}) => {
                 header: "",
                 mapper: () => null
             }
-        ];
+        ].filter(column => !isEmpty(column));
 
-        const filteredServiceProviders = (tag === "all" && source === "all" && loa === "all" && consent === "all") ?
-            serviceProviders : serviceProviders.filter(filterSP);
+        const filteredServiceProviders = serviceProviders;
 
         const renderGridViewApplications = () => {
             const queryLower = gridQuery.trim().toLowerCase();
@@ -310,7 +152,7 @@ const ApplicationOverview = ({accessible}) => {
                                 <SearchIcon/>
                             </InputGroupAddon>
                         </InputGroup>
-                        {filters()}
+
                     </div>
                     <div className="accessible-apps-grid-cards">
                         {gridServiceProviders.map(entity => {
@@ -373,10 +215,10 @@ const ApplicationOverview = ({accessible}) => {
                             modelName="accessibleApps"
                             defaultSort="name"
                             columns={columns}
-                            filters={filters()}
                             hideTitle={true}
                             showNew={false}
                             displaySearch={true}
+                            searchAlignLeft={true}
                             query={gridQuery}
                             onQueryChange={setGridQuery}
                             searchAttributes={["name", "vendor"]}
