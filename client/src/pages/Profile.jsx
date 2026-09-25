@@ -75,7 +75,7 @@ const Profile = () => {
                                 noInput={true}
                     />
                 }
-                {user.institutionAdmin &&
+                {(!user.superUser && user.institutionAdmin) &&
                     <InputField
                         name={I18n.t("profile.institutionAdmin", {orgName: providerName(I18n.locale, currentOrganization.identityProvider)})}
                         noInput={true}
