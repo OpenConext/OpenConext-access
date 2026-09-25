@@ -5,6 +5,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+    resolve: {
+        preserveSymlinks: true,
+    },
     plugins: [react(), tailwindcss(), svgr(
         {
             // svgr options: https://react-svgr.com/docs/options/
