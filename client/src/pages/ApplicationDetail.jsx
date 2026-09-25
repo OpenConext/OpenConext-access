@@ -13,7 +13,6 @@ import {
     saveIdentityProviderConsent
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
-import NotAllowedIcon from "../icons/not-allowed.svg";
 import {useNavigate, useParams} from "react-router";
 import {
     Accordion,
@@ -34,24 +33,13 @@ import {
     TableHeader,
     TableRow
 } from "@surfnet/curve-react";
-import {WarningIcon, PlusIcon, XCircleIcon, PencilSimpleIcon, InfoIcon, ClockIcon, HourglassHighIcon} from "@phosphor-icons/react";
+import {CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PencilSimpleIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
-import {CaretLeftIcon as ArrowLeftIcon} from "@phosphor-icons/react";
 
 import ExampleSVG from "../icons/wayf.svg";
-import {
-    APPLICATION_LINKS,
-    connectWithoutInteraction,
-    CONSENT,
-    isAccessRoleReady,
-    MFA_LEVELS,
-    providerDescription,
-    providerName,
-    providerOrganizationName,
-    STEPUP_LEVELS
-} from "../utils/Manage.js";
-import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
+import {APPLICATION_LINKS, connectWithoutInteraction, CONSENT, MFA_LEVELS, providerDescription, providerName, providerOrganizationName, STEPUP_LEVELS} from "../utils/Manage.js";
+import {isEmpty, sanitize, stopEvent} from "../utils/Utils.js";
 import {policyBreakDowwn, policyTypes} from "../utils/Policy.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
@@ -61,7 +49,6 @@ import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
-import {InfoBlock} from "../components/InfoBlock.jsx";
 import DOMPurify from "dompurify";
 import SelectField from "../components/SelectField.jsx";
 
@@ -559,8 +546,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <HourglassHighIcon/>
                         <AlertDescription>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedAccessNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                            <Button variant="link" onClick={e => cancelConnectionRequest(true, e)}>
-                                {I18n.t("appAccess.cancelRequest")}</Button>
                         </AlertDescription>
                     </Alert>
                 }
@@ -569,8 +554,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <InfoIcon/>
                         <AlertDescription>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.requestedDisconnectNotification", {ticketKey: changeRequestTicketKey}))}}/>
-                            <Button variant="link" onClick={e => cancelDisconnectionRequest(true, e)}>
-                                {I18n.t("appAccess.cancelRequest")}</Button>
                         </AlertDescription>
                     </Alert>
                 }
@@ -876,7 +859,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
 
                                     <div className="application-header-actions">
-
+                                        {readOnly &&
+                                            <Button onClick={e => cancelConnectionRequest(true, e)}
+                                                    variant="outline">
+                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.cancelRequest"))}}/>
+                                            </Button>
+                                        }
+                                        {pendingDisconnect && <Button variant="outline" onClick={e => cancelDisconnectionRequest(true, e)}>
+                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.cancelRequest"))}}/>
+                                        </Button>
+                                        }
                                         {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
                                             && <Button onClick={() => doRequestDisconnection(true)}
                                                        variant="outline">
@@ -909,11 +901,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <Table className="attributes-table">
                         <TableHeader>
                             <TableRow>
-                                <TableHead>{I18n.t("applicationDetail.attributeColumns.name")}</TableHead>
-                                <TableHead>{I18n.t("applicationDetail.attributeColumns.example")}</TableHead>
-                                <TableHead>{I18n.t("applicationDetail.attributeColumns.technicalName")}</TableHead>
-                                <TableHead>{I18n.t("applicationDetail.attributeColumns.source")}</TableHead>
-                                <TableHead>{I18n.t("applicationDetail.attributeColumns.explanation")}</TableHead>
+                                <TableHead style={{width: "15%"}}>{I18n.t("applicationDetail.attributeColumns.name")}</TableHead>
+                                <TableHead style={{width: "20%"}}>{I18n.t("applicationDetail.attributeColumns.example")}</TableHead>
+                                <TableHead style={{width: "15%"}}>{I18n.t("applicationDetail.attributeColumns.technicalName")}</TableHead>
+                                <TableHead style={{width: "10%"}}>{I18n.t("applicationDetail.attributeColumns.source")}</TableHead>
+                                <TableHead style={{width: "40%"}}>{I18n.t("applicationDetail.attributeColumns.explanation")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

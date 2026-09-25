@@ -119,11 +119,11 @@ div.accessible-apps-container {
                 }
 
                 &.name {
-                    width: 25%;
+                    width: 35%;
                 }
 
                 &.connectionRequest {
-                    width: 10%;
+                    width: 20%;
                     text-align: center;
                 }
 
@@ -132,10 +132,7 @@ div.accessible-apps-container {
                 }
 
                 &.created {
-                    width: 20%;
-                }
-                &.space {
-                    width: 20%;
+                    width: 15%;
                 }
             }
         }

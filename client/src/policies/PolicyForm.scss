@@ -99,6 +99,8 @@
 
         .filters {
             @include gray-panel;
+            border-radius: var(--border-radius-rounded-2xl, 18px);
+            border: 1px solid var(--base-border, #D6D3D1);
 
             .attribute-name-wrapper {
                 display: flex;
@@ -175,6 +177,8 @@
 
     .step-up-settings {
         @include gray-panel;
+        border-radius: var(--border-radius-rounded-2xl, 18px);
+        border: 1px solid var(--base-border, #D6D3D1);
 
         .loa-selector-row {
             display: flex;

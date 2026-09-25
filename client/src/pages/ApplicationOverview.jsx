@@ -31,7 +31,7 @@ const ApplicationOverview = ({accessible}) => {
         })));
 
         const [loading, setLoading] = useState(true);
-        const [view, setView] = useState(views.grid);
+        const [view, setView] = useState(accessible ? views.list: views.grid);
         const [gridQuery, setGridQuery] = useState("");
         const [serviceProviders, setServiceProviders] = useState([]);
         const [tag, setTag] = useState(null);
@@ -266,8 +266,9 @@ const ApplicationOverview = ({accessible}) => {
             },
             {
                 key: "connectionRequest",
-                header: "",
-                mapper: entity => entity.connectionRequest &&
+                header: I18n.t("accessibleApps.status"),
+                mapper: entity => entity.connectionRequest ?
+                    <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge> :
                     <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge>
             },
             {

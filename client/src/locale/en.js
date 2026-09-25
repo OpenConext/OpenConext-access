@@ -1042,6 +1042,7 @@ const en = {
         resourceServer: "Resource server",
         vendor: "Vendor",
         connectRequested: "Requested",
+        connectActive: "Active",
         disconnectRequested: "Pending disconnect",
         connectionMade: "Connected",
         status: "Status",
@@ -1146,8 +1147,8 @@ const en = {
     appAccess: {
         title: "Central Access",
         users: "Users from {{name}}",
-        requestedAccessNotification: "You have requested access to this application - ticket {{ticketKey}}. If the supplier (SP) approves this, you can manage access to the app below. Still don't want to connect?",
-        requestedDisconnectNotification: "You have requested to have no longer access to this application - ticket {{ticketKey}}. Still want to remain connected?",
+        requestedAccessNotification: "You have requested access to this application - ticket {{ticketKey}}. If the supplier (SP) approves this, you can manage access to the app below. If you don't want to connect, you can cancel your request",
+        requestedDisconnectNotification: "You have requested to have no longer access to this application - ticket {{ticketKey}}. If you don't want to disconnect, you can cancel your request",
         cancelRequest: "Cancel the request.",
         cancelRequestTitle: "Cancel the request.",
         cancelRequestQuestion: "Are you sure you don't want to have access to this application? The request for a connection will be withdrawn.",

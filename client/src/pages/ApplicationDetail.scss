@@ -182,10 +182,6 @@ div.application-detail-container {
         display: flex;
         flex-direction: column;
         gap: 32px;
-        width: 75%;
-        @media (max-width: $full-mode) {
-            width: auto;
-        }
         .details-section {
             display: flex;
             flex-direction: column;

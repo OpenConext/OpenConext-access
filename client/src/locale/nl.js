@@ -1042,6 +1042,7 @@ const nl = {
         resourceServer: "Resource server",
         vendor: "Leverancier",
         connectRequested: "Aangevraagd",
+        connectActive: "Actief",
         disconnectRequested: "Koppeling intrekken (in afwachting)",
         connectionMade: "Verbonden",
         status: "Status",
@@ -1146,8 +1147,8 @@ const nl = {
     appAccess: {
         title: "Centrale toegang",
         users: "Gebruikers van {{name}}",
-        requestedAccessNotification: "Je hebt toegang tot deze applicatie aangevraagd - ticket {{ticketKey}}. Als de leverancier (SP) dit goedkeurt, kun je hieronder de toegang beheren. Wil je toch niet koppelen?",
-        requestedDisconnectNotification: "Je hebt verzocht geen toegang meer te hebben tot deze applicatie - ticket {{ticketKey}}. Wil je toch verbonden blijven?",
+        requestedAccessNotification: "Je hebt toegang tot deze applicatie aangevraagd - ticket {{ticketKey}}. Als de leverancier (SP) dit goedkeurt, kun je hieronder de toegang beheren. Als je toch niet koppelen, kan je het verzoek annuleren",
+        requestedDisconnectNotification: "Je hebt verzocht geen toegang meer te hebben tot deze applicatie - ticket {{ticketKey}}. Als je toch verbonden wilt blijven, dan kan jet verzoek annuleren",
         cancelRequest: "Verzoek annuleren.",
         cancelRequestTitle: "Verzoek annuleren.",
         cancelRequestQuestion: "Weet je zeker dat je geen toegang meer wilt tot deze applicatie? Het verzoek om koppeling wordt ingetrokken.",

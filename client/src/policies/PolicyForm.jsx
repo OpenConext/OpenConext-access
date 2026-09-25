@@ -449,7 +449,6 @@ export const PolicyForm = ({
 
     const renderRegFilters = () => (
         <>
-            <span className="label standalone">{I18n.t("appAccess.filters")}</span>
             <div className="filters">
                 {policy.data.attributes.map((attribute, index) =>
                     <Fragment key={index}>
@@ -541,7 +540,6 @@ export const PolicyForm = ({
 
     const renderStepUpSettings = () => (
         <>
-            <span className="label standalone">{I18n.t("appAccess.assuranceSettings")}</span>
             <div className="step-up-settings">
                 {/* LoA level selector row */}
                 <div className="loa-selector-row">
