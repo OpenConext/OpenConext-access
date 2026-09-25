@@ -353,6 +353,24 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         return ResponseEntity.ok(policyDataList);
     }
 
+    @GetMapping("/identity-provider/connected-apps")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Integer> connectedApps(@Parameter(hidden = true) User user,
+                                                 @RequestParam("organizationId") Long organizationId) {
+        LOG.debug("/connectedApps for " + user.getEmail());
+
+        Organization organization = organizationRepository.getReferenceById(organizationId);
+        confirmOrganizationMembership(user, organization, Authority.GUEST);
+
+        String manageIdentifier = organization.getManageIdentifier();
+        if (!StringUtils.hasText(manageIdentifier)) {
+            return ResponseEntity.ok(0);
+        }
+        Map<String, Integer> connectedApps = manage.connectedApps(manageIdentifier);
+        int count = connectedApps.values().stream().findFirst().orElse(0);
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/identity-provider/policies")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")

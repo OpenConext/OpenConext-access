@@ -363,7 +363,14 @@ export const PolicyForm = ({
             promise(policy, currentOrganization.id)
                 .then(res => {
                     setFlash(I18n.t(`appAccess.flash.${isExistingPolicy ? "updated" : "created"}`, {name: res.data.name}));
-                    refreshPolicies();
+                    if (returnToApplication) {
+                        // Came from the application detail page (not the policies overview) -
+                        // go back there instead of to /policies/overview, landing on the tab
+                        // that manages this policy type (step-up policies live under Assurance).
+                        navigate(`/application-detail/${returnToApplication.manageType}/${returnToApplication.manageId}/${isStep ? "assurance" : "access"}`);
+                    } else {
+                        refreshPolicies();
+                    }
                 });
         }
     };

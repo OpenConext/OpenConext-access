@@ -27,8 +27,14 @@
             grid-template-columns: 1fr;
         }
 
+        // Grid items stretch to the tallest card in the row, but Card's own
+        // children don't grow into that extra height by default - without
+        // flex: 1 here, card-content stays only as tall as its own content,
+        // leaving no room inside it for the button's margin-top: auto below
+        // to push into.
         [data-slot="card-content"] {
             display: flex;
+            flex: 1;
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
@@ -50,12 +56,24 @@
             }
         }
 
-        
+        .action-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+            margin-top: auto;
+        }
 
         [data-slot="button"] {
             align-self: flex-start;
             padding-left: 0;
             padding-right: 0;
+            text-decoration: none;
+        }
+
+        .apps-count-badge {
+            flex-shrink: 0;
         }
 
         .link-blue {
@@ -67,6 +85,23 @@
         }
 
         .link-green {
+            color: #01653D;
+        }
+
+        // Same colors as the link in the corresponding card (see .link-blue/
+        // .link-purple/.link-green above), on a light tint of that color.
+        .badge-blue {
+            background-color: #eaf0fc;
+            color: #053eaa;
+        }
+
+        .badge-purple {
+            background-color: #f3e8fd;
+            color: #420984;
+        }
+
+        .badge-green {
+            background-color: #ddfdf0;
             color: #01653D;
         }
     }

@@ -234,6 +234,10 @@ export function allAplicationsByOrganisationLight(organizationId) {
     return fetchJson(`/api/v1/applications/all/light/${organizationId}`);
 }
 
+export function applicationsCountByOrganization(organizationId) {
+    return fetchJson(`/api/v1/applications/count/${organizationId}`);
+}
+
 export function allAplicationsLight() {
     return fetchJson(`/api/v1/applications/all`);
 }
@@ -287,6 +291,10 @@ export function getPolicyByServiceProviderEntityId(entityId, organizationId) {
 
 export function getPolicyByIdentityProvider(organizationId) {
     return fetchJson(`/api/v1/manage/identity-provider/policies?organizationId=${organizationId}`);
+}
+
+export function connectedAppsByIdentityProvider(organizationId) {
+    return fetchJson(`/api/v1/manage/identity-provider/connected-apps?organizationId=${organizationId}`);
 }
 
 export function uniqueEntityID(entityID) {

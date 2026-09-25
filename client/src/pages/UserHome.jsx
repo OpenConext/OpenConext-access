@@ -1,7 +1,7 @@
 import "./UserHome.scss";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
-import {Alert, AlertDescription, AlertTitle, Button, Card, CardContent, CardDescription, CardTitle} from "@surfnet/curve-react";
+import {Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardContent, CardDescription, CardTitle, Spinner} from "@surfnet/curve-react";
 import {ArrowRightIcon, HourglassIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
@@ -13,18 +13,26 @@ import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
 import {getParameterByName} from "../utils/QueryParameters.js";
 import {hasCreateApplicationAccess} from "../utils/Permissions.js";
+import {applicationsCountByOrganization, connectedAppsByIdentityProvider} from "../api/index.js";
 
 const UserHome = () => {
 
-    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
         user: state.user,
-        currentOrganization: state.currentOrganization
+        currentOrganization: state.currentOrganization,
+        config: state.config
     })));
+
+    const [appsCount, setAppsCount] = useState(null);
+    const [connectedAppsCount, setConnectedAppsCount] = useState(null);
 
     let newLocation = null;
     if (isEmpty(user.joinRequests) && isEmpty(currentOrganization?.id)) {
         newLocation = "/landing"
     }
+
+    const isVendor = isEmpty(currentOrganization?.manageIdentifier);
+    const maySeeAccessibleApps = hasCreateApplicationAccess(user, currentOrganization);
 
     useEffect(() => {
         if (newLocation === null) {
@@ -35,6 +43,17 @@ const UserHome = () => {
             });
         }
     }, [newLocation]);
+
+    //Fetched asynchronously - the page renders immediately and each badge shows a
+    //Spinner in the meantime, so this must not block the initial render.
+    useEffect(() => {
+        if (newLocation === null && currentOrganization?.id ) {
+            applicationsCountByOrganization(currentOrganization.id).then(setAppsCount);
+            if (!isVendor && maySeeAccessibleApps) {
+                connectedAppsByIdentityProvider(currentOrganization.id).then(setConnectedAppsCount);
+            }
+        }
+    }, [newLocation]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (newLocation !== null) {
         return <Navigate to={newLocation} replace/>;
@@ -67,7 +86,7 @@ const UserHome = () => {
         }
     }
 
-    const welcomeCard = (key, Illustration, menuItem, path, linkColorClass) => (
+    const welcomeCard = (key, Illustration, menuItem, path, linkColorClass, badgeColorClass, count) => (
         <Card key={key}>
             <CardContent>
                 <CardTitle>{I18n.t(`userHome.${key}.title`)}</CardTitle>
@@ -76,17 +95,21 @@ const UserHome = () => {
                         <Illustration/>
                     </div>}
                 <CardDescription>{I18n.t(`userHome.${key}.description`)}</CardDescription>
-                <Button variant="link" className={linkColorClass} nativeButton={false} render={
-                    <Link to={path} onClick={() => setActiveMenuItemState(menuItem)}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
-                        <ArrowRightIcon/>
-                    </Link>
-                }/>
+                <div className="action-row">
+                    <Button variant="link" className={linkColorClass} nativeButton={false} render={
+                        <Link to={path} onClick={() => setActiveMenuItemState(menuItem)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`userHome.${key}.action`))}}/>
+                            <ArrowRightIcon/>
+                        </Link>
+                    }/>
+                    <Badge className={`apps-count-badge ${badgeColorClass}`}>
+                        {count === null ? <Spinner/> : I18n.t("userHome.appsCount", {count})}
+                    </Badge>
+                </div>
             </CardContent>
         </Card>
     );
-    const isVendor = isEmpty(currentOrganization?.manageIdentifier);
-    const maySeeAccessibleApps = hasCreateApplicationAccess(user, currentOrganization)
+    const discoverAppsCount = (config.stats.saml20_sp || 0) + (config.stats.oidc10_rp || 0);
     return (
         <div className="home-container">
             <div className="home-welcome">
@@ -95,9 +118,9 @@ const UserHome = () => {
             </div>
             {alertInfo()}
             <div className="info-container">
-                {currentOrganization?.id && welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green")}
-                {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue")}
-                {(!isVendor && maySeeAccessibleApps) && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple")}
+                {currentOrganization?.id && welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green", "badge-green", appsCount)}
+                {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue", "badge-blue", discoverAppsCount)}
+                {(!isVendor && maySeeAccessibleApps) && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple", "badge-purple", connectedAppsCount)}
             </div>
         </div>
     )

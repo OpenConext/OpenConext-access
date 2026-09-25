@@ -64,8 +64,8 @@ public class RemoteManage implements Manage {
     public List<Map<String, Object>> providers(EntityType... entityTypes) {
         LOG.debug("Providers for entityTypes: " + List.of(entityTypes));
         return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(entityType.name(), false))
-                .flatMap(List::stream)
-                .toList();
+            .flatMap(List::stream)
+            .toList();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Map<String, Object>  saveIdentityProvider(Map<String, Object> identityProvider) {
+    public Map<String, Object> saveIdentityProvider(Map<String, Object> identityProvider) {
         return internalSaveProvider(identityProvider);
     }
 
@@ -116,8 +116,8 @@ public class RemoteManage implements Manage {
     @Override
     public Map<String, Object> saveProvider(Connection connection) {
         Map<String, Object> remoteProvider = StringUtils.hasText(connection.getManageIdentifier()) ?
-                providerByConnection(connection) :
-                baseStructureProvider(connection.getProtocol());
+            providerByConnection(connection) :
+            baseStructureProvider(connection.getProtocol());
         //We must ensure that no data is overridden that was altered in Manage. Especially additional metadata and
         //Attribute Release Policies that are not available in Access
         //We can't update everything if the connection is production ready, only the application data
@@ -134,7 +134,7 @@ public class RemoteManage implements Manage {
         }
         HttpMethod httpMethod = StringUtils.hasText(connection.getManageIdentifier()) ? HttpMethod.PUT : HttpMethod.POST;
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
+            httpMethod, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
         return checkNoChangeResponse(responseEntity, provider);
     }
 
@@ -145,16 +145,16 @@ public class RemoteManage implements Manage {
 
     private Map<String, Object> internalSaveProvider(Map<String, Object> provider) {
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(String.format("%s/manage/api/internal/metadata", url),
-                HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
+            HttpMethod.PUT, new HttpEntity<>(provider), PARAMETERIZED_TYPE_REFERENCE);
         return checkNoChangeResponse(responseEntity, provider);
     }
 
     @Override
     public void deleteProvider(Connection connection) {
         String deleteUrl = String.format("%s/manage/api/internal/metadata/%s/%s",
-                url,
-                connection.getProtocol(),
-                connection.getManageIdentifier());
+            url,
+            connection.getProtocol(),
+            connection.getManageIdentifier());
         restTemplate.exchange(URI.create(deleteUrl), HttpMethod.DELETE, null, Void.class);
     }
 
@@ -184,38 +184,38 @@ public class RemoteManage implements Manage {
         String changeRequestUrl = String.format("%s/manage/api/internal/change-requests", url);
         HttpEntity<ChangeRequest> requestEntity = new HttpEntity<>(changeRequest);
         ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(changeRequestUrl, method, requestEntity,
-                PARAMETERIZED_TYPE_REFERENCE);
+            PARAMETERIZED_TYPE_REFERENCE);
         return responseEntity.getBody();
     }
 
     @Override
     public List<Map<String, Object>> getChangeRequests(Connection connection) {
         String changeRequestUrl = String.format("%s/manage/api/internal/change-requests/%s/%s",
-                url,
-                connection.getProtocol().name(),
-                connection.getManageIdentifier());
+            url,
+            connection.getProtocol().name(),
+            connection.getManageIdentifier());
         return restTemplate.getForEntity(changeRequestUrl, List.class).getBody();
     }
 
     @Override
     public List<Map<String, Object>> getChangeRequestsIdentityProvider(Map<String, Object> identityProvider) {
         String changeRequestUrl = String.format("%s/manage/api/internal/change-requests/%s/%s",
-                url,
-                EntityType.saml20_idp.name(),
-                identityProvider.get("id"));
+            url,
+            EntityType.saml20_idp.name(),
+            identityProvider.get("id"));
         return restTemplate.getForEntity(changeRequestUrl, List.class).getBody();
     }
 
     @Override
     public String changeRequestURL(Connection connection) {
         return String.format("%s/metadata/%s/%s/requests",
-                url, connection.getProtocol().name(), connection.getManageIdentifier());
+            url, connection.getProtocol().name(), connection.getManageIdentifier());
     }
 
     @Override
     public String changeRequestURLConnectionRequest(EntityType entityType, String manageIdentifier) {
         return String.format("%s/metadata/%s/%s/requests",
-                url, entityType.name(), manageIdentifier);
+            url, entityType.name(), manageIdentifier);
     }
 
     /**
@@ -231,11 +231,11 @@ public class RemoteManage implements Manage {
         baseQuery.put("entityid", entityID);
 
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
-                url,
-                EntityType.saml20_idp.name());
+            url,
+            EntityType.saml20_idp.name());
         List<Map<String, Object>> identityProviders = restTemplate.postForObject(
-                searchUrl,
-                baseQuery, List.class);
+            searchUrl,
+            baseQuery, List.class);
         if (identityProviders.isEmpty()) {
             throw new NotFoundException("No identityProviders found for entityID: " + entityID);
         }
@@ -267,16 +267,16 @@ public class RemoteManage implements Manage {
         Map<String, Object> baseQuery = getBaseQuery(false);
         baseQuery.put("entityid", entityIdentifiers);
         return Stream.of(EntityType.oidc10_rp, EntityType.saml20_sp)
-                .flatMap(entityType -> {
-                    String searchUrl = String.format("%s/manage/api/internal/search/%s",
-                            url,
-                            entityType.name());
-                    List<Map<String, Object>> providers = restTemplate.postForObject(
-                            searchUrl,
-                            baseQuery,
-                            List.class);
-                    return providers.stream();
-                }).toList();
+            .flatMap(entityType -> {
+                String searchUrl = String.format("%s/manage/api/internal/search/%s",
+                    url,
+                    entityType.name());
+                List<Map<String, Object>> providers = restTemplate.postForObject(
+                    searchUrl,
+                    baseQuery,
+                    List.class);
+                return providers.stream();
+            }).toList();
     }
 
     //Unlike serviceProvidersByEntityID, this returns the full provider record (ALL_ATTRIBUTES, not the light
@@ -288,8 +288,8 @@ public class RemoteManage implements Manage {
         Map<String, Object> baseQuery = getBaseQuery(true);
         baseQuery.put("entityid", entityIdentifiers);
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
-                url,
-                EntityType.oidc10_rp.name());
+            url,
+            EntityType.oidc10_rp.name());
         List<Map<String, Object>> providers = restTemplate.postForObject(searchUrl, baseQuery, List.class);
         return providers.stream().map(this::sanitizeProvider).toList();
     }
@@ -301,7 +301,7 @@ public class RemoteManage implements Manage {
         LOG.debug("relyingPartiesByAllowedResourceServer for : " + resourceServerEntityId);
 
         Map<String, Object> query = Map.of(
-                "data.allowedResourceServers.name", resourceServerEntityId
+            "data.allowedResourceServers.name", resourceServerEntityId
         );
         String searchUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.oidc10_rp.name());
         List<Map<String, Object>> providers = restTemplate.postForObject(searchUrl, query, List.class);
@@ -316,8 +316,8 @@ public class RemoteManage implements Manage {
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
 
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
-                url,
-                EntityType.saml20_idp.name());
+            url,
+            EntityType.saml20_idp.name());
         return restTemplate.postForObject(searchUrl, baseQuery, List.class);
     }
 
@@ -332,8 +332,8 @@ public class RemoteManage implements Manage {
         requestedAttributes.add("metaDataFields.description:en");
         requestedAttributes.add("metaDataFields.description:nl");
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
-                url,
-                EntityType.saml20_idp.name());
+            url,
+            EntityType.saml20_idp.name());
         return restTemplate.postForObject(searchUrl, baseQuery, List.class);
     }
 
@@ -371,14 +371,22 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public Map<String, Integer> connectedApps(String manageIdentifier) {
+        LOG.debug("connectedApps");
+
+        String connectedAppsUrl = String.format("%s/manage/api/internal/connected-apps", url);
+        return restTemplate.postForObject(connectedAppsUrl, manageIdentifier, Map.class);
+    }
+
+    @Override
     public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
         List<Map<String, String>> body = connections.stream()
-                .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
-                        connection.getState().equals(State.prodaccepted))
-                .map(connection -> Map.of(
-                        "id", connection.getManageIdentifier(),
-                        "type", connection.getProtocol().name()))
-                .toList();
+            .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&
+                connection.getState().equals(State.prodaccepted))
+            .map(connection -> Map.of(
+                "id", connection.getManageIdentifier(),
+                "type", connection.getProtocol().name()))
+            .toList();
         if (body.isEmpty()) {
             //No use to actually go to Manage
             return List.of();
@@ -392,21 +400,21 @@ public class RemoteManage implements Manage {
                                                                String serviceProviderEntityId) {
         // Build query using immutable Maps to ensure proper JSON serialization and prevent injection
         Map<String, Object> identityProviderOrCondition = Map.of(
-                "data.identityProviderIds.name", identityProviderEntityId
+            "data.identityProviderIds.name", identityProviderEntityId
         );
         Map<String, Object> identityProviderExistsFalseCondition = Map.of(
-                "data.identityProviderIds", Map.of("$exists", false)
+            "data.identityProviderIds", Map.of("$exists", false)
         );
         Map<String, Object> identityProviderSizeZeroCondition = Map.of(
-                "data.identityProviderIds", Map.of("$size", 0)
+            "data.identityProviderIds", Map.of("$size", 0)
         );
         Map<String, Object> query = Map.of(
-                "data.serviceProviderIds.name", serviceProviderEntityId,
-                "$or", List.of(
-                        identityProviderSizeZeroCondition,
-                        identityProviderExistsFalseCondition,
-                        identityProviderOrCondition
-                )
+            "data.serviceProviderIds.name", serviceProviderEntityId,
+            "$or", List.of(
+                identityProviderSizeZeroCondition,
+                identityProviderExistsFalseCondition,
+                identityProviderOrCondition
+            )
         );
         String policyUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.policy);
         return restTemplate.postForEntity(policyUrl, query, List.class).getBody();
@@ -418,7 +426,7 @@ public class RemoteManage implements Manage {
             return List.of();
         }
         Map<String, Object> query = Map.of(
-                "data.serviceProviderIds.name", Map.of("$in", serviceProviderEntityIds)
+            "data.serviceProviderIds.name", Map.of("$in", serviceProviderEntityIds)
         );
         String policyUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.policy);
         return restTemplate.postForEntity(policyUrl, query, List.class).getBody();
@@ -427,7 +435,7 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> policiesByIdentityProvider(String identityProviderEntityId) {
         Map<String, Object> query = Map.of(
-                "data.identityProviderIds.name", identityProviderEntityId
+            "data.identityProviderIds.name", identityProviderEntityId
         );
         String policyUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.policy);
         return restTemplate.postForEntity(policyUrl, query, List.class).getBody();
@@ -461,16 +469,16 @@ public class RemoteManage implements Manage {
     @Override
     public void deletePolicy(Map<String, Object> policy) {
         String policyUrl = String.format("%s/manage/api/internal/metadata/%s/%s",
-                url, EntityType.policy.name(), policy.get("id"));
+            url, EntityType.policy.name(), policy.get("id"));
         restTemplate.delete(policyUrl);
     }
 
     @Override
     public Map<String, List<Map<String, Object>>> autoCompleteEntities(EntityType type, String query) {
         String autocompleteUrl = String.format("%s/manage/api/internal/autocomplete/%s?query=%s",
-                url,
-                type.name(),
-                URLEncoder.encode(query, Charset.defaultCharset()));
+            url,
+            type.name(),
+            URLEncoder.encode(query, Charset.defaultCharset()));
         return restTemplate.getForObject(autocompleteUrl, Map.class);
     }
 

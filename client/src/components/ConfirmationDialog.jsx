@@ -27,7 +27,7 @@ export default function ConfirmationDialog({
                 {confirmationHeader && <DialogHeader>
                     <DialogTitle className={isError ? "error" : ""}>{confirmationHeader}</DialogTitle>
                 </DialogHeader>}
-                {question && <p dangerouslySetInnerHTML={{__html: sanitize(question)}}/>}
+                {question && <p className="confirmation-question" dangerouslySetInnerHTML={{__html: sanitize(question)}}/>}
                 {children}
                 {(cancel || confirm) && <DialogFooter>
                     {cancel && <Button variant="outline" onClick={cancel}>

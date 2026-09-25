@@ -60,6 +60,8 @@ public interface Manage {
 
     Map<String, Integer> stats();
 
+    Map<String, Integer> connectedApps(String manageIdentifier);
+
     List<Map<String, Object>> identityProvidersLight();
 
     List<Map<String, Object>> serviceProvidersLight();

@@ -26,7 +26,13 @@ import {
     Button,
     Card,
     CardContent,
-    Spinner
+    Spinner,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from "@surfnet/curve-react";
 import {WarningIcon, PlusIcon, XCircleIcon, PencilSimpleIcon, InfoIcon, ClockIcon, HourglassHighIcon} from "@phosphor-icons/react";
 import StudentPng from "../icons/student2.png";
@@ -123,8 +129,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [serviceProvider, setServiceProvider] = useState({});
     const [accessRoles, setAccessRoles] = useState({});
     const [policies, setPolicies] = useState([]);
-    const [showAttributes, setShowAttributes] = useState(false);
-    const [showPrivacy, setShowPrivacy] = useState(false);
     const [metaData, setMetaData] = useState({});
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -227,7 +231,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
-    const regPolicies = policies.filter(policy => policy.data.type === policyTypes.reg);
     const stepPolicies = policies.filter(policy => policy.data.type === policyTypes.step);
 
     const externalLink = (link, metaData, index) => {
@@ -242,16 +245,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 {link.localeAttribute ? I18n.t(`${link.locale}.${attribute.replace(/\./g, '')}`) : I18n.t(link.locale)}
             </a>
         );
-    }
-
-    const toggleShowAttributes = e => {
-        stopEvent(e);
-        setShowAttributes(!showAttributes);
-    }
-
-    const toggleShowPrivacy = e => {
-        stopEvent(e);
-        setShowPrivacy(!showPrivacy);
     }
 
     const findArpEntry = urn => {
@@ -431,9 +424,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 open: true,
                 cancel: () => cancelConfirmation(),
                 action: () => doRequestDisconnection(false),
-                title: null,
+                title: I18n.t("applicationConnect.disconnectConfirmTitle"),
                 question: I18n.t(`applicationConnect.disconnectRequestedQuestion${config.testEnvironment ? "Test" : ""}`),
-                okButton: I18n.t(`applicationConnect.disconnectRequested${config.testEnvironment ? "Test" : ""}`)
+                okButton: I18n.t(`applicationConnect.disconnectRequested${config.testEnvironment ? "Test" : ""}`),
+                isDeleteAction: true,
+                className: "centered"
             });
         } else {
             cancelConfirmation();
@@ -583,44 +578,41 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     <Accordion defaultValue={["policies", "roles"]} className="access-accordion">
                         <AccordionItem value="policies">
                             <div className="accordion-header-row">
-                                <AccordionTrigger className="accordion-trigger-title">
-                                    {`${I18n.t("appAccess.regularPolicies")} (${regPolicies.length})`}
-                                </AccordionTrigger>
-                                <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.reg)}>
-                                    <PlusIcon/>
-                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAccessRule"))}}/>
-                                </Button>
+                                <p className="accordion-trigger-title">
+                                    {`${I18n.t("appAccess.pdpPolicies")} (${policies.length})`}
+                                </p>
+                                <div className="accordion-header-actions">
+                                    <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.reg)}>
+                                        <PlusIcon/>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAccessRule"))}}/>
+                                    </Button>
+                                    <AccordionTrigger className="accordion-toggle"/>
+                                </div>
                             </div>
                             <AccordionContent>
-                                {isEmpty(regPolicies) &&
-                                    <div className="access-card grey border">
-                                        <p>{I18n.t("appAccess.noRegularPolicies")}</p>
-                                    </div>}
-                                {!isEmpty(regPolicies) &&
+                                {isEmpty(policies) &&
+                                    <p className="zero-state">{I18n.t("appAccess.noPolicies")}</p>
+                                }
+                                {!isEmpty(policies) &&
                                     <div className="access-detail-cards">
-                                        {regPolicies.map(policy => renderPolicyCard(policy))}
+                                        {policies.map(policy => renderPolicyCard(policy))}
                                     </div>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="roles">
                             <div className="accordion-header-row">
-                                <AccordionTrigger className="accordion-trigger-title">
+                                <p className="accordion-trigger-title">
                                     {`${I18n.t("appAccess.rolesTitle")} (${isEmpty(accessRoles) ? 0 : accessRoles.length})`}
-                                </AccordionTrigger>
-                                <Button variant="outline" onClick={openRoleManagement}>
-                                    <PlusIcon/>
-                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
-                                </Button>
+                                </p>
+                                <div className="accordion-header-actions">
+                                    <Button variant="outline" onClick={openRoleManagement}>
+                                        <PlusIcon/>
+                                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
+                                    </Button>
+                                    <AccordionTrigger className="accordion-toggle"/>
+                                </div>
                             </div>
                             <AccordionContent>
-                                {!isAccessRoleReady(serviceProvider) &&
-                                    <Alert variant="danger">
-                                        <WarningIcon weight="fill"/>
-                                        <AlertDescription>
-                                            <p className="alert-title">{I18n.t("appAccess.noRolesTitle")}</p>
-                                            <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noRolesInfo"))}}/>
-                                        </AlertDescription>
-                                    </Alert>}
                                 {!isEmpty(accessRoles) &&
                                     <div className="access-detail-cards">
                                         {accessRoles.map((role, index) => renderRoleCard(role, index))}
@@ -628,16 +620,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
-                    <div className="app-access-decentral">
-                        <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("appAccess.decentralAccess")}</h2>
-                        <InfoBlock className="no-gap grey row">
-                            <div className="not-allowed-container">
-                                <NotAllowedIcon/>
-                                <p
-                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("appAccess.noDecentralAccess"))}}/>
-                            </div>
-                        </InfoBlock>
-                    </div>
                 </div>
             </>
         );
@@ -746,8 +728,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                      level: option ? option.value : null
                                  })}
                     />
-                    {stepupLoaTooLow && <ErrorIndicator standalone={true}
-                                                        msg={I18n.t("assurance.loaTooLow")}/>}
+                    {stepupLoaTooLow &&
+                        <ErrorIndicator standalone={true}
+                                        msg={I18n.t("assurance.loaTooLow")}/>}
                     <div className="access-accordion">
                         <div className="accordion-header-row">
                             <h2 className="accordion-trigger-title text-[length:var(--text-xl-font-size)]">
@@ -817,9 +800,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         __html: DOMPurify.sanitize(I18n.t("consent.warnings"))
                     }}/>
                     <InputField name={I18n.t("consent.warningEN")}
+                                optional={true}
+                                placeholder={I18n.t("consent.warningENPlaceholder")}
                                 value={consent["explanation:en"]}
                                 onChange={e => setConsent({...consent, ["explanation:en"]: e.target.value})}/>
                     <InputField name={I18n.t("consent.warningNL")}
+                                optional={true}
+                                placeholder={I18n.t("consent.warningNLPlaceholder")}
                                 value={consent["explanation:nl"]}
                                 onChange={e => setConsent({...consent, ["explanation:nl"]: e.target.value})}/>
                     <div className="consent-actions">
@@ -866,8 +853,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderAccessibleApp = () => {
-        const website = I18n.locale === "en" ? metaData["OrganizationURL:en"] :
-            (metaData["OrganizationURL:nl"] || metaData["OrganizationURL:en"]);
         return (
             <>
                 <div className="application-detail-header-container">
@@ -879,25 +864,28 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <div className="application-header">
                             {renderLogo(metaData)}
                             <div className="application-header-details">
+                                <p className="organization">{providerOrganizationName(I18n.locale, serviceProvider)}</p>
                                 <div className="application-header-top">
-                                    <h3 className="text-[length:var(--text-2xl-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
-                                    <Badge variant={badgeVariantForConnectionStatus()}>
-                                        {readOnly && <ClockIcon data-icon="inline-start"/>}
-                                        {translationForConnectionStatus()}
-                                    </Badge>
-                                    {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
-                                        && <Button onClick={() => doRequestDisconnection(true)}
-                                                   variant="ghost">
-                                            <XCircleIcon/>
-                                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationConnect.disconnect"))}}/>
-                                        </Button>
-                                    }
+                                    <div className="application-header-top-title">
+                                        <h3 className="text-[length:var(--text-2xl-font-size)]">{providerName(I18n.locale, serviceProvider)}</h3>
+                                        <Badge variant={badgeVariantForConnectionStatus()}>
+                                            {readOnly && <ClockIcon data-icon="inline-start"/>}
+                                            {translationForConnectionStatus()}
+                                        </Badge>
+                                    </div>
+
+
+                                    <div className="application-header-actions">
+
+                                        {(!readOnly && currentOrganization.manageIdentifier && isAdminUser && !pendingDisconnect)
+                                            && <Button onClick={() => doRequestDisconnection(true)}
+                                                       variant="outline">
+                                                <XCircleIcon/>
+                                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationConnect.disconnect"))}}/>
+                                            </Button>
+                                        }
+                                    </div>
                                 </div>
-                                <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                                {!isEmpty(website) &&
-                                    <a className="application-website" href={website} target="_blank" rel="noopener noreferrer">
-                                        {website.replace(/^https?:\/\//, "")}
-                                    </a>}
                             </div>
                         </div>
                     </TabHeader>
@@ -910,57 +898,51 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderAppAttributes = () => {
+        const attributeEntries = serviceProvider.data.arp?.enabled ? Object.entries(serviceProvider.data.arp.attributes) : [];
         return (
-            <div className="details-panel">
+            <section className="details-section">
                 <p className="title">{I18n.t("applicationDetail.attributes")}</p>
-                <p>{I18n.t("applicationDetail.attributesInfo")}</p>
-                {!showAttributes && <Button variant="link" onClick={toggleShowAttributes}>
-                    {I18n.t("applicationDetail.details")}
-                </Button>}
-                {showAttributes && <div className="arp-attributes">
-                    {!serviceProvider.data.arp.enabled &&
-                        <p>{I18n.t("applicationDetail.noArp")}</p>
-                    }
-                    {serviceProvider.data.arp.enabled &&
-                        <>
-                            {Object.entries(serviceProvider.data.arp.attributes).map((entry, index) => {
+                {!serviceProvider.data.arp?.enabled &&
+                    <p>{I18n.t("applicationDetail.noArp")}</p>
+                }
+                {serviceProvider.data.arp?.enabled &&
+                    <Table className="attributes-table">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{I18n.t("applicationDetail.attributeColumns.name")}</TableHead>
+                                <TableHead>{I18n.t("applicationDetail.attributeColumns.example")}</TableHead>
+                                <TableHead>{I18n.t("applicationDetail.attributeColumns.technicalName")}</TableHead>
+                                <TableHead>{I18n.t("applicationDetail.attributeColumns.source")}</TableHead>
+                                <TableHead>{I18n.t("applicationDetail.attributeColumns.explanation")}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {attributeEntries.map((entry, index) => {
                                 const attribute = findArpEntry(entry[0]);
                                 //ARP entries only have one value / source
                                 const value = entry[1][0];
-                                const source = I18n.t(`applicationDetail.arpSources.${value.source}`);
                                 return (
-                                    <div className="attribute" key={index}>
-                                                            <span
-                                                                className="attr-name">{attribute.friendlyNames[I18n.locale]}</span>
-                                        {!isEmpty(value.motivation) &&
-                                            <span
-                                                className="attr-motivation">{value.motivation}</span>}
-                                        {isEmpty(value.motivation) && <span
-                                            className="attr-motivation">{I18n.t("applicationDetail.noMotivation")}</span>}
-                                        <span className="attr-source">
-                                                         {`${entry[0]} - ${I18n.t("applicationDetail.source")} ${source}`}
-                                                            </span>
-                                    </div>
+                                    <TableRow key={index}>
+                                        <TableCell>{attribute.friendlyNames[I18n.locale]}</TableCell>
+                                        <TableCell>{attribute.example}</TableCell>
+                                        <TableCell>{attribute.name}</TableCell>
+                                        <TableCell>{I18n.t(`applicationDetail.arpSources.${value.source}`)}</TableCell>
+                                        <TableCell>{isEmpty(value.motivation) ? "" : value.motivation}</TableCell>
+                                    </TableRow>
                                 );
                             })}
-                        </>
-                    }
-                </div>}
-                {showAttributes && <Button variant="link" onClick={toggleShowAttributes}>
-                    {I18n.t("applicationDetail.hide")}
-                </Button>}
-            </div>
+                        </TableBody>
+                    </Table>
+                }
+            </section>
         );
     }
 
     function renderAppPrivacy() {
-        return <div className="details-panel">
-            <p className="title">{I18n.t("applicationDetail.privacy")}</p>
-            <p>{I18n.t("applicationDetail.privacyInfo")}</p>
-            {!showPrivacy && <Button variant="link" onClick={toggleShowPrivacy}>
-                {I18n.t("applicationDetail.details")}
-            </Button>}
-            {showPrivacy &&
+        return (
+            <section className="details-section">
+                <p className="title">{I18n.t("applicationDetail.privacy")}</p>
+                <p>{I18n.t("applicationDetail.privacyInfo")}</p>
                 <div className="privacy-questions">
                     {privacy.map((item, index) => {
                             const question = item[`info_${I18n.locale}`];
@@ -969,32 +951,36 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             return (
                                 <div className="privacy-question" key={index}>
                                     <span className="priv-name">{strippedQuestion}</span>
-                                    {isEmpty(answer) && <span
-                                        className="priv-answer">{I18n.t("applicationDetail.noPrivacyInfo")}</span>}
-                                    {!isEmpty(answer) &&
-                                        <span className="priv-answer">{answer}</span>}
+                                    <span className="priv-answer">
+                                        {isEmpty(answer) ? I18n.t("applicationDetail.noPrivacyInfo") : answer}
+                                    </span>
                                 </div>
                             );
                         }
                     )}
-                </div>}
-            {showPrivacy && <Button variant="link" onClick={toggleShowPrivacy}>
-                {I18n.t("applicationDetail.hide")}
-            </Button>}
-
-        </div>;
+                </div>
+            </section>
+        );
     }
 
     const renderQuickLinks = () => {
+        const links = APPLICATION_LINKS.map((link, index) => externalLink(link, metaData, index))
+            .filter(link => link !== null);
+        if (isEmpty(links)) {
+            return null;
+        }
         return (
-            <>
-                <p className="info no-margin">{I18n.t("applicationDetail.quickLinks")}</p>
-                <div className="app-info-block">
-                    {APPLICATION_LINKS.map((link, index) =>
-                        externalLink(link, metaData, index)
-                    )}
+            <section className="details-section">
+                <p className="title">{I18n.t("applicationDetail.quickLinks")}</p>
+                <div className="quick-links">
+                    {links.map((link, index) => (
+                        <React.Fragment key={link.key}>
+                            {link}
+                            {index < links.length - 1 && <span className="separator">|</span>}
+                        </React.Fragment>
+                    ))}
                 </div>
-            </>
+            </section>
         );
     }
 
@@ -1004,16 +990,20 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderDetailsApp = () => {
+        const description = providerDescription(I18n.locale, serviceProvider);
         return (
-            <div className={`details ${anonymous ? "anonymous" : ""}`}>
-                <div className="left">
-                    <p>{providerDescription(I18n.locale, serviceProvider)}</p>
-                    {renderAppAttributes()}
-                    {renderAppPrivacy()}
-                </div>
-                <div className="right">
-                    {renderQuickLinks()}
-                    <p className="info">{I18n.t("applicationDetail.contractual")}</p>
+            <div className="details">
+                {!isEmpty(description) &&
+                    <section className="details-section">
+                        <p className="title">{I18n.t("applicationDetail.description")}</p>
+                        <p>{description}</p>
+                    </section>
+                }
+                {renderQuickLinks()}
+                {renderAppAttributes()}
+                {renderAppPrivacy()}
+                <section className="details-section">
+                    <p className="title">{I18n.t("applicationDetail.contractual")}</p>
                     <p>
                                 <span>
                                     {metaData["coin:contractual_base"] ?
@@ -1029,8 +1019,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </p>
                     <p>{I18n.t("applicationDetail.contractualInfoOrganization",
                         {name: providerOrganizationName(I18n.locale, serviceProvider)})}</p>
-                    <p className="info">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
-                    <div className="app-info-block">
+                </section>
+                <section className="details-section">
+                    <p className="title">{I18n.t("applicationDetail.supportedEntityCategories")}</p>
+                    <div className="entity-categories">
                         {[1, 2, 3, 4].map(nbr =>
                             externalLink({
                                 locale: "applicationDetail.entityCategory",
@@ -1043,18 +1035,18 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                             <p>{I18n.t("applicationDetail.none")}</p>
                         }
                     </div>
-                    {metaData["mdrpi:RegistrationInfo"] && (
-                        <div className="federation-source">
-                            <p className="info">{I18n.t('applicationDetail.interfedSource')}</p>
-                            <span
-                                dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
-                                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']}),
-                                }}
-                            />
-                        </div>
-                    )}
-                </div>
+                </section>
+                {metaData["mdrpi:RegistrationInfo"] && (
+                    <section className="details-section">
+                        <p className="title">{I18n.t('applicationDetail.interfedSource')}</p>
+                        <span
+                            dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(I18n.t('applicationDetail.registrationInfo', {url: metaData["mdrpi:RegistrationInfo"]}),
+                                    {ADD_ATTR: ['target'], ADD_TAGS: ['rel']}),
+                            }}
+                        />
+                    </section>
+                )}
             </div>
         );
     }
@@ -1113,13 +1105,15 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         );
     }
 
-    const {open, cancel, isError, action, question, title, okButton} = confirmation;
+    const {open, cancel, isError, action, question, title, okButton, isDeleteAction, className} = confirmation;
 
     return (
         <div className={`application-detail-container`}>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          isError={isError}
+                                         isDeleteAction={isDeleteAction}
+                                         className={className}
                                          disabledConfirm={confirmationModalOption === confirmationModalOptions.requestConnectionByMember
                                              && isEmpty(message)}
                                          confirmationTxt={okButton}

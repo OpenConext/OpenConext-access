@@ -131,6 +131,18 @@ public class ApplicationController implements UserAccessRights {
         return ResponseEntity.ok(applications);
     }
 
+    @GetMapping("/count/{organizationId}")
+    public ResponseEntity<Long> countByOrganization(User user, @PathVariable Long organizationId) {
+        LOG.debug("/countByOrganization for " + user.getEmail());
+
+        Organization organization = organizationRepository.findById(organizationId)
+            .orElseThrow(() -> new NotFoundException("Organization not found"));
+        confirmOrganizationMembership(user, organization, Authority.GUEST);
+
+        long count = applicationRepository.countByOrganization(organization);
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping({"/{applicationId}"})
     @SuppressWarnings("unchecked")
     public ResponseEntity<Application> find(User user, @PathVariable("applicationId") Long applicationId) {

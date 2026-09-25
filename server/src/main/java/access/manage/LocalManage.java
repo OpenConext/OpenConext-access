@@ -276,6 +276,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public Map<String, Integer> connectedApps(String manageIdentifier) {
+        return Map.of(EntityType.saml20_idp.name(), 6);
+    }
+
+    @Override
     public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
         List<String> entityIdentifiers = connections.stream()
                 .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
