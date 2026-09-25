@@ -27,6 +27,17 @@ jobs:
       - name: Copy Changelog to server resources
         run: cp Changelog.md server/src/main/resources/Changelog.md
 
+      - name: Clone app customizations repository
+        run: |
+          git clone --branch feature/89-override-setup \
+            https://github.com/OpenConext/OpenConext-access-custom-surf.git \
+            app-customizations
+
+      - name: Create app customization symlinks
+        run: |
+          ln -s ../../../app-customizations/client client/src/appCustomizations/myCustomizations
+          ln -s ../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
+
       - uses: actions/setup-java@v6
         with:
           java-version: 21
