@@ -29,7 +29,7 @@ jobs:
 
       - name: Clone app customizations repository
         run: |
-          git clone --branch main \
+          git clone --branch feature/89-override-setup-openconext_test-DO_NOT_MERGE \
             https://github.com/OpenConext/OpenConext-access-custom-surf.git \
             app-customizations
 
