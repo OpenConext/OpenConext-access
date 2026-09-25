@@ -176,7 +176,8 @@ const Institutions = () => {
                                     .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
                                     .map((idp, index) => {
                                             const metaData = idp.data.metaDataFields;
-                                            const type = metaData["coin:institution_type"] || I18n.t("institutions.other");
+                                            const type = I18n.t(`institutionTypes.${metaData["coin:institution_type"]}`,
+                                                {defaultValue: I18n.t("institutions.other")});
                                             return (
                                                 <li key={index}>
                                                     <div className="identity-provider">

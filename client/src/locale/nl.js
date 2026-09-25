@@ -784,6 +784,21 @@ const nl = {
         other: "Overig",
         searchPlaceHolder: "Zoek instellingen...",
     },
+    // Keyed by de ruwe coin:institution_type waarde uit Manage - zie Institutions.jsx
+    institutionTypes: {
+        HBO: "HBO",
+        MBO: "MBO",
+        Universiteiten: "Universiteit",
+        "Aan hoger onderwijs gelieerde instellingen": "Aan hoger onderwijs gelieerde instelling",
+        Onderzoeksinstellingen: "Onderzoeksinstelling",
+        "Overig hoger onderwijs": "Overige",
+        STZ: "STZ ziekenhuis",
+        UMC: "Universitair Medisch Centrum",
+        Bibliotheken: "Bibliotheek",
+        Musea: "Museum",
+        OSP: "Ondersteuningspunt",
+        "Grote technologische instituten": "Grote technologische instituten",
+    },
     applications: {
         title: "Applicaties",
         subTitle: "Blader door applicaties die momenteel verbonden zijn met SURF Access, onderverdeeld in categorieën. Sommige zijn direct via SURFconext verbonden, andere via eduGAIN.",

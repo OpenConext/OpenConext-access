@@ -784,6 +784,21 @@ const en = {
         other: "Other",
         searchPlaceHolder: "Search institutions...",
     },
+    // Keyed by the raw coin:institution_type value from Manage - see Institutions.jsx
+    institutionTypes: {
+        HBO: "HBO",
+        MBO: "MBO",
+        Universiteiten: "University",
+        "Aan hoger onderwijs gelieerde instellingen": "Institution affiliated with higher education",
+        Onderzoeksinstellingen: "Research institution",
+        "Overig hoger onderwijs": "Other",
+        STZ: "STZ hospital",
+        UMC: "University Medical Center",
+        Bibliotheken: "Library",
+        Musea: "Museum",
+        OSP: "Support point",
+        "Grote technologische instituten": "Large technological institutes",
+    },
     applications: {
         title: "Applications",
         subTitle: "Browse applications currently connected to SURF Access, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
