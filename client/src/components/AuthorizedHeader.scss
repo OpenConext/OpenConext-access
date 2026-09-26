@@ -18,14 +18,9 @@
 .guest-authorized-header {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    gap: 25px;
     width: 100%;
     background-color: white;
-
-    button:first-child {
-        margin: 25px 0 0 auto;
-    }
-
-    button:last-child {
-        margin: 25px 60px 0 25px;
-    }
+    padding: 25px 60px 0 0;
 }

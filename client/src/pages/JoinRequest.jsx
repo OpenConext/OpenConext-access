@@ -58,9 +58,10 @@ const JoinRequest = ({refreshUser}) => {
                 <InputField name={I18n.t("joinRequest.optionalMessage")}
                             info={I18n.t("joinRequest.optionalMessageInfo")}
                             onChange={e => setMessage(e.target.value)}
+                            optional={true}
                             value={message}
                             multiline={true}
-                            placeholder={I18n.t("joinRequest.optionalMessagePlaceHolder")}/>
+                            />
                 <section className="actions">
                     <Button variant="outline"
                             onClick={() => navigate("/landing")}>

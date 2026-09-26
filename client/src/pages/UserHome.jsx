@@ -80,7 +80,7 @@ const UserHome = () => {
             return (
                 <Alert variant={"info"} className="w-[520px]">
                     <HourglassIcon/>
-                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newJoinRequestDescription", {name: user.joinRequests[0].organization.name}))}}/>
+                    <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newJoinRequestDescription", {name: user.joinRequests[0].organization.name}))}}/>
                 </Alert>
             )
         }

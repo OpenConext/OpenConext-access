@@ -137,7 +137,7 @@ const Landing = ({refreshUser}) => {
                     {(!isEmpty(search) && !exactMatch && !loading && search.trim().length > 2) && <>
                         {isEmpty(organizations) &&
                             <>
-                                <p>{I18n.t("welcome.zeroState")}</p>
+                                <p className="zero-state">{I18n.t("welcome.zeroState", {name: search})}</p>
                                 <Button onClick={() => createOrganization()}>
                                     <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("welcome.registerLink", {name: search}))}}/>
                                 </Button>

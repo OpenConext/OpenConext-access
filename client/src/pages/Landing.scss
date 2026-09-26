@@ -19,12 +19,18 @@
 
     .sub-info {
         margin-top: -15px;
+        color: var(--base-muted-foreground, #525252);
+    }
+
+    .zero-state {
+        color: var(--base-muted-foreground, #525252);
     }
 
     .found {
         margin-bottom: -25px;
         font-weight: 500;
     }
+
     .inner-search {
         position: relative;
 
@@ -77,6 +83,7 @@
             }
 
         }
+
         .register {
             span {
                 margin-right: 5px;
