@@ -187,6 +187,9 @@ public class ApplicationController implements UserAccessRights {
                         connectionRepository.save(connection);
                     }
                 }
+                //Not part of the RS's own Manage entity (see Connection#mergeMetaData) - always re-derived from
+                //the relying parties that currently allow this resource server
+                refreshAllowedResourceServers(connection, manage);
             });
         Map<String, Object> provider = latestChangedProvider.get();
         if (provider != null) {

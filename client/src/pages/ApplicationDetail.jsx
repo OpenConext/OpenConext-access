@@ -590,8 +590,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 </p>
                                 <div className="accordion-header-actions">
                                     <Button variant="outline" onClick={openRoleManagement}>
-                                        <ArrowSquareOutIcon/>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
+                                        <ArrowSquareOutIcon/>
                                     </Button>
                                     <AccordionTrigger className="accordion-toggle"/>
                                 </div>

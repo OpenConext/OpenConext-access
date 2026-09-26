@@ -3,6 +3,7 @@ package access.manage;
 import access.api.ApplicationController;
 import access.model.Application;
 import access.model.Connection;
+import access.model.EntityType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.util.StringUtils;
 
@@ -93,6 +94,25 @@ public class ManageData {
         return sanitizedProvider;
     }
 
+
+    //A resource server's allowed customers are not stored on its own Manage entity - they live on each relying
+    //party's own allowedResourceServers - so the local metaData cache used for client display is never refreshed
+    //by Connection#mergeMetaData (which only rebuilds metaData from the RS's own provider data) and must be
+    //re-derived from Manage explicitly, on every read and write response of a resource server connection
+    public static void refreshAllowedResourceServers(Connection connection, Manage manage) {
+        if (!EntityType.oauth20_rs.equals(connection.getProtocol())) {
+            return;
+        }
+        String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
+        if (!StringUtils.hasText(resourceServerEntityId)) {
+            return;
+        }
+        List<Map<String, String>> allowedResourceServers = manage.relyingPartiesByAllowedResourceServer(resourceServerEntityId)
+                .stream()
+                .map(relyingParty -> Map.of("name", getEntityID(relyingParty)))
+                .toList();
+        connection.getMetaData().put("allowedResourceServers", allowedResourceServers);
+    }
 
     public static boolean isEmpty(Object object) {
         return switch (object) {

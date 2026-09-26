@@ -138,6 +138,9 @@ public class ConnectionController implements UserAccessRights {
                     connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
                 }
             }
+            //Not part of the RS's own Manage entity (see mergeMetaData) - always re-derived from the relying
+            //parties that currently allow this resource server
+            refreshAllowedResourceServers(connection, manage);
         }
         return ResponseEntity.ok(connection);
     }
@@ -226,6 +229,11 @@ public class ConnectionController implements UserAccessRights {
         //Capture before merge() overwrites connection#eduIdAccessEnabled with connectionData's value
         boolean eduIdAccessChanged = connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled();
         connection.merge(connectionData);
+        //Capture the submitted allowedResourceServers now - for production-ready connections, the change-request
+        //path below calls mergeMetaData(), which rebuilds metaData from Manage's current state and never
+        //repopulates allowedResourceServers, so reading it from connection#getMetaData() after that point returns nothing
+        List<String> submittedAllowedResourceServers = isResourceServer ?
+            submittedAllowedResourceServerNames(connection) : Collections.emptyList();
 
         if (eduIdAccessChanged) {
             Map<String, Object> provider = manage.providerByConnection(connection);
@@ -250,7 +258,11 @@ public class ConnectionController implements UserAccessRights {
         }
 
         if (isResourceServer) {
-            this.syncAllowedResourceServers(connection, previousAllowedResourceServers);
+            this.syncAllowedResourceServers(connection, previousAllowedResourceServers, submittedAllowedResourceServers);
+            //The change-request path above (Connection#mergeMetaData) wipes the local allowedResourceServers cache
+            //and never repopulates it, so re-derive it from Manage - now reflecting the sync just performed - before
+            //returning the connection to the client
+            refreshAllowedResourceServers(connection, manage);
         }
         return connection;
     }
@@ -279,12 +291,11 @@ public class ConnectionController implements UserAccessRights {
     }
 
     @SuppressWarnings("unchecked")
-    private void syncAllowedResourceServers(Connection connection, List<String> previousNames) {
+    private void syncAllowedResourceServers(Connection connection, List<String> previousNames, List<String> currentNames) {
         String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
         if (!StringUtils.hasText(resourceServerEntityId)) {
             return;
         }
-        List<String> currentNames = submittedAllowedResourceServerNames(connection);
         List<String> added = currentNames.stream().filter(name -> !previousNames.contains(name)).toList();
         List<String> removed = previousNames.stream().filter(name -> !currentNames.contains(name)).toList();
         if (added.isEmpty() && removed.isEmpty()) {

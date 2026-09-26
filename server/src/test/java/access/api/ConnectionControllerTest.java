@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -677,6 +679,160 @@ class ConnectionControllerTest extends AbstractTest {
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
         assertEquals(State.prodaccepted, connectionFromDB.getState());
         assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
+    }
+
+    @SneakyThrows
+    @Test
+    void updateResourceServerSyncsAllowedResourceServersEvenWhenProductionReady() {
+        //Regression test: for a production-ready (state=prodaccepted) resource server, #doUpdateConnection routes
+        //through #productionReadyChangeRequests, which calls Connection#mergeMetaData - this rebuilds metaData
+        //from Manage's current data and never repopulates "allowedResourceServers", so reading the submitted
+        //customers from connection#getMetaData() *after* that call always returned an empty list. The fix captures
+        //the submitted names right after Connection#merge(), before that happens.
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application buddyCheck = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+
+        //See server/src/main/resources/manage/oauth20_rs.json - manageIdentifier "5" resolves to this entityid
+        String resourceServerEntityId = "eduid.demo.eduid.nl";
+        Connection resourceServer = new Connection("RS Test", buddyCheck, Map.of(
+            "entityID", resourceServerEntityId,
+            "scopes", List.of(Map.of("value", "openid", "label", "openid")),
+            "secret", "secret"),
+            EntityType.oauth20_rs);
+        resourceServer.setManageIdentifier("5");
+        resourceServer.setManageVersion(1);
+        resourceServer.setState(State.prodaccepted);
+        resourceServer.setStatus(ConnectionStatus.PROD_READY);
+        resourceServer.setSecretSet(true);
+        connectionRepository.save(resourceServer);
+
+        //Ground truth in Manage (see oidc10_rp.json): "https://calendar" is already an allowed customer of this
+        //resource server, "https://cloud" is not
+        super.stubForGetProvider(resourceServer);
+        super.stubForGetChangeRequests(List.of());
+        Map<String, String> manageChangeRequestResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageChangeRequestResponse))));
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(
+                localManage.relyingPartiesByAllowedResourceServer(resourceServerEntityId)))));
+        stubFor(post(urlPathMatching("/manage/api/internal/search/oidc10_rp")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(
+                localManage.relyingPartiesByEntityID(List.of("https://calendar", "https://cloud"))))));
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("{}")));
+
+        //The admin picks "https://cloud" as the only customer, dropping "https://calendar"
+        Map<String, Object> connectionData = objectMapper.convertValue(resourceServer, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", buddyCheck.getId()));
+        ((Map<String, Object>) connectionData.get("metaData"))
+            .put("allowedResourceServers", List.of(Map.of("name", "https://cloud")));
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        List<LoggedRequest> metaDataUpdates = findAll(putRequestedFor(urlPathMatching("/manage/api/internal/metadata")));
+        Map<String, Map<String, Object>> updatedDataByEntityId = metaDataUpdates.stream()
+            .map(request -> (Map<String, Object>) objectMapper.readValue(request.getBodyAsString(), new TypeReference<Map<String, Object>>() {
+            }).get("data"))
+            .collect(java.util.stream.Collectors.toMap(data -> (String) data.get("entityid"), data -> data));
+        assertEquals(2, updatedDataByEntityId.size(), "Both the newly added and the removed customer must be synced to Manage");
+
+        List<Map<String, String>> cloudAllowedResourceServers = (List<Map<String, String>>) updatedDataByEntityId
+            .get("https://cloud").getOrDefault("allowedResourceServers", List.of());
+        assertTrue(cloudAllowedResourceServers.stream().anyMatch(rs -> resourceServerEntityId.equals(rs.get("name"))),
+            "The newly selected customer must be granted access to the resource server");
+
+        List<Map<String, String>> calendarAllowedResourceServers = (List<Map<String, String>>) updatedDataByEntityId
+            .get("https://calendar").getOrDefault("allowedResourceServers", List.of());
+        assertTrue(calendarAllowedResourceServers.stream().noneMatch(rs -> resourceServerEntityId.equals(rs.get("name"))),
+            "The deselected customer must have its access to the resource server revoked");
+    }
+
+    @SuppressWarnings("unchecked")
+    @SneakyThrows
+    @Test
+    void findResourceServerPopulatesAllowedResourceServersFromManage() {
+        //Regression test: a resource server's own metaData never stores its allowed customers directly in Manage -
+        //the ground truth lives on each relying party's own allowedResourceServers - yet nothing re-derived this
+        //for display, so the customers multi-select in the client appeared empty both right after saving and after
+        //a hard refresh, even though Manage itself was updated correctly. This asserts both read paths the client
+        //relies on (the single connection endpoint and the application endpoint used to render the Connections tab)
+        //now populate metaData#allowedResourceServers from Manage.
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application buddyCheck = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+
+        //See server/src/main/resources/manage/oauth20_rs.json - manageIdentifier "5" resolves to this entityid
+        String resourceServerEntityId = "eduid.demo.eduid.nl";
+        //Note the local metaData deliberately has no "allowedResourceServers" key - mirroring the persisted state
+        //left behind by Connection#mergeMetaData, which never repopulates it
+        Connection resourceServer = new Connection("RS Test", buddyCheck, Map.of(
+            "entityID", resourceServerEntityId,
+            "scopes", List.of(Map.of("value", "openid", "label", "openid")),
+            "secret", "secret"),
+            EntityType.oauth20_rs);
+        resourceServer.setManageIdentifier("5");
+        resourceServer.setManageVersion(1);
+        resourceServer.setState(State.prodaccepted);
+        resourceServer.setStatus(ConnectionStatus.PROD_READY);
+        resourceServer.setSecretSet(true);
+        connectionRepository.save(resourceServer);
+
+        //Ground truth in Manage (see oidc10_rp.json): "https://calendar" is an allowed customer of this resource server
+        super.stubForGetProvider(resourceServer);
+        super.stubForGetChangeRequests(List.of());
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(
+                localManage.relyingPartiesByAllowedResourceServer(resourceServerEntityId)))));
+
+        Map<String, Object> connectionFromFind = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .get("/api/v1/connections/{id}", resourceServer.getId())
+            .as(new TypeRef<>() {
+            });
+        List<Map<String, String>> allowedResourceServersFromFind = (List<Map<String, String>>)
+            ((Map<String, Object>) connectionFromFind.get("metaData")).get("allowedResourceServers");
+        assertNotNull(allowedResourceServersFromFind, "GET /connections/{id} must populate allowedResourceServers from Manage");
+        assertTrue(allowedResourceServersFromFind.stream().anyMatch(rs -> "https://calendar".equals(rs.get("name"))));
+
+        //The existing BUDDY_CHECK_PROD connection is also fetched as part of the application - it needs its own provider stub
+        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
+
+        Map<String, Object> application = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .get("/api/v1/applications/{id}", buddyCheck.getId())
+            .as(new TypeRef<>() {
+            });
+        List<Map<String, Object>> connections = (List<Map<String, Object>>) application.get("connections");
+        Map<String, Object> resourceServerFromApplication = connections.stream()
+            .filter(connection -> resourceServer.getId().equals(((Number) connection.get("id")).longValue()))
+            .findFirst()
+            .orElseThrow();
+        List<Map<String, String>> allowedResourceServersFromApplication = (List<Map<String, String>>)
+            ((Map<String, Object>) resourceServerFromApplication.get("metaData")).get("allowedResourceServers");
+        assertNotNull(allowedResourceServersFromApplication,
+            "GET /applications/{id} (used to render the Connections tab) must populate allowedResourceServers from Manage");
+        assertTrue(allowedResourceServersFromApplication.stream().anyMatch(rs -> "https://calendar".equals(rs.get("name"))));
     }
 
     @Test
