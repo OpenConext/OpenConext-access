@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.JiraUnavailableException;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
@@ -36,7 +37,9 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/v1/contracts"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
+//JiraUnavailableException is thrown only after the contract has already been persisted - rolling back would
+//silently undo that persist while leaving no record that the contract was ever submitted
+@Transactional(noRollbackFor = JiraUnavailableException.class)
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
@@ -101,10 +104,11 @@ public class ContractController implements UserAccessRights {
         contract.setId(null);
         contract.setOrganization(organization);
         Contract saved = contractRepository.save(contract);
+        JiraClient.JiraCreateResult jiraResult = null;
         if (!config.isTestEnvironment()) {
             String summary = String.format("User %s submitted a contract for organization %s.",
                 user.getName(), organization.getName());
-            String jiraKey = jiraClient.create(new JiraIssue(
+            jiraResult = jiraClient.create(new JiraIssue(
                 organization.getName(),
                 null,
                 String.format("%s%nVisit: %s/system/contracts",
@@ -114,11 +118,15 @@ public class ContractController implements UserAccessRights {
                 user.getEmail(),
                 null
             ));
+            String jiraKey = jiraResult.keyOrPlaceholder();
             LOG.info("Created Jira issue for new Contract: " + jiraKey);
             saved.setTicketKey(jiraKey);
         }
         saved = contractRepository.save(saved);
-
+        //Only now that the contract is persisted - a Jira outage must not roll that back
+        if (jiraResult != null) {
+            jiraResult.throwIfFailed();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

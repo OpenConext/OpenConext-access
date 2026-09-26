@@ -1,6 +1,7 @@
 package access.jira;
 
 import access.AbstractMailTest;
+import access.exception.JiraUnavailableException;
 import access.model.EntityType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class JiraClientTest extends AbstractMailTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        String jiraKey = jiraClient.create(new JiraIssue(
+        JiraClient.JiraCreateResult result = jiraClient.create(new JiraIssue(
                 "serviceProviderEntityID",
                 "identityProviderEntityID",
                 "description",
@@ -47,7 +48,8 @@ class JiraClientTest extends AbstractMailTest {
                 EntityType.saml20_sp,
                 "mail@to.org",
                 null));
-        assertEquals("CTX-1000", jiraKey);
+        assertEquals("CTX-1000", result.key());
+        assertEquals("CTX-1000", result.keyOrPlaceholder());
     }
 
     @SneakyThrows
@@ -91,14 +93,22 @@ class JiraClientTest extends AbstractMailTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody("{\"errorMessages\":[\"Invalid field\"]}")));
 
-        assertThrows(HttpClientErrorException.class, () -> jiraClient.create(new JiraIssue(
+        //create() no longer throws directly - a Jira outage must not abort the caller before it can persist the
+        //change request/entity the ticket was meant to accompany - it returns the failure as a value instead
+        JiraClient.JiraCreateResult result = jiraClient.create(new JiraIssue(
                 "serviceProviderEntityID",
                 "identityProviderEntityID",
                 "description",
                 "summary",
                 EntityType.saml20_sp,
                 "mail@to.org",
-                null)));
+                null));
+
+        assertTrue(result.error() instanceof HttpClientErrorException);
+        assertEquals("JIRA-DOWN", result.keyOrPlaceholder());
+        //...and only throws once the caller explicitly asks it to, after that persist has happened
+        JiraUnavailableException thrown = assertThrows(JiraUnavailableException.class, result::throwIfFailed);
+        assertEquals(result.error(), thrown.getCause());
 
         var mail = mailMessage();
         assertTrue(mail.getHtmlContent().contains("create"));

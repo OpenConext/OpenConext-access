@@ -2,6 +2,7 @@ package access.jira;
 
 import access.config.Config;
 import access.exception.InvalidInputException;
+import access.exception.JiraUnavailableException;
 import access.mail.MailBox;
 import access.model.EntityType;
 import access.remote.RestTemplateFactory;
@@ -57,10 +58,38 @@ public class JiraClient {
         }
     }
 
+    //Callers must be able to still persist the change request / entity a Jira ticket was meant to accompany even
+    //when Jira itself is unavailable (see JiraCreateResult), rather than aborting before Manage/the DB is touched
+    public record JiraCreateResult(String key, RuntimeException error) {
+
+        private static final String UNAVAILABLE_PLACEHOLDER = "JIRA-DOWN";
+
+        private static JiraCreateResult success(String key) {
+            return new JiraCreateResult(key, null);
+        }
+
+        private static JiraCreateResult failure(RuntimeException error) {
+            return new JiraCreateResult(null, error);
+        }
+
+        //The key to store alongside the change request / entity, regardless of whether Jira succeeded
+        public String keyOrPlaceholder() {
+            return error == null ? key : UNAVAILABLE_PLACEHOLDER;
+        }
+
+        //Call after the change request / entity has been persisted - throws only now, so a failure here
+        //still alerts the caller without undoing the persist that already happened
+        public void throwIfFailed() {
+            if (error != null) {
+                throw new JiraUnavailableException(error);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    public String create(JiraIssue issue) {
+    public JiraCreateResult create(JiraIssue issue) {
         if (!jiraConfig.isEnabled()) {
-            return String.format("CXT-%s", ThreadLocalRandom.current().nextInt(1000, 10000));
+            return JiraCreateResult.success(String.format("CXT-%s", ThreadLocalRandom.current().nextInt(1000, 10000)));
         }
         Map<String, Object> fields = new HashMap<>();
         fields.put("project", Map.of("key", jiraConfig.getProjectKey()));
@@ -96,7 +125,7 @@ public class JiraClient {
                 mailBox.sendJiraError("create", url, jiraIssue.toString(), "Unexpected JIRA results", result.toString());
             }
 
-            return result.get("key");
+            return JiraCreateResult.success(result.get("key"));
         } catch (RuntimeException e) {
             String responseBody;
             if (e instanceof HttpClientErrorException clientException) {
@@ -117,12 +146,15 @@ public class JiraClient {
                     e);
             }
             mailBox.sendJiraError("create", url, jiraIssue.toString(), e.getMessage(), responseBody);
-            throw e;
+            return JiraCreateResult.failure(e);
         }
     }
 
     private static final Pattern JIRA_ISSUE_KEY = Pattern.compile("^[A-Z][A-Z0-9]*-[0-9]+$");
 
+    //Deliberately still throws directly, unlike #create: a comment is always posted on a ticket for a change
+    //request that already exists, so there is nothing pending on this call succeeding that would need protecting
+    //from a transaction rollback the way #create's callers do
     public void comment(String jiraKey, String comment) {
         if (!jiraConfig.isEnabled() || !StringUtils.hasText(jiraKey)) {
             return;

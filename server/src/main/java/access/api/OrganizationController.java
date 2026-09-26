@@ -2,6 +2,7 @@ package access.api;
 
 import access.config.Config;
 import access.exception.InvalidInputException;
+import access.exception.JiraUnavailableException;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.jira.JiraClient;
@@ -43,7 +44,9 @@ import static access.api.Results.deleteResult;
 
 @RestController
 @RequestMapping(value = {"/api/v1/organizations"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
+//JiraUnavailableException is thrown only after the organization has already been persisted - rolling back would
+//silently undo that persist while leaving no record that the organization was ever created
+@Transactional(noRollbackFor = JiraUnavailableException.class)
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
@@ -243,6 +246,7 @@ public class OrganizationController implements UserAccessRights {
         String orgName = newOrganization.getName();
         LOG.info(String.format("Creating new Organisation %s for %s", name, user.getEmail()));
         // Now create a Jira ticket
+        JiraClient.JiraCreateResult jiraResult = null;
         if (config.isTestEnvironment()) {
             LOG.info("Skipping creatiob of Jira issue for new Organization: " + orgName);
             newOrganization.setStatus(OrganizationStatus.APPROVED);
@@ -250,7 +254,7 @@ public class OrganizationController implements UserAccessRights {
             String summary = String.format("User %s created a new Organisation %s in Access.",
                 user.getName(),
                 orgName);
-            String jiraKey = jiraClient.create(new JiraIssue(
+            jiraResult = jiraClient.create(new JiraIssue(
                 orgName,
                 null,// There is no identity provider for approving organizations
                 String.format("%s The new organisation is pending approval. Visit to evaluate:%s%s",
@@ -262,6 +266,7 @@ public class OrganizationController implements UserAccessRights {
                 user.getEmail(),
                 null
             ));
+            String jiraKey = jiraResult.keyOrPlaceholder();
             LOG.info("Created Jira issue for new Organization: " + jiraKey);
             newOrganization.setTicketKey(jiraKey);
         }
@@ -270,6 +275,10 @@ public class OrganizationController implements UserAccessRights {
         // User becomes admin
         OrganizationMembership organizationMembership = new OrganizationMembership(user, savedOrganization, Authority.ADMIN);
         organizationMembershipRepository.save(organizationMembership);
+        //Only now that the organization and its membership are persisted - a Jira outage must not roll that back
+        if (jiraResult != null) {
+            jiraResult.throwIfFailed();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 

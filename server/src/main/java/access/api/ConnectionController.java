@@ -2,6 +2,7 @@ package access.api;
 
 import access.config.Config;
 import access.exception.InvalidInputException;
+import access.exception.JiraUnavailableException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
 import access.jira.JiraIssue;
@@ -64,7 +65,9 @@ import static access.manage.ManageData.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/connections"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
+//JiraUnavailableException is thrown only after the change request / connection has already been persisted -
+//rolling back would silently undo that persist while Manage (an external system) keeps the change it already made
+@Transactional(noRollbackFor = JiraUnavailableException.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 public class ConnectionController implements UserAccessRights {
@@ -400,7 +403,8 @@ public class ConnectionController implements UserAccessRights {
             user.getEmail(),
             connection.getManageIdentifier()
         );
-        String jiraKey = jiraClient.create(jiraIssue);
+        JiraClient.JiraCreateResult jiraResult = jiraClient.create(jiraIssue);
+        String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
             "notes", String.format("Production status requested by %s for %s. See Jira %s",
                 user.getName(), connection.getName(), jiraKey));
@@ -419,6 +423,8 @@ public class ConnectionController implements UserAccessRights {
 
         connection.setStatus(ConnectionStatus.PENDING_PROD);
         saveConnection(connection);
+        //Only now that Manage and the local connection reflect the request - a Jira outage must not roll that back
+        jiraResult.throwIfFailed();
         return jiraKey;
     }
 
@@ -482,7 +488,7 @@ public class ConnectionController implements UserAccessRights {
         String action = pathUpdateType.equals(PathUpdateType.ADDITION) ? "requested" : "revoked";
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Access for eduID users %s by %s for %s.", action, user.getName(), connection.getName());
-        String jiraKey = jiraClient.create(new JiraIssue(
+        JiraClient.JiraCreateResult jiraResult = jiraClient.create(new JiraIssue(
             entityId,
             null,// There is no single identity provider for an eduID access request
             String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
@@ -495,6 +501,7 @@ public class ConnectionController implements UserAccessRights {
             user.getEmail(),
             connection.getManageIdentifier()
         ));
+        String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
             "notes", String.format("Access for eduID users %s by %s for %s. See Jira %s",
                 action, user.getName(), connection.getName(), jiraKey));
@@ -511,6 +518,8 @@ public class ConnectionController implements UserAccessRights {
             changeRequest.setAuditData(auditData);
             manage.createChangeRequest(changeRequest);
         });
+        //Only now that Manage reflects the request - a Jira outage must not roll that back
+        jiraResult.throwIfFailed();
     }
 
     //Unlike #changeRequests / #convertChangeRequests - which are scoped to this connection's own manage entity -
@@ -585,6 +594,7 @@ public class ConnectionController implements UserAccessRights {
         List<Map<String, Object>> existingChangeRequests = manage.getChangeRequests(connection);
         Optional<ChangeRequest> changeRequestOptional = connectionProviderConverter.deduceChangeRequests(connection, provider);
         boolean isDuplicate = isNewChangeRequestDuplicate(existingChangeRequests, changeRequestOptional);
+        JiraClient.JiraCreateResult jiraResult = null;
         if (changeRequestOptional.isPresent() && !isDuplicate) {
             if (existingChangeRequests.isEmpty()) {
                 //No existing change requests, proceed as normal and create a ticket
@@ -593,7 +603,7 @@ public class ConnectionController implements UserAccessRights {
                     user.getName(),
                     connection.getName(),
                     entityId);
-                String jiraKey = jiraClient.create(new JiraIssue(
+                jiraResult = jiraClient.create(new JiraIssue(
                     entityId,
                     null,// There is no identity provider for change requests
                     String.format("%s A change request in manage has been created to merge this user request. See:%s%s",
@@ -605,6 +615,7 @@ public class ConnectionController implements UserAccessRights {
                     user.getEmail(),
                     null
                 ));
+                String jiraKey = jiraResult.keyOrPlaceholder();
                 Map<String, Object> auditData = Map.of("user", user.getEmail(),
                     "notes", String.format("Data change requested by %s for %s. See Jira %s",
                         user.getName(),
@@ -661,6 +672,10 @@ public class ConnectionController implements UserAccessRights {
         connection.mergeMetaData(provider, true);
         connection = connectionRepository.save(connection);
         connection.convertChangeRequests(manage.getChangeRequests(connection));
+        //Only now that Manage and the local connection reflect the request - a Jira outage must not roll that back
+        if (jiraResult != null) {
+            jiraResult.throwIfFailed();
+        }
         return connection;
     }
 

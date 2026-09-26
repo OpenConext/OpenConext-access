@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.JiraUnavailableException;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.jira.JiraClient;
@@ -45,7 +46,9 @@ import static access.manage.ManageData.*;
 
 @RestController
 @RequestMapping(value = {"/api/v1/idp"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
+//JiraUnavailableException is thrown only after the change request has already been created in Manage - rolling
+//back here has no local persist to undo, but keeps this annotation consistent with the other Jira-calling controllers
+@Transactional(noRollbackFor = JiraUnavailableException.class)
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @SuppressWarnings("unchecked")
@@ -152,7 +155,7 @@ public class IdentityProviderController implements UserAccessRights {
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Connection request requested by %s for %s.",
                 user.getName(), getProviderName(identityProvider));
-        String jiraKey = jiraClient.create(new JiraIssue(
+        JiraClient.JiraCreateResult jiraResult = jiraClient.create(new JiraIssue(
                 serviceProviderEntityID,
                 identityProviderEntityID,
                 String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
@@ -165,6 +168,7 @@ public class IdentityProviderController implements UserAccessRights {
                 email,
                 null
         ));
+        String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", email,
                 "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
                         user.getName(),
@@ -182,7 +186,8 @@ public class IdentityProviderController implements UserAccessRights {
         changeRequest.setAuditData(auditData);
 
         manage.createChangeRequest(changeRequest);
-
+        //Only now that Manage reflects the request - a Jira outage must not roll that back
+        jiraResult.throwIfFailed();
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
     }
@@ -218,7 +223,7 @@ public class IdentityProviderController implements UserAccessRights {
         String lineSeparator = System.lineSeparator();
         String summary = String.format("Disconnection request requested by %s for %s.",
                 user.getName(), getProviderName(identityProvider));
-        String jiraKey = jiraClient.create(new JiraIssue(
+        JiraClient.JiraCreateResult jiraResult = jiraClient.create(new JiraIssue(
                 serviceProviderEntityID,
                 identityProviderEntityID,
                 String.format("%s%sA change request in manage has been created to merge this user request. See:%s%s",
@@ -231,6 +236,7 @@ public class IdentityProviderController implements UserAccessRights {
                 user.getEmail(),
                 null
         ));
+        String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String,Object> auditData = Map.of("user", user.getEmail(),
                 "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",
                         user.getName(),
@@ -247,7 +253,8 @@ public class IdentityProviderController implements UserAccessRights {
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
         manage.createChangeRequest(changeRequest);
-
+        //Only now that Manage reflects the request - a Jira outage must not roll that back
+        jiraResult.throwIfFailed();
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value(), "jiraKey", jiraKey));
     }
