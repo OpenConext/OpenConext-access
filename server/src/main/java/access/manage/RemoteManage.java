@@ -97,12 +97,14 @@ public class RemoteManage implements Manage {
     @Override
     public Map<String, Object> saveIdentityProvider(Organization organization) {
         Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
-        Map<String, Object> metaDataFields = getMetaDataFields(getData(provider));
+        Map<String, Object> data = getData(provider);
+        Map<String, Object> metaDataFields = getMetaDataFields(data);
         Map<String, Object> metaDataOrganization = organization.getMetaData();
         converter.convertContactPersons(metaDataOrganization, metaDataFields);
         String keyWords = String.join(" ", ((List<String>) metaDataOrganization.getOrDefault("keyWords", List.of())));
         metaDataFields.put("keywords:0:nl", keyWords);
         metaDataFields.put("keywords:0:en", keyWords);
+        data.put(SUPPORTED_AUTHN_CONTEXT, metaDataOrganization.getOrDefault(SUPPORTED_AUTHN_CONTEXT, List.of()));
 
         return internalSaveProvider(provider);
     }

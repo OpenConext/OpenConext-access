@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static access.manage.Manage.SUPPORTED_AUTHN_CONTEXT;
 import static access.manage.ManageData.*;
 
 @Entity(name = "organizations")
@@ -152,7 +153,7 @@ public class Organization implements NameHolder {
         this.metaData.put("state", state);
 
         this.metaData.put("allowedall", data.get("allowedall"));
-        List.of("allowedEntities", "disableConsent", "stepupEntities", "mfaEntities")
+        List.of("allowedEntities", "disableConsent", "stepupEntities", "mfaEntities", SUPPORTED_AUTHN_CONTEXT)
                 .forEach(key -> {
                     this.metaData.put(key, data.getOrDefault(key, List.of()));
                 });

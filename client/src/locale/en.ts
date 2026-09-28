@@ -1037,6 +1037,21 @@ const en: AppTranslation = {
         nameDescription: "Visible for published apps in the app catalogue",
         generalSectionTitle: "General",
         contractSectionTitle: "Contract details",
+        mfa: {
+            baseLevelLabel: "Base level of MFA",
+            baseLevelInfo: "The base authentication context class that is applied to all logins from this IdP to SURFconext.",
+            additionalAcrLabel: "Additional ACR supported",
+            additionalAcrInfo: "Additional authentication context classes supported by this IdP, on top of the base level.",
+            options: [
+                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Password"},
+                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authentication"},
+                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
+                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
+                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
+                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
+                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+            ],
+        },
     },
     accessibleApps: {
         title: "Enabled apps",

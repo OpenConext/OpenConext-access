@@ -1037,6 +1037,21 @@ const nl: AppTranslation = {
         nameDescription: "Zichtbaar bij gepubliceerde apps in de app-catalogus",
         generalSectionTitle: "Algemeen",
         contractSectionTitle: "Gegevens overeenkomst",
+        mfa: {
+            baseLevelLabel: "Basisniveau van MFA",
+            baseLevelInfo: "De basis authenticatiecontextklasse die wordt toegepast op alle logins van deze IdP naar SURFconext.",
+            additionalAcrLabel: "Extra ondersteunde ACR",
+            additionalAcrInfo: "Extra authenticatiecontextklassen die deze IdP ondersteunt, naast het basisniveau.",
+            options: [
+                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Wachtwoord"},
+                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authenticatie"},
+                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
+                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
+                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
+                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
+                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+            ],
+        },
     },
     accessibleApps: {
         title: "Ingeschakelde apps",

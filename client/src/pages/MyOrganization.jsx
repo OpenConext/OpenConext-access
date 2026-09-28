@@ -13,7 +13,7 @@ import {
 } from "../api/index.js";
 import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import "./MyOrganization.scss";
-import I18n from "../locale/I18n";
+import I18n, {tArray} from "../locale/I18n";
 import DOMPurify from "dompurify";
 import {authorities, isOrganizationAdmin} from "../utils/Permissions.js";
 import {
@@ -217,7 +217,32 @@ const MyOrganization = ({refreshUser}) => {
         setOrganization({...organization, metaData: newMetaData});
     }
 
+    const mfaAcrOptions = tArray("myOrganization.mfa.options", option => option);
+
+    const changeBaseLevelMfa = option => {
+        const newBaseLevel = option ? option.value : null;
+        const additionalValues = (organization.metaData.supported_authncontext || []).slice(1);
+        const combined = newBaseLevel
+            ? [newBaseLevel, ...additionalValues.filter(value => value !== newBaseLevel)]
+            : additionalValues;
+        setOrganization({...organization, metaData: {...organization.metaData, supported_authncontext: combined}});
+    }
+
+    const changeAdditionalAcrValues = options => {
+        const baseLevel = (organization.metaData.supported_authncontext || [])[0];
+        const additionalValues = (options || []).map(option => option.value);
+        const combined = baseLevel
+            ? [baseLevel, ...additionalValues.filter(value => value !== baseLevel)]
+            : additionalValues;
+        setOrganization({...organization, metaData: {...organization.metaData, supported_authncontext: combined}});
+    }
+
     const renderInternalGeneralSection = () => {
+        const supportedAuthnContext = organization.metaData.supported_authncontext || [];
+        const baseLevelValue = supportedAuthnContext[0] || null;
+        const additionalValues = supportedAuthnContext.slice(1);
+        const baseLevelOption = mfaAcrOptions.find(option => option.value === baseLevelValue) || null;
+        const additionalOptions = mfaAcrOptions.filter(option => additionalValues.includes(option.value));
         return (
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t("myOrganization.generalInformation")}</h3>
@@ -240,6 +265,24 @@ const MyOrganization = ({refreshUser}) => {
                              creatable={true}
                 />
                 <p className="info">{I18n.t("myOrganization.keyWordsInfo")}</p>
+
+                <SelectField name={I18n.t("myOrganization.mfa.baseLevelLabel")}
+                             value={baseLevelOption}
+                             options={mfaAcrOptions}
+                             onChange={changeBaseLevelMfa}
+                             disabled={!adminUser}
+                             clearable={true}
+                />
+                <p className="info">{I18n.t("myOrganization.mfa.baseLevelInfo")}</p>
+
+                <SelectField name={I18n.t("myOrganization.mfa.additionalAcrLabel")}
+                             value={additionalOptions}
+                             options={mfaAcrOptions.filter(option => option.value !== baseLevelValue)}
+                             onChange={changeAdditionalAcrValues}
+                             isMulti={true}
+                             disabled={!adminUser}
+                />
+                <p className="info">{I18n.t("myOrganization.mfa.additionalAcrInfo")}</p>
             </section>
         )
     }
@@ -269,7 +312,8 @@ const MyOrganization = ({refreshUser}) => {
             setLoading(true);
             updateOrganizationMetaData(organization.id, {
                 contactPersons: organization.contactPersons,
-                keyWords: organization.metaData.keyWords
+                keyWords: organization.metaData.keyWords,
+                supported_authncontext: organization.metaData.supported_authncontext || []
             })
                 .then(() => {
                     refreshUser(() => setLoading(false));

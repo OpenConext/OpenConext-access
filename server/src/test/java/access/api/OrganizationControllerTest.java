@@ -336,7 +336,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .get("/api/v1/organizations/mine/{id}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(11, ((Map) organization.get("metaData")).size());
+        assertEquals(12, ((Map) organization.get("metaData")).size());
         assertNull(organization.get("applications"));
         assertNull(organization.get("invitations"));
         assertNull(organization.get("joinRequests"));

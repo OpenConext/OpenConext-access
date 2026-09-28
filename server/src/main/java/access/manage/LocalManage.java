@@ -99,7 +99,9 @@ public final class LocalManage implements Manage {
         Map<String, Object> provider = providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
         Map<String, Object> data = getData(provider);
         Map<String, Object> metaDataFields = getMetaDataFields(data);
-        converter.convertContactPersons(organization.getMetaData(), metaDataFields);
+        Map<String, Object> metaDataOrganization = organization.getMetaData();
+        converter.convertContactPersons(metaDataOrganization, metaDataFields);
+        data.put(SUPPORTED_AUTHN_CONTEXT, metaDataOrganization.getOrDefault(SUPPORTED_AUTHN_CONTEXT, List.of()));
         return provider;
     }
 

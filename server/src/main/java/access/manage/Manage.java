@@ -14,6 +14,8 @@ public interface Manage {
 
     String INSTITUTION_GUID = "coin:institution_guid";
 
+    String SUPPORTED_AUTHN_CONTEXT = "supported_authncontext";
+
     List<Map<String, Object>> providers(EntityType... entityTypes);
 
     Map<String, Object> providerByConnection(Connection connection);
