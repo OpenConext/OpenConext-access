@@ -715,35 +715,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     {stepupLoaTooLow &&
                         <ErrorIndicator standalone={true}
                                         msg={I18n.t("assurance.loaTooLow")}/>}
-                    <div className="access-accordion">
-                        <div className="accordion-header-row">
-                            <h2 className="accordion-trigger-title text-[length:var(--text-xl-font-size)]">
-                                {`${I18n.t("assurance.rulesTitle")} (${stepPolicies.length})`}
-                            </h2>
-                            <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.step)}>
-                                <PlusIcon/>
-                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAssuranceRule"))}}/>
-                            </Button>
-                        </div>
-                        {isEmpty(stepPolicies) &&
-                            <div className="access-card grey border">
-                                <p>{I18n.t("appAccess.noStepUpPolicies")}</p>
-                            </div>}
-                        {!isEmpty(stepPolicies) &&
-                            <div className="access-detail-cards">
-                                {stepPolicies.map(policy => renderPolicyCard(policy))}
-                            </div>}
-                    </div>
-                    <div className="assurance-actions">
-                        <Button onClick={() => cancelAssuranceChanges()}
-                                variant="outline">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
-                        </Button>
-                        <Button onClick={() => submitAssuranceChanges()}
-                                disabled={mfaLoaTooLow || stepupLoaTooLow}>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.save"))}}/>
-                        </Button>
-                    </div>
                 </div>
                 <div className="assurance-right">
                     <Alert variant="info">

@@ -367,7 +367,7 @@ export const PolicyForm = ({
                         // Came from the application detail page (not the policies overview) -
                         // go back there instead of to /policies/overview, landing on the tab
                         // that manages this policy type (step-up policies live under Assurance).
-                        navigate(`/application-detail/${returnToApplication.manageType}/${returnToApplication.manageId}/${isStep ? "assurance" : "access"}`);
+                        navigate(`/application-detail/${returnToApplication.manageType}/${returnToApplication.manageId}/access`);
                     } else {
                         refreshPolicies();
                     }

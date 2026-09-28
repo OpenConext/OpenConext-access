@@ -299,6 +299,14 @@ div.application-detail-container {
             margin-top: 24px;
         }
 
+        // When an item is collapsed, its AccordionContent panel is collapsed to
+        // zero height so the header row sits directly against the item's
+        // bottom border (see the "not-last:border-b" item class). Restore the
+        // missing bottom-half of the trigger's old built-in padding here.
+        [data-slot="accordion-item"][data-closed] .accordion-header-row {
+            padding-bottom: 16px;
+        }
+
         .accordion-header-row {
             display: flex;
             align-items: center;
@@ -357,7 +365,7 @@ div.application-detail-container {
                 display: flex;
                 flex-direction: column;
                 gap: 4px;
-                width: 280px;
+                width: 400px;
                 flex-shrink: 0;
 
                 .card-title {

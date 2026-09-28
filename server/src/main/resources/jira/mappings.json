@@ -7,7 +7,8 @@
       "emailToQTC": "10733",
       "typeMetaData": "14800",
       "optionalMessage": "15300",
-      "accessCatalogusAppURL": "13804"
+      "accessCatalogusAppURL": "13804",
+      "service": "16058"
     },
     "issueTypes": {
       "change": "11106",
@@ -21,7 +22,8 @@
       "emailTo": "13009",
       "typeMetaData": "14800",
       "optionalMessage": "15300",
-      "accessCatalogusAppURL": "13804"
+      "accessCatalogusAppURL": "13804",
+      "service": "16058"
     },
     "issueTypes": {
       "change": "11106",
