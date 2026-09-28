@@ -7,6 +7,10 @@ $max-stats: 1440px;
 $full-mode: 1280px;
 $medium: 1280px;
 
+// Shared max-width for the unauthenticated (public) header and page containers,
+// so they always line up edge-to-edge. Change this one value to resize all of them.
+$public-page-max-width: 1420px;
+
 $mobile-width: 820px;
 $mobile-width-crossover: 820px;
 

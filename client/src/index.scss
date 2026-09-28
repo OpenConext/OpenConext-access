@@ -29,6 +29,19 @@
 
 }
 
+// Shared width/centering for the unauthenticated (public) header and page
+// containers - see $public-page-max-width in styles/vars.scss.
+@mixin public-page-width {
+    // width: 100% (rather than relying on block/flex stretch) keeps this correct
+    // even when the container is a flex item itself (e.g. LoginInfo's .about/.cards
+    // inside a column flex parent) - auto margins on a flex item cancel stretch,
+    // which would otherwise shrink it to its content's width instead of the max-width.
+    width: 100%;
+    max-width: $public-page-max-width;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 @mixin form-content {
     display: flex;
     flex-direction: column;

@@ -2,16 +2,9 @@
 @use "../index";
 
 .monitoring-container {
-    padding: 35px 0 50px 0;
-    @media (min-width: $max-stats) {
-        margin: 0 auto;
-        width: $max-stats;
-    }
-
-    @media (max-width: $max-stats) {
-        margin: 0 20px;
-    }
-
+    @include index.public-page-width;
+    box-sizing: border-box;
+    padding: 35px 20px 50px 20px;
     display: flex;
     flex-direction: column;
     gap: 28px;

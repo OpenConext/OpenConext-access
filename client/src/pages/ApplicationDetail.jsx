@@ -34,7 +34,6 @@ import {
     TableRow
 } from "@surfnet/curve-react";
 import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PencilSimpleIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
-import StudentPng from "../icons/student2.png";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 
 import ExampleSVG from "../icons/wayf.svg";
@@ -927,23 +926,29 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         );
     }
 
+    const quickLinksList = () => APPLICATION_LINKS.map((link, index) => externalLink(link, metaData, index))
+        .filter(link => link !== null);
+
+    const renderQuickLinksRow = links => (
+        <div className="quick-links">
+            {links.map((link, index) => (
+                <React.Fragment key={link.key}>
+                    {link}
+                    {index < links.length - 1 && <span className="separator">|</span>}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+
     const renderQuickLinks = () => {
-        const links = APPLICATION_LINKS.map((link, index) => externalLink(link, metaData, index))
-            .filter(link => link !== null);
+        const links = quickLinksList();
         if (isEmpty(links)) {
             return null;
         }
         return (
             <section className="details-section">
                 <p className="title">{I18n.t("applicationDetail.quickLinks")}</p>
-                <div className="quick-links">
-                    {links.map((link, index) => (
-                        <React.Fragment key={link.key}>
-                            {link}
-                            {index < links.length - 1 && <span className="separator">|</span>}
-                        </React.Fragment>
-                    ))}
-                </div>
+                {renderQuickLinksRow(links)}
             </section>
         );
     }
@@ -963,7 +968,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                         <p>{description}</p>
                     </section>
                 }
-                {renderQuickLinks()}
+                {!anonymous && renderQuickLinks()}
                 {renderAppAttributes()}
                 {renderAppPrivacy()}
                 <section className="details-section">
@@ -1022,17 +1027,15 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderNonAccessibleApp = () => {
+        const anonymousQuickLinks = anonymous ? quickLinksList() : [];
         return (
             <>
                 {anonymous &&
-                    <div className="application-detail-header-container">
-                        <div className="application-detail-header">
-                            <div className="left">
-                                <h1 className="large text-[56px] mb-5">{I18n.t("applicationDetail.title")}</h1>
-                                <p>{I18n.t("applicationDetail.subTitle")}</p>
-                            </div>
-                            <img src={StudentPng} alt="student"/>
-                        </div>
+                    <div className="application-detail-back-link">
+                        <Button variant="link" onClick={goBackToApplications}>
+                            <span data-icon="inline-start"><ArrowLeftIcon/></span>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
+                        </Button>
                     </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
@@ -1040,7 +1043,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </div>
                 }
                 <div className="inner-application-detail-container">
-                    <div className={`application-detail ${anonymous ? "" : "stand-alone"}`}>
+                    <div className={`application-detail ${anonymous ? "anonymous" : "stand-alone"}`}>
                         <div className="meta-data">
                             {renderLogo(metaData)}
                             <div className="meta-data-name">
@@ -1050,12 +1053,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 <p className="name">
                                     {providerName(I18n.locale, serviceProvider)}
                                 </p>
+                                {anonymous && !isEmpty(anonymousQuickLinks) && renderQuickLinksRow(anonymousQuickLinks)}
                             </div>
-                            {anonymous && <Button variant="outline"
-                                                  onClick={goBackToApplications}>
-                                <span data-icon="inline-start"><ArrowLeftIcon/></span>
-                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
-                            </Button>}
                             {(!anonymous && currentOrganization.manageIdentifier) &&
                                 <Button onClick={() => doRequestConnection(true)}
                                         disabled={memberRequestSend}>
@@ -1072,7 +1071,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const {open, cancel, isError, action, question, title, okButton, isDeleteAction, className} = confirmation;
 
     return (
-        <div className={`application-detail-container`}>
+        <div className={`application-detail-container ${anonymous ? "anonymous" : ""}`}>
             {open && <ConfirmationDialog confirm={action}
                                          cancel={cancel}
                                          isError={isError}

@@ -1,6 +1,7 @@
 @use "../styles/vars" as *;
 .desktop-navigation {
     display: flex;
+    align-items: center;
     gap: 25px;
     width: 100%;
 
@@ -42,9 +43,23 @@
 
     }
 
+    > span.disabled {
+        color: var(--muted-foreground, #a3a3a3);
+        cursor: not-allowed;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 36px;
+
+        @media (max-width: $mobile-width) {
+            font-size: 32px;
+            line-height: 44px;
+        }
+    }
+
     div.links {
-        margin: 0 40px 0 auto;
+        margin: 0 0 0 auto;
         display: flex;
+        align-items: center;
         gap: 15px;
         max-height: 0;
 

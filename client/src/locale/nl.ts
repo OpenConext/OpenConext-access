@@ -12,12 +12,21 @@ const nl: AppTranslation = {
     },
     landing: {
         header: {
-            title: "SURF Access",
-            subTitle: "Gebruikers in het hoger onderwijs en onderzoek <strong>toegang geven tot meerdere diensten met één account</strong>.",
             login: "Inloggen / registreren",
+            loginProvider: "Inloggen als app-aanbieder",
+            loginInstitution: "Inloggen als instelling",
             profile: "Profiel",
             logout: "Afmelden",
             system: "Systeem",
+        },
+        hero: {
+            title: "Toegang geven tot onderwijs- en onderzoeksapplicaties",
+            subTitle: "Gebruikers in het hoger onderwijs en onderzoek <strong>toegang geven tot meerdere diensten met één account</strong>.",
+            stats: {
+                applications: "Applicaties",
+                institutions: "Instellingen",
+                login: "Login",
+            },
         },
         loginInfo: {
             title: "Inloggen / Registreren",
@@ -40,40 +49,54 @@ const nl: AppTranslation = {
         },
         tabs: {
             home: "Home",
-            connect: "Hoe koppelen",
+            about: "Over SURF Access",
             institutions: "Instellingen",
             applications: "Applicaties",
             stats: "Statistieken",
             status: "Status",
         },
-        applicationProviders: {
-            title: "Voor applicatie‑aanbieders",
-            info: [
-                "Maak je applicatie veilig toegankelijk voor onderwijs en onderzoek via een enkele SURF Access‑integratie. Wij verzorgen authenticatie, autorisatie en privacy‑ en beveiligingsafspraken.",
-                "Koppelen is gratis en start in een sandbox‑omgeving."
-            ],
-            connect: "Hoe koppelen",
-        },
-        institutions: {
-            title: "Voor instellingen",
-            info: [
-                "Geef studenten, medewerkers en onderzoekers eenvoudig toegang tot verschillende applicaties met hun instellingsaccount.",
-                "SURF Access biedt single sign‑on, zorgt voor centrale afspraken en is privacyvriendelijk ingericht."
-            ],
-            contact: "Contact",
-            contactMail: "mailto:support@surfaccess.nl",
-        },
-        joining: {
-            title: "Deelnemers van SURF Access",
-            info: [
-                "SURF Access verbindt veilig meer dan 1 miljoen gebruikers met duizenden applicaties en content diensten. Instellingen en applicatie‑aanbieders sluiten zich aan bij de vertrouwde federatie, een voorziening van SURF."
-            ],
-            links: {
-                prefix: "Ontdek ",
-                institutions: "{{nbr}} instellingen",
-                or: " of ",
-                applications: "{{nbr}} applicaties.",
+        whatCanYouDo: {
+            title: "Wat kun je met SURF Access?",
+            publish: {
+                title: "Jouw apps publiceren",
+                description: "Applicatie-aanbieders kunnen applicaties via SURF Access beschikbaar maken voor onderwijs- en onderzoeksinstellingen. SURF Access verzorgt authenticatie, autorisatie en privacy- en beveiligingsafspraken.",
             },
+            activate: {
+                title: "Nieuwe apps activeren",
+                description: "Instellingen kunnen nieuwe apps vinden in de app-catalogus en deze activeren voor gebruikers binnen hun instelling. SURF Access biedt single sign-on, zorgt voor centrale afspraken en is privacyvriendelijk ingericht.",
+            },
+            manage: {
+                title: "Toegang beheren",
+                description: "Instellingen kunnen regels, rollen en samenwerkingen instellen en zo bepalen wie er wel en geen toegang heeft tot geactiveerde applicaties.",
+            },
+        },
+        gettingStarted: {
+            title: "Aan de slag met SURF Access",
+            providers: {
+                title: "Voor applicatie-aanbieders",
+                info: [
+                    "Maak je applicatie veilig toegankelijk voor onderwijs- en onderzoeksinstellingen.",
+                    "Applicaties toevoegen is gratis en gaat via een eduID account. Als je nog geen eduID hebt, kun je deze aanmaken in de volgende stap."
+                ],
+                cta: "Ga door met eduID",
+            },
+            institutions: {
+                title: "Voor instellingen",
+                info: [
+                    "Geef studenten, medewerkers en onderzoekers eenvoudig toegang tot verschillende applicaties met hun instellingsaccount.",
+                    "Je kunt hieronder direct inloggen op SURF Access met je instellingsaccount."
+                ],
+                cta: "Inloggen via je instelling",
+            },
+        },
+        tryDemo: {
+            title: "SURF Access vrijblijvend uitproberen?",
+            description: "Maak kennis met SURF Access in onze demo-omgeving. Hier kun je alle functionaliteit uitproberen in een veilige afgesloten omgeving.",
+            cta: "Naar de demo-omgeving van SURF Access",
+            url: "#TODO-demo-environment-url",
+        },
+        activity: {
+            title: "Dit gebeurt er nu op SURF Access",
         },
     },
     navigation: {
@@ -782,11 +805,11 @@ const nl: AppTranslation = {
     },
     institutions: {
         title: "Instellingen",
-        subTitle: "Blader door de instellingen die momenteel verbonden zijn met SURF Access, onderverdeeld in onderwijs, onderzoek en aangesloten instellingen.",
+        subTitle: "Bekijk de instellingen die momenteel verbonden zijn met SURF Access.",
         category: "Categorie",
-        all: "Alle categorieën",
+        all: "Alle type instellingen",
         other: "Overig",
-        searchPlaceHolder: "Zoek instellingen...",
+        searchPlaceHolder: "Zoek een instelling",
     },
     // Keyed by de ruwe coin:institution_type waarde uit Manage - zie Institutions.jsx
     institutionTypes: {
@@ -805,18 +828,15 @@ const nl: AppTranslation = {
     },
     applications: {
         title: "Applicaties",
-        subTitle: "Blader door applicaties die momenteel verbonden zijn met SURF Access, onderverdeeld in categorieën. Sommige zijn direct via SURFconext verbonden, andere via eduGAIN.",
+        subTitle: "Bekijk de applicaties die momenteel verbonden zijn met SURF Access. Sommige zijn direct via SURF Access verbonden, andere via andere federaties zoals eduGAIN.",
         category: "Categorie",
         all: "Alle categorieën",
         allSources: "Alle federaties",
         other: "-",
-        searchPlaceHolder: "Zoek applicaties...",
-        recent: "Recent toegevoegde applicaties",
+        searchPlaceHolder: "Zoek een applicatie",
     },
     applicationDetail: {
-        title: "Applicaties",
-        subTitle: "Blader door applicaties die momenteel verbonden zijn met SURF Access, onderverdeeld in categorieën. Sommige zijn direct via SURFconext verbonden, andere via eduGAIN.",
-        back: "Terug",
+        back: "Alle applicaties",
         description: "Beschrijving",
         attributes: "Attributen",
         attributesInfo: "De applicatie heeft attributen nodig om correct te functioneren.",
@@ -881,19 +901,61 @@ const nl: AppTranslation = {
             institution: "Je IdP",
         },
     },
-    connect: {
-        title: "Hoe koppelen",
-        subTitle: "Koppelen met SURF Access is niet ingewikkeld, bij het aanmaken van een nieuwe applicatie wordt je meegenomen door de verschillende stappen. Dit proces bestaat uit een technisch en contractueel gedeelte. SURF Access is een voorziening voor de leden van de SURF cooperatie. Deelname voor commerciële organisaties is gratis.",
-        formal: "Hoe werkt het?",
-        serviceBullets: [
-            "<strong>Stap 1</strong>: Log in op SURF Access",
-            "<strong>Stap 2</strong>: Geef aan bij welke organisatie je hoort. Kies eduID als je geen instellingsaccount hebt.",
-            "<strong>Stap 3</strong>: Maak een nieuwe applicatie aan. Vul de gevraagde gegevens in.",
-            "<strong>Stap 4</strong>: Maak een eerste koppeling aan bij de applicatie. Vul de benodige formele en technische gegevens aan. ",
-            "<strong>Stap 5</strong>: Vraag een koppeling aan en wacht op akkoord. Je ontvangt bericht bij acceptatie of afwijzing."
-        ],
-        formalInfo: "Kom je er niet uit: neem dan contact met ons op via support@surfaccess.nl",
-        connect: "Koppel nu je applicatie",
+    about: {
+        hero: {
+            title: "Over SURF Access",
+            paragraph1: "Via SURF Access kun je als instelling je toegangsbeheer goed en makkelijk inrichten, op het gebied van toegangsbeheer en samenwerking over de grenzen van je eigen instelling heen.",
+            paragraph2: "SURF Access biedt vanaf 2027 beheerders binnen instellingen één systeem en gebruikersomgeving. Of het nu gaat om het beheren en toegang geven van gaststudenten, gastonderzoekers, allianties of een andere gebruikersgroepen.",
+        },
+        eduId: {
+            title: "Toegang regelen, ook met eduID",
+            description: "Met SURF Access regel je de toegang tot applicaties voor iedereen binnen je instelling - of gebruikers nu inloggen met hun instellingsaccount of met eduID. Bij het inrichten van autorisaties en provisioning bepaal je zelf of dit geldt voor eduID, je eigen IdP, of beide tegelijk.",
+        },
+        services: {
+            title: "Deze diensten worden samen SURF Access",
+            subTitle: "SURFconext, SRAM en SURFsecureID gaan samen in één geïntegreerde sectorvoorziening voor het regelen van je toegangsbeheer",
+            idp: {
+                badge: "Volledig geïntegreerd",
+                title: "IdP dashboard",
+                description: "Voor instellingen: zien welke applicaties zijn aangesloten en toegang beheren.",
+            },
+            sp: {
+                badge: "Volledig geïntegreerd",
+                title: "SP dashboard",
+                description: "Voor applicatie-aanbieders: diensten aanmaken, testen en publiceren.",
+            },
+            invite: {
+                badge: "Gepland voor 2027",
+                title: "SURFconext Invite",
+                description: "Voor instellingen: ken tijdelijke, rolgebaseerde toegang tot gekoppelde applicaties toe aan gebruikers(groepen).",
+            },
+            sram: {
+                badge: "Volgt later",
+                title: "SRAM",
+                subTitle: "(SURF Research Access Management)",
+                description: "Voor onderzoekers: samenwerkingen opzetten en leden uitnodigen.",
+            },
+            secureId: {
+                badge: "Volgt later",
+                title: "SURFsecureID",
+                description: "Voor instellingen: Extra beveiligingslaag via multi-factor authenticatie (een tweede inlogstap).",
+            },
+        },
+        roadmap: {
+            title: "Waar we naartoe werken",
+            selfService: {
+                title: "Meer zelfservice",
+                description: "Meer inzicht en controle, minder wachten en tickets nodig: instellingen en leveranciers regelen steeds meer zelf, direct in SURF Access.",
+            },
+            navigation: {
+                title: "Verbeterde navigatie",
+                description: "Makkelijker schakelen tussen de verschillende dashboards voor toegangsbeheer.",
+            },
+            insight: {
+                title: "Beter inzicht",
+                description: "Uitgebreidere statistieken en rapportages over gebruik, per instelling en per applicatie.",
+            },
+        },
     },
     changeRequests: {
         title: "Openstaande wijzigingsverzoeken",

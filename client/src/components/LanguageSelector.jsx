@@ -1,17 +1,14 @@
 import React from "react";
 import I18n from "../locale/I18n";
-import Cookies from "js-cookie";
-import {replaceQueryParameter} from "../utils/QueryParameters";
 import {stopEvent} from "../utils/Utils";
+import {switchLocale} from "../utils/Language";
 import "./LanguageSelector.scss"
 
 export const LanguageSelector = () => {
 
     const handleChooseLocale = locale => e => {
         stopEvent(e);
-        Cookies.set("lang", locale, {expires: 356, secure: document.location.protocol.endsWith("https")});
-        I18n.locale = locale;
-        window.location.search = replaceQueryParameter(window.location.search, "lang", locale);
+        switchLocale(locale);
     };
 
     const renderLocaleChooser = locale => {

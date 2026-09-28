@@ -4,8 +4,6 @@
 div.application-detail-container {
     width: 100%;
 
-    $width: 920px;
-
     a {
         text-decoration: underline;
     }
@@ -22,29 +20,6 @@ div.application-detail-container {
     p.alert-title {
         font-weight: 600;
         color: var(--foreground);
-    }
-
-    .application-detail-header-container {
-        width: 100%;
-        background-color: var(--muted);
-    }
-
-    .application-detail-header {
-        max-width: $width;
-        margin: 0 auto;
-        padding: 75px 0;
-        display: flex;
-
-        p {
-            margin-right: 50px;
-        }
-
-        img {
-            width: 200px;
-            height: auto;
-            border-radius: 20px;
-            margin: auto 0 auto auto;
-        }
     }
 
     .application-header {
@@ -174,6 +149,101 @@ div.application-detail-container {
 
             button {
                 margin-left: auto;
+            }
+        }
+    }
+
+    .application-detail-back-link {
+        [data-slot="button"] {
+            padding-left: 0;
+            padding-right: 0;
+            color: var(--primary-strong);
+            text-decoration: none;
+
+            svg {
+                margin-right: 6px;
+            }
+        }
+    }
+
+    &.anonymous .inner-application-detail-container {
+        @include index.public-page-width;
+        box-sizing: border-box;
+        padding: 0 40px;
+    }
+
+    .application-detail.anonymous {
+        width: 800px;
+        max-width: 100%;
+        margin: 0 auto;
+        gap: 32px;
+
+        .meta-data {
+            padding-bottom: 32px;
+
+            > img, > svg {
+                width: 240px;
+                height: 240px;
+                border: none;
+                padding: 0;
+                border-radius: 0;
+                object-fit: cover;
+                margin-right: 32px;
+            }
+
+            .meta-data-name {
+                gap: 8px;
+
+                p.organization {
+                    color: var(--muted-foreground);
+                    font-size: 20px;
+                    font-weight: 400;
+                }
+
+                p.name {
+                    font-weight: 600;
+                    font-size: 48px;
+                    line-height: 1;
+                }
+
+                .quick-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    margin-top: 8px;
+
+                    a {
+                        color: var(--primary-strong);
+                        font-weight: 500;
+                        text-decoration: none;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+
+                    .separator {
+                        color: var(--foreground);
+                    }
+                }
+            }
+        }
+
+        @media (max-width: $mobile-width) {
+            .meta-data {
+                flex-direction: column;
+                align-items: flex-start;
+
+                > img, > svg {
+                    width: 120px;
+                    height: 120px;
+                    margin-right: 0;
+                    margin-bottom: 16px;
+                }
+
+                p.name {
+                    font-size: 32px;
+                }
             }
         }
     }

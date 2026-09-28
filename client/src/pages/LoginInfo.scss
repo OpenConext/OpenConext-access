@@ -6,8 +6,12 @@
     @include index.page;
 
     .about {
-        @include index.page-content;
+        @include index.public-page-width;
+        box-sizing: border-box;
+        padding: 0 40px;
+        display: flex;
         flex-direction: row;
+        gap: 25px;
         margin-top: 35px;
     }
 
@@ -23,9 +27,14 @@
     }
 
     .cards {
-        @include index.page-content;
-        margin: 35px auto;
+        @include index.public-page-width;
+        box-sizing: border-box;
+        padding: 0 40px;
+        display: flex;
         flex-direction: row;
+        gap: 25px;
+        margin-top: 35px;
+        margin-bottom: 35px;
 
         .card {
             button {

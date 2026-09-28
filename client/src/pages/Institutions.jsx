@@ -16,7 +16,6 @@ import {
     InputGroupInput
 } from "@surfnet/curve-react";
 import {Spinner} from "@surfnet/curve-react";
-import StudentPng from "../icons/student.png";
 import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
@@ -56,7 +55,7 @@ const Institutions = () => {
                     }, {});
                     const defaultCategory = {
                         value: "all",
-                        label: `${I18n.t("institutions.all")} (${res.length})`
+                        label: I18n.t("institutions.all")
                     };
                     let newCategoryOptions = [defaultCategory];
                     newCategoryOptions = newCategoryOptions.concat(Object.entries(categoryCounts)
@@ -141,68 +140,59 @@ const Institutions = () => {
 
         return (
             <div className="institutions-container">
-                <div className="institutions-header-container">
-                    <div className="institutions-header">
-                        <div className="left">
-                            <h1 className="large text-[56px] mb-5">{I18n.t("institutions.title")}</h1>
-                            <p>{I18n.t("institutions.subTitle")}</p>
-                        </div>
-                        <img src={StudentPng} alt="student"/>
-                    </div>
+                <div className="institutions-title">
+                    <h1>{I18n.t("institutions.title")}</h1>
+                    <p>{I18n.t("institutions.subTitle")}</p>
                 </div>
-                <div className="inner-institutions-container">
-                    <div className="institutions">
-                        <div className="institutions-search">
-                            <InputGroup className="institutions-search-input-group">
-                                <InputGroupInput type="search"
-                                                 onChange={e => setQuery(e.target.value)}
-                                                 value={query}
-                                                 placeholder={I18n.t("institutions.searchPlaceHolder")}/>
-                                <InputGroupAddon align="inline-end">
-                                    <SearchIcon/>
-                                </InputGroupAddon>
-                            </InputGroup>
-                            <SelectField
-                                value={categoryOptions.find(option => option.value === category)}
-                                placeholder={I18n.t("institutions.categoryPlaceHolder")}
-                                options={categoryOptions}
-                                searchable={false}
-                                onChange={option => setCategory(option.value)}
-                            />
-                        </div>
-                        <div className="institutions-overview">
-                            <ul>
-                                {filteredIdentityProviders
-                                    .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
-                                    .map((idp, index) => {
-                                            const metaData = idp.data.metaDataFields;
-                                            const type = I18n.t(`institutionTypes.${metaData["coin:institution_type"]}`,
-                                                {defaultValue: I18n.t("institutions.other")});
-                                            return (
-                                                <li key={index}>
-                                                    <div className="identity-provider">
-                                                        {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                                        {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                                        <div className="idp-info">
-                                                            <span className="idp-type">
-                                                                {type}
-                                                            </span>
-                                                            <span className="idp-name">
-                                                                {providerOrganizationName(I18n.locale, idp)}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>)
-                                        }
-                                    )}
-                            </ul>
-                        </div>
+                <div className="institutions-body">
+                    <div className="institutions-search">
+                        <InputGroup className="institutions-search-input-group">
+                            <InputGroupAddon align="inline-start">
+                                <SearchIcon/>
+                            </InputGroupAddon>
+                            <InputGroupInput type="search"
+                                             onChange={e => setQuery(e.target.value)}
+                                             value={query}
+                                             placeholder={I18n.t("institutions.searchPlaceHolder")}/>
+                        </InputGroup>
+                        <SelectField
+                            className="institutions-category-select"
+                            value={categoryOptions.find(option => option.value === category)}
+                            options={categoryOptions}
+                            searchable={false}
+                            onChange={option => setCategory(option.value)}
+                        />
                     </div>
-                    {renderPagination(filteredIdentityProviders.length, nbr => {
-                        setPage(nbr);
-                        storePageNumber(nbr);
-                    })}
+                    <ul className="institutions-list">
+                        {filteredIdentityProviders
+                            .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
+                            .map((idp, index) => {
+                                    const metaData = idp.data.metaDataFields;
+                                    const type = I18n.t(`institutionTypes.${metaData["coin:institution_type"]}`,
+                                        {defaultValue: I18n.t("institutions.other")});
+                                    return (
+                                        <li key={index}>
+                                            <div className="institution-logo">
+                                                {metaData["logo:0:url"] ? <img src={metaData["logo:0:url"]} alt=""/> :
+                                                    <PlaceHolderImage/>}
+                                            </div>
+                                            <div className="institution-info">
+                                                <span className="institution-type">
+                                                    {type}
+                                                </span>
+                                                <span className="institution-name">
+                                                    {providerOrganizationName(I18n.locale, idp)}
+                                                </span>
+                                            </div>
+                                        </li>)
+                                }
+                            )}
+                    </ul>
                 </div>
+                {renderPagination(filteredIdentityProviders.length, nbr => {
+                    setPage(nbr);
+                    storePageNumber(nbr);
+                })}
             </div>
         );
     }

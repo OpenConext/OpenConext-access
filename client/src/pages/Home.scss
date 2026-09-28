@@ -1,34 +1,337 @@
+@use "../styles/vars" as *;
 @use "../index";
 
-.about-container {
-    background-color: white;
-    @include index.page;
+.home-landing-container {
+    @include index.public-page-width;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 40px 60px 40px;
+    gap: 80px;
 
-    .about {
-        @include index.page-content;
-        flex-direction: row;
-        margin-top: 35px;
+    @media (max-width: $mobile-width) {
+        padding: 24px 20px 40px 20px;
+        gap: 48px;
     }
 
-    .top {
-        display: flex;
-        flex-direction: column;
-        align-content: center;
-        max-width: 440px;
+    h1, h2, h3 {
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
 
-        p {
-            line-height: 24px;
+    p {
+        margin: 0;
+        color: var(--muted-foreground);
+        line-height: 1.55;
+    }
+
+    .placeholder-image {
+        border-radius: 14px;
+        overflow: hidden;
+
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
     }
 
-    .cards {
-        @include index.page-content;
-        margin: 35px auto;
-        flex-direction: row;
+    .hero {
+        display: flex;
+        gap: 48px;
+        align-items: center;
 
-        .card {
-            button {
-                margin-top: auto;
+        .hero-main {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            min-width: 0;
+
+            .hero-copy {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+
+                h1 {
+                    color: var(--foreground);
+                    font-size: 60px;
+                    line-height: 1;
+                }
+
+                p {
+                    font-size: var(--text-lg-font-size);
+                    line-height: var(--text-lg-line-height);
+                }
+            }
+
+            .hero-stats {
+                display: flex;
+                gap: 32px;
+
+                .hero-stat {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+
+                    .hero-stat-number {
+                        color: var(--foreground);
+                        font-weight: 600;
+                        font-size: 48px;
+                        line-height: 1;
+                    }
+
+                    .hero-stat-label {
+                        font-size: var(--text-base-font-size);
+                    }
+                }
+            }
+
+            [data-slot="button"] {
+                align-self: flex-start;
+                width: 240px;
+            }
+        }
+
+        .hero-image {
+            @extend .placeholder-image;
+            flex: 1 1 0;
+            align-self: stretch;
+            min-height: 320px;
+        }
+
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+
+            .hero-image {
+                display: none;
+            }
+
+            .hero-main {
+                .hero-copy {
+                    h1 {
+                        font-size: 36px;
+                        line-height: 40px;
+                    }
+
+                    p {
+                        font-size: var(--text-base-font-size);
+                    }
+                }
+
+                .hero-stats .hero-stat {
+                    .hero-stat-number {
+                        font-size: 30px;
+                    }
+
+                    .hero-stat-label {
+                        font-size: var(--text-xs-font-size);
+                    }
+                }
+
+                [data-slot="button"] {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    .what-can-you-do, .getting-started, .activity {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+
+        h2 {
+            color: var(--foreground);
+            font-size: 48px;
+            line-height: 1;
+
+            @media (max-width: $mobile-width) {
+                font-size: 36px;
+                line-height: 40px;
+            }
+        }
+    }
+
+    .bento-grid {
+        display: flex;
+        gap: 24px;
+
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+
+            .bento-card {
+                flex: 1 1 auto;
+            }
+        }
+    }
+
+    .bento-card {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--card);
+        border: 1px solid var(--custom-foreground10, rgba(10, 10, 10, .1));
+        border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+        overflow: hidden;
+
+        .bento-illustration {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+
+            svg {
+                height: 120px;
+                width: auto;
+            }
+        }
+
+        .bento-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 24px;
+
+            h3 {
+                color: var(--card-foreground);
+            }
+        }
+
+        &.green .bento-illustration {
+            background-color: #f0fff8;
+        }
+
+        &.blue .bento-illustration {
+            background-color: #f5f8fe;
+        }
+
+        &.purple .bento-illustration {
+            background-color: #faf5ff;
+        }
+    }
+
+    .getting-started-grid {
+        display: flex;
+        gap: 48px;
+
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+
+            .getting-started-card {
+                flex: 1 1 auto;
+            }
+        }
+    }
+
+    .getting-started-card {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+
+        .getting-started-image {
+            @extend .placeholder-image;
+            height: 320px;
+            width: 100%;
+        }
+
+        .getting-started-body {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+
+            > div {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+
+                h3 {
+                    color: var(--card-foreground);
+                }
+            }
+
+            [data-slot="button"] {
+                align-self: flex-start;
+                width: 240px;
+            }
+        }
+
+        @media (max-width: $mobile-width) {
+            .getting-started-image {
+                height: 176px;
+            }
+
+            .getting-started-body [data-slot="button"] {
+                width: 100%;
+            }
+        }
+    }
+
+    .try-demo {
+        display: flex;
+        align-items: center;
+        gap: 64px;
+        padding: 64px;
+        background-color: var(--primary);
+        border-radius: 14px;
+
+        .try-demo-copy {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            h2, p {
+                color: var(--primary-foreground);
+            }
+
+            h2 {
+                font-size: 48px;
+                line-height: 1;
+            }
+
+            p {
+                opacity: .8;
+                font-size: var(--text-lg-font-size);
+                line-height: var(--line-height-8, 2rem);
+            }
+        }
+
+        .try-demo-cta[data-slot="button"] {
+            flex-shrink: 0;
+            background-color: var(--primary-foreground);
+            color: var(--primary);
+            text-decoration: none;
+
+            &:hover {
+                background-color: var(--primary-foreground);
+                opacity: .9;
+            }
+        }
+
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+
+            .try-demo-copy h2 {
+                font-size: 36px;
+                line-height: 40px;
+            }
+
+            .try-demo-cta[data-slot="button"] {
+                width: 100%;
+                height: auto;
+                min-height: 40px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                white-space: normal;
+                text-align: center;
             }
         }
     }
