@@ -117,7 +117,7 @@ public class ContractController implements UserAccessRights {
                 EntityType.oidc10_rp,
                 user.getEmail(),
                 null
-            ));
+            ), true);
             String jiraKey = jiraResult.keyOrPlaceholder();
             LOG.info("Created Jira issue for new Contract: " + jiraKey);
             saved.setTicketKey(jiraKey);

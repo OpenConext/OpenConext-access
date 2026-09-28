@@ -265,7 +265,7 @@ public class OrganizationController implements UserAccessRights {
                 EntityType.oidc10_rp,
                 user.getEmail(),
                 null
-            ));
+            ),false);
             String jiraKey = jiraResult.keyOrPlaceholder();
             LOG.info("Created Jira issue for new Organization: " + jiraKey);
             newOrganization.setTicketKey(jiraKey);

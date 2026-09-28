@@ -16,6 +16,8 @@ public class JiraConfig {
     private String userName;
     private String projectKey;
     private String environment;
+    private String apiKeyQtc;
+    private String projectKeyQtc;
     private String apiKey;
     private int connectionTimeout;
 

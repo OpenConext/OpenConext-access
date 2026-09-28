@@ -47,11 +47,30 @@ class JiraClientTest extends AbstractMailTest {
                 "summary",
                 EntityType.saml20_sp,
                 "mail@to.org",
-                null));
+                null), false);
         assertEquals("CTX-1000", result.key());
         assertEquals("CTX-1000", result.keyOrPlaceholder());
     }
 
+    @SneakyThrows
+    @Test
+    void createQTC() {
+        Map<String, String> response = Map.of("key", "QTC-1000");
+        stubFor(post(urlPathMatching("/issue")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(response))));
+
+        JiraClient.JiraCreateResult result = jiraClient.create(new JiraIssue(
+            null,
+            null,
+            "description",
+            "summary",
+            null,
+            "mail@to.org",
+            null), true);
+        assertEquals("QTC-1000", result.key());
+        assertEquals("QTC-1000", result.keyOrPlaceholder());
+    }
     @SneakyThrows
     @Test
     void createWithManageIdentifierAddsAccessCatalogusAppURL() {
@@ -67,7 +86,7 @@ class JiraClientTest extends AbstractMailTest {
                 "summary",
                 EntityType.saml20_sp,
                 "mail@to.org",
-                "manage-identifier-123"));
+                "manage-identifier-123"), false);
 
         verify(postRequestedFor(urlPathMatching("/issue"))
                 .withRequestBody(matchingJsonPath("$.fields.customfield_13804",
@@ -102,7 +121,7 @@ class JiraClientTest extends AbstractMailTest {
                 "summary",
                 EntityType.saml20_sp,
                 "mail@to.org",
-                null));
+                null),false);
 
         assertTrue(result.error() instanceof HttpClientErrorException);
         assertEquals("JIRA-DOWN", result.keyOrPlaceholder());

@@ -403,7 +403,7 @@ public class ConnectionController implements UserAccessRights {
             user.getEmail(),
             connection.getManageIdentifier()
         );
-        JiraClient.JiraCreateResult jiraResult = jiraClient.create(jiraIssue);
+        JiraClient.JiraCreateResult jiraResult = jiraClient.create(jiraIssue,false);
         String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
             "notes", String.format("Production status requested by %s for %s. See Jira %s",
@@ -500,7 +500,7 @@ public class ConnectionController implements UserAccessRights {
             connection.getProtocol(),
             user.getEmail(),
             connection.getManageIdentifier()
-        ));
+        ),false);
         String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", user.getEmail(),
             "notes", String.format("Access for eduID users %s by %s for %s. See Jira %s",
@@ -614,7 +614,7 @@ public class ConnectionController implements UserAccessRights {
                     connection.getProtocol(),
                     user.getEmail(),
                     null
-                ));
+                ),false);
                 String jiraKey = jiraResult.keyOrPlaceholder();
                 Map<String, Object> auditData = Map.of("user", user.getEmail(),
                     "notes", String.format("Data change requested by %s for %s. See Jira %s",

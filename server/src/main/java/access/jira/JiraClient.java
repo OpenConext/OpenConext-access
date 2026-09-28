@@ -36,13 +36,16 @@ import java.util.regex.Pattern;
 public class JiraClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);
+    private static final Pattern JIRA_ISSUE_KEY = Pattern.compile("^[A-Z][A-Z0-9]*-[0-9]+$");
 
     private final JiraConfig jiraConfig;
     private final Config config;
     private final MailBox mailBox;
     private final Map<String, Map<String, Map<String, String>>> mappings;
     private final String issueType;
+    private final String issueTypeQTC;
     private RestTemplate restTemplate;
+    private RestTemplate restTemplateQTC;
 
     @SneakyThrows
     @SuppressWarnings("unchcked")
@@ -52,9 +55,11 @@ public class JiraClient {
         this.mailBox = mailBox;
         this.mappings = objectMapper.readValue(new ClassPathResource("jira/mappings.json").getInputStream(), new TypeReference<>() {
         });
-        this.issueType = this.resolveIssueType();
+        this.issueType = this.resolveIssueType("change");
+        this.issueTypeQTC = this.resolveIssueType("qtc");
         if (jiraConfig.isEnabled()) {
             this.restTemplate = RestTemplateFactory.buildRestTemplate(jiraConfig.getApiKey());
+            this.restTemplateQTC = RestTemplateFactory.buildRestTemplate(jiraConfig.getApiKeyQtc());
         }
     }
 
@@ -87,27 +92,29 @@ public class JiraClient {
     }
 
     @SuppressWarnings("unchecked")
-    public JiraCreateResult create(JiraIssue issue) {
+    public JiraCreateResult create(JiraIssue issue, boolean isQtc) {
         if (!jiraConfig.isEnabled()) {
             return JiraCreateResult.success(String.format("CXT-%s", ThreadLocalRandom.current().nextInt(1000, 10000)));
         }
         Map<String, Object> fields = new HashMap<>();
-        fields.put("project", Map.of("key", jiraConfig.getProjectKey()));
-        fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
-        fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
-        EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();
-        fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", entityType.name()));
-        fields.put("customfield_" + emailToCustomField(), issue.getEmailTo());
-        String manageIdentifier = issue.getManageIdentifier();
-        if (StringUtils.hasText(manageIdentifier)) {
-            String accessCatalogusAppURL = String.format("%s/application-detail/%s/%s",
-                config.getClientUrl(), issue.getEntityType().name(), manageIdentifier);
-            fields.put("customfield_" + accessCatalogusAppURLCustomField(), accessCatalogusAppURL);
+        fields.put("project", Map.of("key", isQtc ? jiraConfig.getProjectKeyQtc() : jiraConfig.getProjectKey()));
+        if (!isQtc) {
+            fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
+            fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
+            EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();
+            fields.put("customfield_" + typeMetaDataCustomField(), Map.of("value", entityType.name()));
+            String manageIdentifier = issue.getManageIdentifier();
+            if (StringUtils.hasText(manageIdentifier)) {
+                String accessCatalogusAppURL = String.format("%s/application-detail/%s/%s",
+                    config.getClientUrl(), issue.getEntityType().name(), manageIdentifier);
+                fields.put("customfield_" + accessCatalogusAppURLCustomField(), accessCatalogusAppURL);
+            }
+            fields.put("duedate", dueDate());
         }
-        fields.put("issuetype", ImmutableMap.of("id", issueType));
+        fields.put("customfield_" + emailToCustomField(isQtc), issue.getEmailTo());
+        fields.put("issuetype", ImmutableMap.of("id", isQtc ? issueTypeQTC : issueType));
         fields.put("summary", issue.getSummary());
         fields.put("description", issue.getDescription());
-        fields.put("duedate", dueDate());
         //We don't send keys with null or empty values
         fields.entrySet().removeIf(entry -> entry.getValue() instanceof String && !StringUtils.hasText((String) entry.getValue()));
 
@@ -117,7 +124,7 @@ public class JiraClient {
         String url = jiraConfig.getBaseUrl() + "/issue";
         try {
 
-            Map<String, String> result = restTemplate.postForObject(url, jiraIssue, Map.class);
+            Map<String, String> result = (isQtc ? restTemplateQTC : restTemplate).postForObject(url, jiraIssue, Map.class);
 
             LOG.info("Response {} from JIRA", result);
 
@@ -149,8 +156,6 @@ public class JiraClient {
             return JiraCreateResult.failure(e);
         }
     }
-
-    private static final Pattern JIRA_ISSUE_KEY = Pattern.compile("^[A-Z][A-Z0-9]*-[0-9]+$");
 
     //Deliberately still throws directly, unlike #create: a comment is always posted on a ticket for a change
     //request that already exists, so there is nothing pending on this call succeeding that would need protecting
@@ -203,12 +208,13 @@ public class JiraClient {
         }
     }
 
-    private String resolveIssueType() {
+    private String resolveIssueType(String type) {
         return this.mappings.get(this.jiraConfig.getEnvironment())
             .get("issueTypes").entrySet().stream()
-            .filter(entry -> entry.getKey().equals("change"))
-            .map(entry -> entry.getValue())
-            .findFirst().get();
+            .filter(entry -> entry.getKey().equals(type))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .get();
     }
 
     private String spCustomField() {
@@ -223,8 +229,8 @@ public class JiraClient {
         return this.customField("typeMetaData");
     }
 
-    private String emailToCustomField() {
-        return this.customField("emailTo");
+    private String emailToCustomField(boolean isQtc) {
+        return this.customField(isQtc ? "emailToQTC" : "emailTo");
     }
 
     private String accessCatalogusAppURLCustomField() {

@@ -4,12 +4,14 @@
       "spEntityId": "13018",
       "idpEntityId": "13012",
       "emailTo": "13009",
+      "emailToQTC": "10733",
       "typeMetaData": "14800",
       "optionalMessage": "15300",
       "accessCatalogusAppURL": "13804"
     },
     "issueTypes": {
-      "change": "11106"
+      "change": "11106",
+      "qtc": "11300"
     }
   },
   "prod": {
@@ -22,7 +24,8 @@
       "accessCatalogusAppURL": "13804"
     },
     "issueTypes": {
-      "change": "11106"
+      "change": "11106",
+      "qtc": "11300"
     }
   }
 }

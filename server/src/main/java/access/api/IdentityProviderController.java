@@ -167,7 +167,7 @@ public class IdentityProviderController implements UserAccessRights {
                 EntityType.valueOf((String) serviceProvider.get("type")),
                 email,
                 null
-        ));
+        ),false);
         String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String, Object> auditData = Map.of("user", email,
                 "notes", String.format("Connection request requested by %s from %s for %s. See Jira %s",
@@ -235,7 +235,7 @@ public class IdentityProviderController implements UserAccessRights {
                 EntityType.valueOf((String) serviceProvider.get("type")),
                 user.getEmail(),
                 null
-        ));
+        ),false);
         String jiraKey = jiraResult.keyOrPlaceholder();
         Map<String,Object> auditData = Map.of("user", user.getEmail(),
                 "notes", String.format("Disconnection request requested by %s from %s for %s. See Jira %s",
