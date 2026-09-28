@@ -10,7 +10,9 @@ div.my-organization-outer-container {
 
     .my-organization-header-container {
         background-color: var(--muted);
-        padding: 25px 50px 15px 50px;
+        margin: 25px 0 15px 50px;
+        width: 640px;
+
 
         .top-header {
             margin-bottom: 15px;
@@ -43,7 +45,7 @@ div.my-organization-outer-container {
 
         p.info {
             margin-top: 5px;
-            color:var(--muted-foreground);
+            color: var(--muted-foreground);
         }
 
     }
@@ -55,6 +57,7 @@ div.my-organization-outer-container {
             width: 75%;
             padding-right: 0;
         }
+
         button {
             margin-left: auto;
         }

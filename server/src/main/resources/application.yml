@@ -93,6 +93,8 @@ jira:
   project-key: CXT
   environment: test
   api-key: secret
+  project-key-qtc: QTC
+  api-key-qtc: secret
 
   # Timeout in milliseconds
   connection-timeout: 60_000

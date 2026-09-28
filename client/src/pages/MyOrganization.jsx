@@ -525,7 +525,7 @@ const MyOrganization = ({refreshUser}) => {
                 <div className="top-header">
                     <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
                     {canDeleteOrganization &&
-                        <Button variant="ghost" onClick={e => doDelete(e, true)}>
+                        <Button variant="destructive" onClick={e => doDelete(e, true)}>
                             <TrashIcon/>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/>
                         </Button>}
