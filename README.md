@@ -47,11 +47,13 @@ GRANT ALL privileges ON `access`.* TO 'access'@'%';
 Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_0900_ai_ci` from script above
 
 ### App Customization
-
-Clone customization repository into the `app-customizations`. In this example we use the SURF version, it can be replaced with your own version of this repository with customizations
+The app allows some ways to override besides the usual way of adjusting configurations. Clone customization repository into the `app-customizations`. In this example we use the SURF version, it can be replaced with your own version of this repository with customizations
 ```shell
 git clone git@github.com:OpenConext/OpenConext-access-custom-surf.git app-customizations
 ```
+
+This `app-customizations` folder will contain overrides for client and server. The example above is the actual implementation of the SURF version of the overrides, your own git repo can be used here. For the client there is a `translations` folder to override a translation per key, only the translations that need to be different from the default ones can be specified here. The `myCustomApp.tsx` contains an object that allows to override certain feature in the app, for example providing an alternative app logo. To apply the overrides a symlink needs to be applied, see below.
+
 #### Client
 Symlink to client
 ```shell
