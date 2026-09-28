@@ -59,3 +59,11 @@ server/src/main/resources/Changelog.md
 SPRING_MIGRATION.md
 DesignSystem
 ignore
+
+# macOS
+.DS_Store
+
+# Folders for customizing the app
+app-customizations
+client/src/appCustomizations/myCustomizations
+server/src/main/resources/myCustomizations

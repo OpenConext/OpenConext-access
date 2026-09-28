@@ -102,6 +102,7 @@ institution-admin:
   organization-guid-prefix: "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:"
 
 config:
+  product-name: "OpenConext Access"
   client-url: "http://localhost:3002"
   base-url: "test2.surfconext.nl"
   external_schac_home_organizations:

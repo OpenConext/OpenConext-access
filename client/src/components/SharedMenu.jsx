@@ -25,6 +25,7 @@ import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {useAppStore} from "../stores/AppStore.js";
 import {allMenuGroups} from "../utils/MenuItems.js";
 import Logo from "../icons/logo2.svg";
+import {OverridableComponent} from "../contexts/CustomizationContext.tsx";
 
 export const SharedMenu = () => {
 
@@ -84,7 +85,9 @@ export const SharedMenu = () => {
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" className="brand-button" render={
                                 <Link to="/" className="brand-logo">
-                                    <Logo/>
+                                    <OverridableComponent appCustomizationReactNodeKey="appLogo">
+                                        <Logo />
+                                    </OverridableComponent>
                                 </Link>
                             }/>
                         </SidebarMenuItem>

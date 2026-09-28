@@ -23,7 +23,7 @@ public class MailConf {
                            @Value("${email.environment}") String env,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return new MailBox(mailSender, emailFrom, serviceDeskEmail, supportEmail, jiraErrorEmail, config.getClientUrl(), env, objectMapper);
+        return new MailBox(mailSender, emailFrom, serviceDeskEmail, supportEmail, jiraErrorEmail, config.getClientUrl(), env, config.getProductName(), objectMapper);
     }
 
 

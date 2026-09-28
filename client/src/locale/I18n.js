@@ -1,5 +1,6 @@
 import en from "./en";
 import nl from "./nl";
+import { enOverride, nlOverride } from '../appCustomizations/index.ts'
 
 import {I18n as I18nRemote} from "i18n-js";
 
@@ -11,6 +12,11 @@ const I18n = new I18nRemote({
     en: en,
     nl: nl,
 });
+
+I18n.store({
+    en: enOverride,
+    nl: nlOverride,
+})
 
 // DetermineLanguage based on parameter, cookie and finally navigator
 let parameterByName = getParameterByName("lang", window.location.search);
@@ -31,5 +37,12 @@ I18n.missingTranslation.register("report-error", (i18n, scope) => {
     return `[missing "${scope}" translation]`;
 });
 I18n.missingBehavior = "report-error";
+
+// Allows inserting always-available variables in translations
+const _t = I18n.t.bind(I18n);
+I18n.t = (scope, options = {}) => _t(scope, { productName: _t("globalVariables.productName"), ...options });
+
+export const tArray = (scope, mapFn) =>
+    I18n.t(scope).map((_, i) => mapFn(I18n.t(`${scope}.${i}`), i));
 
 export default I18n;

@@ -17,7 +17,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,10 +39,20 @@ public class MailBox {
     private final String supportEmail;
     private final String jiraErrorEmail;
     private final String environment;
+    private final String productName;
 
     private final Map<String, Map<String, String>> subjects;
 
-    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
+    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory(resourceName -> {
+        InputStream override = MailBox.class.getClassLoader()
+                .getResourceAsStream("myCustomizations/templates/" + resourceName);
+        if (override != null) {
+            return new InputStreamReader(override, StandardCharsets.UTF_8);
+        }
+        InputStream fallback = MailBox.class.getClassLoader()
+                .getResourceAsStream("templates/" + resourceName);
+        return fallback != null ? new InputStreamReader(fallback, StandardCharsets.UTF_8) : null;
+    });
 
     public MailBox(
             JavaMailSender mailSender,
@@ -49,6 +62,7 @@ public class MailBox {
             String jiraErrorEmail,
             String clientUrl,
             String environment,
+            String productName,
             ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
@@ -57,7 +71,11 @@ public class MailBox {
         this.jiraErrorEmail = jiraErrorEmail;
         this.clientUrl = clientUrl;
         this.environment = environment;
-        this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
+        this.productName = productName;
+        ClassPathResource subjectsOverride = new ClassPathResource("myCustomizations/templates/subjects.json");
+        ClassPathResource subjectsDefault = new ClassPathResource("templates/subjects.json");
+        ClassPathResource subjectsResource = subjectsOverride.exists() ? subjectsOverride : subjectsDefault;
+        this.subjects = objectMapper.readValue(subjectsResource.getInputStream(), new TypeReference<>() {
         });
     }
 
@@ -211,7 +229,7 @@ public class MailBox {
                                  String screenshotName, String screenshotContentType) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
-        variables.put("title", "SURF Access feedback form");
+        variables.put("title", this.productName + " feedback form");
         String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
         variables.put("message", message.replaceAll("\n", "<br/>"));
@@ -289,6 +307,7 @@ public class MailBox {
 
     private String sendMail(String templateName, String subject, Map<String, Object> variables,
                             MailAttachment attachment, String... to) throws MessagingException, IOException {
+        variables.putIfAbsent("productName", this.productName);
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 

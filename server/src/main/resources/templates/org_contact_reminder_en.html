@@ -5,10 +5,7 @@
 </head>
 <body>
 <div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
-        {{> logo-surf.svg}}
-        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Access</span>
-    </div>
+    {{> header_en.html}}
     <div class="head" style="padding: 30px 40px 20px 40px;">
         {{#environment}}
         <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
@@ -18,7 +15,7 @@
         <p class="title" style="">Dear {{contact.givenName}} {{contact.surName}},</p>
 
         <p>We would like to ask you to review and update the contact information for your organisation
-            <strong>{{organization.name}}</strong> in OpenConext Access.</p>
+            <strong>{{organization.name}}</strong> in {{productName}}.</p>
 
         <p>Keeping contact information up to date ensures that the right people are notified about important changes
             to your organisation's access configuration.</p>
