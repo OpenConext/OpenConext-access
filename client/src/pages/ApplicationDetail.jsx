@@ -997,13 +997,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         const anonymousQuickLinks = anonymous ? quickLinksList() : [];
         return (
             <>
-                {anonymous &&
-                    <div className="application-detail-back-link">
-                        <Button variant="link" onClick={goBackToApplications}>
-                            <span data-icon="inline-start"><ArrowLeftIcon/></span>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
-                        </Button>
-                    </div>}
                 {!anonymous &&
                     <div className="application-detail-top">
                         <Button variant="link" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</Button>
@@ -1011,6 +1004,13 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 }
                 <div className="inner-application-detail-container">
                     <div className={`application-detail ${anonymous ? "anonymous" : "stand-alone"}`}>
+                        {anonymous &&
+                            <div className="application-detail-back-link">
+                                <Button variant="link" onClick={goBackToApplications}>
+                                    <span data-icon="inline-start"><ArrowLeftIcon/></span>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("applicationDetail.back"))}}/>
+                                </Button>
+                            </div>}
                         <div className="meta-data">
                             {renderLogo(metaData)}
                             <div className="meta-data-name">

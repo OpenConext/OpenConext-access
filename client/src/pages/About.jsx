@@ -3,7 +3,9 @@ import React from "react";
 import I18n from "../locale/I18n";
 import {Badge} from "@surfnet/curve-react";
 import {TextboxIcon, NavigationArrowIcon, ChartLineIcon} from "@phosphor-icons/react";
-import AspectRatioPlaceholder from "../icons/aspect_ratio.svg";
+import heroImage from "../icons/landing/about_top_right.png";
+import eduidImage from "../icons/landing/about_eduid_left.png";
+import roadmapImage from "../icons/landing/about_bottom_left.png";
 
 const About = () => {
 
@@ -16,13 +18,13 @@ const About = () => {
                     <p>{I18n.t("about.hero.paragraph2")}</p>
                 </div>
                 <div className="about-image" aria-hidden="true">
-                    <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                    <img src={heroImage} alt="" loading="lazy"/>
                 </div>
             </section>
 
             <section className="about-eduid">
                 <div className="about-image" aria-hidden="true">
-                    <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                    <img src={eduidImage} alt="" loading="lazy"/>
                 </div>
                 <div className="about-copy">
                     <h2>{I18n.t("about.eduId.title")}</h2>
@@ -79,7 +81,7 @@ const About = () => {
 
             <section className="about-roadmap">
                 <div className="about-image" aria-hidden="true">
-                    <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                    <img src={roadmapImage} alt="" loading="lazy"/>
                 </div>
                 <div className="about-copy">
                     <h2>{I18n.t("about.roadmap.title")}</h2>

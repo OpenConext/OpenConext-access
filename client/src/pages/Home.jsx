@@ -5,10 +5,12 @@ import {Button} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
 import {sanitize} from "../utils/Utils";
 import {login} from "../utils/Login.js";
-import WelcomePublishApps from "../icons/figma/welcome-add-apps.svg";
-import WelcomeActivateApps from "../icons/figma/welcome-discover-apps.svg";
-import WelcomeManageAccess from "../icons/figma/welcome-setup-access.svg";
-import AspectRatioPlaceholder from "../icons/aspect_ratio.svg";
+import WelcomePublishApps from "../icons/landing/home_publish_apps.svg";
+import WelcomeActivateApps from "../icons/landing/home_activate_apps.svg";
+import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
+import heroImage from "../icons/landing/home_top_right.png";
+import providersImage from "../icons/landing/home_bottom_left.png";
+import institutionsImage from "../icons/landing/home_bottom_right.png";
 import PublicStats from "./PublicStats.jsx";
 
 const GETTING_STARTED_SECTION_ID = "getting-started";
@@ -53,7 +55,7 @@ export const Home = () => {
                     </Button>
                 </div>
                 <div className="hero-image" aria-hidden="true">
-                    <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                    <img src={heroImage} alt="" loading="lazy"/>
                 </div>
             </section>
 
@@ -95,7 +97,7 @@ export const Home = () => {
                 <div className="getting-started-grid">
                     <div className="getting-started-card">
                         <div className="getting-started-image" aria-hidden="true">
-                            <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                            <img src={providersImage} alt="" loading="lazy"/>
                         </div>
                         <div className="getting-started-body">
                             <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.providers.title")}</h3>
@@ -108,7 +110,7 @@ export const Home = () => {
                     </div>
                     <div className="getting-started-card">
                         <div className="getting-started-image" aria-hidden="true">
-                            <AspectRatioPlaceholder preserveAspectRatio="xMidYMid slice"/>
+                            <img src={institutionsImage} alt="" loading="lazy"/>
                         </div>
                         <div className="getting-started-body">
                             <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.institutions.title")}</h3>
