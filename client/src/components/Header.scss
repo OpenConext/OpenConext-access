@@ -4,35 +4,33 @@
 .header-container {
     position: relative;
     background-color: white;
-    padding: 4px 0 26px 0;
-    border-bottom: 1px solid #B2B6BE;
+    border-bottom: 1px solid var(--border);
 
     .header-inner {
         @include index.public-page-width;
         box-sizing: border-box;
         display: flex;
         align-items: center;
-        margin-top: 15px;
+        gap: 32px;
+        min-height: 72px;
         padding: 0 40px;
 
         @media (max-width: $mobile-width) {
             justify-content: space-between;
+            min-height: 64px;
             padding: 0 20px;
         }
 
         .logo {
-            margin: 0 65px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
 
             @media (max-width: $mobile-width) {
                 margin: 0;
             }
         }
 
-        .nav {
-            @media (max-width: $mobile-width) {
-                display: none;
-            }
-        }
         .desktop-navigation {
             @media (max-width: $mobile-width) {
                 display: none;

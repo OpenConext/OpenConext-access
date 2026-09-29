@@ -17,10 +17,10 @@ export const LoginButtons = ({className = "", onClick}) => {
 
     return (
         <div className={`login-buttons ${className}`}>
-            <Button variant="outline" onClick={doLogin(true)}>
+            <Button variant="outline" size="lg" onClick={doLogin(true)}>
                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.loginProvider"))}}/>
             </Button>
-            <Button variant="outline" onClick={doLogin(false)}>
+            <Button variant="outline" size="lg" onClick={doLogin(false)}>
                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.loginInstitution"))}}/>
             </Button>
         </div>

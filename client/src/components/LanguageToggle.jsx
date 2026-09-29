@@ -1,16 +1,20 @@
 import React from "react";
 import I18n from "../locale/I18n";
+import {Button} from "@surfnet/curve-react";
 import {GlobeIcon} from "@phosphor-icons/react";
 import {stopEvent} from "../utils/Utils";
 import {switchLocale} from "../utils/Language";
-import "./LanguageToggle.scss";
 
+// Every language is shown in its own language, independent of the current locale
+const LANGUAGE_NAMES = {en: "English", nl: "Nederlands"};
+
+// Shows the language that is not active, clicking it switches to that language
 export const LanguageToggle = () => {
 
     const otherLocale = I18n.locale === "nl" ? "en" : "nl";
 
     return (
-        <button type="button"
+        <Button variant="ghost"
                 className="language-toggle"
                 title={I18n.t("footer.select_locale")}
                 onClick={e => {
@@ -18,7 +22,7 @@ export const LanguageToggle = () => {
                     switchLocale(otherLocale);
                 }}>
             <GlobeIcon/>
-            <span>{I18n.t(`languages.${I18n.locale}`)}</span>
-        </button>
+            <span lang={otherLocale}>{LANGUAGE_NAMES[otherLocale]}</span>
+        </Button>
     );
 }

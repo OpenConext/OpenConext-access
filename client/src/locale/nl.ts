@@ -1100,12 +1100,12 @@ const nl: AppTranslation = {
         generalSectionTitle: "Algemeen",
         contractSectionTitle: "Gegevens overeenkomst",
         mfa: {
-            baseLevelLabel: "Basisniveau van MFA",
-            baseLevelInfo: "De basis authenticatiecontextklasse die wordt toegepast op alle logins van deze IdP naar SURFconext.",
-            additionalAcrLabel: "Extra ondersteunde ACR",
-            additionalAcrInfo: "Extra authenticatiecontextklassen die deze IdP ondersteunt, naast het basisniveau.",
+            baseLevelLabel: "Basis inlogmethode",
+            baseLevelInfo: "De standaard die voor alle gebruikers van je IdP wordt afgedwongen.",
+            additionalAcrLabel: "Ondersteunde additionele inlogmethodes door je identiteitsprovider",
+            additionalAcrInfo: "De methodes die je ondersteunt en per applicatie kunt activeren",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Wachtwoord"},
+                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Gebruikersnaam en wachtwoord"},
                 {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authenticatie"},
                 {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
                 {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
@@ -1361,46 +1361,34 @@ const nl: AppTranslation = {
         },
     },
     assurance: {
-        mfaTitle: "Tweestapsverificatie door je identity provider",
-        mfaInfo: "Deze optie kun je gebruiken als de identity provider van je organisatie zelf tweestapsverificatie kan uitvoeren voor deze applicatie.",
-        mfaBlock: {
-            refeds: "Gebruik je Microsoft EntraID en hebben je gebruikers de Microsoft Authenticator gekoppeld, kies dan Microsoft MFA.",
-            microSoft: "Gebruik je een identity provider die het REFEDS MFA profiel ondersteund en hebben de accounts van je gebruikers een MFA middel. Kies dan REFEDS MFA.",
+        title: "Assurance",
+        intro: "Kies hieronder welke inlogmethodes je wilt instellen voor je applicatie.",
+        activeRule: {
+            title: "Assuranceregel actief",
+            info: "Er is een assuranceregel actief die aanvullende assurance afdwingt",
+            toRules: "Naar regels",
         },
-        mfaLevel: "Zet tweestapsverificatie via de organisatie aan",
-        stepupTitle: "Tweestapsverificatie via SURFsecureID",
-        stepupInfo: "Deze optie gebruik je als je organisatie SURFsecureID heeft ingericht voor deze applicatie en de gebruikers van de applicatie een tweede factor via SURFsecureID hebben. Gebruikers voegen een tweede factor toe in het self-service portal van SURFsecureID.",
-        stepupBlock: {
-            choose: "Kies het minimale betrouwbaarheidsniveau waarop de authenticatie plaat moet vinden. Een hoger niveau stelt hogere eisen.",
-            level1: "Niveau 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
-            level2: "Niveau 2: ieder type token is toegestaan, identiteit wel geverifieerd",
-            level3: "Niveau 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd",
+        baseLabel: "Basis inlogmethode door je identiteitsprovider",
+        baseInfo: "De standaard die voor alle gebruikers van je IdP wordt afgedwongen.",
+        idpLabel: "Additionele inlogmethode door je identiteitsprovider",
+        idpInfo: "Extra inlogmethode die voor deze applicatie afgedwongen wordt",
+        secureIdLabel: "Additionele inlogmethode via SURFsecureID",
+        secureIdInfo: "Gebruik deze optie als je organisatie SURFsecureID heeft ingericht voor deze applicatie en de gebruikers van de applicatie een tweede factor via SURFsecureID hebben.",
+        selectPlaceholder: "Selecteer één optie",
+        none: "Geen",
+        noneDescription: "Geen additionele inlogmethode",
+        idpOptions: {
+            multipleauthn: "Microsoft MFA",
+            mfa: "Refeds MFA",
+            iapMedium: "Refeds medium",
+            iapHigh: "Refeds high",
+            iapMediumMfa: "Refeds medium MFA",
+            iapHighMfa: "Refeds high MFA",
         },
-        stepupLevel: "Zet tweestapsverificatie via SURFsecureID aan",
-        mfa: {
-            multipleauthn: "Microsoft MFA (ADFS/Azure AD)",
-            mfa: "REFEDS MFA",
-            mobileOneFactorContract: "Mobiele eenfactor-contract",
-            mobileOneFactorUnregistered: "Mobiele eenfactor niet-geregistreerd",
-            password: "Wachtwoord",
-            transparentAuthnContext: "Transparante authenticatiecontext",
-            linkedInstitution: "Gekoppelde instelling (eduID)",
-            validateNames: "Namen valideren (eduID)",
-            validateNamesExternal: "Namen extern valideren (eduID)",
-            affiliationStudent: "Studentenlidmaatschap (eduID)",
-        },
-        stepup: {
-            loa1_5: "Niveau 1.5",
-            loa2: "Niveau 2",
-            loa3: "Niveau 3",
-        },
-        tipsInfo: "Tips van SURF",
-        tips: {
-            title: "Twee systemen van tweestapsverificatie",
-            practice: "SURF Access ondersteunt tweestapsverificatie:",
-            optionMfa: "via de identity provider van de eigen organisatie.",
-            optionSurf: "via SURFSecureID.",
-            warning: "<strong>Let op</strong>: zet je <em>beide</em> systemen aan, dan moeten gebruikers met <em>beide</em> systemen een tweestapsverificatie uitvoeren.",
+        secureIdOptions: {
+            loa1_5: "LoA 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
+            loa2: "LoA 2: ieder type token is toegestaan, identiteit wel geverifieerd",
+            loa3: "LoA 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd",
         },
         rulesTitle: "Assuranceregels (via SURFsecureID)",
         flash: {
@@ -1408,8 +1396,6 @@ const nl: AppTranslation = {
         },
         loaTooLow: "De beveiliging van je account is te laag om dit niveau in te stellen. Log uit en log opnieuw in met hogere beveiliging.",
         mfaLoaTooLow: "De beveiliging van je account is te laag om dit niveau in te stellen. Log uit en log opnieuw in met hogere beveiliging.",
-        mfaSelectPlaceholder: "Selecteer het type tweestapsverificatie",
-        stepupSelectPlaceholder: "Selecteer een niveau van betrouwbaarheid",
     },
     error: {
         title: "Oeps, fout!!!",
@@ -1622,3 +1608,4 @@ const nl: AppTranslation = {
 }
 
 export default nl;
+

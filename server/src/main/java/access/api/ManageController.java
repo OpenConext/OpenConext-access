@@ -440,6 +440,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         Organization organization = organizationRepository.getReferenceById(organizationId);
 
         policyAccessAllowed(user, policy, organization);
+        Map<String, Object> data = getData(policy);
+        String revisionNote = this.revisionNote("Policy", user, policy, data.get("serviceProviderIds").toString());
+        data.put("revisionnote", revisionNote);
         return ResponseEntity.ok(manage.updatePolicy(policy));
     }
 

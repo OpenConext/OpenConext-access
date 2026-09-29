@@ -1,3 +1,4 @@
+import {PolicyCard} from "../policies/PolicyCard.jsx";
 import "./ApplicationDetail.scss";
 import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
@@ -9,9 +10,10 @@ import {
     getPolicyByServiceProviderEntityId,
     inviteRoles,
     publicServiceProviderByDetail,
+    saveIdentityProviderAssurance,
     saveIdentityProviderConsent
 } from "../api/index.js";
-import I18n from "../locale/I18n.js";
+import I18n, {tArray} from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router";
 import {
     Accordion,
@@ -19,6 +21,7 @@ import {
     AccordionItem,
     AccordionTrigger,
     Alert,
+    AlertAction,
     AlertDescription,
     Badge,
     Button,
@@ -32,13 +35,13 @@ import {
     TableHeader,
     TableRow
 } from "@surfnet/curve-react";
-import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PencilSimpleIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
+import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 
 import ExampleSVG from "../icons/wayf.svg";
 import {APPLICATION_LINKS, connectWithoutInteraction, CONSENT, MFA_LEVELS, providerDescription, providerName, providerOrganizationName, STEPUP_LEVELS} from "../utils/Manage.js";
 import {isEmpty, sanitize, stopEvent} from "../utils/Utils.js";
-import {policyBreakDowwn, policyTypes} from "../utils/Policy.js";
+import {policyTypes} from "../utils/Policy.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -67,11 +70,9 @@ const tabs = {
 
 const consentOptions = Object.keys(CONSENT).map(k => ({label: I18n.t(`consent.${k}`), value: k}));
 
-const mfaOptions = Object.keys(MFA_LEVELS).map(k => ({label: I18n.t(`assurance.mfa.${k}`), value: MFA_LEVELS[k]}));
-const stepupOptions = Object.keys(STEPUP_LEVELS).map(k => ({
-    label: I18n.t(`assurance.stepup.${k}`),
-    value: STEPUP_LEVELS[k]
-}));
+const SECURE_ID_INFO_URL = "https://servicedesk.surf.nl/wiki/spaces/IAM/pages/198967724/Using+Levels+of+Assurance+to+express+strength+of+authentication";
+
+const idpOptionKeys = ["multipleauthn", "mfa", "iapMedium", "iapHigh", "iapMediumMfa", "iapHighMfa"];
 
 const MFA_DEFAULT = MFA_LEVELS.multipleauthn;
 const STEPUP_DEFAULT = STEPUP_LEVELS.loa1_5;
@@ -95,14 +96,13 @@ const stepupLoaInteger = level => {
 
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
-    const {arp, privacy, user, config, setFlash, currentOrganization, allowedAttributes} = useAppStore(useShallow(state => ({
+    const {arp, privacy, user, config, setFlash, currentOrganization} = useAppStore(useShallow(state => ({
         arp: state.arp,
         privacy: state.privacy,
         user: state.user,
         config: state.config,
         setFlash: state.setFlash,
-        currentOrganization: state.currentOrganization,
-        allowedAttributes: state.allowedAttributes
+        currentOrganization: state.currentOrganization
     })));
 
     const navigate = useNavigate();
@@ -482,6 +482,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         appName: providerName(I18n.locale, serviceProvider)
     });
 
+    const refreshPolicies = () => getPolicyByServiceProviderEntityId(serviceProvider.data.entityid, currentOrganization.id)
+        .then(res => {
+            res.forEach(policy => policy.originalName = policy.name);
+            setPolicies(res);
+        });
+
     const navigateToAddPolicy = policyType => {
         useAppStore.setState({activeMenuItem: mainMenuItems.policies});
         const params = policyReturnParams();
@@ -493,30 +499,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         useAppStore.setState({activeMenuItem: mainMenuItems.policies});
         navigate(`/policies/details/${policy.id}?${policyReturnParams().toString()}`);
     };
-
-    const renderPolicyCard = policy => (
-        <Card key={policy.id} size="sm" className="access-detail-card">
-            <CardContent className="access-detail-card-content">
-                <div className="access-detail-card-text">
-                    <p className="card-title">{policy.data.name}</p>
-                    <p className="card-applications">{I18n.t("appAccess.applications")}{providerName(I18n.locale, serviceProvider)}</p>
-                    {policyBreakDowwn(
-                        allowedAttributes,
-                        policy,
-                        I18n.t(`appAccess.breakdown.${policy.data.denyRule ? "when" : "if"}`),
-                        I18n.t("forms.or"),
-                        I18n.t(`forms.${policy.data.allAttributesMustMatch ? "and" : "or"}`))
-                        .map((sentence, index) => <span key={index} className="card-rule">{sentence}</span>)}
-                </div>
-                <Badge variant="outline" className="policy-type-badge">
-                    {I18n.t(`policies.policyChoices.${policy.data.type === policyTypes.step ? "stepTitle" : "regTitle"}`)}
-                </Badge>
-                <Button variant="ghost" size="icon" onClick={() => navigateToEditPolicy(policy)}>
-                    <PencilSimpleIcon/>
-                </Button>
-            </CardContent>
-        </Card>
-    );
 
     const renderRoleCard = (role, index) => (
         <Card key={index} size="sm" className="access-detail-card">
@@ -575,7 +557,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                 }
                                 {!isEmpty(policies) &&
                                     <div className="access-detail-cards">
-                                        {policies.map(policy => renderPolicyCard(policy))}
+                                        {policies.map(policy => <PolicyCard key={policy.id}
+                                                            policy={policy}
+                                                            serviceProviders={[serviceProvider]}
+                                                            currentOrganization={currentOrganization}
+                                                            refreshPolicies={refreshPolicies}
+                                                            onEdit={navigateToEditPolicy}/>)}
                                     </div>}
                             </AccordionContent>
                         </AccordionItem>
@@ -628,75 +615,109 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             })
     }
 
+    const saveAssurance = (newMfaEntity, newStepupEntity) => {
+        setMfaEntity(newMfaEntity);
+        setStepupEntity(newStepupEntity);
+        //The user can not set a level higher than their own, see the error indicators
+        const stepupLoaTooLow = newStepupEntity.level !== null && stepupLoaInteger(newStepupEntity.level) > user.loaLevel;
+        const mfaLoaTooLow = newMfaEntity.level !== null && mfaLoaInteger(newMfaEntity.level) > user.loaLevel;
+        if (stepupLoaTooLow || mfaLoaTooLow) {
+            return;
+        }
+        setLoading(true);
+        saveIdentityProviderAssurance({
+            identityProviderId: currentOrganization.identityProvider.id,
+            mfaEntity: newMfaEntity,
+            stepupEntity: newStepupEntity
+        })
+            .then(() => {
+                setFlash(I18n.t("assurance.flash.assuranceUpdated"));
+                setLoading(false);
+                refreshUser();
+            })
+            .catch(() => setLoading(false));
+    }
+
     const renderAssurance = () => {
         const stepupLoaTooLow = stepupEntity.level !== null && stepupLoaInteger(stepupEntity.level) > user.loaLevel;
         const mfaLoaTooLow = mfaEntity.level !== null && mfaLoaInteger(mfaEntity.level) > user.loaLevel;
+        const noneOption = {value: null, label: I18n.t("assurance.none"), description: I18n.t("assurance.noneDescription")};
+        const idpOptions = [
+            noneOption,
+            ...idpOptionKeys.map(key => ({
+                value: MFA_LEVELS[key],
+                label: I18n.t(`assurance.idpOptions.${key}`),
+                description: MFA_LEVELS[key]
+            }))
+        ];
+        const secureIdOptions = [
+            {value: null, label: I18n.t("assurance.none")},
+            ...Object.keys(STEPUP_LEVELS).map(key => ({
+                value: STEPUP_LEVELS[key],
+                label: I18n.t(`assurance.secureIdOptions.${key}`)
+            }))
+        ];
+        const baseLevelValue = (currentOrganization.identityProvider.data.supported_authncontext || [])[0];
+        const baseLevelOption = tArray("myOrganization.mfa.options", option => option)
+            .find(option => option.value === baseLevelValue) || null;
+        const hasActiveStepPolicy = policies
+            .some(policy => policy.data.type === policyTypes.step && policy.data.active);
         return (
             <div className="assurance-container">
-                <div className="assurance-left">
-                    <h2 className="text-[length:var(--text-xl-font-size)] mt-10 first:mt-0">{I18n.t("assurance.mfaTitle")}</h2>
-                    <p className="info">{I18n.t("assurance.mfaInfo")}</p>
-                    <div className="assurance-info">
-                        <ul>
-                            <li>{I18n.t("assurance.mfaBlock.refeds")}</li>
-                            <li>{I18n.t("assurance.mfaBlock.microSoft")}</li>
-                        </ul>
-
-                    </div>
-                    <SelectField name={I18n.t("assurance.mfaLevel")}
+                <div className="assurance-header">
+                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("assurance.title")}</h2>
+                    <p>{I18n.t("assurance.intro")}</p>
+                </div>
+                {hasActiveStepPolicy &&
+                    <Alert variant="info">
+                        <InfoIcon/>
+                        <AlertDescription className="alert-description-with-action">
+                            <span className="alert-text">
+                                <strong className="alert-text-title">{I18n.t("assurance.activeRule.title")}</strong>
+                                <span>{I18n.t("assurance.activeRule.info")}</span>
+                            </span>
+                            <AlertAction onClick={() => tabChanged(tabs.access)}>
+                                <Button size="sm" variant="outline">{I18n.t("assurance.activeRule.toRules")}</Button>
+                            </AlertAction>
+                        </AlertDescription>
+                    </Alert>}
+                <SelectField name={I18n.t("assurance.baseLabel")}
+                             className="select-assurance"
+                             value={baseLevelOption}
+                             options={[]}
+                             info={I18n.t("assurance.baseInfo")}
+                             infoUnderLabel={true}
+                             disabled={true}
+                />
+                <div>
+                    <SelectField name={I18n.t("assurance.idpLabel")}
                                  className="select-assurance"
-                                 value={mfaOptions.find(o => o.value === mfaEntity.level) || null}
-                                 options={mfaOptions}
-                                 placeholder={I18n.t("assurance.mfaSelectPlaceholder")}
-                                 searchable={false}
-                                 clearable={true}
-                                 onChange={option => setMfaEntity({...mfaEntity, level: option ? option.value : null})}
+                                 value={idpOptions.find(o => o.value === mfaEntity.level) || null}
+                                 options={idpOptions}
+                                 placeholder={I18n.t("assurance.selectPlaceholder")}
+                                 info={I18n.t("assurance.idpInfo")}
+                                 infoUnderLabel={true}
+                                 showCheck={true}
+                                 onChange={option => saveAssurance({...mfaEntity, level: option.value}, stepupEntity)}
                     />
                     {mfaLoaTooLow && <ErrorIndicator standalone={true}
                                                      msg={I18n.t("assurance.mfaLoaTooLow")}/>}
-                    <h2 className="text-[length:var(--text-xl-font-size)] mt-10 first:mt-0">{I18n.t("assurance.stepupTitle")}</h2>
-                    <p className="info">{I18n.t("assurance.stepupInfo")}</p>
-                    <div className="assurance-info">
-                        <p>{I18n.t("assurance.stepupBlock.choose")}</p>
-                        <ul>
-                            <li>{I18n.t("assurance.stepupBlock.level1")}</li>
-                            <li>{I18n.t("assurance.stepupBlock.level2")}</li>
-                            <li>{I18n.t("assurance.stepupBlock.level3")}</li>
-                        </ul>
-
-                    </div>
-
-                    <SelectField name={I18n.t("assurance.stepupLevel")}
+                </div>
+                <div>
+                    <SelectField name={I18n.t("assurance.secureIdLabel")}
                                  className="select-assurance"
-                                 value={stepupOptions.find(o => o.value === stepupEntity.level) || null}
-                                 options={stepupOptions}
-                                 placeholder={I18n.t("assurance.stepupSelectPlaceholder")}
-                                 searchable={false}
-                                 clearable={true}
-                                 onChange={option => setStepupEntity({
-                                     ...stepupEntity,
-                                     level: option ? option.value : null
-                                 })}
+                                 value={secureIdOptions.find(o => o.value === stepupEntity.level) || null}
+                                 options={secureIdOptions}
+                                 placeholder={I18n.t("assurance.selectPlaceholder")}
+                                 info={`<a href="${SECURE_ID_INFO_URL}" target="_blank" rel="noopener noreferrer">${I18n.t("assurance.secureIdInfo")}</a>`}
+                                 infoUnderLabel={true}
+                                 showCheck={true}
+                                 onChange={option => saveAssurance(mfaEntity, {...stepupEntity, level: option.value})}
                     />
                     {stepupLoaTooLow &&
                         <ErrorIndicator standalone={true}
                                         msg={I18n.t("assurance.loaTooLow")}/>}
                 </div>
-                <div className="assurance-right">
-                    <Alert variant="info">
-                        <InfoIcon weight="fill"/>
-                        <AlertDescription>
-                            <p className="alert-title">{I18n.t("assurance.tips.title")}</p>
-                            <p>{I18n.t("assurance.tips.practice")}</p>
-                            <p>{I18n.t("assurance.tips.optionMfa")}</p>
-                            <p>{I18n.t("assurance.tips.optionSurf")}</p>
-                            <p dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(I18n.t("assurance.tips.warning"))
-                            }}/>
-                        </AlertDescription>
-                    </Alert>
-                </div>
-
             </div>
         );
     }

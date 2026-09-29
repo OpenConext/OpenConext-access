@@ -263,8 +263,9 @@ const MyOrganization = ({refreshUser}) => {
                              isMulti={true}
                              disabled={!adminUser}
                              creatable={true}
+                             info={I18n.t("myOrganization.keyWordsInfo")}
+                             infoUnderLabel={true}
                 />
-                <p className="info">{I18n.t("myOrganization.keyWordsInfo")}</p>
 
                 <SelectField name={I18n.t("myOrganization.mfa.baseLevelLabel")}
                              value={baseLevelOption}
@@ -272,8 +273,9 @@ const MyOrganization = ({refreshUser}) => {
                              onChange={changeBaseLevelMfa}
                              disabled={!adminUser}
                              clearable={true}
+                             info={I18n.t("myOrganization.mfa.baseLevelInfo")}
+                             infoUnderLabel={true}
                 />
-                <p className="info">{I18n.t("myOrganization.mfa.baseLevelInfo")}</p>
 
                 <SelectField name={I18n.t("myOrganization.mfa.additionalAcrLabel")}
                              value={additionalOptions}
@@ -281,8 +283,9 @@ const MyOrganization = ({refreshUser}) => {
                              onChange={changeAdditionalAcrValues}
                              isMulti={true}
                              disabled={!adminUser}
+                             info={I18n.t("myOrganization.mfa.additionalAcrInfo")}
+                             infoUnderLabel={true}
                 />
-                <p className="info">{I18n.t("myOrganization.mfa.additionalAcrInfo")}</p>
             </section>
         )
     }

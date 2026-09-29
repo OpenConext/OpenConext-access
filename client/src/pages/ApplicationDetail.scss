@@ -443,15 +443,6 @@ div.application-detail-container {
                     font-size: 18px;
                     margin: 0;
                 }
-
-                .card-applications {
-                    margin: 0;
-                }
-
-                .card-rule {
-                    display: block;
-                    color: var(--muted-foreground);
-                }
             }
 
             .role-user-count {
@@ -577,73 +568,33 @@ div.application-detail-container {
 
     .assurance-container {
         display: flex;
-        width: 75%;
-        gap: 80px;
+        flex-direction: column;
+        gap: 32px;
+        max-width: 640px;
 
-        @media (max-width: $full-mode) {
-            width: auto;
-        }
-
-        .assurance-left {
+        .assurance-header {
             display: flex;
             flex-direction: column;
-            width: 60%;
+            gap: 12px;
 
             p {
-                &.info {
-                    margin-top: 20px;
-                }
-            }
-
-            .select-assurance {
-                margin-top: 20px;
-            }
-
-            .access-accordion {
-                margin-top: 30px;
+                color: var(--muted-foreground);
             }
         }
 
-        .assurance-info {
-            margin-top: 20px;
-
-            p {
-                margin-bottom: 10px;
-            }
-        }
-
-        .assurance-actions {
-            display: flex;
-            margin-top: 40px;
-            gap: 25px;
-
-            button:first-child {
-                margin-left: auto;
-            }
-        }
-
-        ul {
-            list-style: initial;
-
-            li {
-                margin-left: 15px;
-            }
-        }
-
-        ol {
-            list-style-type: decimal;
-
-            li {
-                margin-left: 15px;
-            }
-        }
-
-        .assurance-right {
-            width: 40%;
-            margin-left: auto;
+        .alert-description-with-action .alert-text {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 2px;
+        }
+
+        .alert-text-title {
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .select-field label {
+            margin: 0 0 8px 0;
         }
     }
 }
