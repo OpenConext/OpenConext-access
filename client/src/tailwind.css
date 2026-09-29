@@ -22,6 +22,12 @@
  */
 @source not "**/*.scss";
 
+/*
+ * The bare word "hidden" also shows up in JSX/comments (e.g. `aria-hidden`), which would
+ * emit an app-level `.hidden` that overrides curve-react's `md:block` on the Sidebar.
+ */
+@source not inline("hidden");
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
