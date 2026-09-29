@@ -13,7 +13,9 @@ export const Header = ({currentLocation}) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Closing on route change avoids a stale open menu after navigating.
-    useEffect(() => setMobileMenuOpen(false), [currentLocation.pathname]);
+    useEffect(() => {
+        setMobileMenuOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
+    }, [currentLocation.pathname]);
 
     return (
         <div className="header-container">

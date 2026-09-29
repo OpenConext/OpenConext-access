@@ -9,7 +9,6 @@ import {
     getPolicyByServiceProviderEntityId,
     inviteRoles,
     publicServiceProviderByDetail,
-    saveIdentityProviderAssurance,
     saveIdentityProviderConsent
 } from "../api/index.js";
 import I18n from "../locale/I18n.js";
@@ -216,8 +215,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     if (loading) {
         return <div className="loading-container"><Spinner className="size-8"/></div>
     }
-
-    const stepPolicies = policies.filter(policy => policy.data.type === policyTypes.step);
 
     const externalLink = (link, metaData, index) => {
         const attribute = link.languageProperty ?
@@ -626,36 +623,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         saveIdentityProviderConsent(newConsent)
             .then(() => {
                 setFlash(I18n.t("consent.flash.consentUpdated"));
-                setLoading(false);
-                refreshUser();
-            })
-    }
-
-    const cancelAssuranceChanges = () => {
-        const entityId = serviceProvider.data.entityid;
-        const currentMfa = (currentOrganization.identityProvider.data.mfaEntities || [])
-            .find(entry => entry.name === entityId);
-        setMfaEntity(isEmpty(currentMfa) ? {name: entityId, level: null} : currentMfa);
-        const currentStepup = (currentOrganization.identityProvider.data.stepupEntities || [])
-            .find(entry => entry.name === entityId);
-        setStepupEntity(isEmpty(currentStepup) ? {name: entityId, level: null} : currentStepup);
-    }
-
-    const submitAssuranceChanges = () => {
-        const stepUpLoa = stepupLoaInteger(stepupEntity.level);
-        const mfaLoa = mfaLoaInteger(mfaEntity.level);
-        if (stepUpLoa > user.loaLevel || mfaLoa > user.loaLevel) {
-            return;
-        }
-        const payload = {
-            identityProviderId: currentOrganization.identityProvider.id,
-            mfaEntity,
-            stepupEntity,
-        };
-        setLoading(true);
-        saveIdentityProviderAssurance(payload)
-            .then(() => {
-                setFlash(I18n.t("assurance.flash.assuranceUpdated"));
                 setLoading(false);
                 refreshUser();
             })
