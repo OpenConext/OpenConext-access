@@ -81,7 +81,7 @@ $width-percentage: 75%;
         @include index.page-media;
 
         .left {
-            width: 30%;
+            width: 35%;
             display: flex;
             flex-direction: column;
 
@@ -459,7 +459,7 @@ $width-percentage: 75%;
             button {
                 width: 340px;
                 margin: auto 0 0 20px;
-                height: 48px;
+                height: $control-height;
             }
         }
 

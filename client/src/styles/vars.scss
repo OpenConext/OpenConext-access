@@ -11,7 +11,18 @@ $medium: 1280px;
 // so they always line up edge-to-edge. Change this one value to resize all of them.
 $public-page-max-width: 1420px;
 
+$tablet-width: 1024px;
 $mobile-width: 820px;
 $mobile-width-crossover: 820px;
 
 $page-padding: 25px 60px 25px 50px;
+
+// Design review (issue 1008): one height for all form controls and buttons, and a
+// small spacing scale so components don't hardcode pixel values.
+$control-height: 40px;
+$gap-xs: 8px;
+$gap-sm: 12px;
+$gap-md: 16px;
+$gap-lg: 24px;
+$title-size-xl: 30px;
+$outline-inset: 2px;

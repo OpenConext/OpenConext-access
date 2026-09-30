@@ -380,7 +380,6 @@ export const AppInformation = ({
                                 <StatusMenuItem key={sectionValue}
                                                 pending={isPending(sectionValue)}
                                                 disabled={isDisabled(sectionValue)}
-                                                hideIcon={application.status === APPLICATION_STATUSES.COMPLETE}
                                                 action={() => changeSection(sectionValue)}
                                                 info={I18n.t(`connection.appInfo.sections.${sectionValue}`)}
                                                 active={section === sectionValue}/>)}

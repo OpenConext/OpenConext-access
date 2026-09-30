@@ -1,3 +1,5 @@
+@use "vars" as *;
+
 // curve-react's shadcn-based components (Input, Select, Button, etc.) use Tailwind's
 // text-sm utility for form-element text, which resolves to the Tailwind theme token
 // --text-sm (0.875rem/14px). Override it here, outside any @layer, so it wins over
@@ -108,4 +110,54 @@ button.link-button {
 // icon-only "..." trigger and wraps longer item labels like "Make admin".
 .action-menu-content {
     min-width: 200px;
+}
+
+// Titles are semibold everywhere (design review A).
+h1, h2, h3, [data-slot="card-title"] {
+    font-weight: var(--font-weight-semibold);
+}
+
+// Form controls and buttons share one height, without drop shadow (design review B).
+// The background is set on the control itself so it follows the border-radius (design review C).
+:root {
+    --control-height: #{$control-height};
+}
+
+[data-slot="input"],
+[data-slot="select-trigger"],
+[data-slot="input-group"]:not(:has(textarea)):not(:has([data-align^="block"])),
+[data-slot="button"].h-9,
+[data-slot="button"].h-8 {
+    height: var(--control-height);
+}
+
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select-trigger"],
+[data-slot="input-group"] {
+    box-shadow: none;
+    background-color: var(--background);
+    // The default ring is green, which elsewhere signals action/success. A dark ring keeps
+    // the focus state visible (>= 3:1) for keyboard users.
+    --ring: var(--foreground);
+}
+
+[data-slot="input-group"] input[data-slot="input-group-control"] {
+    height: 100%;
+    background-color: transparent;
+}
+
+[data-slot="input"]:disabled,
+[data-slot="textarea"]:disabled,
+[data-slot="select-trigger"][data-disabled],
+[data-slot="select-trigger"]:disabled {
+    opacity: 1;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    border-color: var(--border);
+}
+
+// Outline badges ("white" status) must not be see-through against the muted page background.
+[data-slot="badge"].border-border {
+    background-color: var(--background);
 }

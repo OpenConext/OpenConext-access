@@ -34,9 +34,10 @@ div.organization-outer-container {
         }
 
         .mod-entities {
+            margin-top: 0;
 
             .entities-search {
-                padding: $page-padding;
+                padding: $gap-md 60px $gap-md 50px;
                 background-color: var(--muted);
                 justify-content: normal;
 

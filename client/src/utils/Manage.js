@@ -61,18 +61,21 @@ export const CONNECTION_STATUSES = {
 }
 
 // Maps the derived connection-status string (see renderApplicationStatus / the
-// connections status column) to the Badge variant that best matches the
-// color it used to get from the now-removed .custom-chip.status-error CSS.
+// connections status column) to a Badge variant. Colors follow one logic:
+//  - outline (white): the user is still working on it
+//  - info (blue): waiting for SURF, nothing is expected from the user
+//  - success (green): live
+//  - warning / danger: only when an actual warning or action is needed
 export const CONNECTION_STATUS_BADGE_VARIANTS = {
-    open: "ghost",
-    in_progress: "secondary",
-    multiple_connections: "info",
-    complete: "default",
+    open: "outline",
+    in_progress: "outline",
+    multiple_connections: "outline",
+    complete: "outline",
     prod_ready: "success",
-    ready_for_prod: "info",
-    pending_prod: "warning",
-    open_change_requests: "warning",
-    no_connections: "danger",
+    ready_for_prod: "outline",
+    pending_prod: "info",
+    open_change_requests: "info",
+    no_connections: "outline",
 }
 
 export const APPLICATION_STATUSES = {

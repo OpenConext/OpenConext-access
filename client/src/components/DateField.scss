@@ -1,3 +1,5 @@
+@use "../styles/vars" as *;
+
 .date-field {
     display: flex;
     position: relative;
@@ -60,7 +62,7 @@
             line-height: 33px;
             padding: 16px;
             font-size: 14px;
-            height: 48px;
+            height: $control-height;
 
             &:focus {
                 outline: none;

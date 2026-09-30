@@ -25,7 +25,7 @@
             .overview-card {
                 max-width: none;
                 padding: 24px;
-                gap: 16px;
+                gap: $gap-sm;
                 flex: 1 1 280px;
 
                 &.connections-card {

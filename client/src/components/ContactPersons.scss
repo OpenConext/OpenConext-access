@@ -1,21 +1,23 @@
+@use "../styles/vars" as *;
+
 .inner-right {
     .contact-person-section {
-        background-color: var(--muted);
-        margin-top: 20px;
-        border-radius: 10px;
-        padding: 20px;
+        margin-top: $gap-lg;
+        // Aligned with the surrounding text: no background or padding of its own.
+        padding: 0;
+
+        [data-slot="field"] {
+            margin-top: $gap-sm;
+        }
 
         &.read-only {
-            background-color: transparent;
-
             p {
-                margin-bottom: 12px;
+                margin-bottom: $gap-sm;
             }
-
         }
 
         a, button.link-button {
-            margin-top: 18px;
+            margin-top: $gap-md;
             display: block;
         }
     }

@@ -55,11 +55,11 @@
         }
 
         div.filter-select__value-container {
-            min-height: 46px;
+            min-height: $control-height;
         }
 
         div.filter-select__control {
-            min-height: 46px;
+            min-height: $control-height;
             min-width: 240px;
             border-color: var(--input);
         }
@@ -67,23 +67,13 @@
         .search {
             position: relative;
             display: flex;
-            background-color: white;
 
             @media (max-width: $medium) {
                 margin-left: 0;
                 margin-top: 20px;
-
-                .entities-search-input-group {
-                    width: 100%;
-                }
             }
         }
 
-    }
-
-    .entities-search-input-group {
-        width: 320px;
-        height: 40px;
     }
 
     section.entities-list {

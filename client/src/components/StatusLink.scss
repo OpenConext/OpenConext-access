@@ -1,11 +1,13 @@
 @use "../index";
+@use "../styles/vars" as *;
 
 .status-link {
     display: flex;
     align-items: center;
     align-content: center;
     width: 100%;
-    padding: 10px 0 10px 10px;
+    height: $control-height;
+    padding: 0 0 0 10px;
     cursor: pointer;
 
     &.enabled:hover {
@@ -20,7 +22,7 @@
     }
 
     svg.pending, svg.completed, svg.team, svg.alert-triangle {
-        margin-right: 20px;
+        margin-right: $gap-sm;
     }
 
     svg.caret_right {

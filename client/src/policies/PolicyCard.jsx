@@ -87,7 +87,7 @@ export const PolicyCard = ({policy, serviceProviders, currentOrganization, refre
             <CardContent className="policy-card-content">
                 <div className="policy-name-container">
                     <p className="policy-name">{policyName}</p>
-                    <p className="policy-name">
+                    <p className="policy-applications">
                         {I18n.t("appAccess.applications")}
                         <span>{splitListSemantically(serviceProviderNames, I18n.t("forms.and"))}</span>
                     </p>

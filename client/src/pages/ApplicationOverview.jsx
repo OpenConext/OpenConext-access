@@ -3,14 +3,14 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Badge, Card, CardContent, InputGroup, InputGroupAddon, InputGroupInput, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
-import {ListBulletsIcon, MagnifyingGlassIcon as SearchIcon, SquaresFourIcon} from "@phosphor-icons/react";
+import {Badge, Card, CardContent, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
+import {ListBulletsIcon, SquaresFourIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
+import {SearchField} from "../components/SearchField.jsx";
 import {StretchedLink} from "../components/StretchedLink.jsx";
-import {formatLongDate} from "../utils/Date.js";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
@@ -111,18 +111,13 @@ const ApplicationOverview = ({accessible}) => {
                     key: "connectionRequest",
                     header: I18n.t("accessibleApps.status"),
                     mapper: entity => entity.connectionRequest ?
-                        <Badge variant="danger">{I18n.t("accessibleApps.connectRequested")}</Badge> :
+                        <Badge variant="info">{I18n.t("accessibleApps.connectRequested")}</Badge> :
                         <Badge variant="success">{I18n.t("accessibleApps.connectActive")}</Badge>
                 } : null,
             {
                 key: "vendor",
                 header: I18n.t("accessibleApps.vendor"),
                 mapper: entity => entity.vendor
-            },
-            {
-                key: "created",
-                header: I18n.t("accessibleApps.created"),
-                mapper: entity => formatLongDate(entity.created, true, false)
             },
             {
                 key: "space",
@@ -143,15 +138,9 @@ const ApplicationOverview = ({accessible}) => {
             return (
                 <div className="accessible-apps-grid">
                     <div className="accessible-apps-grid-filters">
-                        <InputGroup className="accessible-apps-grid-search">
-                            <InputGroupInput type="search"
-                                             value={gridQuery}
-                                             onChange={e => setGridQuery(e.target.value)}
-                                             placeholder={I18n.t("accessibleApps.searchPlaceHolder")}/>
-                            <InputGroupAddon align="inline-end">
-                                <SearchIcon/>
-                            </InputGroupAddon>
-                        </InputGroup>
+                        <SearchField value={gridQuery}
+                                     onChange={e => setGridQuery(e.target.value)}
+                                     placeholder={I18n.t("accessibleApps.searchPlaceHolder")}/>
 
                     </div>
                     <div className="accessible-apps-grid-cards">
@@ -162,7 +151,7 @@ const ApplicationOverview = ({accessible}) => {
                                 <Card key={entity["_id"]} className="accessible-app-card">
                                     <StretchedLink to={`/application-detail/${entity.type}/${entity["_id"]}`}/>
                                     {entity.connectionRequest &&
-                                        <Badge variant="danger"
+                                        <Badge variant="info"
                                                className="accessible-app-card-badge">{I18n.t("accessibleApps.connectRequested")}</Badge>}
                                     <CardContent>
                                         <div className="accessible-app-card-icon">
@@ -186,11 +175,11 @@ const ApplicationOverview = ({accessible}) => {
                 <div className="accessible-apps-header-container">
                     <div className="accessible-apps-header-row">
                         {accessible && <div className="accessible-apps-header">
-                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("accessibleApps.title")}</h1>
+                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-2">{I18n.t("accessibleApps.title")}</h1>
                             <p>{I18n.t("accessibleApps.subTitle", {name: providerName(I18n.locale, currentOrganization?.identityProvider)})}</p>
                         </div>}
                         {!accessible && <div className="accessible-apps-header">
-                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-[18px]">{I18n.t("userHome.catalogue.title")}</h1>
+                            <h1 className="large text-[length:var(--text-2xl-font-size)] mb-2">{I18n.t("userHome.catalogue.title")}</h1>
                             <p>{I18n.t("userHome.catalogue.subTitle")}</p>
                         </div>}
                         {!isEmpty(serviceProviders) &&
@@ -225,7 +214,8 @@ const ApplicationOverview = ({accessible}) => {
                             rowLinkMapper={(e, entity) => navigate(`/application-detail/${entity.type}/${entity["_id"]}`)}
                             rowHrefMapper={entity => `/application-detail/${entity.type}/${entity["_id"]}`}
                             newEntityFunc={() => navigate("/application/new")}
-                            inputFocus={true}/>}
+                            searchPlaceholder={I18n.t("accessibleApps.searchPlaceHolder")}
+                            inputFocus={false}/>}
                 </div>
             </div>
         );

@@ -1,3 +1,5 @@
+@use "../styles/vars" as *;
+
 .status-menu-item {
     display: flex;
     align-items: center;
@@ -20,8 +22,13 @@
     }
 
     svg {
-        margin-right: 20px;
+        flex-shrink: 0;
+        margin-right: $gap-sm;
         color: var(--muted-foreground);
+    }
+
+    .info {
+        min-width: 0;
     }
 
 }

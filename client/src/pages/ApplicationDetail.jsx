@@ -94,6 +94,8 @@ const stepupLoaInteger = level => {
     return 1; // loa1_5
 };
 
+const MAX_ITEMS_EXPANDED = 2;
+
 const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const {arp, privacy, user, config, setFlash, currentOrganization} = useAppStore(useShallow(state => ({
@@ -518,6 +520,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     );
 
     const renderAccessApp = () => {
+        //With many items the sections below the first one are pushed out of view, so all sections start collapsed together
+        const collapseSections = policies.length > MAX_ITEMS_EXPANDED || (accessRoles || []).length > MAX_ITEMS_EXPANDED;
         return (
             <>
                 {readOnly &&
@@ -537,14 +541,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                     </Alert>
                 }
                 <div className={`app-access ${readOnly ? "read-only" : ""}`} onClick={e => readOnly && stopEvent(e)}>
-                    <Accordion defaultValue={["policies", "roles"]} className="access-accordion">
+                    <Accordion key={collapseSections ? "collapsed" : "expanded"}
+                               defaultValue={collapseSections ? [] : ["policies", "roles"]}
+                               className="access-accordion">
                         <AccordionItem value="policies">
                             <div className="accordion-header-row">
                                 <p className="accordion-trigger-title">
                                     {`${I18n.t("appAccess.pdpPolicies")} (${policies.length})`}
                                 </p>
                                 <div className="accordion-header-actions">
-                                    <Button variant="outline" onClick={() => navigateToAddPolicy(policyTypes.reg)}>
+                                    <Button variant="outline" disabled={readOnly} onClick={() => navigateToAddPolicy(policyTypes.reg)}>
                                         <PlusIcon/>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addAccessRule"))}}/>
                                     </Button>
@@ -572,7 +578,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     {`${I18n.t("appAccess.rolesTitle")} (${isEmpty(accessRoles) ? 0 : accessRoles.length})`}
                                 </p>
                                 <div className="accordion-header-actions">
-                                    <Button variant="outline" onClick={openRoleManagement}>
+                                    <Button variant="outline" disabled={readOnly} onClick={openRoleManagement}>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
                                         <ArrowSquareOutIcon/>
                                     </Button>
@@ -613,6 +619,16 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 setLoading(false);
                 refreshUser();
             })
+    }
+
+    const cancelAssuranceChanges = () => {
+        const entityId = serviceProvider.data.entityid;
+        const currentMfa = (currentOrganization.identityProvider.data.mfaEntities || [])
+            .find(entry => entry.name === entityId);
+        setMfaEntity(isEmpty(currentMfa) ? {name: entityId, level: null} : currentMfa);
+        const currentStepup = (currentOrganization.identityProvider.data.stepupEntities || [])
+            .find(entry => entry.name === entityId);
+        setStepupEntity(isEmpty(currentStepup) ? {name: entityId, level: null} : currentStepup);
     }
 
     const saveAssurance = (newMfaEntity, newStepupEntity) => {
@@ -698,7 +714,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                  info={I18n.t("assurance.idpInfo")}
                                  infoUnderLabel={true}
                                  showCheck={true}
-                                 onChange={option => saveAssurance({...mfaEntity, level: option.value}, stepupEntity)}
+                                 onChange={option => setMfaEntity({...mfaEntity, level: option.value})}
                     />
                     {mfaLoaTooLow && <ErrorIndicator standalone={true}
                                                      msg={I18n.t("assurance.mfaLoaTooLow")}/>}
@@ -712,11 +728,20 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                  info={`<a href="${SECURE_ID_INFO_URL}" target="_blank" rel="noopener noreferrer">${I18n.t("assurance.secureIdInfo")}</a>`}
                                  infoUnderLabel={true}
                                  showCheck={true}
-                                 onChange={option => saveAssurance(mfaEntity, {...stepupEntity, level: option.value})}
+                                 onChange={option => setStepupEntity({...stepupEntity, level: option.value})}
                     />
                     {stepupLoaTooLow &&
                         <ErrorIndicator standalone={true}
                                         msg={I18n.t("assurance.loaTooLow")}/>}
+                </div>
+                <div className="assurance-actions">
+                    <Button variant="outline" onClick={cancelAssuranceChanges}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                    </Button>
+                    <Button onClick={() => saveAssurance(mfaEntity, stepupEntity)}
+                            disabled={mfaLoaTooLow || stepupLoaTooLow}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.save"))}}/>
+                    </Button>
                 </div>
             </div>
         );
@@ -775,11 +800,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const badgeVariantForConnectionStatus = () => {
-        if (readOnly) {
-            return "outline";
-        }
-        if (pendingDisconnect) {
-            return "warning";
+        if (readOnly || pendingDisconnect) {
+            return "info";
         }
         return "success";
     }
@@ -1018,11 +1040,6 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         const anonymousQuickLinks = anonymous ? quickLinksList() : [];
         return (
             <>
-                {!anonymous &&
-                    <div className="application-detail-top">
-                        <Button variant="link" onClick={goBackToApplications}>{I18n.t("applicationConnect.back")}</Button>
-                    </div>
-                }
                 <div className="inner-application-detail-container">
                     <div className={`application-detail ${anonymous ? "anonymous" : "stand-alone"}`}>
                         {anonymous &&

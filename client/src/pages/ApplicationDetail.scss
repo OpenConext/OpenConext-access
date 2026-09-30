@@ -80,21 +80,11 @@ div.application-detail-container {
     }
 
     .application-detail-page {
-        height: 100%;
         padding: 35px 50px;
     }
 
     .inner-application-detail-container {
         width: 100%;
-    }
-
-    .application-detail-top {
-        padding: 0 25px;
-
-        a, [data-slot="button"] {
-            color: var(--muted-foreground);
-            text-decoration: none;
-        }
     }
 
     .application-detail {
@@ -111,7 +101,7 @@ div.application-detail-container {
         }
 
         &.stand-alone {
-            margin: 0 25px;
+            margin: 0 50px;
         }
 
         .meta-data {
@@ -137,13 +127,13 @@ div.application-detail-container {
                 gap: 12px;
 
                 p.organization {
-                    color: var(--primary);
+                    color: var(--muted-foreground);
                     font-size: 20px;
                 }
 
                 p.name {
                     font-weight: 600;
-                    font-size: 24px;
+                    font-size: $title-size-xl;
                 }
             }
 
@@ -420,8 +410,11 @@ div.application-detail-container {
         .access-detail-cards {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: 15px;
+            gap: $gap-md;
+            margin-top: $gap-sm;
+            // The card outline is drawn outside of the card and would otherwise be clipped
+            // by the (overflow hidden) accordion content.
+            padding: $outline-inset;
         }
 
         .access-detail-card-content {
@@ -466,10 +459,14 @@ div.application-detail-container {
             width: auto;
         }
 
+        // Only the actions are disabled, the titles and content stay readable.
         &.read-only {
-            z-index: 999;
-            opacity: 0.2;
             cursor: default;
+
+            .policy-actions {
+                pointer-events: none;
+                opacity: 0.5;
+            }
         }
 
         &.read-only > * {
@@ -548,7 +545,7 @@ div.application-detail-container {
         .consent-actions {
             display: flex;
             margin-top: 40px;
-            gap: 25px;
+            gap: $gap-lg;
 
             button:first-child {
                 margin-left: auto;
@@ -571,6 +568,12 @@ div.application-detail-container {
         flex-direction: column;
         gap: 32px;
         max-width: 640px;
+
+        .assurance-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: $gap-lg;
+        }
 
         .assurance-header {
             display: flex;

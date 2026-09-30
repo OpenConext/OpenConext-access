@@ -23,7 +23,11 @@
         gap: 1rem;
         width: 100%;
         @include index.page-media;
-        @media (max-width: $medium) {
+        // Three cards side by side as long as they fit, then two, and only stack on mobile.
+        @media (max-width: $tablet-width) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        @media (max-width: $mobile-width) {
             grid-template-columns: 1fr;
         }
 

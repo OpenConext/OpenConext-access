@@ -14,7 +14,6 @@ export const Overview = ({
                              setTab,
                              initConnection,
                              viewConnection,
-                             connectionComplete,
                              appInformationComplete,
                              connectionNeedsApproval,
                              logoValid,
@@ -39,10 +38,7 @@ export const Overview = ({
     return (
         <div className="application-connection-form">
             <ConnectionAlert application={application}
-                             user={user}
-                             setTab={setTab}
                              currentOrganization={currentOrganization}
-                             connectionComplete={connectionComplete}
                              connectionNeedsApproval={connectionNeedsApproval}
                              appInformationComplete={appInformationComplete}/>
             <div className="application-connection">

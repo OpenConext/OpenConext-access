@@ -44,11 +44,12 @@
 
         border: 1px solid var(--border);
         border-radius: $br;
-        min-height: 48px;
+        background-color: var(--background);
+        min-height: $control-height;
 
         &.creatable {
             height: auto;
-            min-height: 48px;
+            min-height: $control-height;
         }
 
         .select-inner__control {
@@ -56,14 +57,14 @@
             padding-left: 8px;
             border: none;
             border-radius: $br;
-            min-height: 48px;
+            min-height: $control-height;
         }
 
         .select-inner__control--is-focused {
             outline: none;
-            border: 1px solid var(--ring) !important;
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
-            min-height: 48px;
+            border: 1px solid var(--foreground) !important;
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--foreground) 50%, transparent);
+            min-height: $control-height;
         }
 
         &[disabled] {
@@ -74,7 +75,7 @@
     }
 
     .select-inner__single-value--is-disabled {
-        color: black;
+        color: var(--muted-foreground);
     }
 
     .select-inner--is-disabled {
@@ -82,8 +83,9 @@
         border: 1px solid var(--border);
     }
 
+    // The page background is --muted as well, so a --muted field would look see-through.
     .select-inner__control--is-disabled {
-        background-color: var(--muted);
+        background-color: var(--border);
         border: 1px solid var(--border);
         border-radius: 6px;
     }

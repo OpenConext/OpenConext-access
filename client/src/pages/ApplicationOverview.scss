@@ -9,7 +9,7 @@ div.accessible-apps-container {
 
     .mod-entities {
         .entities-search {
-            padding: 0 50px 25px 50px;
+            padding: $gap-md 50px $gap-md 50px;
             background-color: var(--muted);
         }
 
@@ -20,7 +20,7 @@ div.accessible-apps-container {
 
     .accessible-apps-header-container {
         background-color: var(--muted);
-        padding: 25px 50px 25px 50px;
+        padding: $gap-lg 50px 0 50px;
 
         .accessible-apps-header-row {
             display: flex;
@@ -32,6 +32,12 @@ div.accessible-apps-container {
         .view-switcher-tabs {
             flex-shrink: 0;
 
+            // The tab list background is the same muted color as the page, so it would
+            // disappear; use a slightly darker shade to keep the switch visible.
+            [data-slot="tabs-list"] {
+                background-color: var(--border);
+            }
+
             [data-slot="tabs-trigger"] span {
                 white-space: nowrap;
             }
@@ -39,19 +45,12 @@ div.accessible-apps-container {
     }
 
     .accessible-apps-grid {
-        padding: 25px 50px;
+        padding: $gap-md 50px $gap-lg;
 
         .accessible-apps-grid-filters {
             display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-
-        .accessible-apps-grid-search {
-            width: 320px;
-            height: 50px;
-            flex-shrink: 0;
-            background-color: white;
+            gap: $gap-lg;
+            margin-bottom: $gap-lg;
         }
 
         .accessible-apps-grid-cards {
@@ -119,7 +118,7 @@ div.accessible-apps-container {
                 }
 
                 &.name {
-                    width: 35%;
+                    width: 45%;
                 }
 
                 &.connectionRequest {
@@ -128,11 +127,7 @@ div.accessible-apps-container {
                 }
 
                 &.vendor {
-                    width: 25%;
-                }
-
-                &.created {
-                    width: 15%;
+                    width: 35%;
                 }
             }
         }

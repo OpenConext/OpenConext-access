@@ -1,5 +1,12 @@
+@use "../styles/vars" as *;
+
 .policy-card {
     width: 100%;
+    padding-block: $gap-md;
+
+    p {
+        margin: 0;
+    }
 
     &.paused {
         background-color: var(--muted);
@@ -21,7 +28,7 @@
     .policy-card-content {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: $gap-md;
         width: 100%;
     }
 
@@ -31,24 +38,31 @@
         width: 380px;
         flex-shrink: 0;
 
+        // Three text levels: name (18px), applications (16px) and the rule conditions (muted).
         p.policy-name {
-            font-weight: 600;
-            span {
-                font-weight: normal;
-            }
+            font-size: var(--text-lg-font-size);
+            line-height: var(--text-lg-line-height);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        p.policy-applications {
+            font-size: var(--text-base-font-size);
+            line-height: var(--text-base-line-height);
+            font-weight: var(--font-weight-normal);
         }
     }
 
     .policy-attributes-container {
         display: flex;
         flex-direction: column;
-        margin-top: 6px;
+        margin-top: 2px;
 
         p {
-            line-height: 20px;
+            color: var(--muted-foreground);
+            line-height: var(--text-base-line-height);
 
             &.logic {
-                font-weight: 600;
+                font-weight: var(--font-weight-normal);
             }
         }
     }
@@ -66,7 +80,7 @@
         svg {
             width: 24px;
             height: 24px;
-            padding: 16px;
+            padding: $gap-xs;
             box-sizing: content-box;
             border-radius: 8px;
 

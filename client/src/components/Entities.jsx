@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {MagnifyingGlassIcon as SearchIcon} from "@phosphor-icons/react";
+import {SearchField} from "./SearchField.jsx";
 import {isEmpty, sanitize} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import "./Entities.scss";
@@ -19,9 +19,6 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupInput,
     Tooltip,
     TooltipContent,
     TooltipTrigger
@@ -62,6 +59,7 @@ export const Entities = ({
                              defaultSort,
                              rowClassNameResolver,
                              inputFocus = false,
+                             searchPlaceholder,
                              searchAlignLeft = false,
                              notAllowedTitle = "",
                              query: controlledQuery,
@@ -81,10 +79,10 @@ export const Entities = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        if ((displaySearch || inputFocus) && searchRef && searchRef.current) {
+        if (inputFocus && searchRef && searchRef.current) {
             searchRef.current.focus();
         }
-    }, [displaySearch, inputFocus, loading])
+    }, [inputFocus, loading])
 
     const newEntity = () => {
         if (newEntityFunc) {
@@ -122,16 +120,10 @@ export const Entities = ({
             <section className={`entities-search ${showNew ? "" : "only-search"} ${searchAlignLeft ? "search-align-left" : ""}`}>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
-                        <InputGroup className="entities-search-input-group">
-                            <InputGroupInput type="search"
-                                             ref={searchRef}
-                                             onChange={queryChanged}
-                                             value={query}
-                                             />
-                            <InputGroupAddon align="inline-end">
-                                <SearchIcon/>
-                            </InputGroupAddon>
-                        </InputGroup>}
+                        <SearchField inputRef={searchRef}
+                                     onChange={queryChanged}
+                                     value={query}
+                                     placeholder={searchPlaceholder}/>}
                 </div>
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 {showNew &&

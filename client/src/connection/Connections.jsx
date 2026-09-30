@@ -144,7 +144,6 @@ export const Connections = ({
                                 refresh,
                                 currentOrganization,
                                 user,
-                                connectionComplete,
                                 appInformationComplete,
                                 connectionNeedsApproval,
                                 protocolOptions,
@@ -1611,7 +1610,6 @@ export const Connections = ({
                                         PendingProdIcon : null;
                                     return <StatusMenuItem key={sectionValue}
                                                            pending={isPending(sectionValue)}
-                                                           hideIcon={connection.status !== CONNECTION_STATUSES.OPEN && sectionValue !== sections.pendingChanges}
                                                            disabled={isDisabled(sectionValue)}
                                                            isAlert={sectionValue === sections.pendingChanges}
                                                            action={() => changeSection(sectionValue)}
@@ -1729,13 +1727,8 @@ export const Connections = ({
         return (
             <div className="connections">
                 {<ConnectionAlert application={application}
-                                  user={user}
-                                  setTab={setTab}
                                   fullWidth={true}
                                   currentOrganization={currentOrganization}
-                                  customProdTabAction={() => showConnectionDetails(connections
-                                      .find(conn => conn.status === CONNECTION_STATUSES.COMPLETE), "?action=activate")}
-                                  connectionComplete={connectionComplete}
                                   appInformationComplete={appInformationComplete}
                                   connectionNeedsApproval={connectionNeedsApproval}
                 />}
