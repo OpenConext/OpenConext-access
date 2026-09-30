@@ -12,12 +12,21 @@ const en: AppTranslation = {
     },
     landing: {
         header: {
-            title: "{{productName}}",
-            subTitle: "Enabling users in higher education and research <strong>to access multiple services with one account</strong>.",
             login: "Sign in / sign up",
+            loginProvider: "Sign in as application provider",
+            loginInstitution: "Sign in as institution",
             profile: "Profile",
             logout: "Logout",
             system: "System",
+        },
+        hero: {
+            title: "Giving access to education and research applications",
+            subTitle: "Enabling users in higher education and research <strong>to access multiple services with one account</strong>.",
+            stats: {
+                applications: "Applications",
+                institutions: "Institutions",
+                login: "Login",
+            },
         },
         loginInfo: {
             title: "Sign in / Sign up",
@@ -40,40 +49,54 @@ const en: AppTranslation = {
         },
         tabs: {
             home: "Home",
-            connect: "How to connect",
+            about: "About",
             institutions: "Institutions",
             applications: "Applications",
             stats: "Statistics",
             status: "Status",
         },
-        applicationProviders: {
-            title: "For application providers",
-            info: [
-                "Make your application securely accessible to education and research by participating in {{productName}}. We take care of authentication, authorisation, and privacy and security agreements.",
-                "Connecting is free and starts in a sandbox environment."
-            ],
-            connect: "How to connect",
-        },
-        institutions: {
-            title: "For institutions",
-            info: [
-                "Give students, staff and researchers simple access to multiple applications using their institution account.",
-                "{{productName}} provides single sign-on, takes care of central policies and is made to be privacy friendly."
-            ],
-            contact: "Contact us",
-            contactMail: "mailto:support@surfaccess.nl",
-        },
-        joining: {
-            title: "Participants in {{productName}}",
-            info: [
-                "{{productName}} securely connects over 1 million users to thousands of applications and content services. Institutions and application providers participate in the trusted federation, provided by SURF."
-            ],
-            links: {
-                prefix: "Explore ",
-                institutions: "{{nbr}} institutions",
-                or: " or ",
-                applications: "{{nbr}} applications.",
+        whatCanYouDo: {
+            title: "What can you do with {{productName}}?",
+            publish: {
+                title: "Publish your apps",
+                description: "Application providers can make applications available via {{productName}} to education and research institutions. {{productName}} takes care of authentication, authorisation, and privacy and security agreements.",
             },
+            activate: {
+                title: "Activate new apps",
+                description: "Institutions can find new apps in the app catalogue and activate them for users within their institution. {{productName}} provides single sign-on, takes care of central agreements and is built to be privacy friendly.",
+            },
+            manage: {
+                title: "Manage access",
+                description: "Institutions can set up rules, roles and collaborations to determine who does and doesn't have access to activated applications.",
+            },
+        },
+        gettingStarted: {
+            title: "Getting started with {{productName}}",
+            providers: {
+                title: "For application providers",
+                info: [
+                    "Make your application securely accessible to education and research institutions.",
+                    "Adding applications is free and starts with an eduID account. If you don't have an eduID yet, you can create one in the next step."
+                ],
+                cta: "Continue with eduID",
+            },
+            institutions: {
+                title: "For institutions",
+                info: [
+                    "Give students, staff and researchers simple access to different applications using their institution account.",
+                    "You can sign in to {{productName}} directly below using your institution account."
+                ],
+                cta: "Sign in via your institution",
+            },
+        },
+        tryDemo: {
+            title: "Want to try {{productName}} without obligation?",
+            description: "Get to know {{productName}} in our demo environment. Here you can try out all functionality in a safe, closed-off environment.",
+            cta: "To the {{productName}} demo environment",
+            url: "#TODO-demo-environment-url",
+        },
+        activity: {
+            title: "What's happening on {{productName}} right now",
         },
     },
     navigation: {
@@ -782,11 +805,11 @@ const en: AppTranslation = {
     },
     institutions: {
         title: "Institutions",
-        subTitle: "Browse the institutions currently connected to {{productName}}, categorized into education, research and affiliated institutions.",
+        subTitle: "Browse the institutions currently connected to {{productName}}.",
         category: "Category",
-        all: "All categories",
+        all: "All institution types",
         other: "Other",
-        searchPlaceHolder: "Search institutions...",
+        searchPlaceHolder: "Search for an institution",
     },
     // Keyed by the raw coin:institution_type value from Manage - see Institutions.jsx
     institutionTypes: {
@@ -805,18 +828,15 @@ const en: AppTranslation = {
     },
     applications: {
         title: "Applications",
-        subTitle: "Browse applications currently connected to {{productName}}, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
+        subTitle: "Browse the applications currently connected to {{productName}}. Some are connected directly via {{productName}}, others via other federations such as eduGAIN.",
         category: "Category",
         all: "All categories",
         allSources: "All federations",
         other: "-",
-        searchPlaceHolder: "Search applications...",
-        recent: "Recently added applications",
+        searchPlaceHolder: "Search for an application",
     },
     applicationDetail: {
-        title: "Applications",
-        subTitle: "Browse applications currently connected to {{productName}}, categorized into categories. Some are connected directy via SURFconext, others via eduGAIN..",
-        back: "Terug",
+        back: "All applications",
         description: "Description",
         attributes: "Attributes",
         attributesInfo: "The application needs to receive attributes to function correctly.",
@@ -881,19 +901,61 @@ const en: AppTranslation = {
             institution: "Your IdP",
         },
     },
-    connect: {
-        title: "How to connect",
-        subTitle: "Connecting to {{productName}} is not complicated, the steps to connect a new application are self-explanatoy. The proces consists of a formal and a technical part. {{productName}} is a service for members of the SURF cooperative. Participation is free for commercial organisations.",
-        formal: "How does it work?",
-        serviceBullets: [
-            "<strong>Step 1</strong>: Log in to {{productName}}",
-            "<strong>Step 2</strong>: Choose your organisatie. Use eduID if you do not have an institution account.",
-            "<strong>Step 3</strong>: Create a new application. Enter the required information.",
-            "<strong>Step 4</strong>: Create a new connection for the application. Enter the required formal and technical information. ",
-            "<strong>Step 5</strong>: Request the connection and wait for confirmation. You will receive a message at acceptance or denial."
-        ],
-        formalInfo: "Unsure how to proceed? Contact us via support@surfaccess.nl",
-        connect: "Connect your application now",
+    about: {
+        hero: {
+            title: "About {{productName}}",
+            paragraph1: "With {{productName}} you can, as an institution, set up your access management well and easily - covering access management and collaboration beyond the borders of your own institution.",
+            paragraph2: "From 2027, {{productName}} will offer administrators within institutions a single system and user environment. Whether it concerns managing and granting access for guest students, guest researchers, alliances or other user groups.",
+        },
+        eduId: {
+            title: "Arrange access, including with eduID",
+            description: "With {{productName}} you arrange access to applications for everyone within your institution - whether users sign in with their institution account or with eduID. When setting up authorisations and provisioning, you decide yourself whether this applies to eduID, your own IdP, or both at the same time.",
+        },
+        services: {
+            title: "These services together form {{productName}}",
+            subTitle: "SURFconext, SRAM and SURFsecureID are joining forces into one integrated sector-wide facility for arranging your access management",
+            idp: {
+                badge: "Fully integrated",
+                title: "IdP dashboard",
+                description: "For institutions: see which applications are connected and manage access.",
+            },
+            sp: {
+                badge: "Fully integrated",
+                title: "SP dashboard",
+                description: "For application providers: create, test and publish services.",
+            },
+            invite: {
+                badge: "Planned for 2027",
+                title: "SURFconext Invite",
+                description: "For institutions: grant users (groups) temporary, role-based access to connected applications.",
+            },
+            sram: {
+                badge: "Coming later",
+                title: "SRAM",
+                subTitle: "(SURF Research Access Management)",
+                description: "For researchers: set up collaborations and invite members.",
+            },
+            secureId: {
+                badge: "Coming later",
+                title: "SURFsecureID",
+                description: "For institutions: an extra security layer through multi-factor authentication (a second sign-in step).",
+            },
+        },
+        roadmap: {
+            title: "Where we're headed",
+            selfService: {
+                title: "More self-service",
+                description: "More insight and control, less waiting and fewer tickets needed: institutions and suppliers arrange more and more themselves, directly in {{productName}}.",
+            },
+            navigation: {
+                title: "Improved navigation",
+                description: "Easier switching between the different dashboards for access management.",
+            },
+            insight: {
+                title: "Better insight",
+                description: "More extensive statistics and reports on usage, per institution and per application.",
+            },
+        },
     },
     changeRequests: {
         title: "Pending change request(s)",
@@ -1038,12 +1100,12 @@ const en: AppTranslation = {
         generalSectionTitle: "General",
         contractSectionTitle: "Contract details",
         mfa: {
-            baseLevelLabel: "Base level of MFA",
-            baseLevelInfo: "The base authentication context class that is applied to all logins from this IdP to SURFconext.",
-            additionalAcrLabel: "Additional ACR supported",
-            additionalAcrInfo: "Additional authentication context classes supported by this IdP, on top of the base level.",
+            baseLevelLabel: "Base login method",
+            baseLevelInfo: "The standard that is enforced for all users of your IdP.",
+            additionalAcrLabel: "Additional login methods supported by your identity provider",
+            additionalAcrInfo: "The methods you support and can activate per application",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Password"},
+                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Username and password"},
                 {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authentication"},
                 {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
                 {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
@@ -1300,46 +1362,34 @@ const en: AppTranslation = {
         },
     },
     assurance: {
-        mfaTitle: "Two-step verification via your Identity Provider",
-        mfaInfo: "Use this option if your Identity Provider can execute two-step verification for this application",
-        mfaBlock: {
-            refeds: "Choose REFEDS MFA if you use an identity provider that supports the REFEDS MFA profile and your user accounts have MFA, choose REFEDS MFA.",
-            microSoft: "Choose Microsoft MFA if you use Microsoft EntraID and users have a linked Microsoft Authenticator",
+        title: "Assurance",
+        intro: "Choose below which login methods you want to set for your application.",
+        activeRule: {
+            title: "Assurance rule active",
+            info: "An assurance rule is active that enforces additional assurance",
+            toRules: "Go to rules",
         },
-        mfaLevel: "Activate two-step verification via the organisation",
-        stepupTitle: "Two-step verification via SURFsecureID",
-        stepupInfo: "You can use this option if your organisation has set up SURFsecureID for this application and the users of the application have a second factor via SURFsecureID. Users can add a second factor in the SURFsecureID self-service portal.",
-        stepupBlock: {
-            choose: "Choose the minimum assurance level at which the authentication should take place. A higher level makes higher demands.",
-            level1: "Level 1.5: Any type of token is allowed, identity not verified",
-            level2: "Level 2: any type of token is allowed, identity is verified",
-            level3: "Level 3: Only hardware tokens are allowed, identity is verified",
+        baseLabel: "Base login method by your identity provider",
+        baseInfo: "The standard that is enforced for all users of your IdP.",
+        idpLabel: "Additional login method by your identity provider",
+        idpInfo: "Extra login method that is enforced for this application",
+        secureIdLabel: "Additional login method via SURFsecureID",
+        secureIdInfo: "Use this option if your organisation has set up SURFsecureID for this application and the users of the application have a second factor via SURFsecureID.",
+        selectPlaceholder: "Select one option",
+        none: "None",
+        noneDescription: "No additional login method",
+        idpOptions: {
+            multipleauthn: "Microsoft MFA",
+            mfa: "Refeds MFA",
+            iapMedium: "Refeds medium",
+            iapHigh: "Refeds high",
+            iapMediumMfa: "Refeds medium MFA",
+            iapHighMfa: "Refeds high MFA",
         },
-        stepupLevel: "Activate SURFSecureID",
-        mfa: {
-            multipleauthn: "Microsoft MFA (ADFS/Azure AD)",
-            mfa: "REFEDS MFA",
-            mobileOneFactorContract: "Mobile One Factor Contract",
-            mobileOneFactorUnregistered: "Mobile One Factor Unregistered",
-            password: "Password",
-            transparentAuthnContext: "Transparent authentication context",
-            linkedInstitution: "Linked institution (eduID)",
-            validateNames: "Validate names (eduID)",
-            validateNamesExternal: "Validate names external (eduID)",
-            affiliationStudent: "Student affiliation (eduID)",
-        },
-        stepup: {
-            loa1_5: "Level 1.5",
-            loa2: "Level 2",
-            loa3: "Level 3",
-        },
-        tipsInfo: "Tips from SURF",
-        tips: {
-            title: "Two systems of two-step verification",
-            practice: "{{productName}} supports two-step verification:",
-            optionMfa: "via your organisation’s identity provider.",
-            optionSurf: "via SURFSecureID.",
-            warning: "<strong>Please note</strong>: if you enable <em>both</em> systems, users will be required to perform two-factor authentication using <em>both</em> systems.",
+        secureIdOptions: {
+            loa1_5: "LoA 1.5: any type of token is allowed, identity not verified",
+            loa2: "LoA 2: any type of token is allowed, identity verified",
+            loa3: "LoA 3: only hardware tokens are allowed, identity verified",
         },
         rulesTitle: "Assurance rules (via SURFsecureID)",
         flash: {
@@ -1347,8 +1397,6 @@ const en: AppTranslation = {
         },
         loaTooLow: "The security of your account is too low to set up this assurance level. Please log out and log in again with higher security setting.",
         mfaLoaTooLow: "The security of your account is too low to set up this method for two-step verification. Please log out and log in again with a higher security setting.",
-        mfaSelectPlaceholder: "Select a method of two-step verification",
-        stepupSelectPlaceholder: "Select an assurance level",
     },
     error: {
         title: "Whoops, error!!!",

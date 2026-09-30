@@ -98,7 +98,9 @@ public class JiraClient {
         }
         Map<String, Object> fields = new HashMap<>();
         fields.put("project", Map.of("key", isQtc ? jiraConfig.getProjectKeyQtc() : jiraConfig.getProjectKey()));
-        if (!isQtc) {
+        if (isQtc) {
+            fields.put("customfield_" + customField("service"), Map.of("value", "SURFconext"));
+        } else {
             fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
             fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
             EntityType entityType = issue.getEntityType().equals(EntityType.oauth20_rs) ? EntityType.oidc10_rp : issue.getEntityType();

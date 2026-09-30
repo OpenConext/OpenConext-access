@@ -2,18 +2,9 @@
 @use "../index";
 
 .statistics-container {
-    padding: 35px 0 40px 0;
-    @media (min-width: $max-stats) {
-        margin: 0 auto;
-        width: $max-stats;
-    }
-
-    @media (max-width: $max-stats) {
-        margin: 0 20px;
-    }
-
-    margin: 0 auto;
-    max-width: $max-stats;
+    @include index.public-page-width;
+    box-sizing: border-box;
+    padding: 35px 20px 40px 20px;
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -28,17 +19,20 @@
             flex-direction: column;
             gap: 8px;
             margin-left: auto;
+            min-width: 0;
         }
 
         .statistics-menu-options {
             display: flex;
             gap: 16px;
             align-items: flex-end;
+            min-width: 0;
 
             .custom-date-range {
                 display: flex;
                 gap: 12px;
                 align-items: flex-end;
+                flex-wrap: wrap;
 
                 .date-field {
                     flex-direction: row;
@@ -61,11 +55,28 @@
             }
         }
 
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+            align-items: flex-start;
+
+            .statistics-menu {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .statistics-menu-options {
+                flex-wrap: wrap;
+            }
+        }
     }
 
     .main-stats {
         display: flex;
         gap: 40px;
+
+        @media (max-width: $mobile-width) {
+            flex-direction: column;
+        }
     }
 
     section.cardy {

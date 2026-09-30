@@ -1,5 +1,7 @@
 .access-segmented-control-container {
     display: flex;
+    max-width: 100%;
+    overflow-x: auto;
 
     .access-segmented-control {
         background: var(--muted);

@@ -1,0 +1,81 @@
+@use "../styles/vars" as *;
+
+.mobile-nav-backdrop {
+    display: none;
+
+    @media (max-width: $mobile-width) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 9;
+    }
+}
+
+.mobile-navigation {
+    display: none;
+
+    @media (max-width: $mobile-width) {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background-color: white;
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 4px 4px rgba(0, 0, 0, .25);
+        padding: 10px 16px 16px 16px;
+    }
+
+    .mobile-nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            height: 36px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--foreground);
+            text-decoration: none;
+
+            &:hover {
+                background-color: var(--muted);
+            }
+
+            &.active {
+                font-weight: 600;
+            }
+
+            &.disabled {
+                color: var(--muted-foreground, #a3a3a3);
+                cursor: not-allowed;
+            }
+        }
+
+        .language-toggle {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+
+    .login-buttons.mobile-login-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+
+        [data-slot="button"] {
+            width: 100%;
+        }
+    }
+}

@@ -88,8 +88,38 @@
         border-radius: 6px;
     }
 
+    .option-with-description {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        .option-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .option-label {
+            font-weight: var(--font-weight-medium);
+        }
+
+        .option-description {
+            color: var(--muted-foreground);
+        }
+    }
+
     p.select-info {
         margin-top: 8px;
         color: var(--muted-foreground);
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        &.under-label {
+            margin: 0 0 8px 0;
+        }
     }
 }

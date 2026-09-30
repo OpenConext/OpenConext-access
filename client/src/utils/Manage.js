@@ -160,6 +160,10 @@ export const STEPUP_LEVELS = {
 export const MFA_LEVELS = {
     multipleauthn:               "http://schemas.microsoft.com/claims/multipleauthn",
     mfa:                         "https://refeds.org/profile/mfa",
+    iapMedium:                   "https://refeds.org/assurance/IAP/medium",
+    iapHigh:                     "https://refeds.org/assurance/IAP/high",
+    iapMediumMfa:                "https://refeds.org/assurance/IAP/medium/mfa",
+    iapHighMfa:                  "https://refeds.org/assurance/IAP/high/mfa",
     mobileOneFactorContract:     "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorContract",
     mobileOneFactorUnregistered: "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorUnregistered",
     password:                    "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",

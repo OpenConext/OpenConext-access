@@ -4,8 +4,6 @@
 div.application-detail-container {
     width: 100%;
 
-    $width: 920px;
-
     a {
         text-decoration: underline;
     }
@@ -22,29 +20,6 @@ div.application-detail-container {
     p.alert-title {
         font-weight: 600;
         color: var(--foreground);
-    }
-
-    .application-detail-header-container {
-        width: 100%;
-        background-color: var(--muted);
-    }
-
-    .application-detail-header {
-        max-width: $width;
-        margin: 0 auto;
-        padding: 75px 0;
-        display: flex;
-
-        p {
-            margin-right: 50px;
-        }
-
-        img {
-            width: 200px;
-            height: auto;
-            border-radius: 20px;
-            margin: auto 0 auto auto;
-        }
     }
 
     .application-header {
@@ -178,6 +153,101 @@ div.application-detail-container {
         }
     }
 
+    .application-detail-back-link {
+        [data-slot="button"] {
+            padding-left: 0;
+            padding-right: 0;
+            color: var(--primary-strong);
+            text-decoration: none;
+
+            svg {
+                margin-right: 6px;
+            }
+        }
+    }
+
+    &.anonymous .inner-application-detail-container {
+        @include index.public-page-width;
+        box-sizing: border-box;
+        padding: 0 40px;
+    }
+
+    .application-detail.anonymous {
+        width: 800px;
+        max-width: 100%;
+        margin: 0 auto;
+        gap: 32px;
+
+        .meta-data {
+            padding-bottom: 32px;
+
+            > img, > svg {
+                width: 240px;
+                height: 240px;
+                border: none;
+                padding: 0;
+                border-radius: 0;
+                object-fit: cover;
+                margin-right: 32px;
+            }
+
+            .meta-data-name {
+                gap: 8px;
+
+                p.organization {
+                    color: var(--muted-foreground);
+                    font-size: 20px;
+                    font-weight: 400;
+                }
+
+                p.name {
+                    font-weight: 600;
+                    font-size: 48px;
+                    line-height: 1;
+                }
+
+                .quick-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    margin-top: 8px;
+
+                    a {
+                        color: var(--primary-strong);
+                        font-weight: 500;
+                        text-decoration: none;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+
+                    .separator {
+                        color: var(--foreground);
+                    }
+                }
+            }
+        }
+
+        @media (max-width: $mobile-width) {
+            .meta-data {
+                flex-direction: column;
+                align-items: flex-start;
+
+                > img, > svg {
+                    width: 120px;
+                    height: 120px;
+                    margin-right: 0;
+                    margin-bottom: 16px;
+                }
+
+                p.name {
+                    font-size: 32px;
+                }
+            }
+        }
+    }
+
     .details {
         display: flex;
         flex-direction: column;
@@ -299,6 +369,14 @@ div.application-detail-container {
             margin-top: 24px;
         }
 
+        // When an item is collapsed, its AccordionContent panel is collapsed to
+        // zero height so the header row sits directly against the item's
+        // bottom border (see the "not-last:border-b" item class). Restore the
+        // missing bottom-half of the trigger's old built-in padding here.
+        [data-slot="accordion-item"][data-closed] .accordion-header-row {
+            padding-bottom: 16px;
+        }
+
         .accordion-header-row {
             display: flex;
             align-items: center;
@@ -357,22 +435,13 @@ div.application-detail-container {
                 display: flex;
                 flex-direction: column;
                 gap: 4px;
-                width: 280px;
+                width: 400px;
                 flex-shrink: 0;
 
                 .card-title {
                     font-weight: 600;
                     font-size: 18px;
                     margin: 0;
-                }
-
-                .card-applications {
-                    margin: 0;
-                }
-
-                .card-rule {
-                    display: block;
-                    color: var(--muted-foreground);
                 }
             }
 
@@ -499,73 +568,33 @@ div.application-detail-container {
 
     .assurance-container {
         display: flex;
-        width: 75%;
-        gap: 80px;
+        flex-direction: column;
+        gap: 32px;
+        max-width: 640px;
 
-        @media (max-width: $full-mode) {
-            width: auto;
-        }
-
-        .assurance-left {
+        .assurance-header {
             display: flex;
             flex-direction: column;
-            width: 60%;
+            gap: 12px;
 
             p {
-                &.info {
-                    margin-top: 20px;
-                }
-            }
-
-            .select-assurance {
-                margin-top: 20px;
-            }
-
-            .access-accordion {
-                margin-top: 30px;
+                color: var(--muted-foreground);
             }
         }
 
-        .assurance-info {
-            margin-top: 20px;
-
-            p {
-                margin-bottom: 10px;
-            }
-        }
-
-        .assurance-actions {
-            display: flex;
-            margin-top: 40px;
-            gap: 25px;
-
-            button:first-child {
-                margin-left: auto;
-            }
-        }
-
-        ul {
-            list-style: initial;
-
-            li {
-                margin-left: 15px;
-            }
-        }
-
-        ol {
-            list-style-type: decimal;
-
-            li {
-                margin-left: 15px;
-            }
-        }
-
-        .assurance-right {
-            width: 40%;
-            margin-left: auto;
+        .alert-description-with-action .alert-text {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 2px;
+        }
+
+        .alert-text-title {
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .select-field label {
+            margin: 0 0 8px 0;
         }
     }
 }

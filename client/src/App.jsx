@@ -13,7 +13,7 @@ import {Footer} from "./components/Footer.jsx";
 import {AccessFooter} from "./components/AccessFooter.jsx";
 import Organization from "./pages/Organization.jsx";
 import Institutions from "./pages/Institutions.jsx";
-import Connect from "./pages/Connect.jsx";
+import About from "./pages/About.jsx";
 import Applications from "./pages/Applications.jsx";
 import {SharedMenu} from "./components/SharedMenu.jsx";
 import {ApplicationForm} from "./pages/ApplicationForm.jsx";
@@ -235,7 +235,7 @@ const App = () => {
                         <Route path="/landing" element={<Navigate replace to="/home"/>}/>
                         <Route path="/home" element={<Home/>}/>
                         <Route path="/institutions" element={<Institutions/>}/>
-                        <Route path="/connect" element={<Connect/>}/>
+                        <Route path="/about" element={<About/>}/>
                         <Route path="/applications" element={<Applications/>}/>
                         <Route path="/stats" element={<PublicStats/>}/>
                         <Route path="/status" element={<Monitoring/>}/>

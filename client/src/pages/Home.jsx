@@ -1,89 +1,146 @@
-import React from "react";
 import './Home.scss';
+import React from "react";
 import I18n, {tArray} from "../locale/I18n";
-import Logo from "../icons/landing/logo.svg";
-import {Background} from "../components/Background.jsx";
-import {Link, useNavigate} from "react-router";
 import {Button} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
-import DOMPurify from "dompurify";
 import {sanitize} from "../utils/Utils";
+import {login} from "../utils/Login.js";
+import WelcomePublishApps from "../icons/landing/home_publish_apps.svg";
+import WelcomeActivateApps from "../icons/landing/home_activate_apps.svg";
+import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
+import heroImage from "../icons/landing/home_top_right.png";
+import providersImage from "../icons/landing/home_bottom_left.png";
+import institutionsImage from "../icons/landing/home_bottom_right.png";
+import PublicStats from "./PublicStats.jsx";
+
+const GETTING_STARTED_SECTION_ID = "getting-started";
 
 export const Home = () => {
 
-    const navigate = useNavigate();
     const config = useAppStore(state => state.config);
 
-    const contactUs = () => {
-        const link = document.createElement("a");
-        link.href = I18n.t("landing.institutions.contactMail");
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const applicationsCount = (config.stats.saml20_sp || 0) + (config.stats.oidc10_rp || 0);
+    const institutionsCount = config.stats.saml20_idp || 0;
+
+    const scrollToGettingStarted = () => {
+        document.getElementById(GETTING_STARTED_SECTION_ID)?.scrollIntoView({behavior: "smooth"});
     };
 
     return (
-        <div className="about-container">
-            <div className="about">
-                <div className="top">
-                    <h1 className="title large text-[56px] mb-[25px]">
-                        {I18n.t("landing.header.title")}
-                    </h1>
-                    <p
-                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.subTitle"))}}/>
+        <div className="home-landing-container">
+            <section className="hero">
+                <div className="hero-main">
+                    <div className="hero-copy">
+                        <h1>
+                            {I18n.t("landing.hero.title")}
+                        </h1>
+                        <p dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.hero.subTitle"))}}/>
+                    </div>
+                    <div className="hero-stats">
+                        <div className="hero-stat">
+                            <p className="hero-stat-number">{applicationsCount}</p>
+                            <p className="hero-stat-label">{I18n.t("landing.hero.stats.applications")}</p>
+                        </div>
+                        <div className="hero-stat">
+                            <p className="hero-stat-number">{institutionsCount}</p>
+                            <p className="hero-stat-label">{I18n.t("landing.hero.stats.institutions")}</p>
+                        </div>
+                        <div className="hero-stat">
+                            <p className="hero-stat-number">1</p>
+                            <p className="hero-stat-label">{I18n.t("landing.hero.stats.login")}</p>
+                        </div>
+                    </div>
+                    <Button onClick={scrollToGettingStarted}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
+                    </Button>
                 </div>
-                <Logo/>
-            </div>
-            <Background>
-                <div className="cards">
-                    <div className="card">
-                        <h3 className="text-[length:var(--text-lg-font-size)]">
-                            {I18n.t("landing.applicationProviders.title")}
-                        </h3>
-                        {tArray("landing.applicationProviders.info", (info, index) =>
-                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                        )}
-                        <Button onClick={() => navigate("/connect")}>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.applicationProviders.connect"))}}/>
-                        </Button>
-                    </div>
-                    <div className="card">
-                        <h3 className="text-[length:var(--text-lg-font-size)]">
-                            {I18n.t("landing.institutions.title")}
-                        </h3>
-                        {tArray("landing.institutions.info", (info, index) =>
-                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                        )}
-                        <Button onClick={() => contactUs()}
-                                variant="secondary">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.institutions.contact"))}}/>
-                        </Button>
-                    </div>
-                    <div className="card">
-                        <h3 className="text-[length:var(--text-lg-font-size)]">
-                            {I18n.t("landing.joining.title")}
-                        </h3>
-                        {tArray("landing.joining.info", (info, index) =>
-                            <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
-                        )}
-                        <p className="links">
-                            <span>{I18n.t("landing.joining.links.prefix")}</span>
-                            <Link to="/institutions">
-                                {I18n.t("landing.joining.links.institutions",
-                                    {nbr: config.stats.saml20_idp})}
-                            </Link>
-                            <span>{I18n.t("landing.joining.links.or")}</span>
-                            <Link to="/applications">
-                                {I18n.t("landing.joining.links.applications",
-                                    {nbr: config.stats.saml20_sp + config.stats.oidc10_rp})}
-                            </Link>
-                        </p>
-                    </div>
+                <div className="hero-image" aria-hidden="true">
+                    <img src={heroImage} alt="" loading="lazy"/>
                 </div>
-            </Background>
-        </div>
+            </section>
 
+            <section className="what-can-you-do">
+                <h2>{I18n.t("landing.whatCanYouDo.title")}</h2>
+                <div className="bento-grid">
+                    <div className="bento-card green">
+                        <div className="bento-illustration">
+                            <WelcomePublishApps/>
+                        </div>
+                        <div className="bento-body">
+                            <h3 className="text-[30px]">{I18n.t("landing.whatCanYouDo.publish.title")}</h3>
+                            <p>{I18n.t("landing.whatCanYouDo.publish.description")}</p>
+                        </div>
+                    </div>
+                    <div className="bento-card blue">
+                        <div className="bento-illustration">
+                            <WelcomeActivateApps/>
+                        </div>
+                        <div className="bento-body">
+                            <h3 className="text-[30px]">{I18n.t("landing.whatCanYouDo.activate.title")}</h3>
+                            <p>{I18n.t("landing.whatCanYouDo.activate.description")}</p>
+                        </div>
+                    </div>
+                    <div className="bento-card purple">
+                        <div className="bento-illustration">
+                            <WelcomeManageAccess/>
+                        </div>
+                        <div className="bento-body">
+                            <h3 className="text-[30px]">{I18n.t("landing.whatCanYouDo.manage.title")}</h3>
+                            <p>{I18n.t("landing.whatCanYouDo.manage.description")}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="getting-started" id={GETTING_STARTED_SECTION_ID}>
+                <h2>{I18n.t("landing.gettingStarted.title")}</h2>
+                <div className="getting-started-grid">
+                    <div className="getting-started-card">
+                        <div className="getting-started-image" aria-hidden="true">
+                            <img src={providersImage} alt="" loading="lazy"/>
+                        </div>
+                        <div className="getting-started-body">
+                            <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.providers.title")}</h3>
+                            {tArray("landing.gettingStarted.providers.info", (info, index) =>
+                                <p key={index}>{info}</p>)}
+                            <Button variant="outline" onClick={() => login(config, true, true)}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="getting-started-card">
+                        <div className="getting-started-image" aria-hidden="true">
+                            <img src={institutionsImage} alt="" loading="lazy"/>
+                        </div>
+                        <div className="getting-started-body">
+                            <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.institutions.title")}</h3>
+                            {tArray("landing.gettingStarted.institutions.info", (info, index) =>
+                                <p key={index}>{info}</p>)}
+                            <Button variant="outline" onClick={() => login(config, true, false)}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="try-demo">
+                <div className="try-demo-copy">
+                    <h2>{I18n.t("landing.tryDemo.title")}</h2>
+                    <p>{I18n.t("landing.tryDemo.description")}</p>
+                </div>
+                <Button nativeButton={false} className="try-demo-cta" render={
+                    <a href={I18n.t("landing.tryDemo.url")} target="_blank" rel="noreferrer">
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.tryDemo.cta"))}}/>
+                    </a>
+                }/>
+            </section>
+
+            <section className="activity">
+                <h2>{I18n.t("landing.activity.title")}</h2>
+                <PublicStats/>
+            </section>
+        </div>
     );
 
 }

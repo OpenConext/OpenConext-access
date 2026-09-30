@@ -16,7 +16,6 @@ import {
     InputGroupAddon,
     InputGroupInput
 } from "@surfnet/curve-react";
-import StudentPng from "../icons/student2.png";
 import {MagnifyingGlassIcon as SearchIcon, CaretRightIcon as ArrowIcon} from "@phosphor-icons/react";
 import SelectField from "../components/SelectField.jsx";
 import {isEmpty} from "../utils/Utils.js";
@@ -41,7 +40,6 @@ const Applications = () => {
         const [query, setQuery] = useState(valueFromQueryParams("query", ""));
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
-        const [recentServiceProviders, setRecentServiceProviders] = useState([]);
         const [tag, setTag] = useState(valueFromQueryParams("tag", "all"));
         const [tagOptions, setTagOptions] = useState([]);
         const [source, setSource] = useState(valueFromQueryParams("source", "all"));
@@ -55,10 +53,6 @@ const Applications = () => {
                         .sort((sp1, sp2) => providerName(I18n.locale, sp1).toLowerCase()
                             .localeCompare(providerName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
-                    const recent = res
-                        .sort((sp1, sp2) => sp2.revision.created.localeCompare(sp1.revision.created))
-                        .slice(0, 8);
-                    setRecentServiceProviders(recent);
                     const tagCounts = res.reduce((acc, sp) => {
                         const tags = sp.data.metaDataFields.application_tags;
                         if (!isEmpty(tags)) {
@@ -74,7 +68,7 @@ const Applications = () => {
                     }, {});
                     const defaultTag = {
                         value: "all",
-                        label: `${I18n.t("applications.all")} (${res.length})`
+                        label: I18n.t("applications.all")
                     };
                     let newTagOptions = [defaultTag];
                     newTagOptions = newTagOptions.concat(Object.entries(tagCounts)
@@ -98,7 +92,7 @@ const Applications = () => {
                     }, {});
                     const defaultSource = {
                         value: "all",
-                        label: `${I18n.t("applications.allSources")} (${res.length})`
+                        label: I18n.t("applications.allSources")
                     };
                     let newSourceOptions = [defaultSource];
                     newSourceOptions = newSourceOptions.concat(Object.entries(sourceCounts)
@@ -139,9 +133,9 @@ const Applications = () => {
                 }
                 return tagHit && queryHit && sourceHit;
             }
-            return (isEmpty(query) && tag === "all" && source === "all" && page === 1) ? recentServiceProviders :
+            return (isEmpty(query) && tag === "all" && source === "all") ? serviceProviders :
                 serviceProviders.filter(sp => filterSP(sp));
-        }, [query, recentServiceProviders, serviceProviders, source, tag, page]);
+        }, [query, serviceProviders, source, tag]);
 
 
         if (loading) {
@@ -149,7 +143,6 @@ const Applications = () => {
         }
 
         const minimalPage = Math.min(page, Math.ceil(filteredServiceProviders.length / pageCount));
-        const showMostRecent = isEmpty(query) && tag === "all" && source === "all" && page === 1;
 
         const renderPagination = (total, onChange) => {
             const nbrPages = Math.ceil(total / pageCount);
@@ -191,105 +184,75 @@ const Applications = () => {
 
         return (
             <div className="applications-container">
-                <div className="applications-header-container">
-                    <div className="applications-header">
-                        <div className="left">
-                            <h1 className="large text-[56px] mb-5">{I18n.t("applications.title")}</h1>
-                            <p>{I18n.t("applications.subTitle")}</p>
-                        </div>
-                        <img src={StudentPng} alt="student"/>
-                    </div>
+                <div className="applications-title">
+                    <h1>{I18n.t("applications.title")}</h1>
+                    <p>{I18n.t("applications.subTitle")}</p>
                 </div>
-                <div className="inner-applications-container">
-                    <div className="applications">
-                        <div className="applications-search">
-                            <InputGroup className="applications-search-input-group">
-                                <InputGroupInput type="search"
-                                                 onChange={e => {
-                                                     setQuery(e.target.value);
-                                                     storeQueryParameter("query", e.target.value);
-                                                 }}
-                                                 value={query}
-                                                 placeholder={I18n.t("applications.searchPlaceHolder")}/>
-                                <InputGroupAddon align="inline-end">
-                                    <SearchIcon/>
-                                </InputGroupAddon>
-                            </InputGroup>
-                            <SelectField
-                                value={sourceOptions.find(option => option.value === source)}
-                                options={sourceOptions}
-                                searchable={false}
-                                onChange={option => {
-                                    setSource(option.value);
-                                    storeQueryParameter("source", option.value);
-                                }}
-                            />
-                            <SelectField
-                                value={tagOptions.find(option => option.value === tag)}
-                                options={tagOptions}
-                                searchable={false}
-                                onChange={option => {
-                                    setTag(option.value)
-                                    storeQueryParameter("tag", option.value);
-                                }}
-                            />
-                        </div>
-                        {showMostRecent &&
-                            <div className="applications-overview-recent-container">
-                                <h2 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("applications.recent")}</h2>
-                                <div className="applications-overview-recent">
-                                    {recentServiceProviders.map((sp, index) => {
-                                        const metaData = sp.data.metaDataFields;
-                                        return (
-                                            <div key={index}
-                                                 className="application-card">
-                                                <StretchedLink to={`/application-detail/${sp.type}/${sp['_id']}`}/>
-                                                {metaData["logo:0:url"] && <img src={metaData["logo:0:url"]} alt=""/>}
-                                                {!metaData["logo:0:url"] && <PlaceHolderImage/>}
-                                                <div className="sp-info">
-                                                            <span className="sp-name">
-                                                                {providerName(I18n.locale, sp)}
-                                                            </span>
-                                                    <span className="sp-org">
-                                                                {providerOrganizationName(I18n.locale, sp)}
-                                                            </span>
-                                                </div>
-                                                <span className="right"><ArrowIcon/></span>
-                                            </div>)
-                                    })}
-                                </div>
-                            </div>}
-                        {!showMostRecent &&
-                            <div className="applications-overview">
-                                <ul>
-                                    {filteredServiceProviders
-                                        .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
-                                        .map((idp, index) => {
-                                                return (
-                                                    <li key={index}>
-                                                        <StretchedLink to={`/application-detail/${idp.type}/${idp['_id']}`}/>
-                                                        <div className="service-provider">
-                                                            <div className="sp-info">
-                                                            <span className="sp-name">
-                                                                {providerName(I18n.locale, idp)}
-                                                            </span>
-                                                                <span className="sp-org">
-                                                                {providerOrganizationName(I18n.locale, idp)}
-                                                            </span>
-                                                            </div>
-                                                        </div>
-                                                    </li>)
-                                            }
-                                        )}
-                                </ul>
-                            </div>}
+                <div className="applications-body">
+                    <div className="applications-search">
+                        <InputGroup className="applications-search-input-group">
+                            <InputGroupAddon align="inline-start">
+                                <SearchIcon/>
+                            </InputGroupAddon>
+                            <InputGroupInput type="search"
+                                             onChange={e => {
+                                                 setQuery(e.target.value);
+                                                 storeQueryParameter("query", e.target.value);
+                                             }}
+                                             value={query}
+                                             placeholder={I18n.t("applications.searchPlaceHolder")}/>
+                        </InputGroup>
+                        <SelectField
+                            className="applications-filter-select"
+                            value={sourceOptions.find(option => option.value === source)}
+                            options={sourceOptions}
+                            searchable={false}
+                            onChange={option => {
+                                setSource(option.value);
+                                storeQueryParameter("source", option.value);
+                            }}
+                        />
+                        <SelectField
+                            className="applications-filter-select"
+                            value={tagOptions.find(option => option.value === tag)}
+                            options={tagOptions}
+                            searchable={false}
+                            onChange={option => {
+                                setTag(option.value)
+                                storeQueryParameter("tag", option.value);
+                            }}
+                        />
                     </div>
-                    {!showMostRecent && renderPagination(filteredServiceProviders.length, nbr => {
-                        setPage(nbr);
-                        storePageNumber(nbr);
-                    })}
+                    <ul className="applications-list">
+                        {filteredServiceProviders
+                            .slice((minimalPage - 1) * pageCount, minimalPage * pageCount)
+                            .map((sp, index) => {
+                                    const metaData = sp.data.metaDataFields;
+                                    return (
+                                        <li key={index}>
+                                            <StretchedLink to={`/application-detail/${sp.type}/${sp['_id']}`}/>
+                                            <div className="application-logo">
+                                                {metaData["logo:0:url"] ? <img src={metaData["logo:0:url"]} alt=""/> :
+                                                    <PlaceHolderImage/>}
+                                            </div>
+                                            <div className="application-info">
+                                                <span className="application-org">
+                                                    {providerOrganizationName(I18n.locale, sp)}
+                                                </span>
+                                                <span className="application-name">
+                                                    {providerName(I18n.locale, sp)}
+                                                </span>
+                                            </div>
+                                            <span className="application-arrow"><ArrowIcon/></span>
+                                        </li>)
+                                }
+                            )}
+                    </ul>
                 </div>
-
+                {renderPagination(filteredServiceProviders.length, nbr => {
+                    setPage(nbr);
+                    storePageNumber(nbr);
+                })}
             </div>
         );
     }

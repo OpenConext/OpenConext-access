@@ -1,35 +1,66 @@
 @use "../styles/vars" as *;
+@use "../index";
 
 .header-container {
+    position: relative;
     background-color: white;
-    padding: 4px 0 26px 0;
-    border-bottom: 1px solid #B2B6BE;
+    border-bottom: 1px solid var(--border);
 
     .header-inner {
+        @include index.public-page-width;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
-        margin: 15px 35px 0 0;
-        max-width: 1440px;
+        gap: 32px;
+        min-height: 72px;
+        padding: 0 40px;
+
+        @media (max-width: $mobile-width) {
+            justify-content: space-between;
+            min-height: 64px;
+            padding: 0 20px;
+        }
 
         .logo {
-            margin: 0 65px 0 35px;
-        }
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
 
-        .nav {
             @media (max-width: $mobile-width) {
-                display: none;
+                margin: 0;
             }
         }
+
         .desktop-navigation {
             @media (max-width: $mobile-width) {
                 display: none;
             }
         }
-        .mobile-navigation {
-            margin: 0 25px 0 auto;
 
-            @media (min-width: $mobile-width-crossover) {
-                display: none;
+        .mobile-menu-trigger {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            color: var(--foreground);
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            &:hover {
+                background-color: var(--muted);
+            }
+
+            @media (max-width: $mobile-width) {
+                display: flex;
             }
         }
     }

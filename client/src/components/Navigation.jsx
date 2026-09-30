@@ -1,39 +1,40 @@
-import {useState} from "react";
 import I18n from "../locale/I18n";
 import "./Navigation.scss"
-import {stopEvent, sanitize} from "../utils/Utils.js";
-import {Link, useNavigate} from "react-router";
-import {Button} from "@surfnet/curve-react";
-
-const tabNames = ["home", "connect", "institutions", "applications", "stats", "status"];
+import {Link} from "react-router";
+import {NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList} from "@surfnet/curve-react";
+import {LanguageToggle} from "./LanguageToggle.jsx";
+import {LoginButtons} from "./LoginButtons.jsx";
+import {disabledTabNames, hiddenTabNames, tabNames} from "../utils/NavigationTabs.js";
 
 export const Navigation = ({mobile, path}) => {
 
-    const [tab, setTab] = useState(() => path.substring(1));
-
-    const navigate = useNavigate();
-
-    const doNavigate = (e, tabName) => {
-        stopEvent(e);
-        setTab(tabName);
-        navigate(`/${tabName}`)
-    }
+    // Derived directly from the path prop (rather than mirrored into state) so the
+    // active tab stays correct after navigation that doesn't go through the links -
+    // e.g. the "/" -> "/home" redirect, the mobile menu's own links, or browser
+    // back/forward.
+    const activeTab = path.substring(1);
 
     return (
         <div className={`desktop-navigation ${mobile ? "mobile" : ""}`}>
-            {tabNames.map(tabName => <a key={tabName}
-                                        href={`/${tabName}`}
-                                        className={tabName === tab ? "active" : ""}
-                                        onClick={e => doNavigate(e, tabName)}>
-                {I18n.t(`landing.tabs.${tabName}`)}
-            </a>)}
+            <NavigationMenu>
+                <NavigationMenuList>
+                    {tabNames.filter(tabName => !hiddenTabNames.has(tabName)).map(tabName =>
+                        <NavigationMenuItem key={tabName}
+                                            className={tabName === activeTab ? "active" : ""}>
+                            {disabledTabNames.has(tabName) ?
+                                <span className="disabled" aria-disabled="true">
+                                    {I18n.t(`landing.tabs.${tabName}`)}
+                                </span> :
+                                <NavigationMenuLink render={<Link to={`/${tabName}`}/>}
+                                                    active={tabName === activeTab}>
+                                    {I18n.t(`landing.tabs.${tabName}`)}
+                                </NavigationMenuLink>}
+                        </NavigationMenuItem>)}
+                </NavigationMenuList>
+            </NavigationMenu>
             <div className="links">
-                {path !== "/login-info" &&
-                    <Button nativeButton={false} render={
-                        <Link to="/login-info">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
-                        </Link>
-                    }/>}
+                <LanguageToggle/>
+                {path !== "/login-info" && <LoginButtons/>}
             </div>
         </div>
     );
