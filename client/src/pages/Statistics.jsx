@@ -356,6 +356,23 @@ const Statistics = () => {
                 </div>
                 <div className="statistics-menu">
                     <h5 className="period">{I18n.t("statistics.period")}</h5>
+                    <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
+                        <DateField name={I18n.t("statistics.from")}
+                                   value={customFrom}
+                                   onChange={setCustomFrom}
+                                   maxDate={customTo}
+                                   showYearDropdown={true}
+                                   pastDatesAllowed={true}
+                                   allowNull={false}/>
+                        <DateField name={I18n.t("statistics.to")}
+                                   value={customTo}
+                                   onChange={setCustomTo}
+                                   minDate={customFrom}
+                                   maxDate={new Date()}
+                                   showYearDropdown={true}
+                                   pastDatesAllowed={true}
+                                   allowNull={false}/>
+                    </div>
                     <div className="statistics-menu-options">
                         <SegmentedControl onClick={handlePeriodChange}
                                           options={Object.keys(periods)}
@@ -364,24 +381,6 @@ const Statistics = () => {
                         {period !== "custom" && (
                             <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
                         )}
-                        <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
-                            <DateField name={I18n.t("statistics.from")}
-                                       value={customFrom}
-                                       onChange={setCustomFrom}
-                                       maxDate={customTo}
-                                       showYearDropdown={true}
-                                       pastDatesAllowed={true}
-                                       allowNull={false}/>
-                            <DateField name={I18n.t("statistics.to")}
-                                       value={customTo}
-                                       onChange={setCustomTo}
-                                       minDate={customFrom}
-                                       maxDate={new Date()}
-                                       showYearDropdown={true}
-                                       pastDatesAllowed={true}
-                                       allowNull={false}/>
-                        </div>
-
                         <Button onClick={handleExport}
                                 className="export">
                             <span data-icon="inline-start"><ExportIcon/></span>

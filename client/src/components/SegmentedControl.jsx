@@ -1,24 +1,17 @@
 import React from "react";
 import "./SegmentedControl.scss";
-import {Button} from "@surfnet/curve-react";
+import {Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
 import {sanitize} from "../utils/Utils";
 
-const SegmentedControl = ({options, option, optionLabelResolver, onClick}) => {
-
-    return (
-        <div className="access-segmented-control-container">
-            <div className="access-segmented-control">
-                {options.map((o) =>
-                    <Button key={o}
-                            aria-expanded={o === option}
-                            onClick={() => onClick(o)}
-                            variant={o === option ? undefined : "outline"}
-                    >
-                        <span dangerouslySetInnerHTML={{__html: sanitize(optionLabelResolver(o))}}/>
-                    </Button>)}
-            </div>
-
-        </div>)
-};
+const SegmentedControl = ({options, option, optionLabelResolver, onClick}) => (
+    <Tabs value={option} onValueChange={onClick} className="access-segmented-control-container">
+        <TabsList>
+            {options.map(o =>
+                <TabsTrigger key={o} value={o}>
+                    <span dangerouslySetInnerHTML={{__html: sanitize(optionLabelResolver(o))}}/>
+                </TabsTrigger>)}
+        </TabsList>
+    </Tabs>
+);
 
 export default SegmentedControl;

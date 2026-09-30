@@ -670,13 +670,11 @@ export const PolicyForm = ({
 
     const renderActions = () => (
         <div className="actions">
-            {!isEmpty(policy.id) &&
-                <span className="delete-can" onClick={() => doDeletePolicy(true, policy)}>
-                    <TrashIcon/>{I18n.t("forms.delete")}
-                </span>}
             <div className="submit-actions">
                 <Button variant="outline"
-                        onClick={refreshPolicies}>
+                        onClick={() => returnToApplication ?
+                            navigate(`/application-detail/${returnToApplication.manageType}/${returnToApplication.manageId}/access`) :
+                            refreshPolicies()}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                 </Button>
                 <Button onClick={() => submit()}
@@ -719,6 +717,9 @@ export const PolicyForm = ({
                     {isExistingPolicy &&
                         <div className="policy-header-actions">
                             {renderPolicyChip(policy)}
+                            <Button variant="ghost" onClick={() => doDeletePolicy(true, policy)}>
+                                <TrashIcon/><span>{I18n.t("forms.delete")}</span>
+                            </Button>
                         </div>}
                 </div>
             </div>

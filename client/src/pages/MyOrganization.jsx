@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate, useParams} from "react-router";
 import {
@@ -36,8 +36,7 @@ import {
     Spinner
 } from "@surfnet/curve-react";
 import {BuildingOfficeIcon, EnvelopeSimpleIcon, InfoIcon, TrashIcon} from "@phosphor-icons/react";
-import {ContactPersons} from "../components/ContactPersons.jsx";
-import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
+import {convertServerApplicationToClient} from "../utils/Application.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
@@ -50,7 +49,6 @@ import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {useShallow} from "zustand/react/shallow";
 
 const sections = {
-    contactPersons: "contactPersons",
     general: "general"
 }
 
@@ -66,16 +64,13 @@ const MyOrganization = ({refreshUser}) => {
     })));
 
     const {organizationId} = useParams();
-    const {tab} = useParams();
 
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState({});
     const [externalOrganization, setExternalOrganization] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [section, setSection] = useState(null);
-    const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
-    const [originalOrganizationName, setOriginalOrganizationName] = useState("");
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
 
     const [contract, setContract] = useState(null);
@@ -84,8 +79,6 @@ const MyOrganization = ({refreshUser}) => {
     const [contractInitial, setContractInitial] = useState(true);
     const [submitConfirmation, setSubmitConfirmation] = useState(false);
     const [jiraModal, setJiraModal] = useState({open: false, ticketKey: null});
-
-    const inputRef = useRef(null);
 
     const navigate = useNavigate();
 
@@ -103,10 +96,9 @@ const MyOrganization = ({refreshUser}) => {
                 .then(res => {
                     const convertedOrganization = convertServerApplicationToClient(res);
                     setOrganization(convertedOrganization);
-                    setOriginalOrganizationName(res.name);
                     const isExternal = isEmpty(res.manageIdentifier);
                     setExternalOrganization(isExternal);
-                    const currentSection = isExternal ? sections.general : (isEmpty(tab) ? sections.contactPersons : tab);
+                    const currentSection = sections.general;
                     setSection(currentSection);
                     navigate(`/idp/${organizationId}/${currentSection}`);
                     setLoading(false);
@@ -123,13 +115,7 @@ const MyOrganization = ({refreshUser}) => {
                 navigate("/home")
             });
         }
-    }, [navigate, organizationId, user]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [focusedId]);
+    }, [navigate, organizationId, user]);
 
     const defaultContract = () => ({
         signeeName: user.name || "",
@@ -164,8 +150,7 @@ const MyOrganization = ({refreshUser}) => {
 
     const availableSections = useMemo(() => {
         return Object.values(sections)
-            .filter(s => s !== sections.contactPersons || !externalOrganization)
-    }, [externalOrganization])
+    }, [])
 
     const canDeleteOrganization = externalOrganization && (user.superUser || isOrganizationAdmin(user, organization));
 
@@ -200,16 +185,6 @@ const MyOrganization = ({refreshUser}) => {
                 setTimeout(() => navigate("/home"), 350);
             })
         }
-    }
-
-    const renderContactPersonsSection = () => {
-        return <ContactPersons application={organization}
-                               setApplication={setOrganization}
-                               setFocusedId={setFocusedId}
-                               focusedId={focusedId}
-                               inputRef={inputRef}
-                               initial={initial}
-                               readOnly={!adminUser}/>
     }
 
     const changeKeyWords = options => {
@@ -292,9 +267,6 @@ const MyOrganization = ({refreshUser}) => {
 
     const renderCurrentSection = () => {
         switch (section) {
-            case sections.contactPersons: {
-                return renderContactPersonsSection();
-            }
             case sections.general: {
                 return renderInternalGeneralSection();
             }
@@ -311,7 +283,7 @@ const MyOrganization = ({refreshUser}) => {
 
     const saveInternalOrganization = () => {
         setInitial(false);
-        if (contactSectionValid(organization)) {
+        if (!isEmpty(organization.name)) {
             setLoading(true);
             updateOrganizationMetaData(organization.id, {
                 contactPersons: organization.contactPersons,
@@ -585,7 +557,6 @@ const MyOrganization = ({refreshUser}) => {
             <div className="my-organization">
                 {externalOrganization ? renderExternalOrganizationSettings() : (
                     <>
-                        <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.maintenance", {name: originalOrganizationName})}</h1>
                         <div className="menu-container">
                             <div className="left-menu">
                                 {availableSections
@@ -604,7 +575,7 @@ const MyOrganization = ({refreshUser}) => {
                         {adminUser &&
                             <div className="actions proceed">
                                 <Button onClick={saveInternalOrganization}
-                                        disabled={!initial && !contactSectionValid(organization) && isEmpty(organization.name)}
+                                        disabled={!initial && isEmpty(organization.name)}
                                 >
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
                                 </Button>

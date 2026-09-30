@@ -9,7 +9,7 @@ div.policies-outer-container {
 
     .policies-header-container {
         background-color: var(--muted);
-        padding: 25px 50px 25px 50px;
+        padding: $gap-lg 50px $gap-sm 50px;
 
         .top-header {
             margin-bottom: 15px;
@@ -30,14 +30,15 @@ div.policies-outer-container {
                 flex-wrap: wrap;
 
                 > div {
-                    width: 320px;
+                    width: $filter-width;
+                    max-width: 100%;
                 }
             }
         }
     }
 
     div.policies {
-        padding: $page-padding;
+        padding: $gap-md 60px $gap-lg 50px;
     }
 
     .app-policies {

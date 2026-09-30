@@ -2,9 +2,9 @@
 @use "../index";
 
 .statistics-container {
-    @include index.public-page-width;
+    // Aligned with the breadcrumb, like the other authenticated pages.
     box-sizing: border-box;
-    padding: 35px 20px 40px 20px;
+    padding: 35px 60px 40px 50px;
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -22,37 +22,40 @@
             min-width: 0;
         }
 
-        .statistics-menu-options {
+        .custom-date-range {
             display: flex;
-            gap: 16px;
-            align-items: flex-end;
-            min-width: 0;
+            gap: $gap-sm;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
 
-            .custom-date-range {
-                display: flex;
-                gap: 12px;
-                align-items: flex-end;
-                flex-wrap: wrap;
+            .date-field {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
 
-                .date-field {
-                    flex-direction: row;
-                    align-items: center;
-                    gap: 8px;
+                label.date-field-label {
+                    min-width: unset;
+                    margin: 0;
+                }
 
-                    label.date-field-label {
-                        min-width: unset;
-                        margin: 0;
-                    }
+                .date-picker-container {
+                    width: 140px;
+                }
 
-                    .date-picker-container {
-                        width: 140px;
-                    }
-
-                    .react-datepicker-wrapper {
-                        width: 140px;
-                    }
+                .react-datepicker-wrapper {
+                    width: 140px;
                 }
             }
+        }
+
+        .statistics-menu-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: $gap-md;
+            align-items: center;
+            justify-content: flex-end;
+            min-width: 0;
         }
 
         @media (max-width: $mobile-width) {

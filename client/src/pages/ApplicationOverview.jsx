@@ -182,7 +182,7 @@ const ApplicationOverview = ({accessible}) => {
                             <h1 className="large text-[length:var(--text-2xl-font-size)] mb-2">{I18n.t("userHome.catalogue.title")}</h1>
                             <p>{I18n.t("userHome.catalogue.subTitle")}</p>
                         </div>}
-                        {!isEmpty(serviceProviders) &&
+                        {(!accessible && !isEmpty(serviceProviders)) &&
                             <Tabs value={view} onValueChange={setView} className="view-switcher-tabs">
                                 <TabsList>
                                     <TabsTrigger value={views.grid}>

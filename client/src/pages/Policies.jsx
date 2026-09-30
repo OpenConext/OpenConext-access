@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import {Navigate, useNavigate, useParams} from "react-router";
 import {getPolicyByIdentityProvider, getServiceProvidersAllowed} from "../api/index.js";
@@ -34,6 +34,7 @@ const Policies = () => {
     const [selectedServiceProviders, setSelectedServiceProviders] = useState([]);
     const [selectedPolicyType, setSelectedPolicyType] = useState(null);
     const [returnToApplication, setReturnToApplication] = useState(null);
+    const initialEntityId = useRef(null);
 
     const navigate = useNavigate();
 
@@ -48,14 +49,19 @@ const Policies = () => {
             && !isEmpty(currentOrganization.manageIdentifier));
     }, [user, currentOrganization]);
 
-    const toPolicyDetail = (policyIdentifier, policyType, allPolicies = policies, serviceProviderEntityId = null) => {
+    //The URL is the source of truth for which view is shown, so the browser back button and the breadcrumb work.
+    const toPolicyDetail = policyIdentifier => navigate(`/policies/details/${policyIdentifier}`);
+
+    const openPolicyDetail = (policyIdentifier, allPolicies = policies, serviceProviderEntityId = null) => {
         setShowPolicyOverview(false);
         let newCurrentPolicy;
         if (policyIdentifier === "reg" || policyIdentifier === "step") {
             newCurrentPolicy = policyIdentifier === "step" ? policyTemplateStepUp(currentOrganization.identityProvider.data.entityid, serviceProviderEntityId) :
                 policyTemplateRegular(currentOrganization.identityProvider.data.entityid, serviceProviderEntityId);
         } else {
-            newCurrentPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
+            const existingPolicy = allPolicies.find(policy => policy.id === policyIdentifier);
+            //Clone, the form regroups the attributes and the overview list must keep the original shape
+            newCurrentPolicy = isEmpty(existingPolicy) ? existingPolicy : structuredClone(existingPolicy);
             if (isEmpty(newCurrentPolicy)) {
                 navigate("/404");
                 return;
@@ -69,7 +75,6 @@ const Policies = () => {
         window.scrollTo({top: 0, behavior: "smooth"});
         setCurrentPolicy(newCurrentPolicy);
         setShowPolicyDetails(true);
-        navigate(`/policies/details/${policyIdentifier}`);
     }
 
     useEffect(() => {
@@ -89,15 +94,7 @@ const Policies = () => {
                     appName: urlSearchParams.get("appName")
                 });
             }
-            if (page === "details" && !isEmpty(policyId)) {
-                toPolicyDetail(policyId, null, res[0], urlSearchParams.get("entityId"));
-            }
-            useAppStore.setState({
-                breadcrumbPaths: [
-                    {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
-                    {value: I18n.t("navigation.policies")}
-                ]
-            });
+            initialEntityId.current = urlSearchParams.get("entityId");
             const options = res[1].map(sp => ({
                 label: providerName(I18n.locale, sp),
                 value: sp.data.entityid
@@ -111,6 +108,29 @@ const Policies = () => {
         });
 
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+        const isDetail = page === "details" && !isEmpty(policyId);
+        if (isDetail) {
+            openPolicyDetail(policyId, policies, initialEntityId.current);
+            initialEntityId.current = null;
+        } else {
+            setShowPolicyDetails(false);
+            setShowPolicyOverview(true);
+        }
+        const rulesCrumb = {path: "/policies/overview", value: I18n.t("navigation.policies"), menuItemName: mainMenuItems.policies};
+        useAppStore.setState({
+            breadcrumbPaths: [
+                {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
+                isDetail ? rulesCrumb : {value: I18n.t("navigation.policies")},
+                isDetail ? {value: policyId === "step" ? I18n.t("appAccess.newStepUpPolicy") : policyId === "reg" ? I18n.t("appAccess.newPolicy") :
+                    (policies.find(policy => policy.id === policyId)?.data?.name || I18n.t("appAccess.editPolicy"))} : null
+            ].filter(crumb => crumb !== null)
+        });
+    }, [loading, page, policyId]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (!adminUser) {
         return <Navigate to={"/404"} replace/>;
@@ -134,7 +154,7 @@ const Policies = () => {
 
     const addNewPolicy = () => {
         const newPolicyType = selectedPolicyType ? selectedPolicyType.value : policyTypes.reg;
-        toPolicyDetail(newPolicyType, newPolicyType);
+        toPolicyDetail(newPolicyType);
     }
 
     const filteredPolicies = policies

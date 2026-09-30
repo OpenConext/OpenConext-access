@@ -1,3 +1,5 @@
+@use "../styles/vars" as *;
+
 .stats-table {
     display: flex;
     flex-direction: column;
@@ -33,6 +35,7 @@
 
             div.input-field {
                 width: 100%;
+                margin-top: 0;
             }
         }
 
@@ -49,14 +52,17 @@
             justify-content: center;
             background: none;
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 4px 8px;
+            border-radius: 9999px;
+            // Same height as the toggle next to it
+            width: $control-height;
+            height: $control-height;
+            padding: 0;
             cursor: pointer;
             line-height: 0;
 
             svg {
-                width: 16px;
-                height: 16px;
+                width: $gap-md;
+                height: $gap-md;
             }
 
             &:hover {

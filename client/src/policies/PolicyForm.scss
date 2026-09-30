@@ -258,20 +258,6 @@
         padding-top: 25px;
         border-top: 1px solid var(--border);
 
-        svg {
-            fill: var(--destructive);
-            color: var(--destructive);
-        }
-
-        span.delete-can {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--destructive);
-            font-weight: 600;
-            cursor: pointer;
-        }
-
         // Cancel and submit are grouped so they move together, independent of
         // the global unscoped `.actions { justify-content: space-between }`
         // rule in Connections.scss that this class name otherwise inherits.

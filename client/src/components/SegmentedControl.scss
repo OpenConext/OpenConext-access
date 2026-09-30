@@ -1,10 +1,10 @@
 .access-segmented-control-container {
-    display: flex;
     max-width: 100%;
     overflow-x: auto;
 
-    .access-segmented-control {
-        background: var(--muted);
+    // Same as the Grid/List switch: the list needs a darker shade than the muted page background.
+    [data-slot="tabs-list"] {
+        background-color: var(--border);
         white-space: nowrap;
     }
 }

@@ -1,4 +1,8 @@
+@use "../styles/vars" as *;
+
 .toggle {
+    height: $control-height;
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     background-color: #f3f4f6;

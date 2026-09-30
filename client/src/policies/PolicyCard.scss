@@ -90,7 +90,12 @@
         }
     }
 
+    // Fixed width, so the status label does not shift the action icons next to it
+    // ("Paused" is wider than "Active").
     .policy-paused-container {
         flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+        width: $status-column-width;
     }
 }
