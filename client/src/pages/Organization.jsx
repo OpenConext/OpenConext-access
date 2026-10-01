@@ -182,7 +182,8 @@ const Organization = () => {
                 rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? `/connection/${application.id}` : undefined}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
-                inputFocus={true}>
+                inputFocus={false}
+                searchPlaceholder={I18n.t("application-list-view.searchPlaceHolder")}>
                 {(user.superUser || hasCreateApplicationAccess(user, organization)) &&
                     <div className="button-group">
                         <Button onClick={() => navigate("/application/new")}

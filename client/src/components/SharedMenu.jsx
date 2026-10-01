@@ -123,6 +123,7 @@ export const SharedMenu = () => {
                                 </SidebarMenuButton>}
                         </SidebarMenuItem>
                     </SidebarMenu>
+                    <SidebarSeparator/>
                 </SidebarHeader>
                 <SidebarContent>
                     {filteredMenuGroups.map((group, index) =>

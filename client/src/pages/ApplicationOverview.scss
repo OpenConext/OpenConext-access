@@ -8,9 +8,12 @@ div.accessible-apps-container {
     height: 100%;
 
     .mod-entities {
+        margin-top: 0;
+
         .entities-search {
-            padding: $gap-md 50px $gap-md 50px;
-            background-color: var(--muted);
+            // Match the grid view: same spacing between header and search, search and content.
+            padding: $gap-md 50px $gap-lg 50px;
+            min-height: 0;
         }
 
         .entities-list {

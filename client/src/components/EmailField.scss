@@ -24,8 +24,8 @@ div.email-field {
 
         &:focus-within {
             outline: none;
-            border: 1px solid var(--ring);
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+            border: 1px solid var(--foreground);
+            box-shadow: none;
         }
 
         &.error {

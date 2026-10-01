@@ -60,10 +60,15 @@
             min-height: $control-height;
         }
 
+        // Same focus look as regular inputs: a 1px foreground border, drawn on the outer wrapper
+        &:focus-within {
+            border-color: var(--foreground);
+        }
+
         .select-inner__control--is-focused {
             outline: none;
-            border: 1px solid var(--foreground) !important;
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--foreground) 50%, transparent);
+            border: none !important;
+            box-shadow: none !important;
             min-height: $control-height;
         }
 

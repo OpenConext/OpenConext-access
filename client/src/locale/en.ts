@@ -1078,6 +1078,7 @@ const en: AppTranslation = {
     myOrganization: {
         title: "My organisation",
         info: "To view other information about your organisation, visit <a class='actionable' target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
+        contactPersons: "Contacts",
         general: "General information",
         deleteConfirmationTitle: "Delete organisation?",
         deleteWarning: "If you delete your organisation, all of your applications and connections will also be deleted. There is no undo functionality for this action.",

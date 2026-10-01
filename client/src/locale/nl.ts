@@ -1078,6 +1078,7 @@ const nl: AppTranslation = {
     myOrganization: {
         title: "Mijn organisatie",
         info: "Voor andere informatie over je organisatie, bezoek <a class='actionable' target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
+        contactPersons: "Contactpersonen",
         general: "Algemene informatie",
         deleteConfirmationTitle: "Organisatie verwijderen?",
         deleteWarning: "Als je je organisatie verwijdert, worden al je applicaties en koppelingen ook verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
