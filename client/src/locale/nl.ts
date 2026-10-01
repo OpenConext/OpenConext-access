@@ -1120,7 +1120,7 @@ const nl: AppTranslation = {
         connectRequested: "Aangevraagd",
         connectActive: "Geactiveerd",
         disconnectRequested: "Koppeling intrekken (in afwachting)",
-        connectionMade: "Verbonden",
+        connectionMade: "Geactiveerd",
         status: "Status",
         type: "Type",
         connections: "Koppelingen",
