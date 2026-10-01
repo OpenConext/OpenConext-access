@@ -39,8 +39,8 @@ const Policies = () => {
     const navigate = useNavigate();
 
     const policyTypeOptions = [
-        {value: policyTypes.reg, label: I18n.t("appAccess.regularPolicies")},
-        {value: policyTypes.step, label: I18n.t("appAccess.stepUpPolicies")},
+        {value: policyTypes.reg, label: I18n.t("policies.policyChoices.regTitle")},
+        {value: policyTypes.step, label: I18n.t("policies.policyChoices.stepTitle")},
     ];
 
     const adminUser = useMemo(() => {
