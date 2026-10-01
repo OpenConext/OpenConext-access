@@ -105,6 +105,12 @@
 
     [data-slot="pagination"] {
         margin-top: 25px;
+
+        // Design system: page numbers use the foreground colour without underline.
+        a {
+            color: var(--foreground);
+            text-decoration: none;
+        }
     }
 
     table {

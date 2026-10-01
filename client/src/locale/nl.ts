@@ -1252,7 +1252,7 @@ const nl: AppTranslation = {
         backToAccess: "← terug naar toegang",
         authorizationRules: "Toegangsregels",
         noPolicies: "Er zijn geen toegangsregels ingesteld. Daardoor zal SURF Access iedereen van de instelling toelaten.",
-        pdpPolicies: "Toegangsregels",
+        pdpPolicies: "Regels",
         noPoliciesFound: "Geen toegangsregels gevonden",
         addAccessRule: "Regel toevoegen",
         addAssuranceRule: "Assuranceregel toevoegen",

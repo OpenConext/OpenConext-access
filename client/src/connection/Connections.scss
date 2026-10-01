@@ -81,7 +81,9 @@ $width-percentage: 75%;
         @include index.page-media;
 
         .left {
-            width: 35%;
+            // Hug the menu contents so labels like "Testen en publiceren" stay on one line
+            flex: 0 0 auto;
+            width: auto;
             display: flex;
             flex-direction: column;
 

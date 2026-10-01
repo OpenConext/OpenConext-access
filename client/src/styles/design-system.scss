@@ -151,10 +151,11 @@ h1, h2, h3, [data-slot="card-title"] {
 [data-slot="textarea"]:disabled,
 [data-slot="select-trigger"][data-disabled],
 [data-slot="select-trigger"]:disabled {
-    opacity: 1;
-    background-color: var(--muted);
-    color: var(--muted-foreground);
-    border-color: var(--border);
+    // Design system: a disabled control is the regular control at 50% opacity
+    opacity: 0.5;
+    background-color: var(--background);
+    color: var(--foreground);
+    border-color: var(--input);
 }
 
 // Outline badges ("white" status) must not be see-through against the muted page background.

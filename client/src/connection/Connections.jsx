@@ -219,6 +219,12 @@ export const Connections = ({
     }, [section]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const isPending = sectionName => {
+        const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
+        const isPublishStep = sectionName === sections.publish || (isRs && sectionName === sections.testConnection);
+        if (isPublishStep && connection.status === CONNECTION_STATUSES.PROD_READY) {
+            //A live connection has finished the publish step
+            return false;
+        }
         return !sections.isComplete(connection, sectionName);
     }
 

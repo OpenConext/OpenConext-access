@@ -1252,7 +1252,7 @@ const en: AppTranslation = {
         backToAccess: "← back to access",
         authorizationRules: "Access rules",
         noPolicies: "No access rules have been configured yet. As a result, SURF Access will grant access to everyone at the institution.",
-        pdpPolicies: "Access rules",
+        pdpPolicies: "Rules",
         noPoliciesFound: "No rules found",
         addAccessRule: "Add rule",
         addAssuranceRule: "Add assurance rule",

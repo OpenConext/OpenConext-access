@@ -72,6 +72,19 @@
             min-height: $control-height;
         }
 
+        // Design system: a disabled control is the regular control at 50% opacity
+        &.select-inner--is-disabled {
+            opacity: 0.5;
+
+            .select-inner__control--is-disabled {
+                background-color: transparent;
+            }
+
+            .select-inner__single-value--is-disabled {
+                color: var(--foreground);
+            }
+        }
+
         &[disabled] {
             background-color: var(--muted);
             cursor: not-allowed;

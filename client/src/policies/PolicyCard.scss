@@ -8,10 +8,6 @@
         margin: 0;
     }
 
-    &.paused {
-        background-color: var(--muted);
-    }
-
     svg {
         // Phosphor's default (regular) icons rely on the SVG root's own
         // fill="currentColor" attribute cascading down to their paths; forcing

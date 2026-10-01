@@ -1,6 +1,8 @@
 .access-segmented-control-container {
     max-width: 100%;
     overflow-x: auto;
+    // The inline tabs list is 1px taller than this box, which would otherwise add a vertical scrollbar.
+    overflow-y: hidden;
 
     // Same as the Grid/List switch: the list needs a darker shade than the muted page background.
     [data-slot="tabs-list"] {
