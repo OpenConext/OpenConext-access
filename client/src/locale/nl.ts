@@ -290,7 +290,7 @@ const nl: AppTranslation = {
     },
     organization: {
         alertInfo: "Welkom bij SURF Access. Via dit self‑service‑portaal kun je je applicatie beschikbaar maken voor hoger onderwijs‑ en onderzoeksinstellingen in Nederland.",
-        applicationManagement: "Onze apps",
+        applicationManagement: "Jouw apps",
         info: "Alle applicaties die <strong>{{name}}</strong> aan SURF Access heeft toegevoegd.",
         addFirstApplication: "Voeg je eerste applicatie toe",
         addApplication: "Nieuwe applicatie toevoegen",
