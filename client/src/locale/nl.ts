@@ -1119,7 +1119,7 @@ const nl: AppTranslation = {
         vendor: "Leverancier",
         connectRequested: "Aangevraagd",
         connectActive: "Geactiveerd",
-        disconnectRequested: "Koppeling intrekken (in afwachting)",
+        disconnectRequested: "Deactivering aangevraagd",
         connectionMade: "Geactiveerd",
         status: "Status",
         type: "Type",
