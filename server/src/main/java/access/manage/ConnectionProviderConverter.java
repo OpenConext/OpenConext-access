@@ -115,6 +115,16 @@ public class ConnectionProviderConverter {
 
         data.put("revisionnote", "SURF Access update with remote API");
 
+        if (isRelyingParty || isResourceServer) {
+            String secret = (String) connectionMetaData.get("secret");
+            //Might be an initial secret or a deliberate reset
+            if (StringUtils.hasText(secret) && secret.length() == SECRET_LENGTH) {
+                putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
+            } else {
+                putIf(metaDataFields, "secret", metaDataFields.get("secret"));
+            }
+        }
+
         //We have merged everything from the application now, stop if changeRequestRequired
         if (changeRequestRequired) {
             return remoteProvider;
@@ -133,16 +143,6 @@ public class ConnectionProviderConverter {
             metaDataFields.put("accessTokenValidity", 3600);
             if (grantTypes.contains("refresh_token")) {
                 metaDataFields.put("refreshTokenValidity", connectionMetaData.getOrDefault("refreshTokenValidity", 3600));
-            }
-        }
-
-        if (isRelyingParty || isResourceServer) {
-            String secret = (String) connectionMetaData.get("secret");
-            //Might be an initial secret or a deliberate reset
-            if (StringUtils.hasText(secret) && secret.length() == SECRET_LENGTH) {
-                putIf(metaDataFields, "secret", connectionMetaData.get("secret"));
-            } else {
-                putIf(metaDataFields, "secret", metaDataFields.get("secret"));
             }
         }
 

@@ -358,7 +358,9 @@ public class ConnectionController implements UserAccessRights {
         String secret = passwordGenerator.generate().toString();
         connection.getMetaData().put("secret", secret);
         connection.setSecretSet(false);
-        saveConnection(connection);
+
+        Map<String, Object> provider = manage.saveProvider(connection);
+        connection.updateRemoteManageData(provider);
 
         return Collections.singletonMap("secret", secret);
     }
