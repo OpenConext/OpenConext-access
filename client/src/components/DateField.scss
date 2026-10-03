@@ -31,9 +31,8 @@
         position: relative;
         border-radius: 6px;
 
-        &:focus {
+        &:focus-within {
             outline: none;
-            box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
         }
 
         div.calendar-icon svg {
@@ -64,9 +63,11 @@
             font-size: 14px;
             height: $control-height;
 
+            // Same focus look as the Select field: a 1px foreground border
             &:focus {
                 outline: none;
-                box-shadow: 3px 3px 3px var(--ring), -3px -3px 1px var(--ring);
+                box-shadow: none;
+                border-color: var(--foreground);
             }
 
             &[disabled] {
@@ -83,5 +84,49 @@
 
     .react-datepicker__month {
         min-height: 195px;
+    }
+
+    .react-datepicker__current-month {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .date-field-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 8px;
+
+        button {
+            display: flex;
+            padding: 4px;
+            cursor: pointer;
+
+            &:disabled {
+                opacity: 0.3;
+                cursor: default;
+            }
+        }
+
+        .month-year {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 18px;
+            font-weight: 600;
+
+            select {
+                font: inherit;
+                cursor: pointer;
+                border-radius: 6px;
+                padding: 0 4px;
+
+                &:focus {
+                    outline: none;
+                    border: 1px solid var(--foreground);
+                }
+            }
+        }
     }
 }

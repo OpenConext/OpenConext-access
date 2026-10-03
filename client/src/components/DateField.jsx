@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./DateField.scss"
 import {DateTime} from "luxon";
+import {CaretLeftIcon, CaretRightIcon} from "@phosphor-icons/react";
 import {futureDate} from "../utils/Date";
 
 export const DateField = ({
@@ -46,6 +47,31 @@ export const DateField = ({
         }
     }
 
+    // Month name and year selector in one header, so the year is not shown twice
+    const renderHeader = ({date, changeYear, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled}) => {
+        const currentYear = new Date().getFullYear();
+        const minYear = minDate ? minDate.getFullYear() : currentYear - 10;
+        const maxYear = maxDate ? maxDate.getFullYear() : currentYear + 10;
+        const years = [];
+        for (let y = maxYear; y >= Math.min(minYear, date.getFullYear()); y--) {
+            years.push(y);
+        }
+        return (
+            <div className="date-field-header">
+                <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled}
+                        aria-label="Previous month"><CaretLeftIcon/></button>
+                <span className="month-year">
+                    <span className="month">{date.toLocaleDateString("en-GB", {month: "long"})}</span>
+                    <select value={date.getFullYear()} onChange={e => changeYear(Number(e.target.value))}>
+                        {years.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                </span>
+                <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled}
+                        aria-label="Next month"><CaretRightIcon/></button>
+            </div>
+        );
+    };
+
     const minimalDate = minDate || futureDate(1);
     const selectedDate = value || (allowNull ? null : futureDate(16));
     return (
@@ -67,7 +93,7 @@ export const DateField = ({
                     onChange={onChange}
                     showWeekNumbers
                     isClearable={allowNull}
-                    showYearDropdown={showYearDropdown}
+                    renderCustomHeader={showYearDropdown ? renderHeader : undefined}
                     onBlur={validateOnBlur}
                     weekLabel="Week"
                     disabled={disabled}
