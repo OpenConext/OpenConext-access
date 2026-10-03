@@ -1,7 +1,7 @@
 import './Home.scss';
-import React from "react";
+import React, {useEffect, useState} from "react";
 import I18n, {tArray} from "../locale/I18n";
-import {Button} from "@surfnet/curve-react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore.js";
 import {sanitize} from "../utils/Utils";
 import {login} from "../utils/Login.js";
@@ -12,12 +12,33 @@ import heroImage from "../icons/landing/home_top_right.png";
 import providersImage from "../icons/landing/home_bottom_left.png";
 import institutionsImage from "../icons/landing/home_bottom_right.png";
 import PublicStats from "./PublicStats.jsx";
+import {loginTimeFrame} from "../api/index.js";
 
 const GETTING_STARTED_SECTION_ID = "getting-started";
 
 export const Home = () => {
 
     const config = useAppStore(state => state.config);
+
+    const [loginData, setLoginData] = useState(null);
+    const [loadingLogins, setLoadingLogins] = useState(true);
+
+    useEffect(() => {
+        // Same window as the default (year) view of PublicStats: the last 5 years, one point per year
+        const year = new Date().getFullYear();
+        const from = new Date(year - 4, 0, 1).getTime() / 1000;
+        const to = new Date(year + 1, 0, 1).getTime() / 1000;
+        loginTimeFrame(from, to, "year", "", "", false)
+            .then(data => setLoginData(Array.isArray(data) ? data : [data]))
+            .catch(() => setLoginData(null))
+            .finally(() => setLoadingLogins(false));
+    }, []);
+
+    const currentYear = new Date().getFullYear();
+    // Timestamps are ms-epoch, but values below 1e12 are seconds
+    const loginsCount = (loginData || [])
+        .filter(d => new Date(d.time < 1e12 ? d.time * 1000 : d.time).getFullYear() === currentYear)
+        .reduce((sum, d) => sum + (d.count_user_id || 0), 0);
 
     const applicationsCount = (config.stats.saml20_sp || 0) + (config.stats.oidc10_rp || 0);
     const institutionsCount = config.stats.saml20_idp || 0;
@@ -46,8 +67,10 @@ export const Home = () => {
                             <p className="hero-stat-label">{I18n.t("landing.hero.stats.institutions")}</p>
                         </div>
                         <div className="hero-stat">
-                            <p className="hero-stat-number">1</p>
-                            <p className="hero-stat-label">{I18n.t("landing.hero.stats.login")}</p>
+                            <p className="hero-stat-number">
+                                {loadingLogins ? <Spinner className="size-8"/> : loginsCount}
+                            </p>
+                            <p className="hero-stat-label">{I18n.t("landing.hero.stats.login", {currentYear})}</p>
                         </div>
                     </div>
                     <Button onClick={scrollToGettingStarted}>
@@ -138,7 +161,9 @@ export const Home = () => {
 
             <section className="activity">
                 <h2>{I18n.t("landing.activity.title")}</h2>
-                <PublicStats/>
+                {loadingLogins
+                    ? <div className="loading-container"><Spinner className="size-8"/></div>
+                    : <PublicStats initialData={loginData}/>}
             </section>
         </div>
     );

@@ -154,7 +154,9 @@ const formatPct = (current, baseline) => {
     return pct >= 0 ? `+${pct}%` : `${pct}%`;
 };
 
-const PublicStats = () => {
+const sumLogins = arr => arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
+
+const PublicStats = ({initialData = null}) => {
     const [period, setPeriod] = useState(periods.year);
     const [periodValue, setPeriodValue] = useState(new Date().getFullYear());
     const [customFrom, setCustomFrom] = useState(() => {
@@ -167,13 +169,15 @@ const PublicStats = () => {
         return tomorrow;
     });
 
-    const [timeFrameData, setTimeFrameData] = useState([]);
-    const [totalLogins, setTotalLogins] = useState(0);
+    const [timeFrameData, setTimeFrameData] = useState(initialData || []);
+    const [totalLogins, setTotalLogins] = useState(() => initialData ? sumLogins(initialData) : 0);
     const [prevPeriodTotal, setPrevPeriodTotal] = useState(null);
     const [threePeriodTotal, setThreePeriodTotal] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialData);
 
     const autoRefreshRef = useRef(null);
+    // The default (year) view is already covered by the data supplied by the parent
+    const skipInitialFetchRef = useRef(Boolean(initialData));
 
     // The resolved API scale for the current custom range — used for labels and fluent mode.
     const customScale = useMemo(
@@ -294,7 +298,11 @@ const PublicStats = () => {
     }, [period, fetchData]);
 
     useEffect(() => {
-        fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
+        if (skipInitialFetchRef.current) {
+            skipInitialFetchRef.current = false;
+            return;
+        }
+        fetchData();
     }, [fetchData]);
 
     // All scales derive labels from actual data timestamps.

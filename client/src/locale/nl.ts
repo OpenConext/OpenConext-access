@@ -25,7 +25,7 @@ const nl: AppTranslation = {
             stats: {
                 applications: "Applicaties",
                 institutions: "Instellingen",
-                login: "Login",
+                login: "Logins {{currentYear}}",
             },
         },
         loginInfo: {
