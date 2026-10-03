@@ -68,7 +68,7 @@ export const Home = () => {
                         </div>
                         <div className="hero-stat">
                             <p className="hero-stat-number">
-                                {loadingLogins ? <Spinner className="size-8"/> : loginsCount}
+                                {loadingLogins ? <Spinner className="size-8"/> : loginsCount.toLocaleString(I18n.locale)}
                             </p>
                             <p className="hero-stat-label">{I18n.t("landing.hero.stats.login", {currentYear})}</p>
                         </div>
