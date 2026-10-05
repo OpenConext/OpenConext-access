@@ -128,7 +128,12 @@ div.accessible-apps-container {
         thead {
             th {
                 &.icon {
-                    width: 48px;
+                    // 40px logo + small right margin, never wider
+                    width: 60px;
+                    min-width: 60px;
+                    max-width: 60px;
+                    padding-left: 12px;
+                    padding-right: 8px;
                 }
 
                 &.name {
@@ -140,9 +145,8 @@ div.accessible-apps-container {
                     text-align: center;
                 }
 
-                &.vendor {
-                    width: 30%;
-                }
+                // No width: vendor absorbs the remaining space so the logo column stays 60px
+                // both with and without the status column
 
                 &.publishedOn {
                     width: 20%;
@@ -151,6 +155,22 @@ div.accessible-apps-container {
         }
         tbody {
             td {
+                &.icon {
+                    width: 60px;
+                    min-width: 60px;
+                    max-width: 60px;
+                    padding-left: 12px;
+                    padding-right: 8px;
+
+                    img, svg {
+                        display: block;
+                        width: 40px;
+                        height: 40px;
+                        object-fit: contain;
+                        border-radius: 6px;
+                    }
+                }
+
                 &.connectionRequest {
                     text-align: center;
                 }

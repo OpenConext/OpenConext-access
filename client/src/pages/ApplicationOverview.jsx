@@ -60,6 +60,11 @@ const ApplicationOverview = ({accessible}) => {
                             changeRequest.pathUpdateType === "ADDITION")
                         .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
                         .filter(Boolean);
+                    const pendingDisconnects = (currentOrganization?.changeRequests || [])
+                        .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
+                            changeRequest.pathUpdateType === "REMOVAL")
+                        .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
+                        .filter(Boolean);
                     if (accessible) {
                         const allowedAll = currentOrganization?.identityProvider?.data?.allowedall || false;
                         const allowedEntities = (currentOrganization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
@@ -75,6 +80,7 @@ const ApplicationOverview = ({accessible}) => {
                         entity.created = entity.revision?.created
                         entity.publishedOn = entity.published_on
                         entity.connectionRequest = openConnectionRequests.includes(entity.data.entityid);
+                        entity.pendingDisconnect = pendingDisconnects.includes(entity.data.entityid);
                     });
                     res = res
                         .sort((sp1, sp2) => sp1.name.toLowerCase()
@@ -114,7 +120,9 @@ const ApplicationOverview = ({accessible}) => {
                     header: I18n.t("accessibleApps.status"),
                     mapper: entity => entity.connectionRequest ?
                         <Badge variant="info">{I18n.t("accessibleApps.connectRequested")}</Badge> :
-                        <Badge variant="success">{I18n.t("accessibleApps.connectActive")}</Badge>
+                        entity.pendingDisconnect ?
+                            <Badge variant="info">{I18n.t("accessibleApps.disconnectRequested")}</Badge> :
+                            <Badge variant="success">{I18n.t("accessibleApps.connectActive")}</Badge>
                 } : null,
             {
                 key: "vendor",
