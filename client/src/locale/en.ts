@@ -1125,6 +1125,7 @@ const en: AppTranslation = {
         type: "Type",
         connections: "Connections",
         created: "Created",
+        publishedOn: "Published on",
         grid: "Grid",
         list: "List",
         searchPlaceHolder: "Search app or provider",

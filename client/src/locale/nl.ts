@@ -1125,6 +1125,7 @@ const nl: AppTranslation = {
         type: "Type",
         connections: "Koppelingen",
         created: "Aangemaakt",
+        publishedOn: "Gepubliceerd op",
         grid: "Grid",
         list: "List",
         searchPlaceHolder: "Zoek app of leverancier",
