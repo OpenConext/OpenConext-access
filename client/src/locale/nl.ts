@@ -354,7 +354,7 @@ const nl: AppTranslation = {
             appTeam: "App-team",
             teamMemberSolo: "1 teamlid",
             teamMemberSoloYou : " (jij)",
-            teamMemberMulti: "{{count}} teamleden (incl. jij)",
+            teamMemberMulti: "{{count}} teamleden",
             teamMemberMultiYou : " (incl. jij)",
         },
         productionConnectionHint: "Verbind met onze productieomgeving. Om de applicatie te activeren moeten alle aanvullende gegevens worden verstrekt.",
