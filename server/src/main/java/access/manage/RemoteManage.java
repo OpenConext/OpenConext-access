@@ -320,7 +320,8 @@ public class RemoteManage implements Manage {
         String searchUrl = String.format("%s/manage/api/internal/search/%s",
             url,
             EntityType.saml20_idp.name());
-        return restTemplate.postForObject(searchUrl, baseQuery, List.class);
+        List results = restTemplate.postForObject(searchUrl, baseQuery, List.class);
+        return results;
     }
 
     @Override

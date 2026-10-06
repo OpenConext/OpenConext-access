@@ -29,7 +29,8 @@ import {OverridableComponent} from "../contexts/CustomizationContext.tsx";
 
 export const SharedMenu = () => {
 
-    const {menuItems, currentOrganization, activeMenuItem, user} = useAppStore(useShallow(state => ({
+    const {menuItems, currentOrganization, activeMenuItem, user, config} = useAppStore(useShallow(state => ({
+        config: state.config,
         menuItems: state.menuItems,
         currentOrganization: state.currentOrganization,
         activeMenuItem: state.activeMenuItem,
@@ -50,11 +51,14 @@ export const SharedMenu = () => {
                         label: I18n.t(`navigation.${menuItem.name}`),
                         name: menuItem.name,
                         active: menuItem.name === activeMenuItem,
-                        href: menuItem.path.replace("organizationId", currentOrganization?.id)
+                        href: menuItem.path.replace("organizationId", currentOrganization?.id),
+                        externalHref: menuItem.externalConfigKey && config[menuItem.externalConfigKey] &&
+                        config[menuItem.externalSameTabConfigKey] ?
+                            `${config[menuItem.externalConfigKey].replace(/\/$/, "")}${menuItem.externalPath}` : null
                     }))
             }))
             .filter(menuGroup => menuGroup.items.length > 0);
-    }, [activeMenuItem, menuItems, currentOrganization]);
+    }, [activeMenuItem, menuItems, currentOrganization, config]);
 
     const setActiveMenuItemState = menuItem => {
         useAppStore.setState(() => ({
@@ -134,7 +138,11 @@ export const SharedMenu = () => {
                                     {group.items.map(item =>
                                         <SidebarMenuItem key={item.name}>
                                             <SidebarMenuButton isActive={item.active}
-                                                               render={
+                                                               render={item.externalHref ?
+                                                                   <a href={item.externalHref}>
+                                                                       <item.Logo/>
+                                                                       <span>{item.label}</span>
+                                                                   </a> :
                                                                    <Link to={item.href}
                                                                          onClick={() => setActiveMenuItemState(item)}>
                                                                        <item.Logo/>

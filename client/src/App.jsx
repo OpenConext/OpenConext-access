@@ -66,6 +66,24 @@ const App = () => {
     const logoutUser = useLogout();
 
     const loadUserOrganization = user => {
+        //Another application (e.g. Invite) can switch the organization with an organizationId query parameter,
+        //which is either the id or the manageIdentifier of one of the organizations of the user
+        const requestedOrganizationId = new URLSearchParams(window.location.search).get("organizationId");
+        if (!isEmpty(requestedOrganizationId)) {
+            const requested = (user.organizationMemberships || [])
+                .map(m => m.organization)
+                .find(o => String(o.id) === requestedOrganizationId || o.manageIdentifier === requestedOrganizationId);
+            const cleanedSearch = new URLSearchParams(window.location.search);
+            cleanedSearch.delete("organizationId");
+            const search = cleanedSearch.toString();
+            window.history.replaceState(window.history.state, "",
+                window.location.pathname + (search ? `?${search}` : "") + window.location.hash);
+            if (requested) {
+                localStorage.setItem("organization", requested.id.toString());
+                useAppStore.setState(() => ({currentOrganization: requested}));
+                return requested;
+            }
+        }
         const currentOrganization = useAppStore.getState().currentOrganization;
         if (currentOrganization?.id) {
             return currentOrganizationFromUser(user, currentOrganization.id);

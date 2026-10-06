@@ -22,6 +22,7 @@ public class Config {
     private String name;
     private String sram;
     private String invite;
+    private boolean inviteSameTab;
     private String serviceDesk;
     private String discovery;
     private boolean authenticated;
@@ -45,6 +46,7 @@ public class Config {
         this.externalSchacHomeOrganizations = base.externalSchacHomeOrganizations;
         this.ownerSchacHomeOrgs = base.ownerSchacHomeOrgs;
         this.invite = base.invite;
+        this.inviteSameTab = base.inviteSameTab;
         this.sram = base.sram;
         this.serviceDesk = base.serviceDesk;
         this.identityProviders = base.identityProviders;

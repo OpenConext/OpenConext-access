@@ -120,6 +120,10 @@ export const allMenuGroups = [
             {
                 name: mainMenuItems.invite,
                 path: "/external/invite",
+                // Roles are managed in the Invite application, see SharedMenu
+                externalConfigKey: "invite",
+                externalSameTabConfigKey: "inviteSameTab",
+                externalPath: "/home/roles",
                 Logo: TeamIcon
             },
             {
