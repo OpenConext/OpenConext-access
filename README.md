@@ -16,8 +16,7 @@
 - Mailpit
 - Mariadb / MySql
 
-First install Java 21 with a package manager
-and then export the correct the `JAVA_HOME`. For example, on macOS:
+First install Java 21 with a package manager and then export the correct the `JAVA_HOME`. For example, on macOS:
 
 ```bash
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
@@ -29,7 +28,8 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 
 The `docker-compose.yaml` file in this project is meant for local development and contains a MariaDB and Mailpit instance
 
-You can run `docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"` for a local minio. Note that there is no compatible minio version for the latest mac chip.
+You can run `docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"` for a local minio. Note that there is no compatible minio version for the
+latest mac chip.
 
 ```shell
 docker compose up -d
@@ -47,28 +47,44 @@ GRANT ALL privileges ON `access`.* TO 'access'@'%';
 Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_0900_ai_ci` from script above
 
 ### App Customization
-The app allows some ways to override besides the usual way of adjusting configurations. Clone customization repository into the `app-customizations`. In this example we use the SURF version, it can be replaced with your own version of this repository with customizations
+
+The app allows some ways to override besides the usual way of adjusting configurations. Clone customization repository into the `app-customizations`. In this example we use the
+SURF version, it can be replaced with your own version of this repository with customizations
+
 ```shell
 git clone git@github.com:OpenConext/OpenConext-access-custom-surf.git app-customizations
 ```
 
-This `app-customizations` folder will contain overrides for client and server. The example above is the actual implementation of the SURF version of the overrides, your own git repo can be used here. For the client there is a `translations` folder to override a translation per key, only the translations that need to be different from the default ones can be specified here. The `myCustomApp.tsx` contains an object that allows to override certain feature in the app, for example providing an alternative app logo. To apply the overrides a symlink needs to be applied, see below.
+This `app-customizations` folder will contain overrides for client and server. The example above is the actual implementation of the SURF version of the overrides, your own git
+repo can be used here. For the client there is a `translations` folder to override a translation per key, only the translations that need to be different from the default ones can
+be specified here. The `myCustomApp.tsx` contains an object that allows to override certain feature in the app, for example providing an alternative app logo. To apply the
+overrides a symlink needs to be applied, see below. Run the commands from the repository root. The symlink targets are relative to the
+location of the link itself (not the current directory), hence the `../` segments. Restart the client dev server and the server after creating the symlinks.
 
 #### Client
+
 Symlink to client
+
 ```shell
 ln -s ../../../app-customizations/client client/src/appCustomizations/myCustomizations
 ```
+
 Removing symlink
+
 ```shell
 rm client/src/appCustomizations/myCustomizations
 ```
+
 #### Server
+
 Symlink to server
+
 ```shell
-ln -s ../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
+ln -s ../../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
 ```
+
 Removing symlink
+
 ```shell
 rm server/src/main/resources/myCustomizations
 ```
@@ -95,8 +111,7 @@ yarn dev
 
 ### [Mail](#mail)
 
-In the default `application.properties` the mail host is `localhost` and the port is `1025`. Run mailpit to capture mails.
-See <https://github.com/axllent/mailpit>
+In the default `application.properties` the mail host is `localhost` and the port is `1025`. Run mailpit to capture mails. See <https://github.com/axllent/mailpit>
 
 ### [Local endpoints](#local-endpoints)
 
@@ -109,22 +124,23 @@ To become an institution admin in access, add the following values as `urn:mace:
 
 ### [Add attribute](#add-attribute)
 
-If the GUI for maintaining a connection, needs any additional attributes, then the following source files need to be
-altered:
+If the GUI for maintaining a connection, needs any additional attributes, then the following source files need to be altered:
 
 - `access.manage.ConnectionProviderConverter.java#convert`
 - `access.model.Connection.java#mergeMetaData`
 - `utils/Connection.js#convertClientConnectionToServer`
 
-
 ### [Upgrade](#upgrade)
 
-To check the pom.xml with the latest versions, run 
+To check the pom.xml with the latest versions, run
+
 ```
 cd server
 mvn versions:display-dependency-updates -DprocessDependencyManagement=false -DdependencyIncludes=*:*
 ```
+
 To see the latest versions report for the client run
+
 ```
 cd client
 nvm use
@@ -141,23 +157,19 @@ yarn outdated
 <type>: <description>
 ```
 
-with `type` one of `feat`, `fix`, `perf`, `refactor`, `docs`, `chore`, `ci`, `build`, `test`, `revert`.
-Only `feat`, `fix`, `perf` and `refactor` end up in the changelog (as Features, Bug Fixes and
-Improvements respectively); the rest are intentionally left out to keep it user-facing.
+with `type` one of `feat`, `fix`, `perf`, `refactor`, `docs`, `chore`, `ci`, `build`, `test`, `revert`. Only `feat`, `fix`, `perf` and `refactor` end up in the changelog (as
+Features, Bug Fixes and Improvements respectively); the rest are intentionally left out to keep it user-facing.
 
 For Pull Requests:
 
 - The **PR title** must follow the same format — it's checked automatically by the
   `PR title lint` workflow, e.g. `feat: add organization-level contracts`.
-- Merge with **"Squash and merge"**, using the PR title as the commit message. This keeps the
-  history on `main` as a clean, one-line-per-change log that the changelog generator can parse,
-  regardless of how messy the commits inside the branch were.
+- Merge with **"Squash and merge"**, using the PR title as the commit message. This keeps the history on `main` as a clean, one-line-per-change log that the changelog generator can
+  parse, regardless of how messy the commits inside the branch were.
 - Reference an issue with `#123` in the title or body to have it turned into a link automatically.
 
-Releases are cut via the `Prepare Release` GitHub Actions workflow (`workflow_dispatch`, pick a
-version), which generates the new `Changelog.md` section, bumps the Maven versions, commits and
-tags in one go. `Changelog.md` shouldn't be hand-edited for a release — fix the source commit
-message instead if an entry is wrong.
+Releases are cut via the `Prepare Release` GitHub Actions workflow (`workflow_dispatch`, pick a version), which generates the new `Changelog.md` section, bumps the Maven versions,
+commits and tags in one go. `Changelog.md` shouldn't be hand-edited for a release — fix the source commit message instead if an entry is wrong.
 
 ### [Designs](#design)
 
