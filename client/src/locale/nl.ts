@@ -1298,7 +1298,7 @@ const nl: AppTranslation = {
         submitNew: "Opslaan en activeren",
         submitExisting: "Bijwerken",
         attributeValueErrors: "De volgende waarde(s) zijn ongeldig voor {{name}}: {{values}}",
-        roleValuesUnavailable: "De huidige waarde(n) zijn niet meer beschikbaar als rollen in SURFconext Invite, daarom kan deze rol niet worden aangepast. Neem contact op met <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a> om dit op te lossen.",
+        roleValuesUnavailable: "De huidige waarde(n) zijn niet meer beschikbaar als rollen in SURFconext Invite, daarom kan deze regel niet worden aangepast. Neem contact op met <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a> om dit op te lossen.",
         forceLoa: "Forceer LOA wanneer",
         doNotForceLoa: "Forceer LOA niet wanneer",
         requireLoa: "Vereist {{level}}",
