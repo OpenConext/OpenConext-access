@@ -139,7 +139,11 @@ public class ApplicationController implements UserAccessRights {
             .orElseThrow(() -> new NotFoundException("Organization not found"));
         confirmOrganizationMembership(user, organization, Authority.GUEST);
 
-        long count = applicationRepository.countByOrganization(organization);
+        long count = getOrganizationMembership(user, organization, Authority.GUEST)
+            //A guest only has access to the applications where there is an application membership
+            .filter(membership -> !user.isSuperUser() && Authority.GUEST.equals(membership.getAuthority()))
+            .map(applicationMembershipRepository::countByOrganizationMembership)
+            .orElseGet(() -> applicationRepository.countByOrganization(organization));
         return ResponseEntity.ok(count);
     }
 

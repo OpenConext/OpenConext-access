@@ -389,6 +389,30 @@ class ApplicationControllerTest extends AbstractTest {
     }
 
     @Test
+    void countByOrganizationForGuestOnlyCountsApplicationMemberships() {
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+        assertEquals(1L, countByOrganization(EXTERNAL_USER_SUB, organizationId));
+    }
+
+    @Test
+    void countByOrganizationForAdminCountsAllApplications() {
+        Long organizationId = seedIdentifiers.get(SHARE_LOGICS);
+        assertEquals(2L, countByOrganization(MANAGE_SUB, organizationId));
+    }
+
+    private Long countByOrganization(String sub, Long organizationId) {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(sub);
+        return given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationId", organizationId)
+                .get("/api/v1/applications/count/{organizationId}")
+                .as(Long.class);
+    }
+
+    @Test
     void identityProvidersByAllowedConnections() throws JacksonException {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
         Long applicationId = seedIdentifiers.get(BUDDY_CHECK);
