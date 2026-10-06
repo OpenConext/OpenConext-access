@@ -1001,7 +1001,7 @@ const nl: AppTranslation = {
     external: {
         invite: {
             title: "Rollen",
-            description: "Je beheert rollen nu nog in SURF Invite. In de toekomst verhuist dit naar SURF Access.",
+            description: "Je beheert rollen nu nog in SURFconext Invite. In de toekomst verhuist dit naar SURF Access.",
             link: "Open SURFconext Invite",
         },
         sram: {
