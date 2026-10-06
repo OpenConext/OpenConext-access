@@ -1298,6 +1298,7 @@ const en: AppTranslation = {
         submitNew: "Save and activate",
         submitExisting: "Update",
         attributeValueErrors: "The following value(s) are invalid for {{name}}: {{values}}",
+        roleValuesUnavailable: "The current value(s) are no longer available as roles in SURFconext Invite, so this rule can not be edited. Contact <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a> to resolve this.",
         forceLoa: "Force LOA when",
         doNotForceLoa: "Do not force LOA when",
         requireLoa: "Require {{level}}",

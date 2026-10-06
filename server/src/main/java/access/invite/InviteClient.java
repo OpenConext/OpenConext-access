@@ -3,6 +3,7 @@ package access.invite;
 import access.remote.RestTemplateFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -31,18 +32,18 @@ public class InviteClient {
             return List.of();
         }
         return restTemplate.getForObject(
-                url + "/api/external/v1/internal/invite/roles/{organizationGUID}/{applicationManageId}",
-                List.class,
-                organizationGUID,
-                applicationManageId);
+            url + "/api/external/v1/internal/invite/roles/{organizationGUID}/{applicationManageId}",
+            List.class,
+            organizationGUID,
+            applicationManageId);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> rolesSummary() {
+    public List<Map<String, Object>> rolesSummary(String organizationGUID) {
         if (!enabled) {
             return List.of();
         }
         return restTemplate.getForObject(
-                url + "/api/external/v1/internal/invite/roles-summary", List.class);
+            url + "/api/external/v1/internal/invite/roles-summary/" + organizationGUID, List.class);
     }
 }

@@ -458,6 +458,10 @@ export function inviteRoles(organizationGUID, applicationManageId) {
     return fetchJson(`/api/v1/invite/roles/${organizationGUID}/${applicationManageId}`);
 }
 
+export function rolesSummary(organizationId) {
+    return fetchJson(`/api/v1/invite/roles-summary?organizationId=${organizationId}`);
+}
+
 //Public
 export function publicIdentityProviders() {
     return fetchJson("/api/v1/public/identity-providers");

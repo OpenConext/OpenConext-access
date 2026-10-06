@@ -1,18 +1,19 @@
 import "./PolicyForm.scss";
-import React, {Fragment, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import {Badge, Button, RadioGroup, RadioGroupItem} from "@surfnet/curve-react";
 import I18n from "../locale/I18n.js";
 import InputField from "../components/InputField.jsx";
 import {useAppStore} from "../stores/AppStore.js";
 import {useShallow} from "zustand/react/shallow";
 import {useNavigate} from "react-router";
-import {deletePolicy, newPolicy, uniquePolicyName, updatePolicy} from "../api/index.js";
+import {deletePolicy, newPolicy, rolesSummary, uniquePolicyName, updatePolicy} from "../api/index.js";
 import {isEmpty, splitListSemantically, sanitize} from "../utils/Utils.js";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import SelectField from "../components/SelectField.jsx";
 import {
     defaultAttributes,
     flatMapByValues,
+    INVITE_ROLE_ATTRIBUTE,
     policyDesscription,
     policyTemplateRegular,
     policyTemplateStepUp,
@@ -40,6 +41,9 @@ export const PolicyForm = ({
     const [confirmation, setConfirmation] = useState({});
     const [attributeValueErrors, setAttributeValueErrors] = useState({});
     const [cidrErrors, setCidrErrors] = useState({});
+    // Invite roles are fetched lazily, once, the first time the role attribute is used
+    const [inviteRoles, setInviteRoles] = useState(null);
+    const [inviteRolesRequested, setInviteRolesRequested] = useState(false);
 
     const isStep = policy.data.type === policyTypes.step;
 
@@ -142,12 +146,14 @@ export const PolicyForm = ({
     const attributeSelected = (option, index) => {
         const newAttributes = [...policy.data.attributes];
         newAttributes[index] = {name: option.value, value: []};
+        ensureInviteRoles(option.value);
         internalUpdatePolicy({attributes: newAttributes});
     };
 
     const attributeAdded = option => {
         const newAttributes = [...policy.data.attributes];
         newAttributes.push({name: option.value, value: []});
+        ensureInviteRoles(option.value);
         internalUpdatePolicy({attributes: defaultAttributes(newAttributes)});
     };
 
@@ -161,7 +167,42 @@ export const PolicyForm = ({
         internalUpdatePolicy({attributes: newAttributes});
     };
 
+    const ensureInviteRoles = attributeName => {
+        if (attributeName !== INVITE_ROLE_ATTRIBUTE || inviteRolesRequested) {
+            return;
+        }
+        setInviteRolesRequested(true);
+        rolesSummary(currentOrganization.id)
+            .then(res => setInviteRoles(res))
+            .catch(() => setInviteRolesRequested(false));
+    };
+
+    // Existing policies using the role attribute need the roles to validate their current values
+    const usesRoleAttribute = [...policy.data.attributes, ...(isStep ? loa.attributes : [])]
+        .some(attr => attr.name === INVITE_ROLE_ATTRIBUTE);
+    useEffect(() => {
+        if (usesRoleAttribute) {
+            ensureInviteRoles(INVITE_ROLE_ATTRIBUTE);
+        }
+    }, [usesRoleAttribute]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    const roleOptions = (inviteRoles || []).map(role => ({value: role.urn, label: role.name, description: role.urn}));
+
+    // The current values of a role attribute are unavailable if they are not in the Invite roles
+    const roleValuesUnavailable = attribute => attribute.name === INVITE_ROLE_ATTRIBUTE && inviteRoles !== null && Array.isArray(attribute.value) &&
+        attribute.value.some(val => !roleOptions.some(option => option.value === val.value));
+
+    const hasRoleValuesUnavailable = [...policy.data.attributes, ...(isStep ? loa.attributes : [])]
+        .some(roleValuesUnavailable);
+
+    // Submit flattens the attributes in place, so the value can briefly be a plain string while navigating away
+    const attributeValueFor = attribute => attribute.name === INVITE_ROLE_ATTRIBUTE && Array.isArray(attribute.value) ?
+        attribute.value.map(val => roleOptions.find(option => option.value === val.value) || val) : attribute.value;
+
     const enumOptionsFor = (attributeName) => {
+        if (attributeName === INVITE_ROLE_ATTRIBUTE) {
+            return roleOptions;
+        }
         const attr = allowedAttributes.find(a => a.value === attributeName);
         if (!attr?.enum) return null;
         const match = attr.validationRegex.match(/^\^\(([^)]+)\)\$$/);
@@ -175,7 +216,7 @@ export const PolicyForm = ({
         attribute.value = values;
         internalUpdatePolicy({attributes: newAttributes});
         const allowedAttr = allowedAttributes.find(attr => attr.value === attribute.name);
-        if (!allowedAttr?.enum) {
+        if (!allowedAttr?.enum && attribute.name !== INVITE_ROLE_ATTRIBUTE) {
             const regex = new RegExp(allowedAttr.validationRegex);
             const invalidValues = values
                 .map(value => value.value)
@@ -197,6 +238,7 @@ export const PolicyForm = ({
     const stepAttributeSelected = (option, index) => {
         const newAttributes = [...loa.attributes];
         newAttributes[index] = {name: option.value, value: [], negated: false};
+        ensureInviteRoles(option.value);
         internalUpdateLoa({attributes: newAttributes});
     };
 
@@ -223,7 +265,7 @@ export const PolicyForm = ({
         attribute.value = values;
         internalUpdateLoa({attributes: newAttributes});
         const allowedAttr = allowedAttributes.find(attr => attr.value === attribute.name);
-        if (allowedAttr && !allowedAttr.enum) {
+        if (allowedAttr && !allowedAttr.enum && attribute.name !== INVITE_ROLE_ATTRIBUTE) {
             const regex = new RegExp(allowedAttr.validationRegex);
             const invalidValues = values
                 .map(value => value.value)
@@ -457,6 +499,7 @@ export const PolicyForm = ({
                                 <SelectField value={policy.data.denyRule ? accessOptions[1] : accessOptions[0]}
                                              required={true}
                                              className="select-access-rule"
+                                             disabled={hasRoleValuesUnavailable}
                                              onChange={option => denyRuleToggle(option.value)}
                                              options={accessOptions}/>
                             }
@@ -472,13 +515,15 @@ export const PolicyForm = ({
                                          value={isEmpty(attribute.name) ? null : allowedAttributes.find(attr => attr.value === attribute.name)}
                                          required={true}
                                          className="attribute-name"
+                                         disabled={roleValuesUnavailable(attribute)}
                                          onChange={option => attributeSelected(option, index)}
                                          options={policy.data.denyRule ? allowedAttributes
                                              .filter(option => option.allowedInDenyRule) : allowedAttributes}/>
 
                             <span className="conditional-options">{conditionalOptions[0].label}</span>
 
-                            <SelectField value={attribute.value}
+                            <SelectField value={attributeValueFor(attribute)}
+                                         disabled={roleValuesUnavailable(attribute)}
                                          creatable={!enumOptionsFor(attribute.name)}
                                          isMulti={!!enumOptionsFor(attribute.name)}
                                          options={enumOptionsFor(attribute.name) || undefined}
@@ -488,12 +533,17 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
-                            <Button variant="ghost" size="icon"
-                                    onClick={() => attributeDeleted(index)}
-                            >
-                                <TrashIcon/>
-                            </Button>
+                            {!roleValuesUnavailable(attribute) &&
+                                <Button variant="ghost" size="icon"
+                                        onClick={() => attributeDeleted(index)}
+                                >
+                                    <TrashIcon/>
+                                </Button>}
                         </div>
+                        {roleValuesUnavailable(attribute) &&
+                            <ErrorIndicator adjustMargin={false}
+                                            decode={false}
+                                            msg={I18n.t("appAccess.roleValuesUnavailable", {reference: policy.id || policy.data.name})}/>}
                         {!isEmpty(attributeValueErrors[attribute.name]) &&
                             <ErrorIndicator adjustMargin={false}
                                             msg={I18n.t("appAccess.attributeValueErrors",
@@ -572,6 +622,7 @@ export const PolicyForm = ({
                                          value={isEmpty(attribute.name) ? null : allowedAttributes.find(attr => attr.value === attribute.name)}
                                          required={true}
                                          className="attribute-name"
+                                         disabled={roleValuesUnavailable(attribute)}
                                          onChange={option => stepAttributeSelected(option, index)}
                                          options={allowedAttributes}/>
 
@@ -579,10 +630,12 @@ export const PolicyForm = ({
                                 value={attribute.negated ? negatedConditionalOptions[1] : negatedConditionalOptions[0]}
                                 required={true}
                                 className="conditional-options"
+                                disabled={roleValuesUnavailable(attribute)}
                                 onChange={() => stepAttributeNegatedChanged(index)}
                                 options={negatedConditionalOptions}/>
 
-                            <SelectField value={attribute.value}
+                            <SelectField value={attributeValueFor(attribute)}
+                                         disabled={roleValuesUnavailable(attribute)}
                                          creatable={!enumOptionsFor(attribute.name)}
                                          isMulti={!!enumOptionsFor(attribute.name)}
                                          options={enumOptionsFor(attribute.name) || undefined}
@@ -592,12 +645,17 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => stepAttributeValueChanged(values, index)}
                             />
-                            <Button variant="ghost" size="icon"
-                                    onClick={() => stepAttributeDeleted(index)}
-                            >
-                                <TrashIcon/>
-                            </Button>
+                            {!roleValuesUnavailable(attribute) &&
+                                <Button variant="ghost" size="icon"
+                                        onClick={() => stepAttributeDeleted(index)}
+                                >
+                                    <TrashIcon/>
+                                </Button>}
                         </div>
+                        {roleValuesUnavailable(attribute) &&
+                            <ErrorIndicator adjustMargin={false}
+                                            decode={false}
+                                            msg={I18n.t("appAccess.roleValuesUnavailable", {reference: policy.id || policy.data.name})}/>}
                         {!isEmpty(attributeValueErrors[attribute.name]) &&
                             <ErrorIndicator adjustMargin={false}
                                             msg={I18n.t("appAccess.attributeValueErrors",
@@ -678,7 +736,7 @@ export const PolicyForm = ({
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                 </Button>
                 <Button onClick={() => submit()}
-                        disabled={!initial && !isValid()}>
+                        disabled={hasRoleValuesUnavailable || (!initial && !isValid())}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`appAccess.${isExistingPolicy ? "submitExisting" : "submitNew"}`))}}/>
                 </Button>
             </div>

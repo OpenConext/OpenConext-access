@@ -5,8 +5,7 @@ import DOMPurify from "dompurify";
 
 export default function ErrorIndicator({msg, standalone = false, decode = true, adjustMargin = false}) {
     const className = `error-indication ${standalone ? "standalone" : ""} ${adjustMargin ? "adjust-margin" : ""}`;
-    msg = msg.replaceAll("?", "");
-    return decode ? <span className={className}><CriticalIcon weight="fill"/>{msg}</span> :
+    return decode ? <span className={className}><CriticalIcon weight="fill"/>{msg.replaceAll("?", "")}</span> :
         <span className={className}>
             <CriticalIcon weight="fill"/>
             <span className={"error-message"}

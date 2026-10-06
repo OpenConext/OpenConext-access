@@ -4,6 +4,7 @@ import access.exception.InvalidInputException;
 import access.exception.UserRestrictionException;
 import access.invite.InviteClient;
 import access.manage.Manage;
+import access.model.EntityType;
 import access.model.Organization;
 import access.model.User;
 import access.repository.OrganizationRepository;
@@ -107,8 +108,11 @@ public class InviteController implements UserAccessRights {
         Organization organization = organizationRepository.getReferenceById(organizationId);
 
         confirmInstitutionAdmin(user, organization);
+        Map<String, Object> idp = manage.providerByManageIdentifier(EntityType.saml20_idp, organization.getManageIdentifier());
+        Map<String, Object> metaDataFields = getMetaDataFields(getData(idp));
+        String institutionGuid = (String) metaDataFields.get("coin:institution_guid");
 
-        List<Map<String, Object>> inviteRoles = this.inviteClient.rolesSummary();
+        List<Map<String, Object>> inviteRoles = this.inviteClient.rolesSummary(institutionGuid);
         return ResponseEntity.ok(inviteRoles);
     }
 

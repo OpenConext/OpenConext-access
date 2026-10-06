@@ -57,6 +57,8 @@ export const policyTemplateStepUp = (identityProviderEntityId, serviceProviderEn
     type: "policy"
 });
 
+export const INVITE_ROLE_ATTRIBUTE = "urn:collab:group:surfteams.nl";
+
 export const groupByValues = attributes => {
     return Object.values(
         attributes.reduce((acc, attribute) => {
