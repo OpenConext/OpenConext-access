@@ -14,6 +14,7 @@ import {PolicyOverview} from "../policies/PolicyOverview.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {providerName} from "../utils/Manage.js";
 import SelectField from "../components/SelectField.jsx";
+import {SearchField} from "../components/SearchField.jsx";
 
 
 const Policies = () => {
@@ -33,6 +34,7 @@ const Policies = () => {
     const [serviceProviderOptions, setServiceProviderOptions] = useState([])
     const [selectedServiceProviders, setSelectedServiceProviders] = useState([]);
     const [selectedPolicyType, setSelectedPolicyType] = useState(null);
+    const [policyQuery, setPolicyQuery] = useState("");
     const [returnToApplication, setReturnToApplication] = useState(null);
     const initialEntityId = useRef(null);
 
@@ -160,7 +162,9 @@ const Policies = () => {
     const filteredPolicies = policies
         .filter(policy => isEmpty(selectedServiceProviders) || policy.data.serviceProviderIds
             .some(sp => selectedServiceProviders.some(sel => sp.name === sel.value)))
-        .filter(policy => isEmpty(selectedPolicyType) || policy.data.type === selectedPolicyType.value);
+        .filter(policy => isEmpty(selectedPolicyType) || policy.data.type === selectedPolicyType.value)
+        .filter(policy => isEmpty(policyQuery.trim()) ||
+            `${policy.data.name} ${policy.data.description}`.toLowerCase().includes(policyQuery.trim().toLowerCase()));
 
     return (
         <div className="policies-outer-container">
@@ -178,6 +182,9 @@ const Policies = () => {
                                      onChange={val => setSelectedServiceProviders(val)}
                                      isMulti={true}
                                      clearable={true}/>
+                        <SearchField value={policyQuery}
+                                     onChange={e => setPolicyQuery(e.target.value)}
+                                     placeholder={I18n.t("policies.searchPlaceholder")}/>
                         <SelectField value={selectedPolicyType}
                                      options={policyTypeOptions}
                                      placeholder={I18n.t("policies.policyTypesPlaceholder")}

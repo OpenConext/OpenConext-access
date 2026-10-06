@@ -92,6 +92,7 @@ export const ManageImport = () => {
                       rowLinkMapper={(e, entity) => showEntityDetails(entity)}
                       rowHrefMapper={entity => `/manage/details/${entity["type"]}/${entity["_id"]}`}
                       customSearch={search}
+                      searchPlaceholder={I18n.t("manage.searchPlaceHolder")}
                       totalElements={totalElements}
             />
             {nothingFound &&

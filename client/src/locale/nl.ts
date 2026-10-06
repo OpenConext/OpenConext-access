@@ -1400,7 +1400,8 @@ const nl: AppTranslation = {
     },
     policies: {
         title: "Regel voor {{name}}",
-        subTitle: "Selecteer een applicatie om de regels te zien die van toepassing zijn.",
+        subTitle: "Selecteer een applicatie of zoek naar een regel om de regels te zien die van toepassing zijn.",
+        searchPlaceholder: "Zoek naar regels",
         newPolicy: "Nieuwe regel toevoegen",
         policyTypesPlaceholder: "Toegangsregels en Assuranceregels",
         defaultDenyDescription: "Je bent succesvol ingelogd, maar je bent niet geautoriseerd om deze dienst te gebruiken.",
@@ -1442,6 +1443,7 @@ const nl: AppTranslation = {
         type: "Entiteitstype",
         oidc10_rp: "OIDC Relying Party",
         saml20_sp: "SAML Service Provider",
+        oauth20_rs: "Resource Server",
         searchPlaceHolder: "Zoek ManageImport‑entiteiten",
         notFound: "Niets gevonden",
     },
