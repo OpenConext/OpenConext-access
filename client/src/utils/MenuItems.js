@@ -1,25 +1,4 @@
 import {isEmpty} from "./Utils.js";
-// Original icon choices, kept for easy rollback:
-// import {
-//     DesktopIcon as LaptopIcon,
-//     TreeStructureIcon as HierarchyIcon,
-//     LaptopIcon as LaptopFloatIcon,
-//     IdentificationBadgeIcon as UserIcon,
-//     LockIcon as PolicyIcon,
-//     MonitorIcon as ScreenIcon,
-//     HouseIcon as HomeIcon,
-//     PlugsConnectedIcon as ConnectedIcon,
-//     DatabaseIcon as StatsIcon,
-//     UsersThreeIcon as TeamIcon,
-//     HeadsetIcon as HeadPhonesIcon,
-//     ChatCenteredTextIcon as FeedbackIcon
-// } from "@phosphor-icons/react";
-// Icons matched to the Figma sidebar's own component documentation
-// (node 9841:35924, https://www.figma.com/design/81StIVqfOKfwhWVjx7Ew81/SURF-Access?node-id=9841-35924).
-// Note: the actual rendered instance in that frame reuses one generic placeholder glyph
-// ("Phosphor Icon / Smiley") for every non-Home, non-Servicedesk item rather than distinct
-// icons per item — that placeholder is not used here. These are the specific icons Figma's
-// own component library documents for each slot instead.
 import {
     AppWindowIcon as ScreenIcon,
     SquaresFourIcon as LaptopIcon,
@@ -62,8 +41,9 @@ const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = u
     if (noOrganizationMemberships) {
         return newMenuItems;
     }
-    const onlyGuest = user.organizationMemberships.every(m => m.authority === authorities.GUEST &&
-        m.organization.id === currentOrganization.id);
+    //Only the memberships of the current organization matter, the user can have other authorities elsewhere
+    const currentMemberships = user.organizationMemberships.filter(m => m.organization.id === currentOrganization.id);
+    const onlyGuest = !isEmpty(currentMemberships) && currentMemberships.every(m => m.authority === authorities.GUEST);
     if (onlyGuest) {
         newMenuItems.push(mainMenuItems.yourApps);
         return newMenuItems;
