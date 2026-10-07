@@ -474,7 +474,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         navigate(`/application-detail/${manageType}/${manageId}/${name}`);
     }
 
-    const openRoleManagement = () => window.open(`${config.invite}/applications/${serviceProvider.id}`, "_blank").focus();
+    const openRoleManagement = () => {
+        const inviteUrl = config.invite.replace("/home/roles", "");
+        window.open(`${inviteUrl}/applications/${serviceProvider.id}`, "_blank").focus();
+    }
 
     // Carries enough context back through /policies for PolicyForm to show a
     // "back to application" link and for a new rule to be pre-scoped to this SP.
