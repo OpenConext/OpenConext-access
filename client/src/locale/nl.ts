@@ -147,7 +147,7 @@ const nl: AppTranslation = {
         greeting: "Welkom {{name}}",
         info: "Selecteer je organisatie of voeg een nieuwe toe.",
         subInfo: "Gebruik de volledige, officiële naam van je organisatie, zodat andere gebruikers deze herkennen.",
-        searchPlaceholder: "Zoek je organisatie...",
+        searchPlaceholder: "Naam van je organisatie",
         found: "GEVONDEN",
         organizationMembers: "{{memberCount}} {{user}} en {{applicationCount}} {{application}}. Vraag toegang aan.",
         user: "gebruiker",
