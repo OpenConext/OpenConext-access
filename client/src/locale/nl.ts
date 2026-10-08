@@ -611,7 +611,7 @@ const nl: AppTranslation = {
         },
         privacy: {
             label: "Privacy & beveiliging",
-            info: "Vul de onderstaande vragen in. Wij delen de antwoorden met instellingen die verbonden zijn met SURFconext. Zo krijgen geïnteresseerde instellingen snel inzicht in je privacy‑ en beveiligingsinspanningen.",
+            info: "Je antwoorden hieronder delen wij met instellingen die verbonden zijn met SURF Access. Zo krijgen zij inzicht in hoe je met privacy en beveiliging omgaat.",
             answerIsRequired: "Antwoord op deze privacyvraag is verplicht",
             termsAreRequired: "Je moet akkoord gaan met de voorwaarden",
         },
