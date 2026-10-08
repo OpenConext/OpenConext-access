@@ -860,14 +860,13 @@
     estree-walker "^2.0.2"
     picomatch "^4.0.2"
 
-"@surfnet/curve-react@^0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.5.1.tgz#9ffcea56ec6724ebb70777a00847e43c42f14e69"
-  integrity sha512-rswj6iikzrCWSOPRmLudCDvjhz3n4bFzkFF7l5huJDsukhEONg7l+AE1pxhYrsiJEyKdtoyVFNQFhuWYDiaJVA==
+"@surfnet/curve-react@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.6.0.tgz#ff54d20a21a33cc42583f22cc13ac5542e7184c7"
+  integrity sha512-Tq+IZfqOnD8FaccgqGcJWXvkjdzCrlKk+2TEl73KCPJRqmC1d92Ec28AK8c/MZsxlimP6ZjRszbmcuvwUtcpkw==
   dependencies:
     "@base-ui/react" "1.5.0"
     "@tanstack/react-table" "^8.21.3"
-    class-variance-authority "0.7.1"
     clsx "2.1.1"
     cmdk "^1.1.1"
     date-fns "^4.4.0"
@@ -877,7 +876,6 @@
     react-day-picker "^10.0.1"
     react-resizable-panels "^4.12.1"
     sonner "^2.0.7"
-    tailwind-merge "3.6.0"
 
 "@svgr/babel-plugin-add-jsx-attribute@8.0.0":
   version "8.0.0"
@@ -1601,13 +1599,6 @@ chokidar@^5.0.0:
   integrity sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==
   dependencies:
     readdirp "^5.0.0"
-
-class-variance-authority@0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/class-variance-authority/-/class-variance-authority-0.7.1.tgz#4008a798a0e4553a781a57ac5177c9fb5d043787"
-  integrity sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==
-  dependencies:
-    clsx "^2.1.1"
 
 clsx@2.1.1, clsx@^2.1.1:
   version "2.1.1"
@@ -3494,10 +3485,10 @@ ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-nanoid@^3.3.18:
-  version "3.3.18"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.18.tgz#f66a2de1199ffde0fcf21c8a5f13106b1c081913"
-  integrity sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==
+nanoid@^3.3.19:
+  version "3.3.20"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.20.tgz#dfd4444d85aa10111ef66ba85ed72e08ba0855d8"
+  integrity sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -3712,14 +3703,14 @@ possible-typed-array-names@^1.0.0, possible-typed-array-names@^1.1.0:
   resolved "https://registry.yarnpkg.com/possible-typed-array-names/-/possible-typed-array-names-1.1.0.tgz#93e3582bc0e5426586d9d07b79ee40fc841de4ae"
   integrity sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==
 
-postcss@^8.5.25, postcss@^8.5.28:
-  version "8.5.28"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.28.tgz#da4563a99a06e62d6c1cd1acae363224bcaed6e9"
-  integrity sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==
+postcss@^8.5.25, postcss@^8.5.28, postcss@^8.5.29:
+  version "8.5.29"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.29.tgz#086a0ded2c0257c71efb8c68776b477774714b4a"
+  integrity sha512-49cGhUbXj8Qenv0iTMxA1cFBzxXoctpC9Ujd77t1WcbJIr6nF/eI7g/8MgxrYldFRuAXvja7xQRwavoW7kgrxQ==
   dependencies:
-    nanoid "^3.3.18"
+    nanoid "^3.3.19"
     picocolors "^1.1.1"
-    source-map-js "^1.2.1"
+    source-map-js "^1.2.2"
 
 prelude-ls@^1.2.1:
   version "1.2.1"
@@ -4282,11 +4273,6 @@ tabbable@^6.0.0:
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/tabbable/-/tabbable-6.5.0.tgz#a65101385a4fd6cbd580b7546da0170f307b535d"
   integrity sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==
-
-tailwind-merge@3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.6.0.tgz#88d83242d1dd7bc847223f73dcf210dd1f2ee11c"
-  integrity sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==
 
 tailwindcss@4.3.3:
   version "4.3.3"
