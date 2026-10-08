@@ -57,6 +57,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: client/.nvmrc
+
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
