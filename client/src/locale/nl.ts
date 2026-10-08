@@ -1037,7 +1037,7 @@ const nl: AppTranslation = {
         requiredOne: "Minimaal één {{name}} is verplicht",
         error: "Er is een onverwachte fout opgetreden",
         idpConfigException: "Identity Provider error",
-        idpConfigExceptionIfo: "Je instelling heeft ons niet de juiste kenmerken doorgegeven. Wanneer je op 'Doorgaan' klikt, wordt je uitgelogd.<br/><br/>Neem contact met ons op via <a class='actionable' href='mailto:support@surf.nl?subject=Access Error {{reference}}'>support@surf.nl</a> om dit probleem op te lossen.<br/><br/>Het referentienummer voor deze fout is {{reference}}.",
+        idpConfigExceptionIfo: "Je instelling is momenteel niet juist geconfigureerd in ons back-end systeem. Wanneer je op 'Doorgaan' klikt, wordt je uitgelogd.<br/><br/>Neem contact met ons op via <a class='actionable' href='mailto:support@surf.nl?subject=Access Error {{reference}}'>support@surf.nl</a> om dit probleem op te lossen.<br/><br/>Het referentienummer voor deze fout is {{reference}}.",
         backToConnections: "Terug naar koppelingen",
         backToOverview: "Terug naar overzicht",
         overview: "Naar overzicht",

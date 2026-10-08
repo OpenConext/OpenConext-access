@@ -1037,7 +1037,7 @@ const en: AppTranslation = {
         requiredOne: "At least one {{name}} is required",
         error: "An unexpected error occurred",
         idpConfigException: "Identity Provider error",
-        idpConfigExceptionIfo: "Your institution did not provide us with the correct attributes. When you click proceed, you will be logged out.<br/><br/> Please contact us at <a class='actionable' href='mailto:support@surf.nl?subject=Access Error {{reference}}'>support@surf.nl</a> to resolve this problem.<br/><br/>The reference number for this error is {{reference}}.",
+        idpConfigExceptionIfo: "Your institution is not configured correctly in out backend system. When you click proceed, you will be logged out.<br/><br/> Please contact us at <a class='actionable' href='mailto:support@surf.nl?subject=Access Error {{reference}}'>support@surf.nl</a> to resolve this problem.<br/><br/>The reference number for this error is {{reference}}.",
         backToConnections: "Back to connections",
         backToOverview: "Back to overview",
         overview: "To overview",
