@@ -323,7 +323,7 @@ const nl: AppTranslation = {
         contractRequiredHint: {
             title: "Overeenkomst nodig voor publicatie",
             description: "Vul alle gegevens in onder Mijn organisatie.",
-            action: "Naar Mijn organisatie",
+            action: "Gegevens invullen",
         },
         testSection: "Test",
         teamSection: "Team",
