@@ -2,78 +2,78 @@
   {
     "name": "what_data",
     "info_en": "1. What (kind of) data is processed?",
-    "info_nl": "1. What (kind of) data is processed?",
-    "tooltip_en": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
+    "info_nl": "1. Welke (soort) gegevens worden verwerkt?",
+    "tooltip_en": "Beschrijf zo concreet mogelijk welke (soorten) gegevens de dienst verwerkt. Noem dus niet alleen de attributen.",
     "tooltip_nl": "Explain in a sufficient level of detail what (types of) data, so not just attributes, are processed within the service.",
     "required": true,
-    "placeholder_en": "Everything",
-    "placeholder_nl": "Everything",
+    "placeholder_en": "Deze gegevens worden verwerkt",
+    "placeholder_nl": "These data points are processed",
     "manage": "coin:privacy:what_data"
   },
   {
     "name": "access_data",
     "info_en": "2. Who can access the data?",
-    "info_nl": "2. Who can access the data?",
+    "info_nl": "2. Wie heeft toegang tot de gegevens?",
     "tooltip_en": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
-    "tooltip_nl": "Explain what people or roles at which companies can access data, and if necessary to which extend.",
+    "tooltip_nl": "Beschrijf welke personen of rollen bij welke organisaties toegang hebben tot de gegevens. Geef zo nodig aan hoe ver die toegang gaat.",
     "required": true,
-    "placeholder_en": "Everybody",
-    "placeholder_nl": "Everybody",
+    "placeholder_en": "These people can access the data",
+    "placeholder_nl": "Deze personen hebben toegang tot de gegevens",
     "manage": "coin:privacy:access_data"
   },
   {
     "name": "country",
     "info_en": "3. In what country is the data stored?",
-    "info_nl": "3. In what country is the data stored?",
+    "info_nl": "3. In welk land worden de gegevens opgeslagen?",
     "tooltip_en": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
-    "tooltip_nl": "In what country or countries does the data reside; include both primary processing location(s) as well as for instance locations where backups live.",
+    "tooltip_nl": "Geef aan in welk(e) land(en) de gegevens staan. Noem de plek(ken) waar de gegevens verwerkt worden, maar ook bijvoorbeeld waar back-ups bewaard worden.",
     "required": true,
     "placeholder_en": "Netherlands",
-    "placeholder_nl": "Netherlands",
+    "placeholder_nl": "Nederland",
     "manage": "coin:privacy:country"
   },
   {
     "name": "security_measures",
     "info_en": "4. What security measures have you taken?",
-    "info_nl": "4. What security measures have you taken?",
+    "info_nl": "4. Welke beveiligingsmaatregelen heb je genomen?",
     "tooltip_en": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
-    "tooltip_nl": "Explains what security measures are taken to protect data. You can also link to a page describing this.",
+    "tooltip_nl": "Beschrijf welke maatregelen je neemt om de gegevens te beschermen. Je kunt ook een link toevoegen naar een pagina waar dit staat.",
     "required": true,
-    "placeholder_en": "Fort knox",
-    "placeholder_nl": "Fort knox",
+    "placeholder_en": "These measures are taken to protect the data",
+    "placeholder_nl": "Deze maatregelen zijn genomen om de gegevens te beschermen",
     "manage": "coin:privacy:security_measures"
   },
   {
     "name": "dpa_type",
     "info_en": "5. What data processing agreement (DPA) type applies?",
-    "info_nl": "5. What data processing agreement (DPA) type applies?",
+    "info_nl": "5. Welk type verwerkersovereenkomst is van toepassing?",
     "tooltip_en": "",
     "tooltip_nl": "",
     "enum": [
       {
         "name": "dpa_not_applicable",
         "info_en": "DPA not applicable",
-        "info_nl": "DPA not applicable"
+        "info_nl": "Verwerkersovereenkomst niet van toepassing"
       },
       {
         "name": "dpa_in_surf_agreement",
         "info_en": "DPA in SURF agreement",
-        "info_nl": "DPA in SURF agreement"
+        "info_nl": "Verwerkersovereenkomst opgenomen in de overeenkomst met SURF"
       },
       {
         "name": "dpa_model_surf",
         "info_en": "DPA model SURF",
-        "info_nl": "DPA model SURF"
+        "info_nl": "Verwerkersovereenkomst van SURF"
       },
       {
         "name": "dpa_supplied_by_service",
         "info_en": "DPA supplied by Service",
-        "info_nl": "DPA supplied by Service"
+        "info_nl": "Eigen verwerkersovereenkomst van de dienst"
       },
       {
         "name": "other",
         "info_en": "Other",
-        "info_nl": "Other"
+        "info_nl": "Andere"
       }
     ],
     "default": "dpa_supplied_by_service",
@@ -83,36 +83,36 @@
   {
     "name": "privacy_policy_url_nl",
     "format": "url",
-    "info_en": "6. Dutch privacy statement URL",
-    "info_nl": "6. Dutch privacy statement URL",
+    "info_en": "6. Link to Dutch privacy statement",
+    "info_nl": "6. Link naar Nederlandstalige privacyverklaring",
     "tooltip_en": "",
     "tooltip_nl": "",
     "required": true,
-    "placeholder_en": "For example https://sharelogics.com/privacy/nl",
-    "placeholder_nl": "For example https://sharelogics.com/privacy/nl",
+    "placeholder_en": "https://sharelogics.com/privacy/nl",
+    "placeholder_nl": "https://sharelogics.com/privacy/nl",
     "manage": "mdui:PrivacyStatementURL:nl"
   },
   {
     "name": "privacy_policy_url_en",
     "format": "url",
-    "info_en": "7. English privacy statement URL",
-    "info_nl": "7. English privacy statement URL",
+    "info_en": "7. Link to English privacy statement",
+    "info_nl": "7. Link naar Engelstalige privacyverklaring",
     "tooltip_en": "",
     "tooltip_nl": "",
     "required": true,
-    "placeholder_en": "For example https://sharelogics.com/privacy/en",
-    "placeholder_nl": "For example https://sharelogics.com/privacy/en",
+    "placeholder_en": "https://sharelogics.com/privacy/en",
+    "placeholder_nl": "https://sharelogics.com/privacy/en",
     "manage": "mdui:PrivacyStatementURL:en"
   },
   {
     "name": "other_info",
     "info_en": "8. Other data privacy and security information",
-    "info_nl": "8. Other data privacy and security information",
+    "info_nl": "8. Overige informatie over privacy en beveiliging",
     "tooltip_en": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
-    "tooltip_nl": "Other data privacy and security information that helps the institution decide whether it is OK to connect the service.",
+    "tooltip_nl": "Geef hier andere informatie over privacy en beveiliging die instellingen helpt te bepalen of ze de dienst kunnen koppelen.",
     "required": false,
     "manage": "coin:privacy:other_info",
     "placeholder_en": "Any other information that may be of interest for institutions",
-    "placeholder_nl": "Any other information that may be of interest for institutions"
+    "placeholder_nl": "Overige informatie die relevant kan zijn voor instellingen"
   }
 ]
