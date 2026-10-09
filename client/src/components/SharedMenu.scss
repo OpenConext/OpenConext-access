@@ -23,8 +23,12 @@ a.brand-logo svg {
     height: 16px;
 }
 
-.organization-name-static {
+.organization-name-static,
+.organization-name-static:hover,
+.organization-name-static:active {
     cursor: default;
+    background-color: transparent;
+    pointer-events: none;
 }
 
 .organization-caret {

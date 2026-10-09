@@ -6,8 +6,28 @@
         // Aligned with the surrounding text: no background or padding of its own.
         padding: 0;
 
+        display: flex;
+        flex-direction: column;
+        // Figma: 8px between heading, subtitle and input
+        gap: 8px;
+
+        h4, p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+        h4 {
+            font-weight: 600;
+        }
+
+        h4 + p {
+            font-weight: 400;
+            color: var(--muted-foreground);
+        }
+
         [data-slot="field"] {
-            margin-top: $gap-sm;
+            margin-top: 0;
         }
 
         &.read-only {
@@ -16,9 +36,10 @@
             }
         }
 
-        a, button.link-button {
-            margin-top: $gap-md;
+        a, button.link-button, > [data-slot="button"] {
+            margin-top: 0;
             display: block;
+            align-self: flex-start;
         }
     }
 

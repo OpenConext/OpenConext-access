@@ -67,7 +67,8 @@ export const ContactPersons = ({
                         return (
                             <Fragment key={innerIndex}>
                                 <InputField value={contactPerson.email}
-                                            name={readOnly ? null : I18n.t("connection.contacts.emailOrWebsite")}
+                                            name={I18n.t("connection.contacts.emailOrWebsite")}
+                                            displayLabel={false}
                                             required={true}
                                             disabled={readOnly}
                                             onChange={e => updateContactPerson(contactPerson.id, e)}

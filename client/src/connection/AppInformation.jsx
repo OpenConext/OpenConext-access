@@ -15,14 +15,13 @@ import {
     logoSectionValid,
     privacySectionValid
 } from "../utils/Application.js";
-import {ArrowRightIcon as ArrowRight} from "@phosphor-icons/react";
-import {MoreLessToggle} from "../components/MoreLessToggle.jsx";
-import {Button, Checkbox, Label, Spinner} from "@surfnet/curve-react";
+import {Button, Card, CardContent, Checkbox, Label, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import {APPLICATION_STATUSES} from "../utils/Manage.js";
 import {ContactPersons} from "../components/ContactPersons.jsx";
+import {formatDate, formatLongDate} from "../utils/Date.js";
 
 const sections = {
     logo: "logo",
@@ -245,6 +244,13 @@ export const AppInformation = ({
         setSection(sectionName);
     }
 
+    const URL_PREFIX = "https://";
+
+    const updateUrlPrivacy = (name, value) => {
+        const stripped = value.replace(/^(https?:\/\/)+(?=https?:\/\/)/i, "");
+        updatePrivacy(name, stripped === URL_PREFIX ? "" : stripped);
+    }
+
     const updatePrivacy = (name, value) => {
         application.privacy[name] = value;
         setApplication({...application});
@@ -265,10 +271,10 @@ export const AppInformation = ({
                 {privacyInfo.map((p, index) =>
                     <section key={index}>
                         {isEmpty(p.enum) &&
-                            <InputField value={application.privacy[p.name] || ""}
+                            <InputField value={application.privacy[p.name] || (p.format === "url" ? URL_PREFIX : "")}
                                         name={p[`info_${I18n.locale}`]}
                                         required={p.required}
-                                        onChange={e => updatePrivacy(p.name, e.target.value)}
+                                        onChange={e => p.format === "url" ? updateUrlPrivacy(p.name, e.target.value) : updatePrivacy(p.name, e.target.value)}
                                         placeholder={p[`placeholder_${I18n.locale}`]}
                                         toolTip={isEmpty(p.tooltip_en) ? null : p[`tooltip_${I18n.locale}`]}
                             />}
@@ -320,21 +326,20 @@ export const AppInformation = ({
             <section className="inner-right">
                 <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{I18n.t("connection.appOverview.label")}</h3>
                 <p>{I18n.t("connection.appOverview.info")}</p>
-                <div className="application">
-                    {isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                        <img src={application.logoUrl} alt={application.name}/>}
-                    <div className="application-info">
-                        <h3 className="text-[length:var(--text-lg-font-size)] mb-[15px]">{application.name}</h3>
-                        <MoreLessToggle
-                            txt={application.information[`description${I18n.locale.toUpperCase()}`]}
-                            cutoffNumber={300}
-                            moreLabel={I18n.t("forms.moreLabel")}
-                            lessLabel={I18n.t("forms.lessLabel")}/>
-                        <a href={application.information.webSite}
-                           rel="noreferrer"
-                           target="_blank">{application.information.webSite}</a>
-                    </div>
-                </div>
+                <Card className="app-preview-card">
+                    <CardContent>
+                        <div className="app-preview-card-icon">
+                            {isEmpty(application.logoUrl) ? <ImageNotFound/> :
+                                <img src={application.logoUrl} alt={application.name}/>}
+                        </div>
+                        <h4 className="font-bold mb-1">{application.name}</h4>
+                        <span className="app-preview-card-vendor">{application.organization?.name}</span>
+                        <span>{formatDate(new Date(), false, false)}</span>
+                        <p className="app-preview-card-description">
+                            {application.information[`description${I18n.locale.toUpperCase()}`]}
+                        </p>
+                    </CardContent>
+                </Card>
             </section>
         );
     };
@@ -387,7 +392,7 @@ export const AppInformation = ({
                 </section>
                 <section className="right">
                     {renderSection()}
-                    <div className={`actions ${section === sections.overview ? "orphan" : ""}`}>
+                    <div className="actions">
                         {section !== sections.overview &&
                             <>
                                 <Button variant="outline"
@@ -401,11 +406,14 @@ export const AppInformation = ({
                             </>
                         }
                         {section === sections.overview &&
-                            <Button variant="outline"
-                                    onClick={() => backToConnections()}>
-                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.overview"))}}/>
-                                <span data-icon="inline-end"><ArrowRight/></span>
-                            </Button>
+                            <>
+                                <Button variant="outline" onClick={() => backToConnections()}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.backToOverview"))}}/>
+                                </Button>
+                                <Button onClick={() => backToConnections()}>
+                                    <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.agreeToOverview"))}}/>
+                                </Button>
+                            </>
                         }
                     </div>
                 </section>

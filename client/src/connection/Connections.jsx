@@ -1045,6 +1045,7 @@ export const Connections = ({
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
         const isRs = connection.protocol.value === PROTOCOLS.OAUTH20_RS;
         const contractRequired = !currentOrganization.contractSigned && isEmpty(currentOrganization.manageIdentifier);
+        const contractRequested = contractRequired && currentOrganization.contractRequested;
         //Same URL as the accessCatalogusAppURL custom field JiraClient sends to Jira
         const accessCatalogusAppURL = `${config.clientUrl}/application-detail/${connection.protocol.value}/${connection.manageIdentifier}`;
         const copyAccessCatalogusAppURL = () => {
@@ -1080,7 +1081,16 @@ export const Connections = ({
                         () => setTab("application"),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
-                {(appInformationComplete && contractRequired) &&
+                {(appInformationComplete && contractRequested) &&
+                    <Alert variant="info">
+                        <HourglassHighIcon/>
+                        <AlertTitle>{I18n.t("connection.productionStatusSection.contractRequestedTitle")}</AlertTitle>
+                        <AlertDescription>
+                            {I18n.t(`connection.productionStatusSection.contractRequestedDescription${isEmpty(currentOrganization.contractTicketKey) ? "NoReference" : ""}`,
+                                {referenceNumber: currentOrganization.contractTicketKey})}
+                        </AlertDescription>
+                    </Alert>}
+                {(appInformationComplete && contractRequired && !contractRequested) &&
                     alertInfo(I18n.t("connection.productionStatusSection.contractRequired"), null,
                         () => navigate(`/idp/${currentOrganization.id}/general`),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
@@ -1612,7 +1622,10 @@ export const Connections = ({
                                 .map(sectionValue => {
                                     const isPublishOrTestAndPublishStep = (sectionValue === sections.publish && !isRs) ||
                                         (sectionValue === sections.testConnection && isRs);
-                                    const CustomIcon = (isPublishOrTestAndPublishStep && connection.status === CONNECTION_STATUSES.PENDING_PROD) ?
+                                    const contractRequested = !currentOrganization.contractSigned && isEmpty(currentOrganization.manageIdentifier)
+                                        && currentOrganization.contractRequested;
+                                    const CustomIcon = (isPublishOrTestAndPublishStep &&
+                                        (connection.status === CONNECTION_STATUSES.PENDING_PROD || contractRequested)) ?
                                         PendingProdIcon : null;
                                     return <StatusMenuItem key={sectionValue}
                                                            pending={isPending(sectionValue)}

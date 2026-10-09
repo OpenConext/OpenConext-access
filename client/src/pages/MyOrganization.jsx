@@ -44,7 +44,6 @@ import SelectField from "../components/SelectField.jsx";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import {currentOrganizationFromUser} from "../utils/Organization.js";
 import {countryOptions} from "../utils/countries.js";
-import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {useShallow} from "zustand/react/shallow";
@@ -72,7 +71,6 @@ const MyOrganization = ({refreshUser}) => {
     const [organization, setOrganization] = useState({});
     const [externalOrganization, setExternalOrganization] = useState(true);
     const [confirmation, setConfirmation] = useState({});
-    const [section, setSection] = useState(null);
     const [focusedId, setFocusedId] = useState(null);
     const [initial, setInitial] = useState(true);
     const [affectedIdentityProviders, setAffectedIdentityProviders] = useState([]);
@@ -105,7 +103,6 @@ const MyOrganization = ({refreshUser}) => {
                     const isExternal = isEmpty(res.manageIdentifier);
                     setExternalOrganization(isExternal);
                     const currentSection = isExternal ? sections.general : (isEmpty(tab) ? sections.contactPersons : tab);
-                    setSection(currentSection);
                     navigate(`/idp/${organizationId}/${currentSection}`);
                     setLoading(false);
                     const organization = currentOrganizationFromUser(user, organizationId)
@@ -159,11 +156,6 @@ const MyOrganization = ({refreshUser}) => {
         }
         loadContract();
     }, [externalOrganization, organization.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const availableSections = useMemo(() => {
-        return Object.values(sections)
-            .filter(s => s !== sections.contactPersons || !externalOrganization)
-    }, [externalOrganization])
 
     const canDeleteOrganization = externalOrganization && (user.superUser || isOrganizationAdmin(user, organization));
 
@@ -242,8 +234,9 @@ const MyOrganization = ({refreshUser}) => {
         const baseLevelOption = mfaAcrOptions.find(option => option.value === baseLevelValue) || null;
         const additionalOptions = mfaAcrOptions.filter(option => additionalValues.includes(option.value));
         return (
+            <>
             <section className="inner-right">
-                <h3 className="text-[length:var(--text-lg-font-size)] mb-[25px]">{I18n.t("myOrganization.generalInformation")}</h3>
+                <h3 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("myOrganization.generalSectionTitle")}</h3>
                 <InputField name={I18n.t("myOrganization.name")}
                             value={organization.name}
                             disabled={true}/>
@@ -264,7 +257,10 @@ const MyOrganization = ({refreshUser}) => {
                              info={I18n.t("myOrganization.keyWordsInfo")}
                              infoUnderLabel={true}
                 />
-
+            </section>
+            {renderContactPersonsSection()}
+            <section className="inner-right">
+                <h3 className="text-[length:var(--text-xl-font-size)] mb-[25px]">{I18n.t("myOrganization.systemSectionTitle")}</h3>
                 <SelectField name={I18n.t("myOrganization.mfa.baseLevelLabel")}
                              value={baseLevelOption}
                              options={mfaAcrOptions}
@@ -285,26 +281,8 @@ const MyOrganization = ({refreshUser}) => {
                              infoUnderLabel={true}
                 />
             </section>
+            </>
         )
-    }
-
-    const renderCurrentSection = () => {
-        switch (section) {
-            case sections.contactPersons: {
-                return renderContactPersonsSection();
-            }
-            case sections.general: {
-                return renderInternalGeneralSection();
-            }
-            case null: {
-                return null;
-            }
-        }
-    }
-
-    const changeTab = s => {
-        navigate(`/idp/${organizationId}/${s}`);
-        setSection(s);
     }
 
     const saveInternalOrganization = () => {
@@ -570,7 +548,7 @@ const MyOrganization = ({refreshUser}) => {
                 <div className="top-header">
                     <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
                     {canDeleteOrganization &&
-                        <Button variant="destructive" onClick={e => doDelete(e, true)}>
+                        <Button variant="outline" onClick={e => doDelete(e, true)}>
                             <TrashIcon/>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/>
                         </Button>}
@@ -583,20 +561,8 @@ const MyOrganization = ({refreshUser}) => {
             <div className="my-organization">
                 {externalOrganization ? renderExternalOrganizationSettings() : (
                     <>
-                        <div className="menu-container">
-                            <div className="left-menu">
-                                {availableSections
-                                    .map((s, index) =>
-                                        <StatusMenuItem key={index}
-                                                        hideIcon={true}
-                                                        active={s === section}
-                                                        action={() => changeTab(s)}
-                                                        info={I18n.t(`myOrganization.${s}`)}/>
-                                    )}
-                            </div>
-                            <div className="right-menu">
-                                {renderCurrentSection()}
-                            </div>
+                        <div className="single-page-container">
+                            {renderInternalGeneralSection()}
                         </div>
                         {adminUser &&
                             <div className="actions proceed">

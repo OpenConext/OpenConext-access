@@ -83,6 +83,16 @@ public class Organization implements NameHolder {
         return contract != null && contract.isSignedContract();
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public boolean isContractRequested() {
+        return contract != null && !contract.isSignedContract();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getContractTicketKey() {
+        return contract != null ? contract.getTicketKey() : null;
+    }
+
     @Formula(value = "(SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id=id)")
     private Long memberCount;
 

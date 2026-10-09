@@ -168,14 +168,11 @@ const ApplicationOverview = ({accessible}) => {
                                         </div>
                                         <h4 className="font-bold mb-1">{entity.name}</h4>
                                         <span className="accessible-app-card-vendor">{entity.vendor}</span>
+                                        {!isEmpty(entity.publishedOn) &&
+                                            <span>{formatLongDate(entity.publishedOn, false, false)}</span>
+                                        }
                                         {!isEmpty(description) &&
                                             <p className="accessible-app-card-description">{description}</p>}
-                                        {!isEmpty(entity.publishedOn) &&
-                                            <div className="accessible-app-card-published">
-                                                <Badge variant="info" className="outlined">
-                                                    {I18n.t("accessibleApps.publishedOn")} {formatLongDate(entity.publishedOn, true, false)}
-                                                </Badge>
-                                            </div>}
                                     </CardContent>
                                 </Card>
                             );

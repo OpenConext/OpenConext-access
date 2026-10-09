@@ -85,6 +85,7 @@ export const ApplicationForm = () => {
         <div className="application-form-container">
             <div className="application-form">
                 <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t(`application.${isNew ? "new" : "edit"}`, {name: application.name})}</h2>
+                {isNew && <p className="application-form-subtitle">{I18n.t("application.newSubtitle")}</p>}
                 <InputField name={I18n.t("application.name")}
                             value={application.name || ""}
                             required={true}
