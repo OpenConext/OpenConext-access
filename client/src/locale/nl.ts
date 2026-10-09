@@ -212,7 +212,7 @@ const nl: AppTranslation = {
         migrate: "App‑migratie",
         cron: "Cron",
         seed: "Seed",
-        consent: "Consent",
+        consent: "Toestemming",
         assurance: "Assurance",
         contracts: "Contracten",
     },
