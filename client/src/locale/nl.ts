@@ -592,7 +592,7 @@ const nl: AppTranslation = {
         },
         contacts: {
             label: "Contacten",
-            info: "Gebruik functionele e‑mailadressen (bijv. {{example}}) in plaats van persoonlijke. Zo blijft contact mogelijk als iemand vertrekt of van rol verandert. Je kunt ook een URL naar een contactformulier gebruiken.",
+            info: "Let op: Gebruik algemene e‑mailadressen (bijv. {{example}}), geen persoonlijke. Zo blijft contact mogelijk als iemand vertrekt of van rol verandert. Een URL naar een contactformulier mag ook.",
             name: "naam",
             administrative: "Administratief",
             administrativeDisclaimer: "E‑mailadres of URL",
