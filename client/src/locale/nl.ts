@@ -1140,10 +1140,10 @@ const nl: AppTranslation = {
         allLoa: "Alle LoA-niveaus",
         allConsent: "Alle toestemmingstypen",
         loa: {
-            loa1: "LoA 1",
-            loa1_5: "LoA 1.5",
-            loa2: "LoA 2",
-            loa3: "LoA 3",
+            loa1: "LoA 1: alleen gebruikersnaam en wachtwoord",
+            loa1_5: "LoA 1.5: ieder type token is toegestaan, identiteit niet geverifieerd",
+            loa2: "LoA 2: ieder type token is toegestaan, identiteit wel geverifieerd",
+            loa3: "LoA 3: alleen hardwaretokens zijn toegestaan, identiteit wel geverifieerd",
         },
         consent: {
             default_consent: "Aangepaste toestemming",
@@ -1307,7 +1307,7 @@ const nl: AppTranslation = {
         roleValuesUnavailable: "De huidige waarde(n) zijn niet meer beschikbaar als rollen in SURFconext Invite, daarom kan deze regel niet worden aangepast. Neem contact op met <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a> om dit op te lossen.",
         forceLoa: "Forceer LOA wanneer",
         doNotForceLoa: "Forceer LOA niet wanneer",
-        requireLoa: "Vereist {{level}}",
+        requireLoa: "Vereis {{level}}",
         invalidIp: "Ongeldig IP‑adres",
         assuranceSettings: "Betrouwbaarheidsinstellingen",
         when: "wanneer",
