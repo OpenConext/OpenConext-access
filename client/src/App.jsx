@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {SidebarInset, SidebarProvider, Spinner} from "@surfnet/curve-react";
 import './App.scss';
 import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router";
-import {allowedAttributes, arp, configuration, csrf, me, privacy} from "./api/index.js";
+import {allowedAttributes, arp, configuration, csrf, me, menu, privacy} from "./api/index.js";
 import {useAppStore} from "./stores/AppStore.js";
 import {Flash} from "./components/Flash.jsx";
 import {Header} from "./components/Header.jsx";
@@ -34,7 +34,7 @@ import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
-import {activeMenuItem, menuItemsForUser} from "./utils/MenuItems.js";
+import {activeMenuItem} from "./utils/MenuItems.js";
 import Relax from "./pages/Relax.jsx";
 import ExternalApplication from "./pages/ExternalApplication.jsx";
 import Feedback from "./pages/Feedback.jsx";
@@ -106,13 +106,14 @@ const App = () => {
         me()
             .then(user => {
                 const organization = loadUserOrganization(user);
-                const newMenuItems = menuItemsForUser(user, organization);
-                useAppStore.setState(() => ({
-                    user: user,
-                    currentOrganization: organization,
-                    menuItems: newMenuItems
-                }));
-                callback && callback();
+                menu(organization?.id).then(menuResponse => {
+                    useAppStore.setState(() => ({
+                        user: user,
+                        currentOrganization: organization,
+                        menuItems: menuResponse.menuItems
+                    }));
+                    callback && callback();
+                });
             })
     }
 
@@ -133,28 +134,29 @@ const App = () => {
                             .then(user => {
                                 //If there are multiple organization memberships, we default to the one which was used to login
                                 const organization = loadUserOrganization(user);
-                                const newMenuItems = menuItemsForUser(user, organization);
-                                useAppStore.setState(() => ({
-                                    user: user,
-                                    menuItems: newMenuItems,
-                                    activeMenuItem: activeMenuItem(currentLocation),
-                                    currentOrganization: organization
-                                }));
-                                const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
-                                let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
-                                if (!isEmpty(storedLocation)) {
-                                    // Do not remove the SESSION_STORAGE_LOCATION directly because in development mode this is called twice
-                                    if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
-                                        storedLocation = "/landing";
+                                return menu(organization?.id).then(menuResponse => {
+                                    useAppStore.setState(() => ({
+                                        user: user,
+                                        menuItems: menuResponse.menuItems,
+                                        activeMenuItem: activeMenuItem(currentLocation),
+                                        currentOrganization: organization
+                                    }));
+                                    const hasOrganizationMemberships = !isEmpty(user.organizationMemberships);
+                                    let storedLocation = sessionStorage.getItem(SESSION_STORAGE_LOCATION);
+                                    if (!isEmpty(storedLocation)) {
+                                        // Do not remove the SESSION_STORAGE_LOCATION directly because in development mode this is called twice
+                                        if (!storedLocation.startsWith("/accept") && !hasOrganizationMemberships) {
+                                            storedLocation = "/landing";
+                                        }
+                                        flushSync(() => {
+                                            navigate(storedLocation, {replace: true});
+                                            setTimeout(() => sessionStorage.removeItem(SESSION_STORAGE_LOCATION), 1000 * 5);
+                                        });
+                                        setTimeout(() => setLoading(false), 500);
+                                    } else {
+                                        setLoading(false);
                                     }
-                                    flushSync(() => {
-                                        navigate(storedLocation, {replace: true});
-                                        setTimeout(() => sessionStorage.removeItem(SESSION_STORAGE_LOCATION), 1000 * 5);
-                                    });
-                                    setTimeout(() => setLoading(false), 500);
-                                } else {
-                                    setLoading(false);
-                                }
+                                });
                             })
                             .catch(e => {
                                 e.response.json().then(j => {

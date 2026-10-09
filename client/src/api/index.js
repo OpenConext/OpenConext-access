@@ -81,6 +81,12 @@ export function info() {
     return fetchJson("/internal/info");
 }
 
+//The menu model (the names of the menu items the user is allowed to see) is owned by the server
+export function menu(organizationId) {
+    const query = isEmpty(organizationId) ? "" : `?organizationId=${encodeURIComponent(organizationId)}`;
+    return fetchJson(`/api/v1/menu${query}`, {}, {}, false);
+}
+
 //Users
 export function me() {
     return fetchJson("/api/v1/users/me", {}, {}, false);

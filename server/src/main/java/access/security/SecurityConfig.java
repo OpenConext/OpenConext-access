@@ -163,16 +163,20 @@ public class SecurityConfig {
     @Order(2)
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http,
                                                                @Value("${lifecycle.user}") String lifeCycleUser,
-                                                               @Value("${lifecycle.password}") String lifeCyclePassword) throws Exception {
+                                                               @Value("${lifecycle.password}") String lifeCyclePassword,
+                                                               @Value("${menu.user}") String menuUser,
+                                                               @Value("${menu.password}") String menuPassword) throws Exception {
         http.csrf(c -> c.disable())
             .securityMatcher(
                 "/api/external/v1/deprovision/**",
+                "/api/external/v1/menu",
                 "/internal/prometheus"
             ).sessionManagement(c -> c
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             ).authorizeHttpRequests(auth -> auth
                 .requestMatchers("/internal/prometheus").hasRole("ACTUATOR")
-                .requestMatchers("/api/external/v1/deprovision/**").hasRole("LIFECYCLE"))
+                .requestMatchers("/api/external/v1/deprovision/**").hasRole("LIFECYCLE")
+                .requestMatchers("/api/external/v1/menu").hasRole("MENU"))
             .authorizeHttpRequests(c -> c
                 .anyRequest()
                 .authenticated()
@@ -182,6 +186,11 @@ public class SecurityConfig {
                     lifeCycleUser,
                     "{noop}".concat(lifeCyclePassword),
                     List.of(new SimpleGrantedAuthority("ROLE_LIFECYCLE"))
+                ),
+                new org.springframework.security.core.userdetails.User(
+                    menuUser,
+                    "{noop}".concat(menuPassword),
+                    List.of(new SimpleGrantedAuthority("ROLE_MENU"))
                 )
             ))
             .httpBasic(Customizer.withDefaults());

@@ -1,4 +1,3 @@
-import {isEmpty} from "./Utils.js";
 import {
     AppWindowIcon as ScreenIcon,
     SquaresFourIcon as LaptopIcon,
@@ -13,8 +12,6 @@ import {
     LifebuoyIcon as HeadPhonesIcon,
     ChatCenteredTextIcon as FeedbackIcon
 } from "@phosphor-icons/react";
-import {authorities} from "./Permissions.js";
-import {useAppStore} from "../stores/AppStore.js";
 
 export const mainMenuItems = {
     home: "home",
@@ -31,52 +28,7 @@ export const mainMenuItems = {
     statistics: "statistics"
 }
 
-const doMenuItemsForUser = (user, currentOrganization, feedbackWidgetEnabled = useAppStore.getState().config.feedbackWidgetEnabled) => {
-    //Every user has access to the home, catalogue and help menu items
-    const newMenuItems = [mainMenuItems.home, mainMenuItems.catalogue, mainMenuItems.serviceDesk];
-    if (!feedbackWidgetEnabled) {
-        newMenuItems.push(mainMenuItems.feedback);
-    }
-    const noOrganizationMemberships = isEmpty(user.organizationMemberships);
-    if (noOrganizationMemberships) {
-        return newMenuItems;
-    }
-    //Only the memberships of the current organization matter, the user can have other authorities elsewhere
-    const currentMemberships = user.organizationMemberships.filter(m => m.organization.id === currentOrganization.id);
-    const onlyGuest = !isEmpty(currentMemberships) && currentMemberships.every(m => m.authority === authorities.GUEST);
-    if (onlyGuest) {
-        newMenuItems.push(mainMenuItems.yourApps);
-        return newMenuItems;
-    }
-    //If there is at least one organizationMembership, then we show yourApps
-    const isMember = user.organizationMemberships
-        .some(m => authorities.MEMBER === m.authority &&
-            m.organization.id === currentOrganization.id);
-    const isAdmin = user.organizationMemberships
-        .some(m => authorities.ADMIN === m.authority &&
-            m.organization.id === currentOrganization.id);
-
-    if (isMember || isAdmin) {
-        newMenuItems.push(mainMenuItems.idp, mainMenuItems.users, mainMenuItems.yourApps);
-    }
-    const isInstitution = !isEmpty(currentOrganization.manageIdentifier);
-    if (isInstitution) {
-        newMenuItems.push(mainMenuItems.accessibleApps, mainMenuItems.invite, mainMenuItems.sram);
-    }
-    if ((isAdmin || user.superUser) && isInstitution) {
-        newMenuItems.push(mainMenuItems.statistics, mainMenuItems.policies);
-    }
-    return newMenuItems;
-}
-
-export const menuItemsForUser = (user, organization = useAppStore.getState().currentOrganization) => {
-    const allMenuItems = doMenuItemsForUser(user, organization);
-    const disabledFeatures = useAppStore.getState().config.features
-        .filter(feature => feature.enabled === false)
-        .map(feature => feature.name);
-    return allMenuItems
-        .filter(menuItem => !disabledFeatures.includes(menuItem));
-}
+//The visibility of the menu items is decided by the server, see MenuService and GET /api/v1/menu
 
 export const allMenuGroups = [
     {

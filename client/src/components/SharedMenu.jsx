@@ -54,7 +54,7 @@ export const SharedMenu = () => {
                         href: menuItem.path.replace("organizationId", currentOrganization?.id),
                         externalHref: menuItem.externalConfigKey && config[menuItem.externalConfigKey] &&
                         config[menuItem.externalSameTabConfigKey] ?
-                            `${config[menuItem.externalConfigKey].replace(/\/$/, "")}${menuItem.externalPath}` : null
+                            `${config[menuItem.externalConfigKey].replace(menuItem.externalPath, "").replace(/\/$/, "")}${menuItem.externalPath}` : null
                     }))
             }))
             .filter(menuGroup => menuGroup.items.length > 0);

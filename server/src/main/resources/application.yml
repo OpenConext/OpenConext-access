@@ -86,6 +86,11 @@ lifecycle:
   user: lifecycle
   password: secret
 
+# Used by the Invite server (a different domain) to fetch the menu model of a user it has authenticated
+menu:
+  user: invite
+  password: secret
+
 jira:
   enabled: false
   base-url: "http://localhost:8081"
@@ -112,11 +117,11 @@ config:
   owner_schac_home_orgs:
     - "surfnet.nl"
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
-  invite: "https://invite.test2.surfconext.nl/home/roles"
-#  invite: "http://localhost:3000"
+#  invite: "https://invite.test2.surfconext.nl/home/roles"
+  invite: "http://localhost:3000"
   # Feature toggle: true opens SURF Invite (Roles) in the same tab, so the user does not feel leaving the application.
   # false shows the /external/invite page that opens SURF Invite in a new tab.
-  invite_same_tab: false
+  invite_same_tab: true
   sram: "https://test.sram.surf.nl/"
   service_desk: "https://servicedesk.surf.nl/jira/plugins/servlet/desk/user/requests?reporter=all"
   feedback_widget_enabled: true

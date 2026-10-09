@@ -6,7 +6,7 @@ import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-re
 import {InfoIcon} from "@phosphor-icons/react";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
-import {organizationApplicationsById, organizationMineById} from "../api/index.js";
+import {menu, organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
@@ -15,7 +15,7 @@ import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Ma
 import {hasApplicationWriteAccess, hasCreateApplicationAccess} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
-import {mainMenuItems, menuItemsForUser} from "../utils/MenuItems.js";
+import {mainMenuItems} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
 import {useShallow} from "zustand/react/shallow";
 import {currentOrganizationFromUser} from "../utils/Organization.js";
@@ -55,18 +55,17 @@ const Organization = () => {
                         return converted;
                     })
                     setOrganization(res);
-                    const newMenuItems = menuItemsForUser(user, res);
                     //the URL may be bookmarked
                     const organization = currentOrganizationFromUser(user, organizationId)
                     useAppStore.setState({
                         currentOrganization: organization,
                         activeMenuItem: mainMenuItems.yourApps,
-                        menuItems: newMenuItems,
                         breadcrumbPaths: [
                             {path: "/home", value: I18n.t("breadCrumb.access"), menuItemName: mainMenuItems.home},
                             {value: I18n.t("navigation.yourApps")}
                         ]
                     });
+                    menu(organizationId).then(menuResponse => useAppStore.setState({menuItems: menuResponse.menuItems}));
                     setIsExternal(user.externalUser);
                     const mayCreateApplicationVar = hasCreateApplicationAccess(user, res);
                     setMayCreateApplication(mayCreateApplicationVar);
