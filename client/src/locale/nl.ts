@@ -1102,7 +1102,7 @@ const nl: AppTranslation = {
         contractSectionTitle: "Gegevens overeenkomst",
         mfa: {
             baseLevelLabel: "Basis inlogmethode",
-            baseLevelInfo: "De standaard die voor alle gebruikers van je IdP wordt afgedwongen.",
+            baseLevelInfo: "Wat staat momenteel ingesteld bij je Identity Provider (bijvoorbeeld Microsoft Entra)?",
             additionalAcrLabel: "Ondersteunde additionele inlogmethodes door je identiteitsprovider",
             additionalAcrInfo: "De methodes die je ondersteunt en per applicatie kunt activeren",
             options: [
