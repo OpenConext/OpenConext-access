@@ -8,20 +8,14 @@ import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import {ImageField} from "../components/ImageField.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {updateApplication} from "../api/index.js";
-import {
-    contactSectionValid,
-    convertClientApplicationToServer,
-    convertServerApplicationToClient,
-    logoSectionValid,
-    privacySectionValid
-} from "../utils/Application.js";
+import {contactSectionValid, convertClientApplicationToServer, convertServerApplicationToClient, logoSectionValid, privacySectionValid} from "../utils/Application.js";
 import {Button, Card, CardContent, Checkbox, Label, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import {APPLICATION_STATUSES} from "../utils/Manage.js";
 import {ContactPersons} from "../components/ContactPersons.jsx";
-import {formatDate, formatLongDate} from "../utils/Date.js";
+import {formatDate} from "../utils/Date.js";
 
 const sections = {
     logo: "logo",
@@ -298,24 +292,24 @@ export const AppInformation = ({
                         }
                     </section>
                 )}
-                    <div className="fair-use">
-                        <p>{I18n.t("application.terms")}</p>
-                        <Label className="checkbox-container">
-                            <Checkbox checked={application.fairUseTermsAccepted}
-                                      disabled={application.fairUseTermsAccepted}
-                                      onCheckedChange={acceptFairUseTerms}
-                            />
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
-                        </Label>
-                        <ul>
-                            {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
-                                .map(check => <li key={check}>{check}</li>)}
-                        </ul>
-                        {(!initial && !application.fairUseTermsAccepted) &&
-                            <ErrorIndicator msg={I18n.t("connection.privacy.termsAreRequired")}
-                            />
-                        }
-                    </div>
+                <div className="fair-use">
+                    <p>{I18n.t("application.terms")}</p>
+                    <Label className="checkbox-container">
+                        <Checkbox checked={application.fairUseTermsAccepted}
+                                  disabled={application.fairUseTermsAccepted}
+                                  onCheckedChange={acceptFairUseTerms}
+                        />
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("application.termsInfo"))}}/>
+                    </Label>
+                    <ul>
+                        {Object.values(I18n.translations[I18n.locale]["application"]["checks"])
+                            .map(check => <li key={check}>{check}</li>)}
+                    </ul>
+                    {(!initial && !application.fairUseTermsAccepted) &&
+                        <ErrorIndicator msg={I18n.t("connection.privacy.termsAreRequired")}
+                        />
+                    }
+                </div>
 
             </section>
         );
