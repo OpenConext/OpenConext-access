@@ -1419,7 +1419,7 @@ const nl: AppTranslation = {
             regChoice: "Kies toegangsregel als:",
             regExplanation: "→ Je moet bepalen welke gebruikers of groepen toegang krijgen tot een applicatie",
             stepTitle: "Assuranceregel",
-            stepInfo: "Definieert het vereiste Level of Assurance (LoA) voor toegang tot een applicatie.",
+            stepInfo: "Bepaal welk LoA-niveau geldt bij het inloggen (via SURFsecureID)",
             stepChoice: "Kies assuranceregel als:",
             stepExplanation: "→ Gebruikers kunnen de applicatie gebruiken, maar moeten inloggen met tweestapsverificatie",
         },
