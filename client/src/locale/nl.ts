@@ -461,7 +461,7 @@ const nl: AppTranslation = {
             in_progress: "In bewerking",
             pending_prod: "In afwachting van goedkeuring",
             prod_ready: "Live",
-            ready_for_prod: "Klaar voor productie",
+            ready_for_prod: "Klaar om te publiceren",
             open_change_requests: "Wijzigingen in afwachting van goedkeuring",
             multiple_connections: "Meerdere verbindingen",
             no_connections: "Geen productieverbindingen",
