@@ -105,10 +105,11 @@ export const InvitationManagement = ({organization, currentUserAuthority, refres
                             <ArrowRight/>
                             {I18n.t("invitationsManagement.resend")}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => doDelete(invitation, true)}>
-                            <TrashIcon/>
-                            {I18n.t("invitationsManagement.revoke")}
-                        </DropdownMenuItem>
+                        {(currentUserAuthority === authorities.ADMIN || invitation.inviter?.user_id === currentUser.id) &&
+                            <DropdownMenuItem onClick={() => doDelete(invitation, true)}>
+                                <TrashIcon/>
+                                {I18n.t("invitationsManagement.revoke")}
+                            </DropdownMenuItem>}
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>

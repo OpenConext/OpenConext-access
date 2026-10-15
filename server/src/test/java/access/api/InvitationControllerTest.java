@@ -408,6 +408,48 @@ class InvitationControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void deleteInvitationOfSomeoneElseAsMemberNotAllowed() {
+        User member = userRepository.findBySubIgnoreCase(MULTIPLE_ORG_SUB).get();
+        member.setSuperUser(false);
+        userRepository.save(member);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
+        Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("invitationId", invitation.getId())
+                .delete("/api/v1/invitations/{invitationId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+        assertTrue(invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).isPresent());
+    }
+
+    @Test
+    void deleteOwnInvitationAsMember() {
+        User member = userRepository.findBySubIgnoreCase(MULTIPLE_ORG_SUB).get();
+        member.setSuperUser(false);
+        userRepository.save(member);
+        Invitation invitation = invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).get();
+        invitation.setInvitee(member);
+        invitationRepository.save(invitation);
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("invitationId", invitation.getId())
+                .delete("/api/v1/invitations/{invitationId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        assertTrue(invitationRepository.findDetailsByHash(SHARE_LOGICS_INVITATION_HASH).isEmpty());
+    }
+
+    @Test
     void deleteAllInvitation() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Organization organization = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();

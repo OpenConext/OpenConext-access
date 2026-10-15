@@ -89,6 +89,12 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
         }
     }
 
+    //Members are allowed to delete the guests they have invited themselves
+    const isOwnGuest = membership => currentUserAuthority === authorities.MEMBER
+        && membership.authority === authorities.GUEST && membership.invitedById === currentUser.id;
+
+    const mayDelete = membership => currentUserAuthority === authorities.ADMIN || isOwnGuest(membership);
+
     const renderMenu = membership => {
 
         return (
@@ -115,7 +121,7 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                                 <PencilIcon/>
                                 {I18n.t("teamManagement.makeGuest")}
                             </DropdownMenuItem>}
-                        {currentUserAuthority === authorities.ADMIN &&
+                        {mayDelete(membership) &&
                             <DropdownMenuItem onClick={() => doDelete(membership, true)}>
                                 <TrashIcon/>
                                 {I18n.t("forms.delete")}
@@ -150,7 +156,8 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                 header: "",
                 nonSortable: true,
                 mapper: membership => {
-                    if (currentUserAuthority === authorities.GUEST || currentUserAuthority === authorities.MEMBER) {
+                    if (currentUserAuthority === authorities.GUEST
+                        || (currentUserAuthority === authorities.MEMBER && !isOwnGuest(membership))) {
                         return null;
                     }
                     //We need to ensure that one admin remains

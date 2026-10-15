@@ -129,4 +129,42 @@ class OrganizationMembershipControllerTest extends AbstractTest {
 
         assertTrue(organizationMembershipRepository.findById(organizationMembershipId).isPresent());
     }
+
+    @Test
+    void deleteOwnInvitedGuestAsMember() {
+        OrganizationMembership guestMembership = prepareMemberWithInvitedGuest(true);
+        deleteMembership(guestMembership.getId(), HttpStatus.NO_CONTENT);
+        assertTrue(organizationMembershipRepository.findById(guestMembership.getId()).isEmpty());
+    }
+
+    @Test
+    void deleteGuestInvitedBySomeoneElseAsMemberNotAllowed() {
+        OrganizationMembership guestMembership = prepareMemberWithInvitedGuest(false);
+        deleteMembership(guestMembership.getId(), HttpStatus.FORBIDDEN);
+        assertTrue(organizationMembershipRepository.findById(guestMembership.getId()).isPresent());
+    }
+
+    private OrganizationMembership prepareMemberWithInvitedGuest(boolean invitedByMember) {
+        User member = userRepository.findBySubIgnoreCase(MULTIPLE_ORG_SUB).get();
+        member.setSuperUser(false);
+        userRepository.save(member);
+        OrganizationMembership guestMembership = organizationMembershipRepository.findById(
+                super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.GUEST.name()))).get();
+        guestMembership.setInvitedBy(invitedByMember ? member : userRepository.findBySubIgnoreCase(MANAGE_SUB).get());
+        return organizationMembershipRepository.save(guestMembership);
+    }
+
+    private void deleteMembership(Long id, HttpStatus expectedStatus) {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MULTIPLE_ORG_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationMembershipId", id)
+                .delete("/api/v1/organization_memberships/{organizationMembershipId}")
+                .then()
+                .statusCode(expectedStatus.value());
+    }
 }

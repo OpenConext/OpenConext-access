@@ -163,6 +163,7 @@ public class InvitationController implements UserAccessRights {
         if (organizationMembershipOptional.isEmpty()) {
             //Now create organization_membership and - if any - applicationMemberships
             OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, invitation.getIntendedAuthority());
+            organizationMembership.setInvitedBy(invitation.getInvitee());
             List<ApplicationMembership> applicationMemberships = invitation.getApplications().stream()
                     .map(application -> new ApplicationMembership(application, organizationMembership))
                     .toList();
@@ -199,6 +200,11 @@ public class InvitationController implements UserAccessRights {
         Organization organization = invitation.getOrganization();
         Authority requiredAuthority = invitation.getIntendedAuthority().equals(Authority.ADMIN) ? Authority.ADMIN : Authority.MEMBER;
         confirmOrganizationMembership(user, organization, requiredAuthority);
+        //Plain members can only delete the invitations they have sent themselves
+        if (!user.isSuperUser() && getOrganizationMembership(user, organization, Authority.ADMIN).isEmpty()
+                && !invitation.getInvitee().getId().equals(user.getId())) {
+            throw new UserRestrictionException("Members are only allowed to delete their own invitations");
+        }
 
         invitationRepository.delete(invitation);
 

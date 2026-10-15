@@ -37,6 +37,11 @@ public class OrganizationMembership implements NameHolder {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Organization organization;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invited_by_id")
+    @JsonIgnore
+    private User invitedBy;
+
     @Enumerated(EnumType.STRING)
     @Column
     @NotNull
@@ -58,6 +63,11 @@ public class OrganizationMembership implements NameHolder {
         this.authority = authority;
         this.transientName = getClass().getName().concat(organization.getName()).concat(authority.name());
         this.createdAt = Instant.now();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "invitedById")
+    public Long getInvitedById() {
+        return invitedBy != null ? invitedBy.getId() : null;
     }
 
     @JsonIgnore

@@ -3,6 +3,7 @@ package access.api;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.model.Authority;
+import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.User;
 import access.repository.OrganizationMembershipRepository;
@@ -40,7 +41,12 @@ public class OrganizationMembershipController implements UserAccessRights {
         LOG.debug("/delete");
         OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
                 .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
-        confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
+        Organization organization = organizationMembership.getOrganization();
+        //Members are allowed to delete the guests they have invited themselves
+        boolean ownGuest = organizationMembership.getAuthority().equals(Authority.GUEST)
+                && organizationMembership.getInvitedBy() != null
+                && organizationMembership.getInvitedBy().getId().equals(user.getId());
+        confirmOrganizationMembership(user, organization, ownGuest ? Authority.MEMBER : Authority.ADMIN);
 
         long nbrOfAdmins = this.getNbrOfAdmins(organizationMembership);
         if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN)) {
