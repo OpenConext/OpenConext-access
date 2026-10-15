@@ -6,12 +6,12 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 40px 40px 60px 40px;
-    gap: 80px;
+    padding: 80px 40px 60px 40px;
+    gap: 120px;
 
     @media (max-width: $mobile-width) {
-        padding: 24px 20px 40px 20px;
-        gap: 48px;
+        padding: 40px 20px 40px 20px;
+        gap: 64px;
     }
 
     h1, h2, h3 {

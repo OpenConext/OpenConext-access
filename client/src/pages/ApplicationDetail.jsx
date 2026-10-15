@@ -38,7 +38,7 @@ import {
 import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 
-import ExampleSVG from "../icons/wayf.svg";
+import {ConsentPreview} from "../components/ConsentPreview.jsx";
 import {APPLICATION_LINKS, connectWithoutInteraction, CONSENT, MFA_LEVELS, providerDescription, providerName, providerOrganizationName, STEPUP_LEVELS} from "../utils/Manage.js";
 import {isEmpty, sanitize, stopEvent} from "../utils/Utils.js";
 import {policyTypes} from "../utils/Policy.js";
@@ -67,6 +67,9 @@ const tabs = {
     consent: "consent",
     assurance: "assurance"
 }
+
+//Minimal consent is no longer supported (EB only knows no consent and default consent)
+const normalizeConsent = consent => consent.type === "minimal_consent" ? {...consent, type: CONSENT.default_consent} : consent;
 
 const consentOptions = Object.keys(CONSENT).map(k => ({label: I18n.t(`consent.${k}`), value: k}));
 
@@ -187,7 +190,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                         type: CONSENT.default_consent,
                                         "explanation:nl": "",
                                         "explanation:en": ""
-                                    } : currentConsent)
+                                    } : normalizeConsent(currentConsent))
                                     const currentMfa = (currentOrganization.identityProvider.data.mfaEntities || [])
                                         .find(entry => entry.name === entityId);
                                     setMfaEntity(isEmpty(currentMfa)
@@ -610,7 +613,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             type: CONSENT.default_consent,
             "explanation:nl": "",
             "explanation:en": ""
-        } : currentConsent)
+        } : normalizeConsent(currentConsent))
 
     }
     const submitConsentChanges = () => {
@@ -751,6 +754,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const renderConsent = () => {
+        //The custom message in the language of the user, falling back to the other language
+        const consentWarning = consent[`explanation:${I18n.locale}`] ||
+            consent[`explanation:${I18n.locale === "nl" ? "en" : "nl"}`];
         return (
             <div className="consent-container">
                 <div className="consent-left">
@@ -791,8 +797,10 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
                 </div>
                 <div className="consent-right">
-                    <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("consent.example")}</h2>
-                    <ExampleSVG/>
+                    <h2 className="text-[length:var(--text-xl-font-size)]">
+                        {I18n.t(consent.type === CONSENT.no_consent ? "consent.noConsentDialog" : "consent.example")}
+                    </h2>
+                    {consent.type !== CONSENT.no_consent && <ConsentPreview warning={consentWarning}/>}
                 </div>
             </div>
         );

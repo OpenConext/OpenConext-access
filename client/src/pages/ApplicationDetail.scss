@@ -530,6 +530,8 @@ div.application-detail-container {
         .consent-left {
             display: flex;
             flex-direction: column;
+            flex: 1 1 0;
+            min-width: 0;
 
             p {
                 &.info {
@@ -552,7 +554,10 @@ div.application-detail-container {
             }
         }
 
+        // Fixed width, so the form keeps the same width with or without the preview
         .consent-right {
+            flex: 0 0 360px;
+            width: 360px;
             margin-left: auto;
 
             svg {

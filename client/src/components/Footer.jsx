@@ -1,7 +1,7 @@
 import React from "react";
 import I18n from "../locale/I18n";
 import "./Footer.scss"
-import {LanguageSelector} from "./LanguageSelector";
+import SurfLogo from "../icons/logo-surf.svg";
 
 export const Footer = () => {
 
@@ -9,20 +9,11 @@ export const Footer = () => {
         <footer className="sds--footer">
             <div className="sds--footer--inner">
                 <nav className="menu">
-                    <ul>
-                        <li>
-                            <a className="external-link"
-                               href={I18n.t("footer.termsLink")} target="_blank"
-                               rel="noopener noreferrer"><span>{I18n.t("footer.terms")}</span></a>
-                        </li>
-                        <li>
-                            <a className="external-link"
-                               href={I18n.t("footer.privacyLink")} target="_blank"
-                               rel="noopener noreferrer"><span>{I18n.t("footer.privacy")}</span></a>
-                        </li>
-                    </ul>
+                    <a className="external-link"
+                       href={I18n.t("footer.termsLink")} target="_blank"
+                       rel="noopener noreferrer"><span>{I18n.t("footer.privacyTerms")}</span></a>
                 </nav>
-                <LanguageSelector/>
+                <SurfLogo className="footer-logo" aria-hidden="true"/>
             </div>
         </footer>
     );

@@ -294,6 +294,11 @@ const en: AppTranslation = {
         applicationManagement: "Our apps",
         info: "All applications added to {{productName}} by <strong>{{name}}</strong>.",
         addFirstApplication: "Add your first application",
+        zeroState: {
+            title: "You don't have any apps yet",
+            description: "Add your first application. After that you fill in the app information, create a connection and make your application available to institutions in higher education and research.",
+            action: "Add app",
+        },
         addApplication: "Add new application",
         app: "APP",
         guestNoApplicationMessage: "You do not have access to any of the applications in this organization.",
@@ -343,6 +348,7 @@ const en: AppTranslation = {
         team: {
             members: "Manage team members",
         },
+        manageAccess: "Go to the activated app to manage access",
         overviewCards: {
             title: "Overview",
             subTitle: "Fill in all the information below to publish your application on {{productName}}.",
@@ -461,7 +467,7 @@ const en: AppTranslation = {
             in_progress: "In progress",
             pending_prod: "Pending approval",
             prod_ready: "Live",
-            ready_for_prod: "Ready for prod",
+            ready_for_prod: "Ready to publish",
             open_change_requests: "Changes pending approval",
             multiple_connections: "Multiple connections",
             no_connections: "No production connections",
@@ -956,6 +962,26 @@ const en: AppTranslation = {
                 description: "More extensive statistics and reports on usage, per institution and per application.",
             },
         },
+            faq: {
+                title: "Frequently asked questions",
+                subTitle: "Find answers to frequently asked questions about our platform. Can't find what you are looking for? Contact our team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
+                audience: {
+                    question: "Who is SURF Access for?",
+                    answer: "SURF Access is for education and research institutions that are members of SURF, the ICT cooperative of Dutch education and research. App providers can also offer their application to these institutions, even without being a member themselves. <a href='https://www.surf.nl/en/members' target='_blank' rel='noopener noreferrer'>Read more about SURF and its members</a>",
+                },
+                available: {
+                    question: "Can I use SURF Access already?",
+                    answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out SURF Access without obligation in the demo environment.",
+                },
+                login: {
+                    question: "What do I need to log in?",
+                    answer: "As an institution you log in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you sign up. Users log in with their institution account or with eduID.",
+                },
+                migrate: {
+                    question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
+                    answer: "No. Existing services keep working and will gradually move to SURF Access. You keep access to everything you use now.",
+                },
+            },
     },
     changeRequests: {
         title: "Pending change request(s)",
@@ -1023,6 +1049,7 @@ const en: AppTranslation = {
         cancel: "Cancel",
         submit: "Submit",
         optional: "(Optional)",
+        createOption: "Create \"{{value}}\"",
         new: "New",
         approve: "Approve",
         create: "Create",
@@ -1089,6 +1116,7 @@ const en: AppTranslation = {
         deleteWarning: "If you delete your organisation, all of your applications and connections will also be deleted. There is no undo functionality for this action.",
         deleteButton: "Delete my organisation",
         proceedButton: "Save",
+        requestAgreementButton: "Request agreement",
         flash: "Organisation {{name}} is updated",
         generalInformation: "General information",
         entityID: "Entity ID",
@@ -1346,10 +1374,10 @@ const en: AppTranslation = {
     consent: {
         title: "Consent",
         example: "Example",
+        noConsentDialog: "No consent dialog",
         info: "The first time a user logs in to this application, a dialog may be shown asking the user for consent to send personal data to this application. See our <a class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74220197/Inloggen+via+SURFconext' target='_blank'>wiki</a> (Dutch) for more information.",
         type: "Type of consent",
         default_consent: "Explicitly ask users for consent to release their attributes",
-        minimal_consent: "Minimal consent without attributes",
         no_consent: "Do not ask users for consent",
         warnings: "You can optionally add a warning to the consent screen, for example to indicate that the application is not an official app of the institution and no support can be expected.",
         warningEN: "Warning in English",
@@ -1359,6 +1387,23 @@ const en: AppTranslation = {
         // and in nl.js.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
+        preview: {
+            loginTitle: "Login via SURFconext TEST2",
+            consentQuestion: "Do you consent to sharing your information?",
+            willReceive: "{{name}} will receive",
+            displayName: "Display Name",
+            fullName: "Full Name",
+            email: "Email address",
+            identifier: "Identifier",
+            providedBy: "provided by",
+            somethingIncorrect: "Something incorrect?",
+            explanation: "Explanation",
+            infoSp: "<b>SURFconext Teams | SURFnet</b> (offered by SURFnet) needs this information to function properly (read their <span style='color:#2f78c4;font-weight:600'>privacy policy</span>).",
+            infoIdp: "<b>SURFconext TEST2</b> is being used by your institution to securely send your information to SURFconext Teams | SURFnet (read more about <span style='color:#2f78c4;font-weight:600'>SURFconext TEST2</span>).",
+            agree: "Yes, I agree",
+            decline: "No, I do not agree",
+        },
+        previewWarningTitle: "Pay attention when using this service",
         flash: {
             consentUpdated: "Consent has been updated",
         },

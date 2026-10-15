@@ -14,6 +14,33 @@ div.organization-outer-container {
         margin: 15px 15px 5px 15px;
         width: 92%;
     }
+    // Zero state: header, alert and card share one column of 800px (see Figma)
+    &.zero-state {
+        padding: 32px 40px;
+        gap: 24px;
+        height: auto;
+
+        > * {
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        [data-slot="alert"], .alert-container {
+            margin: 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .organization-header-container {
+            padding: 0;
+        }
+
+        div.organization-container .zero-state-card {
+            margin: 0;
+        }
+    }
+
     &.with-applications {
         background-color: transparent;
     }
@@ -26,6 +53,51 @@ div.organization-outer-container {
 
     div.organization-container {
 
+
+        .zero-state-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            min-height: 360px;
+            margin: 15px 15px 0 15px;
+            padding: 48px 40px;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            text-align: center;
+
+            .zero-state-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 64px;
+                height: 64px;
+                border-radius: 9999px;
+                background-color: var(--muted);
+            }
+
+            .zero-state-text {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+
+                h3 {
+                    margin: 0;
+                    font-size: var(--text-lg-font-size);
+                    font-weight: 600;
+                    line-height: 1;
+                }
+
+                p {
+                    margin: 0;
+                    max-width: 520px;
+                    color: var(--muted-foreground);
+                }
+            }
+        }
 
         .no-app {
             p:last-child {

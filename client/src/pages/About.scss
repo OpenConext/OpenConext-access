@@ -201,4 +201,79 @@
             flex: 1 1 260px;
         }
     }
+
+    .about-faq {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+
+        .about-faq-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 800px;
+            text-align: center;
+
+            h2 {
+                font-size: 48px;
+                line-height: 1;
+
+                @media (max-width: $mobile-width) {
+                    font-size: 36px;
+                    line-height: 40px;
+                }
+            }
+
+            p {
+                font-size: var(--text-lg-font-size);
+                line-height: 2rem;
+
+                a {
+                    color: inherit;
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .about-faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .about-faq-item {
+            padding: 8px 24px;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            [data-slot="accordion-trigger"] {
+                font-size: var(--text-base-font-size);
+                font-weight: 500;
+                color: var(--foreground);
+
+                // No focus border around the question, the card itself is the visual boundary
+                &:focus, &:focus-visible {
+                    outline: none;
+                    box-shadow: none;
+                    border-color: transparent;
+                }
+            }
+
+            [data-slot="accordion-content"] {
+                font-size: var(--text-sm-font-size);
+                color: var(--foreground);
+
+                a {
+                    color: #01653d;
+                    font-weight: 500;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
 }

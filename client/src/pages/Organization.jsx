@@ -3,7 +3,8 @@ import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
-import {InfoIcon} from "@phosphor-icons/react";
+import {AppWindowIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
+import {ConnectionAlert} from "../connection/ConnectionAlert.jsx";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
 import {menu, organizationApplicationsById, organizationMineById} from "../api/index.js";
@@ -28,8 +29,9 @@ const views = {
 
 const Organization = () => {
 
-    const {user} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization} = useAppStore(useShallow(state => ({
         user: state.user,
+        currentOrganization: state.currentOrganization,
     })));
 
     const {organizationId} = useParams();
@@ -93,12 +95,26 @@ const Organization = () => {
         if (organization.applicationCount > 0) {
             return null;
         }
+        if (mayCreateApplication) {
+            //The zero state card has its own explanation, only the agreement hint (if needed) is shown
+            return <ConnectionAlert application={{connections: []}}
+                                    currentOrganization={currentOrganization || {}}
+                                    fullWidth={true}/>;
+        }
         return (
             <Alert variant={"info"}>
                 <InfoIcon/>
                 <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.alertInfo"))}}/>
             </Alert>
         )
+    }
+
+    // An application that is ready to publish links directly to the publish step of its connection
+    const applicationPath = application => {
+        const connections = application.connections || [];
+        return connections.length === 1 && connections[0].status === CONNECTION_STATUSES.COMPLETE ?
+            `/connection/${application.id}/allConnections/${connections[0].id}?action=activate` :
+            `/connection/${application.id}`;
     }
 
     const renderApplicationStatus = application => {
@@ -120,7 +136,8 @@ const Organization = () => {
             }
         }
         return (
-            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
+            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}
+                   className={status === "ready_for_prod" ? "badge-black" : undefined}>
                 {I18n.t(`connection.connections.${status}`)}
             </Badge>
         );
@@ -177,8 +194,8 @@ const Organization = () => {
                 showNew={false}
                 displaySearch={true}
                 searchAttributes={["name"]}
-                rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(`/connection/${application.id}`)}
-                rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? `/connection/${application.id}` : undefined}
+                rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(applicationPath(application))}
+                rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? applicationPath(application) : undefined}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
                 notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
                 inputFocus={false}
@@ -196,20 +213,37 @@ const Organization = () => {
         );
     }
 
+    //No applications yet, for a user that may add one
+    const zeroState = isEmpty(organization.applications) && mayCreateApplication;
     return (
         <div
-            className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"}`}>
-            {alertInfo()}
+            className={`organization-outer-container ${isEmpty(organization.applications) ? "" : "with-applications"} ${zeroState ? "zero-state" : ""}`}>
+            {!zeroState && alertInfo()}
             <div className={`organization-header-container ${view === views.card ? "card-view" : ""}`}>
                 <div>
                     <h1 className="text-[length:var(--text-2xl-font-size)] mb-2">{I18n.t("organization.applicationManagement")}</h1>
-                    {!isEmpty(organization.applications) &&
+                    {(!isEmpty(organization.applications) || zeroState) &&
                         <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("organization.info", {name: organization.name}))}}/>
                     }
                 </div>
             </div>
+            {zeroState && alertInfo()}
             <div className="organization-container">
-                {isEmpty(organization.applications) &&
+                {zeroState &&
+                    <div className="zero-state-card">
+                        <div className="zero-state-icon">
+                            <AppWindowIcon size={28}/>
+                        </div>
+                        <div className="zero-state-text">
+                            <h3>{I18n.t("organization.zeroState.title")}</h3>
+                            <p>{I18n.t("organization.zeroState.description")}</p>
+                        </div>
+                        <Button onClick={() => navigate("/application/new")}>
+                            <PlusCircleIcon/>
+                            <span>{I18n.t("organization.zeroState.action")}</span>
+                        </Button>
+                    </div>}
+                {(isEmpty(organization.applications) && !mayCreateApplication) &&
                     <div className="organization">
                         <div className="left">
                             <Logo/>

@@ -150,7 +150,6 @@ export const connectWithoutInteraction = (metaData, user) => {
 
 export const CONSENT = {
     no_consent: "no_consent",
-    minimal_consent: "minimal_consent",
     default_consent: "default_consent"
 }
 

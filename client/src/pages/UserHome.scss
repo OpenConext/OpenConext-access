@@ -50,6 +50,15 @@
             font-weight: var(--font-weight-semibold);
         }
 
+        // The whole card is clickable (see welcome-card onClick in UserHome.jsx)
+        .welcome-card {
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--alpha-30);
+            }
+        }
+
         .illustration {
             width: 100%;
 

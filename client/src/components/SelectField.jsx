@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import "./SelectField.scss";
 import Select from "react-select";
@@ -16,6 +16,30 @@ export default function SelectField({
                                         className = "", isAlert = false, optional = false,
                                         infoUnderLabel = false, showCheck = false
                                     }) {
+    const [inputValue, setInputValue] = useState("");
+
+    // A typed value is added when the field loses focus, otherwise it is lost when clicking elsewhere
+    const addTypedValueOnBlur = () => {
+        const typed = inputValue.trim();
+        if (typed) {
+            const current = value || [];
+            if (!current.some(option => option.value === typed)) {
+                onChange([...current, {value: typed, label: typed, __isNew__: true}]);
+            }
+            setInputValue("");
+        }
+    }
+
+    const onCreatableInputChange = (newValue, actionMeta) => {
+        // Keep the typed text on blur / menu close; it is handled by addTypedValueOnBlur
+        if (actionMeta.action === "input-change") {
+            setInputValue(newValue);
+        } else if (actionMeta.action === "set-value") {
+            setInputValue("");
+        }
+        onInputChange && onInputChange(newValue, actionMeta);
+    }
+
     // Options may carry a `description`, which is shown below the label in the menu only.
     // With `showCheck` the selected option is marked with a check in the menu.
     const formatOptionLabel = (option, {context, selectValue}) => {
@@ -61,7 +85,10 @@ export default function SelectField({
                     isMulti={true}
                     placeholder={placeholder}
                     isSearchable={true}
-                    onInputChange={onInputChange}
+                    inputValue={inputValue}
+                    onInputChange={onCreatableInputChange}
+                    onBlur={addTypedValueOnBlur}
+                    formatCreateLabel={input => I18n.t("forms.createOption", {value: input})}
                     isClearable={clearable}
                     isDisabled={disabled}
                     onChange={onChange}

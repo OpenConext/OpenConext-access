@@ -152,10 +152,11 @@ export const Connection = () => {
     const viewConnection = conn => {
         setConnection(conn);
         setCurrentTab("allConnections");
-        navigate(`/connection/${applicationId}/allConnections/${conn.id}`);
+        const activate = conn.status === CONNECTION_STATUSES.COMPLETE ? "?action=activate" : "";
+        navigate(`/connection/${applicationId}/allConnections/${conn.id}${activate}`);
     }
 
-    const changeTab = (newTab, action = null) => {
+    const changeTab = (newTab, action = null, section = null) => {
         if (dirty) {
             refresh()
         }
@@ -164,7 +165,7 @@ export const Connection = () => {
             setConnection(null);
         }
         setCurrentTab(newTab);
-        const queryPart = action !== null ? `?action=${action}` : "";
+        const queryPart = action !== null ? `?action=${action}` : section !== null ? `?section=${section}` : "";
         navigate(`/connection/${applicationId}/${newTab}${queryPart}`);
     }
 

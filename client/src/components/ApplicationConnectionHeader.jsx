@@ -16,7 +16,9 @@ import {
     DropdownMenuTrigger,
     Spinner
 } from "@surfnet/curve-react";
-import {hasApplicationDeleteAccess, hasPolicyWriteAccess, policyServiceProvider} from "../utils/Permissions.js";
+import {authorities, hasApplicationDeleteAccess, hasPolicyWriteAccess, isAdmin, policyServiceProvider} from "../utils/Permissions.js";
+import {CONNECTION_STATUSES} from "../utils/Manage.js";
+import {ArrowRightIcon} from "@phosphor-icons/react";
 import {ConnectionInUseWarning, units} from "../connection/ConnectionInUseWarning.jsx";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore.js";
@@ -124,6 +126,11 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
     }
 
     const {open, cancel, action, question, okButton, outstandingPolicies, policyWriteAccess} = confirmation;
+    // Only institution admins can manage access, and only for an application that is live
+    const liveConnection = (application.connections || [])
+        .find(conn => conn.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(conn.manageIdentifier));
+    const accessLink = !isEmpty(liveConnection) && isAdmin(user, currentOrganization, authorities) ?
+        `/application-detail/${liveConnection.protocol}/${liveConnection.manageIdentifier}/access` : null;
     return (
         <div className="application-connection-header-container">
             {open && <ConfirmationDialog confirm={action}
@@ -165,6 +172,11 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
                                     onClick={e => doNavigate(e, tab)}>
                     {I18n.t(`connection.${tab.name}`)}
                 </a>)}
+                {accessLink &&
+                    <Link to={accessLink} className="manage-access-link">
+                        {I18n.t("connection.manageAccess")}
+                        <ArrowRightIcon/>
+                    </Link>}
             </div>
         </div>
     );

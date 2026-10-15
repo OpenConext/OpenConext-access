@@ -475,7 +475,7 @@ const MyOrganization = ({refreshUser}) => {
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
                     </Button>
                     <Button onClick={doSubmitExternalOrganization}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`myOrganization.${isNewContract ? "requestAgreementButton" : "proceedButton"}`))}}/>
                     </Button>
                 </div>
             </div>

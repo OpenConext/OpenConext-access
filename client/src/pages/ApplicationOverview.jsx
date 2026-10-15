@@ -3,7 +3,22 @@ import React, {useEffect, useState} from "react";
 import {publicServiceProviders} from "../api/index.js";
 import I18n from "../locale/I18n.js";
 import {useNavigate} from "react-router";
-import {Badge, Card, CardContent, Spinner, Tabs, TabsList, TabsTrigger} from "@surfnet/curve-react";
+import {
+    Badge,
+    Card,
+    CardContent,
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+    Spinner,
+    Tabs,
+    TabsList,
+    TabsTrigger
+} from "@surfnet/curve-react";
 import {ListBulletsIcon, SquaresFourIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
 import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
@@ -15,6 +30,9 @@ import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {formatLongDate} from "../utils/Date.js";
 import {useShallow} from "zustand/react/shallow";
+import {pageRangeWithDots} from "../utils/Pagination.js";
+
+const GRID_PAGE_SIZE = 20;
 
 const views = {
     grid: "grid",
@@ -32,6 +50,7 @@ const ApplicationOverview = ({accessible}) => {
         const [loading, setLoading] = useState(true);
         const [view, setView] = useState(accessible ? views.list : views.grid);
         const [gridQuery, setGridQuery] = useState("");
+        const [gridPage, setGridPage] = useState(1);
         const [serviceProviders, setServiceProviders] = useState([]);
 
         //ApplicationOverview is reused (not remounted) when navigating between /catalogue and
@@ -41,6 +60,7 @@ const ApplicationOverview = ({accessible}) => {
         if (previousAccessible !== accessible) {
             setPreviousAccessible(accessible);
             setGridQuery("");
+            setGridPage(1);
         }
 
         useEffect(() => {
@@ -144,16 +164,27 @@ const ApplicationOverview = ({accessible}) => {
                 filteredServiceProviders.filter(entity =>
                     (entity.name || "").toLowerCase().includes(queryLower) ||
                     (entity.vendor || "").toLowerCase().includes(queryLower));
+            const nbrPages = Math.ceil(gridServiceProviders.length / GRID_PAGE_SIZE);
+            const currentPage = Math.min(gridPage, Math.max(nbrPages, 1));
+            const pagedServiceProviders = gridServiceProviders
+                .slice((currentPage - 1) * GRID_PAGE_SIZE, currentPage * GRID_PAGE_SIZE);
+            const changePage = nbr => {
+                setGridPage(nbr);
+                window.scrollTo({top: 0});
+            }
             return (
                 <div className="accessible-apps-grid">
                     <div className="accessible-apps-grid-filters">
                         <SearchField value={gridQuery}
-                                     onChange={e => setGridQuery(e.target.value)}
+                                     onChange={e => {
+                                         setGridQuery(e.target.value);
+                                         setGridPage(1);
+                                     }}
                                      placeholder={I18n.t("accessibleApps.searchPlaceHolder")}/>
 
                     </div>
                     <div className="accessible-apps-grid-cards">
-                        {gridServiceProviders.map(entity => {
+                        {pagedServiceProviders.map(entity => {
                             const logoUrl = entity.data.metaDataFields["logo:0:url"];
                             const description = providerDescription(I18n.locale, entity);
                             return (
@@ -178,6 +209,37 @@ const ApplicationOverview = ({accessible}) => {
                             );
                         })}
                     </div>
+                    {nbrPages > 1 &&
+                        <Pagination>
+                            <PaginationContent>
+                                {currentPage !== 1 && <PaginationItem>
+                                    <PaginationPrevious href="#" iconOnly={true}
+                                                        onClick={e => {
+                                                            e.preventDefault();
+                                                            changePage(currentPage - 1);
+                                                        }}/>
+                                </PaginationItem>}
+                                {pageRangeWithDots(currentPage, nbrPages).map((nbr, index) =>
+                                    <PaginationItem key={`${nbr}_${index}`}>
+                                        {typeof nbr === "string" ?
+                                            <PaginationEllipsis/> :
+                                            <PaginationLink href="#" isActive={nbr === currentPage}
+                                                            aria-current={nbr === currentPage ? "page" : undefined}
+                                                            onClick={e => {
+                                                                e.preventDefault();
+                                                                changePage(nbr);
+                                                            }}>{nbr}</PaginationLink>}
+                                    </PaginationItem>
+                                )}
+                                {currentPage !== nbrPages && <PaginationItem>
+                                    <PaginationNext href="#" iconOnly={true}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        changePage(currentPage + 1);
+                                                    }}/>
+                                </PaginationItem>}
+                            </PaginationContent>
+                        </Pagination>}
                 </div>
             );
         }

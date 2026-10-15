@@ -294,6 +294,11 @@ const nl: AppTranslation = {
         applicationManagement: "Jouw apps",
         info: "Alle applicaties die <strong>{{name}}</strong> aan SURF Access heeft toegevoegd.",
         addFirstApplication: "Voeg je eerste applicatie toe",
+        zeroState: {
+            title: "Je hebt nog geen apps",
+            description: "Voeg je eerste applicatie toe. Daarna vul je de app-informatie in, maak je een koppeling en kun je je applicatie beschikbaar maken voor instellingen in het hoger onderwijs en onderzoek.",
+            action: "App toevoegen",
+        },
         addApplication: "Nieuwe applicatie toevoegen",
         app: "APP",
         guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
@@ -343,6 +348,7 @@ const nl: AppTranslation = {
         team: {
             members: "Beheer teamleden",
         },
+        manageAccess: "Naar geactiveerde app om toegang te beheren",
         overviewCards: {
             title: "Overzicht",
             subTitle: "Vul alle informatie hieronder in om je applicatie te publiceren op SURF Access.",
@@ -956,6 +962,26 @@ const nl: AppTranslation = {
                 description: "Uitgebreidere statistieken en rapportages over gebruik, per instelling en per applicatie.",
             },
         },
+            faq: {
+                title: "Veelgestelde vragen",
+                subTitle: "Vind antwoorden op veelgestelde vragen over ons platform. Kom je er niet uit? Neem dan contact op met ons team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
+                audience: {
+                    question: "Voor wie is SURF Access bedoeld?",
+                    answer: "SURF Access is voor onderwijs- en onderzoeksinstellingen die lid zijn van SURF, de ict-coöperatie van het Nederlandse onderwijs en onderzoek. Daarnaast kunnen app-aanbieders hun applicatie aanbieden aan deze instellingen, ook zonder zelf lid te zijn. <a href='https://www.surf.nl/leden' target='_blank' rel='noopener noreferrer'>Lees meer over SURF en de leden</a>",
+                },
+                available: {
+                    question: "Kan ik SURF Access al gebruiken?",
+                    answer: "Sommige onderdelen zijn er al, andere volgen richting 2027. Het IdP-dashboard en SP-dashboard zijn volledig beschikbaar; SURFconext Invite en andere onderdelen komen later. Je kunt SURF Access nu al vrijblijvend uitproberen in de demo-omgeving.",
+                },
+                login: {
+                    question: "Wat heb ik nodig om in te loggen?",
+                    answer: "Als instelling log je in met je instellingsaccount. Wil je een applicatie aanbieden, dan gebruik je eduID; heb je dat nog niet, dan maak je het bij het aanmelden aan. Gebruikers loggen in met hun instellingsaccount of met eduID.",
+                },
+                migrate: {
+                    question: "Ik gebruik nu SURFconext, SRAM of SURFsecureID. Moet ik iets doen?",
+                    answer: "Nee. Bestaande diensten blijven werken en gaan geleidelijk over naar SURF Access. Je behoudt toegang tot alles wat je nu gebruikt.",
+                },
+            },
     },
     changeRequests: {
         title: "Openstaande wijzigingsverzoeken",
@@ -1023,6 +1049,7 @@ const nl: AppTranslation = {
         cancel: "Annuleren",
         submit: "Verzenden",
         optional: "(Optioneel)",
+        createOption: "Maak \"{{value}}\"",
         new: "Nieuw",
         approve: "Goedkeuren",
         create: "Aanmaken",
@@ -1089,6 +1116,7 @@ const nl: AppTranslation = {
         deleteWarning: "Als je je organisatie verwijdert, worden al je applicaties en koppelingen ook verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
         deleteButton: "Verwijder mijn organisatie",
         proceedButton: "Opslaan",
+        requestAgreementButton: "Overeenkomst aanvragen",
         flash: "Organisatie {{name}} is bijgewerkt",
         generalInformation: "Algemene informatie",
         entityID: "Entity‑ID",
@@ -1346,10 +1374,10 @@ const nl: AppTranslation = {
     consent: {
         title: "Toestemming",
         example: "Voorbeeld",
+        noConsentDialog: "Geen toestemming dialog",
         info: "Als de gebruiker de eerste keer inlogt bij deze applicatie kan een dialoog getoond worden waarin de gebruiker toestemming wordt gevraagd voor het versturen van persoonsgegevens naar deze applicatie. Zie onze <a class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74220197/Inloggen+via+SURFconext' target='_blank'>wiki</a> voor meer informatie.",
         type: "Type toestemming",
         default_consent: "Vraag gebruikers expliciet om toestemming voor het vrijgeven van hun attributen",
-        minimal_consent: "Minimale toestemming zonder attributen",
         no_consent: "Vraag gebruikers niet om toestemming",
         warnings: "Voeg optioneel een waarschuwing toe aan het toestemmingsscherm waarin je bijvoorbeeld kunt aangeven dat de applicatie geen officiële app van de instelling is en er geen ondersteuning verwacht kan worden.",
         warningEN: "Waarschuwing in het Engels",
@@ -1358,6 +1386,23 @@ const nl: AppTranslation = {
         // dus de waarde is bewust hetzelfde hier en in en.js.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
+        preview: {
+            loginTitle: "Inloggen via SURFconext TEST2",
+            consentQuestion: "Geef je toestemming om je gegevens te delen?",
+            willReceive: "{{name}} ontvangt",
+            displayName: "Weergavenaam",
+            fullName: "Volledige naam",
+            email: "E-mailadres",
+            identifier: "Identificatie",
+            providedBy: "geleverd door",
+            somethingIncorrect: "Klopt er iets niet?",
+            explanation: "Uitleg",
+            infoSp: "<b>SURFconext Teams | SURFnet</b> (aangeboden door SURFnet) heeft deze gegevens nodig om goed te werken (lees het <span style='color:#2f78c4;font-weight:600'>privacybeleid</span>).",
+            infoIdp: "<b>SURFconext TEST2</b> wordt door je instelling gebruikt om je gegevens veilig door te sturen naar SURFconext Teams | SURFnet (lees meer over <span style='color:#2f78c4;font-weight:600'>SURFconext TEST2</span>).",
+            agree: "Ja, ik ga akkoord",
+            decline: "Nee, ik ga niet akkoord",
+        },
+        previewWarningTitle: "Let op bij het gebruik van deze dienst",
         flash: {
             consentUpdated: "Toestemming is bijgewerkt",
         },

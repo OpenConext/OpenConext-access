@@ -93,6 +93,14 @@ span.field-tip {
     transform: none;
 }
 
+// One-off: prominent black badge for connections that are ready to be published.
+// Not (yet) a variant of the design system's Badge component.
+[data-slot="badge"].badge-black {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}
+
 .stretched-link {
     position: absolute;
     inset: 0;

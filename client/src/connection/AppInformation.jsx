@@ -15,6 +15,7 @@ import {isValidUrl} from "../validations/regExps.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import {APPLICATION_STATUSES} from "../utils/Manage.js";
 import {ContactPersons} from "../components/ContactPersons.jsx";
+import {useSearchParams} from "react-router";
 import {formatDate} from "../utils/Date.js";
 
 const sections = {
@@ -37,7 +38,9 @@ export const AppInformation = ({
 
     const setFlash = useAppStore(state => state.setFlash);
 
-    const [section, setSection] = useState(sections.logo);
+    const [searchParams] = useSearchParams();
+    const requestedSection = searchParams.get("section");
+    const [section, setSection] = useState(Object.values(sections).includes(requestedSection) ? requestedSection : sections.logo);
     const [initial, setInitial] = useState(true);
     const [loading, setLoading] = useState(false);
     const [focusedId, setFocusedId] = useState(null);
@@ -47,6 +50,15 @@ export const AppInformation = ({
     if (isEmpty(application.privacy.dpa_type)) {
         application.privacy.dpa_type = "dpa_supplied_by_service";
         setApplication({...application});
+    }
+
+    //The tab is rendered before the URL changes, so the requested section can arrive after the first render
+    const [previousRequestedSection, setPreviousRequestedSection] = useState(requestedSection);
+    if (previousRequestedSection !== requestedSection) {
+        setPreviousRequestedSection(requestedSection);
+        if (Object.values(sections).includes(requestedSection)) {
+            setSection(requestedSection);
+        }
     }
 
     useEffect(() => {

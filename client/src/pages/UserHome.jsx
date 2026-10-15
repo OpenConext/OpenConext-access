@@ -5,7 +5,7 @@ import {Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardContent, C
 import {ArrowRightIcon, HourglassIcon} from "@phosphor-icons/react";
 import I18n from "../locale/I18n";
 import {isEmpty, sanitize} from "../utils/Utils.js";
-import {Link, Navigate} from "react-router";
+import {Link, Navigate, useNavigate} from "react-router";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {useShallow} from "zustand/react/shallow";
 import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
@@ -23,6 +23,7 @@ const UserHome = () => {
         config: state.config
     })));
 
+    const navigate = useNavigate();
     const [appsCount, setAppsCount] = useState(null);
     const [connectedAppsCount, setConnectedAppsCount] = useState(null);
 
@@ -87,7 +88,13 @@ const UserHome = () => {
     }
 
     const welcomeCard = (key, Illustration, menuItem, path, linkColorClass, badgeColorClass, count) => (
-        <Card key={key}>
+        <Card key={key} className="welcome-card" onClick={e => {
+            //The link inside the card handles its own click
+            if (!e.target.closest("a")) {
+                setActiveMenuItemState(menuItem);
+                navigate(path);
+            }
+        }}>
             <CardContent>
                 <CardTitle>{I18n.t(`userHome.${key}.title`)}</CardTitle>
                 {Illustration &&

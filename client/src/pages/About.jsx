@@ -1,11 +1,14 @@
 import './About.scss';
 import React from "react";
 import I18n from "../locale/I18n";
-import {Badge} from "@surfnet/curve-react";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge} from "@surfnet/curve-react";
+import DOMPurify from "dompurify";
 import {TextboxIcon, NavigationArrowIcon, ChartLineIcon} from "@phosphor-icons/react";
 import heroImage from "../icons/landing/about_top_right.png";
 import eduidImage from "../icons/landing/about_eduid_left.png";
 import roadmapImage from "../icons/landing/about_bottom_left.png";
+
+const FAQ_KEYS = ["audience", "available", "login", "migrate"];
 
 const About = () => {
 
@@ -109,6 +112,29 @@ const About = () => {
                         </li>
                     </ul>
                 </div>
+            </section>
+
+            <section className="about-faq">
+                <div className="about-faq-header">
+                    <h2>{I18n.t("about.faq.title")}</h2>
+                    <p dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("about.faq.subTitle"),
+                            {ADD_ATTR: ["target"], ADD_TAGS: ["rel"]})
+                    }}/>
+                </div>
+                <Accordion className="about-faq-list">
+                    {FAQ_KEYS.map(key =>
+                        <AccordionItem key={key} value={key} className="about-faq-item">
+                            <AccordionTrigger>{I18n.t(`about.faq.${key}.question`)}</AccordionTrigger>
+                            <AccordionContent>
+                                <span dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(I18n.t(`about.faq.${key}.answer`),
+                                        {ADD_ATTR: ["target"], ADD_TAGS: ["rel"]})
+                                }}/>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                </Accordion>
             </section>
         </div>
     );

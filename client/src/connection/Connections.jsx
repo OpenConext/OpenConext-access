@@ -101,7 +101,8 @@ export const ConnectionStatusBadge = ({connection}) => {
     const status = connectionStatusKey(connection);
     return (
         <div className="status-chip">
-            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}>
+            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}
+                   className={status === "ready_for_prod" ? "badge-black" : undefined}>
                 {!isEmpty(connection.changeRequests) &&
                     <WarningIcon weight="fill" className="alert-triangle" data-icon="inline-start"/>}
                 {I18n.t(`connection.connections.${status}`)}
@@ -196,7 +197,7 @@ export const Connections = ({
             if (isEmpty(conn)) {
                 navigate(`/connection/${application.id}`);
             } else {
-                showConnectionDetails(conn);
+                showConnectionDetails(conn, window.location.search);
             }
         } else {
             const urlSearchParams = new URLSearchParams(window.location.search);

@@ -48,15 +48,15 @@ export const Overview = ({
                     <section className="card overview-card app-information-card">
                         {renderCardHeader(I18n.t("connection.overviewCards.appInformation"), () => setTab("application"))}
                         <StatusLink info={I18n.t("connection.overviewCards.appInformationLogo")}
-                                    action={() => setTab("application")}
+                                    action={() => setTab("application", null, "logo")}
                                     disabled={false}
                                     status={logoValid ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                         <StatusLink info={I18n.t("connection.overviewCards.appInformationContact")}
-                                    action={() => setTab("application")}
+                                    action={() => setTab("application", null, "contact")}
                                     disabled={false}
                                     status={contactValid ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                         <StatusLink info={I18n.t("connection.overviewCards.appInformationPrivacy")}
-                                    action={() => setTab("application")}
+                                    action={() => setTab("application", null, "privacy")}
                                     disabled={false}
                                     status={privacyValid ? STATUS_LINK_TYPE.ACTIVE : STATUS_LINK_TYPE.PENDING}/>
                     </section>
