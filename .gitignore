@@ -59,7 +59,7 @@ server/src/main/resources/Changelog.md
 SPRING_MIGRATION.md
 DesignSystem
 ignore
-
+qtc.json
 # macOS
 .DS_Store
 
