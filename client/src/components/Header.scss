@@ -2,9 +2,16 @@
 @use "../index";
 
 .header-container {
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 20;
     background-color: white;
     border-bottom: 1px solid var(--border);
+    transition: transform 0.25s ease-in-out;
+
+    &.hidden {
+        transform: translateY(-100%);
+    }
 
     .header-inner {
         @include index.public-page-width;
