@@ -323,6 +323,11 @@ export const Connections = ({
 
     const changeSection = sectionName => {
         setSection(sectionName);
+        if (/\/allConnections\/\d+$/.test(window.location.pathname)) {
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            urlSearchParams.set("section", sectionName);
+            navigate(`${window.location.pathname}?${urlSearchParams.toString()}`, {replace: true});
+        }
     }
 
     const resetMetaData = () => {
@@ -1689,6 +1694,12 @@ export const Connections = ({
             const newChangeRequestKeys = [...new Set(convertedConnection.changeRequests
                 .flatMap(changeRequest => Object.keys(changeRequest)))];
             setChangeRequestsKeys(newChangeRequestKeys);
+        }
+        const urlSection = new URLSearchParams(queryParameters).get("section");
+        if (urlSection && urlSection !== sections.pendingChanges && Object.values(sections).includes(urlSection)) {
+            return urlSection;
+        }
+        if (!isEmpty(convertedConnection.changeRequests)) {
             return sections.pendingChanges;
         }
         return queryParameters.indexOf("activate") > 1 ? sections.publish : sections.technical;
