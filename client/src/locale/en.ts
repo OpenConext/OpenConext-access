@@ -542,6 +542,7 @@ const en: AppTranslation = {
             test: "Use the following login details to connect to the production environment. Follow the <a class='actionable' class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructions</a> to see if everything works.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client ID",
+            catalogueUrl: "Catalogue URL",
             entityID: "Entity ID",
             secret: "Client secret",
             secretReset: "For security reasons your current secret can not be displayed. ",

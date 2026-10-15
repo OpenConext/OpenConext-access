@@ -975,6 +975,14 @@ export const Connections = ({
         const showFreshlyGeneratedSecret = isRsOrRp && !isEmpty(connection.originalSecret);
         const showRefreshSecret = isRsOrRp && isEmpty(connection.originalSecret);
         const prodConnection = connection.status === CONNECTION_STATUSES.PROD_READY;
+        //Only a live connection is available in the public catalogue
+        const catalogueUrl = (prodConnection && !isEmpty(connection.manageIdentifier)) ?
+            `${config.clientUrl}/application-detail/${connection.protocol.value}/${connection.manageIdentifier}` : null;
+        const catalogueUrlField = !isEmpty(catalogueUrl) &&
+            <InputField name={I18n.t("connection.connectionOverview.catalogueUrl")}
+                        value={catalogueUrl}
+                        disabled={true}
+                        copyClipBoard={true}/>;
 
         return (
             <section className="inner-right">
@@ -1000,6 +1008,7 @@ export const Connections = ({
                                     value={connection.entityID}
                                     disabled={true}
                                     copyClipBoard={true}/>
+                        {catalogueUrlField}
                         {showFreshlyGeneratedSecret &&
                             <InputField name={I18n.t("connection.connectionOverview.secret")}
                                         value={connection.originalSecret}
@@ -1030,6 +1039,7 @@ export const Connections = ({
                                         value={connection.entityID}
                                         disabled={true}
                                         copyClipBoard={true}/>
+                            {catalogueUrlField}
                             <InputField name={I18n.t("connection.connectionOverview.idpProxyMetaData")}
                                         value={config.idpProxyMetaData}
                                         disabled={true}

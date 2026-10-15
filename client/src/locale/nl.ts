@@ -542,6 +542,7 @@ const nl: AppTranslation = {
             test: "Gebruik de onderstaande inloggegevens om koppeling te maken met de productieomgeving. Volg de <a class='actionable' class='actionable' href='https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128909810/SURFconext+for+Service+Providers' target='_blank' rel='noopener noreferrer'>instructies</a> om te controleren of alles werkt.",
             discovery: "OpenID Connect Discovery",
             clientID: "Client‑ID",
+            catalogueUrl: "Catalogus-URL",
             entityID: "Entity ID",
             secret: "Client‑secret",
             secretReset: "Om veiligheidsredenen kan je huidige secret niet meer worden weergegeven. ",
