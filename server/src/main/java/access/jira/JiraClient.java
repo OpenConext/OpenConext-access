@@ -38,6 +38,10 @@ public class JiraClient {
     private static final Logger LOG = LoggerFactory.getLogger(JiraClient.class);
     private static final Pattern JIRA_ISSUE_KEY = Pattern.compile("^[A-Z][A-Z0-9]*-[0-9]+$");
 
+    //Jira usernames of "SURFconext Second Line [SURF-GROUP]" and "SURF Klantsupport [SURF-GROUP]"
+    private static final String QTC_REPORTER = "sa-jira-surfconext-secondline-grpusr@surf.nl";
+    private static final String QTC_ASSIGNEE = "sa-jira-klantsupport-grpusr@surf.nl";
+
     private final JiraConfig jiraConfig;
     private final Config config;
     private final MailBox mailBox;
@@ -100,6 +104,8 @@ public class JiraClient {
         fields.put("project", Map.of("key", isQtc ? jiraConfig.getProjectKeyQtc() : jiraConfig.getProjectKey()));
         if (isQtc) {
             fields.put("customfield_" + customField("service"), Map.of("value", "SURFconext"));
+            fields.put("reporter", Map.of("name", QTC_REPORTER));
+            fields.put("assignee", Map.of("name", QTC_ASSIGNEE));
         } else {
             fields.put("customfield_" + spCustomField(), issue.getServiceProviderEntityID());
             fields.put("customfield_" + idpCustomField(), issue.getIdentityProviderEntityID());
