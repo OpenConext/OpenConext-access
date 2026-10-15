@@ -13,6 +13,18 @@ export function stopEvent(e) {
     return true;
 }
 
+export const URL_PREFIX = "https://";
+
+// Empty URL fields are shown with the https:// prefix; the prefix alone is never stored.
+export function urlDisplayValue(value) {
+    return isEmpty(value) ? URL_PREFIX : value;
+}
+
+export function normalizeUrlInput(value) {
+    const stripped = value.replace(/^(https?:\/\/)+(?=https?:\/\/)/i, "");
+    return stripped === URL_PREFIX ? "" : stripped;
+}
+
 export function isEmpty(obj) {
     if (obj === undefined || obj === null) {
         return true;

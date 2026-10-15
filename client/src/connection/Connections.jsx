@@ -36,7 +36,7 @@ import "jsondiffpatch/formatters/styles/html.css";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
 import InputField from "../components/InputField.jsx";
 import SelectField from "../components/SelectField.jsx";
-import {isEmpty, sanitize, stopEvent} from "../utils/Utils.js";
+import {isEmpty, normalizeUrlInput, sanitize, stopEvent, urlDisplayValue} from "../utils/Utils.js";
 import {isValidUrl, validUrlRegExp} from "../validations/regExps.js";
 import {
     deleteConnectionById,
@@ -372,13 +372,13 @@ export const Connections = ({
 
     const redirectUrlValueChanged = (e, index) => {
         const newRedirectUrls = [...connection.redirectUrls];
-        newRedirectUrls[index] = e.target.value;
+        newRedirectUrls[index] = normalizeUrlInput(e.target.value);
         setConnection({...connection, redirectUrls: newRedirectUrls});
         setInvalidRedirects({...invalidRedirects, [index.toString()]: false});
     }
 
     const redirectUrlValueBlurred = (e, index) => {
-        const value = e.target.value;
+        const value = normalizeUrlInput(e.target.value);
         //Empty values are picked up the other validations
         const valid = isValidUrl(value.trim());
         setInvalidRedirects({...invalidRedirects, [index.toString()]: !valid});
@@ -407,13 +407,13 @@ export const Connections = ({
 
     const acsLocationChanged = (e, index) => {
         const newACSLocations = [...connection.acsLocations]
-        newACSLocations[index] = e.target.value;
+        newACSLocations[index] = normalizeUrlInput(e.target.value);
         setConnection({...connection, acsLocations: newACSLocations});
         setInvalidACSLocations({...invalidACSLocations, [index.toString()]: false});
     }
 
     const acsLocationValueBlurred = (e, index) => {
-        const value = e.target.value;
+        const value = normalizeUrlInput(e.target.value);
         //Empty values are picked up the other validations
         const valid = isValidUrl(value.trim());
         setInvalidACSLocations({...invalidACSLocations, [index.toString()]: !valid});
@@ -652,14 +652,14 @@ export const Connections = ({
                                     adjustMargin={true}/>}
 
                 {!isRs &&
-                    <InputField value={connection.loginUrl || ""}
+                    <InputField value={urlDisplayValue(connection.loginUrl)}
                                 onChange={e => {
-                                    setConnection({...connection, loginUrl: e.target.value});
+                                    setConnection({...connection, loginUrl: normalizeUrlInput(e.target.value)});
                                     setInvalidLoginUrl(false);
                                 }}
                                 name={I18n.t("connection.loginUrl")}
                                 required={true}
-                                onBlur={e => setInvalidLoginUrl(!isValidUrl(e.target.value))}
+                                onBlur={e => setInvalidLoginUrl(!isValidUrl(normalizeUrlInput(e.target.value)))}
                                 isAlert={changeRequestsKeys.includes("loginUrl")}
                                 placeholder={I18n.t("connection.loginUrlPlaceholder")}
                     />}
@@ -753,7 +753,7 @@ export const Connections = ({
                                 {connection.redirectUrls.map((value, index) =>
                                     <div className="redirect-url" key={index}>
                                         <div className="redirect-url-inner">
-                                            <InputField value={value}
+                                            <InputField value={urlDisplayValue(value)}
                                                         onChange={e => redirectUrlValueChanged(e, index)}
                                                         onBlur={e => redirectUrlValueBlurred(e, index)}
                                                         onRef={el => redirectUrlRefs.current[index] = el}
@@ -887,7 +887,7 @@ export const Connections = ({
                                 {connection.acsLocations.map((value, index) =>
                                     <div className="acs-location" key={index}>
                                         <div className="acs-location-inner" key={index}>
-                                            <InputField value={value}
+                                            <InputField value={urlDisplayValue(value)}
                                                         onChange={e => acsLocationChanged(e, index)}
                                                         onBlur={e => acsLocationValueBlurred(e, index)}
                                                         onRef={el => acsLocationRefs.current[index] = el}

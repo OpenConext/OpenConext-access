@@ -1,7 +1,7 @@
 import "./AppInformation.scss";
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {isEmpty, sanitize} from "../utils/Utils.js";
+import {isEmpty, normalizeUrlInput, sanitize, URL_PREFIX, urlDisplayValue} from "../utils/Utils.js";
 import {useAppStore} from "../stores/AppStore.js";
 import InputField from "../components/InputField.jsx";
 import {StatusMenuItem} from "../components/StatusMenuItem.jsx";
@@ -207,8 +207,8 @@ export const AppInformation = ({
                     <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("connection.appInfo.descriptionNl")})}
                     />}
 
-                <InputField value={application.information.webSite || ""}
-                            onChange={e => updateApplicationAttribute("information", "webSite", e.target.value)}
+                <InputField value={urlDisplayValue(application.information.webSite)}
+                            onChange={e => updateApplicationAttribute("information", "webSite", normalizeUrlInput(e.target.value))}
                             name={I18n.t("connection.appInfo.webSite")}
                             required={true}
                 />
@@ -238,11 +238,8 @@ export const AppInformation = ({
         setSection(sectionName);
     }
 
-    const URL_PREFIX = "https://";
-
     const updateUrlPrivacy = (name, value) => {
-        const stripped = value.replace(/^(https?:\/\/)+(?=https?:\/\/)/i, "");
-        updatePrivacy(name, stripped === URL_PREFIX ? "" : stripped);
+        updatePrivacy(name, normalizeUrlInput(value));
     }
 
     const updatePrivacy = (name, value) => {
