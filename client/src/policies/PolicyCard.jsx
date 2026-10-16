@@ -107,6 +107,7 @@ export const PolicyCard = ({policy, serviceProviders, currentOrganization, refre
                 <Badge variant="outline" className="policy-type-badge">
                     {I18n.t(`policies.policyChoices.${policy.data.type === policyTypes.step ? "stepTitle" : "regTitle"}`)}
                 </Badge>
+                <div className="policy-controls">
                 <div className="policy-actions">
                     <ActionIcon Icon={active ? PauseIcon : ActivateIcon}
                                 label={I18n.t(`appAccess.${active ? "pause" : "activate"}`)}
@@ -118,6 +119,7 @@ export const PolicyCard = ({policy, serviceProviders, currentOrganization, refre
                     <Badge variant={active ? "success" : "info"}>
                         {I18n.t(`appAccess.${active ? "active" : "paused"}`)}
                     </Badge>
+                </div>
                 </div>
             </CardContent>
         </Card>

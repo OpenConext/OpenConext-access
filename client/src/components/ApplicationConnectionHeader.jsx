@@ -130,7 +130,7 @@ export const ApplicationConnectionHeader = ({tabs, application, user, currentOrg
     const liveConnection = (application.connections || [])
         .find(conn => conn.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(conn.manageIdentifier));
     const accessLink = !isEmpty(liveConnection) && isAdmin(user, currentOrganization, authorities) ?
-        `/application-detail/${liveConnection.protocol}/${liveConnection.manageIdentifier}/access` : null;
+        `/application-detail/${liveConnection.protocol.value}/${liveConnection.manageIdentifier}/access` : null;
     return (
         <div className="application-connection-header-container">
             {open && <ConfirmationDialog confirm={action}
