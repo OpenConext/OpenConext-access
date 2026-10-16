@@ -17,6 +17,8 @@ import SelectField from "../components/SelectField.jsx";
 import {SearchField} from "../components/SearchField.jsx";
 
 
+const sortPolicies = policies => policies.sort((p1, p2) => p1.data.name.toLowerCase().localeCompare(p2.data.name.toLowerCase()));
+
 const Policies = () => {
 
     const {user, currentOrganization} = useAppStore(useShallow(state => ({
@@ -84,7 +86,7 @@ const Policies = () => {
             getPolicyByIdentityProvider(currentOrganization.id),
             getServiceProvidersAllowed(currentOrganization.id)
         ]).then(res => {
-            setPolicies(res[0].sort((p1, p2)=> p1.data.name.toLowerCase().localeCompare(p2.data.name)));
+            setPolicies(sortPolicies(res[0]));
             setServiceProviders(res[1].sort((p1, p2)=> p1.data.metaDataFields["name:en"].toLowerCase().localeCompare(p2.data.metaDataFields["name:en"])));
             const urlSearchParams = new URLSearchParams(window.location.search);
             const returnManageType = urlSearchParams.get("manageType");
@@ -146,7 +148,7 @@ const Policies = () => {
         setLoading(true);
         getPolicyByIdentityProvider(currentOrganization.id)
             .then(res => {
-                setPolicies(res);
+                setPolicies(sortPolicies(res));
                 navigate("/policies/overview");
                 setShowPolicyOverview(true);
                 setShowPolicyDetails(false);
