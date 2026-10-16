@@ -1,7 +1,7 @@
 /**
  * find-unused-locales.js
  *
- * Standalone script to detect and remove unused keys in en.ts/nl.ts.
+ * Standalone script to detect and remove unused keys in en.ts/nl.ts/pt.ts.
  * - Scans client/src for every `I18n.t(...)` call.
  * - Resolves static string/ternary keys and dynamic template-literal keys
  *   (e.g. `I18n.t(`navigation.${accessible ? "accessibleApps" : "catalogue"}`)`)
@@ -25,6 +25,7 @@ const __dirname = dirname(__filename);
 const SRC_DIR = join(__dirname, "src");
 const EN_PATH = join(__dirname, "src/locale/en.ts");
 const NL_PATH = join(__dirname, "src/locale/nl.ts");
+const PT_PATH = join(__dirname, "src/locale/pt.ts");
 
 // ---------------------------------------------------------------------------
 // Locale loading (same approach as sync-locales.js)
@@ -373,6 +374,7 @@ async function main() {
     console.log("Loading locale files...");
     const en = await loadLocale(EN_PATH);
     const nl = await loadLocale(NL_PATH);
+    const pt = await loadLocale(PT_PATH);
     const leafKeys = collectLeafKeys(en);
     console.log(`Found ${leafKeys.length} leaf keys in en.ts.`);
 
@@ -446,10 +448,12 @@ async function main() {
     for (const key of unusedKeys) {
         deleteKeyPath(en, key);
         deleteKeyPath(nl, key);
+        deleteKeyPath(pt, key);
     }
 
     writeFileSync(EN_PATH, generateFile("en", en), "utf-8");
     writeFileSync(NL_PATH, generateFile("nl", nl), "utf-8");
+    writeFileSync(PT_PATH, generateFile("pt", pt), "utf-8");
 
     console.log("\nLocale files updated. Run `git diff client/src/locale` to review the removal patch.");
 }

@@ -1,7 +1,7 @@
 /**
  * sync-locales.js
  *
- * Standalone script to synchronize en.ts and nl.ts locale files.
+ * Standalone script to synchronize the en.ts, nl.ts and pt.ts locale files.
  * - Ensures both files have the same keys in the same order.
  * - Missing keys are copied from the other file with " TODO" appended to string values.
  * - The file with more keys is used as the ordering authority.
@@ -23,6 +23,7 @@ const __dirname = dirname(__filename);
 
 const EN_PATH = join(__dirname, "src/locale/en.ts");
 const NL_PATH = join(__dirname, "src/locale/nl.ts");
+const PT_PATH = join(__dirname, "src/locale/pt.ts");
 
 // ---------------------------------------------------------------------------
 // Parse: import the locale objects from the ESM files
@@ -213,41 +214,45 @@ async function main() {
     console.log("Loading locale files...");
     const en = await loadLocale(EN_PATH);
     const nl = await loadLocale(NL_PATH);
+    const pt = await loadLocale(PT_PATH);
 
     // Report what's missing
-    const missingInNl = findMissing(en, nl);
-    const missingInEn = findMissing(nl, en);
+    const missing = {
+        nl: [...findMissing(en, nl), ...findMissing(pt, nl)],
+        pt: [...findMissing(en, pt), ...findMissing(nl, pt)],
+        en: [...findMissing(nl, en), ...findMissing(pt, en)],
+    };
+    const inSync = Object.values(missing).every(keys => keys.length === 0);
 
-    if (missingInNl.length === 0 && missingInEn.length === 0) {
+    if (inSync) {
         // Check ordering
         const enKeys = collectKeys(en);
-        const nlKeys = collectKeys(nl);
-        const positionalMismatches = enKeys.filter((item, index) => nlKeys[index] !== item);
+        const positionalMismatches = [nl, pt].flatMap(locale =>
+            enKeys.filter((item, index) => collectKeys(locale)[index] !== item));
         if (positionalMismatches.length === 0) {
             console.log("Locale files are already in sync. No changes needed.");
             return;
         }
         console.log(`Key ordering differs at ${positionalMismatches.length} position(s). Reordering...`);
     } else {
-        if (missingInNl.length > 0) {
-            console.log(`\nKeys missing in nl.ts (${missingInNl.length}):`);
-            missingInNl.forEach(k => console.log(`  + ${k}`));
-        }
-        if (missingInEn.length > 0) {
-            console.log(`\nKeys missing in en.ts (${missingInEn.length}):`);
-            missingInEn.forEach(k => console.log(`  + ${k}`));
+        for (const [locale, keys] of Object.entries(missing)) {
+            if (keys.length > 0) {
+                console.log(`\nKeys missing in ${locale}.ts (${keys.length}):`);
+                [...new Set(keys)].forEach(k => console.log(`  + ${k}`));
+            }
         }
     }
 
-    // Merge
-    const [mergedEn, mergedNl] = mergeLocales(en, nl);
+    // Merge pairwise until all three bundles have the same keys in the same order
+    const [en1, nl1] = mergeLocales(en, nl);
+    const [en2, pt1] = mergeLocales(en1, pt);
+    const [mergedEn, mergedNl] = mergeLocales(en2, nl1);
+    const [, mergedPt] = mergeLocales(mergedEn, pt1);
 
     // Write
-    const enContent = generateFile("en", mergedEn);
-    const nlContent = generateFile("nl", mergedNl);
-
-    writeFileSync(EN_PATH, enContent, "utf-8");
-    writeFileSync(NL_PATH, nlContent, "utf-8");
+    writeFileSync(EN_PATH, generateFile("en", mergedEn), "utf-8");
+    writeFileSync(NL_PATH, generateFile("nl", mergedNl), "utf-8");
+    writeFileSync(PT_PATH, generateFile("pt", mergedPt), "utf-8");
 
     console.log("\nLocale files synchronized successfully.");
     console.log("Search for ' TODO' in the locale files to find values that need translation.");

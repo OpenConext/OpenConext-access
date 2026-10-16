@@ -2,6 +2,7 @@ import {expect, test} from 'vitest'
 
 import en from "../../locale/en.js";
 import nl from "../../locale/nl.js";
+import pt from "../../locale/pt.js";
 import {isEmpty} from "../../utils/Utils.js";
 
 expect.extend({
@@ -37,4 +38,10 @@ test("All translations exists in all bundles", () => {
     contains(nl, en, keyCollectionNL, '');
     const positionalMismatches = keyCollectionEN.filter((item, index) => keyCollectionNL[index] !== item);
     expect(positionalMismatches).toEqual([])
+
+    const keyCollectionENvsPT = [];
+    contains(en, pt, keyCollectionENvsPT, '');
+    const keyCollectionPT = [];
+    contains(pt, en, keyCollectionPT, '');
+    expect(keyCollectionENvsPT.filter((item, index) => keyCollectionPT[index] !== item)).toEqual([])
 });

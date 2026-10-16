@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -298,7 +299,9 @@ public class MailBox {
     }
 
     private String preferredLanguage() {
-        return LocaleContextHolder.getLocale().getLanguage();
+        String language = LocaleContextHolder.getLocale().getLanguage();
+        //Mail templates only exist for the languages in the Language enum
+        return Arrays.stream(Language.values()).anyMatch(l -> l.name().equals(language)) ? language : Language.en.name();
     }
 
     private String sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {

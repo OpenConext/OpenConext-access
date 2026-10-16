@@ -9,6 +9,7 @@ const en: AppTranslation = {
         language: "Language",
         en: "English",
         nl: "Dutch",
+        pt: "Portuguese",
     },
     landing: {
         header: {

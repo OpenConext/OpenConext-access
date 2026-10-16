@@ -1,5 +1,6 @@
 import en from "./en";
 import nl from "./nl";
+import pt from "./pt";
 import { enOverride, nlOverride } from '../appCustomizations/index.ts'
 
 import {I18n as I18nRemote} from "i18n-js";
@@ -11,6 +12,7 @@ import Cookies from "js-cookie";
 const I18n = new I18nRemote({
     en: en,
     nl: nl,
+    pt: pt,
 });
 
 I18n.store({
@@ -28,7 +30,7 @@ if (isEmpty(parameterByName)) {
 if (isEmpty(parameterByName)) {
     parameterByName = navigator.language.toLowerCase().substring(0, 2);
 }
-if (["nl", "en"].indexOf(parameterByName) === -1) {
+if (!I18n.translations[parameterByName]) {
     parameterByName = "en";
 }
 I18n.locale = parameterByName;

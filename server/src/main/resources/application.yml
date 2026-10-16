@@ -127,6 +127,8 @@ config:
   feedback_widget_enabled: true
   # Feature toggle: true shows the inline help icons and the documentation panel, false hides them.
   help_enabled: true
+  # Comma separated locales offered in the language picker, e.g. "nl, en, pt". Every locale needs a client locale bundle.
+  used_languages: "nl, en"
   demo_seed_enabled: true
   test_environment: false
   jira_browse_base_url: "https://sd-jira-staging.surf.nl/jira/browse"

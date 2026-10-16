@@ -50,6 +50,7 @@ import {currentOrganizationFromUser} from "./utils/Organization.js";
 import PublicStats from "./pages/PublicStats.jsx";
 import {Monitoring} from "./pages/Monitoring.jsx";
 import I18n from "./locale/I18n.js";
+import {parseUsedLanguages} from "./utils/Language.js";
 import ConfirmationDialog from "./components/ConfirmationDialog.jsx";
 import {useLogout} from "./hooks/UseLogout.jsx";
 
@@ -122,6 +123,11 @@ const App = () => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             Promise.all([configuration(), arp(), privacy(), allowedAttributes()])
                 .then(res => {
+                    //The locale is determined before the config is known, make sure it is one of the used languages
+                    const languages = parseUsedLanguages(res[0].usedLanguages);
+                    if (!languages.includes(I18n.locale)) {
+                        I18n.locale = languages.includes("en") ? "en" : languages[0];
+                    }
                     useAppStore.setState(() => ({
                         config: res[0],
                         arp: res[1],
