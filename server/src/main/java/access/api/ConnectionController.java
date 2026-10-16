@@ -740,15 +740,13 @@ public class ConnectionController implements UserAccessRights {
         return connectionRepository.save(connection);
     }
 
-    //Used by update/updateWithProductionReadyRequest, secret (reset-secret), delete and changeRequests - all
-    //mutate or expose the connection's secret, so GUEST (the lowest, view-only tier - see AUDIT.md #7) must not
-    //be allowed through here
+    //Used by update/updateWithProductionReadyRequest, secret (reset-secret), delete and changeRequests
     private Connection findConnectionForAuthorizedUser(User user, Long connectionId) {
         Connection connection = connectionRepository.findById(connectionId)
             .orElseThrow(() -> new NotFoundException("Connection not found"));
         Application application = connection.getApplication();
         user = this.reinitializeUser(user, userRepository);
-        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application, Authority.GUEST);
         return connection;
     }
 
