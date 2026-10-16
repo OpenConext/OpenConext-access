@@ -57,6 +57,7 @@ import {useAppStore} from "../stores/AppStore.js";
 import DOMPurify from "dompurify";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {Entities} from "../components/Entities.jsx";
+import HelpIcon from "../components/HelpIcon.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {connectOptions, convertClientConnectionToServer, convertServerConnectionToClient, generateOIDCClientID, sections, visibilities} from "../utils/Connection.js";
 import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES, PROTOCOLS, STATE} from "../utils/Manage.js";
@@ -1286,7 +1287,7 @@ export const Connections = ({
                             return (
                                 <Fragment key={index}>
                                     <span>{attribute}{arpAttribute.scopedValue && <sup>*</sup>}</span>
-                                    <span>{arpAttribute.example}</span>
+                                    <span>{arpAttribute.example}<HelpIcon id={`attribute.${attribute}`}/></span>
                                 </Fragment>
                             );
                         }

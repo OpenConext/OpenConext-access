@@ -1655,6 +1655,175 @@ const nl: AppTranslation = {
         legendWarnHeavy: "Gemiddelde downtime",
         legendCritical: "Grote downtime",
     },
+    help: {
+        title: "Documentatie",
+        subTitle: "Extra uitleg uit onze online documentatie",
+        open: "Toon help",
+        close: "Sluit help",
+        table: {
+            detail: "Detail",
+            explanation: "Toelichting",
+            multiplicity: "Multipliciteit",
+            single: "enkelvoudig",
+            multi: "meervoudig",
+            description: "Beschrijving",
+            examples: "Voorbeelden",
+            notes: "Opmerkingen",
+        },
+        attributes: {
+            schacHomeOrganization: {
+                urnOid: "1.3.6.1.4.1.25178.1.2.9",
+                multiplicity: "single",
+                description: "De organisatie van de gebruiker, aangeduid met de domeinnaam van de organisatie; syntaxis volgens RFC 1035.",
+                examples: "uniharderwijk.nl\nexample.nl",
+                notes: "Vroeger stuurde SURFconext de thuisorganisatie mee in het attribuut urn:oid:1.3.6.1.4.1.1466.115.121.1.15, wat onjuist was. Sinds 2013 wordt de correcte oid urn:oid:1.3.6.1.4.1.25178.1.2.9 gebruikt. Om compatibiliteitsredenen wordt de oude (onjuiste) sleutel nog steeds meegestuurd. Deze wordt in de nabije toekomst verwijderd.",
+            },
+            eduPersonScopedAffiliation: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.9",
+                multiplicity: "multi",
+                description: "De rol van de gebruiker bij de instelling, gecombineerd met het domein van de instelling, in de vorm affiliation@domein.",
+            },
+            eduPersonAffiliation: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.1",
+                multiplicity: "multi",
+                description: "De rol van de gebruiker bij de instelling. Toegestane waarden zijn student, employee, faculty, member, pre-student en affiliate.",
+                notes: "De waarde staff is verouderd.",
+            },
+            transientNameID: {
+                multiplicity: "single",
+                description: "Een willekeurige identifier die bij elke login anders is, waardoor de gebruiker niet over logins heen herkend kan worden.",
+            },
+            persistentNameID: {
+                multiplicity: "single",
+                description: "Een identifier die stabiel is voor een gebruiker en jouw applicatie. Dezelfde gebruiker krijgt voor jouw applicatie altijd dezelfde waarde, maar voor andere diensten een andere waarde.",
+            },
+            eduPersonAssurance: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.11",
+                multiplicity: "multi",
+                description: "URI's die aangeven hoe betrouwbaar de identiteit van de gebruiker is vastgesteld en geauthenticeerd, gebaseerd op het REFEDS Assurance Framework.",
+            },
+            eduPersonEntitlement: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.7",
+                multiplicity: "multi",
+                description: "Een URI (URN of URL) die aangeeft dat de gebruiker rechten heeft op specifieke bronnen of een bepaalde rol heeft.",
+            },
+            eduPersonPrincipalName: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.6",
+                multiplicity: "single",
+                description: "Een gescopete identifier van de gebruiker in de vorm gebruiker@scope.",
+                notes: "Het lijkt op een e-mailadres, maar mag niet als e-mailadres gebruikt worden.",
+            },
+            memberships: {
+                urnOid: "1.3.6.1.4.1.5923.1.5.1.1",
+                multiplicity: "multi",
+                description: "Lidmaatschappen of teams waaraan de gebruiker gekoppeld is.",
+                notes: "Dit attribuut wordt gegenereerd door SURFconext en kan niet door de identity provider worden aangeleverd.",
+            },
+            autorisaties: {
+                multiplicity: "multi",
+                description: "SURF-autorisaties van de gebruiker, zoals de rol van instellingsbevoegde.",
+            },
+            displayName: {
+                urnOid: "2.16.840.1.113730.3.1.241",
+                multiplicity: "single",
+                description: "De naam van de gebruiker zoals die in gebruikersinterfaces getoond wordt.",
+                notes: "Gebruikers kunnen deze naam vaak zelf wijzigen, dus het is niet geschikt om een gebruiker te identificeren.",
+            },
+            givenName: {
+                urnOid: "2.5.4.42",
+                multiplicity: "single",
+                description: "De voornaam van de gebruiker. Voorvoegsels zoals \"van\" horen bij de achternaam.",
+            },
+            commonName: {
+                urnOid: "2.5.4.3",
+                multiplicity: "multi",
+                description: "De naam van de gebruiker, meestal de volledige naam. Er is geen gegarandeerde structuur.",
+            },
+            surName: {
+                urnOid: "2.5.4.4",
+                multiplicity: "single",
+                description: "De achternaam van de gebruiker, inclusief voorvoegsels zoals \"van\".",
+            },
+            mail: {
+                urnOid: "0.9.2342.19200300.100.1.3",
+                multiplicity: "multi",
+                description: "Het e-mailadres van de gebruiker, volgens RFC 5322.",
+                notes: "Een e-mailadres kan wijzigen en is geen unieke identifier.",
+            },
+            organizationalUnitName: {
+                urnOid: "2.5.4.11",
+                multiplicity: "multi",
+                description: "De naam van de afdeling of faculteit van de gebruiker binnen de instelling. De waarden zijn instellingsspecifiek.",
+            },
+            schacHomeOrganizationType: {
+                urnOid: "1.3.6.1.4.1.25178.1.2.10",
+                multiplicity: "single",
+                description: "Een SCHAC-URN die het type instelling van de gebruiker beschrijft.",
+                notes: "Wordt zelden gebruikt.",
+            },
+            schacPersonalUniqueCode: {
+                urnOid: "1.3.6.1.4.1.25178.1.2.14",
+                multiplicity: "multi",
+                description: "Een identifier van de gebruiker binnen de instelling, zoals een student- of medewerkernummer, vooral gebruikt om accounts te koppelen aan interne systemen.",
+            },
+            eduPersonOrcid: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.16",
+                multiplicity: "multi",
+                description: "De persistente ORCID-identifier van een onderzoeker, als ORCID-URL.",
+            },
+            eckid: {
+                multiplicity: "single",
+                description: "Een gepseudonimiseerde identifier van de gebruiker voor content in het primair, voortgezet en beroepsonderwijs.",
+                notes: "Beperkt gebruik.",
+            },
+            eduid: {
+                multiplicity: "single",
+                description: "Een instellingsonafhankelijke identifier van de gebruiker (een UUID v4), die per instelling verschilt.",
+            },
+            surfCrmID: {
+                urnOid: "1.3.6.1.4.1.1076.20.100.10.50.2",
+                multiplicity: "single",
+                description: "De GUID van de organisatie van de gebruiker in de CRM van SURF.",
+                notes: "SURF-specifiek.",
+            },
+            preferredLanguage: {
+                urnOid: "2.16.840.1.113730.3.1.39",
+                multiplicity: "single",
+                description: "De voorkeurstaal van de gebruiker als tweeletterige ISO 639-code, zonder regionale subcodes.",
+            },
+            "subject-id": {
+                multiplicity: "single",
+                description: "Een langdurige, wereldwijd unieke identifier van de gebruiker in de vorm gebruiker@scope.",
+            },
+            uid: {
+                urnOid: "0.9.2342.19200300.100.1.1",
+                multiplicity: "single",
+                description: "De loginnaam van de gebruiker bij de instelling.",
+                notes: "De waarde is instellingsspecifiek en niet wereldwijd uniek. Gebruik de NameID om gebruikers te identificeren.",
+            },
+            eduPersonTargetedID: {
+                urnOid: "1.3.6.1.4.1.5923.1.1.1.10",
+                multiplicity: "single",
+                description: "Een applicatiespecifieke identifier van de gebruiker, gegenereerd door SURFconext en overgenomen van de persistent NameID.",
+                notes: "Gebruik deze identifier in plaats van uid of mail om gebruikers te identificeren.",
+            },
+            nlEduPersonOrgUnit: {
+                multiplicity: "multi",
+                description: "De organisatie-eenheid van de gebruiker binnen de Nederlandse onderwijsfederatie.",
+                notes: "Verouderd. Nieuwe applicaties kunnen dit attribuut niet gebruiken.",
+            },
+            nlEduPersonStudyBranch: {
+                multiplicity: "multi",
+                description: "De studierichting van de gebruiker binnen de Nederlandse onderwijsfederatie.",
+                notes: "Verouderd. Nieuwe applicaties kunnen dit attribuut niet gebruiken.",
+            },
+            nlStudielinkNummer: {
+                multiplicity: "single",
+                description: "Het Studielink-nummer van de student.",
+                notes: "Verouderd. Nieuwe applicaties kunnen dit attribuut niet gebruiken.",
+            },
+        },
+    },
 }
 
 export default nl;

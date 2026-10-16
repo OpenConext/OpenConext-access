@@ -18,6 +18,8 @@ export const useAppStore = create(set => ({
         }
     },
     clearFlash: () => set({flash: {}}),
+    helpId: null,
+    setHelpId: helpId => set({helpId}),
     config: {
         baseUrl: "http://localhost:3000",
         stats: {},

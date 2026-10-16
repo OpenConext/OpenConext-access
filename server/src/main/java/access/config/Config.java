@@ -35,6 +35,7 @@ public class Config {
     private List<String> acrValues;
     private String minimalStepupAcrLevel;
     private boolean feedbackWidgetEnabled;
+    private boolean helpEnabled = true;
     private boolean demoSeedEnabled;
     private String jiraBrowseBaseUrl;
 
@@ -55,6 +56,7 @@ public class Config {
         this.acrValues = base.acrValues;
         this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
+        this.helpEnabled = base.helpEnabled;
         this.demoSeedEnabled = base.demoSeedEnabled;
         this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;
         this.testEnvironment = base.testEnvironment;
