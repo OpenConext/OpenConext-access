@@ -106,7 +106,8 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                 }/>
                 <DropdownMenuContent align="end" className="action-menu-content">
                     <DropdownMenuGroup>
-                        {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN) &&
+                        {(membership.authority !== authorities.ADMIN && currentUserAuthority === authorities.ADMIN
+                                && isEmpty(organization.manageIdentifier)) &&
                             <DropdownMenuItem onClick={() => changeOrganizationMembership(membership, authorities.ADMIN)}>
                                 <PencilIcon/>
                                 {I18n.t("teamManagement.makeAdmin")}

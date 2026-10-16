@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -67,6 +68,13 @@ public class OrganizationMembershipController implements UserAccessRights {
         //Changing someone else's authority always requires ADMIN rights - the required authority must never be
         //derived from the client-supplied target value, otherwise a plain MEMBER could demote an ADMIN
         confirmOrganizationMembership(user, organizationMembership.getOrganization(), Authority.ADMIN);
+
+        //Institution admins of an IdP organization are managed in Manage, so no one can be promoted to ADMIN here
+        if (newAuthority.equals(Authority.ADMIN)
+                && !organizationMembership.getAuthority().equals(Authority.ADMIN)
+                && StringUtils.hasText(organizationMembership.getOrganization().getManageIdentifier())) {
+            throw new UserRestrictionException("Not allowed to make someone admin of an IdP organization");
+        }
 
         long nbrOfAdmins = this.getNbrOfAdmins(organizationMembership);
         if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN) && !newAuthority.isAllowed(Authority.ADMIN)) {

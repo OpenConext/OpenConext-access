@@ -39,6 +39,47 @@ class OrganizationMembershipControllerTest extends AbstractTest {
     }
 
     @Test
+    void updateToAdminForInstitutionalOrganizationNotAllowed() {
+        //ShareLogics has a manageIdentifier, so it is an institutional (IdP) organization
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.MEMBER.name()));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("id", organizationMembershipId, "authority", Authority.ADMIN.name()))
+                .put("/api/v1/organization_memberships")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        assertEquals(Authority.MEMBER, organizationMembershipRepository.findById(organizationMembershipId).get().getAuthority());
+    }
+
+    @Test
+    void updateToAdminForNonInstitutionalOrganization() {
+        //FarWind has no manageIdentifier; it has no admin, so a super user performs the update
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(SUPER_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(FAR_WIND).concat(Authority.MEMBER.name()));
+
+        Map<String, Object> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("id", organizationMembershipId, "authority", Authority.ADMIN.name()))
+                .put("/api/v1/organization_memberships")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(Authority.ADMIN.name(), result.get("authority"));
+        assertEquals(Authority.ADMIN, organizationMembershipRepository.findById(organizationMembershipId).get().getAuthority());
+    }
+
+    @Test
     void updateByPlainMemberNotAllowed() {
         //Security regression test (AUDIT.md #3 - Critical): a plain MEMBER must never be able to change another
         //member's authority (e.g. promote a GUEST to MEMBER, or demote an ADMIN) - only an ADMIN may do this.
