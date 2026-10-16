@@ -1,7 +1,7 @@
 /**
  * sync-locales.js
  *
- * Standalone script to synchronize en.js and nl.js locale files.
+ * Standalone script to synchronize en.ts and nl.ts locale files.
  * - Ensures both files have the same keys in the same order.
  * - Missing keys are copied from the other file with " TODO" appended to string values.
  * - The file with more keys is used as the ordering authority.
@@ -14,22 +14,27 @@
  * Usage: node sync-locales.js
  */
 
-import {writeFileSync} from "fs";
+import {readFileSync, writeFileSync} from "fs";
 import {fileURLToPath} from "url";
 import {dirname, join} from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const EN_PATH = join(__dirname, "src/locale/en.js");
-const NL_PATH = join(__dirname, "src/locale/nl.js");
+const EN_PATH = join(__dirname, "src/locale/en.ts");
+const NL_PATH = join(__dirname, "src/locale/nl.ts");
 
 // ---------------------------------------------------------------------------
 // Parse: import the locale objects from the ESM files
 // ---------------------------------------------------------------------------
 
+// The locale files are TypeScript (`const en: AppTranslation = {...}`). Only the type import and annotation
+// are TypeScript specific, so strip those and import the remaining plain JS object from a data URL.
 async function loadLocale(filePath) {
-    const module = await import(filePath);
+    const source = readFileSync(filePath, "utf-8")
+        .replace(/^import .*translationType.*$/m, "")
+        .replace(/:\s*AppTranslation\b/, "");
+    const module = await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
     return module.default;
 }
 
@@ -118,7 +123,7 @@ function mergeLocales(a, b) {
 }
 
 // ---------------------------------------------------------------------------
-// Serialize: write the locale object back to a .js file
+// Serialize: write the locale object back to a .ts file
 // Produces output with trailing commas on every property (matching project style).
 // ---------------------------------------------------------------------------
 
@@ -164,7 +169,7 @@ function serializeObject(obj, indent) {
 
 function generateFile(varName, obj) {
     const body = serializeObject(obj, "");
-    return `const ${varName} = ${body}\n\nexport default ${varName};\n`;
+    return `import {AppTranslation} from "./translationType";\n\nconst ${varName}: AppTranslation = ${body}\n\nexport default ${varName};\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -225,11 +230,11 @@ async function main() {
         console.log(`Key ordering differs at ${positionalMismatches.length} position(s). Reordering...`);
     } else {
         if (missingInNl.length > 0) {
-            console.log(`\nKeys missing in nl.js (${missingInNl.length}):`);
+            console.log(`\nKeys missing in nl.ts (${missingInNl.length}):`);
             missingInNl.forEach(k => console.log(`  + ${k}`));
         }
         if (missingInEn.length > 0) {
-            console.log(`\nKeys missing in en.js (${missingInEn.length}):`);
+            console.log(`\nKeys missing in en.ts (${missingInEn.length}):`);
             missingInEn.forEach(k => console.log(`  + ${k}`));
         }
     }

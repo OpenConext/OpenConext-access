@@ -1,7 +1,7 @@
 /**
  * find-unused-locales.js
  *
- * Standalone script to detect and remove unused keys in en.js/nl.js.
+ * Standalone script to detect and remove unused keys in en.ts/nl.ts.
  * - Scans client/src for every `I18n.t(...)` call.
  * - Resolves static string/ternary keys and dynamic template-literal keys
  *   (e.g. `I18n.t(`navigation.${accessible ? "accessibleApps" : "catalogue"}`)`)
@@ -23,15 +23,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const SRC_DIR = join(__dirname, "src");
-const EN_PATH = join(__dirname, "src/locale/en.js");
-const NL_PATH = join(__dirname, "src/locale/nl.js");
+const EN_PATH = join(__dirname, "src/locale/en.ts");
+const NL_PATH = join(__dirname, "src/locale/nl.ts");
 
 // ---------------------------------------------------------------------------
 // Locale loading (same approach as sync-locales.js)
 // ---------------------------------------------------------------------------
 
+// The locale files are TypeScript (`const en: AppTranslation = {...}`). Only the type import and annotation
+// are TypeScript specific, so strip those and import the remaining plain JS object from a data URL.
 async function loadLocale(filePath) {
-    const module = await import(filePath);
+    const source = readFileSync(filePath, "utf-8")
+        .replace(/^import .*translationType.*$/m, "")
+        .replace(/:\s*AppTranslation\b/, "");
+    const module = await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
     return module.default;
 }
 
@@ -70,7 +75,7 @@ function deleteKeyPath(obj, path) {
 }
 
 // ---------------------------------------------------------------------------
-// Serialize: write the locale object back to a .js file
+// Serialize: write the locale object back to a .ts file
 // (copied verbatim from sync-locales.js so this script stays self-contained)
 // ---------------------------------------------------------------------------
 
@@ -115,7 +120,7 @@ function serializeObject(obj, indent) {
 
 function generateFile(varName, obj) {
     const body = serializeObject(obj, "");
-    return `const ${varName} = ${body}\n\nexport default ${varName};\n`;
+    return `import {AppTranslation} from "./translationType";\n\nconst ${varName}: AppTranslation = ${body}\n\nexport default ${varName};\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -369,7 +374,7 @@ async function main() {
     const en = await loadLocale(EN_PATH);
     const nl = await loadLocale(NL_PATH);
     const leafKeys = collectLeafKeys(en);
-    console.log(`Found ${leafKeys.length} leaf keys in en.js.`);
+    console.log(`Found ${leafKeys.length} leaf keys in en.ts.`);
 
     console.log("Scanning client/src for I18n.t( usages...");
     const sourceFiles = listSourceFiles(SRC_DIR);
