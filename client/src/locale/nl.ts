@@ -59,7 +59,7 @@ const nl: AppTranslation = {
         whatCanYouDo: {
             title: "Wat kun je met SURF Access?",
             publish: {
-                title: "Jouw apps publiceren",
+                title: "Apps publiceren",
                 description: "Applicatie-aanbieders kunnen applicaties via SURF Access beschikbaar maken voor onderwijs- en onderzoeksinstellingen. SURF Access verzorgt authenticatie, autorisatie en privacy- en beveiligingsafspraken.",
             },
             activate: {
@@ -104,7 +104,7 @@ const nl: AppTranslation = {
         home: "Home",
         apps: "App-catalogus",
         accessibleApps: "Geactiveerde apps",
-        yourApps: "Jouw apps",
+        yourApps: "Mijn apps",
         catalogue: "App-catalogus",
         externalMaintenance: "Toegangsbeheer",
         invite: "Rollen",
@@ -181,9 +181,9 @@ const nl: AppTranslation = {
         subTitle: "Jouw centrale plek voor applicaties en toegangsbeheer",
         appsCount: "{{count}} apps",
         addApps: {
-            title: "Jouw apps publiceren",
+            title: "Apps publiceren",
             description: "Voeg jouw applicaties toe aan SURF Access en deel ze met onderwijs- en onderzoeksinstellingen.",
-            action: "Naar jouw apps",
+            action: "Naar mijn apps",
         },
         discoverApps: {
             title: "Nieuwe apps activeren",
@@ -292,7 +292,7 @@ const nl: AppTranslation = {
     },
     organization: {
         alertInfo: "Welkom bij SURF Access. Via dit self‑service‑portaal kun je je applicatie beschikbaar maken voor hoger onderwijs‑ en onderzoeksinstellingen in Nederland.",
-        applicationManagement: "Jouw apps",
+        applicationManagement: "Mijn apps",
         info: "Alle applicaties die <strong>{{name}}</strong> aan SURF Access heeft toegevoegd.",
         addFirstApplication: "Voeg je eerste applicatie toe",
         zeroState: {
