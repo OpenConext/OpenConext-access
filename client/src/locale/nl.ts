@@ -59,7 +59,7 @@ const nl: AppTranslation = {
         whatCanYouDo: {
             title: "Wat kun je met SURF Access?",
             publish: {
-                title: "Apps publiceren",
+                title: "Jouw apps publiceren",
                 description: "Applicatie-aanbieders kunnen applicaties via SURF Access beschikbaar maken voor onderwijs- en onderzoeksinstellingen. SURF Access verzorgt authenticatie, autorisatie en privacy- en beveiligingsafspraken.",
             },
             activate: {
