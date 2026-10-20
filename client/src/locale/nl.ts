@@ -18,7 +18,7 @@ const nl: AppTranslation = {
             loginInstitution: "Inloggen als instelling",
             profile: "Profiel",
             logout: "Afmelden",
-            system: "Systeem",
+            system: "Systehhem",
         },
         hero: {
             title: "Toegang geven tot onderwijs- en onderzoeksapplicaties",
