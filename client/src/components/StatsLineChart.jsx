@@ -26,18 +26,33 @@ const resolveColor = (varName, fallback) => {
     return val || fallback;
 };
 
+// Gradient fill from the line color at the top of the chart area to transparent at the bottom
+const areaGradient = color => context => {
+    const {chart} = context;
+    if (!chart.chartArea) {
+        return "transparent";
+    }
+    const {top, bottom} = chart.chartArea;
+    const hex = color.replace("#", "");
+    const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.substring(i, i + 2), 16));
+    const gradient = chart.ctx.createLinearGradient(0, top, 0, bottom);
+    gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.35)`);
+    gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+    return gradient;
+};
+
 const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTicks = undefined}) => {
     if (!data || data.length === 0) {
         return null;
     }
 
-    const blue = resolveColor("--primary", "#0077c8");
-    const green = "#008939";
+    const blue = resolveColor("--info-hover", "#053eaa");
+    const green = resolveColor("--primary", "#00d37f");
 
     const pointRadius = fluent ? 0 : 5;
     const pointHoverRadius = fluent ? 4 : 7;
-    const tension = fluent ? 0.2 : 0.1;
-    const borderWidth = fluent ? 1.5 : 2;
+    const tension = fluent ? 0.2 : 0.4;
+    const borderWidth = fluent ? 1.5 : 1;
 
     const logins = data.map(d => d.count_user_id || 0);
     const unique = data.map(d => d.distinct_count_user_id || 0);
@@ -47,7 +62,9 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTi
             label: I18n.t("statistics.logins"),
             data: logins,
             borderColor: blue,
-            backgroundColor: blue,
+            backgroundColor: fluent ? blue : areaGradient(blue),
+            pointBackgroundColor: blue,
+            fill: !fluent,
             pointStyle: "circle",
             pointRadius,
             pointHoverRadius,
@@ -61,7 +78,9 @@ const StatsLineChart = ({data, labels, showUnique = true, fluent = false, maxXTi
             label: I18n.t("statistics.uniqueUsers"),
             data: unique,
             borderColor: green,
-            backgroundColor: green,
+            backgroundColor: fluent ? green : areaGradient(green),
+            pointBackgroundColor: green,
+            fill: !fluent,
             pointStyle: "rect",
             pointRadius,
             pointHoverRadius,

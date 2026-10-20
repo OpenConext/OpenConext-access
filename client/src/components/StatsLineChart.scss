@@ -31,12 +31,12 @@
             height: 10px;
 
             &.blue {
-                background-color: var(--primary, #0077c8);
+                background-color: var(--info-hover, #053eaa);
                 border-radius: 50%;
             }
 
             &.green {
-                background-color: #008939;
+                background-color: var(--primary, #00d37f);
             }
         }
     }

@@ -352,32 +352,30 @@ const Statistics = () => {
             <div className="statistics-header">
                 <div className="title">
                     <h1 className="text-[length:var(--text-2xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h1>
-                    <p>{I18n.t(isSurfNet ? "statistics.loginAll" : "statistics.loginOwn")}</p>
                 </div>
                 <div className="statistics-menu">
-                    <h5 className="period">{I18n.t("statistics.period")}</h5>
-                    <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
-                        <DateField name={I18n.t("statistics.from")}
-                                   value={customFrom}
-                                   onChange={setCustomFrom}
-                                   maxDate={customTo}
-                                   showYearDropdown={true}
-                                   pastDatesAllowed={true}
-                                   allowNull={false}/>
-                        <DateField name={I18n.t("statistics.to")}
-                                   value={customTo}
-                                   onChange={setCustomTo}
-                                   minDate={customFrom}
-                                   maxDate={new Date()}
-                                   showYearDropdown={true}
-                                   pastDatesAllowed={true}
-                                   allowNull={false}/>
-                    </div>
                     <div className="statistics-menu-options">
                         <SegmentedControl onClick={handlePeriodChange}
                                           options={Object.keys(periods)}
                                           option={period}
                                           optionLabelResolver={option => I18n.t(`statistics.${option}`)}/>
+                        <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
+                            <DateField name={I18n.t("statistics.from")}
+                                       value={customFrom}
+                                       onChange={setCustomFrom}
+                                       maxDate={customTo}
+                                       showYearDropdown={true}
+                                       pastDatesAllowed={true}
+                                       allowNull={false}/>
+                            <DateField name={I18n.t("statistics.to")}
+                                       value={customTo}
+                                       onChange={setCustomTo}
+                                       minDate={customFrom}
+                                       maxDate={new Date()}
+                                       showYearDropdown={true}
+                                       pastDatesAllowed={true}
+                                       allowNull={false}/>
+                        </div>
                         {period !== "custom" && (
                             <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
                         )}
@@ -423,24 +421,26 @@ const Statistics = () => {
                 ) : isSurfNet ? (
                     <>
                         <section className="cardy table-card">
-                            <StatsTable data={perAppData}
-                                        titleKey="perApp"
-                                        nameResolver={spNameResolver}
-                                        idField="sp_entity_id"
-                                        selectedId={selectedSp}
-                                        onSelect={setSelectedSp}
-                                        filterLabel={selectedIdp ? idpNameResolver(selectedIdp) : null}
-                                        onClearFilter={() => setSelectedIdp(null)}/>
-                        </section>
-                        <section className="cardy table-card">
                             <StatsTable data={perInstituteData}
                                         titleKey="perInstitute"
+                                        color="blue"
                                         nameResolver={idpNameResolver}
                                         idField="idp_entity_id"
                                         selectedId={selectedIdp}
                                         onSelect={setSelectedIdp}
                                         filterLabel={selectedSp ? spNameResolver(selectedSp) : null}
                                         onClearFilter={() => setSelectedSp(null)}/>
+                        </section>
+                        <section className="cardy table-card">
+                            <StatsTable data={perAppData}
+                                        titleKey="perApp"
+                                        color="green"
+                                        nameResolver={spNameResolver}
+                                        idField="sp_entity_id"
+                                        selectedId={selectedSp}
+                                        onSelect={setSelectedSp}
+                                        filterLabel={selectedIdp ? idpNameResolver(selectedIdp) : null}
+                                        onClearFilter={() => setSelectedIdp(null)}/>
                         </section>
                     </>
                 ) : (

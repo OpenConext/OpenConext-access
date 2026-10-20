@@ -7,6 +7,8 @@ import InputField from "./InputField.jsx";
 
 const INITIAL_ROWS = 6;
 const PAGE_SIZE = 100;
+// The longest bar leaves room for its value, which is displayed right after the bar
+const BAR_SCALE = 0.85;
 
 const formatNumber = (n) =>
     Number(n).toLocaleString("nl-NL");
@@ -21,7 +23,8 @@ const StatsTable = ({
                         onClearFilter,
                         fixedMetric,
                         selectable = true,
-                        idField
+                        idField,
+                        color
                     }) => {
     const [metric, setMetric] = useState(fixedMetric || "logins");
     const [mode, setMode] = useState("absolute");
@@ -74,6 +77,10 @@ const StatsTable = ({
             onSelect(entityId === selectedId ? null : entityId);
         }
     };
+
+    // The color identifies the table, not the metric: blue for institutes (and periods), green for apps.
+    // Tables with a fixed metric (logins / unique users) are colored by that metric.
+    const barColor = color || (fixedMetric ? (fixedMetric === "logins" ? "blue" : "green") : "blue");
 
     const isInstituteTable = titleKey.toLowerCase().includes("institute");
     const searchPlaceholder = I18n.t(isInstituteTable ? "statistics.searchInstitutes" : "statistics.searchApps");
@@ -151,7 +158,7 @@ const StatsTable = ({
                     const isSelected = selectable && entityId === selectedId;
                     return (
                         <div key={entityId || idx}
-                             className={`stats-table-row ${activeMetric === "logins" ? "logins" : "unique"} ${isSelected ? "selected" : ""} ${selectable ? "selectable" : ""}`}
+                             className={`stats-table-row ${barColor} ${isSelected ? "selected" : ""} ${selectable ? "selectable" : ""}`}
                              onClick={() => handleRowClick(entityId)}>
                             {isSelected && (
                                 <span className="row-deselect"
@@ -163,11 +170,12 @@ const StatsTable = ({
                                 </span>
                             )}
                             <div className="row-bar-container">
-                                <div className="row-bar" style={{width: `${barWidth}%`}}/>
-                                <span className="row-name">{name}</span>
-                            </div>
-                            <div className="row-value">
-                                {mode === "absolute" ? formatNumber(val) : `${pct.toFixed(1)}%`}
+                                <div className="row-bar" style={{width: `${barWidth * BAR_SCALE}%`}}>
+                                    <span className="row-name">{name}</span>
+                                </div>
+                                <span className="row-value" style={{left: `calc(${barWidth * BAR_SCALE}% + 8px)`}}>
+                                    {mode === "absolute" ? formatNumber(val) : `${pct.toFixed(1)}%`}
+                                </span>
                             </div>
                         </div>
                     );
