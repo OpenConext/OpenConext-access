@@ -1,3 +1,5 @@
+@use "../styles/vars.scss" as *;
+
 .help-icon {
     display: inline-flex;
     align-items: center;
@@ -24,6 +26,10 @@
     bottom: 16px;
     width: 420px;
     max-width: calc(100vw - 32px);
+
+    @media (min-width: $tablet-width + 1) {
+        width: 620px;
+    }
     z-index: 1000;
     display: flex;
     flex-direction: column;

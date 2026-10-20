@@ -175,3 +175,28 @@ export const MFA_LEVELS = {
     validateNamesExternal:       "https://eduid.nl/trust/validate-names-external",
     affiliationStudent:          "https://eduid.nl/trust/affiliation-student",
 };
+
+//The link and unlink requests of the organization that are not yet processed, as lists of entityIds
+export const openChangeRequestEntityIds = organization => {
+    const entityIds = (requestType, pathUpdateType) => (organization?.changeRequests || [])
+        .filter(changeRequest => changeRequest.requestType === requestType && changeRequest.pathUpdateType === pathUpdateType)
+        .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
+        .filter(Boolean);
+    return {
+        openConnectionRequests: entityIds(CHANGE_REQUEST_TYPE.LINK_REQUEST, "ADDITION"),
+        pendingDisconnects: entityIds(CHANGE_REQUEST_TYPE.UNLINK_REQUEST, "REMOVAL")
+    };
+}
+
+//Scope the service providers on the allowed-entities of the IdP of the organization. The accessible (enabled) apps
+//are those connected to the IdP, the catalogue contains the others. Shared by the overviews and the counts on the home page
+export const scopeServiceProviders = (serviceProviders, organization, accessible) => {
+    const {openConnectionRequests} = openChangeRequestEntityIds(organization);
+    const allowedEntities = (organization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
+    if (accessible) {
+        const allowedAll = organization?.identityProvider?.data?.allowedall || false;
+        return serviceProviders.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid));
+    }
+    //In the case of eduID / external user, we don't have an identityProvider
+    return serviceProviders.filter(entity => !allowedEntities.includes(entity.data.entityid) && !openConnectionRequests.includes(entity.data.entityid));
+}

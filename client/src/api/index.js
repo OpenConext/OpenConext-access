@@ -299,10 +299,6 @@ export function getPolicyByIdentityProvider(organizationId) {
     return fetchJson(`/api/v1/manage/identity-provider/policies?organizationId=${organizationId}`);
 }
 
-export function connectedAppsByIdentityProvider(organizationId) {
-    return fetchJson(`/api/v1/manage/identity-provider/connected-apps?organizationId=${organizationId}`);
-}
-
 export function uniqueEntityID(entityID) {
     return postPutJson(`/api/v1/manage/unique-entity-id`, {entityID: entityID}, "POST");
 }

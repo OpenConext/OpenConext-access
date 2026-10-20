@@ -21,7 +21,7 @@ import {
 } from "@surfnet/curve-react";
 import {ListBulletsIcon, SquaresFourIcon} from "@phosphor-icons/react";
 import {isEmpty} from "../utils/Utils.js";
-import {CHANGE_REQUEST_TYPE, providerDescription, providerName, providerOrganizationName} from "../utils/Manage.js";
+import {openChangeRequestEntityIds, providerDescription, providerName, providerOrganizationName, scopeServiceProviders} from "../utils/Manage.js";
 import {useAppStore} from "../stores/AppStore.js";
 import {Entities} from "../components/Entities.jsx";
 import {SearchField} from "../components/SearchField.jsx";
@@ -74,26 +74,8 @@ const ApplicationOverview = ({accessible}) => {
 
             publicServiceProviders(currentOrganization?.manageIdentifier)
                 .then(res => {
-                    //Scope the services on the allowed-entities of the IdP of the user
-                    const openConnectionRequests = (currentOrganization?.changeRequests || [])
-                        .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.LINK_REQUEST &&
-                            changeRequest.pathUpdateType === "ADDITION")
-                        .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
-                        .filter(Boolean);
-                    const pendingDisconnects = (currentOrganization?.changeRequests || [])
-                        .filter(changeRequest => changeRequest.requestType === CHANGE_REQUEST_TYPE.UNLINK_REQUEST &&
-                            changeRequest.pathUpdateType === "REMOVAL")
-                        .map(changeRequest => changeRequest.pathUpdates?.allowedEntities?.name)
-                        .filter(Boolean);
-                    if (accessible) {
-                        const allowedAll = currentOrganization?.identityProvider?.data?.allowedall || false;
-                        const allowedEntities = (currentOrganization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
-                        res = res.filter(entity => allowedAll || allowedEntities.includes(entity.data.entityid) || openConnectionRequests.includes(entity.data.entityid))
-                    } else {
-                        //In the case of eduID / external user, we don't have an identityProvider
-                        const allowedEntities = (currentOrganization?.identityProvider?.data?.allowedEntities || []).map(entity => entity.name);
-                        res = res.filter(entity => !allowedEntities.includes(entity.data.entityid) && !openConnectionRequests.includes(entity.data.entityid))
-                    }
+                    const {openConnectionRequests, pendingDisconnects} = openChangeRequestEntityIds(currentOrganization);
+                    res = scopeServiceProviders(res, currentOrganization, accessible);
                     res.forEach(entity => {
                         entity.name = providerName(I18n.locale, entity);
                         entity.vendor = providerOrganizationName(I18n.locale, entity);

@@ -1675,6 +1675,55 @@ const nl: AppTranslation = {
             examples: "Voorbeelden",
             notes: "Opmerkingen",
         },
+        policyAttributes: {
+            title: "Policy-attributen",
+            intro: "Een policy-attribuut wordt vergeleken met de attributen die de instelling van de gebruiker bij het inloggen meestuurt. De tabellen hieronder tonen alle attributen die in een policy gebruikt kunnen worden en welke waarden zijn toegestaan.",
+            table: {
+                urn: "Attribuut",
+                allowed: "Toegestane waarden",
+                pattern: "Validatiepatroon",
+                examples: "Voorbeelden",
+                deny: "Bruikbaar in een deny-regel",
+                yes: "Ja",
+                no: "Nee",
+            },
+            schacHomeOrganization: {
+                allowed: "De domeinnaam van de organisatie van de gebruiker, in kleine letters.",
+                examples: "uniharderwijk.nl\nexample.nl",
+            },
+            schacHomeOrganizationType: {
+                allowed: "Het type organisatie, alleen kleine letters.",
+                examples: "university\nhbo",
+            },
+            eduPersonAffiliation: {
+                allowed: "Een van: student, staff, faculty, employee, member.",
+                examples: "student\nemployee",
+            },
+            eduPersonScopedAffiliation: {
+                allowed: "Een van student, staff, faculty, employee of member, gevolgd door @ en het domein van de instelling.",
+                examples: "student@uniharderwijk.nl\nemployee@example.nl",
+            },
+            eduPersonEntitlement: {
+                allowed: "Alleen kleine letters.",
+                examples: "admin",
+            },
+            isMemberOf: {
+                allowed: "Elke waarde.",
+                examples: "urn:collab:org:example.nl",
+            },
+            inviteRole: {
+                allowed: "Een rol-URN van SURFconext Invite, beginnend met urn:mace:surf.nl:invite: of urn:collab:group:, gevolgd door kleine letters, cijfers of underscores. De rollen van jouw organisatie staan in de keuzelijst.",
+                examples: "urn:mace:surf.nl:invite:my_role",
+            },
+            sabRole: {
+                allowed: "Een van: Superuser, Instellingsbevoegde, OperationeelBeheerder, SURFconextbeheerder, DNS-Beheerder.",
+                examples: "Instellingsbevoegde",
+            },
+            mail: {
+                allowed: "Een e-mailadres: tekst, een @ en een domein met een punt.",
+                examples: "jane.doe@example.nl",
+            },
+        },
         attributes: {
             schacHomeOrganization: {
                 urnOid: "1.3.6.1.4.1.25178.1.2.9",

@@ -12,19 +12,20 @@ import WelcomeAddApps from "../icons/figma/welcome-add-apps.svg";
 import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
 import {getParameterByName} from "../utils/QueryParameters.js";
+import {scopeServiceProviders} from "../utils/Manage.js";
 import {hasCreateApplicationAccess} from "../utils/Permissions.js";
-import {applicationsCountByOrganization, connectedAppsByIdentityProvider} from "../api/index.js";
+import {applicationsCountByOrganization, publicServiceProviders} from "../api/index.js";
 
 const UserHome = () => {
 
-    const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization} = useAppStore(useShallow(state => ({
         user: state.user,
-        currentOrganization: state.currentOrganization,
-        config: state.config
+        currentOrganization: state.currentOrganization
     })));
 
     const navigate = useNavigate();
     const [appsCount, setAppsCount] = useState(null);
+    const [discoverAppsCount, setDiscoverAppsCount] = useState(null);
     const [connectedAppsCount, setConnectedAppsCount] = useState(null);
 
     let newLocation = null;
@@ -50,8 +51,12 @@ const UserHome = () => {
     useEffect(() => {
         if (newLocation === null && currentOrganization?.id ) {
             applicationsCountByOrganization(currentOrganization.id).then(setAppsCount);
-            if (!isVendor && maySeeAccessibleApps) {
-                connectedAppsByIdentityProvider(currentOrganization.id).then(setConnectedAppsCount);
+            if (!isVendor) {
+                //The counts must equal the number of apps in the overviews, so apply the same scoping to the same data
+                publicServiceProviders(currentOrganization.manageIdentifier).then(res => {
+                    setDiscoverAppsCount(scopeServiceProviders(res, currentOrganization, false).length);
+                    setConnectedAppsCount(scopeServiceProviders(res, currentOrganization, true).length);
+                });
             }
         }
     }, [newLocation]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -116,7 +121,6 @@ const UserHome = () => {
             </CardContent>
         </Card>
     );
-    const discoverAppsCount = (config.stats.saml20_sp || 0) + (config.stats.oidc10_rp || 0);
     return (
         <div className="home-container">
             <div className="home-welcome">

@@ -1676,6 +1676,55 @@ const pt: AppTranslation = {
             examples: "Exemplos",
             notes: "Notas",
         },
+        policyAttributes: {
+            title: "Policy attributes",
+            intro: "A policy attribute is matched against the attributes the user's institution sends at login. The tables below list every attribute that can be used in a policy and which values are accepted.",
+            table: {
+                urn: "Attribute",
+                allowed: "Allowed values",
+                pattern: "Validation pattern",
+                examples: "Examples",
+                deny: "Usable in a deny rule",
+                yes: "Yes",
+                no: "No",
+            },
+            schacHomeOrganization: {
+                allowed: "The domain name of the user's organization, in lower case.",
+                examples: "uniharderwijk.nl\nexample.nl",
+            },
+            schacHomeOrganizationType: {
+                allowed: "The type of organization, in lower case letters only.",
+                examples: "university\nhbo",
+            },
+            eduPersonAffiliation: {
+                allowed: "One of: student, staff, faculty, employee, member.",
+                examples: "student\nemployee",
+            },
+            eduPersonScopedAffiliation: {
+                allowed: "One of student, staff, faculty, employee or member, followed by @ and the domain of the institution.",
+                examples: "student@uniharderwijk.nl\nemployee@example.nl",
+            },
+            eduPersonEntitlement: {
+                allowed: "Lower case letters only.",
+                examples: "admin",
+            },
+            isMemberOf: {
+                allowed: "Any value.",
+                examples: "urn:collab:org:example.nl",
+            },
+            inviteRole: {
+                allowed: "A role URN of SURFconext Invite, starting with urn:mace:surf.nl:invite: or urn:collab:group:, followed by lower case letters, digits or underscores. The roles of your organization are offered in the dropdown.",
+                examples: "urn:mace:surf.nl:invite:my_role",
+            },
+            sabRole: {
+                allowed: "One of: Superuser, Instellingsbevoegde, OperationeelBeheerder, SURFconextbeheerder, DNS-Beheerder.",
+                examples: "Instellingsbevoegde",
+            },
+            mail: {
+                allowed: "An e-mail address: text, an @, and a domain containing a dot.",
+                examples: "jane.doe@example.nl",
+            },
+        },
         attributes: {
             schacHomeOrganization: {
                 urnOid: "1.3.6.1.4.1.25178.1.2.9",

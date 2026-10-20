@@ -374,14 +374,6 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Map<String, Integer> connectedApps(String manageIdentifier) {
-        LOG.debug("connectedApps");
-
-        String connectedAppsUrl = String.format("%s/manage/api/internal/connected-apps", url);
-        return restTemplate.postForObject(connectedAppsUrl, manageIdentifier, Map.class);
-    }
-
-    @Override
     public List<Map<String, Object>> identityProvidersByAllowedConnections(List<Connection> connections) {
         List<Map<String, String>> body = connections.stream()
             .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()) &&

@@ -21,6 +21,7 @@ import {
 } from "../utils/Policy.js";
 import {getNetworkInfo} from "../utils/CidrNotation.js";
 import {TrashIcon, ArrowLeftIcon} from "@phosphor-icons/react";
+import HelpIcon from "../components/HelpIcon.jsx";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 
 
@@ -533,12 +534,14 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => attributeValueChanged(values, index)}
                             />
-                            {!roleValuesUnavailable(attribute) &&
+                            {!roleValuesUnavailable(attribute) && <>
+                                <HelpIcon id="policy.attributes"/>
                                 <Button variant="ghost" size="icon"
                                         onClick={() => attributeDeleted(index)}
                                 >
                                     <TrashIcon/>
-                                </Button>}
+                                </Button>
+                            </>}
                         </div>
                         {roleValuesUnavailable(attribute) &&
                             <ErrorIndicator adjustMargin={false}
@@ -645,12 +648,14 @@ export const PolicyForm = ({
                                          placeholder={I18n.t(`appAccess.permittedValues${!enumOptionsFor(attribute.name) ? "" : "Enum"}Placeholder`)}
                                          onChange={values => stepAttributeValueChanged(values, index)}
                             />
-                            {!roleValuesUnavailable(attribute) &&
+                            {!roleValuesUnavailable(attribute) && <>
+                                <HelpIcon id="policy.attributes"/>
                                 <Button variant="ghost" size="icon"
                                         onClick={() => stepAttributeDeleted(index)}
                                 >
                                     <TrashIcon/>
-                                </Button>}
+                                </Button>
+                            </>}
                         </div>
                         {roleValuesUnavailable(attribute) &&
                             <ErrorIndicator adjustMargin={false}
