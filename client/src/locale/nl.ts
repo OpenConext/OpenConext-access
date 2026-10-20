@@ -13,7 +13,7 @@ const nl: AppTranslation = {
     },
     landing: {
         header: {
-            login: "Inloggen / registreren",
+            login: "Inlogn / registreren",
             loginProvider: "Inloggen als app-aanbieder",
             loginInstitution: "Inloggen als instelling",
             profile: "Profiel",
