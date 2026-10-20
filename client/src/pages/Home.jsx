@@ -126,7 +126,7 @@ export const Home = () => {
                             <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.providers.title")}</h3>
                             {tArray("landing.gettingStarted.providers.info", (info, index) =>
                                 <p key={index}>{info}</p>)}
-                            <Button variant="outline" onClick={() => login(config, true, true)}>
+                            <Button variant="outline" onClick={() => login(config, true)}>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
                             </Button>
                         </div>
@@ -139,7 +139,7 @@ export const Home = () => {
                             <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.institutions.title")}</h3>
                             {tArray("landing.gettingStarted.institutions.info", (info, index) =>
                                 <p key={index}>{info}</p>)}
-                            <Button variant="outline" onClick={() => login(config, true, false)}>
+                            <Button variant="outline" onClick={() => login(config, false)}>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
                             </Button>
                         </div>

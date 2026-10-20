@@ -34,7 +34,7 @@ export const LoginInfo = () => {
                         {tArray("landing.loginInfo.commercial.info", (info, index) =>
                             <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                         )}
-                        <Button onClick={() => login(config, true, true)}
+                        <Button onClick={() => login(config, true)}
                                 variant="secondary">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.commercial.login"))}}/>
                         </Button>
@@ -46,7 +46,7 @@ export const LoginInfo = () => {
                         {tArray("landing.loginInfo.education.info", (info, index) =>
                             <p key={index} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info)}}/>
                         )}
-                        <Button onClick={() => login(config, true, false)}
+                        <Button onClick={() => login(config, false)}
                                 variant="secondary">
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.loginInfo.education.login"))}}/>
                         </Button>

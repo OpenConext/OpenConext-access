@@ -12,7 +12,7 @@ export const LoginButtons = ({className = "", onClick}) => {
 
     const doLogin = useEduID => () => {
         onClick && onClick();
-        login(config, true, useEduID);
+        login(config, useEduID);
     };
 
     return (
