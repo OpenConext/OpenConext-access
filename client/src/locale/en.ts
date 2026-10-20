@@ -108,7 +108,7 @@ const en: AppTranslation = {
         home: "Home",
         apps: "App catalog",
         accessibleApps: "Enabled apps",
-        yourApps: "Your apps",
+        yourApps: "My apps",
         catalogue: "App catalog",
         externalMaintenance: "Access management",
         invite: "Roles",
@@ -129,7 +129,7 @@ const en: AppTranslation = {
     breadCrumb: {
         access: "Home",
         landing: "Find organisation",
-        applications: "Your apps",
+        applications: "My apps",
         team: "Team management",
         joins: "Join Requests",
         invitations: "Invitations",
@@ -187,7 +187,7 @@ const en: AppTranslation = {
         addApps: {
             title: "Add your app(s)",
             description: "Add your app(s) to the application catalog to make them available to institutions.",
-            action: "To your apps",
+            action: "To my apps",
         },
         discoverApps: {
             title: "Discover new apps",
