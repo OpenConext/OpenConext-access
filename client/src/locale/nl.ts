@@ -38,7 +38,7 @@ const nl: AppTranslation = {
                     "Ontwikkel je software die je wilt aanbieden in de onderwijssector? Log dan in met eduID.",
                     "Als je nog geen eduID hebt, kun je deze direct aanmaken."
                 ],
-                login: "Doorgaan met eduID",
+                login: "Doorgaanuhighik met eduID",
             },
             education: {
                 title: "Je werkt voor een instelling",
