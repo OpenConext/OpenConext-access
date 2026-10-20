@@ -49,15 +49,16 @@ const UserHome = () => {
     //Fetched asynchronously - the page renders immediately and each badge shows a
     //Spinner in the meantime, so this must not block the initial render.
     useEffect(() => {
-        if (newLocation === null && currentOrganization?.id ) {
-            applicationsCountByOrganization(currentOrganization.id).then(setAppsCount);
-            if (!isVendor) {
-                //The counts must equal the number of apps in the overviews, so apply the same scoping to the same data
-                publicServiceProviders(currentOrganization.manageIdentifier).then(res => {
-                    setDiscoverAppsCount(scopeServiceProviders(res, currentOrganization, false).length);
-                    setConnectedAppsCount(scopeServiceProviders(res, currentOrganization, true).length);
-                });
+        if (newLocation === null) {
+            if (currentOrganization?.id) {
+                applicationsCountByOrganization(currentOrganization.id).then(setAppsCount);
             }
+            //The counts must equal the number of apps in the overviews, so apply the same scoping to the same data.
+            //The catalogue is visible for everyone, vendors (without an identity provider) included
+            publicServiceProviders(currentOrganization?.manageIdentifier).then(res => {
+                setDiscoverAppsCount(scopeServiceProviders(res, currentOrganization, false).length);
+                setConnectedAppsCount(scopeServiceProviders(res, currentOrganization, true).length);
+            });
         }
     }, [newLocation]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -130,7 +131,7 @@ const UserHome = () => {
             {alertInfo()}
             <div className="info-container">
                 {currentOrganization?.id && welcomeCard("addApps", WelcomeAddApps, mainMenuItems.yourApps, `/organization/${currentOrganization.id}`, "link-green", "badge-green", appsCount)}
-                {!isVendor && welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue", "badge-blue", discoverAppsCount)}
+                {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue", "badge-blue", discoverAppsCount)}
                 {(!isVendor && maySeeAccessibleApps) && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple", "badge-purple", connectedAppsCount)}
             </div>
         </div>
