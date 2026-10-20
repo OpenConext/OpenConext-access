@@ -213,7 +213,7 @@ const ApplicationOverview = ({accessible}) => {
                         <Pagination>
                             <PaginationContent>
                                 {currentPage !== 1 && <PaginationItem>
-                                    <PaginationPrevious href="#" iconOnly={true}
+                                    <PaginationPrevious href="#" text={I18n.t("pagination.previous")}
                                                         onClick={e => {
                                                             e.preventDefault();
                                                             changePage(currentPage - 1);
@@ -232,7 +232,7 @@ const ApplicationOverview = ({accessible}) => {
                                     </PaginationItem>
                                 )}
                                 {currentPage !== nbrPages && <PaginationItem>
-                                    <PaginationNext href="#" iconOnly={true}
+                                    <PaginationNext href="#" text={I18n.t("pagination.next")}
                                                     onClick={e => {
                                                         e.preventDefault();
                                                         changePage(currentPage + 1);

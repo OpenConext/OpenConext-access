@@ -100,6 +100,10 @@ const nl: AppTranslation = {
             title: "Dit gebeurt er nu op SURF Access",
         },
     },
+    pagination: {
+        previous: "Vorige",
+        next: "Volgende",
+    },
     navigation: {
         home: "Home",
         apps: "App-catalogus",

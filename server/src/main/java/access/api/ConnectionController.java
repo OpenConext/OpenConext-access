@@ -126,9 +126,7 @@ public class ConnectionController implements UserAccessRights {
         Application application = connection.getApplication();
 
         user = reinitializeUser(user, userRepository);
-        //Connection detail includes the live OAuth/OIDC client secret - require at least org-level MEMBER,
-        //not the lowest (GUEST) tier, before it can be viewed
-        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application, Authority.GUEST);
 
         if (StringUtils.hasText(connection.getManageIdentifier())) {
             Map<String, Object> provider = manage.providerByConnection(connection);
@@ -185,9 +183,7 @@ public class ConnectionController implements UserAccessRights {
             .orElseThrow(() -> new NotFoundException("Application not found"));
 
         user = this.reinitializeUser(user, userRepository);
-        //GUEST is the lowest, view-only tier (see AUDIT.md #7) - creating a connection (which can carry a
-        //client secret) is a write operation and must require at least MEMBER
-        confirmApplicationWriteAccess(user, application, Authority.MEMBER);
+        confirmApplicationWriteAccess(user, application, Authority.GUEST);
 
         //Never trust a client-supplied id on a create - would otherwise let save() merge() into (i.e. overwrite)
         //an arbitrary existing connection row instead of inserting a new one

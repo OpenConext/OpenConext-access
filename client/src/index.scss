@@ -203,3 +203,8 @@ h1.large {
         right: auto;
     }
 }
+
+// curve-react flips the pagination caret icons (scaleX(-1), meant for RTL), which points them the wrong way in LTR.
+[data-slot="pagination"] [data-icon] {
+    transform: none;
+}

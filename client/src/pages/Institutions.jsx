@@ -109,7 +109,7 @@ const Institutions = () => {
                 <Pagination>
                     <PaginationContent>
                         {page !== 1 && <PaginationItem>
-                            <PaginationPrevious href={pageHref(page - 1)} iconOnly={true}
+                            <PaginationPrevious href={pageHref(page - 1)} text={I18n.t("pagination.previous")}
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     onChange(page - 1);
@@ -127,7 +127,7 @@ const Institutions = () => {
                             </PaginationItem>
                         )}
                         {page !== nbrPages && <PaginationItem>
-                            <PaginationNext href={pageHref(page + 1)} iconOnly={true}
+                            <PaginationNext href={pageHref(page + 1)} text={I18n.t("pagination.next")}
                                             onClick={e => {
                                                 e.preventDefault();
                                                 onChange(page + 1);

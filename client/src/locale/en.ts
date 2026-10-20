@@ -100,6 +100,10 @@ const en: AppTranslation = {
             title: "What's happening on {{productName}} right now",
         },
     },
+    pagination: {
+        previous: "Previous",
+        next: "Next",
+    },
     navigation: {
         home: "Home",
         apps: "App catalog",

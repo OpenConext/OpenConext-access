@@ -621,6 +621,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     }
 
+    @Transactional(readOnly = true)
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
