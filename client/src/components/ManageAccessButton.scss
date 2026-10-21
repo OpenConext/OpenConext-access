@@ -4,6 +4,16 @@ a.manage-access-button {
     text-decoration: none;
 }
 
+// No focus ring on the trigger button and the buttons in the modal
+.manage-access-button,
+.manage-access-dialog .manage-access-connection a {
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
+}
+
 .manage-access-dialog {
     a {
         color: inherit;

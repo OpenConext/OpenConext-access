@@ -51,7 +51,7 @@ export const ManageAccessButton = ({application, user, currentOrganization}) => 
     }
     return (
         <>
-            <Button variant="outline" size="lg" onClick={() => setOpen(true)}>
+            <Button variant="outline" size="lg" className="manage-access-button" onClick={() => setOpen(true)}>
                 {label}
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
