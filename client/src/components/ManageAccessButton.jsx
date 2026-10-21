@@ -13,7 +13,7 @@ import {
 } from "@surfnet/curve-react";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils.js";
-import {CONNECTION_STATUSES} from "../utils/Manage.js";
+import {CONNECTION_STATUSES, PROTOCOLS} from "../utils/Manage.js";
 import {deriveAccess, isOrganizationAdmin, isOrganizationMember} from "../utils/Permissions.js";
 
 const detailPath = (connection, activated) =>
@@ -27,6 +27,8 @@ export const ManageAccessButton = ({application, user, currentOrganization}) => 
     const hasAccess = user.superUser || isOrganizationAdmin(user, currentOrganization) ||
         isOrganizationMember(user, currentOrganization);
     const connections = (application.connections || [])
+        // Resource servers are not visible in the catalogue and an IdP can't connect to them
+        .filter(conn => conn.protocol.value !== PROTOCOLS.OAUTH20_RS)
         .filter(conn => conn.status === CONNECTION_STATUSES.PROD_READY && !isEmpty(conn.manageIdentifier))
         .map(conn => ({
             ...conn,
