@@ -23,6 +23,8 @@
 
     .menu-container {
         margin-left: auto;
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -35,20 +37,3 @@
 }
 
 
-.application-connection-header-container .tabs-menu {
-    align-items: center;
-
-    .manage-access-link {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-left: auto;
-        color: var(--primary-strong, inherit);
-        font-weight: 500;
-        text-decoration: none;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
-}

@@ -353,7 +353,15 @@ const en: AppTranslation = {
         team: {
             members: "Manage team members",
         },
-        manageAccess: "Go to the activated app to manage access",
+        manageAccess: "Manage access",
+        manageAccessModal: {
+            title: "Choose a connection",
+            subTitle: "Activate or manage access for your institution",
+            activated: "Activated for your institution",
+            notActivated: "Not yet activated for your institution",
+            toActivated: "Go to activated app",
+            toCatalogue: "Go to app catalogue",
+        },
         overviewCards: {
             title: "Overview",
             subTitle: "Fill in all the information below to publish your application on {{productName}}.",
@@ -823,7 +831,6 @@ const en: AppTranslation = {
         other: "Other",
         searchPlaceHolder: "Search for an institution",
     },
-    // Keyed by the raw coin:institution_type value from Manage - see Institutions.jsx
     institutionTypes: {
         HBO: "HBO",
         MBO: "MBO",
@@ -968,26 +975,26 @@ const en: AppTranslation = {
                 description: "More extensive statistics and reports on usage, per institution and per application.",
             },
         },
-            faq: {
-                title: "Frequently asked questions",
-                subTitle: "Find answers to frequently asked questions about our platform. Can't find what you are looking for? Contact our team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
-                audience: {
-                    question: "Who is SURF Access for?",
-                    answer: "SURF Access is for education and research institutions that are members of SURF, the ICT cooperative of Dutch education and research. App providers can also offer their application to these institutions, even without being a member themselves. <a href='https://www.surf.nl/en/members' target='_blank' rel='noopener noreferrer'>Read more about SURF and its members</a>",
-                },
-                available: {
-                    question: "Can I use SURF Access already?",
-                    answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out SURF Access without obligation in the demo environment.",
-                },
-                login: {
-                    question: "What do I need to log in?",
-                    answer: "As an institution you log in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you sign up. Users log in with their institution account or with eduID.",
-                },
-                migrate: {
-                    question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
-                    answer: "No. Existing services keep working and will gradually move to SURF Access. You keep access to everything you use now.",
-                },
+        faq: {
+            title: "Frequently asked questions",
+            subTitle: "Find answers to frequently asked questions about our platform. Can't find what you are looking for? Contact our team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
+            audience: {
+                question: "Who is SURF Access for?",
+                answer: "SURF Access is for education and research institutions that are members of SURF, the ICT cooperative of Dutch education and research. App providers can also offer their application to these institutions, even without being a member themselves. <a href='https://www.surf.nl/en/members' target='_blank' rel='noopener noreferrer'>Read more about SURF and its members</a>",
             },
+            available: {
+                question: "Can I use SURF Access already?",
+                answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out SURF Access without obligation in the demo environment.",
+            },
+            login: {
+                question: "What do I need to log in?",
+                answer: "As an institution you log in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you sign up. Users log in with their institution account or with eduID.",
+            },
+            migrate: {
+                question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
+                answer: "No. Existing services keep working and will gradually move to SURF Access. You keep access to everything you use now.",
+            },
+        },
     },
     changeRequests: {
         title: "Pending change request(s)",
@@ -1140,13 +1147,34 @@ const en: AppTranslation = {
             additionalAcrLabel: "Additional login methods supported by your identity provider",
             additionalAcrInfo: "The methods you support and can activate per application",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Username and password"},
-                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authentication"},
-                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
-                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
-                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
-                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
-                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+                {
+                    value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+                    label: "Username and password",
+                },
+                {
+                    value: "http://schemas.microsoft.com/claims/multipleauthn",
+                    label: "Microsoft multi-factor authentication",
+                },
+                {
+                    value: "https://refeds.org/profile/mfa",
+                    label: "REFEDS MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium",
+                    label: "REFEDS IAP medium",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high",
+                    label: "REFEDS IAP high",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium/mfa",
+                    label: "REFEDS IAP medium + MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high/mfa",
+                    label: "REFEDS IAP high + MFA",
+                }
             ],
         },
     },
@@ -1388,9 +1416,6 @@ const en: AppTranslation = {
         warnings: "You can optionally add a warning to the consent screen, for example to indicate that the application is not an official app of the institution and no support can be expected.",
         warningEN: "Warning in English",
         warningNL: "Warning in Dutch",
-        // These preview the text the field expects, in that field's own language -
-        // not the current UI locale - so the value is intentionally the same here
-        // and in nl.js.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
         preview: {

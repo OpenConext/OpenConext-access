@@ -353,7 +353,15 @@ const pt: AppTranslation = {
         team: {
             members: "Gerir membros da equipa",
         },
-        manageAccess: "Vá para a aplicação ativada para gerir o acesso",
+        manageAccess: "Gerir acesso",
+        manageAccessModal: {
+            title: "Escolha uma ligação",
+            subTitle: "Ative ou faça a gestão do acesso para a sua instituição",
+            activated: "Ativada para a sua instituição",
+            notActivated: "Ainda não ativada para a sua instituição",
+            toActivated: "Ir para a aplicação ativada",
+            toCatalogue: "Ir para o catálogo de aplicações",
+        },
         overviewCards: {
             title: "Resumo",
             subTitle: "Preencha todas as informações abaixo para publicar a sua aplicação no {{productName}}.",
@@ -823,7 +831,6 @@ const pt: AppTranslation = {
         other: "Outra",
         searchPlaceHolder: "Procurar uma instituição",
     },
-    // Keyed by the raw coin:institution_type value from Manage - see Institutions.jsx
     institutionTypes: {
         HBO: "HBO",
         MBO: "MBO",
@@ -1140,13 +1147,34 @@ const pt: AppTranslation = {
             additionalAcrLabel: "Métodos de início de sessão adicionais suportados pelo seu fornecedor de identidade",
             additionalAcrInfo: "Os métodos que suporta e que pode ativar por aplicação",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Nome de utilizador e palavra-passe"},
-                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Autenticação multifator da Microsoft"},
-                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
-                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
-                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
-                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
-                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+                {
+                    value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+                    label: "Nome de utilizador e palavra-passe",
+                },
+                {
+                    value: "http://schemas.microsoft.com/claims/multipleauthn",
+                    label: "Autenticação multifator da Microsoft",
+                },
+                {
+                    value: "https://refeds.org/profile/mfa",
+                    label: "REFEDS MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium",
+                    label: "REFEDS IAP medium",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high",
+                    label: "REFEDS IAP high",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium/mfa",
+                    label: "REFEDS IAP medium + MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high/mfa",
+                    label: "REFEDS IAP high + MFA",
+                }
             ],
         },
     },
@@ -1388,9 +1416,6 @@ const pt: AppTranslation = {
         warnings: "Pode opcionalmente adicionar um aviso ao ecrã de consentimento, por exemplo para indicar que a aplicação não é uma aplicação oficial da instituição e que não se pode esperar apoio.",
         warningEN: "Aviso em inglês",
         warningNL: "Aviso em neerlandês",
-        // These preview the text the field expects, in that field's own language -
-        // not the current UI locale - so the value is intentionally the same here
-        // and in nl.ts.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
         preview: {

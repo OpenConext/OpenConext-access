@@ -353,7 +353,15 @@ const nl: AppTranslation = {
         team: {
             members: "Beheer teamleden",
         },
-        manageAccess: "Naar geactiveerde app om toegang te beheren",
+        manageAccess: "Toegang beheren",
+        manageAccessModal: {
+            title: "Kies een koppeling",
+            subTitle: "Activeer of beheer de toegang voor jouw instelling",
+            activated: "Geactiveerd voor jouw instelling",
+            notActivated: "Nog niet geactiveerd voor jouw instelling",
+            toActivated: "Naar geactiveerde app",
+            toCatalogue: "Naar app-catalogus",
+        },
         overviewCards: {
             title: "Overzicht",
             subTitle: "Vul alle informatie hieronder in om je applicatie te publiceren op SURF Access.",
@@ -365,9 +373,9 @@ const nl: AppTranslation = {
             createConnection: "Koppeling aanmaken",
             appTeam: "App-team",
             teamMemberSolo: "1 teamlid",
-            teamMemberSoloYou : " (jij)",
+            teamMemberSoloYou: " (jij)",
             teamMemberMulti: "{{count}} teamleden",
-            teamMemberMultiYou : " (incl. jij)",
+            teamMemberMultiYou: " (incl. jij)",
         },
         productionConnectionHint: "Verbind met onze productieomgeving. Om de applicatie te activeren moeten alle aanvullende gegevens worden verstrekt.",
         applicationInformationHint: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd.",
@@ -823,7 +831,6 @@ const nl: AppTranslation = {
         other: "Overig",
         searchPlaceHolder: "Zoek een instelling",
     },
-    // Keyed by de ruwe coin:institution_type waarde uit Manage - zie Institutions.jsx
     institutionTypes: {
         HBO: "HBO",
         MBO: "MBO",
@@ -968,26 +975,26 @@ const nl: AppTranslation = {
                 description: "Uitgebreidere statistieken en rapportages over gebruik, per instelling en per applicatie.",
             },
         },
-            faq: {
-                title: "Veelgestelde vragen",
-                subTitle: "Vind antwoorden op veelgestelde vragen over ons platform. Kom je er niet uit? Neem dan contact op met ons team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
-                audience: {
-                    question: "Voor wie is SURF Access bedoeld?",
-                    answer: "SURF Access is voor onderwijs- en onderzoeksinstellingen die lid zijn van SURF, de ict-coöperatie van het Nederlandse onderwijs en onderzoek. Daarnaast kunnen app-aanbieders hun applicatie aanbieden aan deze instellingen, ook zonder zelf lid te zijn. <a href='https://www.surf.nl/leden' target='_blank' rel='noopener noreferrer'>Lees meer over SURF en de leden</a>",
-                },
-                available: {
-                    question: "Kan ik SURF Access al gebruiken?",
-                    answer: "Sommige onderdelen zijn er al, andere volgen richting 2027. Het IdP-dashboard en SP-dashboard zijn volledig beschikbaar; SURFconext Invite en andere onderdelen komen later. Je kunt SURF Access nu al vrijblijvend uitproberen in de demo-omgeving.",
-                },
-                login: {
-                    question: "Wat heb ik nodig om in te loggen?",
-                    answer: "Als instelling log je in met je instellingsaccount. Wil je een applicatie aanbieden, dan gebruik je eduID; heb je dat nog niet, dan maak je het bij het aanmelden aan. Gebruikers loggen in met hun instellingsaccount of met eduID.",
-                },
-                migrate: {
-                    question: "Ik gebruik nu SURFconext, SRAM of SURFsecureID. Moet ik iets doen?",
-                    answer: "Nee. Bestaande diensten blijven werken en gaan geleidelijk over naar SURF Access. Je behoudt toegang tot alles wat je nu gebruikt.",
-                },
+        faq: {
+            title: "Veelgestelde vragen",
+            subTitle: "Vind antwoorden op veelgestelde vragen over ons platform. Kom je er niet uit? Neem dan contact op met ons team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
+            audience: {
+                question: "Voor wie is SURF Access bedoeld?",
+                answer: "SURF Access is voor onderwijs- en onderzoeksinstellingen die lid zijn van SURF, de ict-coöperatie van het Nederlandse onderwijs en onderzoek. Daarnaast kunnen app-aanbieders hun applicatie aanbieden aan deze instellingen, ook zonder zelf lid te zijn. <a href='https://www.surf.nl/leden' target='_blank' rel='noopener noreferrer'>Lees meer over SURF en de leden</a>",
             },
+            available: {
+                question: "Kan ik SURF Access al gebruiken?",
+                answer: "Sommige onderdelen zijn er al, andere volgen richting 2027. Het IdP-dashboard en SP-dashboard zijn volledig beschikbaar; SURFconext Invite en andere onderdelen komen later. Je kunt SURF Access nu al vrijblijvend uitproberen in de demo-omgeving.",
+            },
+            login: {
+                question: "Wat heb ik nodig om in te loggen?",
+                answer: "Als instelling log je in met je instellingsaccount. Wil je een applicatie aanbieden, dan gebruik je eduID; heb je dat nog niet, dan maak je het bij het aanmelden aan. Gebruikers loggen in met hun instellingsaccount of met eduID.",
+            },
+            migrate: {
+                question: "Ik gebruik nu SURFconext, SRAM of SURFsecureID. Moet ik iets doen?",
+                answer: "Nee. Bestaande diensten blijven werken en gaan geleidelijk over naar SURF Access. Je behoudt toegang tot alles wat je nu gebruikt.",
+            },
+        },
     },
     changeRequests: {
         title: "Openstaande wijzigingsverzoeken",
@@ -1140,13 +1147,34 @@ const nl: AppTranslation = {
             additionalAcrLabel: "Ondersteunde additionele inlogmethodes door je identiteitsprovider",
             additionalAcrInfo: "De methodes die je ondersteunt en per applicatie kunt activeren",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Gebruikersnaam en wachtwoord"},
-                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Microsoft multi-factor authenticatie"},
-                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
-                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
-                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
-                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
-                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+                {
+                    value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+                    label: "Gebruikersnaam en wachtwoord",
+                },
+                {
+                    value: "http://schemas.microsoft.com/claims/multipleauthn",
+                    label: "Microsoft multi-factor authenticatie",
+                },
+                {
+                    value: "https://refeds.org/profile/mfa",
+                    label: "REFEDS MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium",
+                    label: "REFEDS IAP medium",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high",
+                    label: "REFEDS IAP high",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium/mfa",
+                    label: "REFEDS IAP medium + MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high/mfa",
+                    label: "REFEDS IAP high + MFA",
+                }
             ],
         },
     },
@@ -1388,8 +1416,6 @@ const nl: AppTranslation = {
         warnings: "Voeg optioneel een waarschuwing toe aan het toestemmingsscherm waarin je bijvoorbeeld kunt aangeven dat de applicatie geen officiële app van de instelling is en er geen ondersteuning verwacht kan worden.",
         warningEN: "Waarschuwing in het Engels",
         warningNL: "Waarschuwing in het Nederlands",
-        // Deze tonen een voorbeeld in de taal van het veld zelf - niet de UI-taal -
-        // dus de waarde is bewust hetzelfde hier en in en.js.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
         preview: {
@@ -1881,4 +1907,3 @@ const nl: AppTranslation = {
 }
 
 export default nl;
-
