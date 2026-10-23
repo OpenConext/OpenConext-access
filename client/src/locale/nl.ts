@@ -22,7 +22,7 @@ const nl: AppTranslation = {
         },
         hero: {
             title: "Toegang geven tot onderwijs- en onderzoeksapplicaties",
-            subTitle: "Gebruikers in het hoger onderwijs en onderzoek <strong>toegang geven tot meerdere diensten met één account</strong>.",
+            subTitle: "Geef gebruikers in het hoger onderwijs en onderzoek <strong>toegang tot meerdere diensten met één account</strong>.",
             stats: {
                 applications: "Applicaties",
                 institutions: "Instellingen",
@@ -31,7 +31,7 @@ const nl: AppTranslation = {
         },
         loginInfo: {
             title: "Inloggen / Registreren",
-            subTitle: "Je kunt inloggen op SURF Access met een bestaand instellingsaccount, of met een eduID als je er nog geen hebt. Kies hieronder de optie die op je van toepassing is.",
+            subTitle: "Je kunt inloggen op SURF Access met een bestaand instellingsaccount, of met een eduID als je er nog geen hebt.",
             commercial: {
                 title: "Je werkt voor een (commerciële) organisatie",
                 info: [
@@ -43,7 +43,7 @@ const nl: AppTranslation = {
             education: {
                 title: "Je werkt voor een instelling",
                 info: [
-                    "Ben je medewerker, student of onderzoeker bij een instelling die al verbonden is met SURF, dan kun je direct inloggen met je instellingsaccount."
+                    "Ben je medewerker, student of onderzoeker bij een instelling die al verbonden is met SURF? Dan kun je direct inloggen met je instellingsaccount."
                 ],
                 login: "Inloggen via je instelling",
             },
@@ -60,40 +60,40 @@ const nl: AppTranslation = {
             title: "Wat kun je met SURF Access?",
             publish: {
                 title: "Jouw apps publiceren",
-                description: "Applicatie-aanbieders kunnen applicaties via SURF Access beschikbaar maken voor onderwijs- en onderzoeksinstellingen. SURF Access verzorgt authenticatie, autorisatie en privacy- en beveiligingsafspraken.",
+                description: "Maak je applicaties beschikbaar voor onderwijs- en onderzoeksinstellingen. SURF Access verzorgt authenticatie, autorisatie en de privacy- en beveiligingsafspraken.",
             },
             activate: {
                 title: "Nieuwe apps activeren",
-                description: "Instellingen kunnen nieuwe apps vinden in de app-catalogus en deze activeren voor gebruikers binnen hun instelling. SURF Access biedt single sign-on, zorgt voor centrale afspraken en is privacyvriendelijk ingericht.",
+                description: "Vind nieuwe applicaties in de app-catalogus en activeer ze voor gebruikers binnen je instelling. SURF Access biedt single sign-on: één keer inloggen voor alle applicaties.",
             },
             manage: {
                 title: "Toegang beheren",
-                description: "Instellingen kunnen regels, rollen en samenwerkingen instellen en zo bepalen wie er wel en geen toegang heeft tot geactiveerde applicaties.",
+                description: "Stel regels, rollen en samenwerkingen in. En bepaal zo wie er toegang heeft tot geactiveerde applicaties.",
             },
         },
         gettingStarted: {
             title: "Aan de slag met SURF Access",
             providers: {
-                title: "Voor applicatie-aanbieders",
+                title: "Voor commerciële app-aanbieders",
                 info: [
-                    "Maak je applicatie veilig toegankelijk voor onderwijs- en onderzoeksinstellingen.",
-                    "Applicaties toevoegen is gratis en gaat via een eduID account. Als je nog geen eduID hebt, kun je deze aanmaken in de volgende stap."
+                    "Je eigen applicaties toevoegen en ze veilig delen met onderwijs- en onderzoeksinstellingen.",
+                    "Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er een in de volgende stap aan."
                 ],
-                cta: "Ga door met eduID",
+                cta: "Doorgaan met eduID",
             },
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Geef studenten, medewerkers en onderzoekers eenvoudig toegang tot verschillende applicaties met hun instellingsaccount.",
-                    "Je kunt hieronder direct inloggen op SURF Access met je instellingsaccount."
+                    "Je eigen applicaties toevoegen, andere applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
+                    "Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
             },
         },
         tryDemo: {
-            title: "SURF Access vrijblijvend uitproberen?",
-            description: "Maak kennis met SURF Access in onze demo-omgeving. Hier kun je alle functionaliteit uitproberen in een veilige afgesloten omgeving.",
-            cta: "Naar de demo-omgeving van SURF Access",
+            title: "SURF Access eens uitproberen?",
+            description: "Ontdek SURF Access in onze <strong>demo-omgeving</strong>. Hier kun je alle functies vrijblijvend uitproberen in een veilige, afgesloten omgeving.",
+            cta: "Inloggen via je instelling",
             url: "#TODO-demo-environment-url",
         },
         activity: {
@@ -117,7 +117,7 @@ const nl: AppTranslation = {
         organizationMaintenance: "Beheer organisatie",
         organisation: "Organisatie",
         idp: "Mijn organisatie",
-        users: "SURF Access gebruikers",
+        users: "SURF Access-gebruikers",
         applications: "Applicaties",
         policies: "Regels",
         teams: "Teams",
@@ -150,9 +150,9 @@ const nl: AppTranslation = {
     },
     welcome: {
         greeting: "Welkom {{name}}",
-        info: "Selecteer je organisatie of voeg een nieuwe toe.",
+        info: "Kies je organisatie of voeg een nieuwe toe.",
         subInfo: "Gebruik de volledige, officiële naam van je organisatie, zodat andere gebruikers deze herkennen.",
-        searchPlaceholder: "Naam van je organisatie",
+        searchPlaceholder: "Typ naam van je organisatie",
         found: "GEVONDEN",
         organizationMembers: "{{memberCount}} {{user}} en {{applicationCount}} {{application}}. Vraag toegang aan.",
         user: "gebruiker",
@@ -161,19 +161,19 @@ const nl: AppTranslation = {
         applications: "applicaties",
         zeroState: "Geen organisaties gevonden voor '{{name}}'",
         register: "Staat je organisatie hier niet tussen?",
-        registerLink: "Registreer '{{name}}' als nieuwe organisatie",
-        confirmation: "Weet je zeker dat je een nieuwe organisatie wilt registreren met de naam {{name}}?",
-        confirmationAfter: "Je organisatie is aangemaakt. Je kunt doorgaan met het aanmaken van applicaties. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>",
-        confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het aanmaken van applicaties.",
+        registerLink: "Maak '{{name}}' aan ",
+        confirmation: "Weet je zeker dat je een nieuwe organisatie wilt aanmaken met de naam {{name}}?",
+        confirmationAfter: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties. Je krijgt binnen <strong>3 werkdagen</strong> een e-mail van ons. Je referentienummer is <strong>{{jiraKey}}</strong>",
+        confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties.",
         newOrganization: "Nieuwe organisatie aangemaakt",
         flash: "Organisatie {{name}} aangemaakt.",
     },
     userHome: {
         greeting: "{{name}}",
         nudgeLanding: "Je bent geen lid van een organisatie.",
-        nudgeLandingLink: " Je kunt een lidmaatschapsverzoek indienen of je eigen organisatie aanmaken.",
-        infoJoinRequestHeader: "Aanvraag-verzoek aangevragd",
-        infoJoinRequest: "Je aanvraag-verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>. Je ontvangt een e-mail op <strong>{{email}}</strong> zodra het verzoek is geaccepteerd",
+        nudgeLandingLink: " Je kunt een verzoek om lid te worden versturen of je eigen organisatie aanmaken.",
+        infoJoinRequestHeader: "Verzoek verstuurd",
+        infoJoinRequest: "Je verzoek om lid te worden is verzonden naar de beheerders van <strong>{{name}}</strong>. Je ontvangt een e-mail op <strong>{{email}}</strong> zodra het is geaccepteerd",
         close: "Je kunt dit venster nu sluiten of je kunt alvast een kijkje nemen in SURF Access.",
         toAccess: "Naar SURF Access",
         backToLanding: "Ga terug naar ",
@@ -196,12 +196,12 @@ const nl: AppTranslation = {
         },
         setupAccess: {
             title: "Toegang instellen",
-            description: "Bepaal wie er wel en wie er geen toegang heeft tot je geactiveerde applicaties.",
+            description: "Bepaal wie er toegang heeft tot je geactiveerde applicaties.",
             action: "Naar geactiveerde apps",
         },
         catalogue: {
             title: "App-catalogus",
-            subTitle: "Vind nieuwe apps en activeer deze voor je instelling.",
+            subTitle: "Vind nieuwe applicaties en activeer deze voor je instelling.",
         },
     },
     tabs: {
@@ -224,14 +224,14 @@ const nl: AppTranslation = {
     joinRequest: {
         info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
         optionalMessage: "Bericht",
-        optionalMessageInfo: "Dit bericht wordt meegestuurd met je aanvraag.",
-        requestAccess: "Toegang aanvragen",
+        optionalMessageInfo: "Dit bericht wordt meegestuurd met je verzoek.",
+        requestAccess: "Toegang vragen",
         duplicate: "Er is al een openstaand verzoek voor je om lid te worden van <strong>{{name}}</strong>.",
-        flash: "Je aanvraag‑verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>.",
+        flash: "Je verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>.",
     },
     organizations: {
-        tooltip: "SURF zal je organisatie‑registratie beoordelen. Je kunt al apps registreren in onze testomgeving. Productietoegang wordt beschikbaar zodra je organisatie is goedgekeurd.",
-        tooltipApproved: "Je organisatie is goedgekeurd door SURF. Je kunt nu apps registreren in de productieomgeving en een productiestatus aanvragen.",
+        tooltip: "SURF beroordeelt je organisatie‑registratie. Je kunt al apps registreren in onze testomgeving. Productietoegang wordt beschikbaar zodra je organisatie is goedgekeurd.",
+        tooltipApproved: "Je organisatie is goedgekeurd. Je kunt nu apps registreren in de productieomgeving en een productiestatus aanvragen.",
         pendingApprovalTitle: "Organisaties in afwachting van goedkeuring",
         pending_approval: "In afwachting van goedkeuring",
         approved: "Goedgekeurd",
@@ -260,12 +260,12 @@ const nl: AppTranslation = {
         switchOrganization: "Organisatie wisselen",
     },
     application: {
-        new: "Nieuwe applicatie",
+        new: "Applicatie toevoegen",
         newSubtitle: "Dit is de eerste stap. Na het toevoegen van de app vul je meer gegevens in. Zoals de beschrijving, contactgegevens en technische details van de applicatie.",
         edit: "Bewerk {{name}}",
-        name: "Naam van de applicatie",
+        name: "Naam van applicatie",
         nameInfo: "Gebruik een naam die herkenbaar is voor instellingen",
-        duplicateName: "Naam {{name}} bestaat al binnen deze organisatie, kies een andere naam.",
+        duplicateName: "Naam {{name}} bestaat al binnen deze organisatie. Kies een andere naam.",
         type: "Is het een applicatie of contentdienst?",
         typeApp: "Applicatie - software die mensen gebruiken (tool, cloud-service, utility)",
         typeContent: "Contentdienst - toegang tot leermateriaal (educatieve content, e-books)",
@@ -282,11 +282,11 @@ const nl: AppTranslation = {
         terms: "Fair Use‑voorwaarden",
         termsInfo: "Ik bevestig dat mijn applicatie aan onderstaande voorwaarden voldoet",
         checks: {
-            personal: "Mijn applicatie slaat persoonlijke gegevens veilig op",
+            personal: "Mijn applicatie verwerkt persoonlijke gegevens op een veilige manier",
             duration: "Ik bewaar persoonlijke gegevens niet langer dan nodig",
             privacy: "Ik verstrek geen persoonlijke gegevens aan derden",
             safe: "Ik houd mijn applicatie veilig en beschikbaar",
-            support: "Ik ben beschikbaar voor vragen en problemen",
+            support: "Ik ben te bereiken voor vragen en problemen",
         },
         flash: "Applicatie {{name}} opgeslagen.",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
@@ -301,21 +301,21 @@ const nl: AppTranslation = {
         addFirstApplication: "Voeg je eerste applicatie toe",
         zeroState: {
             title: "Je hebt nog geen apps",
-            description: "Voeg je eerste applicatie toe. Daarna vul je de app-informatie in, maak je een koppeling en kun je je applicatie beschikbaar maken voor instellingen in het hoger onderwijs en onderzoek.",
+            description: "Voeg je eerste applicatie toe. Daarna vul je de app-informatie in, maak je een koppeling en kun je je applicatie beschikbaar maken voor onderwijs- en onderzoeksinstellingen.",
             action: "App toevoegen",
         },
-        addApplication: "Nieuwe applicatie toevoegen",
+        addApplication: "App toevoegen",
         app: "APP",
         guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
         guestNoApplicationMessageInfo: "If this is a suprise, then please contact <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Weet je zeker dat je de organisatie {{name}} wilt verwijderen?",
         readOnly: "Je rol binnen de organisatie {{orgName}} geeft je geen toegang tot de details van deze applicatie",
         catalog: {
-            terms: "Algemene voorwaarden voor apps in de SURF Access applicatie catalogus",
+            terms: "Algemene voorwaarden voor apps in de SURF Access app-catalogus",
             fairUse: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. een enkele onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",
             agreement: "Is je app bedoeld voor gebruik door volledige onderwijsinstellingen? Dan teken je een <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>SURF‑verbindingsovereenkomst</a>.",
-            disclaimer: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor verbindingen die geschikt zijn voor productiegebruik. Je kan rechtstreeks verbinding maken met test-identiteitsproviders met verbindingen die nog niet geschikt zijn voor productiegebruik.",
-            fairUseExternal: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. een enkele onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",
+            disclaimer: "<strong>Let op</strong>: deze voorwaarden gelden alleen voor verbindingen die geschikt zijn voor productiegebruik. Je kan rechtstreeks verbinding maken met test-identiteitsproviders met verbindingen die nog niet geschikt zijn voor productiegebruik.",
+            fairUseExternal: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. één onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",
             agreementExternal: "Is je app bedoeld voor gebruik door volledige onderwijsinstellingen? Dan teken je een <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>SURF‑verbindingsovereenkomst</a>.",
             disclaimerExternal: "<strong>Let op</strong>: Deze voorwaarden gelden alleen voor verbindingen die geschikt zijn voor productiegebruik. U kunt rechtstreeks verbinding maken met test-identiteitsproviders met verbindingen die nog niet geschikt zijn voor productiegebruik.",
         },
@@ -340,7 +340,7 @@ const nl: AppTranslation = {
         teamSection: "Team",
         duplicatedName: "Een koppeling met naam {{name}} bestaat al voor deze applicatie.",
         duplicateEntityID: "Een koppeling met entityID {{entityID}} bestaat al",
-        alllConnections: "App informatie & koppelingen",
+        alllConnections: "App-informatie & koppelingen",
         alllConnectionsInfo: "Alle koppelingen van de applicatie {{name}}",
         inUseWarning: "Alle leden van de volgende instelling(en) zullen toegang verliezen tot <strong>{{name}}</strong>:",
         inUseWarningOrg: "Alle leden van de volgende instelling(en) verliezen toegang tot alle applicaties van deze organisatie:",
@@ -377,7 +377,7 @@ const nl: AppTranslation = {
             teamMemberMulti: "{{count}} teamleden",
             teamMemberMultiYou: " (incl. jij)",
         },
-        productionConnectionHint: "Verbind met onze productieomgeving. Om de applicatie te activeren moeten alle aanvullende gegevens worden verstrekt.",
+        productionConnectionHint: "Verbind met onze productieomgeving. Deel alle aanvullende gegevens om de applicatie te activeren.",
         applicationInformationHint: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd.",
         applicationInformationHintVendor: "Voordat een koppeling met productie kan worden geactiveerd, moeten alle extra gegevens worden toegevoegd en moet het contract worden getekend.",
         productActivationPending: "Het verzoek voor activering van je productiekoppeling is ontvangen. SURF neemt binnen drie werkdagen contact met je op.",
