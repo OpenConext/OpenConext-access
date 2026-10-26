@@ -219,6 +219,9 @@ statistics:
 
 s3storage:
   url: http://localhost:9000
+  # Optional base URL used to build the stored logo URL, defaults to url. When set differently from url, the logo
+  # URL is <public-url>/<uuid>
+  public-url: ${s3storage.url}
   key: "minioadmin"
   secret: "minioadmin"
   bucket: "s3-images"
