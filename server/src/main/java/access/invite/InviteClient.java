@@ -46,4 +46,14 @@ public class InviteClient {
         return restTemplate.getForObject(
             url + "/api/external/v1/internal/invite/roles-summary/" + organizationGUID, List.class);
     }
+
+    public List<Map<String, Object>> rolesPerUser(String sub) {
+        if (!enabled) {
+            return List.of();
+        }
+        return restTemplate.getForObject(
+            url + "/api/external/v1/internal/invite/roles-mine/{sub}",
+            List.class,
+            sub);
+    }
 }
