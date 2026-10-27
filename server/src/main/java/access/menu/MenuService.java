@@ -79,12 +79,14 @@ public class MenuService {
     }
 
     private List<String> menuItemsForUser(User user, Organization currentOrganization) {
-        //Every user has access to the home, catalogue and help menu items
-        List<String> items = new ArrayList<>(List.of(HOME, CATALOGUE, SERVICE_DESK));
+        //Every user has access to the catalogue and help menu items
+        List<String> items = new ArrayList<>(List.of(CATALOGUE, SERVICE_DESK));
         if (!config.isFeedbackWidgetEnabled()) {
             items.add(FEEDBACK);
         }
         if (currentOrganization == null) {
+            //Without an organization there is no other landing page than the home
+            items.add(0, HOME);
             return items;
         }
         //Only the memberships of the current organization matter, the user can have other authorities elsewhere
@@ -95,6 +97,9 @@ public class MenuService {
         boolean onlyGuest = !authorities.isEmpty() && authorities.stream().allMatch(a -> a == Authority.GUEST);
         if (onlyGuest) {
             items.add(YOUR_APPS);
+            if (user.isSuperUser()) {
+                items.add(0, HOME);
+            }
             return items;
         }
         boolean isMember = authorities.contains(Authority.MEMBER);
@@ -103,6 +108,10 @@ public class MenuService {
             items.addAll(List.of(IDP, USERS, YOUR_APPS));
         }
         boolean isInstitution = StringUtils.hasText(currentOrganization.getManageIdentifier());
+        //Only the admins and members of an institution have a home, all others land on their apps
+        if ((isMember || isAdmin) && isInstitution || user.isSuperUser()) {
+            items.add(0, HOME);
+        }
         if (isInstitution) {
             items.addAll(List.of(ACCESSIBLE_APPS, INVITE, SRAM));
         }

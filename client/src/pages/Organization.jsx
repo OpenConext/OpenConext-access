@@ -2,7 +2,7 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
+import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
 import {AppWindowIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {ConnectionAlert} from "../connection/ConnectionAlert.jsx";
 import Logo from "../icons/logo.svg";
@@ -11,8 +11,8 @@ import {menu, organizationApplicationsById, organizationMineById} from "../api/i
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
-import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
-import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Manage.js";
+import {applicationPath, contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
+import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
 import {hasApplicationWriteAccess, hasCreateApplicationAccess} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
@@ -109,40 +109,6 @@ const Organization = () => {
         )
     }
 
-    // An application that is ready to publish links directly to the publish step of its connection
-    const applicationPath = application => {
-        const connections = application.connections || [];
-        return connections.length === 1 && connections[0].status === CONNECTION_STATUSES.COMPLETE ?
-            `/connection/${application.id}/allConnections/${connections[0].id}?action=activate` :
-            `/connection/${application.id}`;
-    }
-
-    const renderApplicationStatus = application => {
-        const connections = application.connections || [];
-        // eslint-disable-next-line no-useless-assignment
-        let status = "";
-        if (connections.length === 0) {
-            status = "in_progress";
-        } else if (connections.length > 1) {
-            status = "multiple_connections"
-        } else {
-            const connection = connections[0];
-            if (connection.status === CONNECTION_STATUSES.COMPLETE) {
-                status = "ready_for_prod"
-            } else if (!isEmpty(connection.changeRequests)) {
-                status = "open_change_requests";
-            } else {
-                status = connection.status.toLowerCase();
-            }
-        }
-        return (
-            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}
-                   className={status === "ready_for_prod" ? "badge-black" : undefined}>
-                {I18n.t(`connection.connections.${status}`)}
-            </Badge>
-        );
-    }
-
     if (loading) {
         return <div className="loading-container"><Spinner className="size-8"/></div>
     }
@@ -169,7 +135,7 @@ const Organization = () => {
             {
                 key: "status",
                 header: I18n.t("accessibleApps.status"),
-                mapper: application => renderApplicationStatus(application)
+                mapper: application => <ApplicationStatusBadge application={application}/>
             },
             {
                 key: "connectionCount",

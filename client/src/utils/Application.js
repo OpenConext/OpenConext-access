@@ -1,6 +1,7 @@
 import {isEmpty} from "./Utils.js";
 import {isValidEmail, isValidUrl} from "../validations/regExps.js";
 import {convertServerConnectionToClient} from "./Connection.js";
+import {CONNECTION_STATUSES} from "./Manage.js";
 
 const parseContactPersonIdentifier = input => {
     if (input.startsWith("http")) {
@@ -8,6 +9,14 @@ const parseContactPersonIdentifier = input => {
         return hostname.replace(/^www\./, '');
     }
     return input.split('@')[0];
+}
+
+// An application that is ready to publish links directly to the publish step of its connection
+export const applicationPath = application => {
+    const connections = application.connections || [];
+    return connections.length === 1 && connections[0].status === CONNECTION_STATUSES.COMPLETE ?
+        `/connection/${application.id}/allConnections/${connections[0].id}?action=activate` :
+        `/connection/${application.id}`;
 }
 
 export const contactPersonTypes = {

@@ -184,6 +184,11 @@ const nl: AppTranslation = {
         title: "Welkom bij SURF Access",
         subTitle: "Jouw centrale plek voor applicaties en toegangsbeheer",
         appsCount: "{{count}} apps",
+        appsYouManage: "Apps die je beheert",
+        rolesYouManage: "Rollen die je beheert",
+        toMyApps: "Naar mijn apps",
+        toRoles: "Naar rollen",
+        usersCount: "{{count}} gebruikers",
         addApps: {
             title: "Apps publiceren",
             description: "Voeg jouw applicaties toe aan SURF Access en deel ze met onderwijs- en onderzoeksinstellingen.",

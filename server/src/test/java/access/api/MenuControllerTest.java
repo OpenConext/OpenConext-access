@@ -63,6 +63,7 @@ class MenuControllerTest extends AbstractTest {
         assertTrue(menu.menuItems().contains("statistics"));
         assertTrue(menu.menuItems().contains("policies"));
         assertTrue(menu.menuItems().contains("invite"));
+        assertEquals("home", menu.menuItems().get(0));
         assertEquals("7", menu.currentOrganization().manageIdentifier());
     }
 
@@ -70,6 +71,8 @@ class MenuControllerTest extends AbstractTest {
     void externalMenuGuestOnly() {
         MenuResponse menu = externalMenu(EXTERNAL_USER_SUB, null);
         assertTrue(menu.menuItems().contains("yourApps"));
+        //A guest, also of an institution, lands on the apps
+        assertFalse(menu.menuItems().contains("home"));
         assertFalse(menu.menuItems().contains("idp"));
         assertFalse(menu.menuItems().contains("invite"));
         assertFalse(menu.menuItems().contains("statistics"));
@@ -79,6 +82,8 @@ class MenuControllerTest extends AbstractTest {
     void externalMenuMemberOfNonInstitution() {
         MenuResponse menu = externalMenu(GUEST_SUB, null);
         assertTrue(menu.menuItems().containsAll(List.of("idp", "users", "yourApps")));
+        //A non-institution has no home
+        assertFalse(menu.menuItems().contains("home"));
         assertFalse(menu.menuItems().contains("invite"));
         assertFalse(menu.menuItems().contains("policies"));
     }
@@ -86,7 +91,7 @@ class MenuControllerTest extends AbstractTest {
     @Test
     void externalMenuSuperUserWithoutMemberships() {
         MenuResponse menu = externalMenu(SUPER_SUB, null);
-        //Everyone gets home, catalogue and service desk; the feedback item is only for environments without the feedback widget
+        //Without an organization the user gets home, catalogue and service desk; the feedback item is only for environments without the feedback widget
         assertEquals(List.of("home", "catalogue", "serviceDesk"), menu.menuItems());
         assertTrue(menu.organizations().isEmpty());
         assertNull(menu.currentOrganization());

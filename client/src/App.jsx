@@ -22,7 +22,7 @@ import {AuthorizedHeader} from "./components/AuthorizedHeader.jsx";
 import {isEmpty} from "./utils/Utils.js";
 import Landing from "./pages/Landing.jsx";
 import JoinRequest from "./pages/JoinRequest.jsx";
-import UserHome from "./pages/UserHome.jsx";
+import HomeSwitch from "./pages/HomeSwitch.jsx";
 import {LoginRedirect} from "./pages/LoginRedirect.jsx";
 import {SESSION_STORAGE_LOCATION} from "./utils/Login.js";
 import {Impersonating} from "./components/Impersonating.jsx";
@@ -221,7 +221,7 @@ const App = () => {
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
-                            <Route path="/home" element={<UserHome/>}/>
+                            <Route path="/home" element={<HomeSwitch/>}/>
                             <Route path="/relax" element={<Relax/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement refreshUser={refreshUser}/>}/>
                             <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>

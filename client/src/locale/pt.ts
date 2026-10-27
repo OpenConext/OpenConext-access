@@ -184,6 +184,11 @@ const pt: AppTranslation = {
         title: "Bem-vindo ao {{productName}}",
         subTitle: "O seu local central para aplicações e gestão de acessos",
         appsCount: "{{count}} aplicações",
+        appsYouManage: "Aplicações que gere",
+        rolesYouManage: "Funções que gere",
+        toMyApps: "Para as minhas aplicações",
+        toRoles: "Para as funções",
+        usersCount: "{{count}} utilizadores",
         addApps: {
             title: "Adicione a(s) sua(s) aplicação(ões)",
             description: "Adicione a(s) sua(s) aplicação(ões) ao catálogo de aplicações para as disponibilizar às instituições.",

@@ -464,6 +464,10 @@ export function rolesSummary(organizationId) {
     return fetchJson(`/api/v1/invite/roles-summary?organizationId=${organizationId}`);
 }
 
+export function myRoles() {
+    return fetchJson("/api/v1/invite/roles-mine");
+}
+
 //Public
 export function publicIdentityProviders() {
     return fetchJson("/api/v1/public/identity-providers");

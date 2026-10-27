@@ -184,6 +184,11 @@ const en: AppTranslation = {
         title: "Welcome to {{productName}}",
         subTitle: "Your central place for applications and access management",
         appsCount: "{{count}} apps",
+        appsYouManage: "Apps you manage",
+        rolesYouManage: "Roles you manage",
+        toMyApps: "To my apps",
+        toRoles: "To roles",
+        usersCount: "{{count}} users",
         addApps: {
             title: "Add your app(s)",
             description: "Add your app(s) to the application catalog to make them available to institutions.",
