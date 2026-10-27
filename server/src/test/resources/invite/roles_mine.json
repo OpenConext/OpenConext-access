@@ -1,0 +1,90 @@
+[
+  {
+    "id": 16174,
+    "name": "Harderwijk",
+    "shortName": "harderwijk",
+    "description": "University of Harderwijk test role",
+    "urn": "urn:mace:surf.nl:invite.test2.surfconext.nl:d35d4cec-417f-4953-b9b8-b6039ee975ca:harderwijk",
+    "defaultExpiryDays": 365,
+    "enforceEmailEquality": false,
+    "eduIDOnly": false,
+    "overrideSettingsAllowed": false,
+    "teamsOrigin": false,
+    "identifier": "d35d4cec-417f-4953-b9b8-b6039ee975ca",
+    "organizationGUID": "434F494E-0000-4000-8000-000000000001",
+    "notifyInviter": false,
+    "userRoleCount": 0,
+    "applicationUsages": [
+      {
+        "id": 32335,
+        "landingPage": "https://test.com/",
+        "application": {
+          "id": 139,
+          "manageId": "c28b4c7b-861c-43fc-a6c9-d5965b2a955c",
+          "manageType": "OIDC10_RP"
+        }
+      }
+    ],
+    "auditable": {
+      "createdAt": 1791897101.000000000,
+      "createdBy": "admin@example.com"
+    },
+    "applicationMaps": [
+      {
+        "landingPage": "https://test.com/",
+        "policies": [],
+        "unknown": true
+      }
+    ]
+  },
+  {
+    "id": 16177,
+    "name": "Konijn",
+    "shortName": "konijn",
+    "description": "Dit is de konijn rol",
+    "urn": "urn:mace:surf.nl:invite.test2.surfconext.nl:68cd8b3d-0b49-47ee-ad4c-656f7c243b35:konijn",
+    "defaultExpiryDays": 365,
+    "enforceEmailEquality": false,
+    "eduIDOnly": false,
+    "overrideSettingsAllowed": false,
+    "teamsOrigin": false,
+    "identifier": "68cd8b3d-0b49-47ee-ad4c-656f7c243b35",
+    "organizationGUID": "434F494E-0000-4000-8000-000000000001",
+    "notifyInviter": false,
+    "userRoleCount": 0,
+    "applicationUsages": [
+      {
+        "id": 32338,
+        "landingPage": "https://test.com",
+        "application": {
+          "id": 142,
+          "manageId": "7f1efefb-a02a-41cc-b877-7a6e1148a765",
+          "manageType": "OIDC10_RP"
+        }
+      }
+    ],
+    "auditable": {
+      "createdAt": 1792157638.000000000,
+      "createdBy": "admin@example.com"
+    },
+    "applicationMaps": [
+      {
+        "landingPage": "https://test.com",
+        "policies": [],
+        "entityid": "SURFACCESS-58854f8d-e050-478f-aa99-4237097e0eb2",
+        "type": "oidc10_rp",
+        "allowedall": true,
+        "receivesMemberships": false,
+        "url": "https://test.com",
+        "name:nl": "Test",
+        "institutionGuid": "434F494E-0000-4000-8000-000000000001",
+        "OrganizationName:en": "University of Harderwijk",
+        "logo": "https://minioapi.test2.surfconext.nl/access-dashboard-images/060413e2-e309-43c3-87e5-295ac9c92d8d",
+        "name:en": "Test",
+        "id": "7f1efefb-a02a-41cc-b877-7a6e1148a765",
+        "_id": "7f1efefb-a02a-41cc-b877-7a6e1148a765",
+        "allowedEntities": []
+      }
+    ]
+  }
+]

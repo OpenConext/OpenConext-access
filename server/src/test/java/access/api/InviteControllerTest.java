@@ -19,6 +19,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class InviteControllerTest extends AbstractTest {
 
@@ -237,5 +238,58 @@ class InviteControllerTest extends AbstractTest {
         assertEquals(2, roles.size());
     }
 
+    @SneakyThrows
+    @Test
+    void rolesMine() {
+        List<Map<String, Object>> rolesMock = objectMapper.readValue(new ClassPathResource("/invite/roles_mine.json").getInputStream(),
+            new TypeReference<>() {
+            });
+        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles-mine/.*"))
+            .willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(rolesMock))));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", MANAGE_SUB);
+
+        List<Map<String, Object>> roles = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/invite/roles-mine")
+            .as(new TypeRef<>() {
+            });
+
+        assertEquals(2, roles.size());
+        assertEquals("Harderwijk", roles.get(0).get("name"));
+        assertEquals(0, roles.get(0).get("userRoleCount"));
+        //The application is not known in Manage, so there is no name to show
+        List<Map<String, Object>> unknownApplications = (List<Map<String, Object>>) roles.get(0).get("applicationMaps");
+        assertEquals(true, unknownApplications.getFirst().get("unknown"));
+        assertNull(unknownApplications.getFirst().get("name:en"));
+
+        assertEquals("Konijn", roles.get(1).get("name"));
+        List<Map<String, Object>> applications = (List<Map<String, Object>>) roles.get(1).get("applicationMaps");
+        assertEquals("Test", applications.getFirst().get("name:en"));
+    }
+
+    @SneakyThrows
+    @Test
+    void rolesMineSuperUser() {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+
+        List<Map<String, Object>> roles = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .get("/api/v1/invite/roles-mine")
+            .as(new TypeRef<>() {
+            });
+
+        assertEquals(0, roles.size());
+        //Super users have no roles of their own, so Invite is never called
+        verify(0, getRequestedFor(urlPathMatching("/api/external/v1/internal/invite/roles-mine/.*")));
+    }
 
 }

@@ -8,7 +8,7 @@ import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty} from "../utils/Utils.js";
 import {hasApplicationWriteAccess} from "../utils/Permissions.js";
-import {applicationPath, convertServerApplicationToClient} from "../utils/Application.js";
+import {applicationPath, convertServerApplicationToClient, roleApplicationNames} from "../utils/Application.js";
 import {inviteRoleHref, inviteRolesHref, mainMenuItems} from "../utils/MenuItems.js";
 import {myRoles, organizationApplicationsById} from "../api/index.js";
 import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
@@ -16,10 +16,6 @@ import ImageNotFound from "../icons/image-not-found.svg";
 import UserHome from "./UserHome.jsx";
 
 const MAX_ROLE_APPLICATIONS = 2;
-
-const roleApplicationNames = role => (role.applicationMaps || [])
-    .map(application => application[`name:${I18n.locale}`] || application["name:en"] || application["name:nl"])
-    .filter(name => !isEmpty(name));
 
 const SectionHeader = ({title, buttonLabel, buttonLink, onClick}) => (
     <div className="section-header">
@@ -76,7 +72,7 @@ const UserHomeMember = () => {
     const setActiveMenuItem = menuItem => useAppStore.setState({activeMenuItem: menuItem});
 
     const roleRow = role => {
-        const names = roleApplicationNames(role);
+        const names = roleApplicationNames(role, I18n.locale);
         const rest = names.length - MAX_ROLE_APPLICATIONS;
         const content = (
             <>

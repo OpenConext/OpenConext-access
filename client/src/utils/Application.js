@@ -19,6 +19,20 @@ export const applicationPath = application => {
         `/connection/${application.id}`;
 }
 
+//An application that is not (yet) known in Manage is marked as unknown and has no name, in that case the host of its landing page is shown
+const landingPageHost = application => {
+    try {
+        return new URL(application.landingPage).host;
+    } catch {
+        return null;
+    }
+}
+
+export const roleApplicationNames = (role, locale) => (role.applicationMaps || [])
+    .map(application => application[`name:${locale}`] || application["name:en"] || application["name:nl"]
+        || (application.unknown ? landingPageHost(application) : null))
+    .filter(name => !isEmpty(name));
+
 export const contactPersonTypes = {
     administrative: "administrative", technical: "technical", support: "support"
 }

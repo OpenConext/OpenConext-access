@@ -2,8 +2,8 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
-import {AppWindowIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, AlertTitle, Button, Spinner} from "@surfnet/curve-react";
+import {AppWindowIcon, HourglassIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {ConnectionAlert} from "../connection/ConnectionAlert.jsx";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
@@ -19,7 +19,8 @@ import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
 import {useShallow} from "zustand/react/shallow";
-import {currentOrganizationFromUser} from "../utils/Organization.js";
+import {getParameterByName} from "../utils/QueryParameters.js";
+import {currentOrganizationFromUser, showContractRequiredBanner} from "../utils/Organization.js";
 
 
 const views = {
@@ -86,20 +87,36 @@ const Organization = () => {
                     }
 
                 }).catch(() => {
-                navigate("/home")
+                //Without a home (see HomeSwitch) navigating to /home would redirect back to this page, resulting in a loop
+                if (useAppStore.getState().menuItems.includes(mainMenuItems.home)) {
+                    navigate("/home");
+                } else {
+                    setLoading(false);
+                }
             });
         }
     }, [navigate, organizationId, user]);
 
     const alertInfo = () => {
-        if (organization.applicationCount > 0) {
-            return null;
+        //Set after the creation of an organization, which has no home to show this on
+        if (getParameterByName("new")) {
+            return (
+                <Alert variant={"info"}>
+                    <HourglassIcon/>
+                    <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationTitle", {name: currentOrganization?.name}))}}/>
+                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationDescription"))}}/>
+                </Alert>
+            );
         }
-        if (mayCreateApplication) {
-            //The zero state card has its own explanation, only the agreement hint (if needed) is shown
+        if (showContractRequiredBanner(user, currentOrganization)) {
+            //Regardless of the number of applications, the admin must supply the details for the agreement
             return <ConnectionAlert application={{connections: []}}
-                                    currentOrganization={currentOrganization || {}}
+                                    currentOrganization={currentOrganization}
                                     fullWidth={true}/>;
+        }
+        if (organization.applicationCount > 0 || mayCreateApplication) {
+            //The zero state card has its own explanation
+            return null;
         }
         return (
             <Alert variant={"info"}>
