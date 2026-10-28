@@ -155,11 +155,14 @@ export const Home = () => {
                         <h2>{I18n.t("landing.tryDemo.title")}</h2>
                         <p>{I18n.t("landing.tryDemo.description")}</p>
                     </div>
-                    <Button nativeButton={false} className="try-demo-cta" render={
-                        <a href={I18n.t("landing.tryDemo.url")} target="_blank" rel="noreferrer">
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.tryDemo.cta"))}}/>
-                        </a>
-                    }/>
+                    <div className="try-demo-actions">
+                        <Button className="try-demo-institution" onClick={() => login(config, false)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
+                        </Button>
+                        <Button variant="outline" className="try-demo-eduid" onClick={() => login(config, true)}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
+                        </Button>
+                    </div>
                 </section>
 
                 <section className="activity">

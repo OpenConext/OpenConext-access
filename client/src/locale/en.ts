@@ -93,8 +93,6 @@ const en: AppTranslation = {
         tryDemo: {
             title: "Want to try {{productName}} without obligation?",
             description: "Get to know {{productName}} in our demo environment. Here you can try out all functionality in a safe, closed-off environment.",
-            cta: "To the {{productName}} demo environment",
-            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "What's happening on {{productName}} right now",

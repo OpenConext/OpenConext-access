@@ -331,15 +331,26 @@
             }
         }
 
-        .try-demo-cta[data-slot="button"] {
+        .try-demo-actions {
             flex-shrink: 0;
-            background-color: var(--primary-foreground);
-            color: var(--primary);
-            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 240px;
 
-            &:hover {
-                background-color: var(--primary-foreground);
-                opacity: .9;
+            [data-slot="button"] {
+                width: 100%;
+            }
+
+            .try-demo-institution[data-slot="button"] {
+                background-color: var(--foreground);
+                color: #fff;
+            }
+
+            .try-demo-eduid[data-slot="button"] {
+                background-color: transparent;
+                border-color: var(--foreground);
+                color: var(--foreground);
             }
         }
 
@@ -353,14 +364,8 @@
                 line-height: 40px;
             }
 
-            .try-demo-cta[data-slot="button"] {
+            .try-demo-actions {
                 width: 100%;
-                height: auto;
-                min-height: 40px;
-                padding-top: 10px;
-                padding-bottom: 10px;
-                white-space: normal;
-                text-align: center;
             }
         }
     }

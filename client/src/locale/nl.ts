@@ -93,8 +93,6 @@ const nl: AppTranslation = {
         tryDemo: {
             title: "SURF Access vrijblijvend uitproberen?",
             description: "Maak kennis met SURF Access in onze demo-omgeving. Hier kun je alle functionaliteit uitproberen in een veilige afgesloten omgeving.",
-            cta: "Naar de demo-omgeving van SURF Access",
-            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "Dit gebeurt er nu op SURF Access",

@@ -93,8 +93,6 @@ const pt: AppTranslation = {
         tryDemo: {
             title: "Quer experimentar o {{productName}} sem compromisso?",
             description: "Conheça o {{productName}} no nosso ambiente de demonstração. Aqui pode experimentar todas as funcionalidades num ambiente seguro e isolado.",
-            cta: "Para o ambiente de demonstração do {{productName}}",
-            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "O que está a acontecer agora no {{productName}}",
