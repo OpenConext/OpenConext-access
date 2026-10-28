@@ -7,7 +7,6 @@ import {
     deleteOrganizationById,
     identityProvidersByUsedConnectionsForOrganization,
     organizationMineById,
-    updateContractForOrganization,
     updateOrganizationMetaData,
     updateOrganizationName
 } from "../api/index.js";
@@ -28,6 +27,8 @@ import {
     AlertDialogHeader,
     AlertDialogMedia,
     AlertDialogTitle,
+    AlertTitle,
+    Badge,
     Button,
     Field,
     FieldDescription,
@@ -35,7 +36,7 @@ import {
     Input,
     Spinner
 } from "@surfnet/curve-react";
-import {BuildingOfficeIcon, EnvelopeSimpleIcon, InfoIcon, TrashIcon} from "@phosphor-icons/react";
+import {BuildingOfficeIcon, EnvelopeSimpleIcon, HourglassIcon, InfoIcon, TrashIcon} from "@phosphor-icons/react";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {contactSectionValid, convertServerApplicationToClient} from "../utils/Application.js";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -47,10 +48,12 @@ import {countryOptions} from "../utils/countries.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {useShallow} from "zustand/react/shallow";
+import {TabHeader} from "../components/TabHeader.jsx";
 
 const sections = {
     contactPersons: "contactPersons",
-    general: "general"
+    general: "general",
+    agreement: "agreement"
 }
 
 const CONTRACT_REQUIRED_FIELDS = ["organizationName", "signeeName", "email", "telephone"];
@@ -102,7 +105,8 @@ const MyOrganization = ({refreshUser}) => {
                     setOrganization(convertedOrganization);
                     const isExternal = isEmpty(res.manageIdentifier);
                     setExternalOrganization(isExternal);
-                    const currentSection = isExternal ? sections.general : (isEmpty(tab) ? sections.contactPersons : tab);
+                    const currentSection = isExternal ? (tab === sections.agreement ? sections.agreement : sections.general) :
+                        (isEmpty(tab) ? sections.contactPersons : tab);
                     navigate(`/idp/${organizationId}/${currentSection}`);
                     setLoading(false);
                     const organization = currentOrganizationFromUser(user, organizationId)
@@ -316,41 +320,35 @@ const MyOrganization = ({refreshUser}) => {
             });
     }
 
-    const doSubmitExternalOrganization = () => {
+    const doSaveExternalOrganization = () => {
         setInitial(false);
-        setContractInitial(false);
-        const signed = !!contract.signedContract;
         if (isEmpty(organization.name)) {
             return;
         }
-        if (!signed && !isContractFormValid()) {
-            return;
-        }
-        if (signed) {
-            saveOrganizationNameOnly();
-        } else {
-            setSubmitConfirmation(true);
-        }
+        saveOrganizationNameOnly();
     }
 
-    const confirmSubmitExternalOrganization = () => {
+    const doRequestAgreement = () => {
+        setContractInitial(false);
+        if (!isContractFormValid()) {
+            return;
+        }
+        setSubmitConfirmation(true);
+    }
+
+    const confirmRequestAgreement = () => {
         setSubmitConfirmation(false);
         setLoading(true);
         const body = {...contract, providerName: organization.name};
-        if (isNewContract) {
-            delete body.signedContract;
-        }
-        const contractCall = isNewContract
-            ? createContractForOrganization(organization.id, body)
-            : updateContractForOrganization(organization.id, body);
-        Promise.all([updateOrganizationName(organization.id, organization.name), contractCall])
-            .then(([, contractRes]) => {
-                if (isNewContract && contractRes.ticketKey) {
+        delete body.signedContract;
+        createContractForOrganization(organization.id, body)
+            .then(contractRes => {
+                if (contractRes.ticketKey) {
                     setLoading(false);
                     setJiraModal({open: true, ticketKey: contractRes.ticketKey});
                 } else {
                     refreshUser(() => setLoading(false));
-                    setFlash(I18n.t("myOrganization.flash", {name: organization.name}));
+                    setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
                 }
             })
             .catch(() => {
@@ -359,13 +357,16 @@ const MyOrganization = ({refreshUser}) => {
             });
     }
 
-    const doCancelExternalOrganization = () => {
+    const doCancelGeneral = () => {
         setInitial(true);
-        setContractInitial(true);
-        setContractLoading(true);
         organizationMineById(organizationId).then(res => {
             setOrganization(convertServerApplicationToClient(res));
         });
+    }
+
+    const doCancelAgreement = () => {
+        setContractInitial(true);
+        setContractLoading(true);
         loadContract();
     }
 
@@ -380,107 +381,153 @@ const MyOrganization = ({refreshUser}) => {
         </div>
     );
 
-    const renderExternalOrganizationSettings = () => {
+    const renderGeneralTab = () => (
+        <>
+            <section>
+                <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.generalSectionTitle")}</h3>
+                {renderDescribedField(
+                    "organization-name",
+                    I18n.t("myOrganization.nameLabel"),
+                    I18n.t("myOrganization.nameDescription"),
+                    organization.name,
+                    !adminUser,
+                    e => setOrganization({...organization, name: e.target.value}),
+                    (!initial && isEmpty(organization.name)) ? I18n.t("forms.required", {name: I18n.t("myOrganization.nameLabel")}) : null
+                )}
+            </section>
+            {adminUser &&
+                <div className="form-actions">
+                    <Button variant="outline" onClick={doCancelGeneral}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                    </Button>
+                    <Button onClick={doSaveExternalOrganization}>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.proceedButton"))}}/>
+                    </Button>
+                </div>}
+        </>
+    );
+
+    const renderAgreementTab = () => {
         if (contractLoading || contract === null) {
             return <div className="loading-container"><Spinner className="size-8"/></div>;
         }
         const signed = !!contract.signedContract;
+        const readOnly = signed || !isNewContract;
         return (
-            <div className="external-organization-settings">
+            <>
                 <section>
-                    <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.generalSectionTitle")}</h3>
-                    {renderDescribedField(
-                        "organization-name",
-                        I18n.t("myOrganization.nameLabel"),
-                        I18n.t("myOrganization.nameDescription"),
-                        organization.name,
-                        !adminUser,
-                        e => setOrganization({...organization, name: e.target.value}),
-                        (!initial && isEmpty(organization.name)) ? I18n.t("forms.required", {name: I18n.t("myOrganization.nameLabel")}) : null
-                    )}
-                </section>
-                {isOrganizationAdmin(user, currentOrganization) &&
-                    <section>
+                    <div className="section-header">
                         <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.contractSectionTitle")}</h3>
+                        {isNewContract &&
+                            <Badge variant="warning">{I18n.t("myOrganization.noAgreement")}</Badge>}
+                    </div>
 
-                        {signed &&
-                            <Alert variant={"info"}>
-                                <InfoIcon/>
-                                <AlertDescription
-                                    dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.signedReadonly"))}}/>
-                            </Alert>}
-                        {(!signed && !isNewContract) &&
-                            <Alert variant={"info"}>
-                                <InfoIcon/>
-                                <AlertDescription
-                                    dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
-                            </Alert>}
+                    {signed &&
+                        <Alert variant={"info"}>
+                            <InfoIcon/>
+                            <AlertDescription
+                                dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.signedReadonly"))}}/>
+                        </Alert>}
+                    {(!signed && !isNewContract) &&
+                        <Alert variant={"info"}>
+                            <HourglassIcon/>
+                            <AlertTitle>{I18n.t("contracts.requestedTitle")}</AlertTitle>
+                            <AlertDescription
+                                dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
+                        </Alert>}
 
-                        {renderDescribedField(
-                            "contract-organization-name",
-                            I18n.t("contracts.organizationName"),
-                            I18n.t("contracts.organizationNameDescription"),
-                            contract.organizationName,
-                            signed,
-                            e => updateContractField("organizationName", e.target.value),
-                            (!contractInitial && isEmpty(contract.organizationName)) ? I18n.t("forms.required", {name: I18n.t("contracts.organizationName")}) : null
-                        )}
+                    {renderDescribedField(
+                        "contract-organization-name",
+                        I18n.t("contracts.organizationName"),
+                        I18n.t("contracts.organizationNameDescription"),
+                        contract.organizationName,
+                        readOnly,
+                        e => updateContractField("organizationName", e.target.value),
+                        (!contractInitial && isEmpty(contract.organizationName)) ? I18n.t("forms.required", {name: I18n.t("contracts.organizationName")}) : null
+                    )}
 
-                        <div className="field-row">
-                            <InputField name={I18n.t("contracts.signeeTitle")}
-                                        value={contract.signeeTitle}
-                                        disabled={signed}
-                                        optional={true}
-                                        onChange={e => updateContractField("signeeTitle", e.target.value)}/>
-                            <InputField name={I18n.t("contracts.signeeName")}
-                                        value={contract.signeeName}
-                                        disabled={signed}
-                                        onChange={e => updateContractField("signeeName", e.target.value)}/>
-                        </div>
-                        {(!contractInitial && isEmpty(contract.signeeName)) &&
-                            <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.signeeName")})}/>}
-
-                        <InputField name={I18n.t("contracts.email")}
-                                    value={contract.email}
-                                    disabled={signed}
-                                    onChange={e => updateContractField("email", e.target.value)}/>
-                        {(!contractInitial && isEmpty(contract.email)) &&
-                            <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.email")})}/>}
-
-                        <InputField name={I18n.t("contracts.telephone")}
-                                    value={contract.telephone}
-                                    disabled={signed}
-                                    onChange={e => updateContractField("telephone", e.target.value)}/>
-                        {(!contractInitial && isEmpty(contract.telephone)) &&
-                            <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.telephone")})}/>}
-
-                        <InputField name={I18n.t("contracts.address")}
-                                    value={contract.address}
-                                    disabled={signed}
+                    <div className="field-row">
+                        <InputField name={I18n.t("contracts.signeeTitle")}
+                                    value={contract.signeeTitle}
+                                    disabled={readOnly}
                                     optional={true}
-                                    onChange={e => updateContractField("address", e.target.value)}/>
+                                    onChange={e => updateContractField("signeeTitle", e.target.value)}/>
+                        <InputField name={I18n.t("contracts.signeeName")}
+                                    value={contract.signeeName}
+                                    disabled={readOnly}
+                                    onChange={e => updateContractField("signeeName", e.target.value)}/>
+                    </div>
+                    {(!contractInitial && isEmpty(contract.signeeName)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.signeeName")})}/>}
 
-                        <SelectField name={I18n.t("contracts.country")}
-                                     options={countryOptions(I18n.locale)}
-                                     value={countryOptions(I18n.locale).find(o => o.value === contract.country) || null}
-                                     disabled={signed}
-                                     optional={true}
-                                     onChange={option => updateContractField("country", option ? option.value : "")}
-                                     searchable={true}
-                                     clearable={true}/>
-                    </section>}
+                    <InputField name={I18n.t("contracts.email")}
+                                value={contract.email}
+                                disabled={readOnly}
+                                onChange={e => updateContractField("email", e.target.value)}/>
+                    {(!contractInitial && isEmpty(contract.email)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.email")})}/>}
 
-                <div className="form-actions">
-                    <Button variant="outline" onClick={doCancelExternalOrganization}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
-                    </Button>
-                    <Button onClick={doSubmitExternalOrganization}>
-                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t(`myOrganization.${isNewContract ? "requestAgreementButton" : "proceedButton"}`))}}/>
-                    </Button>
-                </div>
-            </div>
+                    <InputField name={I18n.t("contracts.telephone")}
+                                value={contract.telephone}
+                                disabled={readOnly}
+                                onChange={e => updateContractField("telephone", e.target.value)}/>
+                    {(!contractInitial && isEmpty(contract.telephone)) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {name: I18n.t("contracts.telephone")})}/>}
+
+                    <InputField name={I18n.t("contracts.address")}
+                                value={contract.address}
+                                disabled={readOnly}
+                                optional={true}
+                                onChange={e => updateContractField("address", e.target.value)}/>
+
+                    <SelectField name={I18n.t("contracts.country")}
+                                 options={countryOptions(I18n.locale)}
+                                 value={countryOptions(I18n.locale).find(o => o.value === contract.country) || null}
+                                 disabled={readOnly}
+                                 optional={true}
+                                 onChange={option => updateContractField("country", option ? option.value : "")}
+                                 searchable={true}
+                                 clearable={true}/>
+                </section>
+
+                {isNewContract &&
+                    <div className="form-actions">
+                        <Button variant="outline" onClick={doCancelAgreement}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.cancel"))}}/>
+                        </Button>
+                        <Button onClick={doRequestAgreement}>
+                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("myOrganization.requestAgreementButton"))}}/>
+                        </Button>
+                    </div>}
+            </>
         );
     }
+
+    const externalActiveTab = () =>
+        isOrganizationAdmin(user, currentOrganization) && tab === sections.agreement ? sections.agreement : sections.general;
+
+    const renderExternalOrganizationSettings = () => (
+        <div className="external-organization-settings">
+            {externalActiveTab() === sections.agreement ? renderAgreementTab() : renderGeneralTab()}
+        </div>
+    );
+
+    const pageHeader = (
+        <div className="my-organization-header-container">
+            <div className="top-header">
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
+                {canDeleteOrganization &&
+                    <Button variant="outline" onClick={e => doDelete(e, true)}>
+                        <TrashIcon/>
+                        <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/>
+                    </Button>}
+            </div>
+            <p dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
+                    {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
+            }}/>
+        </div>
+    );
 
     const {open, action, okButton} = confirmation;
     return (
@@ -526,7 +573,7 @@ const MyOrganization = ({refreshUser}) => {
                         <AlertDialogCancel>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.back"))}}/>
                         </AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmSubmitExternalOrganization}>
+                        <AlertDialogAction onClick={confirmRequestAgreement}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.submitConfirmation.confirm"))}}/>
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -544,20 +591,13 @@ const MyOrganization = ({refreshUser}) => {
                     confirmationTxt={I18n.t("confirmationDialog.ok")}
                     question={I18n.t(`contracts.jiraModal.message${config.testEnvironment ? "Test" : ""}`, {jiraKey: jiraModal.ticketKey})}
                 />}
-            <div className="my-organization-header-container">
-                <div className="top-header">
-                    <h1 className="text-[length:var(--text-2xl-font-size)]">{I18n.t("myOrganization.title")}</h1>
-                    {canDeleteOrganization &&
-                        <Button variant="outline" onClick={e => doDelete(e, true)}>
-                            <TrashIcon/>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.delete"))}}/>
-                        </Button>}
-                </div>
-                <p dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(I18n.t("myOrganization.info"),
-                        {ADD_ATTR: ['target'], ADD_TAGS: ['rel']})
-                }}/>
-            </div>
+            {externalOrganization ?
+                <TabHeader tab={externalActiveTab()}
+                           setTab={name => navigate(`/idp/${organizationId}/${name}`)}
+                           hrefFor={name => `/idp/${organizationId}/${name}`}
+                           tabNames={isOrganizationAdmin(user, currentOrganization) ? [sections.general, sections.agreement] : [sections.general]}>
+                    {pageHeader}
+                </TabHeader> : pageHeader}
             <div className="my-organization">
                 {externalOrganization ? renderExternalOrganizationSettings() : (
                     <>
