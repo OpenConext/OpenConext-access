@@ -3,12 +3,9 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import SegmentedControl from "../components/SegmentedControl.jsx";
 import PeriodPicker from "../components/PeriodPicker.jsx";
-import {Button} from "@surfnet/curve-react";
-import {ExportIcon} from "@phosphor-icons/react";
 import StatsLineChart from "../components/StatsLineChart.jsx";
 import {DateField} from "../components/DateField.jsx";
 import {loginTimeFrame} from "../api/index.js";
-import {sanitize} from "../utils/Utils";
 
 const AUTO_REFRESH_INTERVAL = 30_000; // ms
 
@@ -61,9 +58,6 @@ const buildYearFromTo = (year) => {
     const to = new Date(year + 1, 0, 1).getTime() / 1000;
     return {from, to};
 };
-
-// Shift a year-based period back by `steps` years
-const shiftYearPeriod = (year, steps) => buildYearFromTo(year - steps);
 
 // Determine the appropriate API scale for a custom date range.
 // Minute and hour scales are selected for short ranges; longer ranges fall back
@@ -148,12 +142,6 @@ const formatStatNumber = (n) => {
     return n.toLocaleString("nl-NL");
 };
 
-const formatPct = (current, baseline) => {
-    if (!baseline || baseline === 0) return null;
-    const pct = Math.round(((current - baseline) / baseline) * 100);
-    return pct >= 0 ? `+${pct}%` : `${pct}%`;
-};
-
 const sumLogins = arr => arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
 
 const PublicStats = ({initialData = null}) => {
@@ -171,8 +159,6 @@ const PublicStats = ({initialData = null}) => {
 
     const [timeFrameData, setTimeFrameData] = useState(initialData || []);
     const [totalLogins, setTotalLogins] = useState(() => initialData ? sumLogins(initialData) : 0);
-    const [prevPeriodTotal, setPrevPeriodTotal] = useState(null);
-    const [threePeriodTotal, setThreePeriodTotal] = useState(null);
     const [loading, setLoading] = useState(!initialData);
 
     const autoRefreshRef = useRef(null);
@@ -215,8 +201,6 @@ const PublicStats = ({initialData = null}) => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
                     setTimeFrameData(arr);
-                    setPrevPeriodTotal(null);
-                    setThreePeriodTotal(null);
                     setLoading(false);
                 })
                 .catch(() => setLoading(false));
@@ -232,19 +216,14 @@ const PublicStats = ({initialData = null}) => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
                     setTimeFrameData(arr);
-                    setPrevPeriodTotal(null);
-                    setThreePeriodTotal(null);
                     setLoading(false);
                 })
                 .catch(() => setLoading(false));
             return;
         }
 
-        // Year-based periods: fetch current + 2 comparison windows in parallel
         const {from, to} = buildYearFromTo(periodValue);
         const scale = scaleForPeriod[period];
-        const prev = shiftYearPeriod(periodValue, 1);
-        const three = shiftYearPeriod(periodValue, 3);
 
         // When "year" period is selected, make one call spanning 5 years (one point per year)
         if (period === "year") {
@@ -254,8 +233,6 @@ const PublicStats = ({initialData = null}) => {
                 .then(data => {
                     const arr = Array.isArray(data) ? data : [data];
                     setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
-                    setPrevPeriodTotal(null);
-                    setThreePeriodTotal(null);
                     setTimeFrameData(arr);
                     setLoading(false);
                 })
@@ -263,21 +240,14 @@ const PublicStats = ({initialData = null}) => {
             return;
         }
 
-        Promise.all([
-            loginTimeFrame(from, to, scale, "", "", false),
-            loginTimeFrame(prev.from, prev.to, scale, "", "", false),
-            loginTimeFrame(three.from, three.to, scale, "", "", false),
-        ]).then(([current, prevData, threeData]) => {
-            const arr = Array.isArray(current) ? current : [current];
-            const prevArr = Array.isArray(prevData) ? prevData : [prevData];
-            const threeArr = Array.isArray(threeData) ? threeData : [threeData];
-
-            setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
-            setPrevPeriodTotal(prevArr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
-            setThreePeriodTotal(threeArr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
-            setTimeFrameData(arr);
-            setLoading(false);
-        }).catch(() => setLoading(false));
+        loginTimeFrame(from, to, scale, "", "", false)
+            .then(data => {
+                const arr = Array.isArray(data) ? data : [data];
+                setTotalLogins(arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0));
+                setTimeFrameData(arr);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
     }, [period, periodValue, customFrom, customTo]);
 
     // Auto-refresh every 30s for rolling periods (minute / hour)
@@ -313,16 +283,6 @@ const PublicStats = ({initialData = null}) => {
         return timeFrameData.map(d => labelForScale(scale, d.time));
     }, [period, customFrom, customTo, timeFrameData]);
 
-    const pctVsLast = useMemo(
-        () => (yearPeriods.has(period) ? formatPct(totalLogins, prevPeriodTotal) : null),
-        [period, totalLogins, prevPeriodTotal]
-    );
-
-    const pctVs3 = useMemo(
-        () => (yearPeriods.has(period) ? formatPct(totalLogins, threePeriodTotal) : null),
-        [period, totalLogins, threePeriodTotal]
-    );
-
     // Use a fluent (dot-free) line for high-density scales: rolling periods and
     // custom ranges that resolve to minute or hour scale.
     const isFluent = rollingPeriods.has(period) ||
@@ -334,24 +294,6 @@ const PublicStats = ({initialData = null}) => {
         if (period === "hour"   || (period === "custom" && customScale === "hour"))   return 14;
         return undefined;
     })();
-
-    const handleExport = () => {
-        const rows = [["Label", "Logins"]];
-        timeFrameData.forEach((d, i) => {
-            rows.push([chartLabels[i] || i, d.count_user_id || 0]);
-        });
-        const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-        const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        const suffix = (rollingPeriods.has(period) || period === "custom")
-            ? period
-            : `${periodValue}_${period}`;
-        a.download = `statistics_${suffix}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
 
     return (
         <div className="statistics-container">
@@ -388,11 +330,6 @@ const PublicStats = ({initialData = null}) => {
                                        pastDatesAllowed={true}
                                        allowNull={false}/>
                         </div>
-                        <Button onClick={handleExport}
-                                className="export">
-                            <span data-icon="inline-start"><ExportIcon/></span>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("statistics.export"))}}/>
-                        </Button>
                     </div>
                 </div>
             </div>
@@ -403,30 +340,6 @@ const PublicStats = ({initialData = null}) => {
                         <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalLogins)}</h1>
                         <p>{I18n.t("statistics.total")}</p>
                         <span className="blue"/>
-                    </div>
-                </section>
-                <section className="cardy">
-                    <div className="stat">
-                        {!loading && pctVsLast ? (
-                            <>
-                                <h1 className="text-[length:var(--text-2xl-font-size)]">{pctVsLast}</h1>
-                                <p>{I18n.t("statistics.comparedToLastPeriod")}</p>
-                            </>
-                        ) : (
-                            <p className="no-comparison">{"— " + I18n.t("statistics.comparedToLastPeriod")}</p>
-                        )}
-                    </div>
-                </section>
-                <section className="cardy">
-                    <div className="stat">
-                        {!loading && pctVs3 ? (
-                            <>
-                                <h1 className="text-[length:var(--text-2xl-font-size)]">{pctVs3}</h1>
-                                <p>{I18n.t("statistics.comparedToLast3Periods")}</p>
-                            </>
-                        ) : (
-                            <p className="no-comparison">{"— " + I18n.t("statistics.comparedToLast3Periods")}</p>
-                        )}
                     </div>
                 </section>
             </div>

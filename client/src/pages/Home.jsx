@@ -8,9 +8,9 @@ import {login} from "../utils/Login.js";
 import WelcomePublishApps from "../icons/landing/home_publish_apps.svg";
 import WelcomeActivateApps from "../icons/landing/home_activate_apps.svg";
 import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
-import heroImage from "../icons/landing/home_top_right.png";
-import providersImage from "../icons/landing/home_bottom_left.png";
-import institutionsImage from "../icons/landing/home_bottom_right.png";
+const heroImage = new URL("../icons/landing/home_top_right.svg", import.meta.url).href;
+const providersImage = new URL("../icons/landing/home_bottom_left.svg", import.meta.url).href;
+const institutionsImage = new URL("../icons/landing/home_bottom_right.svg", import.meta.url).href;
 import PublicStats from "./PublicStats.jsx";
 import {loginTimeFrame} from "../api/index.js";
 
@@ -87,7 +87,7 @@ export const Home = () => {
                 <div className="bento-grid">
                     <div className="bento-card green">
                         <div className="bento-illustration">
-                            <WelcomePublishApps/>
+                            <WelcomeManageAccess/>
                         </div>
                         <div className="bento-body">
                             <h3 className="text-[30px]">{I18n.t("landing.whatCanYouDo.publish.title")}</h3>
@@ -105,7 +105,7 @@ export const Home = () => {
                     </div>
                     <div className="bento-card purple">
                         <div className="bento-illustration">
-                            <WelcomeManageAccess/>
+                            <WelcomePublishApps/>
                         </div>
                         <div className="bento-body">
                             <h3 className="text-[30px]">{I18n.t("landing.whatCanYouDo.manage.title")}</h3>

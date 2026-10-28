@@ -1599,8 +1599,6 @@ const nl: AppTranslation = {
         showingResultsFor: "Resultaten voor '{{label}}'",
         removeFilter: "Filter verwijderen",
         loginPublic: "Inloggegevens van SURFconext applicaties.",
-        comparedToLastPeriod: "ten opzichte van vorige periode",
-        comparedToLast3Periods: "ten opzichte van 3 periodes geleden",
         minute: "Minuut",
         hour: "Uur",
     },

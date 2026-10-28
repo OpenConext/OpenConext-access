@@ -4,9 +4,8 @@ import I18n from "../locale/I18n";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger, Badge} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import {TextboxIcon, NavigationArrowIcon, ChartLineIcon} from "@phosphor-icons/react";
-import heroImage from "../icons/landing/about_top_right.png";
-import eduidImage from "../icons/landing/about_eduid_left.png";
-import roadmapImage from "../icons/landing/about_bottom_left.png";
+const heroImage = new URL("../icons/landing/about_top_right.svg", import.meta.url).href;
+const eduidImage = new URL("../icons/landing/about_eduid_left.svg", import.meta.url).href;
 
 const FAQ_KEYS = ["audience", "available", "login", "migrate"];
 
@@ -83,35 +82,30 @@ const About = () => {
             </section>
 
             <section className="about-roadmap">
-                <div className="about-image" aria-hidden="true">
-                    <img src={roadmapImage} alt="" loading="lazy"/>
-                </div>
-                <div className="about-copy">
-                    <h2>{I18n.t("about.roadmap.title")}</h2>
-                    <ul className="roadmap-list">
-                        <li className="roadmap-item">
-                            <TextboxIcon/>
-                            <div>
-                                <h3>{I18n.t("about.roadmap.selfService.title")}</h3>
-                                <p>{I18n.t("about.roadmap.selfService.description")}</p>
-                            </div>
-                        </li>
-                        <li className="roadmap-item">
-                            <NavigationArrowIcon/>
-                            <div>
-                                <h3>{I18n.t("about.roadmap.navigation.title")}</h3>
-                                <p>{I18n.t("about.roadmap.navigation.description")}</p>
-                            </div>
-                        </li>
-                        <li className="roadmap-item">
-                            <ChartLineIcon/>
-                            <div>
-                                <h3>{I18n.t("about.roadmap.insight.title")}</h3>
-                                <p>{I18n.t("about.roadmap.insight.description")}</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                <h2>{I18n.t("about.roadmap.title")}</h2>
+                <ul className="roadmap-list">
+                    <li className="roadmap-item">
+                        <TextboxIcon/>
+                        <div>
+                            <h3>{I18n.t("about.roadmap.selfService.title")}</h3>
+                            <p>{I18n.t("about.roadmap.selfService.description")}</p>
+                        </div>
+                    </li>
+                    <li className="roadmap-item">
+                        <NavigationArrowIcon/>
+                        <div>
+                            <h3>{I18n.t("about.roadmap.navigation.title")}</h3>
+                            <p>{I18n.t("about.roadmap.navigation.description")}</p>
+                        </div>
+                    </li>
+                    <li className="roadmap-item">
+                        <ChartLineIcon/>
+                        <div>
+                            <h3>{I18n.t("about.roadmap.insight.title")}</h3>
+                            <p>{I18n.t("about.roadmap.insight.description")}</p>
+                        </div>
+                    </li>
+                </ul>
             </section>
 
             <section className="about-faq">

@@ -1599,8 +1599,6 @@ const pt: AppTranslation = {
         showingResultsFor: "A mostrar resultados para '{{label}}'",
         removeFilter: "Remover filtro",
         loginPublic: "Dados de início de sessão das aplicações SURFconext.",
-        comparedToLastPeriod: "em comparação com o período anterior",
-        comparedToLast3Periods: "em comparação com os últimos 3 períodos",
         minute: "Minuto",
         hour: "Hora",
     },
