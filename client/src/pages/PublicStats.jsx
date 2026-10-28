@@ -142,10 +142,8 @@ const formatStatNumber = (n) => {
     return n.toLocaleString("nl-NL");
 };
 
-const sumLogins = arr => arr.reduce((sum, d) => sum + (d.count_user_id || 0), 0);
-
-const PublicStats = ({initialData = null}) => {
-    const [period, setPeriod] = useState(periods.year);
+const PublicStats = ({embedded = false}) => {
+    const [period, setPeriod] = useState(periods.week);
     const [periodValue, setPeriodValue] = useState(new Date().getFullYear());
     const [customFrom, setCustomFrom] = useState(() => {
         const now = new Date();
@@ -157,13 +155,11 @@ const PublicStats = ({initialData = null}) => {
         return tomorrow;
     });
 
-    const [timeFrameData, setTimeFrameData] = useState(initialData || []);
-    const [totalLogins, setTotalLogins] = useState(() => initialData ? sumLogins(initialData) : 0);
-    const [loading, setLoading] = useState(!initialData);
+    const [timeFrameData, setTimeFrameData] = useState([]);
+    const [totalLogins, setTotalLogins] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     const autoRefreshRef = useRef(null);
-    // The default (year) view is already covered by the data supplied by the parent
-    const skipInitialFetchRef = useRef(Boolean(initialData));
 
     // The resolved API scale for the current custom range — used for labels and fluent mode.
     const customScale = useMemo(
@@ -268,11 +264,7 @@ const PublicStats = ({initialData = null}) => {
     }, [period, fetchData]);
 
     useEffect(() => {
-        if (skipInitialFetchRef.current) {
-            skipInitialFetchRef.current = false;
-            return;
-        }
-        fetchData();
+        fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
     }, [fetchData]);
 
     // All scales derive labels from actual data timestamps.
@@ -292,57 +284,72 @@ const PublicStats = ({initialData = null}) => {
     const maxXTicks = (() => {
         if (period === "minute" || (period === "custom" && customScale === "minute")) return 24;
         if (period === "hour"   || (period === "custom" && customScale === "hour"))   return 14;
+        if (period === "week") return 13;
         return undefined;
     })();
 
-    return (
-        <div className="statistics-container">
-            <div className="statistics-header">
-                <div className="title">
-                    <h2 className="text-[length:var(--text-xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h2>
-                    <p>{I18n.t("statistics.loginPublic")}</p>
-                </div>
-                <div className="statistics-menu">
-                    <h5 className="period">{I18n.t("statistics.period")}</h5>
-                    <div className="statistics-menu-options">
-                        <SegmentedControl
-                            onClick={option => setPeriod(option)}
-                            options={Object.keys(periods)}
-                            option={period}
-                            optionLabelResolver={option => I18n.t(`statistics.${option}`)}/>
-                        {yearPeriods.has(period) && (
-                            <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
-                        )}
-                        <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
-                            <DateField name={I18n.t("statistics.from")}
-                                       value={customFrom}
-                                       onChange={setCustomFrom}
-                                       maxDate={customTo}
-                                       showYearDropdown={true}
-                                       pastDatesAllowed={true}
-                                       allowNull={false}/>
-                            <DateField name={I18n.t("statistics.to")}
-                                       value={customTo}
-                                       onChange={setCustomTo}
-                                       minDate={customFrom}
-                                       maxDate={customToMax}
-                                       showYearDropdown={true}
-                                       pastDatesAllowed={true}
-                                       allowNull={false}/>
-                        </div>
-                    </div>
+    const periodMenu = (
+        <div className="statistics-menu">
+            <h5 className="period">{I18n.t("statistics.period")}</h5>
+            <div className="statistics-menu-options">
+                <SegmentedControl
+                    onClick={option => setPeriod(option)}
+                    options={Object.keys(periods)}
+                    option={period}
+                    optionLabelResolver={option => I18n.t(`statistics.${option}`)}/>
+                {yearPeriods.has(period) && (
+                    <PeriodPicker value={periodValue} onClick={val => setPeriodValue(val)}/>
+                )}
+                <div className="custom-date-range" style={{display: period === "custom" ? "flex" : "none"}}>
+                    <DateField name={I18n.t("statistics.from")}
+                               value={customFrom}
+                               onChange={setCustomFrom}
+                               maxDate={customTo}
+                               showYearDropdown={true}
+                               pastDatesAllowed={true}
+                               allowNull={false}/>
+                    <DateField name={I18n.t("statistics.to")}
+                               value={customTo}
+                               onChange={setCustomTo}
+                               minDate={customFrom}
+                               maxDate={customToMax}
+                               showYearDropdown={true}
+                               pastDatesAllowed={true}
+                               allowNull={false}/>
                 </div>
             </div>
+        </div>
+    );
 
-            <div className="main-stats">
-                <section className="cardy">
-                    <div className="stat">
-                        <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalLogins)}</h1>
-                        <p>{I18n.t("statistics.total")}</p>
-                        <span className="blue"/>
-                    </div>
-                </section>
+    const totalCard = (
+        <section className="cardy">
+            <div className="stat">
+                <h1 className="text-[length:var(--text-2xl-font-size)]">{loading ? "—" : formatStatNumber(totalLogins)}</h1>
+                <p>{I18n.t("statistics.total")}</p>
+                <span className="blue"/>
             </div>
+        </section>
+    );
+
+    return (
+        <div className={`statistics-container ${embedded ? "embedded" : ""}`}>
+            {embedded ?
+                <div className="statistics-toolbar">
+                    {totalCard}
+                    {periodMenu}
+                </div> :
+                <>
+                    <div className="statistics-header">
+                        <div className="title">
+                            <h2 className="text-[length:var(--text-xl-font-size)] mb-3.5">{I18n.t("statistics.title")}</h2>
+                            <p>{I18n.t("statistics.loginPublic")}</p>
+                        </div>
+                        {periodMenu}
+                    </div>
+                    <div className="main-stats">
+                        {totalCard}
+                    </div>
+                </>}
 
             <section className="cardy chart-section">
                 <StatsLineChart

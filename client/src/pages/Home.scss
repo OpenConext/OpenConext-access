@@ -2,16 +2,22 @@
 @use "../index";
 
 .home-landing-container {
-    @include index.public-page-width;
-    box-sizing: border-box;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 80px 40px 60px 40px;
-    gap: 120px;
 
-    @media (max-width: $mobile-width) {
-        padding: 40px 20px 40px 20px;
-        gap: 64px;
+    .home-sections {
+        @include index.public-page-width;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        padding: 96px 40px 60px 40px;
+        gap: 120px;
+
+        @media (max-width: $mobile-width) {
+            padding: 40px 20px 40px 20px;
+            gap: 64px;
+        }
     }
 
     h1, h2, h3 {
@@ -39,9 +45,25 @@
     }
 
     .hero {
-        display: flex;
-        gap: 48px;
-        align-items: center;
+        background-color: #ececeb;
+        padding: 0 40px;
+
+        @media (max-width: $mobile-width) {
+            padding: 40px 20px;
+        }
+
+        .hero-inner {
+            @include index.public-page-width;
+            display: flex;
+            gap: 48px;
+            align-items: center;
+            min-height: 600px;
+
+            @media (max-width: $mobile-width) {
+                flex-direction: column;
+                min-height: 0;
+            }
+        }
 
         .hero-main {
             flex: 1 1 0;
@@ -96,15 +118,17 @@
         }
 
         .hero-image {
-            @extend .placeholder-image;
             flex: 1 1 0;
-            align-self: stretch;
-            min-height: 320px;
+            min-width: 0;
+
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
         }
 
         @media (max-width: $mobile-width) {
-            flex-direction: column;
-
             .hero-image {
                 display: none;
             }
@@ -187,12 +211,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px 40px;
 
             svg {
-                height: 172px;
-                width: auto;
-                max-width: 100%;
+                display: block;
+                height: auto;
+                width: 100%;
             }
         }
 
@@ -241,9 +264,13 @@
         gap: 32px;
 
         .getting-started-image {
-            @extend .placeholder-image;
-            height: 320px;
             width: 100%;
+
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
         }
 
         .getting-started-body {
@@ -268,10 +295,6 @@
         }
 
         @media (max-width: $mobile-width) {
-            .getting-started-image {
-                height: 176px;
-            }
-
             .getting-started-body [data-slot="button"] {
                 width: 100%;
             }

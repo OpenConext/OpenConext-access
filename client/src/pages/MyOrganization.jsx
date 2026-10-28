@@ -343,9 +343,13 @@ const MyOrganization = ({refreshUser}) => {
         delete body.signedContract;
         createContractForOrganization(organization.id, body)
             .then(contractRes => {
+                //Update the user right away, otherwise the 'contract required' banner persists elsewhere
+                loadContract();
                 if (contractRes.ticketKey) {
-                    setLoading(false);
-                    setJiraModal({open: true, ticketKey: contractRes.ticketKey});
+                    refreshUser(() => {
+                        setLoading(false);
+                        setJiraModal({open: true, ticketKey: contractRes.ticketKey});
+                    });
                 } else {
                     refreshUser(() => setLoading(false));
                     setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
@@ -584,8 +588,6 @@ const MyOrganization = ({refreshUser}) => {
                     confirm={() => {
                         setJiraModal({open: false, ticketKey: null});
                         setFlash(I18n.t("contracts.flash.saved", {name: organization.name}));
-                        setIsNewContract(false);
-                        refreshUser();
                     }}
                     confirmationHeader={I18n.t("contracts.jiraModal.title")}
                     confirmationTxt={I18n.t("confirmationDialog.ok")}
