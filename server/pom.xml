@@ -122,7 +122,7 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>3.5.10</version>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.spullara.mustache.java</groupId>
