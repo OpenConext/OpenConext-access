@@ -24,7 +24,7 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 
 ### [Building and running](#building-and-running)
 
-### Database and Maipit
+### Database and Mailpit
 
 The `docker-compose.yaml` file in this project is meant for local development and contains a MariaDB and Mailpit instance
 
