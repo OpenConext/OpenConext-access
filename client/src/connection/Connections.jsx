@@ -1109,7 +1109,7 @@ export const Connections = ({
                     </Alert>}
                 {(appInformationComplete && contractRequired && !contractRequested) &&
                     alertInfo(I18n.t("connection.productionStatusSection.contractRequired"), null,
-                        () => navigate(`/idp/${currentOrganization.id}/general`),
+                        () => navigate(`/idp/${currentOrganization.id}/agreement`),
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
                 {connection.eduIdAccessChangeRequestPending &&

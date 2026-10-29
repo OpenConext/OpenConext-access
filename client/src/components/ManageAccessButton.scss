@@ -1,0 +1,49 @@
+// Buttons rendered as a react-router <Link> pick up the global anchor color/underline
+a.manage-access-button {
+    color: inherit;
+    text-decoration: none;
+}
+
+// No focus ring on the trigger button and the buttons in the modal
+.manage-access-button,
+.manage-access-dialog .manage-access-connection a {
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
+}
+
+.manage-access-dialog {
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .manage-access-connections {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .manage-access-connection {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 8px 0;
+
+        .manage-access-connection-text {
+            display: flex;
+            flex-direction: column;
+
+            .name {
+                font-weight: 500;
+            }
+
+            .state {
+                color: var(--muted-foreground, #525252);
+            }
+        }
+    }
+}

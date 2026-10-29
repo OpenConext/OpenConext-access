@@ -116,4 +116,26 @@ public class InviteController implements UserAccessRights {
         return ResponseEntity.ok(inviteRoles);
     }
 
+    /*
+     * The GUID of the organization is coin:institution_guid of the IdP in Manage. In the Invite domain, every role
+     * has an organizationGUID (the coin:institution_guid of the IdP of the institution admin).
+     *
+     * The applicationManageId is the manage identifier of the Application (e.g., SP or RP)
+     */
+    @GetMapping("/roles-mine")
+    public ResponseEntity<List<Map<String, Object>>> myRoles(User user) {
+
+        LOG.debug("/roles-mine");
+
+        User userFromDB = reinitializeUser(user, userRepository);
+        String sub = userFromDB.getSub();
+
+        if (userFromDB.isSuperUser()) {
+            LOG.info("Not fetching invite roles for super user: " + user.getEmail());
+            return ResponseEntity.ok(List.of());
+        }
+        List<Map<String, Object>> inviteRoles = this.inviteClient.rolesPerUser(sub);
+        return ResponseEntity.ok(inviteRoles);
+    }
+
 }

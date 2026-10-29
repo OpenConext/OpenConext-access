@@ -42,6 +42,7 @@ public class S3Storage {
 
     private final String bucketName;
     private final String s3URL;
+    private final String publicURL;
     private final ObjectMapper objectMapper;
     private final S3Client s3Client;
     private boolean bucketExists;
@@ -52,8 +53,10 @@ public class S3Storage {
                      @Value("${s3storage.key}") String s3AccessKey,
                      @Value("${s3storage.secret}") String s3SecretKey,
                      @Value("${s3storage.bucket}") String s3BucketName,
+                     @Value("${s3storage.public-url:${s3storage.url}}") String publicURL,
                      ObjectMapper objectMapper) {
         this.s3URL = s3URL;
+        this.publicURL = publicURL == null || publicURL.isBlank() ? s3URL : publicURL;
         AwsBasicCredentials credentials =
                 AwsBasicCredentials.create(s3AccessKey, s3SecretKey);
 
@@ -104,7 +107,11 @@ public class S3Storage {
                         .build(),
                 RequestBody.fromInputStream(inputStream, inputStream.available()));
 
-        return String.format("%s/%s/%s", s3URL, bucketName, uuid);
+        //Without a dedicated public-url the bucket is part of the path of the (public) S3 endpoint
+        if (publicURL.equals(s3URL)) {
+            return String.format("%s/%s/%s", s3URL, bucketName, uuid);
+        }
+        return String.format("%s/%s", publicURL.replaceAll("/+$", ""), uuid);
     }
 
 

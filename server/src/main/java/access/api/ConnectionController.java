@@ -222,6 +222,12 @@ public class ConnectionController implements UserAccessRights {
             throw new InvalidInputException("Connection is not valid");
         }
         Connection connection = findConnectionForAuthorizedUser(user, connectionData.getId());
+        if (StringUtils.hasText(connection.getManageIdentifier())) {
+            //The local state can be stale (it is only synced when the Manage version changes), but it decides whether
+            //we must create a change request or may sync directly. Manage is the source of truth
+            Map<String, Object> remoteProvider = manage.providerByConnection(connection);
+            connection.setState(State.valueOf((String) getData(remoteProvider).getOrDefault("state", State.testaccepted.name())));
+        }
         boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
         List<String> previousAllowedResourceServers = isResourceServer ?
             allowedResourceServerNames(connection) : Collections.emptyList();

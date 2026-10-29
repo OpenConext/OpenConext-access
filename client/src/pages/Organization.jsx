@@ -2,8 +2,8 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, Badge, Button, Spinner} from "@surfnet/curve-react";
-import {AppWindowIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, AlertTitle, Button, Spinner} from "@surfnet/curve-react";
+import {AppWindowIcon, HourglassIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {ConnectionAlert} from "../connection/ConnectionAlert.jsx";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
@@ -11,15 +11,16 @@ import {menu, organizationApplicationsById, organizationMineById} from "../api/i
 import {isEmpty, sanitize} from "../utils/Utils.js";
 import ImageNotFound from "../icons/image-not-found.svg";
 import DOMPurify from "dompurify";
-import {contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
-import {CONNECTION_STATUS_BADGE_VARIANTS, CONNECTION_STATUSES} from "../utils/Manage.js";
+import {applicationPath, contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
+import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
 import {hasApplicationWriteAccess, hasCreateApplicationAccess} from "../utils/Permissions.js";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {isValidEmail} from "../validations/regExps.js";
 import {useShallow} from "zustand/react/shallow";
-import {currentOrganizationFromUser} from "../utils/Organization.js";
+import {getParameterByName} from "../utils/QueryParameters.js";
+import {currentOrganizationFromUser, showContractRequiredBanner} from "../utils/Organization.js";
 
 
 const views = {
@@ -86,20 +87,36 @@ const Organization = () => {
                     }
 
                 }).catch(() => {
-                navigate("/home")
+                //Without a home (see HomeSwitch) navigating to /home would redirect back to this page, resulting in a loop
+                if (useAppStore.getState().menuItems.includes(mainMenuItems.home)) {
+                    navigate("/home");
+                } else {
+                    setLoading(false);
+                }
             });
         }
     }, [navigate, organizationId, user]);
 
     const alertInfo = () => {
-        if (organization.applicationCount > 0) {
-            return null;
+        //Set after the creation of an organization, which has no home to show this on
+        if (getParameterByName("new")) {
+            return (
+                <Alert variant={"info"}>
+                    <HourglassIcon/>
+                    <AlertTitle dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationTitle", {name: currentOrganization?.name}))}}/>
+                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("userHome.newOrganizationDescription"))}}/>
+                </Alert>
+            );
         }
-        if (mayCreateApplication) {
-            //The zero state card has its own explanation, only the agreement hint (if needed) is shown
+        if (showContractRequiredBanner(user, currentOrganization)) {
+            //Regardless of the number of applications, the admin must supply the details for the agreement
             return <ConnectionAlert application={{connections: []}}
-                                    currentOrganization={currentOrganization || {}}
+                                    currentOrganization={currentOrganization}
                                     fullWidth={true}/>;
+        }
+        if (organization.applicationCount > 0 || mayCreateApplication) {
+            //The zero state card has its own explanation
+            return null;
         }
         return (
             <Alert variant={"info"}>
@@ -107,40 +124,6 @@ const Organization = () => {
                 <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(I18n.t("organization.alertInfo"))}}/>
             </Alert>
         )
-    }
-
-    // An application that is ready to publish links directly to the publish step of its connection
-    const applicationPath = application => {
-        const connections = application.connections || [];
-        return connections.length === 1 && connections[0].status === CONNECTION_STATUSES.COMPLETE ?
-            `/connection/${application.id}/allConnections/${connections[0].id}?action=activate` :
-            `/connection/${application.id}`;
-    }
-
-    const renderApplicationStatus = application => {
-        const connections = application.connections || [];
-        // eslint-disable-next-line no-useless-assignment
-        let status = "";
-        if (connections.length === 0) {
-            status = "in_progress";
-        } else if (connections.length > 1) {
-            status = "multiple_connections"
-        } else {
-            const connection = connections[0];
-            if (connection.status === CONNECTION_STATUSES.COMPLETE) {
-                status = "ready_for_prod"
-            } else if (!isEmpty(connection.changeRequests)) {
-                status = "open_change_requests";
-            } else {
-                status = connection.status.toLowerCase();
-            }
-        }
-        return (
-            <Badge variant={CONNECTION_STATUS_BADGE_VARIANTS[status] || "secondary"}
-                   className={status === "ready_for_prod" ? "badge-black" : undefined}>
-                {I18n.t(`connection.connections.${status}`)}
-            </Badge>
-        );
     }
 
     if (loading) {
@@ -169,7 +152,7 @@ const Organization = () => {
             {
                 key: "status",
                 header: I18n.t("accessibleApps.status"),
-                mapper: application => renderApplicationStatus(application)
+                mapper: application => <ApplicationStatusBadge application={application}/>
             },
             {
                 key: "connectionCount",

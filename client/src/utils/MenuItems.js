@@ -123,6 +123,26 @@ export const allMenuGroups = [
     },
 ]
 
+//Same target as the roles menu item: SURF Invite in the same tab, or the page that opens it in a new tab
+const inviteMenuItem = () => allMenuGroups.map(group => group.items).flat().find(item => item.name === mainMenuItems.invite);
+
+const inviteBaseUrl = config => {
+    const invite = inviteMenuItem();
+    return config?.[invite.externalConfigKey] && config[invite.externalSameTabConfigKey] ?
+        config[invite.externalConfigKey].replace(invite.externalPath, "").replace(/\/$/, "") : null;
+}
+
+export const inviteRolesHref = config => {
+    const baseUrl = inviteBaseUrl(config);
+    return baseUrl ? `${baseUrl}${inviteMenuItem().externalPath}` : inviteMenuItem().path;
+}
+
+//A single role is available on the Invite domain as roles/{id}
+export const inviteRoleHref = (config, roleId) => {
+    const baseUrl = inviteBaseUrl(config);
+    return baseUrl ? `${baseUrl}/roles/${roleId}` : inviteMenuItem().path;
+}
+
 export const activeMenuItem = currentLocation => {
     const path = currentLocation.pathname;
     const items = allMenuGroups.map(group => group.items).flat();

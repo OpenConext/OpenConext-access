@@ -1,6 +1,7 @@
 import {isEmpty} from "./Utils.js";
 import {isValidEmail, isValidUrl} from "../validations/regExps.js";
 import {convertServerConnectionToClient} from "./Connection.js";
+import {CONNECTION_STATUSES} from "./Manage.js";
 
 const parseContactPersonIdentifier = input => {
     if (input.startsWith("http")) {
@@ -9,6 +10,28 @@ const parseContactPersonIdentifier = input => {
     }
     return input.split('@')[0];
 }
+
+// An application that is ready to publish links directly to the publish step of its connection
+export const applicationPath = application => {
+    const connections = application.connections || [];
+    return connections.length === 1 && connections[0].status === CONNECTION_STATUSES.COMPLETE ?
+        `/connection/${application.id}/allConnections/${connections[0].id}?action=activate` :
+        `/connection/${application.id}`;
+}
+
+//An application that is not (yet) known in Manage is marked as unknown and has no name, in that case the host of its landing page is shown
+const landingPageHost = application => {
+    try {
+        return new URL(application.landingPage).host;
+    } catch {
+        return null;
+    }
+}
+
+export const roleApplicationNames = (role, locale) => (role.applicationMaps || [])
+    .map(application => application[`name:${locale}`] || application["name:en"] || application["name:nl"]
+        || (application.unknown ? landingPageHost(application) : null))
+    .filter(name => !isEmpty(name));
 
 export const contactPersonTypes = {
     administrative: "administrative", technical: "technical", support: "support"

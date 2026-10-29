@@ -230,6 +230,57 @@ class ConnectionControllerTest extends AbstractTest {
 
     @SneakyThrows
     @Test
+    void updateNameWithStaleLocalStateCreatesChangeRequest() {
+        //The local state is only synced when the Manage version changes, so it can still be testaccepted for a
+        //connection that is prodaccepted in Manage. The change must still end up as a (visible) change request
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        //See server/src/main/resources/manage/oidc10_rp.json
+        connection.setManageIdentifier("5");
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        connection.setState(State.testaccepted);
+        connectionRepository.save(connection);
+
+        Map<String, Object> provider = localManage.providerByManageIdentifier(EntityType.oidc10_rp, "10");
+        connection.getMetaData().put("arp", ManageData.getData(provider).get("arp"));
+        connection.setName("A new name");
+
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+
+        super.stubForGetProvider(connection);
+        super.stubForIdentityProviderByEntityId("http://mock-idp");
+        Map<String, String> manageResponse = Map.of("id", "1");
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
+        stubFor(put(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(manageResponse))));
+        List<Map<String, Object>> changeRequests = getChangeRequests();
+        ((Map<String, Object>) changeRequests.getFirst().get("pathUpdates")).put("metaDataFields.name:en", "A new name");
+        super.stubForGetChangeRequests(changeRequests);
+
+        Map<String, Object> savedConnection = given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .as(new TypeRef<>() {
+            });
+        assertNotEquals("A new name", savedConnection.get("name"));
+        assertFalse(((List<?>) savedConnection.get("changeRequests")).isEmpty());
+        //The change request was created instead of syncing the new name to Manage directly
+        verify(1, putRequestedFor(urlPathMatching("/manage/api/internal/change-requests")));
+        verify(0, putRequestedFor(urlPathEqualTo("/manage/api/internal/metadata")));
+    }
+
+    @SneakyThrows
+    @Test
     void updateAndCreateChangeRequestWithArp() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();

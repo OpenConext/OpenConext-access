@@ -38,12 +38,12 @@ export const ConnectionAlert = ({
     const alertInfo = () => {
         if (isEmpty(application.connections)) {
             const isExternalOrganization = isEmpty(currentOrganization.manageIdentifier);
-            if (isExternalOrganization && !currentOrganization.contractSigned) {
+            if (isExternalOrganization && !currentOrganization.contractSigned && !currentOrganization.contractRequested) {
                 return renderAlert({
                     icon: <WarningCircleIcon/>,
                     title: I18n.t("connection.contractRequiredHint.title"),
                     message: I18n.t("connection.contractRequiredHint.description"),
-                    action: () => navigate(`/idp/${currentOrganization.id}/general`),
+                    action: () => navigate(`/idp/${currentOrganization.id}/agreement`),
                     actionLabel: I18n.t("connection.contractRequiredHint.action")
                 });
             }

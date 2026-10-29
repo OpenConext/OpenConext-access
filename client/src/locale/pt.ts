@@ -93,8 +93,6 @@ const pt: AppTranslation = {
         tryDemo: {
             title: "Quer experimentar o {{productName}} sem compromisso?",
             description: "Conheça o {{productName}} no nosso ambiente de demonstração. Aqui pode experimentar todas as funcionalidades num ambiente seguro e isolado.",
-            cta: "Para o ambiente de demonstração do {{productName}}",
-            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "O que está a acontecer agora no {{productName}}",
@@ -184,6 +182,11 @@ const pt: AppTranslation = {
         title: "Bem-vindo ao {{productName}}",
         subTitle: "O seu local central para aplicações e gestão de acessos",
         appsCount: "{{count}} aplicações",
+        appsYouManage: "Aplicações que gere",
+        rolesYouManage: "Funções que gere",
+        toMyApps: "Para as minhas aplicações",
+        toRoles: "Para as funções",
+        usersCount: "{{count}} utilizadores",
         addApps: {
             title: "Adicione a(s) sua(s) aplicação(ões)",
             description: "Adicione a(s) sua(s) aplicação(ões) ao catálogo de aplicações para as disponibilizar às instituições.",
@@ -210,6 +213,8 @@ const pt: AppTranslation = {
         organizationPendingApproval: "Aprovar organizações",
         team: "Utilizadores",
         joins: "Pedidos de adesão",
+        general: "Geral",
+        agreement: "Acordo",
         invitations: "Convites",
         access: "Acesso",
         information: "Resumo",
@@ -353,7 +358,15 @@ const pt: AppTranslation = {
         team: {
             members: "Gerir membros da equipa",
         },
-        manageAccess: "Vá para a aplicação ativada para gerir o acesso",
+        manageAccess: "Gerir acesso",
+        manageAccessModal: {
+            title: "Escolha uma ligação",
+            subTitle: "Ative ou faça a gestão do acesso para a sua instituição",
+            activated: "Ativada para a sua instituição",
+            notActivated: "Ainda não ativada para a sua instituição",
+            toActivated: "Ir para a aplicação ativada",
+            toCatalogue: "Ir para o catálogo de aplicações",
+        },
         overviewCards: {
             title: "Resumo",
             subTitle: "Preencha todas as informações abaixo para publicar a sua aplicação no {{productName}}.",
@@ -823,7 +836,6 @@ const pt: AppTranslation = {
         other: "Outra",
         searchPlaceHolder: "Procurar uma instituição",
     },
-    // Keyed by the raw coin:institution_type value from Manage - see Institutions.jsx
     institutionTypes: {
         HBO: "HBO",
         MBO: "MBO",
@@ -1134,19 +1146,41 @@ const pt: AppTranslation = {
         generalSectionTitle: "Geral",
         systemSectionTitle: "Sistema",
         contractSectionTitle: "Detalhes do contrato",
+        noAgreement: "Ainda sem acordo",
         mfa: {
             baseLevelLabel: "Método de início de sessão base",
             baseLevelInfo: "A norma que é imposta a todos os utilizadores do seu IdP.",
             additionalAcrLabel: "Métodos de início de sessão adicionais suportados pelo seu fornecedor de identidade",
             additionalAcrInfo: "Os métodos que suporta e que pode ativar por aplicação",
             options: [
-                {value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password", label: "Nome de utilizador e palavra-passe"},
-                {value: "http://schemas.microsoft.com/claims/multipleauthn", label: "Autenticação multifator da Microsoft"},
-                {value: "https://refeds.org/profile/mfa", label: "REFEDS MFA"},
-                {value: "https://refeds.org/assurance/IAP/medium", label: "REFEDS IAP medium"},
-                {value: "https://refeds.org/assurance/IAP/high", label: "REFEDS IAP high"},
-                {value: "https://refeds.org/assurance/IAP/medium/mfa", label: "REFEDS IAP medium + MFA"},
-                {value: "https://refeds.org/assurance/IAP/high/mfa", label: "REFEDS IAP high + MFA"},
+                {
+                    value: "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+                    label: "Nome de utilizador e palavra-passe",
+                },
+                {
+                    value: "http://schemas.microsoft.com/claims/multipleauthn",
+                    label: "Autenticação multifator da Microsoft",
+                },
+                {
+                    value: "https://refeds.org/profile/mfa",
+                    label: "REFEDS MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium",
+                    label: "REFEDS IAP medium",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high",
+                    label: "REFEDS IAP high",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/medium/mfa",
+                    label: "REFEDS IAP medium + MFA",
+                },
+                {
+                    value: "https://refeds.org/assurance/IAP/high/mfa",
+                    label: "REFEDS IAP high + MFA",
+                }
             ],
         },
     },
@@ -1388,9 +1422,6 @@ const pt: AppTranslation = {
         warnings: "Pode opcionalmente adicionar um aviso ao ecrã de consentimento, por exemplo para indicar que a aplicação não é uma aplicação oficial da instituição e que não se pode esperar apoio.",
         warningEN: "Aviso em inglês",
         warningNL: "Aviso em neerlandês",
-        // These preview the text the field expects, in that field's own language -
-        // not the current UI locale - so the value is intentionally the same here
-        // and in nl.ts.
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
         preview: {
@@ -1569,8 +1600,6 @@ const pt: AppTranslation = {
         showingResultsFor: "A mostrar resultados para '{{label}}'",
         removeFilter: "Remover filtro",
         loginPublic: "Dados de início de sessão das aplicações SURFconext.",
-        comparedToLastPeriod: "em comparação com o período anterior",
-        comparedToLast3Periods: "em comparação com os últimos 3 períodos",
         minute: "Minuto",
         hour: "Hora",
     },
@@ -1594,6 +1623,7 @@ const pt: AppTranslation = {
         update: "Atualizar",
         signedReadonly: "Este contrato foi assinado e é só de leitura.",
         awaiting: "Este contrato aguarda aprovação e assinatura. Será contactado se forem necessárias mais informações",
+        requestedTitle: "Acordo solicitado",
         sign: "Assinar contrato",
         confirmation: "Tem a certeza de que quer assinar o contrato de {{name}}?",
         ticketKey: "Pedido Jira",

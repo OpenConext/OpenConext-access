@@ -73,6 +73,53 @@
         }
     }
 
+    &.embedded {
+        padding: 0;
+        gap: 24px;
+
+        .statistics-toolbar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+
+            section.cardy {
+                padding: 12px 20px;
+                gap: 0;
+            }
+
+            .statistics-menu {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 0;
+
+                .statistics-menu-options {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    gap: $gap-md;
+                    align-items: center;
+                    justify-content: flex-end;
+                    min-width: 0;
+                }
+
+                .custom-date-range {
+                    display: flex;
+                    gap: $gap-sm;
+                    align-items: center;
+                    flex-wrap: wrap;
+                }
+
+                @media (max-width: $mobile-width) {
+                    .statistics-menu-options {
+                        flex-wrap: wrap;
+                    }
+                }
+            }
+        }
+    }
+
     .main-stats {
         display: flex;
         gap: 40px;
