@@ -18,6 +18,7 @@ const About = () => {
                     <h1>{I18n.t("about.hero.title")}</h1>
                     <p>{I18n.t("about.hero.paragraph1")}</p>
                     <p>{I18n.t("about.hero.paragraph2")}</p>
+                    <p>{I18n.t("about.hero.paragraph3")}</p>
                 </div>
                 <div className="about-image" aria-hidden="true">
                     <img src={heroImage} alt="" loading="lazy"/>
