@@ -842,7 +842,7 @@ const nl: AppTranslation = {
         HBO: "HBO",
         MBO: "MBO",
         Universiteiten: "Universiteit",
-        "Instelling rond hoger onderwijs": "Instelling rond hoger onderwijs",
+        "Aan hoger onderwijs gelieerde instellingen": "Instelling rond hoger onderwijs",
         Onderzoeksinstellingen: "Onderzoeksinstelling",
         "Overig hoger onderwijs": "Overige",
         STZ: "STZ-ziekenhuis",

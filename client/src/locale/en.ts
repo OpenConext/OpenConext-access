@@ -93,6 +93,8 @@ const en: AppTranslation = {
         tryDemo: {
             title: "Want to try {{productName}} without obligation?",
             description: "Get to know {{productName}} in our demo environment. Here you can try out all functionality in a safe, closed-off environment.",
+            cta: "Sign in via your institution",
+            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "What's happening on {{productName}} right now",
@@ -930,6 +932,7 @@ const en: AppTranslation = {
             title: "About {{productName}}",
             paragraph1: "With {{productName}} you can, as an institution, set up your access management well and easily - covering access management and collaboration beyond the borders of your own institution.",
             paragraph2: "From 2027, {{productName}} will offer administrators within institutions a single system and user environment. Whether it concerns managing and granting access for guest students, guest researchers, alliances or other user groups.",
+            paragraph3: "Do you want to offer an application? You can make it available to education and research institutions via SURF Access.",
         },
         eduId: {
             title: "Arrange access, including with eduID",

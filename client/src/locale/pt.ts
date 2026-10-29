@@ -93,6 +93,8 @@ const pt: AppTranslation = {
         tryDemo: {
             title: "Quer experimentar o {{productName}} sem compromisso?",
             description: "Conheça o {{productName}} no nosso ambiente de demonstração. Aqui pode experimentar todas as funcionalidades num ambiente seguro e isolado.",
+            cta: "Iniciar sessão através da sua instituição",
+            url: "#TODO-demo-environment-url",
         },
         activity: {
             title: "O que está a acontecer agora no {{productName}}",
@@ -930,6 +932,7 @@ const pt: AppTranslation = {
             title: "Sobre o {{productName}}",
             paragraph1: "Com o {{productName}}, enquanto instituição, pode configurar bem e facilmente a gestão de acessos - abrangendo a gestão de acessos e a colaboração para além das fronteiras da sua própria instituição.",
             paragraph2: "A partir de 2027, o {{productName}} oferecerá aos administradores das instituições um sistema e um ambiente de utilizador únicos. Quer se trate de gerir e conceder acesso a estudantes convidados, investigadores convidados, alianças ou outros grupos de utilizadores.",
+            paragraph3: "Do you want to offer an application? You can make it available to education and research institutions via SURF Access.",
         },
         eduId: {
             title: "Organize o acesso, incluindo com eduID",
