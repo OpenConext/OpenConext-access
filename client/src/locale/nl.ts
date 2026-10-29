@@ -1841,7 +1841,7 @@ const nl: AppTranslation = {
             organizationalUnitName: {
                 urnOid: "2.5.4.11",
                 multiplicity: "multi",
-                description: "De naam van de afdeling of faculteit van de gebruiker binnen de instelling. De waarden zijn instellingsspecifiek.",
+                description: "De naam van de afdeling of faculteit van de gebruiker binnen de instelling. De waarden verschillen per instelling.",
             },
             schacHomeOrganizationType: {
                 urnOid: "1.3.6.1.4.1.25178.1.2.10",
@@ -1887,13 +1887,13 @@ const nl: AppTranslation = {
                 urnOid: "0.9.2342.19200300.100.1.1",
                 multiplicity: "single",
                 description: "De loginnaam van de gebruiker bij de instelling.",
-                notes: "De waarde is instellingsspecifiek en niet wereldwijd uniek. Gebruik de NameID om gebruikers te identificeren.",
+                notes: "De waarde is alleen uniek binnen de instelling, niet daarbuiten. Gebruik daarom de NameID om gebruikers te identificeren.",
             },
             eduPersonTargetedID: {
                 urnOid: "1.3.6.1.4.1.5923.1.1.1.10",
                 multiplicity: "single",
-                description: "Een applicatiespecifieke identifier van de gebruiker, gegenereerd door SURFconext en overgenomen van de persistent NameID.",
-                notes: "Gebruik deze identifier in plaats van uid of mail om gebruikers te identificeren.",
+                description: "Een identifier van de gebruiker die SURFconext per applicatie genereert. De waarde is gelijk aan de persistent NameID",
+                notes: "Gebruik deze identifier in plaats van uid of e-mail om gebruikers te identificeren.",
             },
             nlEduPersonOrgUnit: {
                 multiplicity: "multi",
