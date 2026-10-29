@@ -170,7 +170,7 @@ const StatsTable = ({
                                 </span>
                             )}
                             <div className="row-bar-container">
-                                <div className="row-bar" style={{width: `${barWidth * BAR_SCALE}%`}}>
+                                <div className="row-bar" title={name} style={{width: `${barWidth * BAR_SCALE}%`}}>
                                     <span className="row-name">{name}</span>
                                 </div>
                                 <span className="row-value" style={{left: `calc(${barWidth * BAR_SCALE}% + 8px)`}}>
