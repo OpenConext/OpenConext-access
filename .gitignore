@@ -68,3 +68,4 @@ app-customizations
 client/src/appCustomizations/myCustomizations
 server/src/main/resources/myCustomizations
 spieldata
+new-nl-keys.csv
