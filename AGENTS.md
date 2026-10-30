@@ -70,6 +70,15 @@ cd client && node sync-locales.js          # after adding i18n keys
   The exported typos `policyDesscription` and `policyBreakDowwn` are used at all import sites — keep or rename everywhere.
 - `components/ErrorIndicator.jsx` strips `?` from plain-text messages; use `decode={false}` for HTML messages (e.g. mailto links).
 
+## Mail templates
+
+- Templates are Mustache (`server/src/main/resources/templates/`), rendered by `MailBox`; `myCustomizations/templates/` overrides any file.
+- All styling is inline and lives only in `layout.html` and the `ui_*.html` partials (email clients strip `<style>`/classes). A mail is
+  `<name>_{en,nl}.html` + `.txt` that only fills blocks of `{{<layout.html}}` (`heading`, `content`, optional `preheader`/`signoff`) and
+  composes `{{<ui_button.html}}`, `ui_quote.html`, `ui_sender.html` (partial parameters are `{{$block}}`s). No `flex`, SVG or per-mail CSS.
+- The SURF logo is sent as inline `cid:surfLogo` (`surf_logo.png`); `sendMail` adds `lang`/`nl`, `supportEmail`, `privacyUrl`, `productName`.
+- Subjects are in `subjects.json` (per language). `MailBoxTemplatesTest` renders every mail to `server/target/mail-preview/`.
+
 ## Testing
 
 - Backend tests extend `AbstractTest` (WireMock wiring, seed data via `doSeed()`, `openIDConnectFlow`, stub helpers).

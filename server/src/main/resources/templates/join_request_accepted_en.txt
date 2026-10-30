@@ -1,4 +1,10 @@
-Your join request for <strong>{{joinRequest.organization.name}}</strong> has been accepted. You can
-        view this organization by visiting the following link: {{{ url }}}
+{{<layout_text.txt}}
+{{$content}}
+Hello,
 
-{{> footer_en.txt}}
+Your request to become a member of {{joinRequest.organization.name}} has been accepted. Log in to view the organization and applications in {{productName}}.
+
+Go to {{productName}}:
+{{{url}}}
+{{/content}}
+{{/layout_text.txt}}

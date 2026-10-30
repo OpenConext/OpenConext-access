@@ -1,32 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    {{> header_en.html}}
-    <div class="head" style="padding: 30px 40px 20px 40px;">
-        {{#environment}}
-        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
-            This mail is from the {{environment}} environment
-        </p>
-        {{/environment}}
-        <p class="title" style="">Hello,</p>
-
-        <p>
-            As a service provider, you allow institutions on SURFconext to connect your service automatically.
-            You receive this email because you have chosen to receive notifications for new connections.
-        </p>
-
-        <p>
-            {{institutionAdmin.name}} from Institution <u>{{identityProviderName}}</u> has initiated the connection between their institution and your
-            service <u>{{serviceProviderName}}</u> (with entityID="{{serviceProviderEntityId}}").
-        </p>
-
-    </div>
-    {{> footer_en.html}}
-
-</div>
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}New connection{{/heading}}
+{{$content}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Hello,</p>
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">As a service provider, you allow institutions on SURFconext to connect your service automatically. You receive this email because you have chosen to receive notifications for new connections.</p>
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">{{institutionAdmin.name}} from Institution <strong>{{identityProviderName}}</strong> has initiated the connection between their institution and your service <strong>{{serviceProviderName}}</strong> (with entityID="{{serviceProviderEntityId}}").</p>
+{{/content}}
+{{/layout.html}}

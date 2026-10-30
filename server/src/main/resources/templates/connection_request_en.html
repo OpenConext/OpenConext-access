@@ -1,40 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    {{> header_en.html}}
-    <div class="head" style="padding: 30px 40px 20px 40px;">
-        {{#environment}}
-        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
-            This mail is from the {{environment}} environment
-        </p>
-        {{/environment}}
-        <p class="title" style="">Hello,</p>
-
-        <p><strong>{{requester.name}}</strong>
-            has requested to connect service {{serviceProviderName}} to your organization {{organization.name}}.</p>
-
-        {{#message}}
-        <p style="margin: 20px 0 0 0;">Personal message from {{requester.name}}</p>
-        <div class="head" style="background-color: #f5f5f5;padding: 20px;margin:5px 0 15px 0;font-style: italic;">
-            <p style="margin: 0;white-space: pre-line;">
-                {{message}}
-            </p>
-        </div>
-        {{/message}}
-
-        <div style="display: flex;">
-            <a class="button" href="{{{ deepLink }}}"
-               style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
-                <span style="color: white;margin: auto 0 auto 25px;">Click to open {{serviceProviderName}} in Access</span>
-            </a>
-        </div>
-    </div>
-    {{> footer_en.html}}
-
-</div>
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}Connection request{{/heading}}
+{{$content}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Hello,</p>
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">{{requester.name}} has requested to connect service {{serviceProviderName}} to your organization {{organization.name}}.</p>
+{{<ui_quote.html}}
+{{$caption}}Personal message from {{requester.name}}{{/caption}}
+{{/ui_quote.html}}
+{{<ui_button.html}}
+{{$width}}380{{/width}}
+{{$href}}{{{deepLink}}}{{/href}}
+{{$label}}Open {{serviceProviderName}} in {{productName}}{{/label}}
+{{$linkText}}{{{deepLink}}}{{/linkText}}
+{{/ui_button.html}}
+{{/content}}
+{{/layout.html}}

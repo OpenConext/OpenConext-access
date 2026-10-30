@@ -1,7 +1,9 @@
-Als dienstverlener sta je instellingen op SURFconext toe om jouw dienst automatisch te koppelen.
-Je ontvangt deze e-mail omdat je hebt gekozen om meldingen te ontvangen bij nieuwe koppelingen.
+{{<layout_text.txt}}
+{{$content}}
+Hallo,
 
-{{user}} van instelling {{idpName}} heeft de koppeling geïnitieerd tussen hun instelling en jouw
-dienst {{spName}} (met entityID="{{spEntityID}}").
+Als dienstverlener sta je instellingen op SURFconext toe om jouw dienst automatisch te koppelen. Je ontvangt deze e-mail omdat je hebt gekozen om meldingen te ontvangen bij nieuwe koppelingen.
 
-{{> footer_nl.txt}}
+{{institutionAdmin.name}} van instelling {{identityProviderName}} heeft de koppeling geïnitieerd tussen hun instelling en jouw dienst {{serviceProviderName}} (met entityID="{{serviceProviderEntityId}}").
+{{/content}}
+{{/layout_text.txt}}

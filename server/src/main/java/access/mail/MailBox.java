@@ -15,12 +15,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -41,6 +43,10 @@ public class MailBox {
     private final String jiraErrorEmail;
     private final String environment;
     private final String productName;
+
+    private static final String PRIVACY_URL_NL = "https://support.surfconext.nl/privacy-nl";
+    private static final String PRIVACY_URL_EN = "https://support.surfconext.nl/privacy";
+    private static final String LOGO_CONTENT_ID = "surfLogo";
 
     private final Map<String, Map<String, String>> subjects;
 
@@ -88,10 +94,23 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("invitation", invitation);
         variables.put("title", title);
+        variables.put("organizationName", invitation.getOrganization().getName());
+        Instant created = invitation.getCreatedAt();
+        Instant expiry = invitation.getExpiryDate();
+        variables.put("validityDays", created != null && expiry != null ? Duration.between(created, expiry).toDays() : 30);
+        User sender = invitation.getInvitee();
+        variables.put("senderName", sender.getName());
+        variables.put("senderOrganization", sender.getSchacHomeOrganization());
+        Object logoUrl = invitation.getOrganization().getMetaData().get("logoUrl");
+        //Only absolute http(s) logos can be rendered by mail clients, base64 or relative ones are skipped
+        if (logoUrl instanceof String logo && logo.matches("(?i)^https?://.+")) {
+            variables.put("senderLogoUrl", logo);
+        }
         if (StringUtils.hasText(invitation.getMessage())) {
             //Templates use {{message}} (Mustache-escaped) with CSS white-space:pre-line for line breaks -
             //never inject raw HTML here, this is free text supplied by another user
             variables.put("message", invitation.getMessage());
+            variables.put("messageHtml", htmlMessage(invitation.getMessage()));
         }
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
@@ -119,6 +138,7 @@ public class MailBox {
             //Templates use {{message}} (Mustache-escaped) with CSS white-space:pre-line for line breaks -
             //never inject raw HTML here, this is free text supplied by another user
             variables.put("message", message);
+            variables.put("messageHtml", htmlMessage(message));
         }
         variables.put("title", title);
         variables.put("serviceProviderName", serviceProviderName);
@@ -168,6 +188,11 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("joinRequest", joinRequest);
         variables.put("title", title);
+        if (StringUtils.hasText(joinRequest.getMessage())) {
+            //Free text from another user, rendered escaped by the template
+            variables.put("message", joinRequest.getMessage());
+            variables.put("messageHtml", htmlMessage(joinRequest.getMessage()));
+        }
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
@@ -233,7 +258,8 @@ public class MailBox {
         variables.put("title", this.productName + " feedback form");
         String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         variables.put("date", now);
-        variables.put("message", message.replaceAll("\n", "<br/>"));
+        variables.put("message", message);
+        variables.put("messageHtml", htmlMessage(message));
         variables.put("url", url);
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
@@ -311,6 +337,11 @@ public class MailBox {
     private String sendMail(String templateName, String subject, Map<String, Object> variables,
                             MailAttachment attachment, String... to) throws MessagingException, IOException {
         variables.putIfAbsent("productName", this.productName);
+        boolean dutch = templateName.endsWith("_" + Language.nl.name());
+        variables.putIfAbsent("lang", dutch ? Language.nl.name() : Language.en.name());
+        variables.putIfAbsent("nl", dutch);
+        variables.putIfAbsent("supportEmail", this.supportEmail);
+        variables.putIfAbsent("privacyUrl", dutch ? PRIVACY_URL_NL : PRIVACY_URL_EN);
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -318,6 +349,8 @@ public class MailBox {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setSubject(subject);
         helper.setText(plainText, htmlText);
+        //Inline (cid:) image: Gmail and Outlook strip inline SVG and data: URIs. Must be added after setText
+        helper.addInline(LOGO_CONTENT_ID, logoResource(), "image/png");
         helper.setTo(to);
         helper.setFrom(emailFrom);
         if (attachment != null && attachment.bytes != null) {
@@ -325,6 +358,19 @@ public class MailBox {
         }
         new Thread(() -> mailSender.send(message)).start();
         return htmlText;
+    }
+
+    /**
+     * Free text from another user: HTML-escaped, with line breaks as {@code <br/>} because
+     * CSS white-space is ignored by e.g. Outlook. Use only with {{{messageHtml}}}.
+     */
+    private static String htmlMessage(String message) {
+        return HtmlUtils.htmlEscape(message).replaceAll("\r?\n", "<br/>");
+    }
+
+    private ClassPathResource logoResource() {
+        ClassPathResource override = new ClassPathResource("myCustomizations/templates/surf_logo.png");
+        return override.exists() ? override : new ClassPathResource("templates/surf_logo.png");
     }
 
     private static class MailAttachment {

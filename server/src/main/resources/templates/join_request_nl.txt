@@ -1,8 +1,15 @@
-{{joinRequest.user.name}} (van {{joinRequest.user.schacHomeOrganization}})
-heeft toegang aangevraagd voor jouw organisatie {{joinRequest.organization.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hallo,
 
-Aansluitverzoek accepteren:
+{{joinRequest.user.name}} ({{joinRequest.user.schacHomeOrganization}}) wil lid worden van jouw organisatie {{joinRequest.organization.name}}.
+{{#message}}
 
-{{{ url }}}
+Persoonlijk bericht van {{joinRequest.user.name}}:
+{{{message}}}
+{{/message}}
 
-{{> footer_nl.txt}}
+Verzoek bekijken:
+{{{url}}}
+{{/content}}
+{{/layout_text.txt}}

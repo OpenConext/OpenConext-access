@@ -1,11 +1,12 @@
+{{<layout_text.txt}}
+{{$content}}
 Dear {{contact.givenName}} {{contact.surName}},
 
-We would like to ask you to review and update the contact information for your organisation {{organization.name}} in {{productName}}.
+We would like to ask you to review and update the contact information for your organization {{organization.name}} in {{productName}}.
 
-Keeping contact information up to date ensures that the right people are notified about important changes to your organisation's access configuration.
+Keeping contact information up to date ensures that the right people are notified about important changes to your organization's access configuration.
 
 Review contact information:
-
-{{{ url }}}
-
-{{> footer_en.txt}}
+{{{url}}}
+{{/content}}
+{{/layout_text.txt}}

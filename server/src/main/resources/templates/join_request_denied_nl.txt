@@ -1,3 +1,7 @@
-Jouw aansluitverzoek voor {{joinRequest.organization.name}} is afgewezen.
+{{<layout_text.txt}}
+{{$content}}
+Hallo,
 
-{{> footer_nl.txt}}
+Je verzoek om lid te worden van {{joinRequest.organization.name}} is afgewezen.
+{{/content}}
+{{/layout_text.txt}}

@@ -1,3 +1,5 @@
+{{<layout_text.txt}}
+{{$content}}
 Beste {{contact.givenName}} {{contact.surName}},
 
 Wij verzoeken je de contactgegevens van jouw organisatie {{organization.name}} in {{productName}} te controleren en bij te werken.
@@ -5,7 +7,6 @@ Wij verzoeken je de contactgegevens van jouw organisatie {{organization.name}} i
 Het up-to-date houden van contactgegevens zorgt ervoor dat de juiste personen worden geïnformeerd over belangrijke wijzigingen in de toegangsconfiguratie van jouw organisatie.
 
 Contactgegevens bekijken:
-
-{{{ url }}}
-
-{{> footer_nl.txt}}
+{{{url}}}
+{{/content}}
+{{/layout_text.txt}}

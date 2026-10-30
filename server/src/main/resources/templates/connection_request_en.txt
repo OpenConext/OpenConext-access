@@ -1,8 +1,15 @@
-{{requester.name}}</strong>
-            has requested to connect service {{serviceProviderName} to your organization {{organization.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hello,
 
-Visit service:
+{{requester.name}} has requested to connect service {{serviceProviderName}} to your organization {{organization.name}}.
+{{#message}}
 
-{{{ deepLink }}}
+Personal message from {{requester.name}}:
+{{{message}}}
+{{/message}}
 
-{{> footer_en.txt}}
+Open {{serviceProviderName}} in {{productName}}:
+{{{deepLink}}}
+{{/content}}
+{{/layout_text.txt}}
