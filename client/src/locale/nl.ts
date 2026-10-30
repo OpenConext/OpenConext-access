@@ -312,7 +312,7 @@ const nl: AppTranslation = {
             action: "App toevoegen",
         },
         addApplication: "App toevoegen",
-        app: "APP",
+        app: "App",
         guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
         guestNoApplicationMessageInfo: "If this is a suprise, then please contact <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Weet je zeker dat je de organisatie {{name}} wilt verwijderen?",
