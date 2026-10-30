@@ -130,7 +130,7 @@ const nl: AppTranslation = {
         access: "Home",
         landing: "Zoek organisatie",
         applications: "Je apps",
-        team: "Teambeheer",
+        team: "SURF Access-gebruikers",
         joins: "Aanvraag‑verzoeken",
         invitations: "Uitnodigingen",
         home: "Home",
@@ -696,7 +696,7 @@ const nl: AppTranslation = {
         cancel: "Annuleren",
     },
     userManagement: {
-        title: "Gebruikersbeheer",
+        title: "SURF Access-gebruikers",
     },
     teamManagement: {
         nameEmail: "Naam & E‑mail",
