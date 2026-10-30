@@ -132,15 +132,19 @@ const inviteBaseUrl = config => {
         config[invite.externalConfigKey].replace(invite.externalPath, "").replace(/\/$/, "") : null;
 }
 
-export const inviteRolesHref = config => {
+//Invite runs on another domain and can't read our storage, so the current organization travels in the url
+const withOrganization = (href, organizationId) =>
+    organizationId ? `${href}?organizationId=${encodeURIComponent(organizationId)}` : href;
+
+export const inviteRolesHref = (config, organizationId) => {
     const baseUrl = inviteBaseUrl(config);
-    return baseUrl ? `${baseUrl}${inviteMenuItem().externalPath}` : inviteMenuItem().path;
+    return baseUrl ? withOrganization(`${baseUrl}${inviteMenuItem().externalPath}`, organizationId) : inviteMenuItem().path;
 }
 
 //A single role is available on the Invite domain as roles/{id}
-export const inviteRoleHref = (config, roleId) => {
+export const inviteRoleHref = (config, roleId, organizationId) => {
     const baseUrl = inviteBaseUrl(config);
-    return baseUrl ? `${baseUrl}/roles/${roleId}` : inviteMenuItem().path;
+    return baseUrl ? withOrganization(`${baseUrl}/roles/${roleId}`, organizationId) : inviteMenuItem().path;
 }
 
 export const activeMenuItem = currentLocation => {

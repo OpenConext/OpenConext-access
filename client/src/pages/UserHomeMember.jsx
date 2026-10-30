@@ -68,7 +68,7 @@ const UserHomeMember = () => {
         return <UserHome/>;
     }
 
-    const rolesHref = inviteRolesHref(config);
+    const rolesHref = inviteRolesHref(config, currentOrganization.id);
     const setActiveMenuItem = menuItem => useAppStore.setState({activeMenuItem: menuItem});
 
     const roleRow = role => {
@@ -87,7 +87,7 @@ const UserHomeMember = () => {
                 <CaretRightIcon size={24}/>
             </>
         );
-        const roleHref = inviteRoleHref(config, role.id);
+        const roleHref = inviteRoleHref(config, role.id, currentOrganization.id);
         return roleHref.startsWith("http") ?
             <a key={role.id} className="item role-item" href={roleHref}>{content}</a> :
             <Link key={role.id} className="item role-item" to={roleHref}
