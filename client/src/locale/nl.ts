@@ -166,7 +166,7 @@ const nl: AppTranslation = {
         confirmationAfter: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties. Je krijgt binnen <strong>3 werkdagen</strong> een e-mail van ons. Je referentienummer is <strong>{{jiraKey}}</strong>.",
         confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties.",
         newOrganization: "Nieuwe organisatie aangemaakt",
-        flash: "Organisatie {{name}} aangemaakt.",
+        flash: "Organisatie {{name}} aangemaakt",
     },
     userHome: {
         greeting: "{{name}}",
@@ -295,7 +295,7 @@ const nl: AppTranslation = {
             safe: "Ik houd mijn applicatie veilig en beschikbaar",
             support: "Ik ben te bereiken voor vragen en problemen",
         },
-        flash: "Applicatie {{name}} opgeslagen.",
+        flash: "Applicatie {{name}} opgeslagen",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
         deleteFlash: "De applicatie is verwijderd",
         outstandingPolicies: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a class='actionable' href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
@@ -735,9 +735,9 @@ const nl: AppTranslation = {
         approveConfirmation: "Weet je zeker dat je het verzoek van {{name}} wilt goedkeuren?",
         denialConfirmation: "Weet je zeker dat je het verzoek van {{name}} wilt weigeren?",
         flash: {
-            approved: "Het organisatielidmaatschap van {{name}} is aangemaakt.",
-            approveAll: "Alle organisatielidmaatschappen zijn aangemaakt.",
-            denied: "Het verzoek van {{name}} is afgewezen.",
+            approved: "Het organisatielidmaatschap van {{name}} is aangemaakt",
+            approveAll: "Alle organisatielidmaatschappen zijn aangemaakt",
+            denied: "Het verzoek van {{name}} is afgewezen",
         },
         deny: "Weigeren",
         approve: "Goedkeuren",
@@ -1635,7 +1635,7 @@ const nl: AppTranslation = {
         jiraModal: {
             title: "Contract ingediend",
             message: "Je contract is ingediend. Je wordt binnen <strong>3 werkdagen</strong> per mail benaderd. Je referentienummer in ons interne ticketsysteem is <strong>{{jiraKey}}</strong>.",
-            messageTest: "Je contract is ingediend.",
+            messageTest: "Je contract is ingediend",
         },
         submitConfirmation: {
             title: "Overeenkomst wordt opgesteld",
