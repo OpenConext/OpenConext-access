@@ -1,5 +1,6 @@
 import {PolicyCard} from "../policies/PolicyCard.jsx";
 import "./ApplicationDetail.scss";
+import {sadFarewell} from "../utils/SadFarewell.js";
 import "../styles/access_card.scss";
 import React, {useEffect, useState} from "react";
 import {
@@ -421,6 +422,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
             });
         } else {
             cancelConfirmation();
+            sadFarewell();
             setLoading(true);
             const manageIdentifierOrg = currentOrganization.manageIdentifier;
             disconnectServiceProviderToIdentityProvider(
