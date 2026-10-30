@@ -65,6 +65,8 @@ class ConnectionProviderConverterIntegrationTest extends AbstractTest {
             System.out.println(differences);
         }
         assertEquals(expected, converted);
+        //The IdP's in Manage control access, so every RP / SP must be allowed for all
+        assertEquals(Boolean.TRUE, ((Map<String, Object>) converted.get("data")).get("allowedall"));
     }
 
 

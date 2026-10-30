@@ -432,6 +432,21 @@ public class ConnectionController implements UserAccessRights {
         return jiraKey;
     }
 
+    private void addOrRemoveAllowedEntity(String identityProviderEntityId, String entityId, boolean add) {
+        Map<String, Object> provider = manage.identityProviderByEntityID(identityProviderEntityId);
+        Map<String, Object> data = getData(provider);
+        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
+            .getOrDefault("allowedEntities", new ArrayList<>());
+        List<Map<String, String>> newAllowedEntities = new ArrayList<>(allowedEntities.stream()
+            .filter(allowedEntity -> !allowedEntity.get("name").equals(entityId))
+            .toList());
+        if (add) {
+            newAllowedEntities.add(Map.of("name", entityId));
+        }
+        data.put("allowedEntities", newAllowedEntities);
+        manage.saveIdentityProvider(provider);
+    }
+
     private void addOrRemoveEduIDIdp(User user, Connection connection, String entityId) {
         //Only superusers and organization admins are allowed to do this
         if (user.isSuperUser() || getOrganizationMembership(user, connection.getApplication().getOrganization(), Authority.ADMIN).isPresent()) {
@@ -687,6 +702,8 @@ public class ConnectionController implements UserAccessRights {
     private Connection saveConnection(Connection connection) {
         //Put / Post to Manage only if the status is not OPEN
         boolean isResourceServer = connection.getProtocol().equals(EntityType.oauth20_rs);
+        //The user's choice for the test IdP's, captured now because the sync with Manage overwrites it (allowedall is always true)
+        boolean testIdpsRequested = !CollectionUtils.isEmpty((List<?>) connection.getMetaData().get("allowedEntities"));
         if (!connection.getStatus().equals(ConnectionStatus.OPEN)) {
             boolean isPrivateRelyingParty = connection.getProtocol().equals(EntityType.oidc10_rp) &&
                 connection.getMetaData().getOrDefault("pkce", false) == Boolean.FALSE;
@@ -724,20 +741,16 @@ public class ConnectionController implements UserAccessRights {
                 connection.getMetaData().remove("contactPersons");
             }
         }
-        //Now sync the Connection to Manage, but first check if we need to connect to test IdP's
-        if (connection.getState().equals(State.testaccepted) && connection.getStatus().equals(ConnectionStatus.COMPLETE) &&
-            !connection.isTestIdpInitialized() && !isResourceServer) {
+        if (!isResourceServer && connection.getState().equals(State.testaccepted) &&
+            connection.getStatus().equals(ConnectionStatus.COMPLETE)) {
             String entityID = (String) connection.getMetaData().get("entityID");
-            config.getIdentityProviders().forEach(idp -> {
-                Map<String, Object> provider = manage.identityProviderByEntityID(idp.get("entityid"));
-                Map<String, Object> data = getData(provider);
-                List<Map<String, String>> allowedEntities = (List<Map<String, String>>) data
-                    .getOrDefault("allowedEntities", new ArrayList<>());
-                allowedEntities.add(Map.of("name", entityID));
-                data.put("allowedEntities", allowedEntities);
-                manage.saveIdentityProvider(provider);
-            });
-            connection.setTestIdpInitialized(true);
+            if (testIdpsRequested != connection.isTestIdpInitialized()) {
+                config.getIdentityProviders().forEach(idp ->
+                    addOrRemoveAllowedEntity(idp.get("entityid"), entityID, testIdpsRequested));
+                connection.setTestIdpInitialized(testIdpsRequested);
+            }
+            connection.getMetaData().put("allowedEntities", testIdpsRequested ?
+                config.getIdentityProviders().stream().map(idp -> idp.get("entityid")).toList() : List.of());
         }
         return connectionRepository.save(connection);
     }
