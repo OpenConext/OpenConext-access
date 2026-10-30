@@ -702,7 +702,7 @@ const en: AppTranslation = {
         nameEmail: "Name & Email",
         applicationMemberships: "Member of app teams",
         active: "Active since",
-        role: "SURF Access role",
+        role: "{{productName}} role",
         maintain: "Maintain the {{name}} team",
         searchPlaceHolder: "Search for members",
         new: "Invite team member",
@@ -747,7 +747,7 @@ const en: AppTranslation = {
     invitationsManagement: {
         email: "Email",
         active: "Active since",
-        role: "SURF Access role",
+        role: "{{productName}} role",
         createdAt: "Send at",
         expiryDate: "Expires on",
         inviter: "Inviter",
@@ -790,7 +790,7 @@ const en: AppTranslation = {
         admin: "Admin",
         member: "Member",
         guest: "Guest",
-        all: "SURF Access roles - all",
+        all: "{{productName}} roles - all",
     },
     impersonate: {
         exit: "Stop impersonating",
@@ -934,7 +934,7 @@ const en: AppTranslation = {
             title: "About {{productName}}",
             paragraph1: "With {{productName}} you can, as an institution, set up your access management well and easily - covering access management and collaboration beyond the borders of your own institution.",
             paragraph2: "From 2027, {{productName}} will offer administrators within institutions a single system and user environment. Whether it concerns managing and granting access for guest students, guest researchers, alliances or other user groups.",
-            paragraph3: "Do you want to offer an application? You can make it available to education and research institutions via SURF Access.",
+            paragraph3: "Do you want to offer an application? You can make it available to education and research institutions via {{productName}}.",
         },
         eduId: {
             title: "Arrange access, including with eduID",
@@ -989,12 +989,12 @@ const en: AppTranslation = {
             title: "Frequently asked questions",
             subTitle: "Find answers to frequently asked questions about our platform. Can't find what you are looking for? Contact our team via <a href='mailto:support@surfaccess.nl'>support@surfaccess.nl</a>.",
             audience: {
-                question: "Who is SURF Access for?",
-                answer: "SURF Access is for education and research institutions that are members of SURF, the ICT cooperative of Dutch education and research. App providers can also offer their application to these institutions, even without being a member themselves. <a href='https://www.surf.nl/en/members' target='_blank' rel='noopener noreferrer'>Read more about SURF and its members</a>",
+                question: "Who is {{productName}} for?",
+                answer: "{{productName}} is for education and research institutions that are members of SURF, the ICT cooperative of Dutch education and research. App providers can also offer their application to these institutions, even without being a member themselves. <a href='https://www.surf.nl/en/members' target='_blank' rel='noopener noreferrer'>Read more about SURF and its members</a>",
             },
             available: {
-                question: "Can I use SURF Access already?",
-                answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out SURF Access without obligation in the demo environment.",
+                question: "Can I use {{productName}} already?",
+                answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out {{productName}} without obligation in the demo environment.",
             },
             login: {
                 question: "What do I need to log in?",
@@ -1002,7 +1002,7 @@ const en: AppTranslation = {
             },
             migrate: {
                 question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
-                answer: "No. Existing services keep working and will gradually move to SURF Access. You keep access to everything you use now.",
+                answer: "No. Existing services keep working and will gradually move to {{productName}}. You keep access to everything you use now.",
             },
         },
     },
@@ -1331,7 +1331,7 @@ const en: AppTranslation = {
         everyIdp: "any IdP",
         backToAccess: "← back to access",
         authorizationRules: "Access rules",
-        noPolicies: "No access rules have been configured yet. As a result, SURF Access will grant access to everyone at the institution.",
+        noPolicies: "No access rules have been configured yet. As a result, {{productName}} will grant access to everyone at the institution.",
         pdpPolicies: "Rules",
         noPoliciesFound: "No rules found",
         addAccessRule: "Add rule",
