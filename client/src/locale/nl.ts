@@ -316,7 +316,9 @@ const nl: AppTranslation = {
         guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
         guestNoApplicationMessageInfo: "If this is a suprise, then please contact <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Weet je zeker dat je de organisatie {{name}} wilt verwijderen?",
-        readOnly: "Je rol binnen de organisatie {{orgName}} geeft je geen toegang tot de details van deze applicatie",
+        filterMine: "Applicaties die ik beheer",
+        filterAll: "Alle applicaties",
+        notInAppTeam: "Je zit niet in het app-team van deze app.",
         catalog: {
             terms: "Algemene voorwaarden voor apps in de SURF Access app-catalogus",
             fairUse: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. een enkele onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",

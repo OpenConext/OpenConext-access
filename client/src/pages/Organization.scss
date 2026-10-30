@@ -121,6 +121,12 @@ div.organization-outer-container {
             .entities-list {
                 padding: 0 50px 0 50px;
             }
+
+            .search-filter {
+                margin: 0 auto 0 16px;
+                width: 240px;
+                min-width: 0;
+            }
         }
 
         table.application-list-view {
@@ -150,6 +156,18 @@ div.organization-outer-container {
 
             td.connectionCount {
                 text-align: center;
+            }
+
+            .application-name-locked {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                    flex-shrink: 0;
+                }
             }
 
         }

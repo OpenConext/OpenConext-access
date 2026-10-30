@@ -316,7 +316,9 @@ const pt: AppTranslation = {
         guestNoApplicationMessage: "Não tem acesso a nenhuma das aplicações desta organização.",
         guestNoApplicationMessageInfo: "Se isto o surpreende, contacte <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> para discutir a sua função nesta organização.",
         deleteConfirmation: "Tem a certeza de que quer eliminar a organização {{name}}?",
-        readOnly: "A sua função na organização {{orgName}} não lhe permite aceder aos detalhes desta aplicação",
+        filterMine: "Apps I manage TODO",
+        filterAll: "All apps TODO",
+        notInAppTeam: "You are not in the app team of this app. TODO",
         catalog: {
             terms: "Termos e condições para aplicações no catálogo de aplicações",
             fairUse: "A sua aplicação destina-se a um grupo específico de utilizadores (como um único grupo de investigação)? Então aplica-se a <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Política de Utilização Justa</a>.",
