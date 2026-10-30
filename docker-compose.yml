@@ -1,22 +1,33 @@
 services:
   mariadb:
-    image: mariadb:10.11
+    image: mariadb:13
     environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: access
-      MYSQL_USER: access
-      MYSQL_PASSWORD: secret
+      MARIADB_ROOT_PASSWORD: secret
+      MARIADB_DATABASE: access
+      MARIADB_USER: access
+      MARIADB_PASSWORD: secret
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - 3306:3306
     restart: unless-stopped
+  minio:
+    image: elestio/minio
+    volumes:
+      - minio_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+        MINIO_ROOT_USER: minioadmin
+        MINIO_ROOT_PASSWORD: minioadmin
+    command: "server /data --console-address :9001"
   mailpit:
     image: axllent/mailpit:v1.27
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - 8025:8025
+      - 1025:1025
     environment:
       MP_UI_AUTH: "user:password"
       MP_MAX_MESSAGES: 5000
@@ -24,3 +35,4 @@ services:
 
 volumes:
   mariadb_data:
+  minio_data:
