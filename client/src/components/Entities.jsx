@@ -61,7 +61,6 @@ export const Entities = ({
                              inputFocus = false,
                              searchPlaceholder,
                              searchAlignLeft = false,
-                             notAllowedTitle = "",
                              query: controlledQuery,
                              onQueryChange
                          }) => {
@@ -186,7 +185,6 @@ export const Entities = ({
         const href = (!overrideClickable && typeof rowHrefMapper === "function") ? rowHrefMapper(entity) : null;
         let firstClickableColumnSeen = false;
         return <TableRow key={`tr_${entity.id}_${index}`}
-                   title={overrideClickable && notAllowedTitle ? notAllowedTitle : ""}
                    className={`${clickAble} ${onHover ? "hoverable" : ""} ${additionalClassName} ${overrideClickable ? "not-allowed" : ""}`}>
             {columns.map((column, i) => {
                 const isClickableColumn = column.key !== "check" && !column.hasLink;

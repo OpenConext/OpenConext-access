@@ -1,3 +1,6 @@
+{{<layout_text.txt}}
+{{$signoff}}{{/signoff}}
+{{$content}}
 Jira API error - {{environment}} environment
 
 A call to the Jira API failed.
@@ -12,5 +15,5 @@ Request payload:
 Jira response:
 {{responseBody}}
 {{/responseBody}}
-
-{{> footer_en.txt}}
+{{/content}}
+{{/layout_text.txt}}

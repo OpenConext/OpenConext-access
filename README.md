@@ -39,12 +39,12 @@ Then create the MySQL database:
 
 ```sql
 DROP DATABASE IF EXISTS access;
-CREATE DATABASE access CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE access CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'access'@'%' IDENTIFIED BY 'secret';
 GRANT ALL privileges ON `access`.* TO 'access'@'%';
 ```
 
-Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_0900_ai_ci` from script above
+Note: in case of an error about COLLATE, omit `COLLATE utf8mb4_unicode_ci` from script above
 
 ### App Customization
 

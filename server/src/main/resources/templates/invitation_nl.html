@@ -1,41 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    {{> header_nl.html}}
-    <div class="head" style="padding: 30px 40px 20px 40px;">
-        {{#environment}}
-        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
-            Deze e-mail is afkomstig uit de {{environment}}-omgeving
-        </p>
-        {{/environment}}
-        <p class="title" style="">Hallo,</p>
-
-        <p><strong>{{invitation.invitee.name}}</strong> (van
-            <strong>{{invitation.invitee.schacHomeOrganization}}</strong>)
-            heeft je uitgenodigd voor organisatie {{invitation.organization.name}}.</p>
-
-        {{#message}}
-        <p style="margin: 20px 0 0 0;">Persoonlijk bericht van {{invitation.invitee.name}}</p>
-        <div class="head" style="background-color: #f5f5f5;padding: 20px;margin:5px 0 15px 0;font-style: italic;">
-            <p style="margin: 0;white-space: pre-line;">
-                {{message}}
-            </p>
-        </div>
-        {{/message}}
-
-        <div style="display: flex;">
-            <a class="button" href="{{{ url }}}"
-               style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
-                <span style="color: white;margin: auto 0 auto 25px;">Uitnodiging accepteren</span>
-            </a>
-        </div>
-    </div>
-    {{> footer_nl.html}}
-
-</div>
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}Je bent uitgenodigd voor {{productName}}{{/heading}}
+{{$preheader}}{{senderName}} heeft je uitgenodigd voor {{organizationName}}{{/preheader}}
+{{$content}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Hallo,</p>
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Je bent uitgenodigd als lid van {{organizationName}} in {{productName}}. Deze uitnodiging is {{validityDays}} dagen geldig.</p>
+{{<ui_button.html}}
+{{$href}}{{{url}}}{{/href}}
+{{$label}}Uitnodiging accepteren{{/label}}
+{{$linkText}}{{{url}}}{{/linkText}}
+{{/ui_button.html}}
+{{<ui_sender.html}}
+{{$caption}}Uitnodiging ontvangen van:{{/caption}}
+{{/ui_sender.html}}
+{{<ui_quote.html}}
+{{$caption}}Persoonlijk bericht van {{senderName}}{{/caption}}
+{{/ui_quote.html}}
+{{/content}}
+{{/layout.html}}

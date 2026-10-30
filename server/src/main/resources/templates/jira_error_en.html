@@ -1,50 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    {{> header_en.html}}
-    <div class="head" style="padding: 30px 40px 20px 40px;">
-        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
-            This mail is from the {{environment}} environment
-        </p>
-        <p class="title" style="font-size: 20px;font-weight: bold;">Jira API error</p>
-        <p>A call to the Jira API failed in the <strong>{{environment}}</strong> environment.</p>
-
-        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-            <tr>
-                <td style="padding: 8px; font-weight: bold; width: 160px; vertical-align: top; background-color: #f5f5f5;">Operation</td>
-                <td style="padding: 8px; vertical-align: top;">{{operation}}</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Error</td>
-                <td style="padding: 8px; vertical-align: top; color: #c0392b;">{{errorMessage}}</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Request payload</td>
-                <td style="padding: 8px; vertical-align: top;">
-                    <pre style="white-space: pre-wrap; word-break: break-all; background-color: #f5f5f5; padding: 10px; font-size: 13px;">{{requestPayload}}</pre>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">URL</td>
-                <td style="padding: 8px; vertical-align: top;">
-                    <pre style="white-space: pre-wrap; word-break: break-all; background-color: #f5f5f5; padding: 10px; font-size: 13px;">{{url}}</pre>
-                </td>
-            </tr>
-            {{#responseBody}}
-            <tr>
-                <td style="padding: 8px; font-weight: bold; vertical-align: top; background-color: #f5f5f5;">Jira response</td>
-                <td style="padding: 8px; vertical-align: top;">
-                    <pre style="white-space: pre-wrap; word-break: break-all; background-color: #f5f5f5; padding: 10px; font-size: 13px;">{{responseBody}}</pre>
-                </td>
-            </tr>
-            {{/responseBody}}
-        </table>
-    </div>
-    {{> footer_en.html}}
-</div>
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}Jira API error{{/heading}}
+{{$signoff}}{{/signoff}}
+{{$content}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">A call to the Jira API failed in the <strong>{{environment}}</strong> environment.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0 0 24px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr><td width="160" valign="top" bgcolor="#f5f5f4" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f5f5f4;padding:8px;font-size:16px;line-height:24px;font-weight:600;border-bottom:1px solid #d6d3d1;">Operation</td><td valign="top" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:8px;font-size:16px;line-height:24px;border-bottom:1px solid #d6d3d1;">{{operation}}</td></tr>
+<tr><td width="160" valign="top" bgcolor="#f5f5f4" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f5f5f4;padding:8px;font-size:16px;line-height:24px;font-weight:600;border-bottom:1px solid #d6d3d1;">Error</td><td valign="top" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:8px;font-size:16px;line-height:24px;border-bottom:1px solid #d6d3d1;color:#c0392b;">{{errorMessage}}</td></tr>
+<tr><td width="160" valign="top" bgcolor="#f5f5f4" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f5f5f4;padding:8px;font-size:16px;line-height:24px;font-weight:600;border-bottom:1px solid #d6d3d1;">Request payload</td><td valign="top" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:8px;font-size:16px;line-height:24px;border-bottom:1px solid #d6d3d1;"><pre style="margin:0;white-space:pre-wrap;word-break:break-all;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:18px;">{{requestPayload}}</pre></td></tr>
+<tr><td width="160" valign="top" bgcolor="#f5f5f4" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f5f5f4;padding:8px;font-size:16px;line-height:24px;font-weight:600;border-bottom:1px solid #d6d3d1;">URL</td><td valign="top" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:8px;font-size:16px;line-height:24px;border-bottom:1px solid #d6d3d1;"><pre style="margin:0;white-space:pre-wrap;word-break:break-all;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:18px;">{{url}}</pre></td></tr>
+{{#responseBody}}
+<tr><td width="160" valign="top" bgcolor="#f5f5f4" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f5f5f4;padding:8px;font-size:16px;line-height:24px;font-weight:600;border-bottom:1px solid #d6d3d1;">Jira response</td><td valign="top" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:8px;font-size:16px;line-height:24px;border-bottom:1px solid #d6d3d1;"><pre style="margin:0;white-space:pre-wrap;word-break:break-all;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:18px;">{{responseBody}}</pre></td></tr>
+{{/responseBody}}
+</table></td></tr></table>
+{{/content}}
+{{/layout.html}}

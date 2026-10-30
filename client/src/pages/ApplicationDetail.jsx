@@ -37,6 +37,7 @@ import {
 } from "@surfnet/curve-react";
 import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 
 import {ConsentPreview} from "../components/ConsentPreview.jsx";
 import {APPLICATION_LINKS, connectWithoutInteraction, CONSENT, MFA_LEVELS, providerDescription, providerName, providerOrganizationName, STEPUP_LEVELS} from "../utils/Manage.js";
@@ -976,7 +977,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
 
     const renderLogo = metaDataFields => {
         const logoUrl = metaDataFields["logo:0:url"];
-        return isEmpty(logoUrl) ? <PlaceHolderImage/> : <img src={logoUrl} alt=""/>
+        return <AppLogo src={logoUrl} Fallback={PlaceHolderImage}/>
     }
 
     const renderDetailsApp = () => {

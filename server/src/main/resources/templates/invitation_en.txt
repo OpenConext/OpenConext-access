@@ -1,8 +1,17 @@
-{{invitation.invitee.name}} (from {{invitation.invitee.schacHomeOrganization}})
-            has invited you to organization {{invitation.organization.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hello,
+
+You have been invited as a member of {{organizationName}} in {{productName}}. This invitation is valid for {{validityDays}} days.
 
 Accept invitation:
+{{{url}}}
 
-{{{ url }}}
+Invitation received from: {{senderName}} ({{senderOrganization}})
+{{#message}}
 
-{{> footer_en.txt}}
+Personal message from {{senderName}}:
+{{{message}}}
+{{/message}}
+{{/content}}
+{{/layout_text.txt}}

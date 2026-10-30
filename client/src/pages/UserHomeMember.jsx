@@ -12,7 +12,7 @@ import {applicationPath, convertServerApplicationToClient, roleApplicationNames}
 import {inviteRoleHref, inviteRolesHref, mainMenuItems} from "../utils/MenuItems.js";
 import {myRoles, organizationApplicationsById} from "../api/index.js";
 import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
-import ImageNotFound from "../icons/image-not-found.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import UserHome from "./UserHome.jsx";
 
 const MAX_ROLE_APPLICATIONS = 2;
@@ -108,8 +108,7 @@ const UserHomeMember = () => {
                 <div className="items">
                     {apps.map(application =>
                         <Link key={application.id} className="item app-item" to={applicationPath(application)}>
-                            {isEmpty(application.logoUrl) ? <ImageNotFound className="app-logo"/> :
-                                <img className="app-logo" src={application.logoUrl} alt=""/>}
+                            <AppLogo className="app-logo" src={application.logoUrl}/>
                             <span className="item-title">{application.name}</span>
                             <ApplicationStatusBadge application={application}/>
                             <CaretRightIcon size={24}/>

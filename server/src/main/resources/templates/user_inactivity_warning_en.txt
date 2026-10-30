@@ -1,11 +1,14 @@
+{{<layout_text.txt}}
+{{$content}}
 Dear {{user.name}},
 
 Your {{productName}} account has not been used since {{lastActivity}}. Accounts that remain inactive will be deleted.
 
-If no action is taken, your account will be deleted on {{deletionDate}}. Your memberships in organisations and any associated access rights will be removed.
+If no action is taken, your account will be deleted on {{deletionDate}}. Your memberships in organizations and any associated access rights will be removed.
 
-To keep your account, simply log in to {{productName}} before the deletion date:
+To keep your account, simply log in to {{productName}} before the deletion date.
 
-{{{ clientUrl }}}
-
-{{> footer_en.txt}}
+Log in to {{productName}}:
+{{{clientUrl}}}
+{{/content}}
+{{/layout_text.txt}}

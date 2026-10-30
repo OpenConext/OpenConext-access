@@ -1,3 +1,7 @@
-Your join request for <strong>{{joinRequest.organization.name}}</strong> has been denied.
+{{<layout_text.txt}}
+{{$content}}
+Hello,
 
-{{> footer_en.txt}}
+Your request to become a member of {{joinRequest.organization.name}} has been denied.
+{{/content}}
+{{/layout_text.txt}}

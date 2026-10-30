@@ -1,8 +1,17 @@
-{{invitation.invitee.name}} (van {{invitation.invitee.schacHomeOrganization}})
-heeft je uitgenodigd voor organisatie {{invitation.organization.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hallo,
+
+Je bent uitgenodigd als lid van {{organizationName}} in {{productName}}. Deze uitnodiging is {{validityDays}} dagen geldig.
 
 Uitnodiging accepteren:
+{{{url}}}
 
-{{{ url }}}
+Uitnodiging ontvangen van: {{senderName}} ({{senderOrganization}})
+{{#message}}
 
-{{> footer_nl.txt}}
+Persoonlijk bericht van {{senderName}}:
+{{{message}}}
+{{/message}}
+{{/content}}
+{{/layout_text.txt}}

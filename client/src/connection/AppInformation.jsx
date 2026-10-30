@@ -12,7 +12,7 @@ import {contactSectionValid, convertClientApplicationToServer, convertServerAppl
 import {Button, Card, CardContent, Checkbox, Label, Spinner} from "@surfnet/curve-react";
 import SelectField from "../components/SelectField.jsx";
 import {isValidUrl} from "../validations/regExps.js";
-import ImageNotFound from "../icons/image-not-found.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import {APPLICATION_STATUSES} from "../utils/Manage.js";
 import {ContactPersons} from "../components/ContactPersons.jsx";
 import {useSearchParams} from "react-router";
@@ -332,8 +332,7 @@ export const AppInformation = ({
                 <Card className="app-preview-card">
                     <CardContent>
                         <div className="app-preview-card-icon">
-                            {isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                                <img src={application.logoUrl} alt={application.name}/>}
+                            <AppLogo src={application.logoUrl}/>
                         </div>
                         <h4 className="font-bold mb-1">{application.name}</h4>
                         <span className="app-preview-card-vendor">{application.organization?.name}</span>

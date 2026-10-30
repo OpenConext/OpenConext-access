@@ -2,18 +2,24 @@ import "./Organization.scss";
 import React, {useEffect, useState} from "react";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {Alert, AlertDescription, AlertTitle, Button, Spinner} from "@surfnet/curve-react";
-import {AppWindowIcon, HourglassIcon, InfoIcon, PlusCircleIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, AlertTitle, Button, Spinner, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {AppWindowIcon, HourglassIcon, InfoIcon, LockIcon, PlusCircleIcon} from "@phosphor-icons/react";
 import {ConnectionAlert} from "../connection/ConnectionAlert.jsx";
 import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
 import {menu, organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty, sanitize} from "../utils/Utils.js";
-import ImageNotFound from "../icons/image-not-found.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import DOMPurify from "dompurify";
 import {applicationPath, contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
-import {hasApplicationWriteAccess, hasCreateApplicationAccess} from "../utils/Permissions.js";
+import {
+    authorities,
+    currentUserMembershipAuthority,
+    hasApplicationWriteAccess,
+    hasCreateApplicationAccess
+} from "../utils/Permissions.js";
+import SelectField from "../components/SelectField.jsx";
 import {dateFromEpoch} from "../utils/Date.js";
 import {Entities} from "../components/Entities.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
@@ -26,6 +32,11 @@ import {currentOrganizationFromUser, showContractRequiredBanner} from "../utils/
 const views = {
     card: "card",
     list: "list"
+}
+
+const appFilters = {
+    mine: "mine",
+    all: "all"
 }
 
 const Organization = () => {
@@ -43,6 +54,7 @@ const Organization = () => {
     const [isExternal, setIsExternal] = useState(true);
     const [mayCreateApplication, setMayCreateApplication] = useState(false);
     const [contactEmail, setContactEmail] = useState("");
+    const [appFilter, setAppFilter] = useState(appFilters.mine);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -136,13 +148,19 @@ const Organization = () => {
                 nonSortable: true,
                 key: "icon",
                 header: "",
-                mapper: application => isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                    <img src={application.logoUrl} alt={application.name}/>
+                mapper: application => <AppLogo src={application.logoUrl}/>
             },
             {
                 key: "name",
                 header: I18n.t("accessibleApps.name"),
-                mapper: application => application.name
+                mapper: application => hasApplicationWriteAccess(user, application) ? application.name :
+                    <span className="application-name-locked">
+                        {application.name}
+                        <Tooltip>
+                            <TooltipTrigger render={<LockIcon/>}/>
+                            <TooltipContent>{I18n.t("organization.notInAppTeam")}</TooltipContent>
+                        </Tooltip>
+                    </span>
             },
             {
                 key: "type",
@@ -166,9 +184,18 @@ const Organization = () => {
             }
 
         ];
+        //Admins always see all applications and guests only the ones they manage, so only members may choose
+        const membership = (user.organizationMemberships || [])
+            .find(m => m.organization.id === organization.id);
+        const showAppFilter = currentUserMembershipAuthority(user, membership) === authorities.MEMBER;
+        const filterOptions = Object.values(appFilters)
+            .map(value => ({value, label: I18n.t(`organization.filter${value === appFilters.mine ? "Mine" : "All"}`)}));
+        const applications = (showAppFilter && appFilter === appFilters.mine) ?
+            organization.applications.filter(application => hasApplicationWriteAccess(user, application)) :
+            organization.applications;
         return (
             <Entities
-                entities={organization.applications
+                entities={applications
                     .sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()))}
                 modelName="application-list-view"
                 defaultSort="name"
@@ -180,7 +207,10 @@ const Organization = () => {
                 rowLinkMapper={(e, application) => hasApplicationWriteAccess(user, application) && navigate(applicationPath(application))}
                 rowHrefMapper={application => hasApplicationWriteAccess(user, application) ? applicationPath(application) : undefined}
                 rowOverrideClickable={application => !hasApplicationWriteAccess(user, application)}
-                notAllowedTitle={I18n.t("organization.readOnly", {orgName: organization.name})}
+                filters={showAppFilter &&
+                    <SelectField value={filterOptions.find(option => option.value === appFilter)}
+                                 options={filterOptions}
+                                 onChange={option => setAppFilter(option.value)}/>}
                 inputFocus={false}
                 searchPlaceholder={I18n.t("application-list-view.searchPlaceHolder")}>
                 {(user.superUser || hasCreateApplicationAccess(user, organization)) &&

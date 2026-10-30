@@ -3,6 +3,10 @@ services:
     image: mariadb:10.11
     environment:
       MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: access
+      MYSQL_USER: access
+      MYSQL_PASSWORD: secret
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:

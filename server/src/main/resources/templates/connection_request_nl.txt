@@ -1,7 +1,15 @@
-{{requester.name}} heeft verzocht om dienst {{serviceProviderName}} te koppelen aan jouw organisatie {{organization.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hallo,
 
-Bekijk de dienst:
+{{requester.name}} heeft verzocht om dienst {{serviceProviderName}} te koppelen aan jouw organisatie {{organization.name}}.
+{{#message}}
 
-{{{ deepLink }}}
+Persoonlijk bericht van {{requester.name}}:
+{{{message}}}
+{{/message}}
 
-{{> footer_nl.txt}}
+Open {{serviceProviderName}} in {{productName}}:
+{{{deepLink}}}
+{{/content}}
+{{/layout_text.txt}}
