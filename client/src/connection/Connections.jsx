@@ -652,7 +652,7 @@ export const Connections = ({
                                  creatable={true}
                                  placeholder={I18n.t("connection.scopePlaceholder")}
                                  onChange={scopesChanged}
-                                 info={I18n.t("connection.scopeInfo", {schachome: currentOrganization.schacHomeOrganization.replaceAll(".", "-")})}
+                                 info={I18n.t("connection.scopeInfo")}
                     />}
                 {(isRs && duplicateScope) &&
                     <ErrorIndicator msg={I18n.t("connection.duplicateScope")}

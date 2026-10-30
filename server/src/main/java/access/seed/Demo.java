@@ -60,7 +60,7 @@ public class Demo {
         // -------------------------------------------------------------------------
 
         Map<String, Object> mujinaIdp = manage.identityProviderByEntityID("http://mock-idp");
-        Organization dummyIdp = new Organization("Dummy IdP", "dummy-idp.example.com",
+        Organization dummyIdp = new Organization("Dummy IdP",
             (String) mujinaIdp.get("id"), 1);
         dummyIdp.setStatus(OrganizationStatus.APPROVED);
         organizationRepository.save(dummyIdp);
@@ -123,7 +123,7 @@ public class Demo {
         // -------------------------------------------------------------------------
         // Organization 2: Commerz (no manageIdentifier)
         // -------------------------------------------------------------------------
-        Organization commerz = new Organization("Commerz", "commerz.example.com");
+        Organization commerz = new Organization("Commerz");
         commerz.setStatus(OrganizationStatus.APPROVED);
         organizationRepository.save(commerz);
 

@@ -64,7 +64,7 @@ class MailBoxTemplatesTest {
         MailBox mailBox = mailBox();
         User sender = new User(false, "eppn", "sub", "example.com", "Janne", "de Vries", "janne@example.com", "idp");
         User requester = new User(false, "eppn2", "sub2", "eduid.nl", "Sam", "de Boer", "sam@example.com", "idp");
-        Organization organization = new Organization("Universiteit Leiden", "leiden.nl");
+        Organization organization = new Organization("Universiteit Leiden");
         organization.setId(39L);
         organization.getMetaData().put("logoUrl", "https://static.surfconext.nl/media/idp/leiden.png");
         organization.getOrganizationMemberships().add(new OrganizationMembership(requester, organization, Authority.ADMIN));
@@ -83,7 +83,7 @@ class MailBoxTemplatesTest {
             assertTrue(html.contains("30"));
 
             mailBox.sendInviteMail(new Invitation(language, "hash", "ok@ok.com", null,
-                    Authority.MEMBER, new Organization("No logo", "x.nl"), sender, Set.of()));
+                    Authority.MEMBER, new Organization("No logo"), sender, Set.of()));
             html = next("invitation_nomessage_" + name).getHtmlContent();
             assertFalse(html.contains("<img src=\"http"), "no remote logo without logoUrl");
 

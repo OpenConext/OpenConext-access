@@ -277,11 +277,6 @@ export const Organizations = ({pendingApproval}) => {
             mapper: organizationNameRow
         },
         {
-            key: "schacHomeOrganization",
-            header: I18n.t("organizations.schacHomeOrganization"),
-            mapper: org => <span>{org.schacHomeOrganization}</span>
-        },
-        {
             key: "manageIdentifier",
             header: I18n.t("organizations.isInternal"),
             mapper: org => <div className="wrapper"><Checkbox checked={!isEmpty(org.manageIdentifier)} readOnly={true}/></div>
@@ -335,7 +330,7 @@ export const Organizations = ({pendingApproval}) => {
                       showNew={false}
                       inputFocus={true}
                       hideTitle={true}
-                      searchAttributes={pendingApproval ? ["name", "schacHomeOrganization"] : null}
+                      searchAttributes={pendingApproval ? ["name"] : null}
                       customSearch={pendingApproval ? null : search}
                       totalElements={pendingApproval ? organizations.length : totalElements}
                       loading={pendingApproval ? loading : searching}/>

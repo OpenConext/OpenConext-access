@@ -72,7 +72,7 @@ class ResourceCleanerTest extends AbstractMailTest {
     @Test
     void doClean_deletesOrgWithNoConnectionsWhenOldEnough() {
         // Create an org without a manageIdentifier, with no connections, and an old createdAt
-        Organization staleOrg = new Organization("StaleOrg", "stale.org");
+        Organization staleOrg = new Organization("StaleOrg");
         staleOrg.setCreatedAt(Instant.now().minus(400, ChronoUnit.DAYS));
         organizationRepository.save(staleOrg);
 
@@ -85,7 +85,7 @@ class ResourceCleanerTest extends AbstractMailTest {
     @Test
     void doClean_doesNotDeleteOrgTooNew() {
         // Org without manageIdentifier but created only 10 days ago → should NOT be deleted
-        Organization newOrg = new Organization("NewOrg", "new.org");
+        Organization newOrg = new Organization("NewOrg");
         newOrg.setCreatedAt(Instant.now().minus(10, ChronoUnit.DAYS));
         organizationRepository.save(newOrg);
 

@@ -36,9 +36,6 @@ public class Organization implements NameHolder {
     @NotNull
     private String name;
 
-    @Column(name = "schac_home_organization")
-    private String schacHomeOrganization;
-
     @Column(name = "manage_identifier")
     private String manageIdentifier;
 
@@ -99,15 +96,13 @@ public class Organization implements NameHolder {
     @Formula(value = "(SELECT COUNT(*) FROM applications a WHERE a.organization_id=id)")
     private Long applicationCount;
 
-    public Organization(String name, String schacHomeOrganization) {
+    public Organization(String name) {
         this.name = name;
-        this.schacHomeOrganization = schacHomeOrganization;
         this.createdAt = Instant.now();
     }
 
-    public Organization(String name, String schacHomeOrganization, String manageIdentifier, Integer manageVersion) {
+    public Organization(String name, String manageIdentifier, Integer manageVersion) {
         this.name = name;
-        this.schacHomeOrganization = schacHomeOrganization;
         this.manageIdentifier = manageIdentifier;
         this.manageVersion = manageVersion;
         this.createdAt = Instant.now();

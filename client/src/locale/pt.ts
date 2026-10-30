@@ -247,7 +247,6 @@ const pt: AppTranslation = {
         approved_action: "Aprovar",
         disapproved_action: "Rejeitar",
         name: "Nome",
-        schacHomeOrganization: "Schac home",
         isInternal: "Interna",
         createdAt: "Criada",
         memberCount: "N.º de membros",
@@ -457,7 +456,7 @@ const pt: AppTranslation = {
         policyWriteAccess: "Esta ligação não pode ser eliminada porque existem regras de acesso pendentes. Pode editar ou eliminar as regras de acesso e, de seguida, eliminar esta ligação.",
         scopes: "Scopes",
         scopePlaceholder: "Adicione scopes únicos para este RS",
-        scopeInfo: "Se criar scopes, utilize como prefixo o seu domínio único (p. ex. '{{schachome}}-scope')",
+        scopeInfo: "Se criar scopes, utilize como prefixo o seu domínio único (p. ex. 'mycompany-scope')",
         duplicateScope: "Este scope já existe e não pode ser criado novamente",
         metadata: {
             how: "Como quer importar os metadados?",

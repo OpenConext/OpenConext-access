@@ -242,7 +242,7 @@ public class OrganizationController implements UserAccessRights {
     @PostMapping({"", "/"})
     public ResponseEntity<Organization> create(User user, @RequestBody @Validated Organization organization) {
         String name = organization.getName();
-        Organization newOrganization = createOrganization(user, name);
+        Organization newOrganization = new Organization(name);
         String orgName = newOrganization.getName();
         LOG.info(String.format("Creating new Organisation %s for %s", name, user.getEmail()));
         // Now create a Jira ticket
@@ -378,28 +378,6 @@ public class OrganizationController implements UserAccessRights {
                 .toList();
         List<Map<String, Object>> identityProviders = manage.identityProvidersByAllowedConnections(connections);
         return ResponseEntity.ok(identityProviders);
-    }
-
-    private Organization createOrganization(User user, String name) {
-        String orgSchacHomeOrganization = getOrgSchacHomeOrganization(user, name);
-        return new Organization(name, orgSchacHomeOrganization);
-    }
-
-    private String getOrgSchacHomeOrganization(User user, String name) {
-        String schacHomeOrganization = user.getSchacHomeOrganization().toLowerCase();
-        String orgSchacHomeOrganization;
-        boolean isExternalUserFromSchacHome = config.getExternalSchacHomeOrganizations().contains(schacHomeOrganization);
-        if (isExternalUserFromSchacHome) {
-            String normalizedName = name
-                    .replaceAll("[^a-zA-Z_ ]", "")
-                    .trim()
-                    .replaceAll(" ", "_")
-                    .toLowerCase();
-            orgSchacHomeOrganization = String.format("%s.%s", normalizedName, schacHomeOrganization);
-        } else {
-            orgSchacHomeOrganization = schacHomeOrganization;
-        }
-        return orgSchacHomeOrganization;
     }
 
 }

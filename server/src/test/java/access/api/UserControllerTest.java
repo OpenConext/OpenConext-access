@@ -322,7 +322,6 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertNotNull(organization.getName());
-        assertEquals(attributes.get("schac_home_organization"), organization.getSchacHomeOrganization());
     }
 
     @Test
@@ -354,7 +353,6 @@ class UserControllerTest extends AbstractTest {
 
         Organization organization = user.getOrganizationMemberships().stream().findFirst().get().getOrganization();
         assertNotNull(organization.getName());
-        assertEquals(attributes.get("schac_home_organization"), organization.getSchacHomeOrganization());
     }
 
     @Test

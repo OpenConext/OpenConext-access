@@ -169,7 +169,7 @@ public class UserController implements UserAccessRights {
                                     metaDataFields.get("name:en"),
                                     metaDataFields.get("OrganizationName:en"));
                                 Integer manageVersion = (Integer) idp.get("version");
-                                Organization organization = new Organization(organizationName, schacHomeOrganization, manageIdentifier, manageVersion);
+                                Organization organization = new Organization(organizationName, manageIdentifier, manageVersion);
                                 //Organizations created based on the IdP's in Manage are approved automatically
                                 organization.setStatus(OrganizationStatus.APPROVED);
                                 organizationRepository.save(organization);

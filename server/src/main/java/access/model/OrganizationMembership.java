@@ -86,7 +86,6 @@ public class OrganizationMembership implements NameHolder {
             organizationInfo.put("name", organization.getName());
             organizationInfo.put("manageIdentifier", organization.getManageIdentifier());
             organizationInfo.put("status", organization.getStatus());
-            organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
             organizationInfo.put("contractSigned", organization.isContractSigned());
             organizationInfo.put("contractRequested", organization.isContractRequested());
             organizationInfo.put("contractTicketKey", organization.getContractTicketKey());

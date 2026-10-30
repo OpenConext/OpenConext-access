@@ -639,9 +639,9 @@ public abstract class AbstractTest {
 
         doSave(this.userRepository, superUser, manager, guest, externalUser, multipleOrganizationUser, institutionAdmin);
 
-        Organization shareLogics = new Organization(SHARE_LOGICS, "sharelogics.org", "7", 1);
-        Organization logistics = new Organization(LOGISTICS, "logistics.org", "8", 1);
-        Organization farWind = new Organization(FAR_WIND, "farwind.org");
+        Organization shareLogics = new Organization(SHARE_LOGICS, "7", 1);
+        Organization logistics = new Organization(LOGISTICS, "8", 1);
+        Organization farWind = new Organization(FAR_WIND);
 
         doSave(this.organizationRepository, shareLogics, logistics, farWind);
 

@@ -254,7 +254,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .as(Organization.class);
 
         Organization organizationFromDB = organizationRepository.findById(organization.getId()).get();
-        assertEquals("brand_new_world.eduid.nl", organizationFromDB.getSchacHomeOrganization());
+        assertEquals("Brand New World !!!", organizationFromDB.getName());
     }
 
     @Test
@@ -272,7 +272,7 @@ class OrganizationControllerTest extends AbstractTest {
                 .as(Organization.class);
 
         Organization organizationFromDB = organizationRepository.findById(organization.getId()).get();
-        assertEquals("example.com", organizationFromDB.getSchacHomeOrganization());
+        assertEquals("Brand New World !!!", organizationFromDB.getName());
     }
 
     @Test

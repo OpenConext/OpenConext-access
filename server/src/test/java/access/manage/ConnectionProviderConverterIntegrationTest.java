@@ -50,7 +50,7 @@ class ConnectionProviderConverterIntegrationTest extends AbstractTest {
     private void doConvertConnection(String connectionPath, String expectedPath) {
         Connection connection = readJson(connectionPath, Connection.class);
         Application application = readJson("/manage/application.json", Application.class);
-        Organization organization = new Organization("ORG name", "example.com");
+        Organization organization = new Organization("ORG name");
         application.setOrganization(organization);
         connection.setApplication(application);
 

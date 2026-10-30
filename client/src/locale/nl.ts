@@ -247,7 +247,6 @@ const nl: AppTranslation = {
         approved_action: "Goedkeuren",
         disapproved_action: "Afwijzen",
         name: "Naam",
-        schacHomeOrganization: "Schac‑home",
         isInternal: "Intern",
         createdAt: "Aangemaakt",
         memberCount: "# Leden",
@@ -457,8 +456,8 @@ const nl: AppTranslation = {
         policyWriteAccess: "Je kunt deze verbinding niet verwijderen omdat er nog actieve beleidsregels zijn. Je kunt deze beleidsregels bewerken of verwijderen en daarna deze verbinding verwijderen.",
         scopes: "Scopes",
         scopePlaceholder: "Zoek en voeg relevante scopes toe voor deze RS",
-        scopeInfo: "Als je scopes aanmaakt, voeg dan een uniek domein ervoor toe (bijv. '{{schachome}}-scope').",
-        duplicateScope: "Deze scope bestaat al en kun je niet opnieuw aanmaken",
+        scopeInfo: "Als je scopes aanmaakt, voeg dan een unieke domein ervoor toe (bijv. 'mycompany-scope').",
+        duplicateScope: "Deze scope bestaat al en kan je niet opnieuw aanmaken",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "Metadata ophalen van URL",

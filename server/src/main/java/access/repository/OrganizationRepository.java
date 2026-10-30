@@ -48,19 +48,19 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
 
     @Query(value = """
-             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+             SELECT org.id, org.name, org.status, org.created_at as createdAt,
                                 org.manage_identifier as manageIdentifier,
                     (SELECT u.email FROM organization_memberships om JOIN users u ON u.id = om.user_id WHERE om.organization_id = org.id
                     AND om.authority = 'ADMIN' LIMIT 1) AS adminEmail
-              FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
+              FROM organizations org WHERE MATCH (name) against (?1  IN BOOLEAN MODE)
             """,
-            countQuery = "SELECT count(*) FROM organizations WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)",
+            countQuery = "SELECT count(*) FROM organizations WHERE MATCH (name) against (?1  IN BOOLEAN MODE)",
             queryRewriter = OrganizationRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
 
     @Query(value = """
-             SELECT org.id, org.name, org.schac_home_organization as schacHomeOrganization, org.status, org.created_at as createdAt,
+             SELECT org.id, org.name, org.status, org.created_at as createdAt,
                                 org.manage_identifier as manageIdentifier,
                     (SELECT u.email FROM organization_memberships om JOIN users u ON u.id = om.user_id WHERE om.organization_id = org.id
                     AND om.authority = 'ADMIN' LIMIT 1) AS adminEmail
@@ -75,7 +75,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
              SELECT org.id, org.name,
                 (SELECT COUNT(*) FROM organization_memberships om WHERE om.organization_id = org.id) as memberCount,
                 (SELECT COUNT(*) FROM applications a WHERE a.organization_id = org.id) as applicationCount
-              FROM organizations org WHERE MATCH (name, schac_home_organization) against (?1  IN BOOLEAN MODE)
+              FROM organizations org WHERE MATCH (name) against (?1  IN BOOLEAN MODE)
             """,
             nativeQuery = true)
     List<Map<String, Object>> searchWithKeyword(String keyWord);

@@ -247,7 +247,6 @@ const en: AppTranslation = {
         approved_action: "Approve",
         disapproved_action: "Reject",
         name: "Name",
-        schacHomeOrganization: "Schac home",
         isInternal: "Internal",
         createdAt: "Created",
         memberCount: "# Members",
@@ -457,7 +456,7 @@ const en: AppTranslation = {
         policyWriteAccess: "This connection cannot be deleted because there are outstanding access rules. You can edit or delete the access rules, and then delete this connection.",
         scopes: "Scopes",
         scopePlaceholder: "Add unique scopes for this RS",
-        scopeInfo: "If you create scopes, please prefix them with your unique domain (e.g. '{{schachome}}-scope')",
+        scopeInfo: "If you create scopes, please prefix them with your unique domain (e.g. 'mycompany-scope')",
         duplicateScope: "This scope already exists and can not be created again",
         metadata: {
             how: "How do you want to import the metadata?",

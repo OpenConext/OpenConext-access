@@ -99,7 +99,6 @@ public class Application implements NameHolder {
         if (organization != null && Hibernate.isInitialized(organization)) {
             organizationInfo.put("id", organization.getId());
             organizationInfo.put("name", organization.getName());
-            organizationInfo.put("schacHomeOrganization", organization.getSchacHomeOrganization());
         }
         return organizationInfo;
     }

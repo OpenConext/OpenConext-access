@@ -22,7 +22,7 @@ class UserAccessRightsTest {
         userAccessRights.confirmOrganizationMembership(new User(true, Map.of()), null, null);
 
         User user = new User(false,Map.of());
-        Organization organization = new Organization("name", "sho");
+        Organization organization = new Organization("name");
         organization.setId(1L);
         OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, Authority.ADMIN);
         user.addOrganizationMembership(organizationMembership);
@@ -46,7 +46,7 @@ class UserAccessRightsTest {
         assertThrows(UserRestrictionException.class,
                 () -> userAccessRights.confirmApplicationWriteAccess(user, application));
 
-        Organization organization = new Organization("name", "sho");
+        Organization organization = new Organization("name");
         organization.setId(1L);
         OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, Authority.ADMIN);
         user.addOrganizationMembership(organizationMembership);
@@ -88,7 +88,7 @@ class UserAccessRightsTest {
         assertThrows(UserRestrictionException.class,
                 () -> userAccessRights.confirmApplicationDeleteAccess(user, application));
 
-        Organization organization = new Organization("name", "sho");
+        Organization organization = new Organization("name");
         organization.setId(1L);
         OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, Authority.ADMIN);
         user.addOrganizationMembership(organizationMembership);
@@ -118,7 +118,7 @@ class UserAccessRightsTest {
         //Acting user is ADMIN of the organization - always allowed, regardless of guest's other applications
         User admin = new User(false, Map.of());
         admin.setId(1L);
-        Organization organization = new Organization("name", "sho");
+        Organization organization = new Organization("name");
         organization.setId(1L);
         OrganizationMembership adminMembership = new OrganizationMembership(admin, organization, Authority.ADMIN);
         admin.addOrganizationMembership(adminMembership);
@@ -167,7 +167,7 @@ class UserAccessRightsTest {
     @Test
     void getOrganizationMembership() {
         User user = new User(false,Map.of());
-        Organization organization = new Organization("name", "sho");
+        Organization organization = new Organization("name");
         organization.setId(1L);
         OrganizationMembership organizationMembership = new OrganizationMembership(user, organization, Authority.ADMIN);
         user.addOrganizationMembership(organizationMembership);
