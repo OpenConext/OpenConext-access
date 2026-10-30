@@ -318,9 +318,6 @@ public class ConnectionProviderConverter {
         }
     }
 
-    private void mergeAllowedEntities(Map<String, Object> data, Map<String, Object> connectionMetaData) {
-    }
-
     protected void mergeAttributeReleasePolicies(Map<String, Object> connectionMetaData, Map<String, Object> data) {
         Map<String, Object> newArp = (Map<String, Object>) connectionMetaData.getOrDefault("arp", new HashMap<>());
         Map<String, Object> arpFromManage = (Map<String, Object>) data.getOrDefault("arp", Map.of());
