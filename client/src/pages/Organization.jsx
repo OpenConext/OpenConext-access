@@ -9,7 +9,7 @@ import Logo from "../icons/logo.svg";
 import {useNavigate, useParams} from "react-router";
 import {menu, organizationApplicationsById, organizationMineById} from "../api/index.js";
 import {isEmpty, sanitize} from "../utils/Utils.js";
-import ImageNotFound from "../icons/image-not-found.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import DOMPurify from "dompurify";
 import {applicationPath, contactPersonTypes, convertServerApplicationToClient} from "../utils/Application.js";
 import {ApplicationStatusBadge} from "../components/ApplicationStatusBadge.jsx";
@@ -148,8 +148,7 @@ const Organization = () => {
                 nonSortable: true,
                 key: "icon",
                 header: "",
-                mapper: application => isEmpty(application.logoUrl) ? <ImageNotFound/> :
-                    <img src={application.logoUrl} alt={application.name}/>
+                mapper: application => <AppLogo src={application.logoUrl}/>
             },
             {
                 key: "name",

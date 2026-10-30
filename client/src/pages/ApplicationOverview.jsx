@@ -27,6 +27,7 @@ import {Entities} from "../components/Entities.jsx";
 import {SearchField} from "../components/SearchField.jsx";
 import {StretchedLink} from "../components/StretchedLink.jsx";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import {mainMenuItems} from "../utils/MenuItems.js";
 import {formatLongDate} from "../utils/Date.js";
 import {useShallow} from "zustand/react/shallow";
@@ -107,7 +108,7 @@ const ApplicationOverview = ({accessible}) => {
                 header: "",
                 mapper: entity => {
                     const logoUrl = entity.data.metaDataFields["logo:0:url"];
-                    return logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>
+                    return <AppLogo src={logoUrl} Fallback={PlaceHolderImage}/>
                 }
             },
             {
@@ -177,7 +178,7 @@ const ApplicationOverview = ({accessible}) => {
                                                className="accessible-app-card-badge">{I18n.t("accessibleApps.connectRequested")}</Badge>}
                                     <CardContent>
                                         <div className="accessible-app-card-icon">
-                                            {logoUrl ? <img src={logoUrl} alt=""/> : <PlaceHolderImage/>}
+                                            <AppLogo src={logoUrl} Fallback={PlaceHolderImage}/>
                                         </div>
                                         <h4 className="font-bold mb-1">{entity.name}</h4>
                                         <span className="accessible-app-card-vendor">{entity.vendor}</span>

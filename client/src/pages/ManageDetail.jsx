@@ -12,6 +12,7 @@ import I18n from "../locale/I18n.js";
 import {useNavigate, useParams} from "react-router";
 import {Button, Spinner} from "@surfnet/curve-react";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
+import {AppLogo} from "../components/AppLogo.jsx";
 import {providerName, providerOrganizationName} from "../utils/Manage.js";
 import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
@@ -145,7 +146,7 @@ const ManageDetail = () => {
 
     const renderLogo = metaDataFields => {
         const logoUrl = metaDataFields["logo:0:url"];
-        return isEmpty(logoUrl) ? <PlaceHolderImage/> : <img src={logoUrl} alt=""/>
+        return <AppLogo src={logoUrl} Fallback={PlaceHolderImage}/>
     }
 
     const renderApp = () => {
