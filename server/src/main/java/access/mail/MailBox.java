@@ -20,7 +20,10 @@ import org.springframework.web.util.HtmlUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -50,7 +53,21 @@ public class MailBox {
 
     private final Map<String, Map<String, String>> subjects;
 
-    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory(resourceName -> {
+    private final MustacheFactory htmlMustacheFactory = new DefaultMustacheFactory(MailBox::templateReader);
+
+    //Plain-text mails must not be HTML-escaped: "Brown & Sons" would otherwise arrive as "Brown &amp; Sons"
+    private final MustacheFactory textMustacheFactory = new DefaultMustacheFactory(MailBox::templateReader) {
+        @Override
+        public void encode(String value, Writer writer) {
+            try {
+                writer.write(value);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    };
+
+    private static Reader templateReader(String resourceName) {
         InputStream override = MailBox.class.getClassLoader()
                 .getResourceAsStream("myCustomizations/templates/" + resourceName);
         if (override != null) {
@@ -59,7 +76,7 @@ public class MailBox {
         InputStream fallback = MailBox.class.getClassLoader()
                 .getResourceAsStream("templates/" + resourceName);
         return fallback != null ? new InputStreamReader(fallback, StandardCharsets.UTF_8) : null;
-    });
+    }
 
     public MailBox(
             JavaMailSender mailSender,
@@ -103,7 +120,7 @@ public class MailBox {
         variables.put("senderOrganization", sender.getSchacHomeOrganization());
         Object logoUrl = invitation.getOrganization().getMetaData().get("logoUrl");
         //Only absolute http(s) logos can be rendered by mail clients, base64 or relative ones are skipped
-        if (logoUrl instanceof String logo && logo.matches("(?i)^https?://.+")) {
+        if (logoUrl instanceof String logo && logo.matches("(?i)^https?://[^\\s\"'<>]+$")) {
             variables.put("senderLogoUrl", logo);
         }
         if (StringUtils.hasText(invitation.getMessage())) {
@@ -260,7 +277,10 @@ public class MailBox {
         variables.put("date", now);
         variables.put("message", message);
         variables.put("messageHtml", htmlMessage(message));
-        variables.put("url", url);
+        //The url is client supplied and ends up in an href: only absolute http(s) links
+        if (url != null && url.matches("(?i)^https?://[^\\s\"'<>]+$")) {
+            variables.put("url", url);
+        }
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
@@ -296,7 +316,7 @@ public class MailBox {
     @SneakyThrows
     public void sendUserInactivityWarning(User user, Instant deletionDate) {
         String lang = preferredLanguage();
-        String title = String.format(subjects.get(lang).get("userInactivityWarning"), environment);
+        String title = String.format(subjects.get(lang).get("userInactivityWarning"), productName);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy").withZone(ZoneId.systemDefault());
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
@@ -320,7 +340,8 @@ public class MailBox {
         variables.put("requestPayload", requestPayload);
         variables.put("errorMessage", errorMessage);
         variables.put("responseBody", responseBody);
-        variables.put("environment", environment);
+        //Not "environment": that variable drives the "this mail is from the X environment" banner, which is for non-prod only
+        variables.put("env", environment);
         sendMail("jira_error_en", title, variables, jiraErrorEmail);
     }
 
@@ -386,7 +407,8 @@ public class MailBox {
     }
 
     private String mailTemplate(String templateName, Map<String, Object> context) {
-        return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();
+        MustacheFactory factory = templateName.endsWith(".txt") ? textMustacheFactory : htmlMustacheFactory;
+        return factory.compile(templateName).execute(new StringWriter(), context).toString();
     }
 
 }

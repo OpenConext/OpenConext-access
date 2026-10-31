@@ -17,7 +17,7 @@
     "deniedJoinRequest": "Je verzoek voor %s is afgewezen",
     "connectionRequest": "Koppelingsverzoek voor %s",
     "newConnectionMade": "Nieuwe koppeling voor %s met %s",
-    "orgContactReminder": "Werk uw contactgegevens bij voor %s",
-    "userInactivityWarning": "Uw %s-account wordt verwijderd wegens inactiviteit"
+    "orgContactReminder": "Werk je contactgegevens bij voor %s",
+    "userInactivityWarning": "Je %s-account wordt verwijderd wegens inactiviteit"
   }
 }

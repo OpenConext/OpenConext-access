@@ -24,7 +24,7 @@ There are three different Mustache constructs in these files:
 
 | Syntax | What it is | Example |
 |---|---|---|
-| `{{name}}` / `{{{name}}}` | **Variable** from the Java `Map` in `MailBox`. `{{ }}` HTML-escapes, `{{{ }}}` does not (use only for URLs and for `messageHtml`). | `{{organizationName}}` |
+| `{{name}}` / `{{{name}}}` | **Variable** from the Java `Map` in `MailBox`. In `.html` files `{{ }}` HTML-escapes (also correct inside `href`/`src`), `{{{ }}}` does not: use it only for `messageHtml`, which is escaped in Java. In `.txt` files nothing is escaped (`MailBox` uses a separate factory), so `{{ }}` and `{{{ }}}` behave the same. | `{{organizationName}}` |
 | `{{<layout.html}}…{{/layout.html}}` | **Inheritance**: this file *extends* another template. The child can only fill the `{{$block}}`s the parent declares. | `layout.html`, `ui_button.html` |
 | `{{$block}}default{{/block}}` | **Block**: a named slot. The parent declares it (with an optional default), the child overrides it. This is how parameters are passed to a "component". | `{{$label}}Accept invitation{{/label}}` |
 

@@ -114,4 +114,39 @@ class MailBoxTemplatesTest {
         mailBox.sendJiraError("create", "http://jira", "{}", "boom", "body");
         next("jira_error_en");
     }
+
+    @Test
+    void specialCharactersAndInjection() throws Exception {
+        MailBox mailBox = mailBox();
+        User sender = new User(false, "eppn", "sub", "example.com", "Janne", "de Vries", "janne@example.com", "idp");
+        Organization organization = new Organization("Brown & O'Sons");
+        organization.setId(1L);
+        organization.getMetaData().put("logoUrl", "https://x.nl/a.png\" onerror=\"alert(1)");
+
+        LocaleContextHolder.setLocale(Locale.of("nl"));
+        mailBox.sendInviteMail(new Invitation(Language.nl, "hash", "ok@ok.com", null,
+                Authority.MEMBER, organization, sender, Set.of()));
+        MimeMessageParser mail = next("invitation_special_nl");
+        assertTrue(mail.getPlainContent().contains("Brown & O'Sons"), "plain text must not be HTML-escaped");
+        assertFalse(mail.getPlainContent().contains("&amp;"));
+        assertTrue(mail.getHtmlContent().contains("Brown &amp; O&#39;Sons"), "html must be escaped");
+        assertFalse(mail.getHtmlContent().contains("onerror"), "unsafe logo url must be skipped");
+        assertTrue(mail.getHtmlContent().contains("supportteam"), "signoff must be localized");
+
+        mailBox.sendUserInactivityWarning(sender, Instant.now());
+        message("Je SURF Access-account", mail = next("inactivity_nl"));
+
+        mailBox.sendJiraError("create", "http://jira", "{}", "boom", "body");
+        mail = next("jira_error_special");
+        assertFalse(mail.getHtmlContent().contains("This mail is from"),
+                "no environment banner on the jira mail");
+        assertTrue(mail.getPlainContent().contains("http://jira"), "url must be in the plain text");
+
+        mailBox.sendFeedbackMail(sender, "m", "javascript:alert(1)", null, null, null);
+        assertFalse(next("feedback_js").getHtmlContent().contains("javascript:"), "non http(s) url must be dropped");
+    }
+
+    private void message(String subjectStart, MimeMessageParser parser) throws Exception {
+        assertTrue(parser.getSubject().startsWith(subjectStart), parser.getSubject());
+    }
 }

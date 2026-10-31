@@ -2,7 +2,7 @@
 {{$signoff}}
 {{#nl}}Heb je vragen? Stuur een e-mail naar{{/nl}}{{^nl}}Do you have any questions? Send an email to{{/nl}} {{supportEmail}}.
 
-{{productName}} support team
+{{productName}} {{#nl}}supportteam{{/nl}}{{^nl}}support team{{/nl}}
 {{/signoff}}
---
+-- 
 {{#nl}}Privacy en voorwaarden{{/nl}}{{^nl}}Privacy and terms{{/nl}}: {{{privacyUrl}}}

@@ -1,12 +1,13 @@
 {{<layout_text.txt}}
 {{$signoff}}{{/signoff}}
 {{$content}}
-Jira API error - {{environment}} environment
+Jira API error - {{env}} environment
 
 A call to the Jira API failed.
 
 Operation:      {{operation}}
 Error:          {{errorMessage}}
+URL:            {{url}}
 
 Request payload:
 {{requestPayload}}
