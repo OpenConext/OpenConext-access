@@ -212,7 +212,7 @@ class IdentityProviderControllerTest extends AbstractMailTest {
         List<String> recipients = messageParser.getTo().stream().map(address -> address.toString()).sorted().toList();
         assertEquals(List.of("support@cal.com"), recipients);
         String htmlContent = messageParser.getHtmlContent();
-        assertTrue(htmlContent.contains("Mary Doe from Institution"));
+        assertTrue(htmlContent.contains("Mary Doe from institution"));
         assertTrue(htmlContent.contains("Mock IdP EN"));
         assertTrue(htmlContent.contains("Calendar EN"));
     }
