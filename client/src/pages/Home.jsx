@@ -20,6 +20,20 @@ export const Home = () => {
 
     const config = useAppStore(state => state.config);
 
+    // Easter egg for testers: Ctrl+Alt+Shift+7 toggles the demoLoginOnly feature client side
+    useEffect(() => {
+        const onKeyDown = e => {
+            if (e.ctrlKey && e.altKey && e.shiftKey && e.code === "Digit7") {
+                e.preventDefault();
+                useAppStore.setState(state => ({
+                    config: {...state.config, demoLoginOnly: !state.config.demoLoginOnly}
+                }));
+            }
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
+
     const [loginData, setLoginData] = useState(null);
     const [loadingLogins, setLoadingLogins] = useState(true);
 
