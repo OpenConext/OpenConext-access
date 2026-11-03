@@ -74,9 +74,9 @@ export const Home = () => {
                                 <p className="hero-stat-label">{I18n.t("landing.hero.stats.login", {currentYear})}</p>
                             </div>
                         </div>
-                        <Button onClick={scrollToGettingStarted}>
+                        {!config.demoLoginOnly && <Button onClick={scrollToGettingStarted}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
-                        </Button>
+                        </Button>}
                     </div>
                     <div className="hero-image" aria-hidden="true">
                         <img src={heroImage} alt="" loading="lazy"/>
@@ -118,7 +118,7 @@ export const Home = () => {
                     </div>
                 </section>
 
-                <section className="getting-started" id={GETTING_STARTED_SECTION_ID}>
+                {!config.demoLoginOnly && <section className="getting-started" id={GETTING_STARTED_SECTION_ID}>
                     <h2>{I18n.t("landing.gettingStarted.title")}</h2>
                     <div className="getting-started-grid">
                         <div className="getting-started-card">
@@ -148,7 +148,7 @@ export const Home = () => {
                             </div>
                         </div>
                     </div>
-                </section>
+                </section>}
 
                 <section className="try-demo">
                     <div className="try-demo-copy">

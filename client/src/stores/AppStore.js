@@ -23,7 +23,8 @@ export const useAppStore = create(set => ({
     config: {
         baseUrl: "http://localhost:3000",
         stats: {},
-        testEnvironment: false
+        testEnvironment: false,
+        demoLoginOnly: false,
     },
     /*
      * [{path: "/roles/4", value: role.name, menuItemName: "yourApps"}] - the menuItemName is optional, but must be

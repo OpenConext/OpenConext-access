@@ -27,6 +27,7 @@ public class Config {
     private String discovery;
     private boolean authenticated;
     private boolean testEnvironment;
+    private boolean demoLoginOnly;
     private List<String> missingAttributes;
     private Map<String, Integer> stats;
     private List<Map<String, String>> identityProviders;
@@ -63,6 +64,7 @@ public class Config {
         this.demoSeedEnabled = base.demoSeedEnabled;
         this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;
         this.testEnvironment = base.testEnvironment;
+        this.demoLoginOnly = base.demoLoginOnly;
     }
 
     public Config withAuthenticated(boolean authenticated) {

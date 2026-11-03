@@ -15,6 +15,10 @@ export const LoginButtons = ({className = "", onClick}) => {
         login(config, useEduID);
     };
 
+    if (config.demoLoginOnly) {
+        return null;
+    }
+
     return (
         <div className={`login-buttons ${className}`}>
             <Button variant="outline" size="lg" onClick={doLogin(true)}>

@@ -131,6 +131,9 @@ config:
   used_languages: "nl, en"
   demo_seed_enabled: true
   test_environment: false
+  # Feature toggle: true hides the login buttons in the header and the getting-started section on the public homepage,
+  # leaving only the demo environment box.
+  demo_login_only: true
   jira_browse_base_url: "https://sd-jira-staging.surf.nl/jira/browse"
   identity_providers:
       - name: "SXS IdP"
