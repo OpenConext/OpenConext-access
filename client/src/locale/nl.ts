@@ -84,7 +84,7 @@ const nl: AppTranslation = {
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Je eigen applicaties toevoegen, andere applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
+                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
                     "Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
@@ -229,7 +229,7 @@ const nl: AppTranslation = {
         contracts: "Contracten",
     },
     joinRequest: {
-        info: "Je hebt geen toegang tot <strong>{{name}}</strong>'s omgeving. Je kunt toegang aanvragen bij de beheerder.",
+        info: "Je hebt geen toegang tot de omgeving van <strong>{{name}}</strong>. Je kunt toegang aanvragen bij de beheerder.",
         optionalMessage: "Bericht",
         optionalMessageInfo: "Dit bericht wordt meegestuurd met je verzoek.",
         requestAccess: "Toegang vragen",
@@ -277,7 +277,7 @@ const nl: AppTranslation = {
         typeContent: "Contentdienst - toegang tot leermateriaal (educatieve content, e-books)",
         contentAbbreviation: "Content",
         contentInfoPre: "Een contentdienst ontvangt zo min mogelijk persoonlijke gegevens van gebruikers (",
-        contentInfoLink: "deze minimumset attributen",
+        contentInfoLink: "lees meer over deze minimumset attributen",
         contentInfoPost: ").",
         contentInfoTip: "Attributen voor content‑providers:<ul><li>Persistent of Transient NameID</li><li>schacHomeorganisation</li><li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
         targetGroup: "Doelgroep",
@@ -286,7 +286,7 @@ const nl: AppTranslation = {
         targetSRAM: "Studenten, medewerkers en externe partijen van één IdP‑instelling",
         targetSRAMInfo: "Zij krijgen toegang omdat zij een attribuut of rol hebben.",
         terms: "Fair Use‑voorwaarden",
-        termsInfo: "Ik bevestig dat mijn applicatie aan onderstaande voorwaarden voldoet",
+        termsInfo: "Ik bevestig dat mijn applicatie aan de voorwaarden hieronder voldoet",
         checks: {
             personal: "Mijn applicatie verwerkt persoonlijke gegevens op een veilige manier",
             duration: "Ik bewaar persoonlijke gegevens niet langer dan nodig",
@@ -297,8 +297,8 @@ const nl: AppTranslation = {
         flash: "Applicatie {{name}} opgeslagen",
         deleteConfirmation: "Weet je zeker dat je deze applicatie wilt verwijderen?",
         deleteFlash: "De applicatie is verwijderd",
-        outstandingPolicies: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Neem contact op met <a class='actionable' href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
-        policyWriteAccess: "Deze applicatie kan niet worden verwijderd omdat er nog actieve beleidsregels zijn. Je kunt deze beleidsregels bewerken of verwijderen en daarna deze applicatie verwijderen.",
+        outstandingPolicies: "Je kan deze applicatie niet verwijderen omdat er nog actieve beleidsregels zijn. Neem contact op met <a class='actionable' href='mailto:support@surfconext.nl'>support@surfconext.nl</a> voor hulp.",
+        policyWriteAccess: "Je kan deze applicatie niet verwijderen omdat er nog actieve beleidsregels zijn. Je kunt deze beleidsregels bewerken of verwijderen en daarna deze applicatie verwijderen.",
     },
     organization: {
         alertInfo: "Welkom bij {{productName}}. Via dit self‑service‑portaal kun je je applicatie beschikbaar maken voor hoger onderwijs‑ en onderzoeksinstellingen in Nederland.",
