@@ -411,7 +411,7 @@ const nl: AppTranslation = {
         loginUrl: "Login URL",
         loginUrlPlaceholder: "Bijv. https://login.org",
         protocol: "Protocol",
-        protocolTooltip: "Wanneer een koppeling wordt geregistreerd binnen SURFconext, kan het protocol niet meer worden gewijzigd. Als je een ander protocol wilt, kun je deze koppeling verwijderen en een nieuwe met een ander protocol aanmaken.",
+        protocolTooltip: "Wanneer je een koppeling registreet, kan je het protocol niet meer wijzigen. Als je een ander protocol wilt, kun je deze koppeling verwijderen en een nieuwe met een ander protocol aanmaken.",
         clientID: "Client‑ID",
         clientIDPlaceHolder: "",
         oidc10_rp: "OpenID Connect",
@@ -504,7 +504,7 @@ const nl: AppTranslation = {
         },
         informational: {
             disclaimer: "Verwerk alleen gegevens die <strong>strikt noodzakelijk</strong> zijn voor het functioneren van je applicatie.",
-            contentAppAlert: "Een content‑applicatie ontvangt de volgende informatie",
+            contentAppAlert: "Een contentdienst ontvangt de volgende informatie",
             scopedValueAttributeDisclaimer: "Let op: dit attribuut vereist afstemming tussen SURF, de IdP en jou. Wij nemen contact met je op.",
             profiles: {
                 anonymous: {
@@ -1545,8 +1545,8 @@ const nl: AppTranslation = {
         importAsNewApplication: "Importeren als nieuwe applicatie",
         importAsNewConnection: "Importeren als nieuwe koppeling",
         import: "Importeren",
-        notInAccess: "Deze entiteit is nog niet bekend in Access. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
-        inAccess: "Deze entiteit uit Manage is een Access‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
+        notInAccess: "Deze entiteit is nog niet bekend in SURF Access. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
+        inAccess: "Deze entiteit uit Manage is een SURF Access‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
         chooseOrganisation: "Kies een organisatie",
         chooseImportOrganisationPlaceholder: "Zoek en kies een organisatie om deze entiteit te importeren",
         chooseApplication: "Zoek en kies een applicatie",
@@ -1663,7 +1663,7 @@ const nl: AppTranslation = {
     },
     monitoring: {
         title: "Status",
-        subTitle: "Login- en uptimedata van SURFconext-applicaties.",
+        subTitle: "Uptimedata van SURFconext-applicaties.",
         period60: "60 dagen",
         periodAll: "Alles",
         searchPlaceholder: "Zoek app...",
