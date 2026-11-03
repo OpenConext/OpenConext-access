@@ -457,7 +457,7 @@ const nl: AppTranslation = {
         scopes: "Scopes",
         scopePlaceholder: "Zoek en voeg relevante scopes toe voor deze RS",
         scopeInfo: "Als je scopes aanmaakt, voeg dan een unieke domein ervoor toe (bijv. 'mycompany-scope').",
-        duplicateScope: "Deze scope bestaat al en kan je niet opnieuw aanmaken",
+        duplicateScope: "Deze scope bestaat al en kun je niet opnieuw aanmaken",
         metadata: {
             how: "Hoe wil je de metadata importeren?",
             url: "Metadata ophalen van URL",
@@ -566,7 +566,7 @@ const nl: AppTranslation = {
             catalogueUrl: "Catalogus-URL",
             entityID: "Entity ID",
             secret: "Client‑secret",
-            secretReset: "Je huidige secret is om veiligheidsredenen niet meer zichtbaar. ",
+            secretReset: "Je huidige secret is om veiligheidsredenen niet meer zichtbaar.",
             secretResetLink: "Genereer nieuw secret",
             secretResetDisclaimer: "Let op: het opnieuw genereren van het secret verbreekt je huidige koppeling.",
             secretResetTitle: "Secret opnieuw genereren",
