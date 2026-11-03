@@ -8,7 +8,7 @@ import {login} from "../utils/Login.js";
 import WelcomePublishApps from "../icons/landing/home_publish_apps.svg";
 import WelcomeActivateApps from "../icons/landing/home_activate_apps.svg";
 import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
-const heroImage = new URL("../icons/landing/home_top_right.svg", import.meta.url).href;
+const heroImage = new URL("../icons/landing/home_hero.png", import.meta.url).href;
 const providersImage = new URL("../icons/landing/home_bottom_left.svg", import.meta.url).href;
 const institutionsImage = new URL("../icons/landing/home_bottom_right.svg", import.meta.url).href;
 import PublicStats from "./PublicStats.jsx";
@@ -54,6 +54,7 @@ export const Home = () => {
         .filter(d => new Date(d.time < 1e12 ? d.time * 1000 : d.time).getFullYear() === currentYear)
         .reduce((sum, d) => sum + (d.count_user_id || 0), 0);
 
+    const demoOnly = config.demoLoginOnly;
     const applicationsCount = (config.stats.saml20_sp || 0) + (config.stats.oidc10_rp || 0);
     const institutionsCount = config.stats.saml20_idp || 0;
 
@@ -67,6 +68,7 @@ export const Home = () => {
                 <div className="hero-inner">
                     <div className="hero-main">
                         <div className="hero-copy">
+                            {demoOnly && <span className="coming-soon">{I18n.t("landing.demoOnly.comingSoon")}</span>}
                             <h1>
                                 {I18n.t("landing.hero.title")}
                             </h1>
@@ -88,9 +90,13 @@ export const Home = () => {
                                 <p className="hero-stat-label">{I18n.t("landing.hero.stats.login", {currentYear})}</p>
                             </div>
                         </div>
-                        {!config.demoLoginOnly && <Button onClick={scrollToGettingStarted}>
-                            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
-                        </Button>}
+                        {demoOnly ?
+                            <Button variant="outline" onClick={() => login(config, false)}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.demoOnly.heroCta"))}}/>
+                            </Button> :
+                            <Button onClick={scrollToGettingStarted}>
+                                <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
+                            </Button>}
                     </div>
                     <div className="hero-image" aria-hidden="true">
                         <img src={heroImage} alt="" loading="lazy"/>
@@ -132,37 +138,39 @@ export const Home = () => {
                     </div>
                 </section>
 
-                {!config.demoLoginOnly && <section className="getting-started" id={GETTING_STARTED_SECTION_ID}>
+                <section className="getting-started" id={GETTING_STARTED_SECTION_ID}>
                     <h2>{I18n.t("landing.gettingStarted.title")}</h2>
                     <div className="getting-started-grid">
                         <div className="getting-started-card">
                             <div className="getting-started-image" aria-hidden="true">
+                                {demoOnly && <span className="coming-soon">{I18n.t("landing.demoOnly.comingSoon")}</span>}
                                 <img src={providersImage} alt="" loading="lazy"/>
                             </div>
                             <div className="getting-started-body">
                                 <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.providers.title")}</h3>
-                                {tArray("landing.gettingStarted.providers.info", (info, index) =>
+                                {tArray(`landing.${demoOnly ? "demoOnly" : "gettingStarted"}.providers.info`, (info, index) =>
                                     <p key={index}>{info}</p>)}
-                                <Button variant="outline" onClick={() => login(config, true)}>
+                                {!demoOnly && <Button variant="outline" onClick={() => login(config, true)}>
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
-                                </Button>
+                                </Button>}
                             </div>
                         </div>
                         <div className="getting-started-card">
                             <div className="getting-started-image" aria-hidden="true">
+                                {demoOnly && <span className="coming-soon">{I18n.t("landing.demoOnly.comingSoon")}</span>}
                                 <img src={institutionsImage} alt="" loading="lazy"/>
                             </div>
                             <div className="getting-started-body">
                                 <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.institutions.title")}</h3>
-                                {tArray("landing.gettingStarted.institutions.info", (info, index) =>
+                                {tArray(`landing.${demoOnly ? "demoOnly" : "gettingStarted"}.institutions.info`, (info, index) =>
                                     <p key={index}>{info}</p>)}
-                                <Button variant="outline" onClick={() => login(config, false)}>
+                                {!demoOnly && <Button variant="outline" onClick={() => login(config, false)}>
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
-                                </Button>
+                                </Button>}
                             </div>
                         </div>
                     </div>
-                </section>}
+                </section>
 
                 <section className="try-demo">
                     <div className="try-demo-copy">

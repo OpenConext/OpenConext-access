@@ -90,6 +90,21 @@ const en: AppTranslation = {
                 cta: "Sign in via your institution",
             },
         },
+        demoOnly: {
+            comingSoon: "Coming soon",
+            heroCta: "Try {{productName}} in the demo environment now",
+            providers: {
+                info: [
+                    "Soon you can add your own applications and share them securely with education and research institutions.",
+                    "You do this for free, with an eduID account."
+                ],
+            },
+            institutions: {
+                info: [
+                    "Soon you can add your own applications, activate applications for your institution and decide who gets access. You manage everything in one place, with your institution account.",
+                ],
+            },
+        },
         tryDemo: {
             title: "Want to try {{productName}} without obligation?",
             description: "Get to know {{productName}} in our demo environment. Here you can try out all functionality in a safe, closed-off environment.",

@@ -72,6 +72,7 @@ body:after {
     color: white;
     line-height: 30px;
     transform: rotate(45deg);
+    z-index: 99999;
 }
 
 strong {

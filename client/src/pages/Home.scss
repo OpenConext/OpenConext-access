@@ -45,32 +45,40 @@
     }
 
     .hero {
+        position: relative;
         background-color: #ececeb;
-        padding: 0 40px;
-
-        @media (max-width: $mobile-width) {
-            padding: 40px 20px;
-        }
 
         .hero-inner {
             @include index.public-page-width;
+            // Same box model and horizontal padding as .home-sections, so the hero copy
+            // shares its left column with the content below.
+            box-sizing: border-box;
             display: flex;
             gap: 48px;
-            align-items: center;
+            align-items: stretch;
             min-height: 600px;
+            padding: 0 40px;
 
             @media (max-width: $mobile-width) {
                 flex-direction: column;
                 min-height: 0;
+                padding: 40px 20px;
             }
         }
 
         .hero-main {
-            flex: 1 1 0;
+            // Left half; the image takes the right half of the screen, edge to edge
+            flex: 0 0 calc(50% - 40px);
             display: flex;
             flex-direction: column;
+            justify-content: center;
             gap: 32px;
+            padding: 48px 0;
             min-width: 0;
+
+            @media (max-width: $mobile-width) {
+                padding: 0;
+            }
 
             .hero-copy {
                 display: flex;
@@ -113,18 +121,25 @@
 
             [data-slot="button"] {
                 align-self: flex-start;
-                width: 240px;
+                min-width: 240px;
+                width: auto;
             }
         }
 
+        // Anchored to the right edge of the screen (outside the page-width container) and the full hero height
         .hero-image {
-            flex: 1 1 0;
-            min-width: 0;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
 
             img {
                 display: block;
                 width: 100%;
-                height: auto;
+                height: 100%;
+                object-fit: cover;
+                object-position: right center;
             }
         }
 
@@ -264,6 +279,7 @@
         gap: 32px;
 
         .getting-started-image {
+            position: relative;
             width: 100%;
 
             img {
@@ -299,6 +315,23 @@
                 width: 100%;
             }
         }
+    }
+
+    .coming-soon {
+        align-self: flex-start;
+        padding: 2px 10px;
+        border-radius: 8px;
+        background-color: #043286;
+        color: #fff;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 500;
+    }
+
+    .getting-started-image .coming-soon {
+        position: absolute;
+        top: 0;
+        right: 0;
     }
 
     .try-demo {

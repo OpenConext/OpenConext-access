@@ -90,6 +90,21 @@ const nl: AppTranslation = {
                 cta: "Inloggen via je instelling",
             },
         },
+        demoOnly: {
+            comingSoon: "Binnenkort beschikbaar",
+            heroCta: "Probeer {{productName}} alvast uit in de demo-omgeving",
+            providers: {
+                info: [
+                    "Straks voeg je je eigen applicaties toe en deel je ze veilig met onderwijs- en onderzoeksinstellingen.",
+                    "Dit doe je gratis, met een eduID-account."
+                ],
+            },
+            institutions: {
+                info: [
+                    "Straks voeg je eigen applicaties toe, activeer je applicaties voor je instelling en bepaal je wie er toegang krijgt. Alles regel je op één plek, met je instellingsaccount.",
+                ],
+            },
+        },
         tryDemo: {
             title: "{{productName}} eens uitproberen?",
             description: "Ontdek {{productName}} in onze <strong>demo-omgeving</strong>. Hier kun je alle functies vrijblijvend uitproberen in een veilige, afgesloten omgeving.",
