@@ -862,10 +862,10 @@
     estree-walker "^2.0.2"
     picomatch "^4.0.2"
 
-"@surfnet/curve-react@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.9.0.tgz#d753769fc2b3b74fdd22a551e5b0fa801e1a273e"
-  integrity sha512-H+PoHsNHa7GhnNde/RiZ2GqxshAgl/SusaubaU+2A2+lU3eINDwQ+IjEUbOPqwxRCsO/SirUzE3BqyRjMIW0ag==
+"@surfnet/curve-react@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@surfnet/curve-react/-/curve-react-0.10.0.tgz#d9eb043628cb3b4afb915f5501f0af5c94e1c046"
+  integrity sha512-h2oFoiru3TBMNzBRrdAhuHXINKngiQCUp6FgWFjYiFoWPnyGMqflVMVU3jGL4rXmjGyXbMguEHL46DGvCy5vJg==
   dependencies:
     "@base-ui/react" "1.5.0"
     "@tanstack/react-table" "^8.21.3"
@@ -2475,10 +2475,10 @@ html-url-attributes@^3.0.0:
   resolved "https://registry.yarnpkg.com/html-url-attributes/-/html-url-attributes-3.0.1.tgz#83b052cd5e437071b756cd74ae70f708870c2d87"
   integrity sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==
 
-html2canvas-pro@^2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.5.2.tgz#e015d5da77c315099ca641beef6a39f34ed426e3"
-  integrity sha512-uka+0oVG/yB4B7U9M/+aJFF0aKZVmMWZKi4unemkQh537cLu3jXPvZtXakTuPl3taOI+O43RhuV6kn2igk1Z6g==
+html2canvas-pro@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.6.0.tgz#86a5d09a6fb524fb44ea4e595d23814708dd7716"
+  integrity sha512-OaIfY6rSzbRunv6JRqRJ9FHSHS+fXTNlqPXH29y8I6xfO54ey/aUnVMwICsLPfpM1Dw04IYAQRy1+bXy+c07/Q==
 
 http-proxy-middleware@^4.2.1:
   version "4.2.1"
@@ -2878,10 +2878,10 @@ json5@^2.2.3:
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
 
-jsondiffpatch@^0.7.6:
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/jsondiffpatch/-/jsondiffpatch-0.7.6.tgz#5b71221911ef1bc2725a42da66a4aea83ec7220a"
-  integrity sha512-zE9+AXFq+MkTolDor2Cw1nJzLC0aleqPkYf52Kb4Kn4mJcka/gFHpGI2JBVEJCfWOvBl0OoxZS+wuLdislQcqg==
+jsondiffpatch@^0.7.7:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/jsondiffpatch/-/jsondiffpatch-0.7.7.tgz#34043b1f0994857cb774d70d8f161351005897f9"
+  integrity sha512-C3375q+xluwQYS6Je613YqXpZhW9uSi2YFRR+8QTJVYhdk0GZiDr7HD9bXNrdV9PJCpmwsCgJM9ZXXESSZPCzA==
   dependencies:
     "@dmsnell/diff-match-patch" "^1.1.0"
 
