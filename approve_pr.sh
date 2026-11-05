@@ -4,6 +4,10 @@
 #
 # Usage:
 #   ./merge_pr.sh <PR_NUMBER> [PR_NUMBER ...]
+#   ./merge_pr.sh --rebase [PR_NUMBER ...]
+#
+# With --rebase, a "@dependabot rebase" comment is posted instead of merging. When no PR numbers are
+# given, it is posted on all open Dependabot PRs.
 #
 # Requires: GitHub CLI (`gh`) installed and authenticated (`gh auth login`).
 
@@ -17,8 +21,14 @@ REPO="OpenConext-access"
 # --- Merge method: one of "merge", "squash", "rebase" ---
 MERGE_METHOD="squash"
 
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <PR_NUMBER> [PR_NUMBER ...]" >&2
+REBASE=false
+if [[ "${1:-}" == "--rebase" ]]; then
+  REBASE=true
+  shift
+fi
+
+if [[ $# -lt 1 && "$REBASE" == false ]]; then
+  echo "Usage: $0 [--rebase] <PR_NUMBER> [PR_NUMBER ...]" >&2
   exit 1
 fi
 
@@ -61,19 +71,38 @@ merge_pr() {
   echo "PR #${pr_number} merged successfully and branch '${branch_name}' deleted."
 }
 
+rebase_pr() {
+  local pr_number="$1"
+  echo "Commenting '@dependabot rebase' on PR #${pr_number} in ${REPO_FULL}..."
+  gh pr comment "$pr_number" --repo "$REPO_FULL" --body "@dependabot rebase"
+}
+
+PR_NUMBERS=("$@")
+if [[ "$REBASE" == true && ${#PR_NUMBERS[@]} -eq 0 ]]; then
+  while IFS= read -r n; do
+    [[ -n "$n" ]] && PR_NUMBERS+=("$n")
+  done < <(gh pr list --repo "$REPO_FULL" --state open --author "app/dependabot" --limit 200 --json number --jq '.[].number')
+  echo "Found ${#PR_NUMBERS[@]} open Dependabot PR(s)."
+fi
+
 FAILED_PRS=()
 
-for pr_number in "$@"; do
+for pr_number in "${PR_NUMBERS[@]+"${PR_NUMBERS[@]}"}"; do
   echo "=================================================="
-  if ! merge_pr "$pr_number"; then
+  if [[ "$REBASE" == true ]]; then
+    action=rebase_pr
+  else
+    action=merge_pr
+  fi
+  if ! $action "$pr_number"; then
     FAILED_PRS+=("$pr_number")
   fi
   echo
 done
 
 if [[ ${#FAILED_PRS[@]} -gt 0 ]]; then
-  echo "Failed to merge PR(s): ${FAILED_PRS[*]}" >&2
+  echo "Failed PR(s): ${FAILED_PRS[*]}" >&2
   exit 1
 fi
 
-echo "All PRs merged successfully."
+echo "All PRs processed successfully."
