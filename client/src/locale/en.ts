@@ -101,7 +101,7 @@ const en: AppTranslation = {
             },
             institutions: {
                 info: [
-                    "Soon you can add your own applications, activate applications for your institution and decide who gets access. You manage everything in one place, with your institution account.",
+                    "Soon you can add your own applications, activate applications for your institution and decide who gets access. You manage everything in one place, with your institution account."
                 ],
             },
         },

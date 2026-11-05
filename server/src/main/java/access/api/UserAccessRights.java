@@ -96,10 +96,20 @@ public interface UserAccessRights {
         if (actingMembership.getAuthority().equals(Authority.ADMIN)) {
             return;
         }
-        //Non-admins may only remove a GUEST's application access if they are the creator of every
-        //application this guest has access to within the organization - not just the one being removed here
+        //Non-admins may only remove a GUEST's application access if they invited the guest themselves (consistent
+        //with OrganizationMembershipController.delete) or are the creator of every application this guest has
+        //access to within the organization - not just the one being removed here
         OrganizationMembership targetMembership = applicationMembership.getOrganizationMembership();
-        if (targetMembership.getAuthority().equals(Authority.GUEST)) {
+        boolean invitedGuest = targetMembership.getInvitedBy() != null &&
+                targetMembership.getInvitedBy().getId().equals(user.getId());
+        //Non-admins (MEMBERs) can never remove other members or admins from an application, only themselves
+        if (!targetMembership.getAuthority().equals(Authority.GUEST) &&
+                !targetMembership.getUser().getId().equals(user.getId())) {
+            throw new UserRestrictionException(
+                    String.format("User %s is not allowed to remove member %s from application %s",
+                            user.getEmail(), targetMembership.getUser().getEmail(), application.getName()));
+        }
+        if (targetMembership.getAuthority().equals(Authority.GUEST) && !invitedGuest) {
             boolean ownerOfAllGuestApplications = targetMembership.getApplicationMemberships().stream()
                     .allMatch(membership -> membership.getApplication().getOwner() != null &&
                             membership.getApplication().getOwner().getId().equals(user.getId()));

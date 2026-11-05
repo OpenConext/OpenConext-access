@@ -74,12 +74,15 @@ export const hasApplicationMembershipDeleteAccess = (user, application, membersh
     if (currentOrgMembership.authority === authorities.ADMIN) {
         return true;
     }
-    //A plain MEMBER may only remove a GUEST if they are the creator of this application - the server
-    //additionally requires ownership of every application the guest has access to within the organization
+    //Mirrors the server: a plain MEMBER may remove a GUEST if they invited that guest, or if they are the
+    //creator of every application the guest has access to within the organization
     if (membership.authority === authorities.GUEST) {
-        return application.ownerIdentifier === user.id;
+        const guestApplications = membership.guestApplicationMemberships || [];
+        return membership.invitedById === user.id ||
+            (!isEmpty(guestApplications) && guestApplications.every(am => am.ownerIdentifier === user.id));
     }
-    return hasApplicationWriteAccess(user, application);
+    //A MEMBER can never remove other members (or admins), only themselves
+    return !isEmpty(membership.user) && membership.user.id === user.id;
 }
 
 export const hasApplicationDeleteAccess = (user, application) => {

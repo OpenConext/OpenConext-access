@@ -169,7 +169,7 @@ test("Test hasApplicationMembershipDeleteAccess org admin can always delete", ()
 test("Test hasApplicationMembershipDeleteAccess member owner of the application can delete a guest", () => {
     const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
     const application = {organization: organization, ownerIdentifier: 1};
-    const guestMembership = {authority: authorities.GUEST};
+    const guestMembership = {authority: authorities.GUEST, guestApplicationMemberships: [{ownerIdentifier: 1}]};
 
     expect(hasApplicationMembershipDeleteAccess(currentUser, application, guestMembership)).toBe(true);
 });
@@ -182,22 +182,46 @@ test("Test hasApplicationMembershipDeleteAccess member not owner of the applicat
     expect(hasApplicationMembershipDeleteAccess(currentUser, application, guestMembership)).toBe(false);
 });
 
-test("Test hasApplicationMembershipDeleteAccess member deleting a non-guest falls back to write access", () => {
+test("Test hasApplicationMembershipDeleteAccess member owning only some of the guest applications cannot delete a guest", () => {
+    const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
+    const application = {organization: organization, ownerIdentifier: 1};
+    const guestMembership = {authority: authorities.GUEST, guestApplicationMemberships: [{ownerIdentifier: 1}, {ownerIdentifier: 999}]};
+
+    expect(hasApplicationMembershipDeleteAccess(currentUser, application, guestMembership)).toBe(false);
+});
+
+test("Test hasApplicationMembershipDeleteAccess member who invited the guest can delete it without owning the application", () => {
+    const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
+    const application = {organization: organization, ownerIdentifier: 999};
+    const guestMembership = {authority: authorities.GUEST, invitedById: 1};
+
+    expect(hasApplicationMembershipDeleteAccess(currentUser, application, guestMembership)).toBe(true);
+});
+
+test("Test hasApplicationMembershipDeleteAccess member cannot delete a guest invited by someone else", () => {
+    const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
+    const application = {organization: organization, ownerIdentifier: 999};
+    const guestMembership = {authority: authorities.GUEST, invitedById: 2};
+
+    expect(hasApplicationMembershipDeleteAccess(currentUser, application, guestMembership)).toBe(false);
+});
+
+test("Test hasApplicationMembershipDeleteAccess member can never delete another member", () => {
     const memberMembership = membership(organization, authorities.MEMBER);
     memberMembership.applicationMemberships = [{applicationIdentifier: 10}];
     const currentUser = user(false, [memberMembership]);
-    const application = {id: 10, organization: organization, ownerIdentifier: 999};
-    const otherMemberMembership = {authority: authorities.MEMBER};
-
-    expect(hasApplicationMembershipDeleteAccess(currentUser, application, otherMemberMembership)).toBe(true);
-});
-
-test("Test hasApplicationMembershipDeleteAccess member deleting a non-guest without write access", () => {
-    const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
-    const application = {id: 10, organization: organization, ownerIdentifier: 999};
-    const otherMemberMembership = {authority: authorities.MEMBER};
+    const application = {id: 10, organization: organization, ownerIdentifier: 1};
+    const otherMemberMembership = {authority: authorities.MEMBER, user: {id: 2}};
 
     expect(hasApplicationMembershipDeleteAccess(currentUser, application, otherMemberMembership)).toBe(false);
+});
+
+test("Test hasApplicationMembershipDeleteAccess member can remove themselves", () => {
+    const currentUser = user(false, [membership(organization, authorities.MEMBER)]);
+    const application = {id: 10, organization: organization, ownerIdentifier: 999};
+    const ownMembership = {authority: authorities.MEMBER, user: {id: 1}};
+
+    expect(hasApplicationMembershipDeleteAccess(currentUser, application, ownMembership)).toBe(true);
 });
 
 test("Test hasApplicationDeleteAccess super user", () => {

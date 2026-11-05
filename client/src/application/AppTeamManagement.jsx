@@ -43,6 +43,8 @@ export const AppTeamManagement = ({
                             if (organizationMembership) {
                                 membership.user = organizationMembership.user;
                                 membership.authority = organizationMembership.authority;
+                                membership.invitedById = organizationMembership.invitedById;
+                                membership.guestApplicationMemberships = organizationMembership.applicationMemberships;
                             }
                             return membership;
                         }

@@ -38,7 +38,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     @EntityGraph(attributePaths = {"applications"})
     Optional<Organization> findApplicationsOrganizationById(Long id);
 
-    @EntityGraph(attributePaths = {"organizationMemberships.user"})
+    @EntityGraph(attributePaths = {"organizationMemberships.user", "organizationMemberships.applicationMemberships.application"})
     Optional<Organization> findUsersOfOrganizationById(Long id);
 
     @Modifying

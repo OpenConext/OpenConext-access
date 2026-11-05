@@ -65,6 +65,16 @@ public class ApplicationMembership implements NameHolder {
         return null;
     }
 
+    //The client needs to know if the current user is the creator of the application (see Permissions.js)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "ownerIdentifier")
+    public Long getOwnerIdentifier() {
+        Application application = getApplication();
+        if (application != null && Hibernate.isInitialized(application) && application.getOwner() != null) {
+            return application.getOwner().getId();
+        }
+        return null;
+    }
+
     //We need info, about the application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "applicationName")
     public String getApplicationName() {

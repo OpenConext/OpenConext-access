@@ -158,10 +158,22 @@ class UserAccessRightsTest {
         assertThrows(UserRestrictionException.class,
                 () -> userAccessRights.confirmApplicationMembershipDeleteAccess(member, guestApplicationMembership));
 
-        //Non-guest targets are unaffected by the "owner of all applications" restriction
+        //Issue #992: a MEMBER who invited the guest may always remove it, even without owning the applications
+        guestMembership.setInvitedBy(member);
+        userAccessRights.confirmApplicationMembershipDeleteAccess(member, guestApplicationMembership);
+        guestMembership.setInvitedBy(admin);
+        assertThrows(UserRestrictionException.class,
+                () -> userAccessRights.confirmApplicationMembershipDeleteAccess(member, guestApplicationMembership));
+
+        //A MEMBER can never remove another member (or admin) from an application
         OrganizationMembership secondMemberMembership = new OrganizationMembership(new User(false, Map.of()), organization, Authority.MEMBER);
+        secondMemberMembership.getUser().setId(4L);
         ApplicationMembership memberApplicationMembership = new ApplicationMembership(application, secondMemberMembership);
-        userAccessRights.confirmApplicationMembershipDeleteAccess(member, memberApplicationMembership);
+        assertThrows(UserRestrictionException.class,
+                () -> userAccessRights.confirmApplicationMembershipDeleteAccess(member, memberApplicationMembership));
+
+        //...but may remove themselves
+        userAccessRights.confirmApplicationMembershipDeleteAccess(member, new ApplicationMembership(application, memberMembership));
     }
 
     @Test

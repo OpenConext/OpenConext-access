@@ -101,7 +101,7 @@ const nl: AppTranslation = {
             },
             institutions: {
                 info: [
-                    "Straks voeg je eigen applicaties toe, activeer je applicaties voor je instelling en bepaal je wie er toegang krijgt. Alles regel je op één plek, met je instellingsaccount.",
+                    "Straks voeg je eigen applicaties toe, activeer je applicaties voor je instelling en bepaal je wie er toegang krijgt. Alles regel je op één plek, met je instellingsaccount."
                 ],
             },
         },
