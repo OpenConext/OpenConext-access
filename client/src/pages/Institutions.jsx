@@ -59,11 +59,11 @@ const Institutions = () => {
                     };
                     let newCategoryOptions = [defaultCategory];
                     newCategoryOptions = newCategoryOptions.concat(Object.entries(categoryCounts)
-                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
                         .map(entry => ({
                             value: entry[0],
-                            label: `${entry[0]} (${entry[1]})`
-                        })));
+                            label: `${I18n.t(`institutionTypes.${entry[0]}`, {defaultValue: entry[0]})} (${entry[1]})`
+                        }))
+                        .sort((o1, o2) => o1.label.toLowerCase().localeCompare(o2.label.toLowerCase())));
                     setCategory(defaultCategory.value);
                     setCategoryOptions(newCategoryOptions);
                     setLoading(false);
