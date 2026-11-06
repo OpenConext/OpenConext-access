@@ -13,16 +13,16 @@ const en: AppTranslation = {
     },
     landing: {
         header: {
-            login: "Sign in / sign up",
-            loginProvider: "Sign in as application provider",
+            login: "Sign in / Sign up",
+            loginProvider: "Sign in as app provider",
             loginInstitution: "Sign in as institution",
             profile: "Profile",
-            logout: "Logout",
+            logout: "Log out",
             system: "System",
         },
         hero: {
             title: "Giving access to education and research applications",
-            subTitle: "Enabling users in higher education and research <strong>to access multiple services with one account</strong>.",
+            subTitle: "Give users in higher education and research <strong>access to multiple services with one account</strong>.",
             stats: {
                 applications: "Applications",
                 institutions: "Institutions",
@@ -31,7 +31,7 @@ const en: AppTranslation = {
         },
         loginInfo: {
             title: "Sign in / Sign up",
-            subTitle: "You can sign in to {{productName}} using an existing institution account, or with an eduID if you don’t have one. Choose the option that applies to you below.",
+            subTitle: "You can sign in to {{productName}} using an existing institution account, or with an eduID if you don’t have one.",
             commercial: {
                 title: "You work for a (commercial) organisation",
                 info: [
