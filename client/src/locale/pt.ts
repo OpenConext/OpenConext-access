@@ -1083,6 +1083,7 @@ const pt: AppTranslation = {
             title: "SURF Servicedesk",
             description: "O portal do service desk é o principal website de apoio ao cliente da SURF.",
             link: "Abrir <strong>SURF Servicedesk</strong>",
+            feedbackHint: "This button is on every screen. Use it to quickly send feedback with a screenshot. TODO",
         },
     },
     forms: {

@@ -30,3 +30,73 @@
         align-self: flex-start;
     }
 }
+
+// Handwritten hint pointing at the feedback widget (Figma "Isolation_Mode")
+// Bradley Hand is an Apple/Microsoft system font and cannot be bundled, so use it
+// when installed and fall back to Caveat (scaled to match Bradley Hand's size).
+@font-face {
+    font-family: "Hint Hand";
+    font-weight: 700;
+    src: local("Bradley Hand Bold"), local("BradleyHandITCTT-Bold"), local("Bradley Hand ITC");
+}
+
+@font-face {
+    font-family: "Hint Hand Fallback";
+    font-weight: 700;
+    src: url("../../node_modules/@fontsource/caveat/files/caveat-latin-700-normal.woff2") format("woff2");
+    size-adjust: 120%;
+}
+
+.feedback-hint {
+    position: fixed;
+    right: 0;
+    top: calc(50% + 47px);
+    transform: translateY(-50%);
+    width: 404px;
+    height: 363px;
+    pointer-events: none;
+    z-index: 1;
+
+    img {
+        position: absolute;
+        display: block;
+    }
+
+    .feedback-hint-text {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        width: 282px;
+        margin: 0;
+        font-family: "Hint Hand", "Hint Hand Fallback", cursive;
+        font-weight: 700;
+        font-size: 20px;
+        line-height: 24px;
+        text-align: center;
+        color: #000;
+        transform: rotate(-7.52deg);
+    }
+
+    .feedback-hint-blob {
+        inset: 47.73% 44.17% 9.79% 3.81%;
+        width: 52%;
+        height: 42.5%;
+        transform: rotate(180deg);
+    }
+
+    .feedback-hint-person {
+        inset: 59.51% 55.16% 0.11% 21.81%;
+        width: 23%;
+        height: 40.4%;
+    }
+
+    .feedback-hint-arrow {
+        inset: 28.08% 16.5% 56.61% 40.51%;
+        width: 43%;
+        height: 15.3%;
+    }
+
+    @media (max-width: 1100px) {
+        display: none;
+    }
+}

@@ -1080,9 +1080,10 @@ const en: AppTranslation = {
             link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
-            title: "SURF Servicedesk",
-            description: "The service desk portal is the main customer support website of SURF.",
+            title: "Support",
+            description: "The service desk portal is the central place where SURF customers get support.",
             link: "Open <strong>SURF Servicedesk</strong>",
+            feedbackHint: "This button is on every screen. Use it to quickly send feedback with a screenshot.",
         },
     },
     forms: {
