@@ -184,14 +184,14 @@ const Policies = () => {
                                      onChange={val => setSelectedServiceProviders(val)}
                                      isMulti={true}
                                      clearable={true}/>
-                        <SearchField value={policyQuery}
-                                     onChange={e => setPolicyQuery(e.target.value)}
-                                     placeholder={I18n.t("policies.searchPlaceholder")}/>
                         <SelectField value={selectedPolicyType}
                                      options={policyTypeOptions}
                                      placeholder={I18n.t("policies.policyTypesPlaceholder")}
                                      onChange={val => setSelectedPolicyType(val)}
                                      clearable={true}/>
+                        <SearchField value={policyQuery}
+                                     onChange={e => setPolicyQuery(e.target.value)}
+                                     placeholder={I18n.t("policies.searchPlaceholder")}/>
                     </div>
                     <Button onClick={addNewPolicy}>
                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("policies.newPolicy"))}}/>
