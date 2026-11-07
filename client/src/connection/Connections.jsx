@@ -169,6 +169,7 @@ export const Connections = ({
     const [isMaxRefreshValidity, setIsMaxRefreshValidity] = useState(false);
     const [section, setSection] = useState(sections.technical);
     const [invalidLoginUrl, setInvalidLoginUrl] = useState(false);
+    const [invalidSigningCertificateUrl, setInvalidSigningCertificateUrl] = useState(false);
     const [invalidRedirects, setInvalidRedirects] = useState({"0": false});
     const [invalidACSLocations, setInvalidACSLocations] = useState({"0": false});
     const [showImport, setShowImport] = useState(false);
@@ -305,6 +306,7 @@ export const Connections = ({
             isDuplicateConnectionName() ||
             (isOidc && Object.values(invalidRedirects).some(invalid => invalid)) ||
             (!isRs && (isEmpty(connection.loginUrl) || invalidLoginUrl)) ||
+            (isOidc && invalidSigningCertificateUrl) ||
             (isSaml && Object.values(invalidACSLocations).some(invalid => invalid)) ||
             (isOidc && (isEmpty(connection.grantTypes) || isEmpty(connection.redirectUrls.filter(url => !isEmpty(url.trim()))))) ||
             (isSaml && (isEmpty(connection.acsLocations || isEmpty(connection.acsLocations.filter(url => !isEmpty(url.trim())))))) ||
@@ -792,6 +794,22 @@ export const Connections = ({
                             <ErrorIndicator msg={I18n.t("forms.requiredOne", {name: I18n.t("connection.redirectUrl")})}
                                             adjustMargin={true}/>}
 
+                        <InputField value={urlDisplayValue(connection.signingCertificateUrl)}
+                                    onChange={e => {
+                                        setConnection({...connection, signingCertificateUrl: normalizeUrlInput(e.target.value)});
+                                        setInvalidSigningCertificateUrl(false);
+                                    }}
+                                    name={I18n.t("connection.signingCertificateUrl")}
+                                    customClassName="signing-certificate-url"
+                                    onBlur={e => setInvalidSigningCertificateUrl(!isEmpty(e.target.value.trim()) &&
+                                        !isValidUrl(normalizeUrlInput(e.target.value)))}
+                                    isAlert={changeRequestsKeys.includes("signingCertificateUrl")}
+                                    placeholder={I18n.t("connection.signingCertificateUrlPlaceholder")}
+                                    toolTip={I18n.t("connection.signingCertificateUrlTooltip")}
+                        />
+                        {invalidSigningCertificateUrl &&
+                            <ErrorIndicator msg={I18n.t("forms.invalidURL", {name: I18n.t("connection.signingCertificateUrl")})}
+                                            adjustMargin={true}/>}
                         <SwitchField name={"claimsInIdToken"}
                                      isAlert={changeRequestsKeys.includes("claimsInIdToken")}
                                      value={connection.claimsInIdToken || false}

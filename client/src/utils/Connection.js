@@ -47,6 +47,7 @@ export const convertClientConnectionToServer = (application, connection, arpInfo
             connectOption: connection.connectOption,
             refreshTokenValidity: connection.refreshTokenValidity,
             claimsInIdToken: connection.claimsInIdToken,
+            signingCertificateUrl: connection.signingCertificateUrl,
             loginUrl: connection.loginUrl,
             arp: {
                 ...arpFields

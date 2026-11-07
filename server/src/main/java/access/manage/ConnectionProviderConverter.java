@@ -140,6 +140,12 @@ public class ConnectionProviderConverter {
             putIf(metaDataFields, "redirectUrls", connectionMetaData.get("redirectUrls"));
             metaDataFields.put("isPublicClient", connectionMetaData.getOrDefault("pkce", false));
             metaDataFields.put("oidc:claims_in_id_token", connectionMetaData.getOrDefault("claimsInIdToken", false));
+            Object signingCertificateUrl = connectionMetaData.get("signingCertificateUrl");
+            if (isEmpty(signingCertificateUrl)) {
+                metaDataFields.remove("oidc:signingCertificateUrl");
+            } else {
+                metaDataFields.put("oidc:signingCertificateUrl", signingCertificateUrl);
+            }
             metaDataFields.put("accessTokenValidity", 3600);
             if (grantTypes.contains("refresh_token")) {
                 metaDataFields.put("refreshTokenValidity", connectionMetaData.getOrDefault("refreshTokenValidity", 3600));
