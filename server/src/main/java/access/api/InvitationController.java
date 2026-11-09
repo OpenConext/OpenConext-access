@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.config.HashGenerator;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
@@ -65,11 +68,15 @@ public class InvitationController implements UserAccessRights {
     private final MailBox mailBox;
     private final UserRepository userRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final AuditLogger auditLogger;
 
     public InvitationController(InvitationRepository invitationRepository,
                                 OrganizationRepository organizationRepository,
                                 ApplicationRepository applicationRepository,
-                                MailBox mailBox, UserRepository userRepository, OrganizationMembershipRepository organizationMembershipRepository) {
+                                MailBox mailBox, UserRepository userRepository,
+                                OrganizationMembershipRepository organizationMembershipRepository,
+                                AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
         this.invitationRepository = invitationRepository;
         this.organizationRepository = organizationRepository;
         this.applicationRepository = applicationRepository;
@@ -136,6 +143,9 @@ public class InvitationController implements UserAccessRights {
                     user,
                     applications);
             invitation = invitationRepository.save(invitation);
+            auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.INVITATION_SENT,
+                    "invitation", invitation.getId(), invitee,
+                    Map.of("authority", invitation.getIntendedAuthority().name()));
             mailBox.sendInviteMail(invitation);
         });
 
@@ -156,6 +166,9 @@ public class InvitationController implements UserAccessRights {
         user = reinitializeUser(user, userRepository);
         invitationRepository.save(invitation);
         Organization organization = invitation.getOrganization();
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.INVITATION_ACCEPTED,
+                "user", user.getId(), user.getName(),
+                Map.of("authority", invitation.getIntendedAuthority().name()));
         //Internal users are already provisioned in their organization
         Optional<OrganizationMembership> organizationMembershipOptional = user.getOrganizationMemberships().stream()
                 .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
@@ -206,6 +219,8 @@ public class InvitationController implements UserAccessRights {
             throw new UserRestrictionException("Members are only allowed to delete their own invitations");
         }
 
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.INVITATION_DELETED,
+                "invitation", invitation.getId(), invitation.getEmail(), null);
         invitationRepository.delete(invitation);
 
         return deleteResult();
@@ -239,6 +254,8 @@ public class InvitationController implements UserAccessRights {
         confirmOrganizationMembership(user, organization, requiredAuthority);
         invitation.setExpiryDate(Instant.now().plus(30, ChronoUnit.DAYS));
         invitationRepository.save(invitation);
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.INVITATION_RESENT,
+                "invitation", invitation.getId(), invitation.getEmail(), null);
 
         mailBox.sendInviteMail(invitation);
 

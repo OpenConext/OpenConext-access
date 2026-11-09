@@ -140,6 +140,7 @@ const nl: AppTranslation = {
         support: "Support",
         serviceDesk: "Support",
         feedback: "Help ons verbeteren",
+        audit: "Audit log",
     },
     breadCrumb: {
         access: "Home",
@@ -162,6 +163,7 @@ const nl: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracten",
+        auditLog: "Audit log",
     },
     welcome: {
         greeting: "Welkom, {{name}}",
@@ -1583,6 +1585,207 @@ const nl: AppTranslation = {
         migrateConfirmation: "Weet je zeker dat je applicatie <strong>{{application}}</strong> wilt migreren van de huidige organisatie <strong>{{organisation}}</strong> naar de nieuwe organisatie <strong>{{newOrganisation}}</strong>?",
         flash: {
             migrated: "Applicatie {{application}} is gemigreerd naar organisatie {{organisation}}",
+        },
+    },
+    auditLog: {
+        title: "Audit log",
+        intro: "Alle activiteit binnen jouw IdP: wie is toegevoegd, welke uitnodigingen en verzoeken zijn afgehandeld en waar je aandacht nodig is.",
+        today: "Vandaag",
+        yesterday: "Gisteren",
+        system: "Systeem",
+        empty: "Geen gebeurtenissen gevonden voor de gekozen filters.",
+        eventCount: "{{count}} gebeurtenissen",
+        range: "{{first}}–{{last}} van {{total}} gebeurtenissen",
+        periods: {
+            last: "Laatste {{days}} dagen",
+        },
+        filters: {
+            search: "Zoek op gebeurtenis, app of persoon",
+            allActors: "Alle uitvoerders",
+            allCategories: "Alle categorieën",
+        },
+        categories: {
+            APPLICATION: "Applicaties",
+            ACCESS: "Toegangsbeheer",
+            ORGANISATION: "Organisatie",
+            PENDING: "Openstaand",
+        },
+        summary: {
+            pending: "Openstaand",
+            pendingUnit: "Items wachten op jouw actie",
+            applications: "Applicaties",
+            access: "Toegangsbeheer",
+            organisation: "Organisatie",
+            changes: "Wijzigingen",
+        },
+        fields: {
+            eduIdAccess: "eduID-toegang",
+            stepup: "Assurance-niveau",
+            mfa: "MFA",
+            name: "Naam",
+        },
+        values: {
+            none: "Geen",
+            true: "Aan",
+            false: "Uit",
+            ADMIN: "Beheerder",
+            MEMBER: "Lid",
+            GUEST: "Gast",
+        },
+        status: {
+            PENDING: "Openstaand",
+            APPLIED: "Goedgekeurd",
+            REJECTED: "Afgewezen",
+            CANCELLED: "Ingetrokken",
+            RESOLVED: "Afgesloten",
+        },
+        attention: {
+            CERTIFICATE_EXPIRING: {
+                title: "Certificaat verloopt binnenkort",
+                description: "Het SAML-signingcertificaat van jouw IdP verloopt op {{date}}. Vervang het tijdig om inlogproblemen te voorkomen.",
+            },
+        },
+        events: {
+            CHANGE_REQUEST_SUBMITTED: {
+                title: "Wijzigingsverzoek ingediend",
+                description: "Een verzoek voor {{target}} wacht op goedkeuring.",
+            },
+            CHANGE_REQUEST_APPLIED: {
+                title: "Wijzigingsverzoek goedgekeurd",
+                description: "Het verzoek voor {{target}} is goedgekeurd en doorgevoerd.",
+            },
+            CHANGE_REQUEST_REJECTED: {
+                title: "Wijzigingsverzoek afgewezen",
+                description: "Het verzoek voor {{target}} is afgewezen.",
+            },
+            CHANGE_REQUEST_CANCELLED: {
+                title: "Wijzigingsverzoek ingetrokken",
+                description: "Het verzoek voor {{target}} is ingetrokken.",
+            },
+            CHANGE_REQUEST_RESOLVED: {
+                title: "Wijzigingsverzoek afgesloten",
+                description: "Het verzoek voor {{target}} is afgesloten in Manage.",
+            },
+            APPLICATION_CREATED: {
+                title: "Applicatie aangemaakt",
+                description: "{{target}} is aangemaakt.",
+            },
+            APPLICATION_UPDATED: {
+                title: "Applicatie bijgewerkt",
+                description: "De gegevens van {{target}} zijn gewijzigd.",
+            },
+            APPLICATION_DELETED: {
+                title: "Applicatie verwijderd",
+                description: "{{target}} is verwijderd.",
+            },
+            CONNECTION_CREATED: {
+                title: "Koppeling toegevoegd",
+                description: "Er is een {{protocol}}-koppeling toegevoegd aan {{target}}.",
+            },
+            CONNECTION_UPDATED: {
+                title: "Koppeling bijgewerkt",
+                description: "De koppelingsinstellingen van {{target}} zijn gewijzigd.",
+            },
+            CONNECTION_DELETED: {
+                title: "Koppeling verwijderd",
+                description: "Een koppeling van {{target}} is verwijderd.",
+            },
+            CONNECTION_SECRET_RESET: {
+                title: "Secret opnieuw ingesteld",
+                description: "De secret van {{target}} is opnieuw ingesteld.",
+            },
+            PRODUCTION_REQUESTED: {
+                title: "Productiestatus aangevraagd",
+                description: "Productiestatus is aangevraagd voor {{target}}.",
+            },
+            APPLICATION_CONNECTED: {
+                title: "Applicatie gekoppeld",
+                description: "Gebruikers van jouw organisatie kunnen nu inloggen bij {{target}}.",
+            },
+            APPLICATION_DISCONNECTED: {
+                title: "Applicatie ontkoppeld",
+                description: "Gebruikers van jouw organisatie kunnen niet meer inloggen bij {{target}}.",
+            },
+            POLICY_CREATED: {
+                title: "Toegangsregel toegevoegd",
+                description: "De regel {{target}} is toegevoegd.",
+            },
+            POLICY_UPDATED: {
+                title: "Toegangsregel gewijzigd",
+                description: "De regel {{target}} is gewijzigd.",
+            },
+            POLICY_DELETED: {
+                title: "Toegangsregel verwijderd",
+                description: "De regel {{target}} is verwijderd.",
+            },
+            CONSENT_UPDATED: {
+                title: "Toestemmingsscherm aangepast",
+                description: "Gebruikers zien een ander toestemmingsscherm voor {{target}}.",
+            },
+            ASSURANCE_UPDATED: {
+                title: "Assuranceregel gewijzigd",
+                description: "De assurance-eis voor {{target}} is gewijzigd.",
+            },
+            INVITATION_SENT: {
+                title: "Uitnodiging verstuurd",
+                description: "{{target}} is uitgenodigd als {{authority}}.",
+            },
+            INVITATION_RESENT: {
+                title: "Uitnodiging opnieuw verstuurd",
+                description: "De uitnodiging voor {{target}} is opnieuw verstuurd.",
+            },
+            INVITATION_ACCEPTED: {
+                title: "Uitnodiging geaccepteerd",
+                description: "{{target}} heeft de uitnodiging geaccepteerd en is nu {{authority}}.",
+            },
+            INVITATION_DELETED: {
+                title: "Uitnodiging verwijderd",
+                description: "De uitnodiging voor {{target}} is verwijderd.",
+            },
+            JOIN_REQUEST_CREATED: {
+                title: "Toegangsverzoek",
+                description: "{{target}} wil toegevoegd worden aan jouw organisatie.",
+            },
+            JOIN_REQUEST_APPROVED: {
+                title: "Toegangsverzoek goedgekeurd",
+                description: "{{target}} is toegevoegd aan jouw organisatie.",
+            },
+            JOIN_REQUEST_DENIED: {
+                title: "Toegangsverzoek afgewezen",
+                description: "Het toegangsverzoek van {{target}} is afgewezen.",
+            },
+            MEMBER_REMOVED: {
+                title: "Gebruiker verwijderd",
+                description: "{{target}} is verwijderd uit jouw organisatie.",
+            },
+            MEMBER_AUTHORITY_CHANGED: {
+                title: "Rol gewijzigd",
+                description: "De rol van {{target}} is gewijzigd.",
+            },
+            APPLICATION_MEMBER_ADDED: {
+                title: "Toegevoegd aan het app-team",
+                description: "{{target}} is toegevoegd aan het app-team van {{application}}.",
+            },
+            APPLICATION_MEMBER_REMOVED: {
+                title: "Verwijderd uit het app-team",
+                description: "{{target}} is verwijderd uit het app-team van {{application}}.",
+            },
+            ORGANISATION_UPDATED: {
+                title: "Organisatiegegevens bijgewerkt",
+                description: "De gegevens van {{target}} zijn gewijzigd.",
+            },
+            ORGANISATION_METADATA_UPDATED: {
+                title: "Organisatiegegevens bijgewerkt",
+                description: "De gegevens van {{target}} zijn gewijzigd.",
+            },
+            CONTRACT_REQUESTED: {
+                title: "Contract aangevraagd",
+                description: "Er is een contract aangevraagd voor {{target}}.",
+            },
+            CONTRACT_UPDATED: {
+                title: "Contract bijgewerkt",
+                description: "Het contract van {{target}} is bijgewerkt.",
+            },
         },
     },
     statistics: {

@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.exception.NotFoundException;
 import access.model.*;
 import access.repository.ApplicationMembershipRepository;
@@ -36,11 +39,14 @@ public class ApplicationMembershipController implements UserAccessRights {
     private final ApplicationMembershipRepository applicationMembershipRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final UserRepository userRepository;
+    private final AuditLogger auditLogger;
 
     public ApplicationMembershipController(ApplicationRepository applicationRepository,
                                            ApplicationMembershipRepository applicationMembershipRepository,
                                            OrganizationMembershipRepository organizationMembershipRepository,
-                                           UserRepository userRepository) {
+                                           UserRepository userRepository,
+                                           AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
@@ -69,6 +75,9 @@ public class ApplicationMembershipController implements UserAccessRights {
         }
         ApplicationMembership applicationMembership = new ApplicationMembership(application, organizationMembership);
         applicationMembership = applicationMembershipRepository.save(applicationMembership);
+        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
+                AuditAction.APPLICATION_MEMBER_ADDED, "user", organizationMembership.getUser().getId(),
+                organizationMembership.getUser().getName(), Map.of("application", application.getName()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationMembership);
     }
@@ -87,6 +96,11 @@ public class ApplicationMembershipController implements UserAccessRights {
         //so we must also remove this membership from it - otherwise cascade=ALL re-inserts the row on flush
         //after applicationMembershipRepository.delete() below runs
         confirmApplicationMembershipDeleteAccess(user, applicationMembership);
+        Application application = applicationMembership.getApplication();
+        User member = applicationMembership.getOrganizationMembership().getUser();
+        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
+                AuditAction.APPLICATION_MEMBER_REMOVED, "user", member.getId(), member.getName(),
+                Map.of("application", application.getName()));
         applicationMembership.getOrganizationMembership().getApplicationMemberships().remove(applicationMembership);
         applicationMembershipRepository.delete(applicationMembership);
 

@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.config.Config;
 import access.exception.JiraUnavailableException;
 import access.exception.NotFoundException;
@@ -52,12 +55,15 @@ public class ContractController implements UserAccessRights {
     private final UserRepository userRepository;
     private final Config config;
     private final JiraClient jiraClient;
+    private final AuditLogger auditLogger;
 
     public ContractController(ContractRepository contractRepository,
                               OrganizationRepository organizationRepository,
                               UserRepository userRepository,
                               Config config,
-                              JiraClient jiraClient) {
+                              JiraClient jiraClient,
+                              AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
         this.contractRepository = contractRepository;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
@@ -123,6 +129,8 @@ public class ContractController implements UserAccessRights {
             saved.setTicketKey(jiraKey);
         }
         saved = contractRepository.save(saved);
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.CONTRACT_REQUESTED,
+                "contract", saved.getId(), organization.getName(), null);
         //Only now that the contract is persisted - a Jira outage must not roll that back
         if (jiraResult != null) {
             jiraResult.throwIfFailed();
@@ -161,6 +169,8 @@ public class ContractController implements UserAccessRights {
             existing.setSignedContract(true);
         }
         Contract saved = contractRepository.save(existing);
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.CONTRACT_UPDATED,
+                "contract", saved.getId(), organization.getName(), null);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

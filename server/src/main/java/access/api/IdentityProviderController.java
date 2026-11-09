@@ -1,5 +1,11 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
+import access.audit.AuditStatus;
+import access.audit.ChangeRequestReconciler;
+
 import access.config.Config;
 import access.exception.JiraUnavailableException;
 import access.exception.NotAllowedException;
@@ -62,13 +68,19 @@ public class IdentityProviderController implements UserAccessRights {
     private final JiraClient jiraClient;
     private final MailBox mailBox;
     private final Config config;
+    private final AuditLogger auditLogger;
+    private final ChangeRequestReconciler changeRequestReconciler;
 
     public IdentityProviderController(UserRepository userRepository,
                                       OrganizationRepository organizationRepository,
                                       Manage manage,
                                       JiraClient jiraClient,
                                       MailBox mailBox,
-                                      Config config) {
+                                      Config config,
+                                      AuditLogger auditLogger,
+                                      ChangeRequestReconciler changeRequestReconciler) {
+        this.auditLogger = auditLogger;
+        this.changeRequestReconciler = changeRequestReconciler;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.manage = manage;
@@ -134,6 +146,8 @@ public class IdentityProviderController implements UserAccessRights {
             !connectOption.equals(DashBoardConnectionOption.connectWithInteraction) || config.isTestEnvironment();
         if (connectWithoutInteraction) {
             manage.connectWithoutInteraction(identityProvider, serviceProvider, user);
+            auditLogger.log(user, organization, AuditCategory.APPLICATION, AuditAction.APPLICATION_CONNECTED,
+                    "application", serviceProvider.get("id"), getProviderName(serviceProvider), null);
             if (connectOption.equals(DashBoardConnectionOption.connectWithoutInteractionWithEmail) && !config.isTestEnvironment()) {
                 List<String> recipients = contactPersons(serviceProvider);
                 if (!CollectionUtils.isEmpty(recipients)) {
@@ -185,7 +199,9 @@ public class IdentityProviderController implements UserAccessRights {
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
 
-        manage.createChangeRequest(changeRequest);
+        Map<String, Object> changeRequestResponse = manage.createChangeRequest(changeRequest);
+        auditLogger.changeRequestSubmitted(user, organization, null, changeRequest, changeRequestResponse,
+                "application", serviceProvider.get("id"), getProviderName(serviceProvider), null);
         //Only now that Manage reflects the request - a Jira outage must not roll that back
         jiraResult.throwIfFailed();
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -213,6 +229,8 @@ public class IdentityProviderController implements UserAccessRights {
 
         if (config.isTestEnvironment()) {
             manage.disconnectWithoutInteraction(identityProvider, serviceProvider, user);
+            auditLogger.log(user, organization, AuditCategory.APPLICATION, AuditAction.APPLICATION_DISCONNECTED,
+                    "application", serviceProvider.get("id"), getProviderName(serviceProvider), null);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("status", HttpStatus.CREATED.value()));
@@ -252,7 +270,9 @@ public class IdentityProviderController implements UserAccessRights {
                 RequestType.UnlinkRequest);
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
-        manage.createChangeRequest(changeRequest);
+        Map<String, Object> changeRequestResponse = manage.createChangeRequest(changeRequest);
+        auditLogger.changeRequestSubmitted(user, organization, null, changeRequest, changeRequestResponse,
+                "application", serviceProvider.get("id"), getProviderName(serviceProvider), null);
         //Only now that Manage reflects the request - a Jira outage must not roll that back
         jiraResult.throwIfFailed();
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -303,6 +323,9 @@ public class IdentityProviderController implements UserAccessRights {
                 .toList();
         //First delete all manage change request - this is most likely to succeed
         openChangeRequests.forEach(changeRequest -> manage.rejectChangeRequest(new ChangeRequest(changeRequest)));
+        User actor = user;
+        openChangeRequests.forEach(changeRequest -> changeRequestReconciler.closeLocally(actor, organization.getId(),
+                (String) changeRequest.get("id"), AuditStatus.CANCELLED));
         //Then update all Jira comments, this API is not so stable
         String comment = "Ticket can be closed by request of the requestor";
         openChangeRequests.forEach(changeRequest -> jiraClient.comment((String) changeRequest.get("ticketKey"), comment));

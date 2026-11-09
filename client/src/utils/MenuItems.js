@@ -10,7 +10,8 @@ import {
     ChartLineIcon as StatsIcon,
     HouseIcon as HomeIcon,
     LifebuoyIcon as HeadPhonesIcon,
-    ChatCenteredTextIcon as FeedbackIcon
+    ChatCenteredTextIcon as FeedbackIcon,
+    ClipboardTextIcon as AuditIcon
 } from "@phosphor-icons/react";
 
 export const mainMenuItems = {
@@ -25,7 +26,8 @@ export const mainMenuItems = {
     sram: "sram",
     serviceDesk: "serviceDesk",
     feedback: "feedback",
-    statistics: "statistics"
+    statistics: "statistics",
+    audit: "audit"
 }
 
 //The visibility of the menu items is decided by the server, see MenuService and GET /api/v1/menu
@@ -102,6 +104,11 @@ export const allMenuGroups = [
                 name: mainMenuItems.statistics,
                 path: "/statistics",
                 Logo: StatsIcon
+            },
+            {
+                name: mainMenuItems.audit,
+                path: "/audit-log",
+                Logo: AuditIcon
             },
         ]
     },

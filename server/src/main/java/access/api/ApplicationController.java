@@ -1,5 +1,9 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
+
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.manage.ConnectionProviderConverter;
@@ -87,6 +91,7 @@ public class ApplicationController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final Map<String, Object> arpInfo;
     private final List<String> eduidIdpEntityIdentifiers;
+    private final AuditLogger auditLogger;
 
     public ApplicationController(ApplicationRepository applicationRepository,
                                  ApplicationMembershipRepository applicationMembershipRepository,
@@ -97,7 +102,9 @@ public class ApplicationController implements UserAccessRights {
                                  ConnectionProviderConverter connectionProviderConverter,
                                  OrganizationRepository organizationRepository,
                                  ObjectMapper objectMapper,
+                                 AuditLogger auditLogger,
                                  @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) throws IOException {
+        this.auditLogger = auditLogger;
         this.applicationRepository = applicationRepository;
         this.applicationMembershipRepository = applicationMembershipRepository;
         this.connectionRepository = connectionRepository;
@@ -247,6 +254,8 @@ public class ApplicationController implements UserAccessRights {
         application.setCreatedBy(user.getName());
         application.setOwner(user);
         Application applicationSaved = applicationRepository.save(application);
+        auditLogger.log(user, organization, applicationSaved.getId(), AuditCategory.APPLICATION,
+                AuditAction.APPLICATION_CREATED, "application", applicationSaved.getId(), applicationSaved.getName(), null);
 
         Optional<OrganizationMembership> optionalOrganizationMembership = user.getOrganizationMemberships().stream()
             .filter(organizationMembership -> organizationMembership.getOrganization().getId().equals(organization.getId()))
@@ -313,6 +322,8 @@ public class ApplicationController implements UserAccessRights {
             Hibernate.initialize(application.getConnections());
         }
         applicationRepository.save(application);
+        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
+                AuditAction.APPLICATION_UPDATED, "application", application.getId(), application.getName(), null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
     }
@@ -342,6 +353,8 @@ public class ApplicationController implements UserAccessRights {
             .filter(connection -> StringUtils.hasText(connection.getManageIdentifier()))
             .forEach(connection -> manage.deleteProvider(connection));
 
+        auditLogger.log(user, organization, application.getId(), AuditCategory.APPLICATION,
+                AuditAction.APPLICATION_DELETED, "application", application.getId(), application.getName(), null);
         applicationRepository.deleteById(application.getId());
 
         return deleteResult();

@@ -167,6 +167,15 @@ public abstract class AbstractTest {
     protected ContractRepository contractRepository;
 
     @Autowired
+    protected access.audit.AuditEventRepository auditEventRepository;
+
+    protected void assertAuditEvent(access.audit.AuditAction action) {
+        org.junit.jupiter.api.Assertions.assertTrue(auditEventRepository.findAll().stream()
+                        .anyMatch(event -> event.getAction().equals(action)),
+                "Expected audit event " + action);
+    }
+
+    @Autowired
     protected DataSource dataSource;
 
     protected LocalManage localManage;

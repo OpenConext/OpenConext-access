@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.model.Authority;
@@ -32,9 +35,12 @@ public class OrganizationMembershipController implements UserAccessRights {
     private static final Log LOG = LogFactory.getLog(OrganizationMembershipController.class);
 
     private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final AuditLogger auditLogger;
 
-    public OrganizationMembershipController(OrganizationMembershipRepository organizationMembershipRepository) {
+    public OrganizationMembershipController(OrganizationMembershipRepository organizationMembershipRepository,
+                                            AuditLogger auditLogger) {
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.auditLogger = auditLogger;
     }
 
     @DeleteMapping({"/{membership_id}"})
@@ -53,6 +59,9 @@ public class OrganizationMembershipController implements UserAccessRights {
         if (nbrOfAdmins < 2 && organizationMembership.getAuthority().equals(Authority.ADMIN)) {
             throw new UserRestrictionException("Not allowed to delete last remaining Admin user");
         }
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION, AuditAction.MEMBER_REMOVED,
+                "user", organizationMembership.getUser().getId(), organizationMembership.getUser().getName(),
+                Map.of("authority", organizationMembership.getAuthority().name()));
         organizationMembershipRepository.deleteOrganizationMembershipById(organizationMembership.getId());
 
         return deleteResult();
@@ -81,8 +90,15 @@ public class OrganizationMembershipController implements UserAccessRights {
             throw new UserRestrictionException("Not allowed to update last remaining Admin user");
         }
 
+        Authority previousAuthority = organizationMembership.getAuthority();
         organizationMembership.setAuthority(newAuthority);
         organizationMembership = organizationMembershipRepository.save(organizationMembership);
+        if (!previousAuthority.equals(newAuthority)) {
+            auditLogger.log(user, organizationMembership.getOrganization(), AuditCategory.ORGANISATION,
+                    AuditAction.MEMBER_AUTHORITY_CHANGED, "user", organizationMembership.getUser().getId(),
+                    organizationMembership.getUser().getName(),
+                    Map.of("from", previousAuthority.name(), "to", newAuthority.name()));
+        }
         return ResponseEntity.ok(organizationMembership);
     }
 

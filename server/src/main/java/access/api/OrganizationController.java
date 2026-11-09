@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.JiraUnavailableException;
@@ -61,6 +64,7 @@ public class OrganizationController implements UserAccessRights {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper ;
     private final JiraClient jiraClient;
+    private final AuditLogger auditLogger;
 
 
     @Autowired
@@ -70,7 +74,9 @@ public class OrganizationController implements UserAccessRights {
                                   UserRepository userRepository,
                                   Config config,
                                   ObjectMapper objectMapper,
-                                  JiraClient jiraClient) {
+                                  JiraClient jiraClient,
+                                  AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
         this.manage = manage;
@@ -293,8 +299,12 @@ public class OrganizationController implements UserAccessRights {
         User userFromDB = reinitializeUser(user, userRepository);
         confirmOrganizationMembership(userFromDB, organization, Authority.ADMIN);
 
+        String previousName = organization.getName();
         organization.setName(organizationForm.getName());
         Organization savedOrganization = organizationRepository.save(organization);
+        auditLogger.log(userFromDB, savedOrganization, AuditCategory.ORGANISATION, AuditAction.ORGANISATION_UPDATED,
+                "organization", savedOrganization.getId(), savedOrganization.getName(),
+                Map.of("field", "name", "from", previousName, "to", savedOrganization.getName()));
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrganization);
     }
 
@@ -325,6 +335,8 @@ public class OrganizationController implements UserAccessRights {
 
         organization.setMetaData(metaData);
         manage.saveIdentityProvider(organization);
+        auditLogger.log(userFromDB, organization, AuditCategory.ORGANISATION, AuditAction.ORGANISATION_METADATA_UPDATED,
+                "organization", organization.getId(), organization.getName(), null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(organization);
     }

@@ -46,6 +46,7 @@ import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
 import Statistics from "./pages/Statistics.jsx";
+import AuditLog from "./pages/AuditLog.jsx";
 import {currentOrganizationFromUser} from "./utils/Organization.js";
 import PublicStats from "./pages/PublicStats.jsx";
 import {Monitoring} from "./pages/Monitoring.jsx";
@@ -245,6 +246,7 @@ const App = () => {
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
                             <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
                             <Route path="/statistics" element={<Statistics/>}/>
+                            <Route path="/audit-log" element={<AuditLog/>}/>
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>

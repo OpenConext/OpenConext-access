@@ -41,6 +41,7 @@ public class MenuService {
     public static final String SERVICE_DESK = "serviceDesk";
     public static final String FEEDBACK = "feedback";
     public static final String STATISTICS = "statistics";
+    public static final String AUDIT = "audit";
 
     private static final Log LOG = LogFactory.getLog(MenuService.class);
 
@@ -125,7 +126,7 @@ public class MenuService {
             items.addAll(List.of(ACCESSIBLE_APPS, INVITE, SRAM));
         }
         if ((isAdmin || user.isSuperUser()) && isInstitution) {
-            items.addAll(List.of(STATISTICS, POLICIES));
+            items.addAll(List.of(STATISTICS, POLICIES, AUDIT));
         }
         return items;
     }

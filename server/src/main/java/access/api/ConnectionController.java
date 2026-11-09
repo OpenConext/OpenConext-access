@@ -1,5 +1,9 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
+
 import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.JiraUnavailableException;
@@ -88,6 +92,7 @@ public class ConnectionController implements UserAccessRights {
     private final Config config;
     private final OrganizationRepository organizationRepository;
     private final List<String> eduidIdpEntityIdentifiers;
+    private final AuditLogger auditLogger;
 
     public ConnectionController(ConnectionRepository connectionRepository,
                                 ApplicationRepository applicationRepository,
@@ -97,7 +102,9 @@ public class ConnectionController implements UserAccessRights {
                                 ConnectionProviderConverter connectionProviderConverter,
                                 ObjectMapper objectMapper,
                                 Config config, OrganizationRepository organizationRepository,
+                                AuditLogger auditLogger,
                                 @Value("${eduid-idp-entity-id}") String eduidIdpEntityId) {
+        this.auditLogger = auditLogger;
         this.connectionRepository = connectionRepository;
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
@@ -191,6 +198,7 @@ public class ConnectionController implements UserAccessRights {
         connection.setCreatedAt(Instant.now());
         connection.setApplication(application);
         connection = saveConnection(connection);
+        audit(user, connection, AuditAction.CONNECTION_CREATED, null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
     }
@@ -213,6 +221,7 @@ public class ConnectionController implements UserAccessRights {
                 user.getEmail(), connection.getStatus()));
         }
         String jiraKey = this.doRequestProductionStatus(user, connection);
+        audit(user, connection, AuditAction.PRODUCTION_REQUESTED, AuditLogger.details("jiraKey", jiraKey));
         Map<String, Object> body = Map.of("connection", connection, "jiraKey", jiraKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
@@ -233,6 +242,7 @@ public class ConnectionController implements UserAccessRights {
             allowedResourceServerNames(connection) : Collections.emptyList();
         //Capture before merge() overwrites connection#eduIdAccessEnabled with connectionData's value
         boolean eduIdAccessChanged = connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled();
+        boolean previousEduIdAccess = connection.isEduIdAccessEnabled();
         connection.merge(connectionData);
         //Capture the submitted allowedResourceServers now - for production-ready connections, the change-request
         //path below calls mergeMetaData(), which rebuilds metaData from Manage's current state and never
@@ -269,7 +279,27 @@ public class ConnectionController implements UserAccessRights {
             //returning the connection to the client
             refreshAllowedResourceServers(connection, manage);
         }
+        audit(user, connection, AuditAction.CONNECTION_UPDATED, eduIdAccessChanged ?
+                AuditLogger.details("field", "eduIdAccess", "from", previousEduIdAccess, "to", !previousEduIdAccess) : null);
         return connection;
+    }
+
+    private void auditChangeRequest(User user, Connection connection, ChangeRequest changeRequest, Map<String, Object> response) {
+        Application application = connection.getApplication();
+        auditLogger.changeRequestSubmitted(user, application.getOrganization(), application.getId(), changeRequest, response,
+                "application", application.getId(), application.getName(),
+                AuditLogger.details("connection", connection.getName()));
+    }
+
+    private void audit(User user, Connection connection, AuditAction action, Map<String, Object> details) {
+        Application application = connection.getApplication();
+        Map<String, Object> allDetails = AuditLogger.details("connection", connection.getName(),
+                "protocol", connection.getProtocol() != null ? connection.getProtocol().name() : null);
+        if (details != null) {
+            allDetails.putAll(details);
+        }
+        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION, action,
+                "application", application.getId(), application.getName(), allDetails);
     }
 
     //The 'afnemers' (customers) of a resource server are the relying parties allowed to request tokens for it.
@@ -363,6 +393,7 @@ public class ConnectionController implements UserAccessRights {
 
         Map<String, Object> provider = manage.saveProvider(connection);
         connection.updateRemoteManageData(provider);
+        audit(user, connection, AuditAction.CONNECTION_SECRET_RESET, null);
 
         return Collections.singletonMap("secret", secret);
     }
@@ -422,6 +453,7 @@ public class ConnectionController implements UserAccessRights {
         changeRequest.setTicketKey(jiraKey);
         changeRequest.setAuditData(auditData);
         Map<String, Object> changeRequestResponse = manage.createChangeRequest(changeRequest);
+        auditChangeRequest(user, connection, changeRequest, changeRequestResponse);
 
         LOG.debug("Change request response from manage: " + changeRequestResponse);
 
@@ -535,7 +567,7 @@ public class ConnectionController implements UserAccessRights {
                 RequestType.EduIDAccessRequest);
             changeRequest.setTicketKey(jiraKey);
             changeRequest.setAuditData(auditData);
-            manage.createChangeRequest(changeRequest);
+            auditChangeRequest(user, connection, changeRequest, manage.createChangeRequest(changeRequest));
         });
         //Only now that Manage reflects the request - a Jira outage must not roll that back
         jiraResult.throwIfFailed();
@@ -568,6 +600,7 @@ public class ConnectionController implements UserAccessRights {
 
         //To prevent org.hibernate.TransientObjectException: persistent instance references an unsaved transient
         Application application = connection.getApplication();
+        audit(user, connection, AuditAction.CONNECTION_DELETED, null);
         application.removeConnection(connection);
 
         if (StringUtils.hasText(connection.getManageIdentifier())) {
@@ -643,7 +676,7 @@ public class ConnectionController implements UserAccessRights {
                 ChangeRequest changeRequest = changeRequestOptional.get();
                 changeRequest.setTicketKey(jiraKey);
                 changeRequest.setAuditData(auditData);
-                manage.createChangeRequest(changeRequest);
+                auditChangeRequest(user, connection, changeRequest, manage.createChangeRequest(changeRequest));
             } else {
                 //Now we need to ensure that previous change requests, with the same pathUpdate and value a List, does not overwrite changes
                 //And therefore we don't create a new change request, but update the existing one
