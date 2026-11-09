@@ -125,6 +125,9 @@ const AuditLog = () => {
     }, [organizationId, isOrgAdmin, days, actorId, category, debouncedQuery, pageNumber]);
 
     const groups = useMemo(() => groupByDay(events), [events]);
+    //Attention items are system items of the pending category, they follow the filters like any other event
+    const showAttention = !isEmpty(summary.attention)
+        && (category === ALL || category === "PENDING") && actorId === ALL && isEmpty(debouncedQuery);
 
     if (!isOrgAdmin) {
         return <Navigate to="/404" replace/>;
@@ -241,7 +244,7 @@ const AuditLog = () => {
                 ))}
             </div>
 
-            {!isEmpty(summary.attention) && <div className="attention">
+            {showAttention && <div className="attention">
                 {summary.attention.map((item, index) => (
                     <div className="attention-item" key={`${item.type}_${index}`}>
                         <span className="icon cat-pending"><CertificateIcon/></span>
