@@ -138,7 +138,7 @@ const pt: AppTranslation = {
         teams: "Equipas",
         statistics: "Estatísticas",
         support: "Apoio",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Ajude-nos a melhorar",
     },
     breadCrumb: {

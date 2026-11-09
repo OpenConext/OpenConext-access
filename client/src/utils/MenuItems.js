@@ -110,11 +110,6 @@ export const allMenuGroups = [
         className: "custom-group",
         items: [
             {
-                name: mainMenuItems.serviceDesk,
-                path: "/external/serviceDesk",
-                Logo: HeadPhonesIcon
-            },
-            {
                 name: mainMenuItems.feedback,
                 path: "/feedback",
                 Logo: FeedbackIcon
@@ -122,6 +117,13 @@ export const allMenuGroups = [
         ]
     },
 ]
+
+//The support item is not part of the sidebar, it is rendered in the header (top right). Visibility is decided by the server
+export const supportMenuItem = {
+    name: mainMenuItems.serviceDesk,
+    path: "/external/serviceDesk",
+    Logo: HeadPhonesIcon
+};
 
 //Same target as the roles menu item: SURF Invite in the same tab, or the page that opens it in a new tab
 const inviteMenuItem = () => allMenuGroups.map(group => group.items).flat().find(item => item.name === mainMenuItems.invite);
@@ -149,7 +151,7 @@ export const inviteRoleHref = (config, roleId, organizationId) => {
 
 export const activeMenuItem = currentLocation => {
     const path = currentLocation.pathname;
-    const items = allMenuGroups.map(group => group.items).flat();
+    const items = [...allMenuGroups.map(group => group.items).flat(), supportMenuItem];
 
     // Prefer an exact match first, e.g. "/external/sram" vs "/external/serviceDesk" -
     // both share the "/external" prefix, so only a full-path match tells them apart.

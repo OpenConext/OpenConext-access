@@ -138,7 +138,7 @@ const nl: AppTranslation = {
         teams: "Teams",
         statistics: "Statistieken",
         support: "Support",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Help ons verbeteren",
     },
     breadCrumb: {

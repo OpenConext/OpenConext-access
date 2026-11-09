@@ -13,6 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
 class MenuControllerTest extends AbstractTest {
 
@@ -28,6 +32,40 @@ class MenuControllerTest extends AbstractTest {
         return request
             .get("/api/external/v1/menu")
             .as(MenuResponse.class);
+    }
+
+    private void stubRolesMine(int status, String body) {
+        stubFor(get(urlPathMatching("/api/external/v1/internal/invite/roles-mine/.*"))
+            .willReturn(aResponse()
+                .withStatus(status)
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+    }
+
+    @Test
+    void externalMenuWithoutInviteRolesHidesInvite() {
+        stubRolesMine(200, "[]");
+        MenuResponse menu = externalMenu(MANAGE_SUB, null);
+        assertFalse(menu.menuItems().contains("invite"));
+        assertTrue(menu.menuItems().contains("policies"));
+    }
+
+    @Test
+    void externalMenuWithInviteRolesShowsInvite() {
+        stubRolesMine(200, "[{\"id\": 1, \"name\": \"role\"}]");
+        assertTrue(externalMenu(MANAGE_SUB, null).menuItems().contains("invite"));
+    }
+
+    @Test
+    void externalMenuKeepsInviteWhenInviteIsUnavailable() {
+        stubRolesMine(500, "{}");
+        assertTrue(externalMenu(MANAGE_SUB, null).menuItems().contains("invite"));
+    }
+
+    @Test
+    void externalMenuSuperUserKeepsInviteWithoutRoles() {
+        stubRolesMine(200, "[]");
+        assertTrue(externalMenu(MULTIPLE_ORG_SUB, null).menuItems().contains("invite"));
     }
 
     @Test

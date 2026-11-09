@@ -214,7 +214,7 @@ const App = () => {
                 <Flash/>
                 {impersonator && <Impersonating/>}
                 <SidebarProvider className="app-shell">
-                    <SharedMenu currentLocation={currentLocation}/>
+                    <SharedMenu currentLocation={currentLocation} setIsAuthenticated={setIsAuthenticated}/>
                     <SidebarInset>
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
                         {feedbackWidgetEnabled && <UserFeedbackWidget/>}
