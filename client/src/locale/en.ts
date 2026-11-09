@@ -357,7 +357,7 @@ const en: AppTranslation = {
         contractRequiredHint: {
             title: "Agreement required for publication",
             description: "Fill in all the details under My organisation.",
-            action: "Fill in details,
+            action: "Fill in details"
         },
         testSection: "Test",
         teamSection: "Team",
