@@ -32,7 +32,7 @@
     "follow-redirects": "^1.16.0",
     "html2canvas-pro": "^2.6.3",
     "i18n-js": "^4.5.4",
-    "isomorphic-dompurify": "4.6.0",
+    "isomorphic-dompurify": "4.7.0",
     "js-cookie": "^3.0.8",
     "js-yaml": "^5.5.0",
     "jsondiffpatch": "^0.7.7",
@@ -50,7 +50,7 @@
     "sonner": "^2.0.8",
     "undici": "^8.12.4",
     "use-debounce": "^10.1.1",
-    "zustand": "^5.0.16"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
