@@ -67,6 +67,13 @@ const App = () => {
     const currentLocation = useLocation();
     const logoutUser = useLogout();
 
+    //The public pages scroll the window, so a page change must start at the top
+    useEffect(() => {
+        if (!isAuthenticated) {
+            window.scrollTo(0, 0);
+        }
+    }, [currentLocation.pathname, isAuthenticated]);
+
     const loadUserOrganization = user => {
         //Another application (e.g. Invite) can switch the organization with an organizationId query parameter,
         //which is either the id or the manageIdentifier of one of the organizations of the user
