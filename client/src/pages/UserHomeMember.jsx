@@ -115,6 +115,7 @@ const UserHomeMember = () => {
                         </Link>)}
                 </div>
             </section>
+            {!isEmpty(roles) &&
             <section>
                 <SectionHeader title={I18n.t("userHome.rolesYouManage")}
                                buttonLabel={I18n.t("userHome.toRoles")}
@@ -123,7 +124,7 @@ const UserHomeMember = () => {
                 <div className="items">
                     {roles.map(roleRow)}
                 </div>
-            </section>
+            </section>}
         </div>
     );
 };

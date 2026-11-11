@@ -1,5 +1,11 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
+import access.audit.AuditStatus;
+import access.audit.ChangeRequestReconciler;
+
 import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
@@ -101,6 +107,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     private final int metadataUrlConnectTimeoutMs;
     private final int metadataUrlReadTimeoutMs;
     private final boolean blockPrivateNetworkMetadataUrls;
+    private final AuditLogger auditLogger;
+    private final ChangeRequestReconciler changeRequestReconciler;
 
     public ManageController(Manage manage,
                             ObjectMapper objectMapper,
@@ -109,11 +117,15 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
                             UserRepository userRepository,
                             ConnectionRepository connectionRepository,
                             Config config,
+                            AuditLogger auditLogger,
+                            ChangeRequestReconciler changeRequestReconciler,
                             @Value("${config.metadata_url_max_bytes}") long maxMetadataUrlBytes,
                             @Value("${config.metadata_url_connect_timeout_ms}") int metadataUrlConnectTimeoutMs,
                             @Value("${config.metadata_url_read_timeout_ms}") int metadataUrlReadTimeoutMs,
                             @Value("${config.metadata_url_block_private_networks}") boolean blockPrivateNetworkMetadataUrls) throws IOException {
         this.manage = manage;
+        this.auditLogger = auditLogger;
+        this.changeRequestReconciler = changeRequestReconciler;
         this.objectMapper = objectMapper;
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
@@ -399,7 +411,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
 
     @PostMapping("/policies")
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Map<String, Object>> createPolicy(User user,
                                                             @RequestParam("organizationId") Long organizationId,
                                                             @RequestBody Map<String, Object> policy) {
@@ -408,12 +420,14 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         Organization organization = organizationRepository.getReferenceById(organizationId);
 
         policyAccessAllowed(user, policy, organization);
-        return ResponseEntity.ok(manage.createPolicy(policy));
+        Map<String, Object> created = manage.createPolicy(policy);
+        auditPolicy(user, organization, AuditAction.POLICY_CREATED, policy);
+        return ResponseEntity.ok(created);
     }
 
 
     @PutMapping("/policies")
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Map<String, Object>> updatePolicy(User user,
                                                             @RequestParam("organizationId") Long organizationId,
                                                             @RequestBody Map<String, Object> policy) {
@@ -425,7 +439,9 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         Map<String, Object> data = getData(policy);
         String revisionNote = this.revisionNote("Policy", user, policy, data.get("serviceProviderIds").toString());
         data.put("revisionnote", revisionNote);
-        return ResponseEntity.ok(manage.updatePolicy(policy));
+        Map<String, Object> updated = manage.updatePolicy(policy);
+        auditPolicy(user, organization, AuditAction.POLICY_UPDATED, policy);
+        return ResponseEntity.ok(updated);
     }
 
     @PutMapping("/update/consent")
@@ -462,6 +478,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         String revisionNote = this.revisionNote("Consent", user, identityProvider, consent.name());
         data.put("revisionnote", revisionNote);
         manage.saveIdentityProvider(identityProvider);
+        auditLogger.log(userFromDB, organization, AuditCategory.ACCESS, AuditAction.CONSENT_UPDATED,
+                "application", consent.name(), consent.name(), null);
 
         return createResult();
     }
@@ -502,6 +520,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         Map<String, Object> data = getData(identityProvider);
 
         List<Map<String, String>> mfaEntities = (List<Map<String, String>>) data.computeIfAbsent("mfaEntities", key -> new ArrayList<>());
+        String previousMfa = levelOf(mfaEntities, assurance.mfaEntity().name());
         if (assurance.mfaEntity().level() == null) {
             mfaEntities.removeIf(e -> assurance.mfaEntity().name().equals(e.get("name")));
         } else {
@@ -519,6 +538,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         }
 
         List<Map<String, String>> stepupEntities = (List<Map<String, String>>) data.computeIfAbsent("stepupEntities", key -> new ArrayList<>());
+        String previousStepup = levelOf(stepupEntities, assurance.stepupEntity().name());
         if (assurance.stepupEntity().level() == null) {
             stepupEntities.removeIf(e -> assurance.stepupEntity().name().equals(e.get("name")));
         } else {
@@ -537,11 +557,30 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         String revisionNote = this.revisionNote("Assurance", user, identityProvider, assurance.stepupEntity().name());
         data.put("revisionnote", revisionNote);
         manage.saveIdentityProvider(identityProvider);
+        auditAssurance(userFromDB, organization, assurance.stepupEntity().name(), "stepup", previousStepup, assurance.stepupEntity().level());
+        auditAssurance(userFromDB, organization, assurance.mfaEntity().name(), "mfa", previousMfa, assurance.mfaEntity().level());
         return createResult();
     }
 
+    private String levelOf(List<Map<String, String>> entities, String name) {
+        return entities.stream()
+                .filter(entity -> name.equals(entity.get("name")))
+                .map(entity -> entity.get("level"))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void auditAssurance(User user, Organization organization, String name, String field, String from, String to) {
+        if (java.util.Objects.equals(from, to)) {
+            return;
+        }
+        auditLogger.log(user, organization, AuditCategory.ACCESS, AuditAction.ASSURANCE_UPDATED,
+                "application", name, name,
+                AuditLogger.details("field", field, "from", from == null ? "none" : from, "to", to == null ? "none" : to));
+    }
+
     @DeleteMapping("/policies/{policyId}")
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Void> deletePolicy(User user,
                                              @RequestParam("organizationId") Long organizationId,
                                              @PathVariable String policyId) {
@@ -553,7 +592,14 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
         policyAccessAllowed(user, policy, organization);
         manage.deletePolicy(policy);
+        auditPolicy(user, organization, AuditAction.POLICY_DELETED, policy);
         return ResponseEntity.noContent().build();
+    }
+
+    private void auditPolicy(User user, Organization organization, AuditAction action, Map<String, Object> policy) {
+        Map<String, Object> data = getData(policy);
+        auditLogger.log(user, organization, AuditCategory.ACCESS, action, "policy", policy.get("id"),
+                (String) data.get("name"), null);
     }
 
 
@@ -603,7 +649,7 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @PutMapping("/reject-change-request")
     public ResponseEntity<Map<String, Object>> rejectChangeRequest(User user, @RequestBody ChangeRequest changeRequest) {
         LOG.debug("/reject-change-request " + changeRequest + " by " + user.getEmail());
@@ -618,6 +664,8 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
             .findAny()
                 .ifPresent(cr -> {
                     manage.rejectChangeRequest(changeRequest);
+                    changeRequestReconciler.closeLocally(userFromDB, connection.getApplication().getOrganization().getId(),
+                            changeRequest.getId(), AuditStatus.REJECTED);
                     jiraClient.comment((String) cr.get("ticketKey"), "Ticket can be closed by request of the requestor");
                 });
         return Results.okResult();

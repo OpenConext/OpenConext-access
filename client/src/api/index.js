@@ -114,6 +114,26 @@ export function sendFeedback(formData) {
     return postPutJson("/api/v1/feedback", formData, "POST");
 }
 
+//Audit log
+
+export function auditLog(organizationId, {from, to, actorId, category, query, pageNumber = 0, pageSize = 25} = {}) {
+    const params = new URLSearchParams({organizationId, pageNumber, pageSize});
+    Object.entries({from, to, actorId, category, query})
+        .filter(([, value]) => !isEmpty(value))
+        .forEach(([key, value]) => params.set(key, value));
+    return fetchJson(`/api/v1/audit-log?${params.toString()}`);
+}
+
+export function auditLogSummary(organizationId, {from, to} = {}) {
+    const params = new URLSearchParams({organizationId});
+    Object.entries({from, to}).filter(([, value]) => !isEmpty(value)).forEach(([key, value]) => params.set(key, value));
+    return fetchJson(`/api/v1/audit-log/summary?${params.toString()}`);
+}
+
+export function auditLogActors(organizationId) {
+    return fetchJson(`/api/v1/audit-log/actors?organizationId=${organizationId}`);
+}
+
 //Organizations
 
 //attributePaths = {"organizationMemberships.user", "invitations.invitee", "joinRequests.user"}

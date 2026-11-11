@@ -138,8 +138,9 @@ const en: AppTranslation = {
         teams: "Teams",
         statistics: "Statistics",
         support: "Support",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Help us improve",
+        audit: "Audit log",
     },
     breadCrumb: {
         access: "Home",
@@ -162,6 +163,7 @@ const en: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracts",
+        auditLog: "Audit log",
     },
     welcome: {
         greeting: "Welcome, {{name}}",
@@ -454,6 +456,9 @@ const en: AppTranslation = {
         addRedirectUrl: "+ Redirect URL",
         sslGrade: "SSL grade (min. B)",
         sslGradeTooltip: "Ensure the SSL/TLS certificate meets or exceeds grade B",
+        signingCertificateUrl: "Signing certificate URL",
+        signingCertificateUrlPlaceholder: "e.g. https://rp.example.org/jwks",
+        signingCertificateUrlTooltip: "JWKS endpoint (RFC 7517) from which the public keys are fetched to verify the signed JWT used for client authentication at the token endpoint. Optional.",
         claimsInIdToken: "Claims",
         claimsInIdTokenTooltip: "Receive all claims directly in the ID token",
         configuration: "Configuration details",
@@ -1077,9 +1082,10 @@ const en: AppTranslation = {
             link: "Open <strong>SRAM</strong>",
         },
         serviceDesk: {
-            title: "SURF Servicedesk",
+            title: "Support",
             description: "The central place where SURF customers get support.",
             link: "Open <strong>SURF Servicedesk</strong>",
+            feedbackHint: "This button is on every screen. Use it to quickly send feedback with a screenshot.",
         },
     },
     forms: {
@@ -1276,6 +1282,20 @@ const en: AppTranslation = {
         externalUserTooltip: "An external user - as opposed to an internal user - is a user who only has an eduID account and not an institutional account.",
         internalUser: "Internal user",
         internalUserTooltip: "An internal user - as opposed to an external user - is a user who has logged in with an institutional account.",
+        sub: "Sub",
+        institution: "Institution",
+        lastActivity: "Last active",
+        createdAt: "Account created",
+        organizationGuid: "Organisation GUID",
+        yes: "Yes",
+        no: "No",
+        appTeams: "App teams",
+        appsYouManage: "Applications you manage",
+        appTeamsInfo: "You are in the app team and can change the app information and connections.",
+        toMyApps: "To my apps",
+        rolesTitle: "Roles",
+        viewRole: "View role",
+        roleAccess: "This role grants access to the following application(s):",
     },
     changelog: {
         title: "Changelog",
@@ -1579,6 +1599,207 @@ const en: AppTranslation = {
         migrateConfirmation: "Are you sure you want to migrate application <strong>{{application}}</strong> from its current organisation <strong>{{organisation}}</strong> to the new organisation <strong>{{newOrganisation}}</strong>?",
         flash: {
             migrated: "Application {{application}} has been migrated to organisation {{organisation}}",
+        },
+    },
+    auditLog: {
+        title: "Audit log",
+        intro: "All activity within your IdP: who was added, which invitations and requests were handled and what needs your attention.",
+        today: "Today",
+        yesterday: "Yesterday",
+        system: "System",
+        empty: "No events found for the selected filters.",
+        eventCount: "{{count}} events",
+        range: "{{first}}–{{last}} of {{total}} events",
+        periods: {
+            last: "Last {{days}} days",
+        },
+        filters: {
+            search: "Search for event, app or person",
+            allActors: "All actors",
+            allCategories: "All categories",
+        },
+        categories: {
+            APPLICATION: "Applications",
+            ACCESS: "Access management",
+            ORGANISATION: "Organisation",
+            PENDING: "Pending",
+        },
+        summary: {
+            pending: "Pending",
+            pendingUnit: "Items waiting for your action",
+            applications: "Applications",
+            access: "Access management",
+            organisation: "Organisation",
+            changes: "Changes",
+        },
+        fields: {
+            eduIdAccess: "eduID access",
+            stepup: "Assurance level",
+            mfa: "MFA",
+            name: "Name",
+        },
+        values: {
+            none: "None",
+            true: "On",
+            false: "Off",
+            ADMIN: "Admin",
+            MEMBER: "Member",
+            GUEST: "Guest",
+        },
+        status: {
+            PENDING: "Pending",
+            APPLIED: "Approved",
+            REJECTED: "Rejected",
+            CANCELLED: "Withdrawn",
+            RESOLVED: "Closed",
+        },
+        attention: {
+            CERTIFICATE_EXPIRING: {
+                title: "Certificate expires soon",
+                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems.",
+            },
+        },
+        events: {
+            CHANGE_REQUEST_SUBMITTED: {
+                title: "Change request submitted",
+                description: "A request for {{target}} is waiting for approval.",
+            },
+            CHANGE_REQUEST_APPLIED: {
+                title: "Change request approved",
+                description: "The request for {{target}} was approved and is now in effect.",
+            },
+            CHANGE_REQUEST_REJECTED: {
+                title: "Change request rejected",
+                description: "The request for {{target}} was rejected.",
+            },
+            CHANGE_REQUEST_CANCELLED: {
+                title: "Change request withdrawn",
+                description: "The request for {{target}} was withdrawn.",
+            },
+            CHANGE_REQUEST_RESOLVED: {
+                title: "Change request closed",
+                description: "The request for {{target}} was closed in Manage.",
+            },
+            APPLICATION_CREATED: {
+                title: "Application created",
+                description: "{{target}} was created.",
+            },
+            APPLICATION_UPDATED: {
+                title: "Application updated",
+                description: "The details of {{target}} were changed.",
+            },
+            APPLICATION_DELETED: {
+                title: "Application deleted",
+                description: "{{target}} was deleted.",
+            },
+            CONNECTION_CREATED: {
+                title: "Connection added",
+                description: "A {{protocol}} connection was added to {{target}}.",
+            },
+            CONNECTION_UPDATED: {
+                title: "Connection updated",
+                description: "The connection settings of {{target}} were changed.",
+            },
+            CONNECTION_DELETED: {
+                title: "Connection removed",
+                description: "A connection of {{target}} was removed.",
+            },
+            CONNECTION_SECRET_RESET: {
+                title: "Secret reset",
+                description: "The secret of {{target}} was reset.",
+            },
+            PRODUCTION_REQUESTED: {
+                title: "Production status requested",
+                description: "Production status was requested for {{target}}.",
+            },
+            APPLICATION_CONNECTED: {
+                title: "Application connected",
+                description: "Users of your organisation can now log in to {{target}}.",
+            },
+            APPLICATION_DISCONNECTED: {
+                title: "Application disconnected",
+                description: "Users of your organisation can no longer log in to {{target}}.",
+            },
+            POLICY_CREATED: {
+                title: "Access rule added",
+                description: "The rule {{target}} was added.",
+            },
+            POLICY_UPDATED: {
+                title: "Access rule changed",
+                description: "The rule {{target}} was changed.",
+            },
+            POLICY_DELETED: {
+                title: "Access rule removed",
+                description: "The rule {{target}} was removed.",
+            },
+            CONSENT_UPDATED: {
+                title: "Consent screen changed",
+                description: "Users see a different consent screen for {{target}}.",
+            },
+            ASSURANCE_UPDATED: {
+                title: "Assurance rule changed",
+                description: "The assurance requirement for {{target}} was changed.",
+            },
+            INVITATION_SENT: {
+                title: "Invitation sent",
+                description: "{{target}} was invited as {{authority}}.",
+            },
+            INVITATION_RESENT: {
+                title: "Invitation resent",
+                description: "The invitation for {{target}} was sent again.",
+            },
+            INVITATION_ACCEPTED: {
+                title: "Invitation accepted",
+                description: "{{target}} accepted the invitation and is now a {{authority}}.",
+            },
+            INVITATION_DELETED: {
+                title: "Invitation deleted",
+                description: "The invitation for {{target}} was deleted.",
+            },
+            JOIN_REQUEST_CREATED: {
+                title: "Join request",
+                description: "{{target}} wants to join your organisation.",
+            },
+            JOIN_REQUEST_APPROVED: {
+                title: "Join request approved",
+                description: "{{target}} was added to your organisation.",
+            },
+            JOIN_REQUEST_DENIED: {
+                title: "Join request denied",
+                description: "The join request of {{target}} was denied.",
+            },
+            MEMBER_REMOVED: {
+                title: "User removed",
+                description: "{{target}} was removed from your organisation.",
+            },
+            MEMBER_AUTHORITY_CHANGED: {
+                title: "Role changed",
+                description: "The role of {{target}} was changed.",
+            },
+            APPLICATION_MEMBER_ADDED: {
+                title: "Added to the app team",
+                description: "{{target}} was added to the team of {{application}}.",
+            },
+            APPLICATION_MEMBER_REMOVED: {
+                title: "Removed from the app team",
+                description: "{{target}} was removed from the team of {{application}}.",
+            },
+            ORGANISATION_UPDATED: {
+                title: "Organisation details updated",
+                description: "The details of {{target}} were changed.",
+            },
+            ORGANISATION_METADATA_UPDATED: {
+                title: "Organisation details updated",
+                description: "The details of {{target}} were changed.",
+            },
+            CONTRACT_REQUESTED: {
+                title: "Contract requested",
+                description: "A contract was requested for {{target}}.",
+            },
+            CONTRACT_UPDATED: {
+                title: "Contract updated",
+                description: "The contract of {{target}} was updated.",
+            },
         },
     },
     statistics: {

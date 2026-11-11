@@ -138,8 +138,9 @@ const pt: AppTranslation = {
         teams: "Equipas",
         statistics: "Estatísticas",
         support: "Apoio",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Ajude-nos a melhorar",
+        audit: "Audit log TODO",
     },
     breadCrumb: {
         access: "Início",
@@ -162,6 +163,7 @@ const pt: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contratos",
+        auditLog: "Audit log TODO",
     },
     welcome: {
         greeting: "Bem-vindo {{name}}",
@@ -454,6 +456,9 @@ const pt: AppTranslation = {
         addRedirectUrl: "+ URL de redirecionamento",
         sslGrade: "Classificação SSL (mín. B)",
         sslGradeTooltip: "Certifique-se de que o certificado SSL/TLS atinge ou excede a classificação B",
+        signingCertificateUrl: "URL do certificado de assinatura",
+        signingCertificateUrlPlaceholder: "p. ex. https://rp.example.org/jwks",
+        signingCertificateUrlTooltip: "Endpoint JWKS (RFC 7517) de onde as chaves públicas são obtidas para verificar o JWT assinado usado na autenticação do cliente no endpoint de tokens. Opcional.",
         claimsInIdToken: "Claims",
         claimsInIdTokenTooltip: "Receber todas as claims diretamente no ID Token",
         configuration: "Detalhes de configuração",
@@ -1080,6 +1085,7 @@ const pt: AppTranslation = {
             title: "SURF Servicedesk",
             description: "O portal do service desk é o principal website de apoio ao cliente da SURF.",
             link: "Abrir <strong>SURF Servicedesk</strong>",
+            feedbackHint: "This button is on every screen. Use it to quickly send feedback with a screenshot. TODO",
         },
     },
     forms: {
@@ -1276,6 +1282,20 @@ const pt: AppTranslation = {
         externalUserTooltip: "Um utilizador externo - por oposição a um utilizador interno - é um utilizador que só tem uma conta eduID e não uma conta institucional.",
         internalUser: "Utilizador interno",
         internalUserTooltip: "Um utilizador interno - por oposição a um utilizador externo - é um utilizador que iniciou sessão com uma conta institucional.",
+        sub: "Sub",
+        institution: "Instituição",
+        lastActivity: "Última atividade",
+        createdAt: "Conta criada",
+        organizationGuid: "GUID da organização",
+        yes: "Sim",
+        no: "Não",
+        appTeams: "Equipas de aplicações",
+        appsYouManage: "Aplicações que geres",
+        appTeamsInfo: "Fazes parte da equipa da aplicação e podes alterar a informação e as ligações da aplicação.",
+        toMyApps: "Para as minhas apps",
+        rolesTitle: "Funções",
+        viewRole: "Ver função",
+        roleAccess: "Esta função dá acesso às seguintes aplicações:",
     },
     changelog: {
         title: "Registo de alterações",
@@ -1579,6 +1599,207 @@ const pt: AppTranslation = {
         migrateConfirmation: "Tem a certeza absoluta de que quer migrar a aplicação <strong>{{application}}</strong> da sua organização atual <strong>{{organisation}}</strong> para a nova organização <strong>{{newOrganisation}}</strong>?",
         flash: {
             migrated: "A aplicação {{application}} foi migrada para a organização {{organisation}}",
+        },
+    },
+    auditLog: {
+        title: "Audit log TODO",
+        intro: "All activity within your IdP: who was added, which invitations and requests were handled and what needs your attention. TODO",
+        today: "Today TODO",
+        yesterday: "Yesterday TODO",
+        system: "System TODO",
+        empty: "No events found for the selected filters. TODO",
+        eventCount: "{{count}} events TODO",
+        range: "{{first}}–{{last}} of {{total}} events TODO",
+        periods: {
+            last: "Last {{days}} days TODO",
+        },
+        filters: {
+            search: "Search for event, app or person TODO",
+            allActors: "All actors TODO",
+            allCategories: "All categories TODO",
+        },
+        categories: {
+            APPLICATION: "Applications TODO",
+            ACCESS: "Access management TODO",
+            ORGANISATION: "Organisation TODO",
+            PENDING: "Pending TODO",
+        },
+        summary: {
+            pending: "Pending TODO",
+            pendingUnit: "Items waiting for your action TODO",
+            applications: "Applications TODO",
+            access: "Access management TODO",
+            organisation: "Organisation TODO",
+            changes: "Changes TODO",
+        },
+        fields: {
+            eduIdAccess: "eduID access TODO",
+            stepup: "Assurance level TODO",
+            mfa: "MFA TODO",
+            name: "Name TODO",
+        },
+        values: {
+            none: "None TODO",
+            true: "On TODO",
+            false: "Off TODO",
+            ADMIN: "Admin TODO",
+            MEMBER: "Member TODO",
+            GUEST: "Guest TODO",
+        },
+        status: {
+            PENDING: "Pending TODO",
+            APPLIED: "Approved TODO",
+            REJECTED: "Rejected TODO",
+            CANCELLED: "Withdrawn TODO",
+            RESOLVED: "Closed TODO",
+        },
+        attention: {
+            CERTIFICATE_EXPIRING: {
+                title: "Certificate expires soon TODO",
+                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems. TODO",
+            },
+        },
+        events: {
+            CHANGE_REQUEST_SUBMITTED: {
+                title: "Change request submitted TODO",
+                description: "A request for {{target}} is waiting for approval. TODO",
+            },
+            CHANGE_REQUEST_APPLIED: {
+                title: "Change request approved TODO",
+                description: "The request for {{target}} was approved and is now in effect. TODO",
+            },
+            CHANGE_REQUEST_REJECTED: {
+                title: "Change request rejected TODO",
+                description: "The request for {{target}} was rejected. TODO",
+            },
+            CHANGE_REQUEST_CANCELLED: {
+                title: "Change request withdrawn TODO",
+                description: "The request for {{target}} was withdrawn. TODO",
+            },
+            CHANGE_REQUEST_RESOLVED: {
+                title: "Change request closed TODO",
+                description: "The request for {{target}} was closed in Manage. TODO",
+            },
+            APPLICATION_CREATED: {
+                title: "Application created TODO",
+                description: "{{target}} was created. TODO",
+            },
+            APPLICATION_UPDATED: {
+                title: "Application updated TODO",
+                description: "The details of {{target}} were changed. TODO",
+            },
+            APPLICATION_DELETED: {
+                title: "Application deleted TODO",
+                description: "{{target}} was deleted. TODO",
+            },
+            CONNECTION_CREATED: {
+                title: "Connection added TODO",
+                description: "A {{protocol}} connection was added to {{target}}. TODO",
+            },
+            CONNECTION_UPDATED: {
+                title: "Connection updated TODO",
+                description: "The connection settings of {{target}} were changed. TODO",
+            },
+            CONNECTION_DELETED: {
+                title: "Connection removed TODO",
+                description: "A connection of {{target}} was removed. TODO",
+            },
+            CONNECTION_SECRET_RESET: {
+                title: "Secret reset TODO",
+                description: "The secret of {{target}} was reset. TODO",
+            },
+            PRODUCTION_REQUESTED: {
+                title: "Production status requested TODO",
+                description: "Production status was requested for {{target}}. TODO",
+            },
+            APPLICATION_CONNECTED: {
+                title: "Application connected TODO",
+                description: "Users of your organisation can now log in to {{target}}. TODO",
+            },
+            APPLICATION_DISCONNECTED: {
+                title: "Application disconnected TODO",
+                description: "Users of your organisation can no longer log in to {{target}}. TODO",
+            },
+            POLICY_CREATED: {
+                title: "Access rule added TODO",
+                description: "The rule {{target}} was added. TODO",
+            },
+            POLICY_UPDATED: {
+                title: "Access rule changed TODO",
+                description: "The rule {{target}} was changed. TODO",
+            },
+            POLICY_DELETED: {
+                title: "Access rule removed TODO",
+                description: "The rule {{target}} was removed. TODO",
+            },
+            CONSENT_UPDATED: {
+                title: "Consent screen changed TODO",
+                description: "Users see a different consent screen for {{target}}. TODO",
+            },
+            ASSURANCE_UPDATED: {
+                title: "Assurance rule changed TODO",
+                description: "The assurance requirement for {{target}} was changed. TODO",
+            },
+            INVITATION_SENT: {
+                title: "Invitation sent TODO",
+                description: "{{target}} was invited as {{authority}}. TODO",
+            },
+            INVITATION_RESENT: {
+                title: "Invitation resent TODO",
+                description: "The invitation for {{target}} was sent again. TODO",
+            },
+            INVITATION_ACCEPTED: {
+                title: "Invitation accepted TODO",
+                description: "{{target}} accepted the invitation and is now a {{authority}}. TODO",
+            },
+            INVITATION_DELETED: {
+                title: "Invitation deleted TODO",
+                description: "The invitation for {{target}} was deleted. TODO",
+            },
+            JOIN_REQUEST_CREATED: {
+                title: "Join request TODO",
+                description: "{{target}} wants to join your organisation. TODO",
+            },
+            JOIN_REQUEST_APPROVED: {
+                title: "Join request approved TODO",
+                description: "{{target}} was added to your organisation. TODO",
+            },
+            JOIN_REQUEST_DENIED: {
+                title: "Join request denied TODO",
+                description: "The join request of {{target}} was denied. TODO",
+            },
+            MEMBER_REMOVED: {
+                title: "User removed TODO",
+                description: "{{target}} was removed from your organisation. TODO",
+            },
+            MEMBER_AUTHORITY_CHANGED: {
+                title: "Role changed TODO",
+                description: "The role of {{target}} was changed. TODO",
+            },
+            APPLICATION_MEMBER_ADDED: {
+                title: "Added to the app team TODO",
+                description: "{{target}} was added to the team of {{application}}. TODO",
+            },
+            APPLICATION_MEMBER_REMOVED: {
+                title: "Removed from the app team TODO",
+                description: "{{target}} was removed from the team of {{application}}. TODO",
+            },
+            ORGANISATION_UPDATED: {
+                title: "Organisation details updated TODO",
+                description: "The details of {{target}} were changed. TODO",
+            },
+            ORGANISATION_METADATA_UPDATED: {
+                title: "Organisation details updated TODO",
+                description: "The details of {{target}} were changed. TODO",
+            },
+            CONTRACT_REQUESTED: {
+                title: "Contract requested TODO",
+                description: "A contract was requested for {{target}}. TODO",
+            },
+            CONTRACT_UPDATED: {
+                title: "Contract updated TODO",
+                description: "The contract of {{target}} was updated. TODO",
+            },
         },
     },
     statistics: {

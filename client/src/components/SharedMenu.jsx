@@ -11,6 +11,7 @@ import {
     DropdownMenuTrigger,
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -25,9 +26,10 @@ import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {useAppStore} from "../stores/AppStore.js";
 import {allMenuGroups, inviteRolesHref} from "../utils/MenuItems.js";
 import Logo from "../icons/logo2.svg";
+import {UserMenu} from "./UserMenu.jsx";
 import {OverridableComponent} from "../contexts/CustomizationContext.tsx";
 
-export const SharedMenu = () => {
+export const SharedMenu = ({setIsAuthenticated}) => {
 
     const {menuItems, currentOrganization, activeMenuItem, user, config} = useAppStore(useShallow(state => ({
         config: state.config,
@@ -156,9 +158,13 @@ export const SharedMenu = () => {
                         </SidebarGroup>
                     )}
                 </SidebarContent>
-                {/*<SidebarFooter className="group-data-[collapsible=icon]:hidden">*/}
-                {/*    <SharedMenuFooter/>*/}
-                {/*</SidebarFooter>*/}
+                <SidebarFooter>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <UserMenu setIsAuthenticated={setIsAuthenticated}/>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
             </Sidebar>
         </>
     );

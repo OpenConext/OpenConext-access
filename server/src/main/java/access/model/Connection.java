@@ -193,6 +193,7 @@ public class Connection implements NameHolder {
             this.metaData.put("grantTypes", metaDataFields.get("grants"));
             this.metaData.put("refreshTokenValidity", metaDataFields.get("refreshTokenValidity"));
             this.metaData.put("claimsInIdToken", metaDataFields.get("oidc:claims_in_id_token"));
+            this.metaData.put("signingCertificateUrl", metaDataFields.get("oidc:signingCertificateUrl"));
             this.metaData.put("redirectUrls", metaDataFields.get("redirectUrls"));
         }
 

@@ -36,7 +36,7 @@ import {
     TableHeader,
     TableRow
 } from "@surfnet/curve-react";
-import {ArrowSquareOutIcon, CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
+import {CaretLeftIcon as ArrowLeftIcon, ClockIcon, HourglassHighIcon, InfoIcon, PlusIcon, XCircleIcon} from "@phosphor-icons/react";
 import PlaceHolderImage from "../icons/placeholder-image.svg";
 import {AppLogo} from "../components/AppLogo.jsx";
 
@@ -480,9 +480,14 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
         navigate(`/application-detail/${manageType}/${manageId}/${name}`);
     }
 
-    const openRoleManagement = () => {
+    const navigateToNewRole = () => {
         const inviteUrl = config.invite.replace("/home/roles", "");
-        window.open(`${inviteUrl}/applications/${serviceProvider.id}`, "_blank").focus();
+        window.location.href = `${inviteUrl}/role/new`;
+    }
+
+    const navigateToRole = role => {
+        const inviteUrl = config.invite.replace("/home/roles", "");
+        window.location.href = `${inviteUrl}/roles/${role.id}/guests`;
     }
 
     // Carries enough context back through /policies for PolicyForm to show a
@@ -520,9 +525,8 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 <p className="role-user-count" dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("appAccess.roleUsers", {count: role.userRoleCount}))
                 }}/>
-                <Button variant="link" onClick={openRoleManagement}>
+                <Button variant="link" onClick={() => navigateToRole(role)}>
                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.details"))}}/>
-                    <ArrowSquareOutIcon/>
                 </Button>
             </CardContent>
         </Card>
@@ -587,9 +591,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                                     {`${I18n.t("appAccess.rolesTitle")} (${isEmpty(accessRoles) ? 0 : accessRoles.length})`}
                                 </p>
                                 <div className="accordion-header-actions">
-                                    <Button variant="outline" disabled={readOnly} onClick={openRoleManagement}>
+                                    <Button variant="outline" disabled={readOnly} onClick={navigateToNewRole}>
+                                        <PlusIcon/>
                                         <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("appAccess.addRole"))}}/>
-                                        <ArrowSquareOutIcon/>
                                     </Button>
                                     <AccordionTrigger className="accordion-toggle"/>
                                 </div>

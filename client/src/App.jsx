@@ -46,6 +46,7 @@ import {UserFeedbackWidget} from "./components/UserFeedbackWidget.jsx";
 import Policies from "./pages/Policies.jsx";
 import ManageDetail from "./pages/ManageDetail.jsx";
 import Statistics from "./pages/Statistics.jsx";
+import AuditLog from "./pages/AuditLog.jsx";
 import {currentOrganizationFromUser} from "./utils/Organization.js";
 import PublicStats from "./pages/PublicStats.jsx";
 import {Monitoring} from "./pages/Monitoring.jsx";
@@ -65,6 +66,13 @@ const App = () => {
     const navigate = useNavigate();
     const currentLocation = useLocation();
     const logoutUser = useLogout();
+
+    //The public pages scroll the window, so a page change must start at the top
+    useEffect(() => {
+        if (!isAuthenticated) {
+            window.scrollTo(0, 0);
+        }
+    }, [currentLocation.pathname, isAuthenticated]);
 
     const loadUserOrganization = user => {
         //Another application (e.g. Invite) can switch the organization with an organizationId query parameter,
@@ -214,7 +222,7 @@ const App = () => {
                 <Flash/>
                 {impersonator && <Impersonating/>}
                 <SidebarProvider className="app-shell">
-                    <SharedMenu currentLocation={currentLocation}/>
+                    <SharedMenu currentLocation={currentLocation} setIsAuthenticated={setIsAuthenticated}/>
                     <SidebarInset>
                         <AuthorizedHeader setIsAuthenticated={setIsAuthenticated}/>
                         {feedbackWidgetEnabled && <UserFeedbackWidget/>}
@@ -245,6 +253,7 @@ const App = () => {
                             <Route path="/accessible-apps" element={<ApplicationOverview accessible={true}/>}/>
                             <Route path="/catalogue" element={<ApplicationOverview accessible={false}/>}/>
                             <Route path="/statistics" element={<Statistics/>}/>
+                            <Route path="/audit-log" element={<AuditLog/>}/>
                             <Route path="/system/:tab?" element={<System/>}/>
                             <Route path="*" element={<NotFound/>}/>
                         </Routes>

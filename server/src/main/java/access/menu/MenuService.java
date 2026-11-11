@@ -2,10 +2,13 @@ package access.menu;
 
 import access.config.Config;
 import access.config.Feature;
+import access.invite.InviteClient;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.OrganizationMembership;
 import access.model.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -34,15 +37,21 @@ public class MenuService {
     public static final String ACCESSIBLE_APPS = "accessibleApps";
     public static final String INVITE = "invite";
     public static final String SRAM = "sram";
+    //Rendered as "Support" in the header (top right) by the clients, not in the sidebar
     public static final String SERVICE_DESK = "serviceDesk";
     public static final String FEEDBACK = "feedback";
     public static final String STATISTICS = "statistics";
+    public static final String AUDIT = "audit";
+
+    private static final Log LOG = LogFactory.getLog(MenuService.class);
 
     private final Config config;
+    private final InviteClient inviteClient;
 
     @Autowired
-    public MenuService(Config config) {
+    public MenuService(Config config, InviteClient inviteClient) {
         this.config = config;
+        this.inviteClient = inviteClient;
     }
 
     public MenuResponse menu(User user, String organizationId) {
@@ -54,7 +63,8 @@ public class MenuService {
             .map(MenuService::summary)
             .toList();
         Optional<Organization> current = currentOrganization(memberships, organizationId);
-        List<String> menuItems = filterDisabledFeatures(menuItemsForUser(user, current.orElse(null)));
+        List<String> menuItems = withoutInviteWithoutRoles(user,
+            filterDisabledFeatures(menuItemsForUser(user, current.orElse(null))));
         return new MenuResponse(
             menuItems,
             organizations,
@@ -116,9 +126,28 @@ public class MenuService {
             items.addAll(List.of(ACCESSIBLE_APPS, INVITE, SRAM));
         }
         if ((isAdmin || user.isSuperUser()) && isInstitution) {
-            items.addAll(List.of(STATISTICS, POLICIES));
+            items.addAll(List.of(STATISTICS, POLICIES, AUDIT));
         }
         return items;
+    }
+
+    /**
+     * Invite is by invitation only: without roles in Invite, and not being a super user or institution admin, there
+     * is nothing to manage there. If Invite is not available the item is kept.
+     */
+    private List<String> withoutInviteWithoutRoles(User user, List<String> items) {
+        if (!items.contains(INVITE) || user.isSuperUser() || user.isInstitutionAdmin() || user.isInstitutionAdminByInvite()) {
+            return items;
+        }
+        try {
+            if (!inviteClient.rolesPerUser(user.getSub()).isEmpty()) {
+                return items;
+            }
+        } catch (RuntimeException e) {
+            LOG.warn(String.format("Could not fetch the Invite roles for %s: %s", user.getSub(), e.getMessage()));
+            return items;
+        }
+        return items.stream().filter(item -> !INVITE.equals(item)).toList();
     }
 
     private List<String> filterDisabledFeatures(List<String> items) {

@@ -67,6 +67,7 @@ class ApplicationControllerTest extends AbstractTest {
         Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
         assertEquals(application.getName(), applicationFromDB.getName());
         assertEquals(metaDataMap, applicationFromDB.getMetaData());
+        assertAuditEvent(access.audit.AuditAction.APPLICATION_CREATED);
     }
 
     @Test
@@ -293,6 +294,7 @@ class ApplicationControllerTest extends AbstractTest {
 
         Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
         assertEquals(application.getName(), applicationFromDB.getName());
+        assertAuditEvent(access.audit.AuditAction.APPLICATION_UPDATED);
     }
 
     @Test
@@ -352,6 +354,7 @@ class ApplicationControllerTest extends AbstractTest {
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
         assertFalse(optionalApplication.isPresent());
+        assertAuditEvent(access.audit.AuditAction.APPLICATION_DELETED);
     }
 
     @Test

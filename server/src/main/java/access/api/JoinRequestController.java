@@ -1,5 +1,8 @@
 package access.api;
 
+import access.audit.AuditAction;
+import access.audit.AuditCategory;
+import access.audit.AuditLogger;
 import access.exception.DuplicateJoinRequestException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
@@ -37,11 +40,14 @@ public class JoinRequestController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final MailBox mailBox;
+    private final AuditLogger auditLogger;
 
     public JoinRequestController(JoinRequestRepository joinRequestRepository,
                                  OrganizationRepository organizationRepository,
                                  OrganizationMembershipRepository organizationMembershipRepository,
-                                 MailBox mailBox) {
+                                 MailBox mailBox,
+                                 AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
         this.joinRequestRepository = joinRequestRepository;
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
@@ -74,6 +80,8 @@ public class JoinRequestController implements UserAccessRights {
         }
         JoinRequest joinRequest = new JoinRequest(user, organization, joinRequestForm.getMessage(), joinRequestForm.getLanguage());
         joinRequest = joinRequestRepository.save(joinRequest);
+        auditLogger.log(user, organization, AuditCategory.PENDING, AuditAction.JOIN_REQUEST_CREATED,
+                "user", user.getId(), user.getName(), null);
 
         mailBox.sendJoinRequestMail(joinRequest);
 
@@ -91,6 +99,9 @@ public class JoinRequestController implements UserAccessRights {
         Organization organization = joinRequest.getOrganization();
         confirmOrganizationMembership(user, organization, Authority.ADMIN);
 
+        auditLogger.log(user, organization, AuditCategory.ORGANISATION,
+                joinRequestApproval.isApproved() ? AuditAction.JOIN_REQUEST_APPROVED : AuditAction.JOIN_REQUEST_DENIED,
+                "user", joinRequest.getUser().getId(), joinRequest.getUser().getName(), null);
         if (joinRequestApproval.isApproved()) {
             OrganizationMembership organizationMembership = new OrganizationMembership(
                     joinRequest.getUser(), organization, Authority.MEMBER);

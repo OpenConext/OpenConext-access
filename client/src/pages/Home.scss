@@ -143,6 +143,15 @@
             }
         }
 
+        // Below the page width the half-width image is narrower than the fixed hero height needs, so
+        // cover would crop the face off. Scale the whole image with the viewport instead.
+        @media (min-width: #{$mobile-width + 1}) and (max-width: 1200px) {
+            .hero-image img {
+                object-fit: contain;
+                object-position: right center;
+            }
+        }
+
         @media (max-width: $mobile-width) {
             .hero-image {
                 display: none;

@@ -2,65 +2,196 @@
 @use "../index";
 @use "../styles/vars" as *;
 
-div.profile-outer-container {
-    width: 100%;
+div.profile-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    background-color: white;
+    gap: 32px;
+    width: 100%;
+    padding: 32px 40px;
 
-    .profile-header-container {
-        background-color: var(--muted);
-        padding: 25px 50px 25px 50px;
-
-        .top-header {
-            margin-bottom: 15px;
-        }
+    > * {
+        max-width: 800px;
+        width: 100%;
     }
 
-    div.profile {
-        padding: $page-padding;
-        width: 75%;
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
 
-    }
+        .profile-header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 6px 0;
 
-    div.multi-list {
-        p {
-            font-weight: 600;
-            margin: 12px 0 0.5rem;
-        }
-        ul {
-            list-style: initial;
-            li {
-                margin-left: 15px;
+            h1 {
+                margin: 0;
+                font-weight: var(--font-weight-semibold);
+                line-height: var(--text-2xl-line-height);
+            }
+
+            p {
+                margin: 0;
+                line-height: var(--text-sm-line-height);
+            }
+
+            .profile-badge {
+                color: var(--muted-foreground);
             }
         }
-        .external-user-container {
-            display: flex;
-        }
     }
 
-    div.user-container {
-        background-color: white;
+    .profile-attributes {
         display: grid;
-        border-radius: 8px;
-        padding: 20px;
-        border: 1px solid var(--border);
-        grid-template-columns: [first] 1fr [second] 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
 
-        h5 {
-            grid-column: 1 / -1;
+        .attribute {
+            display: flex;
+            flex-direction: column;
+
+            .attribute-label {
+                color: var(--muted-foreground);
+                font-size: var(--text-xs-font-size);
+                line-height: var(--text-xs-line-height);
+            }
+
+            .attribute-value p {
+                margin: 0;
+                font-size: var(--text-sm-font-size);
+                line-height: var(--text-sm-line-height);
+                overflow-wrap: anywhere;
+            }
         }
     }
 
-
-    .delete-container {
+    section.profile-section {
         display: flex;
-        margin-top: 25px;
+        flex-direction: column;
+        gap: 16px;
 
-        button {
-            margin-left: auto;
+        h2 {
+            margin: 0;
+            font-size: var(--text-xl-font-size);
+            line-height: var(--text-xl-line-height);
+            font-weight: var(--font-weight-semibold);
         }
     }
 
+    .profile-card {
+        background-color: var(--card, white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+
+        .profile-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 24px;
+
+            .profile-card-title {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+
+                h3 {
+                    margin: 0;
+                    font-size: var(--text-xl-font-size);
+                    line-height: var(--text-xl-line-height);
+                    font-weight: var(--font-weight-semibold);
+                }
+
+                p {
+                    margin: 0;
+                    color: var(--muted-foreground);
+                    font-size: var(--text-sm-font-size);
+                    line-height: var(--text-sm-line-height);
+                }
+            }
+
+            a {
+                text-decoration: none;
+            }
+        }
+
+        .profile-card-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+
+            .profile-card-info {
+                margin: 0;
+                color: var(--muted-foreground);
+                font-size: var(--text-sm-font-size);
+                line-height: var(--text-sm-line-height);
+            }
+        }
+    }
+
+    .app-tiles {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .app-tile {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background-color: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        min-width: 0;
+
+        .app-tile-logo {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .app-tile-text {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+
+            p {
+                margin: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .app-tile-name {
+                font-size: 20px;
+                line-height: 28px;
+                font-weight: var(--font-weight-semibold);
+            }
+
+            .app-tile-organization {
+                color: var(--muted-foreground);
+                font-size: var(--text-xs-font-size);
+                line-height: var(--text-xs-line-height);
+            }
+        }
+    }
+}
+
+@media (max-width: 700px) {
+    div.profile-container {
+        padding: 24px 16px;
+
+        .profile-attributes,
+        .app-tiles {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
 }

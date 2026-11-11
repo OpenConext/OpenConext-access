@@ -64,6 +64,7 @@ class ConnectionControllerTest extends AbstractTest {
         Connection connectionFromDB = connectionRepository.findById(savedConnection.getId()).get();
         assertEquals(connection.getName(), connectionFromDB.getName());
         assertEquals(metaData, connectionFromDB.getMetaData());
+        assertAuditEvent(access.audit.AuditAction.CONNECTION_CREATED);
     }
 
     @Test
@@ -385,6 +386,10 @@ class ConnectionControllerTest extends AbstractTest {
         //tests, so JiraClient#create returns a synthetic ticket key without an actual HTTP call to Jira)
         verify(2, postRequestedFor(urlPathMatching("/manage/api/internal/change-requests"))
             .withRequestBody(containing("EduIDAccessRequest")));
+        assertEquals(2, auditEventRepository.findAll().stream()
+            .filter(event -> event.getAction().equals(access.audit.AuditAction.CHANGE_REQUEST_SUBMITTED)
+                && "EduIDAccessRequest".equals(event.getRequestType())
+                && event.getStatus().equals(access.audit.AuditStatus.PENDING)).count());
 
         //The requested state is stored locally, even though Manage itself is not updated until the change request is approved
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();

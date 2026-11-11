@@ -363,6 +363,7 @@ class ManageControllerTest extends AbstractTest {
         Map<String, Object> expectedPolicy = objectMapper.readValue(policy, new TypeReference<>() {
         });
         assertEquals(expectedPolicy, newPolicy);
+        assertAuditEvent(access.audit.AuditAction.POLICY_CREATED);
     }
 
     @Test
@@ -439,6 +440,7 @@ class ManageControllerTest extends AbstractTest {
                 .delete("/api/v1/manage/policies/{policyId}")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+        assertAuditEvent(access.audit.AuditAction.POLICY_DELETED);
     }
 
     @Test
