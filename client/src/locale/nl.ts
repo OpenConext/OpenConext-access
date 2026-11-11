@@ -1092,7 +1092,7 @@ const nl: AppTranslation = {
         cancel: "Annuleren",
         submit: "Verzenden",
         optional: "(Optioneel)",
-        createOption: "\"{{value}} aanmaken",
+        createOption: "\"{{value}}\" aanmaken",
         new: "Nieuw",
         approve: "Goedkeuren",
         create: "Aanmaken",
