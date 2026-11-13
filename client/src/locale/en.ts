@@ -31,7 +31,7 @@ const en: AppTranslation = {
         },
         loginInfo: {
             title: "Sign in / Register",
-            subTitle: "You can sign in to {{productName}} using an existing institution account, or with an eduID if you don’t have one.",
+            subTitle: "You can sign in to {{productName}} using an existing institutional account, or with an eduID if you don’t have one.",
             commercial: {
                 title: "You work for a (commercial) organisation",
                 info: [
@@ -43,7 +43,7 @@ const en: AppTranslation = {
             education: {
                 title: "You work for an institution",
                 info: [
-                    "If you are a staff member, student, or researcher at an institution that is already connected to SURF, you can sign in directly using your institution account."
+                    "If you are a staff member, student, or researcher at an institution that is already connected to SURF, you can sign in directly using your institutional account."
                 ],
                 login: "Sign in via your institution",
             },
@@ -85,7 +85,7 @@ const en: AppTranslation = {
                 title: "For institutions",
                 info: [
                     "Add your own applications, activate applications for your institution and decide who gets access.",
-                    "Sign in with your institution account and arrange everything in one place."
+                    "Sign in with your institutional account and arrange everything in one place."
                 ],
                 cta: "Sign in via your institution",
             },
@@ -101,7 +101,7 @@ const en: AppTranslation = {
             },
             institutions: {
                 info: [
-                    "Soon you can add your own applications, activate applications for your institution and decide who gets access. You manage everything in one place, with your institution account."
+                    "Soon you can add your own applications, activate applications for your institution and decide who gets access. You manage everything in one place, with your institutional account."
                 ],
             },
         },
@@ -916,17 +916,17 @@ const en: AppTranslation = {
             ix: "Application offered by a SURFconext member institution.",
             "r&s+coco": "eduGAIN application that has agreed to the Data Protection Code of Conduct and belongs to the Research & Scholarship entity category.",
             entree: "Member of the Kennisnet Entree federation.",
-            clarin: "Member of the Clarin research federation.",
+            clarin: "Member of the CLARIN research federation.",
             none: "{{organisation}} has not signed the SURFconext connection agreement.",
             "edugain (community)": "Application offered through the international research and education community via eduGAIN.",
         },
         supportedEntityCategories: "Supported entity categories",
         entityCategory: {
-            "http://wwwgeantnet/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
-            "https://refedsorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
-            "http://refedsorg/category/research-and-scholarship": "Research and Scholarship",
-            "http://clarineu/category/clarin-member": "Clarin member",
-            "http://refedsorg/category/hide-from-discovery": "Hidden from discovery",
+            "http://www.geant.net/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
+            "https://refeds.org/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
+            "http://refeds.org/category/research-and-scholarship": "Research and Scholarship",
+            "http://clarin.eu/category/clarin-member": "CLARIN member",
+            "http://refed.sorg/category/hide-from-discovery": "Hidden from discovery",
         },
         none: "None",
         interfedSource: "Federation source",
@@ -951,13 +951,13 @@ const en: AppTranslation = {
     about: {
         hero: {
             title: "About {{productName}}",
-            paragraph1: "With {{productName}}, as an institution you arrange access to digital resources and applications easily and securely. Including for collaboration beyond the boundaries of your own institution.",
-            paragraph2: "From 2027, {{productName}} will offer administrators within institutions a single system and user environment. Whether it concerns managing and granting access to guest students, guest researchers, alliances or other user groups.",
+            paragraph1: "With {{productName}}, as an institution you arrange access to digital resources and applications easily and securely, including for collaboration beyond the boundaries of your own institution.",
+            paragraph2: "From 2027, {{productName}} will offer administrators within institutions a single system and user environment, whether it concerns managing and granting access to guest students, guest researchers, alliances or other user groups.",
             paragraph3: "Do you want to offer an application? You can make it available to education and research institutions via {{productName}}.",
         },
         eduId: {
             title: "Arrange access, including with eduID",
-            description: "With {{productName}} you arrange access to applications for all your users, whether they sign in with an institution account or with eduID. You decide whether to set up access for eduID, your own login system, or both at the same time.",
+            description: "With {{productName}} you arrange access to applications for all your users, whether they sign in with an institutional account or with eduID. You decide whether to set up access for eduID, your own login system, or both at the same time.",
         },
         services: {
             title: "These services together form {{productName}}",
@@ -975,7 +975,7 @@ const en: AppTranslation = {
             invite: {
                 badge: "Planned for 2027",
                 title: "SURFconext Invite",
-                description: "Grant users (groups) temporary, role-based access to connected applications.",
+                description: "Grant users and groups temporary, role-based access to active applications.",
             },
             sram: {
                 badge: "Coming later",
@@ -1013,11 +1013,11 @@ const en: AppTranslation = {
             },
             available: {
                 question: "Can I use {{productName}} already?",
-                answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out {{productName}} without obligation in the demo environment.",
+                answer: "Some parts are already available, others will follow in the run-up to 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out {{productName}} without obligation in the demo environment.",
             },
             login: {
                 question: "What do I need to sign in?",
-                answer: "As an institution you sign in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you register. Users sign in with their institution account or with eduID.",
+                answer: "As an institution you sign in with your institutional account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you register. Users sign in with their institutional account or with eduID.",
             },
             migrate: {
                 question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
@@ -1128,9 +1128,9 @@ const en: AppTranslation = {
     feedback: {
         title: "Give feedback",
         info: "Are you satisfied with {{productName}}? Or do you have a suggestion? Let us know what you think.",
-        disclaimer: "We will use this information to fix problems, improve our products and help you. We may follow up with you regarding your feedback. For more information, please review our <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
+        disclaimer: "We will use this information to fix problems, improve our products and help you. We may follow up with you regarding your feedback. For more information, please review our <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy statement</a>.",
         help: "Need help?",
-        helpInfo: "For questions or issues, please reach out to us at <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>",
+        helpInfo: "For questions or issues, please reach out to us at <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>.",
         send: "Send feedback",
         flash: "Your feedback has been sent. Thanks!",
         widgetLabel: "Feedback",
@@ -1236,7 +1236,7 @@ const en: AppTranslation = {
             loa1: "LoA 1: username and password only",
             loa1_5: "LoA 1.5: any type of token allowed, identity not verified",
             loa2: "LoA 2: any type of token allowed, identity verified",
-            loa3: "LoA 3: hardware tokens only, identity verified",
+            loa3: "LoA 3: only hardware tokens are allowed, identity verified",
         },
         consent: {
             default_consent: "Default consent",
@@ -1304,13 +1304,13 @@ const en: AppTranslation = {
     },
     applicationConnect: {
         connect: "Activate",
-        request: "Request connection",
+        request: "Request access",
         requestMember: "Request application",
         requested: "Application requested",
         disconnect: "Deactivate",
         disconnectConfirmTitle: "Do you want to deactivate the app?",
-        disconnectRequested: "Request to deactivate",
-        disconnectRequestedTest: "Disconnect",
+        disconnectRequested: "Deactivation requested",
+        disconnectRequestedTest: "Deactivate",
         disconnectRequestedQuestion: "SURF Support will deactivate this application for you. We will create a ticket for this.",
         disconnectRequestedQuestionTest: "Are you sure you want to deactivate this application for your institution?",
         defaultAccess: "How do you want to configure default access?",
@@ -1321,7 +1321,7 @@ const en: AppTranslation = {
         defaultAccessInfo2: "After activating, you can immediately set up access to the application.",
         memberRequestInfo: {
             info: "The {{productName}} administrator of {{orgName}} must give permission to activate an application on the {{productName}} platform.",
-            subInfo: "Please indicate below why you want to activate this application. We will forward your message.",
+            subInfo: "Please indicate below why you want to activate this application. We'll forward your message and send you a copy.",
         },
         messagePlaceholder: "Your message",
         sendMessage: "Send message",
@@ -1341,7 +1341,7 @@ const en: AppTranslation = {
         cancelRequest: "Cancel request",
         cancelRequestTitle: "Cancel request",
         cancelRequestQuestion: "Are you sure you don’t want access to this application after all? We will then withdraw the connection request.",
-        cancelDisrequestQuestion: "Are you sure you still want to have access to this application? The request to disconnect will be withdrawn.",
+        cancelDisrequestQuestion: "Are you sure you still want to have access to this application? The request to deactivate will be withdrawn.",
         config: "⚡️ Configure automatic access based on attributes",
         edit: "Manage rules",
         accessFor: "There is access for:",
@@ -1359,11 +1359,11 @@ const en: AppTranslation = {
         noDecentralAccess: "This application <span class='red'>is not used</span> by collaborations.",
         roleReady: "This application <span class='green'>receives</span> roles for access.",
         notRoleReady: "This application <span class='red'>does not yet</span> receive roles for access.",
-        noRoles: "There are no outside users yet with a role",
-        roleUsers: "<strong>{{count}}</strong> users with role",
+        noRoles: "There are no outside users with a role yet",
+        roleUsers: "Users with role: <strong>{{count}}</strong>",
         eduIDOnly: "eduID only",
         everyIdp: "any IdP",
-        backToAccess: "← back to access",
+        backToAccess: "← Back to access",
         authorizationRules: "Access rules",
         noPolicies: "No access rules have been configured yet. As a result, {{productName}} will grant access to everyone at the institution.",
         pdpPolicies: "Rules",
@@ -1385,12 +1385,12 @@ const en: AppTranslation = {
         pause: "Pause",
         activateNudge: "Save your changes to apply the activation or pause.",
         targetGroup: "Target group",
-        duplicateName: "Name {{name}} already exists. Choose a different name",
+        duplicateName: "Name {{name}} already exists. Choose a different name.",
         description: "Description",
         placeholderDescription: "Describe the implications of this rule",
         placeholderTargetGroup: "Give the rule a logical name",
         allowDeny: "Allow or deny access?",
-        denyRuleTooltip: "Permit policies enforce that only a successful match of the attributes defined will result in a Permit. No match will result in a Deny.<br/><br/>Deny policies are less common to use. If the attributes in the policy match those of the person trying to sign in then this will result in a Deny. No match will result in a Permit.",
+        denyRuleTooltip: "Permit policies enforce that only a successful match of the attributes defined will result in a Permit. No match will result in a Deny.<br/><br/>Deny policies are less common to use. If the attributes in the policy match those of the person trying to sign in, then this will result in a Deny. No match will result in a Permit.",
         allow: "Allow",
         deny: "Deny",
         step: "Step-up",
@@ -1694,7 +1694,7 @@ const en: AppTranslation = {
             },
             CONNECTION_CREATED: {
                 title: "Connection added",
-                description: "A {{protocol}} connection was added to {{target}}.",
+                description: "A connection ({{protocol}}) was added to {{target}}.",
             },
             CONNECTION_UPDATED: {
                 title: "Connection updated",
@@ -1750,11 +1750,11 @@ const en: AppTranslation = {
             },
             INVITATION_ACCEPTED: {
                 title: "Invitation accepted",
-                description: "{{target}} accepted the invitation and is now a {{authority}}.",
+                description: "{{target}} accepted the invitation and now has the role {{authority}}.",
             },
             INVITATION_DELETED: {
-                title: "Invitation deleted",
-                description: "The invitation for {{target}} was deleted.",
+                title: "Invitation revoked",
+                description: "The invitation for {{target}} was revoked.",
             },
             JOIN_REQUEST_CREATED: {
                 title: "Join request",
@@ -1765,8 +1765,8 @@ const en: AppTranslation = {
                 description: "{{target}} was added to your organisation.",
             },
             JOIN_REQUEST_DENIED: {
-                title: "Join request denied",
-                description: "The join request of {{target}} was denied.",
+                title: "Join request rejected",
+                description: "The join request of {{target}} was rejected.",
             },
             MEMBER_REMOVED: {
                 title: "User removed",
@@ -1789,7 +1789,7 @@ const en: AppTranslation = {
                 description: "The details of {{target}} were changed.",
             },
             ORGANISATION_METADATA_UPDATED: {
-                title: "Organisation details updated",
+                title: "Organisation metadata updated",
                 description: "The details of {{target}} were changed.",
             },
             CONTRACT_REQUESTED: {
@@ -1846,8 +1846,8 @@ const en: AppTranslation = {
     contracts: {
         title: "Unsigned contracts",
         searchPlaceholder: "Search contracts...",
-        signee: "Signee",
-        signeeName: "Signee name",
+        signee: "Signatory",
+        signeeName: "Name of signatory",
         signeeTitle: "Job title",
         searchPlaceHolder: "Search contracts...",
         unsigned: "All unsigned contracts",
@@ -1884,7 +1884,7 @@ const en: AppTranslation = {
     },
     system: {
         cron: {
-            info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, and warns or deletes inactive users",
+            info: "Manually run the ResourceCleaner cron job. This will send contact reminders, delete inactive organisations, and warn or delete inactive users.",
             trigger: "Run",
             clear: "Clear",
         },
@@ -1975,7 +1975,7 @@ const en: AppTranslation = {
                 examples: "student@uniharderwijk.nl\nemployee@example.nl",
             },
             eduPersonEntitlement: {
-                allowed: "Lower case letters only.",
+                allowed: "Lowercase letters only.",
                 examples: "admin",
             },
             isMemberOf: {
@@ -1983,7 +1983,7 @@ const en: AppTranslation = {
                 examples: "urn:collab:org:example.nl",
             },
             inviteRole: {
-                allowed: "A role URN of SURFconext Invite, starting with urn:mace:surf.nl:invite: or urn:collab:group:, followed by lower case letters, digits or underscores. The roles of your organisation are offered in the dropdown.",
+                allowed: "A role URN of SURFconext Invite, starting with urn:mace:surf.nl:invite: or urn:collab:group:, followed by lowercase letters, digits or underscores. The roles of your organisation are offered in the dropdown.",
                 examples: "urn:mace:surf.nl:invite:my_role",
             },
             sabRole: {
@@ -2078,7 +2078,7 @@ const en: AppTranslation = {
             organizationalUnitName: {
                 urnOid: "2.5.4.11",
                 multiplicity: "multi",
-                description: "The name of the department or faculty of the user within the institution. The values are institution specific.",
+                description: "The name of the department or faculty of the user within the institution. The values are institution-specific.",
             },
             schacHomeOrganizationType: {
                 urnOid: "1.3.6.1.4.1.25178.1.2.10",
@@ -2103,18 +2103,18 @@ const en: AppTranslation = {
             },
             eduid: {
                 multiplicity: "single",
-                description: "An institution independent identifier of the user (a UUID v4), which differs per application.",
+                description: "An institution-independent identifier of the user (a UUID v4), which differs per application.",
             },
             surfCrmID: {
                 urnOid: "1.3.6.1.4.1.1076.20.100.10.50.2",
                 multiplicity: "single",
                 description: "The GUID of the user’s organisation in SURF’s CRM system.",
-                notes: "SURF specific.",
+                notes: "SURF-specific.",
             },
             preferredLanguage: {
                 urnOid: "2.16.840.1.113730.3.1.39",
                 multiplicity: "single",
-                description: "The preferred language of the user as a two letter ISO 639 code, without regional subcodes.",
+                description: "The preferred language of the user as a two-letter ISO 639 code, without regional subcodes.",
             },
             "subject-id": {
                 multiplicity: "single",
@@ -2129,7 +2129,7 @@ const en: AppTranslation = {
             eduPersonTargetedID: {
                 urnOid: "1.3.6.1.4.1.5923.1.1.1.10",
                 multiplicity: "single",
-                description: "An application specific identifier of the user, generated by SURFconext and copied from the persistent NameID.",
+                description: "An application-specific identifier of the user, generated by SURFconext and copied from the persistent NameID.",
                 notes: "Use this identifier instead of uid or mail to identify users.",
             },
             nlEduPersonOrgUnit: {
