@@ -138,6 +138,8 @@ const en: AppTranslation = {
         teams: "Teams",
         statistics: "Statistics",
         support: "Support",
+        lightMode: "Light",
+        darkMode: "Dark",
         serviceDesk: "Support",
         feedback: "Help us improve",
         audit: "Audit log",
@@ -359,7 +361,7 @@ const en: AppTranslation = {
         contractRequiredHint: {
             title: "Agreement required for publication",
             description: "Fill in all the details under My organisation.",
-            action: "Fill in details"
+            action: "Fill in details",
         },
         testSection: "Test",
         teamSection: "Team",

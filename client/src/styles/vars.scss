@@ -1,5 +1,5 @@
-$background: #eaebf0;
-$page-background: #f3f6f8;//#f7f9fa;
+$background: var(--muted, #eaebf0);
+$page-background: var(--muted, #f3f6f8);
 
 $br: 6px;
 

@@ -159,7 +159,7 @@
             color: var(--muted-foreground, #666);
 
             &:hover {
-                color: black;
+                color: var(--foreground, black);
             }
         }
 

@@ -1,6 +1,6 @@
 .application {
     position: relative;
-    background-color: white;
+    background-color: var(--card, white);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -18,7 +18,7 @@
         cursor: not-allowed;
         opacity: 0.6;
         &:hover {
-            background-color: white;
+            background-color: var(--card, white);
         }
     }
 
@@ -38,7 +38,7 @@
         height: 80px;
         padding: 12px;
         border-radius: 4px;
-        background-color: white;
+        background-color: var(--card, white);
         border: 1px solid var(--border);
     }
 

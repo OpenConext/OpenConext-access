@@ -43,7 +43,7 @@
             flex-direction: column;
             gap: $gap-xs;
             padding: 21px;
-            background-color: white;
+            background-color: var(--card, white);
             border: 1px solid $background;
             border-radius: $br;
 
@@ -98,7 +98,7 @@
             gap: $gap-md;
             align-items: start;
             padding: $gap-md 24px;
-            background-color: white;
+            background-color: var(--card, white);
             border: 1px solid #f5c9a5;
             border-radius: $br;
 
@@ -123,7 +123,7 @@
     }
 
     .events {
-        background-color: white;
+        background-color: var(--card, white);
         border: 1px solid $background;
         border-radius: $br;
         overflow: hidden;

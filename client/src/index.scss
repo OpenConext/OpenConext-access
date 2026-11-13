@@ -52,7 +52,7 @@
     label {
         display: inline-block;
         min-width: 210px;
-        color: black;
+        color: var(--foreground, black);
         position: relative;
         margin: 12px 0 0.5rem;
     }
@@ -162,7 +162,7 @@ h1.large {
 
         &.active {
             font-weight: 600;
-            color: black;
+            color: var(--foreground, black);
             border-bottom: 3px solid var(--primary);
         }
         &.disabled {

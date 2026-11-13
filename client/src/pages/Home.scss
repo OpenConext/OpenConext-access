@@ -46,7 +46,7 @@
 
     .hero {
         position: relative;
-        background-color: #ececeb;
+        background-color: var(--muted, #ececeb);
 
         .hero-inner {
             @include index.public-page-width;

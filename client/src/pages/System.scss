@@ -10,7 +10,7 @@ div.system-outer-container {
     height: 100%;
 
     div.system-container {
-        background-color: white;
+        background-color: var(--card, white);
         height: 100%;
         padding: $page-padding;
     }

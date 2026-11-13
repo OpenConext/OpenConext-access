@@ -138,6 +138,8 @@ const nl: AppTranslation = {
         teams: "Teams",
         statistics: "Statistieken",
         support: "Support",
+        lightMode: "Licht",
+        darkMode: "Donker",
         serviceDesk: "Support",
         feedback: "Help ons verbeteren",
         audit: "Audit log",

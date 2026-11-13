@@ -17,7 +17,7 @@
         color: var(--muted-foreground);
 
         &:hover {
-            color: black;
+            color: var(--foreground, black);
         }
     }
 

@@ -3,7 +3,7 @@
 .mod-invitation-form {
 
     &.inviter {
-        background-color: white;
+        background-color: var(--card, white);
 
         height: 100%;
     }

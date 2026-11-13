@@ -37,6 +37,8 @@ public class Config {
     private String minimalStepupAcrLevel;
     private boolean feedbackWidgetEnabled;
     private boolean helpEnabled = true;
+    //Feature toggle for the dark / light mode switcher; on unless explicitly disabled
+    private boolean themeSwitcherEnabled = true;
     //Comma separated locales offered in the language picker, e.g. "nl, en, pt"
     private String usedLanguages = "nl, en";
     private boolean demoSeedEnabled;
@@ -60,6 +62,7 @@ public class Config {
         this.minimalStepupAcrLevel = base.minimalStepupAcrLevel;
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
         this.helpEnabled = base.helpEnabled;
+        this.themeSwitcherEnabled = base.themeSwitcherEnabled;
         this.usedLanguages = base.usedLanguages;
         this.demoSeedEnabled = base.demoSeedEnabled;
         this.jiraBrowseBaseUrl = base.jiraBrowseBaseUrl;

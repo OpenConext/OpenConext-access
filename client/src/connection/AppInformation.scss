@@ -99,7 +99,7 @@ $width-percentage: 75%;
         }
 
         .checkbox-container {
-            background-color: white;
+            background-color: var(--card, white);
             padding: 15px;
             border: 1px solid var(--input);
             border-radius: .375rem;

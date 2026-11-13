@@ -9,6 +9,7 @@ import {Button} from "@surfnet/curve-react";
 import {useLogout} from "../hooks/UseLogout.jsx";
 import I18n from "../locale/I18n.js";
 import {sanitize} from "../utils/Utils";
+import {ThemeToggle} from "./ThemeToggle.jsx";
 
 export const AuthorizedHeader = ({setIsAuthenticated}) => {
 
@@ -33,6 +34,7 @@ export const AuthorizedHeader = ({setIsAuthenticated}) => {
             <BreadCrumb/>
             <div className="authorized-header-actions">
                 <LanguageSwitcher/>
+                <ThemeToggle/>
                 {menuItems.includes(supportMenuItem.name) &&
                     <Link to={supportMenuItem.path} className="support-link">
                         {I18n.t(`navigation.${supportMenuItem.name}`)}

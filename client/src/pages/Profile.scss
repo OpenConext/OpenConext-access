@@ -144,7 +144,7 @@ div.profile-container {
         display: flex;
         gap: 20px;
         padding: 20px;
-        background-color: white;
+        background-color: var(--card, white);
         border: 1px solid var(--border);
         border-radius: 14px;
         min-width: 0;

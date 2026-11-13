@@ -7,7 +7,7 @@ div.changelog-outer-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: white;
+    background-color: var(--card, white);
 
     .changelog-header-container {
         background-color: var(--muted);
@@ -22,7 +22,7 @@ div.changelog-outer-container {
         padding: $page-padding;
 
         .changelog-card {
-            background-color: white;
+            background-color: var(--card, white);
             border-radius: 8px;
             padding: 20px 30px;
             border: 1px solid var(--border);

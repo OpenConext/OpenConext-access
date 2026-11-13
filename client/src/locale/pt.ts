@@ -138,6 +138,8 @@ const pt: AppTranslation = {
         teams: "Equipas",
         statistics: "Estatísticas",
         support: "Apoio",
+        lightMode: "Light TODO",
+        darkMode: "Dark TODO",
         serviceDesk: "Support",
         feedback: "Ajude-nos a melhorar",
         audit: "Audit log TODO",

@@ -186,7 +186,7 @@ div.organization-outer-container {
                 gap: 35px;
                 align-content: center;
                 align-items: center;
-                background-color: #eeeef0;
+                background-color: var(--muted, #eeeef0);
                 border-radius: 8px;
 
                 svg {
