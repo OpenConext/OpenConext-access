@@ -31,7 +31,7 @@ const nl: AppTranslation = {
         },
         loginInfo: {
             title: "Inloggen / Registreren",
-            subTitle: "Je kunt inloggen op {{productName}} met een bestaand instellingsaccount, of met een eduID als je er nog geen hebt.",
+            subTitle: "Je kunt inloggen op {{productName}} met een bestaand instellingsaccount, of met een eduID als je dat niet hebt.",
             commercial: {
                 title: "Je werkt voor een (commerciële) organisatie",
                 info: [
@@ -77,7 +77,7 @@ const nl: AppTranslation = {
                 title: "Voor commerciële app-aanbieders",
                 info: [
                     "Je eigen applicaties toevoegen en ze veilig delen met onderwijs- en onderzoeksinstellingen.",
-                    "Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er een in de volgende stap aan."
+                    "Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er in de volgende stap een aan."
                 ],
                 cta: "Doorgaan met eduID",
             },
@@ -101,7 +101,7 @@ const nl: AppTranslation = {
             },
             institutions: {
                 info: [
-                    "Straks voeg je eigen applicaties toe, activeer je applicaties voor je instelling en bepaal je wie er toegang krijgt. Alles regel je op één plek, met je instellingsaccount."
+                    "Straks voeg je je eigen applicaties toe, activeer je applicaties voor je instelling en bepaal je wie er toegang krijgt. Alles regel je op één plek, met je instellingsaccount."
                 ],
             },
         },
@@ -129,7 +129,7 @@ const nl: AppTranslation = {
         invite: "Rollen",
         sram: "Samenwerkingen",
         allApps: "Alle apps",
-        organizationMaintenance: "Beheer organisatie",
+        organizationMaintenance: "Organisatiebeheer",
         organisation: "Organisatie",
         idp: "Mijn organisatie",
         users: "{{productName}}-gebruikers",
@@ -140,7 +140,7 @@ const nl: AppTranslation = {
         support: "Support",
         serviceDesk: "Support",
         feedback: "Help ons verbeteren",
-        audit: "Audit log",
+        audit: "Auditlog",
     },
     breadCrumb: {
         access: "Home",
@@ -163,7 +163,7 @@ const nl: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracten",
-        auditLog: "Audit log",
+        auditLog: "Auditlog",
     },
     welcome: {
         greeting: "Welkom, {{name}}",
@@ -190,11 +190,11 @@ const nl: AppTranslation = {
         nudgeLanding: "Je bent geen lid van een organisatie.",
         nudgeLandingLink: "Je kunt een verzoek om lid te worden versturen of je eigen organisatie aanmaken.",
         infoJoinRequestHeader: "Verzoek verstuurd",
-        infoJoinRequest: "Je verzoek om lid te worden is verzonden naar de beheerders van <strong>{{name}}</strong>. Je ontvangt een e-mail op <strong>{{email}}</strong> zodra het is geaccepteerd.",
+        infoJoinRequest: "Je verzoek om lid te worden is verzonden naar de beheerder van <strong>{{name}}</strong>. Je ontvangt een e-mail op <strong>{{email}}</strong> zodra het is geaccepteerd.",
         close: "Je kunt dit venster nu sluiten of je kunt alvast een kijkje nemen in {{productName}}.",
         toAccess: "Naar {{productName}}",
-        backToLanding: "Ga terug naar",
-        backToLandingLink: " maak je eigen organisatie aan.",
+        backToLanding: "Ga terug om",
+        backToLandingLink: " je eigen organisatie aan te maken",
         newOrganizationTitle: "Organisatie {{name}} is aangemaakt en wordt door ons gecontroleerd.",
         newOrganizationDescription: "We controleren de gegevens meestal binnen 3 werkdagen. Je kunt al direct aan de slag.",
         newJoinRequestDescription: "Je verzoek om lid te worden van {{name}} is naar de beheerder gestuurd.",
@@ -208,7 +208,7 @@ const nl: AppTranslation = {
         usersCount: "{{count}} gebruikers",
         addApps: {
             title: "Apps publiceren",
-            description: "Voeg jouw applicaties toe aan {{productName}} en deel ze met onderwijs- en onderzoeksinstellingen.",
+            description: "Voeg jouw applicaties toe aan de app-catalogus en deel ze met onderwijs- en onderzoeksinstellingen.",
             action: "Naar mijn apps",
         },
         discoverApps: {
@@ -251,7 +251,7 @@ const nl: AppTranslation = {
         optionalMessageInfo: "Dit bericht wordt meegestuurd met je verzoek.",
         requestAccess: "Toegang vragen",
         duplicate: "Er is al een openstaand verzoek voor je om lid te worden van <strong>{{name}}</strong>.",
-        flash: "Je verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>",
+        flash: "Je verzoek is verzonden naar de beheerders van <strong>{{name}}</strong>.",
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisatieregistratie. Je kunt al apps registreren in onze testomgeving. Productietoegang wordt beschikbaar zodra je organisatie is goedgekeurd.",
@@ -260,7 +260,7 @@ const nl: AppTranslation = {
         pending_approval: "In afwachting van goedkeuring",
         approved: "Goedgekeurd",
         disapproved: "Afgewezen",
-        pending_approval_action: "Terug naar in afwachting",
+        pending_approval_action: "erugzetten naar 'In afwachting'",
         approved_action: "Goedkeuren",
         disapproved_action: "Afwijzen",
         name: "Naam",
@@ -274,7 +274,7 @@ const nl: AppTranslation = {
         confirmation: "Weet je zeker dat je de status wilt wijzigen naar <strong>{{status}}</strong> voor organisatie {{name}}?",
         manageOrganizationInMutable: "Interne organisaties (bijv. IdP's van ManageImport) zijn onveranderlijk in {{productName}}. Alleen externe organisaties van commerciële dienstverleners zijn aanpasbaar.",
         flash: {
-            updated: "Organisatie {{name}} heeft nu status {{status}}",
+            updated: "Organisatie {{name}} heeft nu de status {{status}}",
             deleted: "Organisatie {{name}} is verwijderd",
             nameChange: "Organisatie {{name}} bijgewerkt",
         },
@@ -290,20 +290,20 @@ const nl: AppTranslation = {
         nameInfo: "Gebruik een naam die herkenbaar is voor instellingen",
         duplicateName: "Naam {{name}} bestaat al binnen deze organisatie. Kies een andere naam.",
         type: "Is het een applicatie of contentdienst?",
-        typeApp: "Applicatie - software die mensen gebruiken (tool, cloud-service, utility)",
+        typeApp: "Applicatie - software die mensen gebruiken (tool, clouddienst, utility)",
         typeContent: "Contentdienst - toegang tot leermateriaal (educatieve content, e-books)",
         contentAbbreviation: "Content",
-        contentInfoPre: "Een contentdienst ontvangt zo min mogelijk persoonlijke gegevens van gebruikers (",
+        contentInfoPre: "Een contentdienst ontvangt zo min mogelijk persoonsgegevens van gebruikers (",
         contentInfoLink: "lees meer over deze minimumset attributen",
         contentInfoPost: ").",
-        contentInfoTip: "Attributen voor contentaanbieders:<ul><li>Persistent of Transient NameID</li><li>schacHomeorganisation</li><li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
+        contentInfoTip: "Attributen voor contentaanbieders:<ul><li>Persistent of Transient NameID</li><li>schacHomeOrganization</li><li>eduPersonAffiliation</li><li>eduPersonScopedAffiliation</li></ul>",
         targetGroup: "Doelgroep",
         targetSURF: "Meerdere gebruikers beheerd in een (onderzoeks)groep.",
         targetSURFInfo: "Gebruikers worden individueel uitgenodigd voor de groep.",
         targetSRAM: "Studenten, medewerkers en externe partijen van één IdP‑instelling",
         targetSRAMInfo: "Zij krijgen toegang omdat zij een attribuut of rol hebben.",
         terms: "Fair Use‑voorwaarden",
-        termsInfo: "Ik bevestig dat mijn applicatie aan de voorwaarden hieronder voldoet",
+        termsInfo: "Ik bevestig dat mijn applicatie aan de voorwaarden hieronder voldoet.",
         checks: {
             personal: "Mijn applicatie verwerkt persoonsgegevens op een veilige manier",
             duration: "Ik bewaar persoonsgegevens niet langer dan nodig",
@@ -329,17 +329,17 @@ const nl: AppTranslation = {
         },
         addApplication: "App toevoegen",
         app: "App",
-        guestNoApplicationMessage: "Je hebt geen toegang tot een van de applicaties in deze organisatie.",
+        guestNoApplicationMessage: "Je hebt geen toegang tot de applicaties in deze organisatie.",
         guestNoApplicationMessageInfo: "Klopt dit niet? Neem dan contact op met <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> om je rol binnen deze organisatie te bespreken.",
         deleteConfirmation: "Weet je zeker dat je de organisatie {{name}} wilt verwijderen?",
-        filterMine: "Applicaties die ik beheer",
-        filterAll: "Alle applicaties",
+        filterMine: "Apps die ik beheer",
+        filterAll: "Alle apps",
         notInAppTeam: "Je zit niet in het app-team van deze app.",
         catalog: {
             terms: "Algemene voorwaarden voor apps in de app-catalogus van {{productName}}",
             fairUse: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. één onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",
             agreement: "Is je app bedoeld voor gebruik door volledige onderwijsinstellingen? Dan teken je een <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>SURF‑verbindingsovereenkomst</a>.",
-            disclaimer: "<strong>Let op</strong>: deze voorwaarden gelden alleen voor koppelingen die geschikt zijn voor productiegebruik. Koppelingen die nog niet geschikt zijn voor productie kun je rechtstreeks koppelen met test-IdP's.’",
+            disclaimer: "<strong>Let op</strong>: deze voorwaarden gelden alleen voor koppelingen die geschikt zijn voor productiegebruik. Je kunt rechtstreeks koppelingen maken met test-identiteitsproviders met koppelingen die nog niet geschikt zijn voor productiegebruik.",
             fairUseExternal: "Is je app bedoeld voor een specifieke gebruikersgroep (bijv. één onderzoeksgroep)? Dan valt deze onder het <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>Fair Use‑beleid</a>.",
             agreementExternal: "Is je app bedoeld voor gebruik door volledige onderwijsinstellingen? Dan teken je een <a class='actionable' href='https://surf.nl/fair-use' target='_blank'>SURF‑verbindingsovereenkomst</a>.",
             disclaimerExternal: "<strong>Let op</strong>: deze voorwaarden gelden alleen voor koppelingen die geschikt zijn voor productiegebruik. Je kunt rechtstreeks koppelingen maken met test-identiteitsproviders met koppelingen die nog niet geschikt zijn voor productiegebruik.",
@@ -363,7 +363,7 @@ const nl: AppTranslation = {
         },
         testSection: "Test",
         teamSection: "Team",
-        duplicatedName: "Een koppeling met naam {{name}} bestaat al voor deze applicatie.",
+        duplicatedName: "Er bestaat al een koppeling met de naam {{name}}.",
         duplicateEntityID: "Een koppeling met Entity‑ID {{entityID}} bestaat al",
         alllConnections: "App-informatie & koppelingen",
         alllConnectionsInfo: "Alle koppelingen van de applicatie {{name}}",
@@ -1247,7 +1247,7 @@ const nl: AppTranslation = {
     },
     tooltips: {
         userIcon: "Gebruiker {{name}} is aangemaakt op {{createdAt}} en werd laatst gezien op {{lastActivity}}",
-        organizationsIcon: "Organisatie {{name}} is aangemaakt op {{createdAt}} en heeft status {{status}}",
+        organizationsIcon: "Organisatie {{name}} is aangemaakt op {{createdAt}} en heeft de status {{status}}",
     },
     footer: {
         terms: "Voorwaarden",
@@ -1602,7 +1602,7 @@ const nl: AppTranslation = {
         },
     },
     auditLog: {
-        title: "Audit log",
+        title: "Auditlog",
         intro: "Alle activiteit binnen jouw IdP: wie is toegevoegd, welke uitnodigingen en verzoeken zijn afgehandeld en waar je aandacht nodig is.",
         today: "Vandaag",
         yesterday: "Gisteren",
