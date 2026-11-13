@@ -69,25 +69,25 @@ public class MailBox {
 
     private static Reader templateReader(String resourceName) {
         InputStream override = MailBox.class.getClassLoader()
-                .getResourceAsStream("myCustomizations/templates/" + resourceName);
+            .getResourceAsStream("myCustomizations/templates/" + resourceName);
         if (override != null) {
             return new InputStreamReader(override, StandardCharsets.UTF_8);
         }
         InputStream fallback = MailBox.class.getClassLoader()
-                .getResourceAsStream("templates/" + resourceName);
+            .getResourceAsStream("templates/" + resourceName);
         return fallback != null ? new InputStreamReader(fallback, StandardCharsets.UTF_8) : null;
     }
 
     public MailBox(
-            JavaMailSender mailSender,
-            String emailFrom,
-            String serviceDeskEmail,
-            String supportEmail,
-            String jiraErrorEmail,
-            String clientUrl,
-            String environment,
-            String productName,
-            ObjectMapper objectMapper) throws IOException {
+        JavaMailSender mailSender,
+        String emailFrom,
+        String serviceDeskEmail,
+        String supportEmail,
+        String jiraErrorEmail,
+        String clientUrl,
+        String environment,
+        String productName,
+        ObjectMapper objectMapper) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
         this.serviceDeskEmail = serviceDeskEmail;
@@ -107,7 +107,7 @@ public class MailBox {
     public void sendInviteMail(Invitation invitation) {
         Language language = invitation.getLanguage();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),
-                invitation.getOrganization().getName());
+            invitation.getOrganization().getName());
         Map<String, Object> variables = new HashMap<>();
         variables.put("invitation", invitation);
         variables.put("title", title);
@@ -135,9 +135,9 @@ public class MailBox {
         variables.put("url", String.format("%s/accept?hash=%s", clientUrl, invitation.getHash()));
 
         sendMail(String.format("invitation_%s", language.name()),
-                title,
-                variables,
-                invitation.getEmail());
+            title,
+            variables,
+            invitation.getEmail());
     }
 
     @SneakyThrows
@@ -149,7 +149,7 @@ public class MailBox {
                                       String deepLink) {
         Language language = Language.valueOf(preferredLanguage());
         String title = String.format(subjects.get(language.name()).get("connectionRequest"),
-                serviceProviderName);
+            serviceProviderName);
         Map<String, Object> variables = new HashMap<>();
         if (StringUtils.hasText(message)) {
             //Templates use {{message}} (Mustache-escaped) with CSS white-space:pre-line for line breaks -
@@ -166,9 +166,9 @@ public class MailBox {
             variables.put("environment", environment);
         }
         sendMail(String.format("connection_request_%s", language.name()),
-                title,
-                variables,
-                recipients.stream().map(user -> user.getEmail()).toList().toArray(new String[]{}));
+            title,
+            variables,
+            recipients.stream().map(user -> user.getEmail()).toList().toArray(new String[]{}));
     }
 
     @SneakyThrows
@@ -179,8 +179,8 @@ public class MailBox {
                                          String serviceProviderEntityId) {
         Language language = Language.valueOf(preferredLanguage());
         String title = String.format(subjects.get(language.name()).get("newConnectionMade"),
-                serviceProviderName,
-                identityProviderName);
+            serviceProviderName,
+            identityProviderName);
         Map<String, Object> variables = new HashMap<>();
         variables.put("title", title);
         variables.put("identityProviderName", identityProviderName);
@@ -191,9 +191,9 @@ public class MailBox {
             variables.put("environment", environment);
         }
         sendMail(String.format("new_connection_made_%s", language.name()),
-                title,
-                variables,
-                recipients.toArray(new String[]{}));
+            title,
+            variables,
+            recipients.toArray(new String[]{}));
     }
 
     @SneakyThrows
@@ -201,7 +201,7 @@ public class MailBox {
         Language language = joinRequest.getLanguage();
         Organization organization = joinRequest.getOrganization();
         String title = String.format(subjects.get(language.name()).get("newJoinRequest"),
-                joinRequest.getUser().getName(), organization.getName());
+            joinRequest.getUser().getName(), organization.getName());
         Map<String, Object> variables = new HashMap<>();
         variables.put("joinRequest", joinRequest);
         variables.put("title", title);
@@ -216,13 +216,13 @@ public class MailBox {
 
         variables.put("url", String.format("%s/users/%s/joins", clientUrl, organization.getId()));
         List<String> emails = organization.getOrganizationMemberships().stream()
-                .filter(organizationMembership -> organizationMembership.getAuthority().equals(Authority.ADMIN))
-                .map(organizationMembership -> organizationMembership.getUser().getEmail())
-                .toList();
+            .filter(organizationMembership -> organizationMembership.getAuthority().equals(Authority.ADMIN))
+            .map(organizationMembership -> organizationMembership.getUser().getEmail())
+            .toList();
         sendMail(String.format("join_request_%s", language.name()),
-                title,
-                variables,
-                emails.toArray(new String[0]));
+            title,
+            variables,
+            emails.toArray(new String[0]));
     }
 
     @SneakyThrows
@@ -230,7 +230,7 @@ public class MailBox {
         Language language = joinRequest.getLanguage();
         Organization organization = joinRequest.getOrganization();
         String title = String.format(subjects.get(language.name()).get("acceptJoinRequest"),
-                organization.getName());
+            organization.getName());
         Map<String, Object> variables = new HashMap<>();
         variables.put("joinRequest", joinRequest);
         variables.put("title", title);
@@ -239,9 +239,9 @@ public class MailBox {
         }
         variables.put("url", String.format("%s/organization/%s/applications", clientUrl, organization.getId()));
         sendMail(String.format("join_request_accepted_%s", language.name()),
-                title,
-                variables,
-                joinRequest.getUser().getEmail());
+            title,
+            variables,
+            joinRequest.getUser().getEmail());
     }
 
     @SneakyThrows
@@ -249,7 +249,7 @@ public class MailBox {
         Language language = joinRequest.getLanguage();
         Organization organization = joinRequest.getOrganization();
         String title = String.format(subjects.get(language.name()).get("deniedJoinRequest"),
-                organization.getName());
+            organization.getName());
         Map<String, Object> variables = new HashMap<>();
         variables.put("joinRequest", joinRequest);
         variables.put("title", title);
@@ -257,9 +257,9 @@ public class MailBox {
             variables.put("environment", environment);
         }
         sendMail(String.format("join_request_denied_%s", language.name()),
-                title,
-                variables,
-                joinRequest.getUser().getEmail());
+            title,
+            variables,
+            joinRequest.getUser().getEmail());
     }
 
     @SneakyThrows
@@ -292,10 +292,10 @@ public class MailBox {
             attachment = new MailAttachment(filename, screenshotBytes, contentType);
         }
         sendMail("feedback_en",
-                "Feedback",
-                variables,
-                attachment,
-                supportEmail);
+            "Feedback",
+            variables,
+            attachment,
+            supportEmail);
     }
 
     @SneakyThrows
@@ -372,6 +372,10 @@ public class MailBox {
         helper.setText(plainText, htmlText);
         //Inline (cid:) image: Gmail and Outlook strip inline SVG and data: URIs. Must be added after setText
         helper.addInline(LOGO_CONTENT_ID, logoResource(), "image/png");
+        if (to == null || to.length == 0) {
+            //We need a fallback
+            to = new String[]{this.supportEmail};
+        }
         helper.setTo(to);
         helper.setFrom(emailFrom);
         if (attachment != null && attachment.bytes != null) {
