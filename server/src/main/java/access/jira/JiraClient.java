@@ -120,7 +120,13 @@ public class JiraClient {
             fields.put("duedate", dueDate());
         }
         fields.put("customfield_" + emailToCustomField(isQtc), issue.getEmailTo());
-        fields.put("issuetype", ImmutableMap.of("id", isQtc ? issueTypeQTC : issueType));
+
+        String issueTypeProject = isQtc ? issueTypeQTC : issueType;
+        if (StringUtils.hasText(issueTypeProject)) {
+            fields.put("issuetype", ImmutableMap.of("id", issueTypeProject));
+        } else {
+            fields.put("customfield_" + accessRequestTypeCustomField(), "SURF Access");
+        }
         fields.put("summary", issue.getSummary());
         fields.put("description", issue.getDescription());
         //We don't send keys with null or empty values
@@ -222,7 +228,7 @@ public class JiraClient {
             .filter(entry -> entry.getKey().equals(type))
             .map(Map.Entry::getValue)
             .findFirst()
-            .get();
+            .orElse("");
     }
 
     private String spCustomField() {
@@ -243,6 +249,10 @@ public class JiraClient {
 
     private String accessCatalogusAppURLCustomField() {
         return this.customField("accessCatalogusAppURL");
+    }
+
+    private String accessRequestTypeCustomField() {
+        return this.customField("SURF Access Request Type");
     }
 
     private String customField(String name) {
