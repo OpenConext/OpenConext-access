@@ -13,11 +13,11 @@ const en: AppTranslation = {
     },
     landing: {
         header: {
-            login: "Sign in / Sign up",
+            login: "Sign in / Register",
             loginProvider: "Sign in as app provider",
             loginInstitution: "Sign in as institution",
             profile: "Profile",
-            logout: "Log out",
+            logout: "Sign out",
             system: "System",
         },
         hero: {
@@ -30,7 +30,7 @@ const en: AppTranslation = {
             },
         },
         loginInfo: {
-            title: "Sign in / Sign up",
+            title: "Sign in / Register",
             subTitle: "You can sign in to {{productName}} using an existing institution account, or with an eduID if you don’t have one.",
             commercial: {
                 title: "You work for a (commercial) organisation",
@@ -530,7 +530,7 @@ const en: AppTranslation = {
                 anonymous: {
                     name: "Anonymous",
                     title: "Most privacy-friendly",
-                    info: "This bundle is specifically designed for those who want to work with a high level of privacy awareness. You'll receive a transient NameID, meaning the user will receive a new one each time they log in to the service.",
+                    info: "This bundle is specifically designed for those who want to work with a high level of privacy awareness. You'll receive a transient NameID, meaning the user will receive a new one each time they sign in to the service.",
                 },
                 pseudonymized: {
                     name: "Pseudonymised",
@@ -575,7 +575,7 @@ const en: AppTranslation = {
             institution: "Institution IdP",
             eduIdAccess: "Access for eduID users",
             eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Read more about eduID</a>",
-            eduIdAccessLabel: "eduID users may log in via this app connection",
+            eduIdAccessLabel: "eduID users may sign in via this app connection",
             eduIdAccessChangeRequestPending: "There is an outstanding change request for eduID access. The requested change will only take effect once it has been approved.",
         },
         connectionOverview: {
@@ -687,11 +687,11 @@ const en: AppTranslation = {
             fillAppInformation: "Fill in app information",
         },
         testConnectionSection: {
-            info: "Use the details below to test whether you can log in to your application via this connection.",
+            info: "Use the details below to test whether you can sign in to your application via this connection.",
             infoRS: "Use the information below to configure the resource server.",
             testAccountsTitle: "Test accounts",
             testAccountsOptional: "(Optional)",
-            testAccountsInfo: "You can use the test accounts to test whether you can log in to your application via this connection. Use the credentials below after activating the test accounts.",
+            testAccountsInfo: "You can use the test accounts to test whether you can sign in to your application via this connection. Use the credentials below after activating the test accounts.",
         },
         customersSection: {
             question: "Which customers ('OpenID Connect' connections) do you want to grant access to?",
@@ -1016,8 +1016,8 @@ const en: AppTranslation = {
                 answer: "Some parts are already available, others follow towards 2027. The IdP dashboard and SP dashboard are fully available; SURFconext Invite and other parts come later. You can already try out {{productName}} without obligation in the demo environment.",
             },
             login: {
-                question: "What do I need to log in?",
-                answer: "As an institution you log in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you sign up. Users log in with their institution account or with eduID.",
+                question: "What do I need to sign in?",
+                answer: "As an institution you sign in with your institution account. If you want to offer an application you use eduID; if you do not have one yet, you create it when you register. Users sign in with their institution account or with eduID.",
             },
             migrate: {
                 question: "I currently use SURFconext, SRAM or SURFsecureID. Do I need to do anything?",
@@ -1390,12 +1390,12 @@ const en: AppTranslation = {
         placeholderDescription: "Describe the implications of this rule",
         placeholderTargetGroup: "Give the rule a logical name",
         allowDeny: "Allow or deny access?",
-        denyRuleTooltip: "Permit policies enforce that only a successful match of the attributes defined will result in a Permit. No match will result in a Deny.<br/><br/>Deny policies are less common to use. If the attributes in the policy match those of the person trying to log in then this will result in a Deny. No match will result in a Permit.",
+        denyRuleTooltip: "Permit policies enforce that only a successful match of the attributes defined will result in a Permit. No match will result in a Deny.<br/><br/>Deny policies are less common to use. If the attributes in the policy match those of the person trying to sign in then this will result in a Deny. No match will result in a Permit.",
         allow: "Allow",
         deny: "Deny",
         step: "Step-up",
         allAttributesMatch: "Match all or any filters?",
-        allAttributesMatchTooltip: "Rules with a logical AND rule enforce that all attributes defined must match those of the person trying to log in.<br/><br/>Rules defined with a logical OR only require one of the attributes to match the attributes of the person requesting access.",
+        allAttributesMatchTooltip: "Rules with a logical AND rule enforce that all attributes defined must match those of the person trying to sign in.<br/><br/>Rules defined with a logical OR only require one of the attributes to match the attributes of the person requesting access.",
         all: "All",
         any: "Any",
         filters: "Filter on attribute(s)",
@@ -1464,7 +1464,7 @@ const en: AppTranslation = {
         warningENPlaceholder: "Pay attention...",
         warningNLPlaceholder: "Let op...",
         preview: {
-            loginTitle: "Log in via SURFconext TEST2",
+            loginTitle: "Sign in via SURFconext TEST2",
             consentQuestion: "Do you consent to sharing your information?",
             willReceive: "{{name}} will receive",
             displayName: "Display name",
@@ -1518,8 +1518,8 @@ const en: AppTranslation = {
         flash: {
             assuranceUpdated: "Multi-factor authentication has been updated",
         },
-        loaTooLow: "The security of your account is too low to set up this assurance level. Please log out and log in again with a higher security setting.",
-        mfaLoaTooLow: "The security of your account is too low to set up this method for MFA. Please log out and log in again with a higher security setting.",
+        loaTooLow: "The security of your account is too low to set up this assurance level. Please sign out and sign in again with a higher security setting.",
+        mfaLoaTooLow: "The security of your account is too low to set up this method for MFA. Please sign out and sign in again with a higher security setting.",
     },
     error: {
         title: "An unexpected error occurred",
@@ -1543,7 +1543,7 @@ const en: AppTranslation = {
             stepTitle: "MFA rule",
             stepInfo: "Defines which LoA level applies when logging in (via SURFsecureID).",
             stepChoice: "Choose MFA rule if:",
-            stepExplanation: "→ Users may access the application, but must log in with multi-factor authentication.",
+            stepExplanation: "→ Users may access the application, but must sign in with multi-factor authentication.",
         },
         negateApplication: "Select <strong>Negate selection</strong> to apply this rule to all service providers except the ones you chose.",
         serviceProvidersPlaceholder: "All applications",
@@ -1714,11 +1714,11 @@ const en: AppTranslation = {
             },
             APPLICATION_CONNECTED: {
                 title: "Application connected",
-                description: "Users of your organisation can now log in to {{target}}.",
+                description: "Users of your organisation can now sign in to {{target}}.",
             },
             APPLICATION_DISCONNECTED: {
                 title: "Application disconnected",
-                description: "Users of your organisation can no longer log in to {{target}}.",
+                description: "Users of your organisation can no longer sign in to {{target}}.",
             },
             POLICY_CREATED: {
                 title: "Access rule added",
