@@ -1127,7 +1127,7 @@ const en: AppTranslation = {
     },
     feedback: {
         title: "Give feedback",
-        info: "Are you satisfied with {{productName}}? Or do you have a suggestion? Let us know what you think.” NL heeft hier hardcoded “SURF Access",
+        info: "Are you satisfied with {{productName}}? Or do you have a suggestion? Let us know what you think.",
         disclaimer: "We will use this information to fix problems, improve our products and help you. We may follow up with you regarding your feedback. For more information, please review our <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
         help: "Need help?",
         helpInfo: "For questions or issues, please reach out to us at <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>",
