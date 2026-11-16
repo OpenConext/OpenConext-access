@@ -90,6 +90,8 @@ public class ApplicationController implements UserAccessRights {
     private final ConnectionProviderConverter connectionProviderConverter;
     private final OrganizationRepository organizationRepository;
     private final Map<String, Object> arpInfo;
+    //The names of the privacy attributes that must be filled in before the privacy section is complete
+    private final List<String> requiredPrivacyAttributes;
     private final List<String> eduidIdpEntityIdentifiers;
     private final AuditLogger auditLogger;
 
@@ -114,6 +116,12 @@ public class ApplicationController implements UserAccessRights {
         this.s3Storage = s3Storage;
         this.connectionProviderConverter = connectionProviderConverter;
         this.organizationRepository = organizationRepository;
+        List<Map<String, Object>> privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
+        });
+        this.requiredPrivacyAttributes = privacyInfo.stream()
+                .filter(attribute -> Boolean.TRUE.equals(attribute.get("required")))
+                .map(attribute -> (String) attribute.get("name"))
+                .toList();
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
     }
@@ -322,10 +330,23 @@ public class ApplicationController implements UserAccessRights {
             Hibernate.initialize(application.getConnections());
         }
         applicationRepository.save(application);
-        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
-                AuditAction.APPLICATION_UPDATED, "application", application.getId(), application.getName(), null);
+        //The user saves the application at every step of the information wizard, only the save that completes the
+        //privacy section is an update worth recording
+        if (privacySectionFilled(application)) {
+            auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
+                    AuditAction.APPLICATION_UPDATED, "application", application.getId(), application.getName(), null);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
+    }
+
+    private boolean privacySectionFilled(Application application) {
+        Object privacy = application.getMetaData().get("privacy");
+        if (!(privacy instanceof Map<?, ?> privacyMap)) {
+            return false;
+        }
+        return requiredPrivacyAttributes.stream()
+                .allMatch(name -> privacyMap.get(name) instanceof String value && StringUtils.hasText(value));
     }
 
     @DeleteMapping({"", "/{applicationId}"})

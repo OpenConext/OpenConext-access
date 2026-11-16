@@ -24,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -271,11 +272,28 @@ class ApplicationControllerTest extends AbstractTest {
                 .withBody(body)));
     }
 
+    //Changing the metadata of an application is propagated to the connections in Manage
+    private void stubForApplicationMetaDataChange() {
+        super.stubForGetProvider(EntityType.oidc10_rp, MANAGE_IDENTIFIER, "5");
+        Connection connectionProd = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_PROD)).get();
+        connectionProd.setManageIdentifier("5");
+        super.stubForSaveProvider(connectionProd);
+        Connection connectionTest = connectionRepository.findById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
+        super.stubForSaveProvider(connectionTest);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+    }
+
     @Test
     void update() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        stubForApplicationMetaDataChange();
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         application.setName("Changed");
+        //The update is only recorded when the privacy section is filled in
+        application.getMetaData().put("privacy", new HashMap<>(Map.of(
+                "what_data", "Every", "access_data", "Everybody", "country", "NL",
+                "security_measures", "Secure", "dpa_type", "dpa_supplied_by_service",
+                "privacy_policy_url_en", "https://privacy.en", "privacy_policy_url_nl", "https://privacy.nl")));
         Organization organization = application.getOrganization();
         //Otherwise rest-assured does not deserialize the Organization
         Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
@@ -295,6 +313,34 @@ class ApplicationControllerTest extends AbstractTest {
         Application applicationFromDB = applicationRepository.findById(savedApplication.getId()).get();
         assertEquals(application.getName(), applicationFromDB.getName());
         assertAuditEvent(access.audit.AuditAction.APPLICATION_UPDATED);
+    }
+
+    @Test
+    void updateWithoutPrivacyIsNotAudited() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        stubForApplicationMetaDataChange();
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        application.setName("Changed");
+        //The user is still in the information wizard, the privacy section is not filled in yet
+        application.getMetaData().put("privacy", new HashMap<>(Map.of("dpa_type", "dpa_supplied_by_service")));
+        Organization organization = application.getOrganization();
+        Map<String, Object> applicationData = objectMapper.convertValue(application, new TypeReference<>() {
+        });
+        applicationData.put("organization", Map.of("id", organization.getId()));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(csrfHeader(accessCookieFilter))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(applicationData)
+                .put("/api/v1/applications")
+                .then()
+                .statusCode(201);
+
+        assertEquals("Changed", applicationRepository.findById(application.getId()).get().getName());
+        assertNoAuditEvent(access.audit.AuditAction.APPLICATION_UPDATED);
     }
 
     @Test

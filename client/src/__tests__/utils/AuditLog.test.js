@@ -15,6 +15,18 @@ describe("AuditLog", () => {
         expect(groups[1].key).toBe("2026-11-06");
     });
 
+    it("reads epoch seconds and sorts newest first", () => {
+        const seconds = (...args) => new Date(...args).getTime() / 1000 + 0.833;
+        const events = [
+            {id: 1, createdAt: seconds(2026, 10, 6, 16, 48)},
+            {id: 2, createdAt: seconds(2026, 10, 9, 10, 15)},
+            {id: 3, createdAt: seconds(2026, 10, 9, 11, 42)}
+        ];
+        const groups = groupByDay(events);
+        expect(groups.map(g => g.key)).toEqual(["2026-11-09", "2026-11-06"]);
+        expect(groups[0].events.map(e => e.id)).toEqual([3, 2]);
+    });
+
     it("returns no groups without events", () => {
         expect(groupByDay([])).toEqual([]);
     });

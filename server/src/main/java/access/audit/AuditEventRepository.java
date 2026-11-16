@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -19,7 +20,7 @@ public interface AuditEventRepository extends JpaRepository<AuditEvent, Long> {
             SELECT e FROM audit_events e
             WHERE e.organizationId = :organizationId AND e.createdAt >= :from AND e.createdAt < :to
               AND (:actorId IS NULL OR e.actorUserId = :actorId)
-              AND (:category IS NULL OR e.category = :category)
+              AND e.category IN :categories
               AND (:query IS NULL OR LOWER(e.targetName) LIKE :query OR LOWER(e.actorName) LIKE :query)
             ORDER BY e.createdAt DESC, e.id DESC
             """)
@@ -27,18 +28,20 @@ public interface AuditEventRepository extends JpaRepository<AuditEvent, Long> {
                             @Param("from") Instant from,
                             @Param("to") Instant to,
                             @Param("actorId") Long actorId,
-                            @Param("category") AuditCategory category,
+                            @Param("categories") Collection<AuditCategory> categories,
                             @Param("query") String query,
                             Pageable pageable);
 
     @Query("""
             SELECT e.category, COUNT(e) FROM audit_events e
             WHERE e.organizationId = :organizationId AND e.createdAt >= :from AND e.createdAt < :to
+              AND (:actorId IS NULL OR e.actorUserId = :actorId)
             GROUP BY e.category
             """)
     List<Object[]> countByCategory(@Param("organizationId") Long organizationId,
                                    @Param("from") Instant from,
-                                   @Param("to") Instant to);
+                                   @Param("to") Instant to,
+                                   @Param("actorId") Long actorId);
 
     List<AuditEvent> findByOrganizationIdAndStatus(Long organizationId, AuditStatus status);
 

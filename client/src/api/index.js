@@ -118,16 +118,21 @@ export function sendFeedback(formData) {
 
 export function auditLog(organizationId, {from, to, actorId, category, query, pageNumber = 0, pageSize = 25} = {}) {
     const params = new URLSearchParams({organizationId, pageNumber, pageSize});
-    Object.entries({from, to, actorId, category, query})
+    //More categories can be selected at once, an empty selection means all categories
+    Object.entries({from, to, actorId, category: Array.isArray(category) ? category.join(",") : category, query})
         .filter(([, value]) => !isEmpty(value))
         .forEach(([key, value]) => params.set(key, value));
     return fetchJson(`/api/v1/audit-log?${params.toString()}`);
 }
 
-export function auditLogSummary(organizationId, {from, to} = {}) {
+export function auditLogSummary(organizationId, {from, to, actorId} = {}) {
     const params = new URLSearchParams({organizationId});
-    Object.entries({from, to}).filter(([, value]) => !isEmpty(value)).forEach(([key, value]) => params.set(key, value));
+    Object.entries({from, to, actorId}).filter(([, value]) => !isEmpty(value)).forEach(([key, value]) => params.set(key, value));
     return fetchJson(`/api/v1/audit-log/summary?${params.toString()}`);
+}
+
+export function auditLogTasks(organizationId) {
+    return fetchJson(`/api/v1/audit-log/tasks?organizationId=${organizationId}`);
 }
 
 export function auditLogActors(organizationId) {

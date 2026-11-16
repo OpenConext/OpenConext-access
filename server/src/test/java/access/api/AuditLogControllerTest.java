@@ -101,6 +101,38 @@ class AuditLogControllerTest extends AbstractTest {
     }
 
     @Test
+    void filtersMultipleCategories() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        changeAuthorityOfMember(accessCookieFilter);
+
+        long both = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .queryParam("organizationId", shareLogicsId())
+                .queryParam("category", "APPLICATION", "ORGANISATION")
+                .get("/api/v1/audit-log")
+                .then().extract().jsonPath().getLong("totalElements");
+        assertEquals(1, both);
+    }
+
+    @Test
+    void tasks() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+
+        List<Map<String, Object>> tasks = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .queryParam("organizationId", shareLogicsId())
+                .get("/api/v1/audit-log/tasks")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(joinRequestRepository.findByOrganization(organizationRepository.findById(shareLogicsId()).orElseThrow()).size(),
+                tasks.stream().filter(task -> "JOIN_REQUEST".equals(task.get("type"))).count());
+    }
+
+    @Test
     void summaryAndActors() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         changeAuthorityOfMember(accessCookieFilter);
@@ -126,6 +158,29 @@ class AuditLogControllerTest extends AbstractTest {
                 });
         assertEquals(1, actors.size());
         assertTrue(actors.get(0).containsKey("name"));
+
+        //The counts follow the actor filter
+        Map<String, Object> byActor = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .queryParam("organizationId", shareLogicsId())
+                .queryParam("actorId", ((Number) actors.get(0).get("id")).longValue())
+                .get("/api/v1/audit-log/summary")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, ((Number) byActor.get("ORGANISATION")).intValue());
+
+        Map<String, Object> otherActor = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .queryParam("organizationId", shareLogicsId())
+                .queryParam("actorId", -1)
+                .get("/api/v1/audit-log/summary")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, ((Number) otherActor.get("ORGANISATION")).intValue());
     }
 
     @Test

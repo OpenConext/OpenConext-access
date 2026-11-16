@@ -208,6 +208,24 @@ const pt: AppTranslation = {
         toMyApps: "Para as minhas aplicações",
         toRoles: "Para as funções",
         usersCount: "{{count}} utilizadores",
+        openTasks: {
+            title: "Open tasks TODO",
+            JOIN_REQUEST: {
+                title: "Access request from {{name}} TODO",
+                description: "{{name}} wants to be added to {{organization}}. TODO",
+                action: "Review TODO",
+            },
+            CHANGE_REQUEST: {
+                title: "Change request for {{target}} TODO",
+                description: "{{name}} requested a change for {{target}}. It is waiting for approval. TODO",
+                action: "To application TODO",
+            },
+            CERTIFICATE_EXPIRING: {
+                title: "Certificate expires soon TODO",
+                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems. TODO",
+                action: "To my organisation TODO",
+            },
+        },
         addApps: {
             title: "Adicione a(s) sua(s) aplicação(ões)",
             description: "Adicione a(s) sua(s) aplicação(ões) ao catálogo de aplicações para as disponibilizar às instituições.",
@@ -1618,7 +1636,10 @@ const pt: AppTranslation = {
         filters: {
             search: "Search for event, app or person TODO",
             allActors: "All actors TODO",
-            allCategories: "All categories TODO",
+            activeFilters: "Active filters: TODO",
+            clearFilters: "Clear filters TODO",
+            removeFilter: "Remove filter {{filter}} TODO",
+            actor: "Actor: {{name}} TODO",
         },
         categories: {
             APPLICATION: "Applications TODO",
@@ -1627,8 +1648,6 @@ const pt: AppTranslation = {
             PENDING: "Pending TODO",
         },
         summary: {
-            pending: "Pending TODO",
-            pendingUnit: "Items waiting for your action TODO",
             applications: "Applications TODO",
             access: "Access management TODO",
             organisation: "Organisation TODO",
@@ -1654,12 +1673,6 @@ const pt: AppTranslation = {
             REJECTED: "Rejected TODO",
             CANCELLED: "Withdrawn TODO",
             RESOLVED: "Closed TODO",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificate expires soon TODO",
-                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems. TODO",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

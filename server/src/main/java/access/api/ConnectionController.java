@@ -279,8 +279,12 @@ public class ConnectionController implements UserAccessRights {
             //returning the connection to the client
             refreshAllowedResourceServers(connection, manage);
         }
-        audit(user, connection, AuditAction.CONNECTION_UPDATED, eduIdAccessChanged ?
-                AuditLogger.details("field", "eduIdAccess", "from", previousEduIdAccess, "to", !previousEduIdAccess) : null);
+        //Connections are saved continuously while they are configured, only the ones that are production ready are
+        //worth recording
+        if (ConnectionStatus.PROD_READY.equals(connection.getStatus())) {
+            audit(user, connection, AuditAction.CONNECTION_UPDATED, eduIdAccessChanged ?
+                    AuditLogger.details("field", "eduIdAccess", "from", previousEduIdAccess, "to", !previousEduIdAccess) : null);
+        }
         return connection;
     }
 

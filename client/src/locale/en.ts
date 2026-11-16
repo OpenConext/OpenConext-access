@@ -142,7 +142,7 @@ const en: AppTranslation = {
         darkMode: "Dark",
         serviceDesk: "Support",
         feedback: "Help us improve",
-        audit: "Audit log",
+        audit: "Activities",
     },
     breadCrumb: {
         access: "Home",
@@ -165,7 +165,7 @@ const en: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracts",
-        auditLog: "Audit log",
+        auditLog: "Activities",
     },
     welcome: {
         greeting: "Welcome, {{name}}",
@@ -208,6 +208,24 @@ const en: AppTranslation = {
         toMyApps: "To my apps",
         toRoles: "To roles",
         usersCount: "{{count}} users",
+        openTasks: {
+            title: "Open tasks",
+            JOIN_REQUEST: {
+                title: "Access request from {{name}}",
+                description: "{{name}} wants to be added to {{organization}}.",
+                action: "Review",
+            },
+            CHANGE_REQUEST: {
+                title: "Change request for {{target}}",
+                description: "{{name}} requested a change for {{target}}. It is waiting for approval.",
+                action: "To application",
+            },
+            CERTIFICATE_EXPIRING: {
+                title: "Certificate expires soon",
+                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems.",
+                action: "To my organisation",
+            },
+        },
         addApps: {
             title: "Publish app(s)",
             description: "Add your app(s) to the application catalog to make them available to institutions.",
@@ -1604,7 +1622,7 @@ const en: AppTranslation = {
         },
     },
     auditLog: {
-        title: "Audit log",
+        title: "Activities",
         intro: "All activity within your IdP: who was added, which invitations and requests were handled and what needs your attention.",
         today: "Today",
         yesterday: "Yesterday",
@@ -1618,7 +1636,10 @@ const en: AppTranslation = {
         filters: {
             search: "Search for event, app or person",
             allActors: "All actors",
-            allCategories: "All categories",
+            activeFilters: "Active filters:",
+            clearFilters: "Clear filters",
+            removeFilter: "Remove filter {{filter}}",
+            actor: "Actor: {{name}}",
         },
         categories: {
             APPLICATION: "Applications",
@@ -1627,8 +1648,6 @@ const en: AppTranslation = {
             PENDING: "Pending",
         },
         summary: {
-            pending: "Pending",
-            pendingUnit: "Items waiting for your action",
             applications: "Applications",
             access: "Access management",
             organisation: "Organisation",
@@ -1654,12 +1673,6 @@ const en: AppTranslation = {
             REJECTED: "Rejected",
             CANCELLED: "Withdrawn",
             RESOLVED: "Closed",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificate expires soon",
-                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems.",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

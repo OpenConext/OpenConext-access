@@ -1,0 +1,68 @@
+@use "../styles/vars" as *;
+
+.open-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 40px;
+
+    .open-tasks-header {
+        display: flex;
+        align-items: center;
+        gap: $gap-xs;
+
+        h2 {
+            margin: 0;
+            font-size: var(--text-xl-font-size);
+            line-height: var(--text-xl-line-height);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .spacer {
+            flex: 1;
+        }
+    }
+
+    .task-list {
+        background-color: var(--card, white);
+        border: 1px solid rgba(10, 10, 10, 0.1);
+        border-radius: 14px;
+        overflow: hidden;
+
+        .task {
+            display: flex;
+            align-items: center;
+            gap: $gap-md;
+            padding: $gap-md 20px;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid $background;
+            }
+
+            .task-marker {
+                box-sizing: border-box;
+                flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                border: 1.5px dashed #525252;
+                border-radius: 50%;
+            }
+
+            .what {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                gap: 2px;
+                min-width: 0;
+
+                .title {
+                    font-weight: 500;
+                }
+
+                .description {
+                    color: #525252;
+                }
+            }
+        }
+    }
+}

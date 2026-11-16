@@ -142,7 +142,7 @@ const nl: AppTranslation = {
         darkMode: "Donker",
         serviceDesk: "Support",
         feedback: "Help ons verbeteren",
-        audit: "Audit log",
+        audit: "Activiteiten",
     },
     breadCrumb: {
         access: "Home",
@@ -165,7 +165,7 @@ const nl: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracten",
-        auditLog: "Audit log",
+        auditLog: "Activiteiten",
     },
     welcome: {
         greeting: "Welkom, {{name}}",
@@ -208,6 +208,24 @@ const nl: AppTranslation = {
         toMyApps: "Naar mijn apps",
         toRoles: "Naar rollen",
         usersCount: "{{count}} gebruikers",
+        openTasks: {
+            title: "Openstaande taken",
+            JOIN_REQUEST: {
+                title: "Toegangsverzoek van {{name}}",
+                description: "{{name}} wil toegevoegd worden tot {{organization}}.",
+                action: "Beoordelen",
+            },
+            CHANGE_REQUEST: {
+                title: "Wijzigingsverzoek voor {{target}}",
+                description: "{{name}} heeft een wijziging aangevraagd voor {{target}}. Deze wacht op goedkeuring.",
+                action: "Naar applicatie",
+            },
+            CERTIFICATE_EXPIRING: {
+                title: "Certificaat verloopt binnenkort",
+                description: "Het SAML-signingcertificaat van jouw IdP verloopt op {{date}}. Vervang het tijdig om inlogproblemen te voorkomen.",
+                action: "Naar mijn organisatie",
+            },
+        },
         addApps: {
             title: "Apps publiceren",
             description: "Voeg jouw applicaties toe aan {{productName}} en deel ze met onderwijs- en onderzoeksinstellingen.",
@@ -1604,7 +1622,7 @@ const nl: AppTranslation = {
         },
     },
     auditLog: {
-        title: "Audit log",
+        title: "Activiteiten",
         intro: "Alle activiteit binnen jouw IdP: wie is toegevoegd, welke uitnodigingen en verzoeken zijn afgehandeld en waar je aandacht nodig is.",
         today: "Vandaag",
         yesterday: "Gisteren",
@@ -1618,7 +1636,10 @@ const nl: AppTranslation = {
         filters: {
             search: "Zoek op gebeurtenis, app of persoon",
             allActors: "Alle uitvoerders",
-            allCategories: "Alle categorieën",
+            activeFilters: "Actieve filters:",
+            clearFilters: "Wis filters",
+            removeFilter: "Verwijder filter {{filter}}",
+            actor: "Uitvoerder: {{name}}",
         },
         categories: {
             APPLICATION: "Applicaties",
@@ -1627,8 +1648,6 @@ const nl: AppTranslation = {
             PENDING: "Openstaand",
         },
         summary: {
-            pending: "Openstaand",
-            pendingUnit: "Items wachten op jouw actie",
             applications: "Applicaties",
             access: "Toegangsbeheer",
             organisation: "Organisatie",
@@ -1654,12 +1673,6 @@ const nl: AppTranslation = {
             REJECTED: "Afgewezen",
             CANCELLED: "Ingetrokken",
             RESOLVED: "Afgesloten",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificaat verloopt binnenkort",
-                description: "Het SAML-signingcertificaat van jouw IdP verloopt op {{date}}. Vervang het tijdig om inlogproblemen te voorkomen.",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

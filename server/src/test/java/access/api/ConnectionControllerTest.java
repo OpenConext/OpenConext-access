@@ -116,6 +116,36 @@ class ConnectionControllerTest extends AbstractTest {
 
         Connection connectionFromDB = connectionRepository.findById(savedConnection.getId()).get();
         assertEquals(connection.getName(), connectionFromDB.getName());
+        //A connection that is not production ready is saved continuously, that is not recorded
+        assertNoAuditEvent(access.audit.AuditAction.CONNECTION_UPDATED);
+    }
+
+    @Test
+    void updateProductionReady() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+
+        super.stubForSaveProvider(connection);
+        Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForSaveIdentityProvider(idp);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .then()
+            .statusCode(201);
+
+        assertAuditEvent(access.audit.AuditAction.CONNECTION_UPDATED);
     }
 
     @Test
