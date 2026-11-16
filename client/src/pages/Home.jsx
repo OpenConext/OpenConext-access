@@ -9,8 +9,9 @@ import WelcomePublishApps from "../icons/landing/home_publish_apps.svg";
 import WelcomeActivateApps from "../icons/landing/home_activate_apps.svg";
 import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
 const heroImage = new URL("../icons/landing/home_hero.png", import.meta.url).href;
-const providersImage = new URL("../icons/landing/home_bottom_left.svg", import.meta.url).href;
-const institutionsImage = new URL("../icons/landing/home_bottom_right.svg", import.meta.url).href;
+const providersImage = new URL("../icons/landing/home_start_provider.svg", import.meta.url).href;
+const institutionsImage = new URL("../icons/landing/home_start_institution.svg", import.meta.url).href;
+import {ArrowDownIcon} from "@phosphor-icons/react";
 import PublicStats from "./PublicStats.jsx";
 import {loginTimeFrame} from "../api/index.js";
 
@@ -96,10 +97,12 @@ export const Home = () => {
                             </Button> :
                             <Button onClick={scrollToGettingStarted}>
                                 <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.header.login"))}}/>
+                                <ArrowDownIcon aria-hidden="true"/>
                             </Button>}
                     </div>
                     <div className="hero-image" aria-hidden="true">
                         <img src={heroImage} alt="" loading="lazy"/>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <span key={n} className={`hero-block hero-block-${n}`}/>)}
                     </div>
                 </div>
             </section>

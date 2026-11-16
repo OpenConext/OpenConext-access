@@ -54,6 +54,11 @@
             min-width: 180px;
         }
 
+        // Search field, selects and the primary button share one height
+        > button[data-slot="button"] {
+            height: $control-height;
+        }
+
         div.filter-select__value-container {
             min-height: $control-height;
         }

@@ -179,19 +179,9 @@ h1.large {
 
 
 
-// curve-react's Tooltip arrow is position: absolute but has no offset along the side axis, so it
-// ends up in the middle of the tooltip (a dot over the text). Pin it to the edge facing the trigger.
+// curve-react's Tooltip arrow already sits on the edge facing the trigger for top/bottom (below/above the
+// tooltip body, as in the design system). Left/right need no override either of the vertical offset.
 [data-slot="tooltip-content"] > [data-side] {
-    &[data-side="top"] {
-        top: auto;
-        bottom: -4px;
-    }
-
-    &[data-side="bottom"] {
-        top: -4px;
-        bottom: auto;
-    }
-
     &[data-side="left"],
     &[data-side="inline-start"] {
         left: auto;

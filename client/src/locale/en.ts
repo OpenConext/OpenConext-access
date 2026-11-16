@@ -348,7 +348,7 @@ const en: AppTranslation = {
             action: "Add app",
         },
         addApplication: "Add app",
-        app: "APP",
+        app: "App",
         guestNoApplicationMessage: "You do not have access to any of the applications in this organisation.",
         guestNoApplicationMessageInfo: "Not correct? Then contact <a class='actionable' href='mailto:{{mail}}'>{{mail}}</a> to discuss your role within this organisation.",
         deleteConfirmation: "Are you sure you want to delete the organisation {{name}}?",

@@ -10,7 +10,6 @@ Accept invitation:
 Invitation received from: {{senderName}} ({{senderOrganization}})
 {{#message}}
 
-Personal message from {{senderName}}:
 {{{message}}}
 {{/message}}
 {{/content}}
