@@ -7,10 +7,6 @@ import I18n from "../locale/I18n";
 import {auditLogTasks} from "../api/index.js";
 import {isEmpty} from "../utils/Utils.js";
 
-const formatDate = value => new Date(value).toLocaleDateString(I18n.locale, {
-    day: "numeric", month: "long", year: "numeric"
-});
-
 //The items that wait for an action of an institution admin, not bound to a period
 const OpenTasks = ({organizationId}) => {
 
@@ -31,8 +27,6 @@ const OpenTasks = ({organizationId}) => {
                 return `/users/${organizationId}/joins`;
             case "CHANGE_REQUEST":
                 return task.applicationId ? `/connection/${task.applicationId}` : null;
-            case "CERTIFICATE_EXPIRING":
-                return `/idp/${organizationId}`;
             default:
                 return null;
         }
@@ -41,8 +35,7 @@ const OpenTasks = ({organizationId}) => {
     const params = task => ({
         name: task.name || I18n.t("auditLog.system"),
         target: task.targetName || "",
-        organization: task.organizationName || "",
-        date: task.expiresAt ? formatDate(task.expiresAt) : ""
+        organization: task.organizationName || ""
     });
 
     return (

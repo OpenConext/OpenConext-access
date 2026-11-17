@@ -4,11 +4,8 @@ import access.audit.AuditCategory;
 import access.audit.AuditEvent;
 import access.audit.AuditEventRepository;
 import access.audit.AuditStatus;
-import access.audit.CertificateExpiry;
 import access.audit.ChangeRequestReconciler;
 import access.exception.NotFoundException;
-import access.manage.Manage;
-import access.model.EntityType;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.User;
@@ -54,15 +51,12 @@ public class AuditLogController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final JoinRequestRepository joinRequestRepository;
     private final ChangeRequestReconciler changeRequestReconciler;
-    private final Manage manage;
 
     public AuditLogController(AuditEventRepository auditEventRepository,
                               OrganizationRepository organizationRepository,
                               JoinRequestRepository joinRequestRepository,
-                              ChangeRequestReconciler changeRequestReconciler,
-                              Manage manage) {
+                              ChangeRequestReconciler changeRequestReconciler) {
         this.changeRequestReconciler = changeRequestReconciler;
-        this.manage = manage;
         this.auditEventRepository = auditEventRepository;
         this.organizationRepository = organizationRepository;
         this.joinRequestRepository = joinRequestRepository;
@@ -107,11 +101,8 @@ public class AuditLogController implements UserAccessRights {
         auditEventRepository.countByCategory(organization.getId(), start(from), end(to), actorId)
                 .forEach(row -> result.put(((AuditCategory) row[0]).name(), row[1]));
         //Items that wait for an action of the admin are not bound to the period
-        List<Map<String, Object>> attention = attention(organization);
-        result.put("attention", attention);
         result.put(AuditCategory.PENDING.name(), joinRequestRepository.findByOrganization(organization).size()
-                + auditEventRepository.countByOrganizationIdAndStatus(organization.getId(), AuditStatus.PENDING)
-                + attention.size());
+                + auditEventRepository.countByOrganizationIdAndStatus(organization.getId(), AuditStatus.PENDING));
         return ResponseEntity.ok(result);
     }
 
@@ -142,7 +133,6 @@ public class AuditLogController implements UserAccessRights {
             task.put("createdAt", event.getCreatedAt());
             tasks.add(task);
         });
-        tasks.addAll(attention(organization));
         return ResponseEntity.ok(tasks);
     }
 
@@ -154,23 +144,6 @@ public class AuditLogController implements UserAccessRights {
                 .map(row -> Map.of("id", row[0], "name", row[1] == null ? "" : row[1]))
                 .toList();
         return ResponseEntity.ok(actors);
-    }
-
-    //Derived from the IdP metadata at request time: a certificate that expires is a state, not an event
-    private List<Map<String, Object>> attention(Organization organization) {
-        if (!StringUtils.hasText(organization.getManageIdentifier())) {
-            return List.of();
-        }
-        try {
-            Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp,
-                    organization.getManageIdentifier());
-            return CertificateExpiry.expiringSoon(identityProvider, Instant.now()).stream()
-                    .map(expiresAt -> Map.<String, Object>of("type", "CERTIFICATE_EXPIRING", "expiresAt", expiresAt.toString()))
-                    .toList();
-        } catch (RuntimeException e) {
-            LOG.warn("Could not determine the certificates of " + organization.getName() + ": " + e.getMessage());
-            return List.of();
-        }
     }
 
     private Organization institutionAdminOrganization(User user, Long organizationId) {

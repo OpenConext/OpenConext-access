@@ -221,11 +221,6 @@ const nl: AppTranslation = {
                 description: "{{name}} heeft een wijziging aangevraagd voor {{target}}. Deze wacht op goedkeuring.",
                 action: "Naar applicatie",
             },
-            CERTIFICATE_EXPIRING: {
-                title: "Certificaat verloopt binnenkort",
-                description: "Het SAML-signingcertificaat van jouw IdP verloopt op {{date}}. Vervang het tijdig om inlogproblemen te voorkomen.",
-                action: "Naar mijn organisatie",
-            },
         },
         addApps: {
             title: "Apps publiceren",

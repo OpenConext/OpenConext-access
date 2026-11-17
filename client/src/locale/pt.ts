@@ -221,11 +221,6 @@ const pt: AppTranslation = {
                 description: "{{name}} requested a change for {{target}}. It is waiting for approval. TODO",
                 action: "To application TODO",
             },
-            CERTIFICATE_EXPIRING: {
-                title: "Certificate expires soon TODO",
-                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems. TODO",
-                action: "To my organisation TODO",
-            },
         },
         addApps: {
             title: "Adicione a(s) sua(s) aplicação(ões)",

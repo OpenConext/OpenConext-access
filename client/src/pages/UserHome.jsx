@@ -19,7 +19,8 @@ import {applicationsCountByOrganization, publicServiceProviders} from "../api/in
 
 const UserHome = () => {
 
-    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
+        config: state.config,
         user: state.user,
         currentOrganization: state.currentOrganization
     })));
@@ -77,7 +78,7 @@ const UserHome = () => {
     }
 
     const alertInfo = () => {
-        const isNew = getParameterByName("new");
+        const isNew = getParameterByName("new") && !config.testEnvironment;
         if (isNew) {
             return (
                 <Alert variant={"info"} className="w-[520px]">

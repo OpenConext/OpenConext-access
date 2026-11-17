@@ -41,7 +41,8 @@ const appFilters = {
 
 const Organization = () => {
 
-    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
+        config: state.config,
         user: state.user,
         currentOrganization: state.currentOrganization,
     })));
@@ -111,7 +112,7 @@ const Organization = () => {
 
     const alertInfo = () => {
         //Set after the creation of an organization, which has no home to show this on
-        if (getParameterByName("new")) {
+        if (getParameterByName("new") && !config.testEnvironment) {
             return (
                 <Alert variant={"info"}>
                     <HourglassIcon/>
