@@ -2472,10 +2472,10 @@ html-url-attributes@^3.0.0:
   resolved "https://registry.yarnpkg.com/html-url-attributes/-/html-url-attributes-3.0.1.tgz#83b052cd5e437071b756cd74ae70f708870c2d87"
   integrity sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==
 
-html2canvas-pro@^2.6.3:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.6.3.tgz#8fa2f79390c93ed79f87ddd9ff01479caf0f6e2e"
-  integrity sha512-le85rmO0p7b0lkkMJsb0TTb7w6zFgn7jol18N0pAUYRPkjYIkYQz+jMf1mznrRIzi2x7sKWpErIpP11ZsUjjtQ==
+html2canvas-pro@^2.6.4:
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.6.4.tgz#687784cb0e722f5dde63cde30684bd686e3be11f"
+  integrity sha512-1SMOfXwMACgQPt1wcKOtuRnBxkcREiJQdOyVpgp6a4/z9Rb/v7QPcvyu5GlxdDDiMznLwKxX5KwvtSlNlZJ7Wg==
 
 http-proxy-middleware@^4.2.1:
   version "4.2.1"
@@ -3616,10 +3616,10 @@ possible-typed-array-names@^1.0.0, possible-typed-array-names@^1.1.0:
   resolved "https://registry.yarnpkg.com/possible-typed-array-names/-/possible-typed-array-names-1.1.0.tgz#93e3582bc0e5426586d9d07b79ee40fc841de4ae"
   integrity sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==
 
-postcss@^8.5.31, postcss@^8.5.32:
-  version "8.5.32"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.32.tgz#fbccef8388a0c77508c713bfd37728d646595803"
-  integrity sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==
+postcss@^8.5.32, postcss@^8.5.33:
+  version "8.5.33"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.33.tgz#088a2fee1bdee7ea1ffaf8abb4288513e7097ab0"
+  integrity sha512-RVHEU9/Pp1Fnjr/MpAJsZoADukCKhfIi15OunEYiGktIkYLkPVvC1sioWolGDS7XByMTx9m/IGbro0Js13zhnQ==
   dependencies:
     nanoid "^3.3.20"
     picocolors "^1.1.1"
