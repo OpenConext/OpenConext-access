@@ -186,6 +186,7 @@ const nl: AppTranslation = {
         confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties.",
         newOrganization: "Nieuwe organisatie aangemaakt",
         flash: "Organisatie {{name}} aangemaakt",
+        flashWithTicket: "Organisatie {{name}} aangemaakt (referentienummer {{jiraKey}})",
     },
     userHome: {
         greeting: "{{name}}",
@@ -289,6 +290,7 @@ const nl: AppTranslation = {
         memberCount: "# Leden",
         applicationCount: "# Apps",
         adminEmail: "E-mailadres beheerder",
+        ticketKey: "Jira-ticket",
         status: "Status",
         searchPlaceHolder: "Zoek organisaties...",
         confirmation: "Weet je zeker dat je de status wilt wijzigen naar <strong>{{status}}</strong> voor organisatie {{name}}?",
@@ -597,6 +599,7 @@ const nl: AppTranslation = {
             eduIdAccessInfo: "Vink je deze optie aan, dan krijgen alle eduID-gebruikers toegang tot deze app-koppeling. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Lees meer over eduID</a>",
             eduIdAccessLabel: "eduID-gebruikers mogen inloggen via deze app-koppeling",
             eduIdAccessChangeRequestPending: "Er is een openstaand wijzigingsverzoek voor toegang voor eduID-gebruikers. De wijziging gaat pas in nadat deze is goedgekeurd.",
+            eduIdAccessChangeRequestPendingWithTicket: "Er is een openstaand wijzigingsverzoek voor toegang voor eduID-gebruikers (ticket {{ticketKey}}). De wijziging gaat pas in nadat deze is goedgekeurd.",
         },
         connectionOverview: {
             disclaimer: "Het client‑secret wordt slechts één keer getoond. Kopieer het nu; anders moet je een nieuw secret genereren.",

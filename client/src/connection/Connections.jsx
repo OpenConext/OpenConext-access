@@ -1016,7 +1016,7 @@ export const Connections = ({
                         <CheckCircleIcon/>
                         <AlertTitle>{I18n.t("connection.productionStatusSection.readyTitle")}</AlertTitle>
                     </Alert>}
-                {(isRs && !isEmpty(jiraKey)) && renderProductionStatusRequested()}
+                {(isRs && !isEmpty(productionRequestKey())) && renderProductionStatusRequested()}
                 {isRp && <p>{I18n.t("connection.testConnectionSection.info")}</p>}
                 {isRs && <p>{I18n.t("connection.testConnectionSection.infoRS")}</p>}
                 {showFreshlyGeneratedSecret &&
@@ -1107,8 +1107,8 @@ export const Connections = ({
                             </AlertAction>
                         </AlertDescription>
                     </Alert>}
-                {!isEmpty(jiraKey) && renderProductionStatusRequested()}
-                {(pendingProd && isEmpty(jiraKey)) &&
+                {!isEmpty(productionRequestKey()) && renderProductionStatusRequested()}
+                {(pendingProd && isEmpty(productionRequestKey())) &&
                     alertInfo(I18n.t("connection.productionStatusSection.pendingProdDisclaimerDescription"),
                         I18n.t("connection.productionStatusSection.pendingProdDisclaimerTitle"))}
                 {(!pendingProd && !appInformationComplete) &&
@@ -1131,7 +1131,8 @@ export const Connections = ({
                         I18n.t("connection.productionStatusSection.fillAppInformation"),
                         "warning")}
                 {connection.eduIdAccessChangeRequestPending &&
-                    alertInfo(I18n.t("connection.visibilities.eduIdAccessChangeRequestPending"), null, null, null, "warning")}
+                    alertInfo(I18n.t(`connection.visibilities.eduIdAccessChangeRequestPending${isEmpty(connection.eduIdAccessChangeRequestTicketKey) ? "" : "WithTicket"}`,
+                        {ticketKey: connection.eduIdAccessChangeRequestTicketKey}), null, null, null, "warning")}
                 {!isRs &&
                     <>
                         <div className="visibility-options-container">
@@ -1228,6 +1229,9 @@ export const Connections = ({
         );
     }
 
+    //The key from the publish response, or the one stored on the connection (survives a reload)
+    const productionRequestKey = () => jiraKey || connection?.ticketKey;
+
     const renderProductionStatusRequested = () => {
         return (
             <Alert variant="info">
@@ -1235,7 +1239,7 @@ export const Connections = ({
                 <AlertTitle>{I18n.t("connection.connections.requestProductionStatusPostTitle")}</AlertTitle>
                 <AlertDescription dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(I18n.t("connection.connections.requestProductionStatusPostDescription",
-                        {jiraKey: jiraKey}))
+                        {jiraKey: productionRequestKey()}))
                 }}/>
             </Alert>
         );

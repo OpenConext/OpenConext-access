@@ -186,6 +186,7 @@ const en: AppTranslation = {
         confirmationAfterTest: "Your organisation has been created. You can continue adding applications.",
         newOrganization: "New organisation created",
         flash: "Organisation {{name}} created",
+        flashWithTicket: "Organisation {{name}} created (reference number {{jiraKey}})",
     },
     userHome: {
         greeting: "{{name}}",
@@ -289,6 +290,7 @@ const en: AppTranslation = {
         memberCount: "# Members",
         applicationCount: "# Apps",
         adminEmail: "Admin email",
+        ticketKey: "Jira ticket",
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",
@@ -597,6 +599,7 @@ const en: AppTranslation = {
             eduIdAccessInfo: "If you check this option, all eduID users will get access to the application connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Read more about eduID</a>",
             eduIdAccessLabel: "eduID users may log in via this app connection",
             eduIdAccessChangeRequestPending: "There is an outstanding change request for eduID access. The requested change will only take effect once it has been approved.",
+            eduIdAccessChangeRequestPendingWithTicket: "There is an outstanding change request for eduID access (ticket {{ticketKey}}). The requested change will only take effect once it has been approved.",
         },
         connectionOverview: {
             disclaimer: "The client secret is shown only once. Copy it now; otherwise you will have to generate a new secret.",

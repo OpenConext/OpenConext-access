@@ -193,7 +193,7 @@ public class ApplicationController implements UserAccessRights {
                     List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
                     connection.convertChangeRequests(changeRequests);
                     if (status.equals(ConnectionStatus.PROD_READY) && !connection.getProtocol().equals(EntityType.oauth20_rs)) {
-                        connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                        this.resolveEduIdAccessChangeRequest(connection);
                     }
                     boolean isTestAccepted = getData(provider).get("state").equals(State.testaccepted.name());
                     //If a connection is PENDING_PROD and does not have a prodaccepted change request we can conclude that it is rejected in Manage
@@ -230,20 +230,21 @@ public class ApplicationController implements UserAccessRights {
     //an eduID access change request (see ConnectionController#eduIdAccessChangeRequest) is scoped to the eduID
     //identity provider(s), so it must be queried separately
     @SuppressWarnings("unchecked")
-    private boolean isEduIdAccessChangeRequestOutstanding(Connection connection) {
+    private void resolveEduIdAccessChangeRequest(Connection connection) {
         String entityId = (String) connection.getMetaData().get("entityID");
-        if (!StringUtils.hasText(entityId)) {
-            return false;
-        }
-        return eduidIdpEntityIdentifiers.stream()
-            .map(manage::identityProviderByEntityID)
-            .map(manage::getChangeRequestsIdentityProvider)
-            .flatMap(List::stream)
-            .anyMatch(changeRequest -> {
-                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
-                Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
-                return entityId.equals(allowedEntities.get("name"));
-            });
+        Optional<Map<String, Object>> outstanding = StringUtils.hasText(entityId) ?
+            eduidIdpEntityIdentifiers.stream()
+                .map(manage::identityProviderByEntityID)
+                .map(manage::getChangeRequestsIdentityProvider)
+                .flatMap(List::stream)
+                .filter(changeRequest -> {
+                    Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
+                    Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
+                    return entityId.equals(allowedEntities.get("name"));
+                })
+                .findFirst() : Optional.empty();
+        connection.setEduIdAccessChangeRequestPending(outstanding.isPresent());
+        connection.setEduIdAccessChangeRequestTicketKey(outstanding.map(cr -> (String) cr.get("ticketKey")).orElse(null));
     }
 
     @PostMapping({"", "/"})

@@ -143,7 +143,7 @@ public class ConnectionController implements UserAccessRights {
             if (connection.getStatus().equals(ConnectionStatus.PROD_READY)) {
                 connection.convertChangeRequests(manage.getChangeRequests(connection));
                 if (!connection.getProtocol().equals(EntityType.oauth20_rs)) {
-                    connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                    this.resolveEduIdAccessChangeRequest(connection);
                 }
             }
             //Not part of the RS's own Manage entity (see mergeMetaData) - always re-derived from the relying
@@ -266,7 +266,7 @@ public class ConnectionController implements UserAccessRights {
             connection = this.productionReadyChangeRequests(connection, user);
             connection.convertChangeRequests(manage.getChangeRequests(connection));
             if (!isResourceServer) {
-                connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                this.resolveEduIdAccessChangeRequest(connection);
             }
         } else {
             connection = saveConnection(connection);
@@ -462,6 +462,7 @@ public class ConnectionController implements UserAccessRights {
         LOG.debug("Change request response from manage: " + changeRequestResponse);
 
         connection.setStatus(ConnectionStatus.PENDING_PROD);
+        connection.setTicketKey(jiraKey);
         saveConnection(connection);
         //Only now that Manage and the local connection reflect the request - a Jira outage must not roll that back
         jiraResult.throwIfFailed();
@@ -580,20 +581,21 @@ public class ConnectionController implements UserAccessRights {
     //Unlike #changeRequests / #convertChangeRequests - which are scoped to this connection's own manage entity -
     //an eduID access change request is scoped to the eduID identity provider(s), so it must be queried separately
     @SuppressWarnings("unchecked")
-    private boolean isEduIdAccessChangeRequestOutstanding(Connection connection) {
+    private void resolveEduIdAccessChangeRequest(Connection connection) {
         String entityId = (String) connection.getMetaData().get("entityID");
-        if (!StringUtils.hasText(entityId)) {
-            return false;
-        }
-        return eduidIdpEntityIdentifiers.stream()
-            .map(manage::identityProviderByEntityID)
-            .map(manage::getChangeRequestsIdentityProvider)
-            .flatMap(List::stream)
-            .anyMatch(changeRequest -> {
-                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
-                Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
-                return entityId.equals(allowedEntities.get("name"));
-            });
+        Optional<Map<String, Object>> outstanding = StringUtils.hasText(entityId) ?
+            eduidIdpEntityIdentifiers.stream()
+                .map(manage::identityProviderByEntityID)
+                .map(manage::getChangeRequestsIdentityProvider)
+                .flatMap(List::stream)
+                .filter(changeRequest -> {
+                    Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
+                    Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
+                    return entityId.equals(allowedEntities.get("name"));
+                })
+                .findFirst() : Optional.empty();
+        connection.setEduIdAccessChangeRequestPending(outstanding.isPresent());
+        connection.setEduIdAccessChangeRequestTicketKey(outstanding.map(cr -> (String) cr.get("ticketKey")).orElse(null));
     }
 
     @DeleteMapping({"", "/{connectionId}"})

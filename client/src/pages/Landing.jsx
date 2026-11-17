@@ -80,7 +80,9 @@ const Landing = ({refreshUser}) => {
             .then(res => {
                 afterOrgCreate(res);
 
-                setFlash(I18n.t("welcome.flash", {name: res.name}));
+                setFlash(isEmpty(res.ticketKey) ?
+                    I18n.t("welcome.flash", {name: res.name}) :
+                    I18n.t("welcome.flashWithTicket", {name: res.name, jiraKey: res.ticketKey}));
             })
             .catch(() => {
                 setLoading(false);

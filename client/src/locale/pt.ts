@@ -186,6 +186,7 @@ const pt: AppTranslation = {
         confirmationAfterTest: "A sua organização foi criada. Pode continuar a criar aplicações.",
         newOrganization: "Nova organização criada",
         flash: "Organização {{name}} criada.",
+        flashWithTicket: "Organização {{name}} criada (número de referência {{jiraKey}}).",
     },
     userHome: {
         greeting: "{{name}}",
@@ -289,6 +290,7 @@ const pt: AppTranslation = {
         memberCount: "N.º de membros",
         applicationCount: "N.º de aplicações",
         adminEmail: "Correio eletrónico do administrador",
+        ticketKey: "Ticket Jira",
         status: "Estado",
         searchPlaceHolder: "Procurar organizações...",
         confirmation: "Tem a certeza de que quer alterar o estado para <strong>{{status}}</strong> da organização {{name}}?",
@@ -597,6 +599,7 @@ const pt: AppTranslation = {
             eduIdAccessInfo: "Se selecionar esta opção, todos os utilizadores eduID terão acesso à ligação da aplicação. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Saiba mais sobre o eduID</a>",
             eduIdAccessLabel: "Os utilizadores eduID podem iniciar sessão através desta ligação",
             eduIdAccessChangeRequestPending: "Existe um pedido de alteração pendente para o acesso eduID. A alteração pedida só produzirá efeitos depois de ser aprovada.",
+            eduIdAccessChangeRequestPendingWithTicket: "Existe um pedido de alteração pendente para o acesso eduID (ticket {{ticketKey}}). A alteração pedida só produzirá efeitos depois de ser aprovada.",
         },
         connectionOverview: {
             disclaimer: "O client secret é apresentado uma vez abaixo. Copie-o agora; caso contrário, terá de pedir um novo segredo.",

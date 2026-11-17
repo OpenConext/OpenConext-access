@@ -729,7 +729,7 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForSaveIdentityProvider(idp);
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        given()
+        String jiraKey = given()
             .when()
             .filter(accessCookieFilter.cookieFilter())
             .header(csrfHeader(accessCookieFilter))
@@ -738,11 +738,15 @@ class ConnectionControllerTest extends AbstractTest {
             .body(connection)
             .put("/api/v1/connections/update-request-production-status")
             .then()
-            .statusCode(HttpStatus.CREATED.value());
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .path("jiraKey");
 
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
         assertEquals(State.prodaccepted, connectionFromDB.getState());
         assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
+        //The Jira key must survive a reload of the connection, so it is stored with the connection
+        assertEquals(jiraKey, connectionFromDB.getTicketKey());
     }
 
     @SneakyThrows

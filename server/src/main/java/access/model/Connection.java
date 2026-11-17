@@ -93,6 +93,11 @@ public class Connection implements NameHolder {
     @Column(name = "manage_eid")
     private Integer manageEid;
 
+    //The Jira ticket of the production status request, never client-writable (see #merge)
+    @Column(name = "ticket_key")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String ticketKey;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
@@ -107,6 +112,10 @@ public class Connection implements NameHolder {
     //eduID access change request is scoped to the eduID identity provider(s) manage entity
     @Transient
     private boolean eduIdAccessChangeRequestPending;
+
+    //The Jira ticket of the outstanding eduID access change request, if any
+    @Transient
+    private String eduIdAccessChangeRequestTicketKey;
 
     public Connection(String name, Application application, Map<String, Object> metaData, EntityType protocol) {
         this.name = name;
@@ -268,6 +277,11 @@ public class Connection implements NameHolder {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean isEduIdAccessChangeRequestPending() {
         return this.eduIdAccessChangeRequestPending;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public String getEduIdAccessChangeRequestTicketKey() {
+        return this.eduIdAccessChangeRequestTicketKey;
     }
 
     @JsonIgnore

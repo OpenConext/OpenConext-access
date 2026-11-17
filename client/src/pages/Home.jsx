@@ -178,7 +178,7 @@ export const Home = () => {
                 <section className="try-demo">
                     <div className="try-demo-copy">
                         <h2>{I18n.t("landing.tryDemo.title")}</h2>
-                        <p>{I18n.t("landing.tryDemo.description")}</p>
+                        <p dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.tryDemo.description"))}}/>
                     </div>
                     <div className="try-demo-actions">
                         <Button className="try-demo-institution" onClick={() => login(config, false)}>
