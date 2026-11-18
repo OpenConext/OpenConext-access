@@ -206,6 +206,88 @@ class ResourceCleanerTest extends AbstractMailTest {
         assertTrue(((List<?>) second.get("usersWarned")).isEmpty());
     }
 
+    private User saveUser(String name, int createdDaysAgo) {
+        User user = new User(false, "urn:" + name, "urn:" + name,
+                "example.com", name, "User", name + "@example.com", "http://mock-idp");
+        user.setCreatedAt(Instant.now().minus(createdDaysAgo, ChronoUnit.DAYS));
+        return userRepository.save(user);
+    }
+
+    private JoinRequest saveJoinRequest(User user, int createdDaysAgo) {
+        Organization shareLogics = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        JoinRequest joinRequest = new JoinRequest(user, shareLogics, "Please", Language.en);
+        joinRequest.setCreatedAt(Instant.now().minus(createdDaysAgo, ChronoUnit.DAYS));
+        return joinRequestRepository.save(joinRequest);
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_deletesOldUserWithoutMembershipsOrJoinRequests() {
+        User user = saveUser("orphan", 40);
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertEquals(List.of("orphan@example.com"), results.get("usersWithNoAccessRightsDeleted"));
+        assertFalse(userRepository.findById(user.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_keepsRecentUser() {
+        User user = saveUser("recent", 5);
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertTrue(((List<?>) results.get("usersWithNoAccessRightsDeleted")).isEmpty());
+        assertTrue(userRepository.findById(user.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_keepsOldUserWithMembership() {
+        User user = saveUser("member", 40);
+        Organization shareLogics = organizationRepository.findById(seedIdentifiers.get(SHARE_LOGICS)).get();
+        organizationMembershipRepository.save(new OrganizationMembership(user, shareLogics, Authority.MEMBER));
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertTrue(((List<?>) results.get("usersWithNoAccessRightsDeleted")).isEmpty());
+        assertTrue(userRepository.findById(user.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_keepsOldUserWithRecentJoinRequest() {
+        User user = saveUser("pending", 40);
+        JoinRequest joinRequest = saveJoinRequest(user, 5);
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertTrue(((List<?>) results.get("usersWithNoAccessRightsDeleted")).isEmpty());
+        assertTrue(userRepository.findById(user.getId()).isPresent());
+        assertTrue(joinRequestRepository.findById(joinRequest.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_deletesExpiredJoinRequestAndItsUser() {
+        User user = saveUser("expired", 60);
+        JoinRequest joinRequest = saveJoinRequest(user, 40);
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertEquals(List.of("expired@example.com"), results.get("usersWithNoAccessRightsDeleted"));
+        assertFalse(joinRequestRepository.findById(joinRequest.getId()).isPresent());
+        assertFalse(userRepository.findById(user.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUsersWithNoAccessRights_keepsRecentUserWhenJoinRequestExpired() {
+        User user = saveUser("newbie", 10);
+        JoinRequest joinRequest = saveJoinRequest(user, 40);
+
+        Map<String, Object> results = resourceCleaner.doClean();
+
+        assertFalse(joinRequestRepository.findById(joinRequest.getId()).isPresent());
+        assertTrue(((List<?>) results.get("usersWithNoAccessRightsDeleted")).isEmpty());
+        assertTrue(userRepository.findById(user.getId()).isPresent());
+    }
+
     /**
      * Build a fake Manage provider response that contains one administrative contact,
      * matching the structure parsed by {@link Organization#mergeMetaData}.

@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.repository.query.Param;
+
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -20,5 +23,9 @@ public interface JoinRequestRepository extends JpaRepository<JoinRequest, Long> 
     @Query(value = "DELETE FROM join_requests WHERE id = ?1", nativeQuery = true)
     @Transactional(isolation = Isolation.SERIALIZABLE)
     void deleteJoinRequestById(Long id);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "DELETE FROM join_requests WHERE created_at < :cutoff", nativeQuery = true)
+    int deleteByCreatedAtBefore(@Param("cutoff") Instant cutoff);
 
 }
