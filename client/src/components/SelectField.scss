@@ -1,5 +1,8 @@
 @use "../styles/vars.scss" as *;
 
+// The wrapper has a 1px border, so the inner control is 2px smaller to make the total $control-height
+$inner-control-height: $control-height - 2px;
+
 .select-field {
     display: flex;
     position: relative;
@@ -57,7 +60,7 @@
             padding-left: 8px;
             border: none;
             border-radius: $br;
-            min-height: $control-height;
+            min-height: $inner-control-height;
         }
 
         // Same focus look as regular inputs: a 1px foreground border, drawn on the outer wrapper
@@ -69,7 +72,7 @@
             outline: none;
             border: none !important;
             box-shadow: none !important;
-            min-height: $control-height;
+            min-height: $inner-control-height;
         }
 
         // Design system: a disabled control is the regular control at 50% opacity

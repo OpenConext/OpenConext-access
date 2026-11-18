@@ -30,7 +30,6 @@ import {
     storeQueryParameter,
     valueFromQueryParams
 } from "../utils/Pagination.js";
-import {getParameterByName} from "../utils/QueryParameters.js";
 
 const pageCount = 10;
 
@@ -41,9 +40,7 @@ const Applications = () => {
         const [loading, setLoading] = useState(true);
         const [serviceProviders, setServiceProviders] = useState([]);
         const [tag, setTag] = useState(valueFromQueryParams("tag", "all"));
-        const [tagOptions, setTagOptions] = useState([]);
         const [source, setSource] = useState(valueFromQueryParams("source", "all"));
-        const [sourceOptions, setSourceOptions] = useState([]);
         const [page, setPage] = useState(pageNumberFromQueryParams());
 
         useEffect(() => {
@@ -53,55 +50,6 @@ const Applications = () => {
                         .sort((sp1, sp2) => providerName(I18n.locale, sp1).toLowerCase()
                             .localeCompare(providerName(I18n.locale, sp2).toLowerCase()))
                     setServiceProviders(res);
-                    const tagCounts = res.reduce((acc, sp) => {
-                        const tags = sp.data.metaDataFields.application_tags;
-                        if (!isEmpty(tags)) {
-                            tags.forEach(tag => {
-                                if (acc[tag]) {
-                                    acc[tag] = acc[tag] + 1
-                                } else {
-                                    acc[tag] = 1;
-                                }
-                            })
-                        }
-                        return acc;
-                    }, {});
-                    const defaultTag = {
-                        value: "all",
-                        label: I18n.t("applications.all")
-                    };
-                    let newTagOptions = [defaultTag];
-                    newTagOptions = newTagOptions.concat(Object.entries(tagCounts)
-                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
-                        .map(entry => ({
-                            value: entry[0],
-                            label: `${entry[0]} (${entry[1]})`
-                        })));
-                    setTagOptions(newTagOptions);
-                    //Sources
-                    const sourceCounts = res.reduce((acc, sp) => {
-                        const fed = sp.data.metaDataFields["coin:interfed_source"];
-                        if (!isEmpty(fed)) {
-                            if (acc[fed]) {
-                                acc[fed] = acc[fed] + 1
-                            } else {
-                                acc[fed] = 1;
-                            }
-                        }
-                        return acc;
-                    }, {});
-                    const defaultSource = {
-                        value: "all",
-                        label: I18n.t("applications.allSources")
-                    };
-                    let newSourceOptions = [defaultSource];
-                    newSourceOptions = newSourceOptions.concat(Object.entries(sourceCounts)
-                        .sort((e1, e2) => e1[0].toLowerCase().localeCompare(e2[0].toLowerCase()))
-                        .map(entry => ({
-                            value: entry[0],
-                            label: `${entry[0]} (${entry[1]})`
-                        })));
-                    setSourceOptions(newSourceOptions);
                     setLoading(false);
                 })
                 .catch(() => {
@@ -110,32 +58,50 @@ const Applications = () => {
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
 
-        const filteredServiceProviders = useMemo(() => {
-            const filterSP = sp => {
-                const nbr = getParameterByName("page", window.location.search) || 1;
-                setPage(parseInt(nbr, 10));
-                let tagHit = true;
-                const tags = sp.data.metaDataFields.application_tags;
-                if (tag !== "all") {
-                    tagHit = !isEmpty(tags) && tags.includes(tag);
-                }
-                let sourceHit = true;
-                const fed = sp.data.metaDataFields["coin:interfed_source"];
-                if (source !== "all") {
-                    sourceHit = !isEmpty(fed) && fed === source;
-                }
-                let queryHit = true;
-                if (!isEmpty(query)) {
-                    const name = providerName(I18n.locale, sp).toLowerCase();
-                    const orgName = providerOrganizationName(I18n.locale, sp).toLowerCase();
-                    const queryLower = query.toLowerCase();
-                    queryHit = name.includes(queryLower) || orgName.includes(queryLower);
-                }
-                return tagHit && queryHit && sourceHit;
+        // A changed filter always starts at the first page
+        const resetPage = () => {
+            setPage(1);
+            storePageNumber(1);
+        };
+
+        const matchesQuery = sp => {
+            if (isEmpty(query)) {
+                return true;
             }
-            return (isEmpty(query) && tag === "all" && source === "all") ? serviceProviders :
-                serviceProviders.filter(sp => filterSP(sp));
-        }, [query, serviceProviders, source, tag]);
+            const queryLower = query.toLowerCase();
+            return providerName(I18n.locale, sp).toLowerCase().includes(queryLower) ||
+                providerOrganizationName(I18n.locale, sp).toLowerCase().includes(queryLower);
+        };
+        const matchesTag = (sp, value) => {
+            const tags = sp.data.metaDataFields.application_tags;
+            return value === "all" || (!isEmpty(tags) && tags.includes(value));
+        };
+        const matchesSource = (sp, value) => {
+            const fed = sp.data.metaDataFields["coin:interfed_source"];
+            return value === "all" || (!isEmpty(fed) && fed === value);
+        };
+
+        const filteredServiceProviders = useMemo(() => {
+            return serviceProviders.filter(sp => matchesQuery(sp) && matchesTag(sp, tag) && matchesSource(sp, source));
+        }, [query, serviceProviders, source, tag]);// eslint-disable-line react-hooks/exhaustive-deps
+
+        // The counts in a drop-down reflect the applications matching the search term and the other drop-down
+        const buildOptions = (allLabel, values, matchesValue, otherFilter) => {
+            const candidates = serviceProviders.filter(sp => matchesQuery(sp) && otherFilter(sp));
+            return [{value: "all", label: allLabel}].concat(values.map(value => ({
+                value: value,
+                label: `${value} (${candidates.filter(sp => matchesValue(sp, value)).length})`
+            })));
+        };
+        const allTags = [...new Set(serviceProviders.flatMap(sp => sp.data.metaDataFields.application_tags || []))]
+            .sort((t1, t2) => t1.toLowerCase().localeCompare(t2.toLowerCase()));
+        const allSources = [...new Set(serviceProviders.map(sp => sp.data.metaDataFields["coin:interfed_source"])
+            .filter(fed => !isEmpty(fed)))]
+            .sort((f1, f2) => f1.toLowerCase().localeCompare(f2.toLowerCase()));
+        const tagOptions = buildOptions(I18n.t("applications.all"), allTags, matchesTag, sp => matchesSource(sp, source));
+        const sourceOptions = buildOptions(I18n.t("applications.allSources"), allSources, matchesSource, sp => matchesTag(sp, tag));
+        // Wide enough for the longest label, also with the largest counts
+        const selectWidth = values => `calc(${Math.max(...values.map(v => v.length)) + 6}ch + 64px)`;
 
 
         if (loading) {
@@ -198,30 +164,37 @@ const Applications = () => {
                                              onChange={e => {
                                                  setQuery(e.target.value);
                                                  storeQueryParameter("query", e.target.value);
+                                                 resetPage();
                                              }}
                                              value={query}
                                              placeholder={I18n.t("applications.searchPlaceHolder")}/>
                         </InputGroup>
+                        <div className="applications-filter-select"
+                             style={{width: selectWidth([...allSources, I18n.t("applications.allSources")])}}>
                         <SelectField
-                            className="applications-filter-select"
                             value={sourceOptions.find(option => option.value === source)}
                             options={sourceOptions}
                             searchable={false}
                             onChange={option => {
                                 setSource(option.value);
                                 storeQueryParameter("source", option.value);
+                                resetPage();
                             }}
                         />
+                        </div>
+                        <div className="applications-filter-select"
+                             style={{width: selectWidth([...allTags, I18n.t("applications.all")])}}>
                         <SelectField
-                            className="applications-filter-select"
                             value={tagOptions.find(option => option.value === tag)}
                             options={tagOptions}
                             searchable={false}
                             onChange={option => {
                                 setTag(option.value)
                                 storeQueryParameter("tag", option.value);
+                                resetPage();
                             }}
                         />
+                        </div>
                     </div>
                     <ul className="applications-list">
                         {filteredServiceProviders

@@ -32,7 +32,6 @@ const Institutions = () => {
         const [loading, setLoading] = useState(true);
         const [identityProviders, setIdentityProviders] = useState([]);
         const [category, setCategory] = useState(null);
-        const [categoryOptions, setCategoryOptions] = useState([]);
         const [page, setPage] = useState(pageNumberFromQueryParams());
 
         useEffect(() => {
@@ -42,30 +41,7 @@ const Institutions = () => {
                         .sort((idp1, idp2) => providerOrganizationName(I18n.locale, idp1).toLowerCase()
                             .localeCompare(providerOrganizationName(I18n.locale, idp2).toLowerCase()))
                     setIdentityProviders(res);
-                    const categoryCounts = res.reduce((acc, idp) => {
-                        const type = idp.data.metaDataFields["coin:institution_type"];
-                        if (!isEmpty(type)) {
-                            if (acc[type]) {
-                                acc[type] = acc[type] + 1
-                            } else {
-                                acc[type] = 1;
-                            }
-                        }
-                        return acc;
-                    }, {});
-                    const defaultCategory = {
-                        value: "all",
-                        label: I18n.t("institutions.all")
-                    };
-                    let newCategoryOptions = [defaultCategory];
-                    newCategoryOptions = newCategoryOptions.concat(Object.entries(categoryCounts)
-                        .map(entry => ({
-                            value: entry[0],
-                            label: `${I18n.t(`institutionTypes.${entry[0]}`, {defaultValue: entry[0]})} (${entry[1]})`
-                        }))
-                        .sort((o1, o2) => o1.label.toLowerCase().localeCompare(o2.label.toLowerCase())));
-                    setCategory(defaultCategory.value);
-                    setCategoryOptions(newCategoryOptions);
+                    setCategory("all");
                     setLoading(false);
                 })
                 .catch(() => {
@@ -73,25 +49,27 @@ const Institutions = () => {
                 });
         }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
+        const matchesQuery = idp => isEmpty(query) ||
+            providerOrganizationName(I18n.locale, idp).toLowerCase().includes(query.toLowerCase());
+
         const filteredIdentityProviders = useMemo(() => {
-            const filterIdP = idp => {
-                setPage(1);
-                let categoryHit = true;
-                const type = idp.data.metaDataFields["coin:institution_type"];
-                if (category !== "all") {
-                    categoryHit = type === category;
-                }
-                let queryHit = true;
-                if (!isEmpty(query)) {
-                    const orgName = providerOrganizationName(I18n.locale, idp).toLowerCase();
-                    const queryLower = query.toLowerCase();
-                    queryHit = orgName.includes(queryLower);
-                }
-                return categoryHit && queryHit;
-            }
-            return (isEmpty(query) && category === "all") ? identityProviders :
-                identityProviders.filter(filterIdP);
-        }, [query, category, identityProviders]);
+            return identityProviders.filter(idp => matchesQuery(idp) &&
+                (category === "all" || idp.data.metaDataFields["coin:institution_type"] === category));
+        }, [query, category, identityProviders]);// eslint-disable-line react-hooks/exhaustive-deps
+
+        // The counts in the drop-down reflect the institutions matching the search term
+        const candidates = identityProviders.filter(matchesQuery);
+        const categoryLabel = type => I18n.t(`institutionTypes.${type}`, {defaultValue: type});
+        const categories = [...new Set(identityProviders.map(idp => idp.data.metaDataFields["coin:institution_type"])
+            .filter(type => !isEmpty(type)))];
+        const categoryOptions = [{value: "all", label: I18n.t("institutions.all")}].concat(categories
+            .map(type => ({
+                value: type,
+                label: `${categoryLabel(type)} (${candidates.filter(idp => idp.data.metaDataFields["coin:institution_type"] === type).length})`
+            }))
+            .sort((o1, o2) => o1.label.toLowerCase().localeCompare(o2.label.toLowerCase())));
+        const selectWidth = `calc(${Math.max(...[I18n.t("institutions.all"), ...categories.map(categoryLabel)]
+            .map(label => label.length)) + 6}ch + 64px)`;
 
 
         if (loading) {
@@ -151,17 +129,24 @@ const Institutions = () => {
                                 <SearchIcon/>
                             </InputGroupAddon>
                             <InputGroupInput type="search"
-                                             onChange={e => setQuery(e.target.value)}
+                                             onChange={e => {
+                                                 setQuery(e.target.value);
+                                                 setPage(1);
+                                             }}
                                              value={query}
                                              placeholder={I18n.t("institutions.searchPlaceHolder")}/>
                         </InputGroup>
+                        <div className="institutions-category-select" style={{width: selectWidth}}>
                         <SelectField
-                            className="institutions-category-select"
                             value={categoryOptions.find(option => option.value === category)}
                             options={categoryOptions}
                             searchable={false}
-                            onChange={option => setCategory(option.value)}
+                            onChange={option => {
+                                setCategory(option.value);
+                                setPage(1);
+                            }}
                         />
+                        </div>
                     </div>
                     <ul className="institutions-list">
                         {filteredIdentityProviders
