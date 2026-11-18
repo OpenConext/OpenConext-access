@@ -740,7 +740,7 @@ const en: AppTranslation = {
         applicationMemberships: "Member of app teams",
         active: "Active since",
         role: "{{productName}} role",
-        maintain: "Manage the {{name}} team”",
+        maintain: "Manage the {{name}} team",
         searchPlaceHolder: "Search for members",
         new: "Invite team member",
         deleteConfirmation: "Are you sure you want to remove the organisation membership of {{name}}?",
