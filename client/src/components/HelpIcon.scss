@@ -103,7 +103,7 @@
             overflow: hidden;
 
             th {
-                background: #e5e5e5;
+                background: var(--muted, #e5e5e5);
                 text-align: left;
                 font-weight: 400;
                 font-size: 14px;

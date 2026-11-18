@@ -1,24 +1,30 @@
 import {
     AppWindowIcon,
+    ArrowCounterClockwiseIcon,
+    BuildingIcon,
     CheckCircleIcon,
-    ClockClockwiseIcon,
-    XCircleIcon,
-    ChatCenteredTextIcon,
+    CheckSquareIcon,
+    EnvelopeOpenIcon,
+    EnvelopeSimpleIcon,
+    FileTextIcon,
+    GitMergeIcon,
+    GitPullRequestIcon,
+    HandshakeIcon,
     KeyIcon,
     LinkIcon,
     LinkBreakIcon,
     LockIcon,
+    PencilSimpleIcon,
+    ProhibitIcon,
+    RocketLaunchIcon,
     ShieldCheckIcon,
-    BuildingIcon,
-    EnvelopeSimpleIcon,
-    FileTextIcon,
-    UserCheckIcon,
-    UserGearIcon,
-    UserMinusIcon,
-    UserPlusIcon
+    TrashIcon,
+    UserCircleCheckIcon,
+    UserCircleGearIcon,
+    UserCircleMinusIcon,
+    UserCirclePlusIcon,
+    XCircleIcon
 } from "@phosphor-icons/react";
-
-export const auditCategories = ["APPLICATION", "ACCESS", "ORGANISATION", "PENDING"];
 
 export const auditPeriods = {
     "7": 7,
@@ -30,38 +36,38 @@ export const auditPeriods = {
 const actionIcons = {
     INVITATION_SENT: EnvelopeSimpleIcon,
     INVITATION_RESENT: EnvelopeSimpleIcon,
-    INVITATION_ACCEPTED: UserCheckIcon,
-    INVITATION_DELETED: EnvelopeSimpleIcon,
-    JOIN_REQUEST_CREATED: UserPlusIcon,
-    JOIN_REQUEST_APPROVED: UserCheckIcon,
-    JOIN_REQUEST_DENIED: UserMinusIcon,
-    MEMBER_REMOVED: UserMinusIcon,
-    MEMBER_AUTHORITY_CHANGED: UserGearIcon,
-    APPLICATION_MEMBER_ADDED: UserPlusIcon,
-    APPLICATION_MEMBER_REMOVED: UserMinusIcon,
+    INVITATION_ACCEPTED: EnvelopeOpenIcon,
+    INVITATION_DELETED: ProhibitIcon,
+    JOIN_REQUEST_CREATED: UserCirclePlusIcon,
+    JOIN_REQUEST_APPROVED: UserCircleCheckIcon,
+    JOIN_REQUEST_DENIED: ProhibitIcon,
+    MEMBER_REMOVED: UserCircleMinusIcon,
+    MEMBER_AUTHORITY_CHANGED: UserCircleGearIcon,
+    APPLICATION_MEMBER_ADDED: UserCirclePlusIcon,
+    APPLICATION_MEMBER_REMOVED: UserCircleMinusIcon,
     ORGANISATION_UPDATED: BuildingIcon,
     ORGANISATION_METADATA_UPDATED: BuildingIcon,
     CONTRACT_REQUESTED: FileTextIcon,
     CONTRACT_UPDATED: FileTextIcon,
     APPLICATION_CREATED: AppWindowIcon,
-    APPLICATION_UPDATED: AppWindowIcon,
-    APPLICATION_DELETED: AppWindowIcon,
+    APPLICATION_UPDATED: PencilSimpleIcon,
+    APPLICATION_DELETED: TrashIcon,
     CONNECTION_CREATED: LinkIcon,
     CONNECTION_UPDATED: LinkIcon,
     CONNECTION_DELETED: LinkBreakIcon,
     CONNECTION_SECRET_RESET: KeyIcon,
-    PRODUCTION_REQUESTED: AppWindowIcon,
-    APPLICATION_CONNECTED: LinkIcon,
-    APPLICATION_DISCONNECTED: LinkBreakIcon,
+    PRODUCTION_REQUESTED: CheckSquareIcon,
+    APPLICATION_CONNECTED: RocketLaunchIcon,
+    APPLICATION_DISCONNECTED: XCircleIcon,
     POLICY_CREATED: LockIcon,
     POLICY_UPDATED: LockIcon,
     POLICY_DELETED: LockIcon,
-    CONSENT_UPDATED: ChatCenteredTextIcon,
+    CONSENT_UPDATED: HandshakeIcon,
     ASSURANCE_UPDATED: ShieldCheckIcon,
-    CHANGE_REQUEST_SUBMITTED: ClockClockwiseIcon,
-    CHANGE_REQUEST_APPLIED: CheckCircleIcon,
+    CHANGE_REQUEST_SUBMITTED: GitPullRequestIcon,
+    CHANGE_REQUEST_APPLIED: GitMergeIcon,
     CHANGE_REQUEST_REJECTED: XCircleIcon,
-    CHANGE_REQUEST_CANCELLED: XCircleIcon,
+    CHANGE_REQUEST_CANCELLED: ArrowCounterClockwiseIcon,
     CHANGE_REQUEST_RESOLVED: CheckCircleIcon
 };
 
@@ -74,11 +80,15 @@ export const dayKey = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}
 
 export const formatTime = date => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
-//Events are expected newest first, the order is kept
+//The server serializes an Instant as epoch seconds (with a fraction), an ISO string is also accepted
+export const toDate = value => typeof value === "number" ? new Date(value * 1000) : new Date(value);
+
+//Newest first, the events are grouped by day
 export const groupByDay = events => {
     const groups = [];
-    events.forEach(event => {
-        const date = new Date(event.createdAt);
+    const sorted = [...events].sort((a, b) => toDate(b.createdAt) - toDate(a.createdAt));
+    sorted.forEach(event => {
+        const date = toDate(event.createdAt);
         const key = dayKey(date);
         let group = groups[groups.length - 1];
         if (!group || group.key !== key) {

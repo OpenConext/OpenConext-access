@@ -116,6 +116,36 @@ class ConnectionControllerTest extends AbstractTest {
 
         Connection connectionFromDB = connectionRepository.findById(savedConnection.getId()).get();
         assertEquals(connection.getName(), connectionFromDB.getName());
+        //A connection that is not production ready is saved continuously, that is not recorded
+        assertNoAuditEvent(access.audit.AuditAction.CONNECTION_UPDATED);
+    }
+
+    @Test
+    void updateProductionReady() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
+        connection.setStatus(ConnectionStatus.PROD_READY);
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
+
+        super.stubForSaveProvider(connection);
+        Map<String, Object> idp = super.stubForIdentityProviderByEntityId("http://mock-idp");
+        super.stubForSaveIdentityProvider(idp);
+        super.stubForGetProvider(EntityType.saml20_idp, "7");
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .then()
+            .statusCode(201);
+
+        assertAuditEvent(access.audit.AuditAction.CONNECTION_UPDATED);
     }
 
     @Test
@@ -699,7 +729,7 @@ class ConnectionControllerTest extends AbstractTest {
         super.stubForSaveIdentityProvider(idp);
 
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
-        given()
+        String jiraKey = given()
             .when()
             .filter(accessCookieFilter.cookieFilter())
             .header(csrfHeader(accessCookieFilter))
@@ -708,11 +738,15 @@ class ConnectionControllerTest extends AbstractTest {
             .body(connection)
             .put("/api/v1/connections/update-request-production-status")
             .then()
-            .statusCode(HttpStatus.CREATED.value());
+            .statusCode(HttpStatus.CREATED.value())
+            .extract()
+            .path("jiraKey");
 
         Connection connectionFromDB = connectionRepository.findById(connection.getId()).get();
         assertEquals(State.prodaccepted, connectionFromDB.getState());
         assertEquals(ConnectionStatus.PENDING_PROD, connectionFromDB.getStatus());
+        //The Jira key must survive a reload of the connection, so it is stored with the connection
+        assertEquals(jiraKey, connectionFromDB.getTicketKey());
     }
 
     @SneakyThrows

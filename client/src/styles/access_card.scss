@@ -1,5 +1,5 @@
 .access-card {
-    background: white;
+    background: var(--card, white);
     margin: 10px 0;
     border: 1px solid var(--border);
     border-radius: 10px;

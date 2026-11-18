@@ -4,11 +4,8 @@ import access.audit.AuditCategory;
 import access.audit.AuditEvent;
 import access.audit.AuditEventRepository;
 import access.audit.AuditStatus;
-import access.audit.CertificateExpiry;
 import access.audit.ChangeRequestReconciler;
 import access.exception.NotFoundException;
-import access.manage.Manage;
-import access.model.EntityType;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.User;
@@ -31,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -53,15 +51,12 @@ public class AuditLogController implements UserAccessRights {
     private final OrganizationRepository organizationRepository;
     private final JoinRequestRepository joinRequestRepository;
     private final ChangeRequestReconciler changeRequestReconciler;
-    private final Manage manage;
 
     public AuditLogController(AuditEventRepository auditEventRepository,
                               OrganizationRepository organizationRepository,
                               JoinRequestRepository joinRequestRepository,
-                              ChangeRequestReconciler changeRequestReconciler,
-                              Manage manage) {
+                              ChangeRequestReconciler changeRequestReconciler) {
         this.changeRequestReconciler = changeRequestReconciler;
-        this.manage = manage;
         this.auditEventRepository = auditEventRepository;
         this.organizationRepository = organizationRepository;
         this.joinRequestRepository = joinRequestRepository;
@@ -73,7 +68,7 @@ public class AuditLogController implements UserAccessRights {
                                                    @RequestParam(value = "from", required = false) Instant from,
                                                    @RequestParam(value = "to", required = false) Instant to,
                                                    @RequestParam(value = "actorId", required = false) Long actorId,
-                                                   @RequestParam(value = "category", required = false) AuditCategory category,
+                                                   @RequestParam(value = "category", required = false) List<AuditCategory> categories,
                                                    @RequestParam(value = "query", required = false) String query,
                                                    @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
                                                    @RequestParam(value = "pageSize", defaultValue = "25") int pageSize) {
@@ -83,8 +78,10 @@ public class AuditLogController implements UserAccessRights {
 
         String pattern = StringUtils.hasText(query) ? "%" + query.trim().toLowerCase(Locale.ROOT) + "%" : null;
         PageRequest pageRequest = PageRequest.of(Math.max(pageNumber, 0), Math.min(Math.max(pageSize, 1), MAX_PAGE_SIZE));
+        //No category means all of them, more categories can be selected at once
+        List<AuditCategory> selected = categories == null || categories.isEmpty() ? List.of(AuditCategory.values()) : categories;
         Page<AuditEvent> events = auditEventRepository.search(organization.getId(), start(from), end(to),
-                actorId, category, pattern, pageRequest);
+                actorId, selected, pattern, pageRequest);
         return ResponseEntity.ok(events);
     }
 
@@ -92,7 +89,8 @@ public class AuditLogController implements UserAccessRights {
     public ResponseEntity<Map<String, Object>> summary(@Parameter(hidden = true) User user,
                                                        @RequestParam("organizationId") Long organizationId,
                                                        @RequestParam(value = "from", required = false) Instant from,
-                                                       @RequestParam(value = "to", required = false) Instant to) {
+                                                       @RequestParam(value = "to", required = false) Instant to,
+                                                       @RequestParam(value = "actorId", required = false) Long actorId) {
         Organization organization = institutionAdminOrganization(user, organizationId);
         changeRequestReconciler.reconcile(organization, false);
 
@@ -100,15 +98,42 @@ public class AuditLogController implements UserAccessRights {
         for (AuditCategory category : AuditCategory.values()) {
             result.put(category.name(), 0L);
         }
-        auditEventRepository.countByCategory(organization.getId(), start(from), end(to))
+        auditEventRepository.countByCategory(organization.getId(), start(from), end(to), actorId)
                 .forEach(row -> result.put(((AuditCategory) row[0]).name(), row[1]));
         //Items that wait for an action of the admin are not bound to the period
-        List<Map<String, Object>> attention = attention(organization);
-        result.put("attention", attention);
         result.put(AuditCategory.PENDING.name(), joinRequestRepository.findByOrganization(organization).size()
-                + auditEventRepository.countByOrganizationIdAndStatus(organization.getId(), AuditStatus.PENDING)
-                + attention.size());
+                + auditEventRepository.countByOrganizationIdAndStatus(organization.getId(), AuditStatus.PENDING));
         return ResponseEntity.ok(result);
+    }
+
+    //The items that wait for an action of the admin, shown as open tasks on the home page. Not bound to a period
+    @GetMapping("/tasks")
+    public ResponseEntity<List<Map<String, Object>>> tasks(@Parameter(hidden = true) User user,
+                                                           @RequestParam("organizationId") Long organizationId) {
+        Organization organization = institutionAdminOrganization(user, organizationId);
+        changeRequestReconciler.reconcile(organization, false);
+
+        List<Map<String, Object>> tasks = new ArrayList<>();
+        joinRequestRepository.findByOrganization(organization).forEach(joinRequest -> {
+            Map<String, Object> task = new HashMap<>();
+            task.put("type", "JOIN_REQUEST");
+            task.put("id", joinRequest.getId());
+            task.put("name", joinRequest.getUser().getName());
+            task.put("organizationName", organization.getName());
+            task.put("createdAt", joinRequest.getCreatedAt());
+            tasks.add(task);
+        });
+        auditEventRepository.findByOrganizationIdAndStatus(organization.getId(), AuditStatus.PENDING).forEach(event -> {
+            Map<String, Object> task = new HashMap<>();
+            task.put("type", "CHANGE_REQUEST");
+            task.put("id", event.getId());
+            task.put("applicationId", event.getApplicationId());
+            task.put("name", event.getActorName());
+            task.put("targetName", event.getTargetName());
+            task.put("createdAt", event.getCreatedAt());
+            tasks.add(task);
+        });
+        return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/actors")
@@ -119,23 +144,6 @@ public class AuditLogController implements UserAccessRights {
                 .map(row -> Map.of("id", row[0], "name", row[1] == null ? "" : row[1]))
                 .toList();
         return ResponseEntity.ok(actors);
-    }
-
-    //Derived from the IdP metadata at request time: a certificate that expires is a state, not an event
-    private List<Map<String, Object>> attention(Organization organization) {
-        if (!StringUtils.hasText(organization.getManageIdentifier())) {
-            return List.of();
-        }
-        try {
-            Map<String, Object> identityProvider = manage.providerByManageIdentifier(EntityType.saml20_idp,
-                    organization.getManageIdentifier());
-            return CertificateExpiry.expiringSoon(identityProvider, Instant.now()).stream()
-                    .map(expiresAt -> Map.<String, Object>of("type", "CERTIFICATE_EXPIRING", "expiresAt", expiresAt.toString()))
-                    .toList();
-        } catch (RuntimeException e) {
-            LOG.warn("Could not determine the certificates of " + organization.getName() + ": " + e.getMessage());
-            return List.of();
-        }
     }
 
     private Organization institutionAdminOrganization(User user, Long organizationId) {

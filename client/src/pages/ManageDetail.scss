@@ -8,11 +8,11 @@ div.manage-detail-container {
 
     .inner-manage-detail-container {
         width: 100%;
-        background-color: white;
+        background-color: var(--card, white);
     }
 
     .manage-detail-top {
-        background-color: white;
+        background-color: var(--card, white);
         padding: 0 25px;
 
         a {
@@ -24,7 +24,7 @@ div.manage-detail-container {
     .manage-detail {
         @include index.page;
         margin: 0 25px;
-        background-color: white;
+        background-color: var(--card, white);
         max-width: $width;
         padding: 25px 0;
 

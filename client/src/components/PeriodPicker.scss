@@ -6,7 +6,7 @@
         align-items: center;
         border: 1px solid var(--border);
         border-radius: 12px;
-        background: white;
+        background: var(--card, white);
         white-space: nowrap;
     }
 

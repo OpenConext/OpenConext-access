@@ -3,6 +3,7 @@ import "./Navigation.scss"
 import {Link} from "react-router";
 import {NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList} from "@surfnet/curve-react";
 import {LanguageToggle} from "./LanguageToggle.jsx";
+import {ThemeToggle} from "./ThemeToggle.jsx";
 import {LoginButtons} from "./LoginButtons.jsx";
 import {disabledTabNames, hiddenTabNames, tabNames} from "../utils/NavigationTabs.js";
 
@@ -34,6 +35,7 @@ export const Navigation = ({mobile, path}) => {
             </NavigationMenu>
             <div className="links">
                 <LanguageToggle/>
+                <ThemeToggle/>
                 {path !== "/login-info" && <LoginButtons/>}
             </div>
         </div>

@@ -52,7 +52,7 @@ div.institutions-container {
             flex: 1 1 0;
             min-width: 0;
             height: 48px;
-            background-color: #fff;
+            background-color: var(--card, white);
         }
 
         .institutions-category-select {
@@ -85,7 +85,7 @@ div.institutions-container {
             flex-shrink: 0;
             width: 80px;
             height: 80px;
-            border: 1px solid #f4f6f8;
+            border: 1px solid var(--border, #f4f6f8);
             border-radius: 4px;
             overflow: hidden;
             display: flex;

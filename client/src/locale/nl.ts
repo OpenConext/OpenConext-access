@@ -138,6 +138,8 @@ const nl: AppTranslation = {
         teams: "Teams",
         statistics: "Statistieken",
         support: "Support",
+        lightMode: "Licht",
+        darkMode: "Donker",
         serviceDesk: "Support",
         feedback: "Help ons verbeteren",
         audit: "Auditlog",
@@ -184,6 +186,7 @@ const nl: AppTranslation = {
         confirmationAfterTest: "Je organisatie is aangemaakt. Je kunt doorgaan met het toevoegen van applicaties.",
         newOrganization: "Nieuwe organisatie aangemaakt",
         flash: "Organisatie {{name}} aangemaakt",
+        flashWithTicket: "Organisatie {{name}} aangemaakt (referentienummer {{jiraKey}})",
     },
     userHome: {
         greeting: "{{name}}",
@@ -206,6 +209,19 @@ const nl: AppTranslation = {
         toMyApps: "Naar mijn apps",
         toRoles: "Naar rollen",
         usersCount: "{{count}} gebruikers",
+        openTasks: {
+            title: "Openstaande taken",
+            JOIN_REQUEST: {
+                title: "Toegangsverzoek van {{name}}",
+                description: "{{name}} wil toegevoegd worden tot {{organization}}.",
+                action: "Beoordelen",
+            },
+            CHANGE_REQUEST: {
+                title: "Wijzigingsverzoek voor {{target}}",
+                description: "{{name}} heeft een wijziging aangevraagd voor {{target}}. Deze wacht op goedkeuring.",
+                action: "Naar applicatie",
+            },
+        },
         addApps: {
             title: "Apps publiceren",
             description: "Voeg jouw applicaties toe aan de app-catalogus en deel ze met onderwijs- en onderzoeksinstellingen.",
@@ -269,6 +285,7 @@ const nl: AppTranslation = {
         memberCount: "# Leden",
         applicationCount: "# Apps",
         adminEmail: "E-mailadres beheerder",
+        ticketKey: "Jira-ticket",
         status: "Status",
         searchPlaceHolder: "Zoek organisaties...",
         confirmation: "Weet je zeker dat je de status wilt wijzigen naar <strong>{{status}}</strong> voor organisatie {{name}}?",
@@ -577,6 +594,7 @@ const nl: AppTranslation = {
             eduIdAccessInfo: "Vink je deze optie aan, dan krijgen alle eduID-gebruikers toegang tot deze app-koppeling. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910010/eduID\">Lees meer over eduID</a>",
             eduIdAccessLabel: "eduID-gebruikers mogen inloggen via deze app-koppeling",
             eduIdAccessChangeRequestPending: "Er is een openstaand wijzigingsverzoek voor toegang voor eduID-gebruikers. De wijziging gaat pas in nadat deze is goedgekeurd.",
+            eduIdAccessChangeRequestPendingWithTicket: "Er is een openstaand wijzigingsverzoek voor toegang voor eduID-gebruikers (ticket {{ticketKey}}). De wijziging gaat pas in nadat deze is goedgekeurd.",
         },
         connectionOverview: {
             disclaimer: "Het client secret wordt slechts één keer getoond. Kopieer het nu; anders moet je een nieuw secret genereren.",
@@ -1616,7 +1634,10 @@ const nl: AppTranslation = {
         filters: {
             search: "Zoek op gebeurtenis, app of persoon",
             allActors: "Alle uitvoerders",
-            allCategories: "Alle categorieën",
+            activeFilters: "Actieve filters:",
+            clearFilters: "Wis filters",
+            removeFilter: "Verwijder filter {{filter}}",
+            actor: "Uitvoerder: {{name}}",
         },
         categories: {
             APPLICATION: "Applicaties",
@@ -1625,8 +1646,6 @@ const nl: AppTranslation = {
             PENDING: "Openstaand",
         },
         summary: {
-            pending: "Openstaand",
-            pendingUnit: "Items wachten op jouw actie",
             applications: "Applicaties",
             access: "Toegangsbeheer",
             organisation: "Organisatie",
@@ -1652,12 +1671,6 @@ const nl: AppTranslation = {
             REJECTED: "Afgewezen",
             CANCELLED: "Ingetrokken",
             RESOLVED: "Afgesloten",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificaat verloopt binnenkort",
-                description: "Het SAML-signingcertificaat van jouw IdP verloopt op {{date}}. Vervang het tijdig om inlogproblemen te voorkomen.",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

@@ -176,6 +176,12 @@ public abstract class AbstractTest {
                 "Expected audit event " + action);
     }
 
+    protected void assertNoAuditEvent(access.audit.AuditAction action) {
+        org.junit.jupiter.api.Assertions.assertTrue(auditEventRepository.findAll().stream()
+                        .noneMatch(event -> event.getAction().equals(action)),
+                "Unexpected audit event " + action);
+    }
+
     @Autowired
     protected DataSource dataSource;
 

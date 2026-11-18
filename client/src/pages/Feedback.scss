@@ -15,7 +15,7 @@
     .feedback-content {
         display: flex;
         flex-direction: column;
-        color: black;
+        color: var(--foreground, black);
         margin: 0;
         padding: $page-padding;
         max-width: 50%;

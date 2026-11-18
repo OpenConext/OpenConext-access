@@ -56,6 +56,10 @@ div.accessible-apps-container {
             margin-bottom: $gap-lg;
         }
 
+        [data-slot="pagination"] {
+            margin-top: 24px;
+        }
+
         .accessible-apps-grid-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);

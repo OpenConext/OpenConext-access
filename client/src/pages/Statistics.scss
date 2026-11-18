@@ -134,7 +134,7 @@
         border-radius: 12px;
         display: flex;
         padding: 24px;
-        background-color: white;
+        background-color: var(--card, white);
         border: 1px solid var(--border);
     }
 

@@ -5,7 +5,7 @@
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
-    background-color: #f3f4f6;
+    background-color: var(--muted, #f3f4f6);
     border-radius: 9999px;
     border: 1px solid var(--border);
 
@@ -20,12 +20,12 @@
     color: var(--muted-foreground);
 
     &:hover {
-        color: black;
+        color: var(--foreground, black);
     }
 
     &.active {
-        background-color: white;
-        color: black;
+        background-color: var(--card, white);
+        color: var(--foreground, black);
         cursor: default;
     }
 

@@ -109,6 +109,8 @@ public class ContractController implements UserAccessRights {
         //an arbitrary existing contract row instead of inserting a new one
         contract.setId(null);
         contract.setOrganization(organization);
+        //No manual signing step in the test environment
+        contract.setSignedContract(config.isTestEnvironment());
         Contract saved = contractRepository.save(contract);
         JiraClient.JiraCreateResult jiraResult = null;
         if (!config.isTestEnvironment()) {

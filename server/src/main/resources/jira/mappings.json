@@ -8,7 +8,8 @@
       "typeMetaData": "14800",
       "optionalMessage": "15300",
       "accessCatalogusAppURL": "13804",
-      "service": "16058"
+      "service": "16058",
+      "SURF Access Request Type": "19100"
     },
     "issueTypes": {
       "change": "11106",
@@ -23,7 +24,8 @@
       "typeMetaData": "14800",
       "optionalMessage": "15300",
       "accessCatalogusAppURL": "13804",
-      "service": "16058"
+      "service": "16058",
+      "SURF Access Request Type": "19100"
     },
     "issueTypes": {
       "change": "11106",

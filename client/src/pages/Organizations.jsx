@@ -32,6 +32,7 @@ import {
 } from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import InputField from "../components/InputField.jsx";
+import {JiraTicket} from "../components/JiraTicket.jsx";
 import {
     deleteOrganizationById,
     pendingApprovalOrganizations,
@@ -285,6 +286,11 @@ export const Organizations = ({pendingApproval}) => {
             key: "adminEmail",
             header: I18n.t("organizations.adminEmail"),
             mapper: adminEmail
+        },
+        {
+            key: "ticketKey",
+            header: I18n.t("organizations.ticketKey"),
+            mapper: org => <JiraTicket ticketKey={org.ticketKey}/>
         },
         {
             key: "createdAt",

@@ -90,6 +90,8 @@ public class ApplicationController implements UserAccessRights {
     private final ConnectionProviderConverter connectionProviderConverter;
     private final OrganizationRepository organizationRepository;
     private final Map<String, Object> arpInfo;
+    //The names of the privacy attributes that must be filled in before the privacy section is complete
+    private final List<String> requiredPrivacyAttributes;
     private final List<String> eduidIdpEntityIdentifiers;
     private final AuditLogger auditLogger;
 
@@ -114,6 +116,12 @@ public class ApplicationController implements UserAccessRights {
         this.s3Storage = s3Storage;
         this.connectionProviderConverter = connectionProviderConverter;
         this.organizationRepository = organizationRepository;
+        List<Map<String, Object>> privacyInfo = objectMapper.readValue(new ClassPathResource("/metadata/Privacy.json").getInputStream(), new TypeReference<>() {
+        });
+        this.requiredPrivacyAttributes = privacyInfo.stream()
+                .filter(attribute -> Boolean.TRUE.equals(attribute.get("required")))
+                .map(attribute -> (String) attribute.get("name"))
+                .toList();
         this.arpInfo = objectMapper.readValue(new ClassPathResource("/metadata/ARP.json").getInputStream(), new TypeReference<>() {
         });
     }
@@ -185,7 +193,7 @@ public class ApplicationController implements UserAccessRights {
                     List<Map<String, Object>> changeRequests = manage.getChangeRequests(connection);
                     connection.convertChangeRequests(changeRequests);
                     if (status.equals(ConnectionStatus.PROD_READY) && !connection.getProtocol().equals(EntityType.oauth20_rs)) {
-                        connection.setEduIdAccessChangeRequestPending(isEduIdAccessChangeRequestOutstanding(connection));
+                        this.resolveEduIdAccessChangeRequest(connection);
                     }
                     boolean isTestAccepted = getData(provider).get("state").equals(State.testaccepted.name());
                     //If a connection is PENDING_PROD and does not have a prodaccepted change request we can conclude that it is rejected in Manage
@@ -222,20 +230,21 @@ public class ApplicationController implements UserAccessRights {
     //an eduID access change request (see ConnectionController#eduIdAccessChangeRequest) is scoped to the eduID
     //identity provider(s), so it must be queried separately
     @SuppressWarnings("unchecked")
-    private boolean isEduIdAccessChangeRequestOutstanding(Connection connection) {
+    private void resolveEduIdAccessChangeRequest(Connection connection) {
         String entityId = (String) connection.getMetaData().get("entityID");
-        if (!StringUtils.hasText(entityId)) {
-            return false;
-        }
-        return eduidIdpEntityIdentifiers.stream()
-            .map(manage::identityProviderByEntityID)
-            .map(manage::getChangeRequestsIdentityProvider)
-            .flatMap(List::stream)
-            .anyMatch(changeRequest -> {
-                Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
-                Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
-                return entityId.equals(allowedEntities.get("name"));
-            });
+        Optional<Map<String, Object>> outstanding = StringUtils.hasText(entityId) ?
+            eduidIdpEntityIdentifiers.stream()
+                .map(manage::identityProviderByEntityID)
+                .map(manage::getChangeRequestsIdentityProvider)
+                .flatMap(List::stream)
+                .filter(changeRequest -> {
+                    Map<String, Object> pathUpdates = (Map<String, Object>) changeRequest.getOrDefault("pathUpdates", Map.of());
+                    Map<String, Object> allowedEntities = (Map<String, Object>) pathUpdates.getOrDefault("allowedEntities", Map.of());
+                    return entityId.equals(allowedEntities.get("name"));
+                })
+                .findFirst() : Optional.empty();
+        connection.setEduIdAccessChangeRequestPending(outstanding.isPresent());
+        connection.setEduIdAccessChangeRequestTicketKey(outstanding.map(cr -> (String) cr.get("ticketKey")).orElse(null));
     }
 
     @PostMapping({"", "/"})
@@ -322,10 +331,23 @@ public class ApplicationController implements UserAccessRights {
             Hibernate.initialize(application.getConnections());
         }
         applicationRepository.save(application);
-        auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
-                AuditAction.APPLICATION_UPDATED, "application", application.getId(), application.getName(), null);
+        //The user saves the application at every step of the information wizard, only the save that completes the
+        //privacy section is an update worth recording
+        if (privacySectionFilled(application)) {
+            auditLogger.log(user, application.getOrganization(), application.getId(), AuditCategory.APPLICATION,
+                    AuditAction.APPLICATION_UPDATED, "application", application.getId(), application.getName(), null);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
+    }
+
+    private boolean privacySectionFilled(Application application) {
+        Object privacy = application.getMetaData().get("privacy");
+        if (!(privacy instanceof Map<?, ?> privacyMap)) {
+            return false;
+        }
+        return requiredPrivacyAttributes.stream()
+                .allMatch(name -> privacyMap.get(name) instanceof String value && StringUtils.hasText(value));
     }
 
     @DeleteMapping({"", "/{applicationId}"})

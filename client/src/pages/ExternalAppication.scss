@@ -73,7 +73,7 @@
         font-size: 20px;
         line-height: 24px;
         text-align: center;
-        color: #000;
+        color: var(--foreground, black);
         transform: rotate(-7.52deg);
     }
 

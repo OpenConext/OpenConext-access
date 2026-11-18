@@ -46,7 +46,8 @@
 
     .hero {
         position: relative;
-        background-color: #ececeb;
+        overflow: hidden;
+        background-color: var(--muted, #ececeb);
 
         .hero-inner {
             @include index.public-page-width;
@@ -56,7 +57,10 @@
             display: flex;
             gap: 48px;
             align-items: stretch;
-            min-height: 600px;
+            // 600px, but on very wide screens the hero grows with the image (60vw wide, 1030:644 ratio).
+            // Like in the design (image 1.2x the width of the right half), the image then still overflows
+            // the screen and is clipped at the right edge instead of ending before it.
+            min-height: max(600px, calc(60vw * 644 / 1030));
             padding: 0 40px;
 
             @media (max-width: $mobile-width) {
@@ -126,29 +130,98 @@
             }
         }
 
-        // Anchored to the right edge of the screen (outside the page-width container) and the full hero height
+        // Design: the image starts at the middle of the screen, is as high as the hero and keeps its
+        // aspect ratio. When the screen is too narrow, the right side is clipped (not the left side).
+        // The blocks are positioned in percentages of the image, so they scale and clip together with it.
         .hero-image {
             position: absolute;
             top: 0;
-            right: 0;
             bottom: 0;
-            width: 50%;
+            left: 50%;
+            aspect-ratio: 1030 / 644;
 
             img {
                 display: block;
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
-                object-position: right center;
+            }
+
+            .hero-block {
+                position: absolute;
+                border-radius: 12px;
+                opacity: .8;
+                pointer-events: none;
+            }
+
+            .hero-block-1 {
+                left: 11.70%;
+                top: 12.66%;
+                width: 14.39%;
+                height: 14.72%;
+                background-color: #7BEFC0;
+            }
+
+            .hero-block-2 {
+                left: 29.04%;
+                top: 33.51%;
+                width: 10.74%;
+                height: 10.99%;
+                background-color: #03AB68;
+            }
+
+            .hero-block-3 {
+                left: 10.02%;
+                top: 39.01%;
+                width: 10.74%;
+                height: 10.99%;
+                background-color: #6E9AE8;
+            }
+
+            .hero-block-4 {
+                left: 67.60%;
+                top: 11.09%;
+                width: 7.49%;
+                height: 7.66%;
+                background-color: #B8F8DC;
+            }
+
+            .hero-block-5 {
+                left: 4.22%;
+                top: 77.49%;
+                width: 7.49%;
+                height: 7.66%;
+                background-color: #B8F8DC;
+            }
+
+            .hero-block-6 {
+                left: 75.09%;
+                top: 32.70%;
+                width: 6.17%;
+                height: 6.31%;
+                background-color: #064BCB;
+            }
+
+            .hero-block-7 {
+                left: 81.97%;
+                top: 53.00%;
+                width: 14.32%;
+                height: 14.66%;
+                background-color: #6E9AE8;
+            }
+
+            .hero-block-8 {
+                display: none;
             }
         }
 
-        // Below the page width the half-width image is narrower than the fixed hero height needs, so
-        // cover would crop the face off. Scale the whole image with the viewport instead.
-        @media (min-width: #{$mobile-width + 1}) and (max-width: 1200px) {
-            .hero-image img {
-                object-fit: contain;
-                object-position: right center;
+        // Below this width the full-height image no longer fits in the right half: scale it down (keeping
+        // the left edge at the middle of the screen) so the head of the woman always stays visible.
+        @media (min-width: #{$mobile-width + 1}) and (max-width: 1300px) {
+            .hero-image {
+                top: 50%;
+                bottom: auto;
+                width: 70vw;
+                transform: translateY(-50%);
             }
         }
 
@@ -269,7 +342,7 @@
 
     .getting-started-grid {
         display: flex;
-        gap: 48px;
+        gap: 24px;
 
         @media (max-width: $mobile-width) {
             flex-direction: column;
@@ -285,32 +358,45 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 32px;
+        background-color: var(--card);
+        border: 1px solid var(--border, #d6d3d1);
+        border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+        overflow: hidden;
 
         .getting-started-image {
             position: relative;
             width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 48px 40px;
+            box-sizing: border-box;
+            background-color: #f0fff8;
 
             img {
                 display: block;
                 width: 100%;
+                max-width: 480px;
                 height: auto;
             }
+        }
+
+        &:nth-child(2) .getting-started-image {
+            background-color: #f5f8fe;
         }
 
         .getting-started-body {
             display: flex;
             flex-direction: column;
             gap: 24px;
+            padding: 28px 32px 32px 32px;
 
-            > div {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
+            h3 {
+                color: var(--card-foreground);
+            }
 
-                h3 {
-                    color: var(--card-foreground);
-                }
+            p + p {
+                margin-top: 8px;
             }
 
             [data-slot="button"] {

@@ -4,6 +4,7 @@ import {Link} from "react-router";
 import "./MobileNavigation.scss";
 import {tabNames, disabledTabNames, hiddenTabNames} from "../utils/NavigationTabs.js";
 import {LanguageToggle} from "./LanguageToggle.jsx";
+import {ThemeToggle} from "./ThemeToggle.jsx";
 import {LoginButtons} from "./LoginButtons.jsx";
 
 export const MobileNavigation = ({path, onNavigate}) => {
@@ -25,6 +26,7 @@ export const MobileNavigation = ({path, onNavigate}) => {
                                 {I18n.t(`landing.tabs.${tabName}`)}
                             </Link>)}
                     <LanguageToggle/>
+                <ThemeToggle/>
                 </div>
                 <LoginButtons className="mobile-login-buttons" onClick={onNavigate}/>
             </div>

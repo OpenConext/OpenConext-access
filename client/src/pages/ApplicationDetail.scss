@@ -283,11 +283,11 @@ div.application-detail-container {
 
         table.attributes-table {
             width: 100%;
-            background-color: white;
+            background-color: var(--card, white);
             table-layout: fixed;
 
             thead th {
-                background-color: #e5e5e5;
+                background-color: var(--muted, #e5e5e5);
                 height: 40px;
                 font-size: var(--text-xs-font-size, 14px);
                 font-weight: 400;

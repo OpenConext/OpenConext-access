@@ -41,7 +41,7 @@ a.brand-logo svg {
     // DropdownMenuContent renders through a portal, so it isn't a DOM descendant of
     // [data-slot="sidebar-container"] — style its links via its own className instead.
     a {
-        color: black;
+        color: var(--foreground, black);
         text-decoration: none;
     }
 }
@@ -70,11 +70,20 @@ a.brand-logo svg {
 // it used the text-sm utility, which design-system.scss overrides to 1rem. Keep the menu at 16px.
 [data-slot="sidebar-container"] [data-slot="sidebar-menu-button"] {
     font-size: 1rem;
+
+    // Only the selected item is light green, hovering an item makes it grey (design system)
+    &:not([data-active="true"]):hover {
+        background-color: var(--muted);
+    }
+
+    &[data-active="true"]:hover {
+        background-color: var(--accent);
+    }
 }
 
 [data-slot="sidebar-container"], [data-slot="sidebar-menu-item"] {
     a {
-        color: black;
+        color: var(--foreground, black);
         text-decoration: none;
     }
 }

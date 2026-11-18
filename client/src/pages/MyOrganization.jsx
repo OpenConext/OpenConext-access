@@ -333,7 +333,11 @@ const MyOrganization = ({refreshUser}) => {
         if (!isContractFormValid()) {
             return;
         }
-        setSubmitConfirmation(true);
+        if (config.testEnvironment) {
+            confirmRequestAgreement();
+        } else {
+            setSubmitConfirmation(true);
+        }
     }
 
     const confirmRequestAgreement = () => {

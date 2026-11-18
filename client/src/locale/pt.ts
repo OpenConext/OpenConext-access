@@ -138,6 +138,8 @@ const pt: AppTranslation = {
         teams: "Equipas",
         statistics: "Estatísticas",
         support: "Apoio",
+        lightMode: "Light TODO",
+        darkMode: "Dark TODO",
         serviceDesk: "Support",
         feedback: "Ajude-nos a melhorar",
         audit: "Audit log TODO",
@@ -184,6 +186,7 @@ const pt: AppTranslation = {
         confirmationAfterTest: "A sua organização foi criada. Pode continuar a criar aplicações.",
         newOrganization: "Nova organização criada",
         flash: "Organização {{name}} criada.",
+        flashWithTicket: "Organização {{name}} criada (número de referência {{jiraKey}}).",
     },
     userHome: {
         greeting: "{{name}}",
@@ -206,6 +209,19 @@ const pt: AppTranslation = {
         toMyApps: "Para as minhas aplicações",
         toRoles: "Para as funções",
         usersCount: "{{count}} utilizadores",
+        openTasks: {
+            title: "Open tasks TODO",
+            JOIN_REQUEST: {
+                title: "Access request from {{name}} TODO",
+                description: "{{name}} wants to be added to {{organization}}. TODO",
+                action: "Review TODO",
+            },
+            CHANGE_REQUEST: {
+                title: "Change request for {{target}} TODO",
+                description: "{{name}} requested a change for {{target}}. It is waiting for approval. TODO",
+                action: "To application TODO",
+            },
+        },
         addApps: {
             title: "Adicione a(s) sua(s) aplicação(ões)",
             description: "Adicione a(s) sua(s) aplicação(ões) ao catálogo de aplicações para as disponibilizar às instituições.",
@@ -269,6 +285,7 @@ const pt: AppTranslation = {
         memberCount: "N.º de membros",
         applicationCount: "N.º de aplicações",
         adminEmail: "Correio eletrónico do administrador",
+        ticketKey: "Ticket Jira",
         status: "Estado",
         searchPlaceHolder: "Procurar organizações...",
         confirmation: "Tem a certeza de que quer alterar o estado para <strong>{{status}}</strong> da organização {{name}}?",
@@ -577,6 +594,7 @@ const pt: AppTranslation = {
             eduIdAccessInfo: "Se selecionar esta opção, todos os utilizadores eduID terão acesso à ligação da aplicação. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Saiba mais sobre o eduID</a>",
             eduIdAccessLabel: "Os utilizadores eduID podem iniciar sessão através desta ligação",
             eduIdAccessChangeRequestPending: "Existe um pedido de alteração pendente para o acesso eduID. A alteração pedida só produzirá efeitos depois de ser aprovada.",
+            eduIdAccessChangeRequestPendingWithTicket: "Existe um pedido de alteração pendente para o acesso eduID (ticket {{ticketKey}}). A alteração pedida só produzirá efeitos depois de ser aprovada.",
         },
         connectionOverview: {
             disclaimer: "O client secret é apresentado uma vez abaixo. Copie-o agora; caso contrário, terá de pedir um novo segredo.",
@@ -1616,7 +1634,10 @@ const pt: AppTranslation = {
         filters: {
             search: "Search for event, app or person TODO",
             allActors: "All actors TODO",
-            allCategories: "All categories TODO",
+            activeFilters: "Active filters: TODO",
+            clearFilters: "Clear filters TODO",
+            removeFilter: "Remove filter {{filter}} TODO",
+            actor: "Actor: {{name}} TODO",
         },
         categories: {
             APPLICATION: "Applications TODO",
@@ -1625,8 +1646,6 @@ const pt: AppTranslation = {
             PENDING: "Pending TODO",
         },
         summary: {
-            pending: "Pending TODO",
-            pendingUnit: "Items waiting for your action TODO",
             applications: "Applications TODO",
             access: "Access management TODO",
             organisation: "Organisation TODO",
@@ -1652,12 +1671,6 @@ const pt: AppTranslation = {
             REJECTED: "Rejected TODO",
             CANCELLED: "Withdrawn TODO",
             RESOLVED: "Closed TODO",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificate expires soon TODO",
-                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems. TODO",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

@@ -37,7 +37,7 @@
         background-color: var(--accent);
 
         span.tab-label, svg {
-            color: black;
+            color: var(--foreground, black);
         }
 
         svg {

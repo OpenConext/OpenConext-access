@@ -7,13 +7,13 @@ import {Entities} from "../components/Entities";
 import {useAppStore} from "../stores/AppStore";
 import {CheckIcon as SignIcon, DotsThreeIcon as MenuIcon} from "@phosphor-icons/react";
 import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
+import {JiraTicket} from "../components/JiraTicket.jsx";
 import {signContract, unsignedContracts} from "../api";
 import {isEmpty} from "../utils/Utils.js";
 
 export const Contracts = () => {
 
     const setFlash = useAppStore(state => state.setFlash);
-    const config = useAppStore(state => state.config);
 
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -87,11 +87,7 @@ export const Contracts = () => {
         {
             key: "ticketKey",
             header: I18n.t("contracts.ticketKey"),
-            mapper: contract => contract.ticketKey
-                ? <a href={`${config.jiraBrowseBaseUrl}/${contract.ticketKey}`}
-                     target="_blank"
-                     rel="noreferrer">{contract.ticketKey}</a>
-                : "-",
+            mapper: contract => <JiraTicket ticketKey={contract.ticketKey}/>,
         },
         {
             key: "telephone",

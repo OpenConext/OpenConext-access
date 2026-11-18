@@ -138,9 +138,11 @@ const en: AppTranslation = {
         teams: "Teams",
         statistics: "Statistics",
         support: "Support",
+        lightMode: "Light",
+        darkMode: "Dark",
         serviceDesk: "Support",
         feedback: "Help us improve",
-        audit: "Audit log",
+        audit: "Activities",
     },
     breadCrumb: {
         access: "Home",
@@ -163,7 +165,7 @@ const en: AppTranslation = {
         cron: "Cron",
         seed: "Seed",
         contracts: "Contracts",
-        auditLog: "Audit log",
+        auditLog: "Activities",
     },
     welcome: {
         greeting: "Welcome, {{name}}",
@@ -184,6 +186,7 @@ const en: AppTranslation = {
         confirmationAfterTest: "Your organisation has been created. You can continue adding applications.",
         newOrganization: "New organisation created",
         flash: "Organisation {{name}} created",
+        flashWithTicket: "Organisation {{name}} created (reference number {{jiraKey}})",
     },
     userHome: {
         greeting: "{{name}}",
@@ -206,6 +209,19 @@ const en: AppTranslation = {
         toMyApps: "Go to my apps",
         toRoles: "Go to roles",
         usersCount: "{{count}} users",
+        openTasks: {
+            title: "Open tasks",
+            JOIN_REQUEST: {
+                title: "Access request from {{name}}",
+                description: "{{name}} wants to be added to {{organization}}.",
+                action: "Review",
+            },
+            CHANGE_REQUEST: {
+                title: "Change request for {{target}}",
+                description: "{{name}} requested a change for {{target}}. It is waiting for approval.",
+                action: "To application",
+            },
+        },
         addApps: {
             title: "Publish app(s)",
             description: "Add your app(s) to the app catalogue to make them available to institutions.",
@@ -269,6 +285,7 @@ const en: AppTranslation = {
         memberCount: "# Members",
         applicationCount: "# Apps",
         adminEmail: "Admin email",
+        ticketKey: "Jira ticket",
         status: "Status",
         searchPlaceHolder: "Search for organisations...",
         confirmation: "Are you sure you want to change the status to <strong>{{status}}</strong> for organisation {{name}}?",
@@ -359,7 +376,7 @@ const en: AppTranslation = {
         contractRequiredHint: {
             title: "Agreement required for publication",
             description: "Fill in all the details under My organisation.",
-            action: "Fill in details"
+            action: "Fill in details",
         },
         testSection: "Test",
         teamSection: "Team",
@@ -577,6 +594,7 @@ const en: AppTranslation = {
             eduIdAccessInfo: "If you check this option, all eduID users will get access to the app connection. <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eduid.nl/home\">Read more about eduID</a>",
             eduIdAccessLabel: "eduID users may sign in via this app connection",
             eduIdAccessChangeRequestPending: "There is an outstanding change request for eduID access. The requested change will only take effect once it has been approved.",
+            eduIdAccessChangeRequestPendingWithTicket: "There is an outstanding change request for eduID access (ticket {{ticketKey}}). The requested change will only take effect once it has been approved.",
         },
         connectionOverview: {
             disclaimer: "The client secret is shown only once. Copy it now; otherwise you will have to generate a new secret.",
@@ -1602,7 +1620,7 @@ const en: AppTranslation = {
         },
     },
     auditLog: {
-        title: "Audit log",
+        title: "Activities",
         intro: "All activity within your IdP: who was added, which invitations and requests were handled and what needs your attention.",
         today: "Today",
         yesterday: "Yesterday",
@@ -1616,7 +1634,10 @@ const en: AppTranslation = {
         filters: {
             search: "Search for event, app or person",
             allActors: "All actors",
-            allCategories: "All categories",
+            activeFilters: "Active filters:",
+            clearFilters: "Clear filters",
+            removeFilter: "Remove filter {{filter}}",
+            actor: "Actor: {{name}}",
         },
         categories: {
             APPLICATION: "Applications",
@@ -1625,8 +1646,6 @@ const en: AppTranslation = {
             PENDING: "Pending",
         },
         summary: {
-            pending: "Pending",
-            pendingUnit: "Items waiting for your action",
             applications: "Applications",
             access: "Access management",
             organisation: "Organisation",
@@ -1652,12 +1671,6 @@ const en: AppTranslation = {
             REJECTED: "Rejected",
             CANCELLED: "Withdrawn",
             RESOLVED: "Closed",
-        },
-        attention: {
-            CERTIFICATE_EXPIRING: {
-                title: "Certificate expires soon",
-                description: "The SAML signing certificate of your IdP expires on {{date}}. Replace it in time to prevent login problems.",
-            },
         },
         events: {
             CHANGE_REQUEST_SUBMITTED: {

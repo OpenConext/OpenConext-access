@@ -62,6 +62,8 @@ be specified here. The `myCustomApp.tsx` contains an object that allows to overr
 overrides a symlink needs to be applied, see below. Run the commands from the repository root. The symlink targets are relative to the
 location of the link itself (not the current directory), hence the `../` segments. Restart the client dev server and the server after creating the symlinks.
 
+The `app-customizations/client/myCustomApp.tsx` contains an example on how to override the logo. We will not use this for the SURF Access build.
+
 #### Client
 
 Symlink to client

@@ -10,7 +10,6 @@ Uitnodiging accepteren:
 Uitnodiging ontvangen van: {{senderName}} ({{senderOrganization}})
 {{#message}}
 
-Persoonlijk bericht van {{senderName}}:
 {{{message}}}
 {{/message}}
 {{/content}}

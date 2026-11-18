@@ -13,12 +13,14 @@ import WelcomeDiscoverApps from "../icons/figma/welcome-discover-apps.svg";
 import WelcomeSetupAccess from "../icons/figma/welcome-setup-access.svg";
 import {getParameterByName} from "../utils/QueryParameters.js";
 import {scopeServiceProviders} from "../utils/Manage.js";
-import {hasCreateApplicationAccess} from "../utils/Permissions.js";
+import {authorities, hasCreateApplicationAccess} from "../utils/Permissions.js";
+import OpenTasks from "./OpenTasks.jsx";
 import {applicationsCountByOrganization, publicServiceProviders} from "../api/index.js";
 
 const UserHome = () => {
 
-    const {user, currentOrganization} = useAppStore(useShallow(state => ({
+    const {user, currentOrganization, config} = useAppStore(useShallow(state => ({
+        config: state.config,
         user: state.user,
         currentOrganization: state.currentOrganization
     })));
@@ -35,6 +37,9 @@ const UserHome = () => {
 
     const isVendor = isEmpty(currentOrganization?.manageIdentifier);
     const maySeeAccessibleApps = hasCreateApplicationAccess(user, currentOrganization);
+    //The open tasks are only for institution admins, they are the only ones who can handle them
+    const isOrgAdmin = !isEmpty(currentOrganization?.id) && (user.superUser || (user.organizationMemberships || [])
+        .some(m => m.authority === authorities.ADMIN && m.organization.id === currentOrganization.id));
 
     useEffect(() => {
         if (newLocation === null) {
@@ -73,7 +78,7 @@ const UserHome = () => {
     }
 
     const alertInfo = () => {
-        const isNew = getParameterByName("new");
+        const isNew = getParameterByName("new") && !config.testEnvironment;
         if (isNew) {
             return (
                 <Alert variant={"info"} className="w-[520px]">
@@ -134,6 +139,7 @@ const UserHome = () => {
                 {welcomeCard("discoverApps", WelcomeDiscoverApps, mainMenuItems.catalogue, "/catalogue", "link-blue", "badge-blue", discoverAppsCount)}
                 {(!isVendor && maySeeAccessibleApps) && welcomeCard("setupAccess", WelcomeSetupAccess, mainMenuItems.accessibleApps, "/accessible-apps", "link-purple", "badge-purple", connectedAppsCount)}
             </div>
+            {(isOrgAdmin && !isVendor) && <OpenTasks organizationId={currentOrganization.id}/>}
         </div>
     )
 };

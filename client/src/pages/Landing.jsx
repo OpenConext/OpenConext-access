@@ -80,7 +80,9 @@ const Landing = ({refreshUser}) => {
             .then(res => {
                 afterOrgCreate(res);
 
-                setFlash(I18n.t("welcome.flash", {name: res.name}));
+                setFlash(isEmpty(res.ticketKey) ?
+                    I18n.t("welcome.flash", {name: res.name}) :
+                    I18n.t("welcome.flashWithTicket", {name: res.name, jiraKey: res.ticketKey}));
             })
             .catch(() => {
                 setLoading(false);
@@ -95,6 +97,7 @@ const Landing = ({refreshUser}) => {
     const {open, action, question, okButton} = confirmation;
     const exactMatch = !isEmpty(organizations) && !isEmpty(search) && search.trim().length > 2 && !loading && organizations
         .some(org => org.name.toLowerCase().trim() === search.toLowerCase().trim());
+
     return (
         <div className="landing-container">
             {open && <ConfirmationDialog confirm={action}
@@ -104,7 +107,7 @@ const Landing = ({refreshUser}) => {
             />}
             <div className="search">
                 {loading && <Spinner/>}
-                <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("welcome.greeting", {name: user.givenName})}</h2>
+                <h2 className="text-[length:var(--text-xl-font-size)]">{I18n.t("welcome.greeting", {name: user.givenName })}</h2>
                 <p>{I18n.t("welcome.info")}</p>
                 <div className="inner-search">
                     <InputField value={search}

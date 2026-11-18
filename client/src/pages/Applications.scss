@@ -82,7 +82,7 @@ div.applications-container {
             cursor: pointer;
 
             &:hover {
-                background-color: #fafaf9;
+                background-color: var(--muted, #fafaf9);
             }
         }
 
@@ -90,7 +90,7 @@ div.applications-container {
             flex-shrink: 0;
             width: 80px;
             height: 80px;
-            border: 1px solid #f4f6f8;
+            border: 1px solid var(--border, #f4f6f8);
             overflow: hidden;
             display: flex;
             align-items: center;
