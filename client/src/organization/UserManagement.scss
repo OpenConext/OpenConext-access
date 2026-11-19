@@ -4,6 +4,12 @@
 @use "../styles/vars" as *;
 
 div.user-management-outer-container {
+    .roles-alert .alert-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
     width: 100%;
     display: flex;
     flex-direction: column;

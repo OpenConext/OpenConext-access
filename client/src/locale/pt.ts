@@ -732,6 +732,9 @@ const pt: AppTranslation = {
     },
     userManagement: {
         title: "Gestão de utilizadores",
+        rolesHintTitle: "Procura os utilizadores de uma função?",
+        rolesHintDescription: "Os criadores de funções, gestores de funções, convidadores e utilizadores de uma função são geridos em Funções.",
+        rolesHintAction: "Ir para Funções",
     },
     teamManagement: {
         nameEmail: "Nome e correio eletrónico",

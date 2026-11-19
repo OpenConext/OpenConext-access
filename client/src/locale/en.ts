@@ -732,6 +732,9 @@ const en: AppTranslation = {
     },
     userManagement: {
         title: "{{productName}} users",
+        rolesHintTitle: "Looking for the users of a role?",
+        rolesHintDescription: "Role creators, role managers, inviters and users of a role are managed under Roles.",
+        rolesHintAction: "To Roles",
     },
     teamManagement: {
         nameEmail: "Name & email",

@@ -732,6 +732,9 @@ const nl: AppTranslation = {
     },
     userManagement: {
         title: "SURF Access-gebruikers",
+        rolesHintTitle: "Zoek je de gebruikers van een rol?",
+        rolesHintDescription: "Rolmakers, rolmanagers, uitnodigers en gebruikers van een rol beheer je bij Rollen.",
+        rolesHintAction: "Naar Rollen",
     },
     teamManagement: {
         nameEmail: "Naam & E‑mail",
