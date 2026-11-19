@@ -1,0 +1,106 @@
+@use "../styles/vars" as *;
+
+.user-detail-container {
+    padding: 32px 40px;
+
+    .user-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        max-width: 800px;
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            .user-title {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 6px 0;
+                min-width: 0;
+
+                h1 {
+                    margin: 0;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        .user-properties {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+
+            @media (max-width: $mobile-width) {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .user-property {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+
+                .property-label {
+                    color: var(--muted-foreground);
+                    font-size: var(--text-xs-font-size);
+                    line-height: var(--text-xs-line-height);
+                }
+
+                .property-value {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+
+        .user-roles {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            h2 {
+                margin: 0;
+                font-size: var(--text-xl-font-size);
+                font-weight: 600;
+            }
+
+            .role-card {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 24px;
+                background-color: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+
+                .role-card-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+
+                    .role-name {
+                        color: var(--card-foreground);
+                        font-size: var(--text-lg-font-size);
+                        font-weight: 600;
+                    }
+
+                    .role-function {
+                        color: var(--muted-foreground);
+                    }
+                }
+            }
+        }
+
+        .user-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+    }
+}
