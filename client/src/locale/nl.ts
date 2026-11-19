@@ -77,7 +77,7 @@ const nl: AppTranslation = {
                 title: "Voor commerciële app-aanbieders",
                 info: [
                     "Je eigen applicaties toevoegen en ze veilig delen met onderwijs- en onderzoeksinstellingen.",
-                    "Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er een in de volgende stap aan."
+                    "Dit doe je gratis, met je eduID. Nog geen account? Maak er een in de volgende stap aan."
                 ],
                 cta: "Doorgaan met eduID",
             },
@@ -96,7 +96,7 @@ const nl: AppTranslation = {
             providers: {
                 info: [
                     "Straks voeg je je eigen applicaties toe en deel je ze veilig met onderwijs- en onderzoeksinstellingen.",
-                    "Dit doe je gratis, met een eduID-account."
+                    "Dit doe je gratis, met je eduID."
                 ],
             },
             institutions: {
@@ -1145,7 +1145,7 @@ const nl: AppTranslation = {
     },
     feedback: {
         title: "Feedback geven",
-        info: "Ben je tevreden met SURF Access? Of heb je een suggestie? Laat ons weten wat je vindt.",
+        info: "Ben je tevreden met {{productName}}? Of heb je een suggestie? Laat ons weten wat je vindt.",
         disclaimer: "We gebruiken deze informatie om problemen op te lossen, onze producten te verbeteren en je te helpen. We kunnen contact met je opnemen over je feedback. Lees voor meer informatie onze <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacyverklaring</a>.",
         help: "Hulp nodig?",
         helpInfo: "Voor vragen of problemen kun je contact opnemen via <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>",
@@ -1297,7 +1297,7 @@ const nl: AppTranslation = {
         organizationMultiple: "Organisatielidmaatschappen",
         applicationMultiple: "Applicatielidmaatschappen",
         externalUser: "Externe gebruiker",
-        externalUserTooltip: "Een externe gebruiker – in tegenstelling tot een interne – is een gebruiker die alleen een eduID‑account heeft en geen account van een instelling.",
+        externalUserTooltip: "Een externe gebruiker – in tegenstelling tot een interne – is een gebruiker die alleen een eduID heeft en geen account van een instelling.",
         internalUser: "Interne gebruiker",
         internalUserTooltip: "Een interne gebruiker – in tegenstelling tot een externe – is een gebruiker die is ingelogd met een account van een instelling.",
         sub: "Sub",
@@ -1598,8 +1598,8 @@ const nl: AppTranslation = {
         importAsNewApplication: "Importeren als nieuwe applicatie",
         importAsNewConnection: "Importeren als nieuwe koppeling",
         import: "Importeren",
-        notInAccess: "Deze entiteit is nog niet bekend in SURF Access. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
-        inAccess: "Deze entiteit uit Manage is een SURF Access‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
+        notInAccess: "Deze entiteit is nog niet bekend in {{productName}}. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
+        inAccess: "Deze entiteit uit Manage is een {{productName}}‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
         chooseOrganisation: "Kies een organisatie",
         chooseImportOrganisationPlaceholder: "Zoek en kies een organisatie om deze entiteit te importeren",
         chooseApplication: "Zoek en kies een applicatie",
