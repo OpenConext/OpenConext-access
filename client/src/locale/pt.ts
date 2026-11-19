@@ -76,16 +76,14 @@ const pt: AppTranslation = {
             providers: {
                 title: "Para fornecedores de aplicações",
                 info: [
-                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação.",
-                    "Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
+                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação. Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
                 ],
                 cta: "Continuar com o eduID",
             },
             institutions: {
                 title: "Para instituições",
                 info: [
-                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição.",
-                    "Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
+                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição. Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
                 ],
                 cta: "Iniciar sessão através da sua instituição",
             },

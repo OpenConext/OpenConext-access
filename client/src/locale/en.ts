@@ -76,16 +76,14 @@ const en: AppTranslation = {
             providers: {
                 title: "For commercial app providers",
                 info: [
-                    "Add your own applications and share them securely with education and research institutions.",
-                    "You do this for free, with an eduID account. No eduID yet? Create one in the next step."
+                    "Add your own applications and share them securely with education and research institutions. You do this for free, with an eduID account. No eduID yet? Create one in the next step."
                 ],
                 cta: "Continue with eduID",
             },
             institutions: {
                 title: "For institutions",
                 info: [
-                    "Add your own applications, activate applications for your institution and decide who gets access.",
-                    "Sign in with your institution account and arrange everything in one place."
+                    "Add your own applications, activate applications for your institution and decide who gets access. Sign in with your institution account and arrange everything in one place."
                 ],
                 cta: "Sign in via your institution",
             },
