@@ -3,9 +3,8 @@
 Hallo,
 
 {{requester.name}} heeft verzocht om dienst {{serviceProviderName}} te koppelen aan jouw organisatie {{organization.name}}.
-{{#message}}
 
-Persoonlijk bericht van {{requester.name}}:
+{{#message}}
 {{{message}}}
 {{/message}}
 
