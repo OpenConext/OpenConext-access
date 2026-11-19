@@ -76,16 +76,14 @@ const nl: AppTranslation = {
             providers: {
                 title: "Voor commerciële app-aanbieders",
                 info: [
-                    "Je eigen applicaties toevoegen en ze veilig delen met onderwijs- en onderzoeksinstellingen.",
-                    "Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er een in de volgende stap aan."
+                    "Je eigen applicaties toevoegen en ze veilig delen met onderwijs- en onderzoeksinstellingen. Dit doe je gratis, met een eduID-account. Nog geen eduID? Maak er een in de volgende stap aan."
                 ],
                 cta: "Doorgaan met eduID",
             },
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
-                    "Log in met je instellingsaccount en regel alles op één plek."
+                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt. Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
             },
