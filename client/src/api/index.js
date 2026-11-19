@@ -407,6 +407,10 @@ export function changeOrganizationMembershipById(organizationMembership, authori
     return postPutJson("/api/v1/organization_memberships", body, "PUT");
 }
 
+export function organizationMembershipDetail(id) {
+    return fetchJson(`/api/v1/organization_memberships/${id}`);
+}
+
 export function deleteOrganizationMembershipById(organizationMembership) {
     return fetchDelete(`/api/v1/organization_memberships/${organizationMembership.id}`);
 }

@@ -129,7 +129,9 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     // The confirmation actions are closures created when the dialog opens, so they would send the message
     // as it was at that moment (empty). The ref always holds the latest value.
     const messageRef = useRef("");
-    messageRef.current = message;
+    useEffect(() => {
+        messageRef.current = message;
+    }, [message]);
     const [consent, setConsent] = useState({type: CONSENT.default_consent});
     const [mfaEntity, setMfaEntity] = useState({level: MFA_DEFAULT});
     const [stepupEntity, setStepupEntity] = useState({level: STEPUP_DEFAULT});
