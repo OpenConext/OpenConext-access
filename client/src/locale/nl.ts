@@ -271,7 +271,7 @@ const nl: AppTranslation = {
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisatieregistratie. Je kunt al apps registreren in onze testomgeving. Productietoegang wordt beschikbaar zodra je organisatie is goedgekeurd.",
-        tooltipApproved: "Je organisatie is goedgekeurd. Je kunt nu apps registreren in de productieomgeving en een productiestatus aanvragen.",
+        tooltipApproved: "Je organisatie is goedgekeurd. Je kunt nu apps registreren in de productieomgeving en een publicatie aanvragen.",
         pendingApprovalTitle: "Organisaties in afwachting van goedkeuring",
         pending_approval: "In afwachting van goedkeuring",
         approved: "Goedgekeurd",
@@ -534,8 +534,8 @@ const nl: AppTranslation = {
             },
             protocol: "Protocol",
             details: "Details",
-            requestProductionStatus: "Productiestatus aanvragen",
-            requestProductionStatusConfirmation: "Weet je zeker dat je productiestatus wilt aanvragen voor {{name}}?",
+            requestProductionStatus: "Publicatie aanvragen",
+            requestProductionStatusConfirmation: "Weet je zeker dat je publicatie wilt aanvragen voor {{name}}?",
             requestProductionStatusPostTitle: "Publicatie van je koppeling is aangevraagd",
             requestProductionStatusPostDescription: "Je krijgt binnen <strong>3 werkdagen</strong> een e-mail van ons. Je referentienummer is <strong>{{jiraKey}}</strong>.",
         },
@@ -692,13 +692,13 @@ const nl: AppTranslation = {
             nextStep: "Volgende",
             postponePublish: "Later publiceren",
             doneAndContinue: "Klaar en doorgaan",
-            appInformationIncomplete: "Voordat de status 'gereed voor productie' wordt aangevraagd,<br/> moet alle app-informatie zijn ingevuld",
-            pendingProdDisclaimerTitle: "Deze koppeling wacht op de status 'gereed voor productie'",
+            appInformationIncomplete: "Vul alle app-informatie in voordat je publicatie aanvraagt.",
+            pendingProdDisclaimerTitle: "Deze koppeling wacht op goedkeuring voor publicatie.'",
             pendingProdDisclaimerDescription: "Je ontvangt een e-mail zodra het verzoek is goedgekeurd.",
             readyTitle: "De koppeling is live",
             readyDescription: "De koppeling is klaar voor gebruik. Deel onderstaande link<br/>met instellingen die de applicatie willen activeren.",
             copyUrl: "URL kopiëren",
-            contractRequired: "Het contract moet goedgekeurd zijn voordat de status 'gereed voor productie' wordt aangevraagd",
+            contractRequired: "Het contract moet goedgekeurd zijn voordat je publicatie aanvraagt.",
             contractRequestedTitle: "Overeenkomst aangevraagd",
             contractRequestedDescription: "Je kunt de koppeling publiceren zodra de overeenkomst getekend is. We sturen de overeenkomst binnen 3 werkdagen naar je e-mailadres. Heb je een vraag? Noem dan referentienummer {{referenceNumber}}.",
             contractRequestedDescriptionNoReference: "Je kunt de koppeling publiceren zodra de overeenkomst getekend is. We sturen de overeenkomst binnen 3 werkdagen naar je e-mailadres.",
@@ -859,7 +859,7 @@ const nl: AppTranslation = {
         invalidEmails: "Ongeldige e‑mailadressen verwijderd: {{emails}}.",
         requiredEmail: "Vul minimaal één e‑mailadres in voor een uitnodiging",
         intendedAuthorityTooltip: "De rol bepaalt welke rechten de uitgenodigde krijgt bij het accepteren van de uitnodiging",
-        inviteesTooltip: "Voeg e‑mailadressen toe, gescheiden door komma, spatie of puntkomma, of op aparte regels. Je kunt ook een CSV‑bestand plakken met één e-mailadres per regel.",
+        inviteesTooltip: "Voeg e‑mailadressen toe, gescheiden door komma, spatie of puntkomma, of op aparte regels. Je kunt ook de inhoud van een CSV‑bestand plakken, met één e-mailadres per regel.",
         applications: "Applicaties",
         applicationsPlaceHolder: "Zoek en voeg app-toegang toe voor deze uitnodiging",
         applicationsTooltip: "Je kunt nu al applicaties toevoegen aan deze uitnodiging. De uitgenodigden krijgen lees‑ en schrijfrechten voor de applicaties.",
@@ -941,9 +941,9 @@ const nl: AppTranslation = {
         supportedEntityCategories: "Ondersteunde entity categories",
         entityCategory: {
             "http://www.geant.net/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
-            "https://refed.sorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
+            "https://refeds.org/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
             "http://refeds.org/category/research-and-scholarship": "Research and Scholarship",
-            "http://clarin.eu/category/clarin-member": "Clarin‑lid",
+            "http://clarin.eu/category/clarin-member": "CLARIN‑lid",
             "http://refeds.org/category/hide-from-discovery": "Verborgen voor discovery",
         },
         none: "Geen",
@@ -1722,8 +1722,8 @@ const nl: AppTranslation = {
                 description: "Het secret van {{target}} is opnieuw ingesteld.",
             },
             PRODUCTION_REQUESTED: {
-                title: "Productiestatus aangevraagd",
-                description: "Productiestatus is aangevraagd voor {{target}}.",
+                title: "Publicatie aangevraagd",
+                description: "Publicatie is aangevraagd voor {{target}}.",
             },
             APPLICATION_CONNECTED: {
                 title: "Applicatie gekoppeld",
@@ -1767,7 +1767,7 @@ const nl: AppTranslation = {
             },
             INVITATION_DELETED: {
                 title: "Uitnodiging ingetrokken",
-                description: "De uitnodiging voor {{target}} is verwijderd.",
+                description: "De uitnodiging voor {{target}} is ingetrokken.",
             },
             JOIN_REQUEST_CREATED: {
                 title: "Toegangsverzoek",
@@ -1802,7 +1802,7 @@ const nl: AppTranslation = {
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             ORGANISATION_METADATA_UPDATED: {
-                title: "Metadata van organisatie bijgewerkt,
+                title: "Metadata van organisatie bijgewerkt"
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             CONTRACT_REQUESTED: {
