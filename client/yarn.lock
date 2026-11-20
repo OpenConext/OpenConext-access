@@ -2482,18 +2482,18 @@ html2canvas-pro@^2.6.4:
   resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-2.6.4.tgz#687784cb0e722f5dde63cde30684bd686e3be11f"
   integrity sha512-1SMOfXwMACgQPt1wcKOtuRnBxkcREiJQdOyVpgp6a4/z9Rb/v7QPcvyu5GlxdDDiMznLwKxX5KwvtSlNlZJ7Wg==
 
-http-proxy-middleware@^4.2.1:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/http-proxy-middleware/-/http-proxy-middleware-4.2.1.tgz#702932a45619e6813185aae2d3d5fe72f6a934f8"
-  integrity sha512-60SmYZpPD4dPbC2GZVkVV4uP/V/cbsXSwzGQXeHWbbE3Q1XdccJpqHTg6NJ6iMpFGVA1OEry8c8kHhx4ahiU1w==
+http-proxy-middleware@^4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/http-proxy-middleware/-/http-proxy-middleware-4.2.2.tgz#5218c29cef50ee4b5e8db63e481a285d50ecd6d7"
+  integrity sha512-GHP6tbjWsdSZbWSyqYvwPwoR76ozJ2IccVYoBR702N9vfqO0KBIwJ9vkDRErxwbb5Z6ej2Wn+9D/YitlUTseSQ==
   dependencies:
     debug "^4.4.3"
-    httpxy "^0.5.4"
+    httpxy "^0.5.6"
     is-glob "^4.0.3"
     is-plain-obj "^4.1.0"
     micromatch "^4.0.8"
 
-httpxy@^0.5.4:
+httpxy@^0.5.6:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/httpxy/-/httpxy-0.5.6.tgz#954e0cb1a815c98df6f14be385ed946cd1080451"
   integrity sha512-iqc3nOxvNb5FxbhJozt8wNmHgjlmk4zzba512jMEXVwHCEBCbGAj49eGfy5PI8ts3/LFSFq8siiSNqwfY1AlfQ==
