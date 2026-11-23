@@ -278,7 +278,7 @@ public abstract class AbstractTest {
                 .get(path)
                 .headers();
         String location = headers.getValue("Location");
-        assertEquals("http://localhost:" + this.port + "/oauth2/authorization/oidcng", location);
+        assertEquals("/oauth2/authorization/oidcng", location);
 
         headers = given()
                 .redirects()
