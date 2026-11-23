@@ -76,14 +76,16 @@ const pt: AppTranslation = {
             providers: {
                 title: "Para fornecedores de aplicações",
                 info: [
-                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação. Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
+                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação.",
+                    "Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
                 ],
                 cta: "Continuar com o eduID",
             },
             institutions: {
                 title: "Para instituições",
                 info: [
-                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição. Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
+                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição.",
+                    "Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
                 ],
                 cta: "Iniciar sessão através da sua instituição",
             },
@@ -961,11 +963,11 @@ const pt: AppTranslation = {
         },
         supportedEntityCategories: "Categorias de entidade suportadas",
         entityCategory: {
-            "http://wwwgeantnet/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct",
-            "https://refedsorg/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2",
-            "http://refedsorg/category/research-and-scholarship": "Research and Scholarship",
-            "http://clarineu/category/clarin-member": "Membro Clarin",
-            "http://refedsorg/category/hide-from-discovery": "Ocultar da descoberta",
+            "http://www.geant.net/uri/dataprotection-code-of-conduct/v1": "GÉANT Data Protection Code of Conduct TODO",
+            "https://refeds.org/category/code-of-conduct/v2": "REFEDS Data Protection Code of Conduct v2 TODO",
+            "http://refeds.org/category/research-and-scholarship": "Research and Scholarship TODO",
+            "http://clarin.eu/category/clarin-member": "Clarin member TODO",
+            "http://refeds.org/category/hide-from-discovery": "Hidden from discovery TODO",
         },
         none: "Nenhuma",
         interfedSource: "Origem da federação",

@@ -84,7 +84,8 @@ const nl: AppTranslation = {
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt. Log in met je instellingsaccount en regel alles op één plek."
+                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
+                    "Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
             },
@@ -1824,7 +1825,7 @@ const nl: AppTranslation = {
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             ORGANISATION_METADATA_UPDATED: {
-                title: "Metadata van organisatie bijgewerkt"
+                title: "Metadata van organisatie bijgewerkt",
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             CONTRACT_REQUESTED: {

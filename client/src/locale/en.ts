@@ -76,7 +76,8 @@ const en: AppTranslation = {
             providers: {
                 title: "For commercial app providers",
                 info: [
-                    "Add your own applications and share them securely with education and research institutions. You do this for free, with an eduID account. No eduID yet? Create one in the next step."
+                    "Add your own applications and share them securely with education and research institutions.",
+                    "You do this for free, with an eduID account. No eduID yet? Create one in the next step."
                 ],
                 cta: "Continue with eduID",
             },
@@ -140,7 +141,7 @@ const en: AppTranslation = {
         lightMode: "Light",
         darkMode: "Dark",
         serviceDesk: "Support",
-        : "Help us improve",
+        feedback: "Help us improve",
         audit: "Activities",
     },
     breadCrumb: {
@@ -152,7 +153,7 @@ const en: AppTranslation = {
         invitations: "Invitations",
         home: "Home",
         stats: "Statistics",
-        : "",
+        feedback: "Feedback",
         profile: "Profile",
         changelog: "Changelog",
         system: "System",
