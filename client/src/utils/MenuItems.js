@@ -77,7 +77,7 @@ export const allMenuGroups = [
                 // Roles are managed in the Invite application, see SharedMenu
                 externalConfigKey: "invite",
                 externalSameTabConfigKey: "inviteSameTab",
-                externalPath: "/home/roles",
+                externalPath: "/roles/home/roles",
                 Logo: TeamIcon
             },
             {
@@ -135,10 +135,13 @@ export const supportMenuItem = {
 //Same target as the roles menu item: SURF Invite in the same tab, or the page that opens it in a new tab
 const inviteMenuItem = () => allMenuGroups.map(group => group.items).flat().find(item => item.name === mainMenuItems.invite);
 
+//Invite is served under /roles. The configured url may still end with the old /home/roles, which Invite redirects
+export const stripInvitePath = invite => invite.replace(/(\/roles)?\/home\/roles\/?$/, "").replace(/\/$/, "");
+
 const inviteBaseUrl = config => {
     const invite = inviteMenuItem();
     return config?.[invite.externalConfigKey] && config[invite.externalSameTabConfigKey] ?
-        config[invite.externalConfigKey].replace(invite.externalPath, "").replace(/\/$/, "") : null;
+        stripInvitePath(config[invite.externalConfigKey]) : null;
 }
 
 //Invite runs on another domain and can't read our storage, so the current organization travels in the url
@@ -150,10 +153,10 @@ export const inviteRolesHref = (config, organizationId) => {
     return baseUrl ? withOrganization(`${baseUrl}${inviteMenuItem().externalPath}`, organizationId) : inviteMenuItem().path;
 }
 
-//A single role is available on the Invite domain as roles/{id}
+//A single role is available on the Invite domain as /roles (the application) + /roles/{id} (the route)
 export const inviteRoleHref = (config, roleId, organizationId) => {
     const baseUrl = inviteBaseUrl(config);
-    return baseUrl ? withOrganization(`${baseUrl}/roles/${roleId}`, organizationId) : inviteMenuItem().path;
+    return baseUrl ? withOrganization(`${baseUrl}/roles/roles/${roleId}`, organizationId) : inviteMenuItem().path;
 }
 
 export const activeMenuItem = currentLocation => {

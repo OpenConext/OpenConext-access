@@ -50,7 +50,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
-import {mainMenuItems} from "../utils/MenuItems.js";
+import {mainMenuItems, stripInvitePath} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import DOMPurify from "dompurify";
 import SelectField from "../components/SelectField.jsx";
@@ -487,13 +487,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const navigateToNewRole = () => {
-        const inviteUrl = config.invite.replace("/home/roles", "");
-        window.location.href = `${inviteUrl}/role/new`;
+        window.location.href = `${stripInvitePath(config.invite)}/roles/role/new`;
     }
 
     const navigateToRole = role => {
-        const inviteUrl = config.invite.replace("/home/roles", "");
-        window.location.href = `${inviteUrl}/roles/${role.id}/guests`;
+        window.location.href = `${stripInvitePath(config.invite)}/roles/roles/${role.id}/guests`;
     }
 
     // Carries enough context back through /policies for PolicyForm to show a

@@ -119,7 +119,7 @@ config:
   owner_schac_home_orgs:
     - "surfnet.nl"
   discovery: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
-#  invite: "https://invite.test2.surfconext.nl/home/roles"
+#  invite: "https://invite.test2.surfconext.nl/roles/home/roles"
   invite: "http://localhost:3000"
   # Feature toggle: true opens SURF Invite (Roles) in the same tab, so the user does not feel leaving the application.
   # false shows the /external/invite page that opens SURF Invite in a new tab.
