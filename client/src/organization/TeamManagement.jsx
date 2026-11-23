@@ -199,6 +199,10 @@ export const TeamManagement = ({organization, currentUserAuthority, refreshState
                 displaySearch={true}
                 searchAttributes={["user__name", "user__email"]}
                 newEntityFunc={() => navigate(`/invitation/${organization.id}`)}
+                rowLinkMapper={currentUserAuthority === authorities.ADMIN ?
+                    (e, membership) => navigate(`/user/${organization.id}/${membership.id}`) : undefined}
+                rowHrefMapper={currentUserAuthority === authorities.ADMIN ?
+                    membership => `/user/${organization.id}/${membership.id}` : undefined}
                 inputFocus={true}/>
         )
     };

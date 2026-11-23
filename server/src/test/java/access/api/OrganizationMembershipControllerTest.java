@@ -39,6 +39,40 @@ class OrganizationMembershipControllerTest extends AbstractTest {
     }
 
     @Test
+    void detail() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.MEMBER.name()));
+
+        Map<String, Object> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .pathParam("organizationMembershipId", organizationMembershipId)
+                .get("/api/v1/organization_memberships/{organizationMembershipId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(Authority.MEMBER.name(), result.get("authority"));
+        assertTrue(result.containsKey("user"));
+        assertTrue(result.containsKey("applicationMemberships"));
+        assertTrue(result.containsKey("roles"));
+    }
+
+    @Test
+    void detailByPlainMemberNotAllowed() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(GUEST_SUB);
+        Long organizationMembershipId = super.seedIdentifiers.get(OrganizationMembership.class.getName().concat(SHARE_LOGICS).concat(Authority.MEMBER.name()));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .pathParam("organizationMembershipId", organizationMembershipId)
+                .get("/api/v1/organization_memberships/{organizationMembershipId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
     void updateToAdminForInstitutionalOrganizationNotAllowed() {
         //ShareLogics has a manageIdentifier, so it is an institutional (IdP) organization
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);

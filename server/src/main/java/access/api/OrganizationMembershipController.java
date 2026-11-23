@@ -5,6 +5,7 @@ import access.audit.AuditCategory;
 import access.audit.AuditLogger;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
+import access.invite.InviteClient;
 import access.model.Authority;
 import access.model.Organization;
 import access.model.OrganizationMembership;
@@ -19,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -36,11 +40,68 @@ public class OrganizationMembershipController implements UserAccessRights {
 
     private final OrganizationMembershipRepository organizationMembershipRepository;
     private final AuditLogger auditLogger;
+    private final InviteClient inviteClient;
 
     public OrganizationMembershipController(OrganizationMembershipRepository organizationMembershipRepository,
-                                            AuditLogger auditLogger) {
+                                            AuditLogger auditLogger,
+                                            InviteClient inviteClient) {
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.inviteClient = inviteClient;
         this.auditLogger = auditLogger;
+    }
+
+    /*
+     * Detail of a membership for the user detail page: the user attributes that are not part of the regular
+     * membership JSON, the application memberships and the Invite roles of the user.
+     */
+    @GetMapping({"/{membership_id}"})
+    public ResponseEntity<Map<String, Object>> detail(User user, @PathVariable("membership_id") Long membershipId) {
+        LOG.debug("/detail");
+        OrganizationMembership organizationMembership = this.organizationMembershipRepository.findById(membershipId)
+                .orElseThrow(() -> new NotFoundException("OrganizationMembership not found"));
+        Organization organization = organizationMembership.getOrganization();
+        confirmOrganizationMembership(user, organization, Authority.ADMIN);
+
+        User member = organizationMembership.getUser();
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", member.getId());
+        userInfo.put("name", member.getName());
+        userInfo.put("email", member.getEmail());
+        userInfo.put("sub", member.getSub());
+        userInfo.put("eduPersonPrincipalName", member.getEduPersonPrincipalName());
+        userInfo.put("lastActivity", member.getLastActivity());
+        userInfo.put("organizationGUID", member.getOrganizationGUID());
+
+        List<Map<String, Object>> applicationMemberships = organizationMembership.getApplicationMemberships().stream()
+                .map(am -> Map.<String, Object>of(
+                        "id", am.getId(),
+                        "applicationId", am.getApplication().getId(),
+                        "applicationName", am.getApplication().getName()))
+                .sorted(Comparator.comparing(m -> ((String) m.get("applicationName")).toLowerCase()))
+                .toList();
+
+        List<Map<String, Object>> roles = List.of();
+        if (!member.isSuperUser() && StringUtils.hasText(member.getSub())) {
+            try {
+                List<Map<String, Object>> inviteRoles = inviteClient.rolesPerUser(member.getSub());
+                roles = inviteRoles != null ? inviteRoles : List.of();
+            } catch (RuntimeException e) {
+                //Invite can be unavailable, the roles are optional
+                LOG.warn("Could not fetch Invite roles for user " + member.getEmail(), e);
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", organizationMembership.getId());
+        result.put("authority", organizationMembership.getAuthority());
+        result.put("createdAt", organizationMembership.getCreatedAt());
+        result.put("organizationId", organization.getId());
+        result.put("organizationName", organization.getName());
+        result.put("manageIdentifier", organization.getManageIdentifier());
+        result.put("nbrOfAdmins", getNbrOfAdmins(organizationMembership));
+        result.put("user", userInfo);
+        result.put("applicationMemberships", applicationMemberships);
+        result.put("roles", roles);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping({"/{membership_id}"})

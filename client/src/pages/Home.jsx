@@ -11,7 +11,7 @@ import WelcomeManageAccess from "../icons/landing/home_manage_access.svg";
 const heroImage = new URL("../icons/landing/home_hero.png", import.meta.url).href;
 const providersImage = new URL("../icons/landing/home_start_provider.svg", import.meta.url).href;
 const institutionsImage = new URL("../icons/landing/home_start_institution.svg", import.meta.url).href;
-import {ArrowDownIcon} from "@phosphor-icons/react";
+import {ArrowDownIcon, ArrowRightIcon} from "@phosphor-icons/react";
 import PublicStats from "./PublicStats.jsx";
 import {loginTimeFrame} from "../api/index.js";
 
@@ -153,8 +153,9 @@ export const Home = () => {
                                 <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.providers.title")}</h3>
                                 {tArray(`landing.${demoOnly ? "demoOnly" : "gettingStarted"}.providers.info`, (info, index) =>
                                     <p key={index}>{info}</p>)}
-                                {!demoOnly && <Button variant="outline" onClick={() => login(config, true)}>
+                                {!demoOnly && <Button onClick={() => login(config, true)}>
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
+                                    <ArrowRightIcon aria-hidden="true"/>
                                 </Button>}
                             </div>
                         </div>
@@ -167,8 +168,9 @@ export const Home = () => {
                                 <h3 className="text-[30px]">{I18n.t("landing.gettingStarted.institutions.title")}</h3>
                                 {tArray(`landing.${demoOnly ? "demoOnly" : "gettingStarted"}.institutions.info`, (info, index) =>
                                     <p key={index}>{info}</p>)}
-                                {!demoOnly && <Button variant="outline" onClick={() => login(config, false)}>
+                                {!demoOnly && <Button onClick={() => login(config, false)}>
                                     <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
+                                    <ArrowRightIcon aria-hidden="true"/>
                                 </Button>}
                             </div>
                         </div>
@@ -184,7 +186,7 @@ export const Home = () => {
                         <Button className="try-demo-institution" onClick={() => login(config, false)}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.institutions.cta"))}}/>
                         </Button>
-                        <Button variant="outline" className="try-demo-eduid" onClick={() => login(config, true)}>
+                        <Button variant="secondary" className="try-demo-eduid" onClick={() => login(config, true)}>
                             <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("landing.gettingStarted.providers.cta"))}}/>
                         </Button>
                     </div>

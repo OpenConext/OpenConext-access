@@ -84,8 +84,7 @@ const nl: AppTranslation = {
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
-                    "Log in met je instellingsaccount en regel alles op één plek."
+                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt. Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
             },
@@ -734,6 +733,29 @@ const nl: AppTranslation = {
     },
     userManagement: {
         title: "SURF Access-gebruikers",
+        rolesHintTitle: "Zoek je de gebruikers van een rol?",
+        rolesHintDescription: "Rolmakers, rolmanagers, uitnodigers en gebruikers van een rol beheer je bij Rollen.",
+        rolesHintAction: "Naar Rollen",
+    },
+    userDetail: {
+        sub: "Sub",
+        eppn: "EPPN",
+        institution: "Instelling",
+        email: "E-mail",
+        name: "Naam",
+        lastActive: "Laatst actief",
+        guid: "Organisatie-GUID",
+        role: "{{productName}} rol",
+        appMgmt: "Applicatiebeheer",
+        appMgmtInfo: "De gebruiker kan voor onderstaande applicaties de app-informatie en koppelingen aanpassen.",
+        appPlaceholder: "Selecteer applicaties",
+        roles: "Rollen",
+        viewRole: "Rol bekijken",
+        roleManager: "Rolmanager",
+        delete: "Gebruiker verwijderen",
+        deleteConfirmation: "Weet je zeker dat je {{name}} uit de organisatie wilt verwijderen?",
+        updated: "De gebruiker {{name}} is bijgewerkt",
+        deleted: "De gebruiker {{name}} is verwijderd",
     },
     teamManagement: {
         nameEmail: "Naam & e‑mail",

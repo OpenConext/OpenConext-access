@@ -30,6 +30,7 @@ import System from "./pages/System.jsx";
 import {InvitationForm} from "./pages/InvitationForm.jsx";
 import {Invitation} from "./pages/Invitation.jsx";
 import {UserManagement} from "./organization/UserManagement.jsx";
+import {UserDetail} from "./organization/UserDetail.jsx";
 import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
@@ -231,6 +232,7 @@ const App = () => {
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<HomeSwitch/>}/>
                             <Route path="/relax" element={<Relax/>}/>
+                            <Route path="/user/:organizationId/:membershipId" element={<UserDetail refreshUser={refreshUser}/>}/>
                             <Route path="/users/:organizationId/:tab?" element={<UserManagement refreshUser={refreshUser}/>}/>
                             <Route path="/organization/:organizationId/:tab?" element={<Organization/>}/>
                             <Route path="/application/:applicationId" element={<ApplicationForm/>}/>
