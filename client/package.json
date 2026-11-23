@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "resolutions": {
-    "undici": "^8.12.4",
+    "undici": "^8.13.0",
     "lodash": "^4.18.1",
     "vite": "^8.3.2",
     "brace-expansion": "^5.0.12",
@@ -32,7 +32,7 @@
     "follow-redirects": "^1.16.3",
     "html2canvas-pro": "^2.6.4",
     "i18n-js": "^4.5.4",
-    "isomorphic-dompurify": "4.7.0",
+    "isomorphic-dompurify": "4.8.0",
     "js-cookie": "^3.0.8",
     "js-yaml": "^5.5.0",
     "jsondiffpatch": "^0.7.7",
@@ -45,10 +45,10 @@
     "react-image-crop": "^11.1.2",
     "react-json-view-lite": "^2.5.0",
     "react-markdown": "^10.1.0",
-    "react-router": "^8.5.0",
+    "react-router": "^8.5.2",
     "react-select": "^5.10.2",
     "sonner": "^2.0.8",
-    "undici": "^8.12.4",
+    "undici": "^8.13.0",
     "use-debounce": "^10.1.1",
     "zustand": "^5.1.0"
   },
