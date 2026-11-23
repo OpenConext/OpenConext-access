@@ -81,6 +81,8 @@ cron:
   org-delete-after-days: 365
   user-inactivity-warn-days: 60
   user-inactivity-delete-days: 90
+  user-no-access-rights-delete-days: 30
+  join-request-delete-days: 30
 
 lifecycle:
   user: lifecycle

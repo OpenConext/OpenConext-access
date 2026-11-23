@@ -84,8 +84,7 @@ const nl: AppTranslation = {
             institutions: {
                 title: "Voor instellingen",
                 info: [
-                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt.",
-                    "Log in met je instellingsaccount en regel alles op één plek."
+                    "Je eigen applicaties toevoegen, applicaties activeren voor je instelling en bepalen wie er toegang krijgt. Log in met je instellingsaccount en regel alles op één plek."
                 ],
                 cta: "Inloggen via je instelling",
             },
@@ -96,7 +95,7 @@ const nl: AppTranslation = {
             providers: {
                 info: [
                     "Straks voeg je je eigen applicaties toe en deel je ze veilig met onderwijs- en onderzoeksinstellingen.",
-                    "Dit doe je gratis, met een eduID-account."
+                    "Dit doe je gratis, met je eduID."
                 ],
             },
             institutions: {
@@ -271,12 +270,12 @@ const nl: AppTranslation = {
     },
     organizations: {
         tooltip: "SURF beoordeelt je organisatieregistratie. Je kunt al apps registreren in onze testomgeving. Productietoegang wordt beschikbaar zodra je organisatie is goedgekeurd.",
-        tooltipApproved: "Je organisatie is goedgekeurd. Je kunt nu apps registreren in de productieomgeving en een productiestatus aanvragen.",
+        tooltipApproved: "Je organisatie is goedgekeurd. Je kunt nu apps registreren in de productieomgeving en een publicatie aanvragen.",
         pendingApprovalTitle: "Organisaties in afwachting van goedkeuring",
         pending_approval: "In afwachting van goedkeuring",
         approved: "Goedgekeurd",
         disapproved: "Afgewezen",
-        pending_approval_action: "erugzetten naar 'In afwachting'",
+        pending_approval_action: "Terugzetten naar In afwachting",
         approved_action: "Goedkeuren",
         disapproved_action: "Afwijzen",
         name: "Naam",
@@ -534,8 +533,8 @@ const nl: AppTranslation = {
             },
             protocol: "Protocol",
             details: "Details",
-            requestProductionStatus: "Productiestatus aanvragen",
-            requestProductionStatusConfirmation: "Weet je zeker dat je productiestatus wilt aanvragen voor {{name}}?",
+            requestProductionStatus: "Publicatie aanvragen",
+            requestProductionStatusConfirmation: "Weet je zeker dat je publicatie wilt aanvragen voor {{name}}?",
             requestProductionStatusPostTitle: "Publicatie van je koppeling is aangevraagd",
             requestProductionStatusPostDescription: "Je krijgt binnen <strong>3 werkdagen</strong> een e-mail van ons. Je referentienummer is <strong>{{jiraKey}}</strong>.",
         },
@@ -692,13 +691,13 @@ const nl: AppTranslation = {
             nextStep: "Volgende",
             postponePublish: "Later publiceren",
             doneAndContinue: "Klaar en doorgaan",
-            appInformationIncomplete: "Voordat de status 'gereed voor productie' wordt aangevraagd,<br/> moet alle app-informatie zijn ingevuld",
-            pendingProdDisclaimerTitle: "Deze koppeling wacht op de status 'gereed voor productie'",
+            appInformationIncomplete: "Vul alle app-informatie in voordat je publicatie aanvraagt.",
+            pendingProdDisclaimerTitle: "Deze koppeling wacht op goedkeuring voor publicatie.'",
             pendingProdDisclaimerDescription: "Je ontvangt een e-mail zodra het verzoek is goedgekeurd.",
             readyTitle: "De koppeling is live",
             readyDescription: "De koppeling is klaar voor gebruik. Deel onderstaande link<br/>met instellingen die de applicatie willen activeren.",
             copyUrl: "URL kopiëren",
-            contractRequired: "Het contract moet goedgekeurd zijn voordat de status 'gereed voor productie' wordt aangevraagd",
+            contractRequired: "Het contract moet goedgekeurd zijn voordat je publicatie aanvraagt.",
             contractRequestedTitle: "Overeenkomst aangevraagd",
             contractRequestedDescription: "Je kunt de koppeling publiceren zodra de overeenkomst getekend is. We sturen de overeenkomst binnen 3 werkdagen naar je e-mailadres. Heb je een vraag? Noem dan referentienummer {{referenceNumber}}.",
             contractRequestedDescriptionNoReference: "Je kunt de koppeling publiceren zodra de overeenkomst getekend is. We sturen de overeenkomst binnen 3 werkdagen naar je e-mailadres.",
@@ -734,6 +733,29 @@ const nl: AppTranslation = {
     },
     userManagement: {
         title: "SURF Access-gebruikers",
+        rolesHintTitle: "Zoek je de gebruikers van een rol?",
+        rolesHintDescription: "Rolmakers, rolmanagers, uitnodigers en gebruikers van een rol beheer je bij Rollen.",
+        rolesHintAction: "Naar Rollen",
+    },
+    userDetail: {
+        sub: "Sub",
+        eppn: "EPPN",
+        institution: "Instelling",
+        email: "E-mail",
+        name: "Naam",
+        lastActive: "Laatst actief",
+        guid: "Organisatie-GUID",
+        role: "{{productName}} rol",
+        appMgmt: "Applicatiebeheer",
+        appMgmtInfo: "De gebruiker kan voor onderstaande applicaties de app-informatie en koppelingen aanpassen.",
+        appPlaceholder: "Selecteer applicaties",
+        roles: "Rollen",
+        viewRole: "Rol bekijken",
+        roleManager: "Rolmanager",
+        delete: "Gebruiker verwijderen",
+        deleteConfirmation: "Weet je zeker dat je {{name}} uit de organisatie wilt verwijderen?",
+        updated: "De gebruiker {{name}} is bijgewerkt",
+        deleted: "De gebruiker {{name}} is verwijderd",
     },
     teamManagement: {
         nameEmail: "Naam & e‑mail",
@@ -932,7 +954,7 @@ const nl: AppTranslation = {
             na: "Geen informatie over de contractuele basis beschikbaar: voor vragen kun je contact opnemen met <a class='actionable' href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
             ao: "{{organisation}} heeft de SURFconext‑verbindingsovereenkomst ondertekend.",
             ix: "Applicatie aangeboden door een SURFconext‑lidinstelling.",
-            "r&s+coco": "eduGAIN‑applicatie die akkoord is met de Data Protection Code of Conduct en behoort tot de entity category Research & Scholarship",
+            "r&s+coco": "eduGAIN‑applicatie die akkoord is met de Data Protection Code of Conduct en behoort tot de entity category Research & Scholarship.",
             entree: "Lid van de Kennisnet Entree‑federatie.",
             clarin: "Lid van de CLARIN‑onderzoeksfederatie.",
             none: "{{organisation}} heeft de SURFconext‑verbindingsovereenkomst niet ondertekend.",
@@ -1035,7 +1057,7 @@ const nl: AppTranslation = {
             },
             login: {
                 question: "Wat heb ik nodig om in te loggen?",
-                answer: "Als instelling log je in met je instellingsaccount. Wil je een applicatie aanbieden, dan gebruik je eduID; heb je dat nog niet, dan maak je het bij het registreren aan. Gebruikers loggen in met hun instellingsaccount of met eduID.",
+                answer: "Als instelling log je in met je instellingsaccount. Wil je een applicatie aanbieden, dan gebruik je je eduID; heb je dat nog niet, dan maak je het bij het aanmelden aan. Gebruikers loggen in met hun instellingsaccount of met eduID.",
             },
             migrate: {
                 question: "Ik gebruik nu SURFconext, SRAM of SURFsecureID. Moet ik iets doen?",
@@ -1128,7 +1150,7 @@ const nl: AppTranslation = {
         required: "{{name}} is verplicht",
         requiredOne: "Minimaal één {{name}} is verplicht",
         error: "Er is een onverwachte fout opgetreden",
-        idpConfigException: "Fout bij Identity Provider",
+        idpConfigException: "Fout bij identity provider",
         idpConfigExceptionIfo: "Je instelling is momenteel niet juist geconfigureerd in ons backendsysteem. Wanneer je op 'Doorgaan' klikt, word je uitgelogd.<br/><br/>Neem contact met ons op via <a class='actionable' href='mailto:support@surf.nl?subject=Access Error {{reference}}'>support@surf.nl</a> om dit probleem op te lossen.<br/><br/>Het referentienummer voor deze fout is {{reference}}.",
         backToConnections: "Terug naar koppelingen",
         backToOverview: "Terug naar overzicht",
@@ -1297,7 +1319,7 @@ const nl: AppTranslation = {
         organizationMultiple: "Organisatielidmaatschappen",
         applicationMultiple: "Applicatielidmaatschappen",
         externalUser: "Externe gebruiker",
-        externalUserTooltip: "Een externe gebruiker – in tegenstelling tot een interne – is een gebruiker die alleen een eduID‑account heeft en geen account van een instelling.",
+        externalUserTooltip: "Een externe gebruiker – in tegenstelling tot een interne – is een gebruiker die alleen een eduID heeft en geen account van een instelling.",
         internalUser: "Interne gebruiker",
         internalUserTooltip: "Een interne gebruiker – in tegenstelling tot een externe – is een gebruiker die is ingelogd met een account van een instelling.",
         sub: "Sub",
@@ -1598,8 +1620,8 @@ const nl: AppTranslation = {
         importAsNewApplication: "Importeren als nieuwe applicatie",
         importAsNewConnection: "Importeren als nieuwe koppeling",
         import: "Importeren",
-        notInAccess: "Deze entiteit is nog niet bekend in SURF Access. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
-        inAccess: "Deze entiteit uit Manage is een SURF Access‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
+        notInAccess: "Deze entiteit is nog niet bekend in {{productName}}. Om de entiteit te importeren, kies je eerst een organisatie. Kies daarna een bestaande applicatie van die organisatie, of importeer de entiteit als nieuwe applicatie.",
+        inAccess: "Deze entiteit uit Manage is een {{productName}}‑koppeling genaamd <strong>{{connection}}</strong> in de applicatie <strong>{{application}}</strong> binnen de organisatie <strong>{{organisation}}</strong>. Er is niets om te importeren.",
         chooseOrganisation: "Kies een organisatie",
         chooseImportOrganisationPlaceholder: "Zoek en kies een organisatie om deze entiteit te importeren",
         chooseApplication: "Zoek en kies een applicatie",
@@ -1722,8 +1744,8 @@ const nl: AppTranslation = {
                 description: "Het secret van {{target}} is opnieuw ingesteld.",
             },
             PRODUCTION_REQUESTED: {
-                title: "Productiestatus aangevraagd",
-                description: "Productiestatus is aangevraagd voor {{target}}.",
+                title: "Publicatie aangevraagd",
+                description: "Publicatie is aangevraagd voor {{target}}.",
             },
             APPLICATION_CONNECTED: {
                 title: "Applicatie gekoppeld",
@@ -1802,7 +1824,7 @@ const nl: AppTranslation = {
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             ORGANISATION_METADATA_UPDATED: {
-                title: "Organisatiemetagegevens bijgewerkt",
+                title: "Metadata van organisatie bijgewerkt"
                 description: "De gegevens van {{target}} zijn gewijzigd.",
             },
             CONTRACT_REQUESTED: {

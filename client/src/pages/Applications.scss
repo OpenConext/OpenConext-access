@@ -55,8 +55,8 @@ div.applications-container {
         }
 
         .applications-filter-select {
-            width: 240px;
             flex-shrink: 0;
+            max-width: 100%;
         }
     }
 

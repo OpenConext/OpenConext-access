@@ -76,16 +76,14 @@ const pt: AppTranslation = {
             providers: {
                 title: "Para fornecedores de aplicações",
                 info: [
-                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação.",
-                    "Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
+                    "Torne a sua aplicação acessível de forma segura às instituições de educação e investigação. Adicionar aplicações é gratuito e começa com uma conta eduID. Se ainda não tem um eduID, pode criá-lo no passo seguinte."
                 ],
                 cta: "Continuar com o eduID",
             },
             institutions: {
                 title: "Para instituições",
                 info: [
-                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição.",
-                    "Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
+                    "Dê a estudantes, funcionários e investigadores um acesso simples a diferentes aplicações com a sua conta de instituição. Pode iniciar sessão no {{productName}} diretamente abaixo com a sua conta de instituição."
                 ],
                 cta: "Iniciar sessão através da sua instituição",
             },
@@ -734,6 +732,29 @@ const pt: AppTranslation = {
     },
     userManagement: {
         title: "Gestão de utilizadores",
+        rolesHintTitle: "Procura os utilizadores de uma função?",
+        rolesHintDescription: "Os criadores de funções, gestores de funções, convidadores e utilizadores de uma função são geridos em Funções.",
+        rolesHintAction: "Ir para Funções",
+    },
+    userDetail: {
+        sub: "Sub",
+        eppn: "EPPN",
+        institution: "Instituição",
+        email: "E-mail",
+        name: "Nome",
+        lastActive: "Última atividade",
+        guid: "GUID da organização",
+        role: "Função {{productName}}",
+        appMgmt: "Gestão de aplicações",
+        appMgmtInfo: "O utilizador pode editar a informação e as ligações das aplicações abaixo.",
+        appPlaceholder: "Selecionar aplicações",
+        roles: "Funções",
+        viewRole: "Ver função",
+        roleManager: "Gestor de função",
+        delete: "Eliminar utilizador",
+        deleteConfirmation: "Tem a certeza de que quer remover {{name}} da organização?",
+        updated: "O utilizador {{name}} foi atualizado",
+        deleted: "O utilizador {{name}} foi eliminado",
     },
     teamManagement: {
         nameEmail: "Nome e correio eletrónico",

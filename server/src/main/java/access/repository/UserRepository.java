@@ -48,6 +48,9 @@ public interface UserRepository extends JpaRepository<User, Long> {//, QueryRewr
     @Query("SELECT u FROM users u WHERE u.organizationMemberships IS NOT EMPTY AND (u.lastActivity IS NULL OR u.lastActivity < :cutoff)")
     List<User> findInactiveUsersWithMemberships(@Param("cutoff") Instant cutoff);
 
+    @Query("SELECT u FROM users u WHERE u.organizationMemberships IS EMPTY AND u.joinRequests IS EMPTY AND u.createdAt < :cutoff")
+    List<User> findUsersWithoutAccessRights(@Param("cutoff") Instant cutoff);
+
     @Query(value = """
             SELECT u.email, u.name
             FROM users u

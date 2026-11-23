@@ -47,7 +47,8 @@
     .hero {
         position: relative;
         overflow: hidden;
-        background-color: var(--muted, #ececeb);
+        // Design: slightly darker than the page background (--muted, #f5f5f4) below it
+        background-color: #ececeb;
 
         .hero-inner {
             @include index.public-page-width;
@@ -369,7 +370,7 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            padding: 48px 40px;
+            padding: 0 40px;
             box-sizing: border-box;
             background-color: #f0fff8;
 
@@ -388,7 +389,8 @@
         .getting-started-body {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            flex: 1 1 auto;
+            gap: 16px;
             padding: 28px 32px 32px 32px;
 
             h3 {
@@ -399,9 +401,15 @@
                 margin-top: 8px;
             }
 
+            // Buttons line up at the bottom of both cards, whatever the text length
             [data-slot="button"] {
                 align-self: flex-start;
+                margin-top: auto;
                 width: 240px;
+            }
+
+            p:last-of-type:not(:has(+ [data-slot="button"])) {
+                margin-bottom: 0;
             }
         }
 
@@ -475,11 +483,6 @@
                 color: #fff;
             }
 
-            .try-demo-eduid[data-slot="button"] {
-                background-color: transparent;
-                border-color: var(--foreground);
-                color: var(--foreground);
-            }
         }
 
         @media (max-width: $mobile-width) {

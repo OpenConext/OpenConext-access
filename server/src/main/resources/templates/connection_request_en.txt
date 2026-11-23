@@ -3,9 +3,8 @@
 Hello,
 
 {{requester.name}} has requested to connect service {{serviceProviderName}} to your organization {{organization.name}}.
-{{#message}}
 
-Personal message from {{requester.name}}:
+{{#message}}
 {{{message}}}
 {{/message}}
 

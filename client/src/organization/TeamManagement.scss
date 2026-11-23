@@ -33,6 +33,11 @@
             }
         }
 
+        thead th.user__name,
+        tbody td.user__name {
+            padding-left: 16px;
+        }
+
         tbody {
             td.buttons {
                 text-align: right;

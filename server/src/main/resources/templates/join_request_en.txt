@@ -4,8 +4,6 @@ Hello,
 
 {{joinRequest.user.name}} ({{joinRequest.user.schacHomeOrganization}}) would like to become a member of your organization {{joinRequest.organization.name}}.
 {{#message}}
-
-Personal message from {{joinRequest.user.name}}:
 {{{message}}}
 {{/message}}
 

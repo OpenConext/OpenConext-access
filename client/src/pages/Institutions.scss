@@ -51,13 +51,13 @@ div.institutions-container {
         .institutions-search-input-group {
             flex: 1 1 0;
             min-width: 0;
-            height: 48px;
+            height: $control-height;
             background-color: var(--card, white);
         }
 
         .institutions-category-select {
-            width: 300px;
             flex-shrink: 0;
+            max-width: 100%;
         }
     }
 

@@ -2,7 +2,7 @@ import {PolicyCard} from "../policies/PolicyCard.jsx";
 import "./ApplicationDetail.scss";
 import {sadFarewell} from "../utils/SadFarewell.js";
 import "../styles/access_card.scss";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     cancelServiceProviderConnectionRequest,
     cancelServiceProviderDisconnectionRequest,
@@ -126,6 +126,12 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     const [confirmation, setConfirmation] = useState({});
     const [confirmationModalOption, setConfirmationModalOption] = useState(null);
     const [message, setMessage] = useState("");
+    // The confirmation actions are closures created when the dialog opens, so they would send the message
+    // as it was at that moment (empty). The ref always holds the latest value.
+    const messageRef = useRef("");
+    useEffect(() => {
+        messageRef.current = message;
+    }, [message]);
     const [consent, setConsent] = useState({type: CONSENT.default_consent});
     const [mfaEntity, setMfaEntity] = useState({level: MFA_DEFAULT});
     const [stepupEntity, setStepupEntity] = useState({level: STEPUP_DEFAULT});
@@ -304,7 +310,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 serviceProvider.id,
                 serviceProvider.type,
                 manageIdentifierOrg,
-                message)
+                messageRef.current)
                 .then(() => {
                     //Because user is an useEffect dependency, everything will reload. Including change requests
                     refreshUser(() => {
@@ -344,7 +350,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 serviceProvider.id,
                 serviceProvider.type,
                 manageIdentifierOrg,
-                message)
+                messageRef.current)
                 .then(() => {
                     if (modalOption === confirmationModalOptions.requestConnectionByMember) {
                         setFlash(I18n.t("applicationConnect.flash.requestConnectionByMember"));
@@ -394,7 +400,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 serviceProvider.id,
                 serviceProvider.type,
                 manageIdentifierOrg,
-                message)
+                messageRef.current)
                 .then(() => {
                     //Because user is an useEffect dependency, everything will reload. Including change requests
                     refreshUser(() => {
@@ -429,7 +435,7 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
                 serviceProvider.id,
                 serviceProvider.type,
                 manageIdentifierOrg,
-                message)
+                messageRef.current)
                 .then(() => {
                     setFlash(I18n.t(`applicationConnect.flash.requestConnectionByMember${config.testEnvironment ? "Test" : ""}`));
                     //Because user is an useEffect dependency, everything will reload. Including change requests

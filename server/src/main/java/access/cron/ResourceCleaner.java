@@ -8,6 +8,7 @@ import access.manage.Manage;
 import access.model.Application;
 import access.model.Organization;
 import access.model.User;
+import access.repository.JoinRequestRepository;
 import access.repository.OrganizationRepository;
 import access.repository.UserRepository;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -31,6 +32,7 @@ public class ResourceCleaner {
 
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
+    private final JoinRequestRepository joinRequestRepository;
     private final MailBox mailBox;
     private final Manage manage;
 
@@ -46,12 +48,20 @@ public class ResourceCleaner {
     @Value("${cron.user-inactivity-delete-days}")
     private int userInactivityDeleteDays;
 
+    @Value("${cron.user-no-access-rights-delete-days:30}")
+    private int userNoAccessRightsDeleteDays;
+
+    @Value("${cron.join-request-delete-days:30}")
+    private int joinRequestDeleteDays;
+
     public ResourceCleaner(OrganizationRepository organizationRepository,
                            UserRepository userRepository,
+                           JoinRequestRepository joinRequestRepository,
                            MailBox mailBox,
                            Manage manage) {
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
+        this.joinRequestRepository = joinRequestRepository;
         this.mailBox = mailBox;
         this.manage = manage;
     }
@@ -73,12 +83,14 @@ public class ResourceCleaner {
         List<String> orgReminders = sendOrgContactReminders(now);
         List<String> orgsDeleted = deleteOrgsWithNoConnections(now);
         Map<String, List<String>> userResults = cleanInactiveUsers(now);
+        List<String> noAccessRightsDeleted = deleteUsersWithNoAccessRights(now);
 
         return Map.of(
                 "orgReminders", orgReminders,
                 "orgsDeleted", orgsDeleted,
                 "usersWarned", userResults.get("usersWarned"),
-                "usersDeleted", userResults.get("usersDeleted")
+                "usersDeleted", userResults.get("usersDeleted"),
+                "usersWithNoAccessRightsDeleted", noAccessRightsDeleted
         );
     }
 
@@ -171,5 +183,22 @@ public class ResourceCleaner {
             }
         }
         return Map.of("usersWarned", warned, "usersDeleted", deleted);
+    }
+
+    private List<String> deleteUsersWithNoAccessRights(Instant now) {
+        // Expire stale join requests first, so their users can qualify below
+        int expired = joinRequestRepository.deleteByCreatedAtBefore(
+                now.minus(joinRequestDeleteDays, ChronoUnit.DAYS));
+        if (expired > 0) {
+            LOG.info("CRON: Deleted " + expired + " expired join requests");
+        }
+        Instant deleteCutoff = now.minus(userNoAccessRightsDeleteDays, ChronoUnit.DAYS);
+        List<String> deleted = new ArrayList<>();
+        for (User user : userRepository.findUsersWithoutAccessRights(deleteCutoff)) {
+            LOG.info("CRON: Deleting user with no access rights: " + user.getId() + " (" + user.getEmail() + ")");
+            userRepository.deleteById(user.getId());
+            deleted.add(user.getEmail());
+        }
+        return deleted;
     }
 }

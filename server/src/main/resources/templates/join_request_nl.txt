@@ -3,9 +3,8 @@
 Hallo,
 
 {{joinRequest.user.name}} ({{joinRequest.user.schacHomeOrganization}}) wil lid worden van jouw organisatie {{joinRequest.organization.name}}.
-{{#message}}
 
-Persoonlijk bericht van {{joinRequest.user.name}}:
+{{#message}}
 {{{message}}}
 {{/message}}
 
