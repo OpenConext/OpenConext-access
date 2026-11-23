@@ -1192,6 +1192,8 @@ const en: AppTranslation = {
         },
     },
     myOrganization: {
+        pendingApprovalTitle: "Organisation pending approval",
+        pendingApprovalDescription: "Your organisation is being reviewed. You will receive an email from us as soon as it is approved. Your reference number is <strong>{{jiraKey}}</strong>.",
         title: "My organisation",
         info: "To view other information about your organisation, visit <a class='actionable' target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
         contactPersons: "Contact persons",
@@ -1899,6 +1901,7 @@ const en: AppTranslation = {
         update: "Save",
         signedReadonly: "This contract has been signed and is read-only.",
         awaiting: "This contract is awaiting approval and signing. You will be contacted if more information is required.",
+        awaitingWithTicket: "This contract is awaiting approval and signing. You will be contacted if more information is required. Your reference number is <strong>{{jiraKey}}</strong>.",
         requestedTitle: "Agreement requested",
         sign: "Sign contract",
         confirmation: "Are you sure you want to sign the contract for {{name}}?",

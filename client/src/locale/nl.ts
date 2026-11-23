@@ -1192,6 +1192,8 @@ const nl: AppTranslation = {
         },
     },
     myOrganization: {
+        pendingApprovalTitle: "Organisatie wacht op goedkeuring",
+        pendingApprovalDescription: "Je organisatie wordt beoordeeld. Zodra deze is goedgekeurd ontvang je een e-mail. Je referentienummer is <strong>{{jiraKey}}</strong>.",
         title: "Mijn organisatie",
         info: "Meer informatie over je organisatie vind je op <a class='actionable' target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
         contactPersons: "Contactpersonen",
@@ -1899,6 +1901,7 @@ const nl: AppTranslation = {
         update: "Opslaan",
         signedReadonly: "Dit contract is ondertekend en kun je niet meer wijzigen.",
         awaiting: "Dit contract wacht op goedkeuring en ondertekening. We nemen contact met je op als er meer informatie nodig is.",
+        awaitingWithTicket: "Dit contract wacht op goedkeuring en ondertekening. We nemen contact met je op als er meer informatie nodig is. Je referentienummer is <strong>{{jiraKey}}</strong>.",
         requestedTitle: "Overeenkomst aangevraagd",
         sign: "Contract ondertekenen",
         confirmation: "Weet je zeker dat je het contract voor {{name}} wilt ondertekenen?",

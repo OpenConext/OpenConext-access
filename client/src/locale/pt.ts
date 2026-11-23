@@ -1192,6 +1192,8 @@ const pt: AppTranslation = {
         },
     },
     myOrganization: {
+        pendingApprovalTitle: "Organisation pending approval TODO",
+        pendingApprovalDescription: "Your organisation is being reviewed. You will receive an email from us as soon as it is approved. Your reference number is <strong>{{jiraKey}}</strong>. TODO",
         title: "A minha organização",
         info: "Para ver outras informações sobre a sua organização, visite <a class='actionable' target='_blank' href='https://mijn.surf.nl'>mijn.surf.nl</a>",
         contactPersons: "Contactos",
@@ -1899,6 +1901,7 @@ const pt: AppTranslation = {
         update: "Atualizar",
         signedReadonly: "Este contrato foi assinado e é só de leitura.",
         awaiting: "Este contrato aguarda aprovação e assinatura. Será contactado se forem necessárias mais informações",
+        awaitingWithTicket: "This contract is awaiting approval and signing. You will be contacted if more information is required. Your reference number is <strong>{{jiraKey}}</strong>. TODO",
         requestedTitle: "Acordo solicitado",
         sign: "Assinar contrato",
         confirmation: "Tem a certeza de que quer assinar o contrato de {{name}}?",

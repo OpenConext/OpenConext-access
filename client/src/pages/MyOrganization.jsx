@@ -14,6 +14,7 @@ import {isEmpty, stopEvent, sanitize} from "../utils/Utils.js";
 import "./MyOrganization.scss";
 import I18n, {tArray} from "../locale/I18n";
 import DOMPurify from "dompurify";
+import {ORGANIZATION_STATUSES} from "../utils/Manage.js";
 import {authorities, isOrganizationAdmin} from "../utils/Permissions.js";
 import {
     Alert,
@@ -393,6 +394,15 @@ const MyOrganization = ({refreshUser}) => {
         <>
             <section>
                 <h3 className="text-[length:var(--text-xl-font-size)]">{I18n.t("myOrganization.generalSectionTitle")}</h3>
+                {(organization.status === ORGANIZATION_STATUSES.PENDING_APPROVAL && !isEmpty(organization.ticketKey)) &&
+                    <Alert variant="info">
+                        <HourglassIcon/>
+                        <AlertTitle>{I18n.t("myOrganization.pendingApprovalTitle")}</AlertTitle>
+                        <AlertDescription dangerouslySetInnerHTML={{
+                            __html: sanitize(I18n.t("myOrganization.pendingApprovalDescription",
+                                {jiraKey: organization.ticketKey}))
+                        }}/>
+                    </Alert>}
                 {renderDescribedField(
                     "organization-name",
                     I18n.t("myOrganization.nameLabel"),
@@ -441,7 +451,7 @@ const MyOrganization = ({refreshUser}) => {
                             <HourglassIcon/>
                             <AlertTitle>{I18n.t("contracts.requestedTitle")}</AlertTitle>
                             <AlertDescription
-                                dangerouslySetInnerHTML={{__html: sanitize(I18n.t("contracts.awaiting"))}}/>
+                                dangerouslySetInnerHTML={{__html: sanitize(I18n.t(isEmpty(contract.ticketKey) ? "contracts.awaiting" : "contracts.awaitingWithTicket", {jiraKey: contract.ticketKey}))}}/>
                         </Alert>}
 
                     {renderDescribedField(
