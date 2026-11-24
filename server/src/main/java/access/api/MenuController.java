@@ -50,8 +50,9 @@ public class MenuController {
                                      @RequestParam(value = "organizationId", required = false) String organizationId,
                                      Authentication authentication) {
         LOG.info(String.format("External menu request for %s by %s", sub, authentication.getPrincipal()));
-        User user = userRepository.findBySubIgnoreCase(sub)
-            .orElseThrow(() -> new NotFoundException("User not found"));
-        return menuService.menu(user, organizationId);
+        //Unknown users get a single menu item that triggers SSO, which provisions the user
+        return userRepository.findBySubIgnoreCase(sub)
+            .map(user -> menuService.menu(user, organizationId))
+            .orElseGet(MenuService::unprovisionedMenu);
     }
 }

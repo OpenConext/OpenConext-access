@@ -42,6 +42,8 @@ public class MenuService {
     public static final String FEEDBACK = "feedback";
     public static final String STATISTICS = "statistics";
     public static final String AUDIT = "audit";
+    //The only item for users not yet provisioned: clicking it starts SSO, which auto-provisions the user
+    public static final String ACCESS = "access";
 
     private static final Log LOG = LogFactory.getLog(MenuService.class);
 
@@ -52,6 +54,10 @@ public class MenuService {
     public MenuService(Config config, InviteClient inviteClient) {
         this.config = config;
         this.inviteClient = inviteClient;
+    }
+
+    public static MenuResponse unprovisionedMenu() {
+        return new MenuResponse(List.of(ACCESS), List.of(), null, null);
     }
 
     public MenuResponse menu(User user, String organizationId) {

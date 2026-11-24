@@ -31,7 +31,6 @@ import {InvitationForm} from "./pages/InvitationForm.jsx";
 import {Invitation} from "./pages/Invitation.jsx";
 import {UserManagement} from "./organization/UserManagement.jsx";
 import {UserDetail} from "./organization/UserDetail.jsx";
-import {LoginInfo} from "./pages/LoginInfo.jsx";
 import {AuthenticationSwitch} from "./pages/AuthenticationSwitch.jsx";
 import {flushSync} from "react-dom";
 import ApplicationDetail from "./pages/ApplicationDetail.jsx";
@@ -229,6 +228,7 @@ const App = () => {
                         {feedbackWidgetEnabled && <UserFeedbackWidget/>}
                         <Routes>
                             <Route path="/" element={<Navigate replace to="/home"/>}/>
+                            <Route path="/login" element={<Navigate replace to="/home"/>}/>
                             <Route path="/landing" element={<Landing refreshUser={refreshUser}/>}/>
                             <Route path="/home" element={<HomeSwitch/>}/>
                             <Route path="/relax" element={<Relax/>}/>
@@ -276,7 +276,6 @@ const App = () => {
                         <Route path="/applications" element={<Applications/>}/>
                         <Route path="/stats" element={<PublicStats/>}/>
                         <Route path="/status" element={<Monitoring/>}/>
-                        <Route path="/login-info" element={<LoginInfo/>}/>
                         <Route path="/application-detail/:manageType/:manageId/:tab?"
                                element={<ApplicationDetail anonymous={true}/>}/>
                         <Route path="/authentication-switch" element={<AuthenticationSwitch/>}/>

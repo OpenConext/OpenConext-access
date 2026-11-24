@@ -43,6 +43,12 @@ class MenuControllerTest extends AbstractTest {
     }
 
     @Test
+    void externalMenuUnknownUser() {
+        MenuResponse menu = externalMenu("unknown-sub", null);
+        assertEquals(List.of("access"), menu.menuItems());
+    }
+
+    @Test
     void externalMenuWithoutInviteRolesHidesInvite() {
         stubRolesMine(200, "[]");
         MenuResponse menu = externalMenu(MANAGE_SUB, null);
@@ -148,18 +154,6 @@ class MenuControllerTest extends AbstractTest {
         //An unknown organization falls back to the first membership
         MenuResponse unknown = externalMenu(MULTIPLE_ORG_SUB, "nope");
         assertEquals(first.currentOrganization().id(), unknown.currentOrganization().id());
-    }
-
-    @Test
-    void externalMenuUnknownUser() {
-        given()
-            .when()
-            .auth().preemptive().basic("invite", "secret")
-            .accept(ContentType.JSON)
-            .queryParam("sub", "nope")
-            .get("/api/external/v1/menu")
-            .then()
-            .statusCode(404);
     }
 
     @Test

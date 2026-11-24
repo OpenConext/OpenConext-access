@@ -125,7 +125,7 @@ const Profile = () => {
                                 <h3>{I18n.t("profile.appsYouManage")}</h3>
                                 <p>{I18n.t("profile.appTeamsInfo")}</p>
                             </div>
-                            <Button variant="outline" nativeButton={false} render={
+                            <Button variant="link" nativeButton={false} render={
                                 <Link to={`/organization/${currentOrganization.id}`}
                                       onClick={() => useAppStore.setState({activeMenuItem: mainMenuItems.yourApps})}>
                                     {I18n.t("profile.toMyApps")}
@@ -158,7 +158,7 @@ const Profile = () => {
                                         <h3>{role.name}</h3>
                                         {!isEmpty(role.description) && <p>{role.description}</p>}
                                     </div>
-                                    <Button variant="outline" nativeButton={false} render={
+                                    <Button variant="link" nativeButton={false} render={
                                         <a href={inviteRoleHref(config, role.id, currentOrganization?.id)}>
                                             {I18n.t("profile.viewRole")}
                                         </a>
