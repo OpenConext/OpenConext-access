@@ -69,13 +69,13 @@ The `app-customizations/client/myCustomApp.tsx` contains an example on how to ov
 Symlink to client
 
 ```shell
-ln -s ../../../app-customizations/client client/src/appCustomizations/myCustomizations
+ln -sfn ../../../app-customizations/client client/src/appCustomizations/myCustomizations
 ```
 
 Removing symlink
 
 ```shell
-rm client/src/appCustomizations/myCustomizations
+unlink client/src/appCustomizations/myCustomizations
 ```
 
 #### Server
@@ -83,13 +83,13 @@ rm client/src/appCustomizations/myCustomizations
 Symlink to server
 
 ```shell
-ln -s ../../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
+ln -sfn ../../../../app-customizations/server/resources server/src/main/resources/myCustomizations
 ```
 
 Removing symlink
 
 ```shell
-rm server/src/main/resources/myCustomizations
+unlink server/src/main/resources/myCustomizations
 ```
 
 ### Access Server
