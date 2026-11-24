@@ -35,9 +35,93 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings({"unchecked", "unsafe"})
 class ConnectionControllerTest extends AbstractTest {
 
+    @SneakyThrows
+    private void stubForUniqueEntityId(List<Map<String, Object>> providers) {
+        stubFor(post(urlPathMatching("/manage/api/internal/uniqueEntityId/saml20_sp"))
+            .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(providers))));
+    }
+
+    private Map<String, Object> newConnectionData(Application application, Map<String, Object> extra) {
+        Map<String, Object> metaData = Map.of(
+            "entityID", "https://new.entity.id",
+            "redirectUrls", List.of("https://redirect.url"),
+            "grantTypes", List.of("authorization_code")
+        );
+        Connection connection = new Connection("New Connection", application, metaData, EntityType.oidc10_rp);
+        Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", application.getId()));
+        connectionData.putAll(extra);
+        return connectionData;
+    }
+
+    private io.restassured.response.ValidatableResponse postConnection(AccessCookieFilter accessCookieFilter, Map<String, Object> body) {
+        return given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(body)
+            .post("/api/v1/connections")
+            .then();
+    }
+
+    @Test
+    void createIgnoresClientControlledManageFields() {
+        //Security regression: a client-supplied manageIdentifier would make saveProvider PUT over an entity of
+        //another organization, a client-supplied state would skip the production change request process
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        stubForUniqueEntityId(List.of());
+
+        Map<String, Object> body = newConnectionData(application, Map.of(
+            "manageIdentifier", "5",
+            "manageVersion", 42,
+            "manageEid", 43,
+            "state", State.prodaccepted.name(),
+            "secretSet", true,
+            "testIdpInitialized", true));
+        Long id = postConnection(accessCookieFilter, body)
+            .statusCode(HttpStatus.CREATED.value())
+            .extract().jsonPath().getLong("id");
+
+        Connection connectionFromDB = connectionRepository.findById(id).get();
+        assertNull(connectionFromDB.getManageIdentifier());
+        assertNull(connectionFromDB.getManageVersion());
+        assertNull(connectionFromDB.getManageEid());
+        assertEquals(State.testaccepted, connectionFromDB.getState());
+        assertFalse(connectionFromDB.isSecretSet());
+        assertFalse(connectionFromDB.isTestIdpInitialized());
+        //Nothing is pushed to Manage for a connection with status OPEN
+        assertTrue(findAll(putRequestedFor(urlPathMatching("/manage/api/internal/metadata"))).isEmpty());
+    }
+
+    @Test
+    void createRejectsEntityIDAlreadyInManage() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        stubForUniqueEntityId(List.of(Map.of("_id", "5", "type", "oidc10_rp")));
+
+        postConnection(accessCookieFilter, newConnectionData(application, Map.of()))
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void createRejectsServerOwnedStatus() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        stubForUniqueEntityId(List.of());
+
+        postConnection(accessCookieFilter, newConnectionData(application, Map.of("status", ConnectionStatus.PROD_READY.name())))
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
     @Test
     void create() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        stubForUniqueEntityId(List.of());
         Application application = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
         Map<String, Object> metaData = Map.of(
             "entityID", "https://engine.test",
@@ -124,7 +208,9 @@ class ConnectionControllerTest extends AbstractTest {
     void updateProductionReady() {
         AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
         Connection connection = connectionRepository.findDetailsById(seedIdentifiers.get(BUDDY_CHECK_TEST)).get();
+        //PROD_READY can only be set by the server, so the connection must already be production ready
         connection.setStatus(ConnectionStatus.PROD_READY);
+        connectionRepository.save(connection);
         Map<String, Object> connectionData = objectMapper.convertValue(connection, new TypeReference<>() {
         });
         connectionData.put("application", Map.of("id", seedIdentifiers.get(BUDDY_CHECK)));
@@ -774,6 +860,9 @@ class ConnectionControllerTest extends AbstractTest {
         resourceServer.setSecretSet(true);
         connectionRepository.save(resourceServer);
 
+        //Only relying parties of the same organization may be synced
+        registerRelyingParties(buddyCheck, "https://calendar", "https://cloud");
+
         //Ground truth in Manage (see oidc10_rp.json): "https://calendar" is already an allowed customer of this
         //resource server, "https://cloud" is not
         super.stubForGetProvider(resourceServer);
@@ -930,6 +1019,76 @@ class ConnectionControllerTest extends AbstractTest {
             });
 
         assertEquals(2, providers.size());
+    }
+
+    private void registerRelyingParties(Application application, String... entityIds) {
+        List<Map<String, Object>> providers = localManage.relyingPartiesByEntityID(List.of(entityIds));
+        providers.forEach(provider -> {
+            Connection rp = new Connection((String) ((Map<String, Object>) ((Map<String, Object>) provider.get("data"))
+                .get("metaDataFields")).getOrDefault("name:en", "rp"), application, Map.of(), EntityType.oidc10_rp);
+            rp.setManageIdentifier((String) provider.get("id"));
+            rp.setManageVersion(1);
+            connectionRepository.save(rp);
+        });
+    }
+
+    @SneakyThrows
+    @Test
+    void updateResourceServerDoesNotSyncRelyingPartiesOfOtherOrganizations() {
+        //Security regression: the relying parties come from the (client supplied) allowedResourceServers and are
+        //looked up in Manage by entityID, which must not allow modifying relying parties of other organizations
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        Application buddyCheck = applicationRepository.findById(seedIdentifiers.get(BUDDY_CHECK)).get();
+        String resourceServerEntityId = "eduid.demo.eduid.nl";
+        Connection resourceServer = new Connection("RS Test", buddyCheck, Map.of(
+            "entityID", resourceServerEntityId,
+            "scopes", List.of(Map.of("value", "openid", "label", "openid")),
+            "secret", "secret"),
+            EntityType.oauth20_rs);
+        resourceServer.setManageIdentifier("5");
+        resourceServer.setManageVersion(1);
+        resourceServer.setState(State.prodaccepted);
+        resourceServer.setStatus(ConnectionStatus.PROD_READY);
+        resourceServer.setSecretSet(true);
+        connectionRepository.save(resourceServer);
+        //No Connection for "https://calendar" and "https://cloud" in this organization (or any organization)
+
+        super.stubForGetProvider(resourceServer);
+        super.stubForGetChangeRequests(List.of());
+        stubFor(post(urlPathMatching("/manage/api/internal/change-requests")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(Map.of("id", "1")))));
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(
+                localManage.relyingPartiesByAllowedResourceServer(resourceServerEntityId)))));
+        stubFor(post(urlPathMatching("/manage/api/internal/search/oidc10_rp")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(objectMapper.writeValueAsString(
+                localManage.relyingPartiesByEntityID(List.of("https://calendar", "https://cloud"))))));
+        stubFor(put(urlPathMatching("/manage/api/internal/metadata")).willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody("{}")));
+
+        Map<String, Object> connectionData = objectMapper.convertValue(resourceServer, new TypeReference<>() {
+        });
+        connectionData.put("application", Map.of("id", buddyCheck.getId()));
+        ((Map<String, Object>) connectionData.get("metaData"))
+            .put("allowedResourceServers", List.of(Map.of("name", "https://cloud")));
+
+        given()
+            .when()
+            .filter(accessCookieFilter.cookieFilter())
+            .header(csrfHeader(accessCookieFilter))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .body(connectionData)
+            .put("/api/v1/connections")
+            .then()
+            .statusCode(HttpStatus.CREATED.value());
+
+        assertTrue(findAll(putRequestedFor(urlPathMatching("/manage/api/internal/metadata"))).isEmpty(),
+            "Relying parties that do not belong to the organization must not be changed in Manage");
     }
 
 }

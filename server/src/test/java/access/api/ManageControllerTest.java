@@ -168,6 +168,21 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(1, suggestions.size());
     }
 
+    @Test
+    void autocompleteForbiddenForNonSuperUser() {
+        AccessCookieFilter accessCookieFilter = mockLoginFlow(MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("type", EntityType.saml20_sp)
+                .queryParam("query", "Wiki")
+                .get("/api/v1/manage/autocomplete/{type}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
     @SneakyThrows
     @Test
     void policyByServiceProvider() {

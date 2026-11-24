@@ -610,7 +610,11 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
         String entityID = data.get("entityID");
         //It does not matter which entityType we use, all services will be queried
         List<Map<String, Object>> providers = manage.uniqueEntityId(EntityType.saml20_sp, entityID);
-        return ResponseEntity.ok(providers);
+        //Callers only need to know whether the entityID is taken, never the identifiers of the entities in Manage
+        List<Map<String, Object>> existence = providers.stream()
+            .map(provider -> Map.<String, Object>of("entityid", String.valueOf(entityID)))
+            .toList();
+        return ResponseEntity.ok(existence);
     }
 
 
@@ -623,8 +627,11 @@ public class ManageController implements UserAccessRights, PolicyAccessRights {
     }
 
     @GetMapping("/autocomplete/{type}")
-    public List<Map<String, Object>> autoCompleteEntities(@PathVariable EntityType type,
+    public List<Map<String, Object>> autoCompleteEntities(User user,
+                                                          @PathVariable EntityType type,
                                                           @RequestParam("query") String query) {
+        //Only used to import existing Manage entities, which is a super user feature. The results contain Manage identifiers
+        confirmSuperUser(user);
         Map<String, List<Map<String, Object>>> entities = manage.autoCompleteEntities(type, query);
         //We concat the suggestions and alternatives
         List<Map<String, Object>> suggestions = entities.getOrDefault("suggestions", new ArrayList<>());

@@ -98,7 +98,7 @@ public class Demo {
         ), EntityType.oidc10_rp);
         prodAppOidc.setStatus(ConnectionStatus.PROD_READY);
         prodAppOidc.setState(State.prodaccepted);
-        connectionController.create(adminExample, prodAppOidc);
+        connectionController.createTrusted(adminExample, prodAppOidc);
 
         // SAML connection — PENDING_PROD
         String entityIDSAML = "https://prod-app-saml.example.com";
@@ -109,7 +109,7 @@ public class Demo {
                 "arp", Map.of("attributes", Map.of(), "enabled", true)
         ), EntityType.saml20_sp);
         prodAppSaml.setStatus(ConnectionStatus.PENDING_PROD);
-        connectionController.create(adminExample, prodAppSaml);
+        connectionController.createTrusted(adminExample, prodAppSaml);
 
         // ApplicationMembership: guest on Prod App
         ApplicationMembership guestAppMembership =

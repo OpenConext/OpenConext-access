@@ -583,7 +583,7 @@ export const Connections = ({
 
     const onBlurEntityID = (e) => {
         uniqueEntityID(e.target.value).then(res => {
-            const duplicated = (connection.status === !CONNECTION_STATUSES.OPEN && res.length > 1) ||
+            const duplicated = (connection.status !== CONNECTION_STATUSES.OPEN && res.length > 1) ||
                 (connection.status === CONNECTION_STATUSES.OPEN && res.length > 0)
             setDuplicateEntityID(duplicated);
         });

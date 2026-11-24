@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -184,7 +185,17 @@ public class ConnectionController implements UserAccessRights {
         if (!connection.isValid()) {
             throw new InvalidInputException("Connection is not valid");
         }
+        //Everything that links this connection to an entity in Manage, or marks it as promoted, is decided by the server.
+        //A client-supplied manageIdentifier would otherwise make saveProvider PUT over any entity in Manage, and a
+        //client-supplied state would skip the production change request process
+        resetServerControlledFields(connection);
+        connection.setStatus(permittedClientStatus(ConnectionStatus.OPEN, connection.getStatus()));
+        assertEntityIDAvailable((String) connection.getMetaData().get("entityID"), null);
+        return createTrusted(user, connection);
+    }
 
+    //Not for client input, only for server side callers like the demo seed that construct the Connection themselves
+    public ResponseEntity<Connection> createTrusted(User user, Connection connection) {
         Long applicationID = connection.getApplication().getId();
         Application application = applicationRepository.findById(applicationID)
             .orElseThrow(() -> new NotFoundException("Application not found"));
@@ -201,6 +212,50 @@ public class ConnectionController implements UserAccessRights {
         audit(user, connection, AuditAction.CONNECTION_CREATED, null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(connection);
+    }
+
+    private void resetServerControlledFields(Connection connection) {
+        connection.setManageIdentifier(null);
+        connection.setManageVersion(null);
+        connection.setManageEid(null);
+        connection.setState(State.testaccepted);
+        connection.setSecretSet(false);
+        connection.setTestIdpInitialized(false);
+        connection.setTicketKey(null);
+    }
+
+    //The only statuses a client is allowed to choose. PENDING_PROD and PROD_READY are set by the server
+    private static final Set<ConnectionStatus> CLIENT_STATUSES =
+        Set.of(ConnectionStatus.OPEN, ConnectionStatus.COMPLETE);
+
+    private ConnectionStatus permittedClientStatus(ConnectionStatus current, ConnectionStatus requested) {
+        if (requested == null || requested.equals(current)) {
+            return current;
+        }
+        if (ConnectionStatus.PENDING_PROD.equals(current) || ConnectionStatus.PROD_READY.equals(current)) {
+            //The production workflow is owned by the server
+            return current;
+        }
+        if (!CLIENT_STATUSES.contains(requested)) {
+            throw new InvalidInputException(String.format("Status %s can not be set by a client", requested));
+        }
+        return requested;
+    }
+
+    //The check in the client is advisory only. Without this a connection with status OPEN can claim any entityID,
+    //as nothing is sent to Manage (and checked there) until the connection is completed
+    private void assertEntityIDAvailable(String entityID, String ownManageIdentifier) {
+        if (!StringUtils.hasText(entityID)) {
+            return;
+        }
+        boolean taken = manage.uniqueEntityId(EntityType.saml20_sp, entityID).stream()
+            .anyMatch(provider -> {
+                String manageId = (String) provider.getOrDefault("_id", provider.get("id"));
+                return !StringUtils.hasText(ownManageIdentifier) || !ownManageIdentifier.equals(manageId);
+            });
+        if (taken) {
+            throw new InvalidInputException(String.format("EntityID %s is already in use", entityID));
+        }
     }
 
     @PutMapping({"", "/"})
@@ -243,6 +298,12 @@ public class ConnectionController implements UserAccessRights {
         //Capture before merge() overwrites connection#eduIdAccessEnabled with connectionData's value
         boolean eduIdAccessChanged = connection.isEduIdAccessEnabled() != connectionData.isEduIdAccessEnabled();
         boolean previousEduIdAccess = connection.isEduIdAccessEnabled();
+        connectionData.setStatus(permittedClientStatus(connection.getStatus(), connectionData.getStatus()));
+        String previousEntityID = (String) connection.getMetaData().get("entityID");
+        String submittedEntityID = (String) connectionData.getMetaData().get("entityID");
+        if (StringUtils.hasText(submittedEntityID) && !submittedEntityID.equals(previousEntityID)) {
+            assertEntityIDAvailable(submittedEntityID, connection.getManageIdentifier());
+        }
         connection.merge(connectionData);
         //Capture the submitted allowedResourceServers now - for production-ready connections, the change-request
         //path below calls mergeMetaData(), which rebuilds metaData from Manage's current state and never
@@ -273,7 +334,7 @@ public class ConnectionController implements UserAccessRights {
         }
 
         if (isResourceServer) {
-            this.syncAllowedResourceServers(connection, previousAllowedResourceServers, submittedAllowedResourceServers);
+            this.syncAllowedResourceServers(user, connection, previousAllowedResourceServers, submittedAllowedResourceServers);
             //The change-request path above (Connection#mergeMetaData) wipes the local allowedResourceServers cache
             //and never repopulates it, so re-derive it from Manage - now reflecting the sync just performed - before
             //returning the connection to the client
@@ -313,7 +374,8 @@ public class ConnectionController implements UserAccessRights {
     //or a relying party was changed directly in Manage), so the current state is queried from Manage instead
     private List<String> allowedResourceServerNames(Connection connection) {
         String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
-        if (!StringUtils.hasText(resourceServerEntityId)) {
+        //Only an entity we have pushed to Manage ourselves is known to be this resource server's own entity
+        if (!StringUtils.hasText(resourceServerEntityId) || !StringUtils.hasText(connection.getManageIdentifier())) {
             return List.of();
         }
         List<Map<String, Object>> relyingParties = manage.relyingPartiesByAllowedResourceServer(resourceServerEntityId);
@@ -330,9 +392,10 @@ public class ConnectionController implements UserAccessRights {
     }
 
     @SuppressWarnings("unchecked")
-    private void syncAllowedResourceServers(Connection connection, List<String> previousNames, List<String> currentNames) {
+    private void syncAllowedResourceServers(User user, Connection connection, List<String> previousNames, List<String> currentNames) {
         String resourceServerEntityId = (String) connection.getMetaData().get("entityID");
-        if (!StringUtils.hasText(resourceServerEntityId)) {
+        //Nothing can refer to a resource server that has not been pushed to Manage by us
+        if (!StringUtils.hasText(resourceServerEntityId) || !StringUtils.hasText(connection.getManageIdentifier())) {
             return;
         }
         List<String> added = currentNames.stream().filter(name -> !previousNames.contains(name)).toList();
@@ -341,7 +404,11 @@ public class ConnectionController implements UserAccessRights {
             return;
         }
         List<String> affectedNames = Stream.concat(added.stream(), removed.stream()).distinct().toList();
-        List<Map<String, Object>> relyingParties = manage.relyingPartiesByEntityID(affectedNames);
+        Long organizationId = connection.getApplication().getOrganization().getId();
+        List<Map<String, Object>> relyingParties = manage.relyingPartiesByEntityID(affectedNames).stream()
+            //Never change a relying party that does not belong to the organization of this resource server
+            .filter(relyingParty -> user.isSuperUser() || relyingPartyBelongsTo(relyingParty, organizationId))
+            .toList();
         relyingParties.forEach(relyingParty -> {
             Map<String, Object> data = getData(relyingParty);
             List<Map<String, String>> allowedResourceServers = ((List<Map<String, String>>) data
@@ -355,6 +422,16 @@ public class ConnectionController implements UserAccessRights {
             data.put("allowedResourceServers", allowedResourceServers);
             manage.updateProvider(relyingParty);
         });
+    }
+
+    private boolean relyingPartyBelongsTo(Map<String, Object> relyingParty, Long organizationId) {
+        Object manageId = relyingParty.getOrDefault("id", relyingParty.get("_id"));
+        if (manageId == null) {
+            return false;
+        }
+        return connectionRepository.findByProtocolAndManageIdentifier(EntityType.oidc10_rp, manageId.toString())
+            .map(rp -> rp.getApplication().getOrganization().getId().equals(organizationId))
+            .orElse(false);
     }
 
     @SneakyThrows
