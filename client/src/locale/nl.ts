@@ -1054,7 +1054,7 @@ const nl: AppTranslation = {
             },
             available: {
                 question: "Kan ik {{productName}} al gebruiken?",
-                answer: "Sommige onderdelen zijn er al, andere volgen richting 2027. Het IdP-dashboard en SP-dashboard zijn volledig beschikbaar; SURFconext Invite en andere onderdelen komen later. Je kunt {{productName}} nu al  uitproberen in de demo-omgeving.",
+                answer: "Sommige onderdelen zijn er al, andere volgen richting 2027. Het IdP-dashboard en SP-dashboard zijn volledig beschikbaar; SURFconext Invite en andere onderdelen komen later. Je kunt {{productName}} nu al uitproberen in de demo-omgeving.",
             },
             login: {
                 question: "Wat heb ik nodig om in te loggen?",
@@ -1078,7 +1078,7 @@ const nl: AppTranslation = {
         createdAtBy: "Wijzigingsverzoek gemaakt door {{name}} op {{date}}",
         show: "JSON‑visual‑diff tonen",
         hide: "JSON‑visual‑diff verbergen",
-        visibility: "App-catalogus-instellingen",
+        visibility: "App-catalogusinstellingen",
         connectOption: "App‑koppeling",
         claimsInIdToken: "Claims in ID‑token",
         redirectUrls: "Redirect‑URL's",
@@ -1872,7 +1872,7 @@ const nl: AppTranslation = {
         for: "voor",
         perPeriod: "per periode",
         searchInstitutes: "Zoek instellingen…",
-        searchApps: "Zoek applicaties…",
+        searchApps: "Zoek apps…",
         results: "{{count}} resultaten",
         clearSearch: "Zoekopdracht wissen",
         showingResultsFor: "Resultaten voor '{{label}}'",
