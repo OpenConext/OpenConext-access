@@ -4354,10 +4354,10 @@ unbox-primitive@^1.1.0:
     has-symbols "^1.1.0"
     which-boxed-primitive "^1.1.1"
 
-undici@^8.12.3, undici@^8.13.0:
-  version "8.13.0"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-8.13.0.tgz#85e27fdf76a2d38aeab49fb1993523cf3d60e460"
-  integrity sha512-mxbeyRlRhHUTWE1zf/FwDOXTKMhE1vMQRz/o2oOir/5fIWsB79TeZrByMkj019EdDuxPg03jprCjFLxLkmxTCQ==
+undici@^8.12.3, undici@^8.13.1:
+  version "8.13.1"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-8.13.1.tgz#2bcd614161e93a4e33b25e792514a70c67d927cc"
+  integrity sha512-Kt7EaPjh0s93lJH/PmW3d5rhkcpUa6fS3jqZ7+YGxNd9L7Xy/i827xe4C2uhhq+pJebM4tQOl5AgHmW11G5Skg==
 
 unified@^11.0.0:
   version "11.0.5"
