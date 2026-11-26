@@ -1,8 +1,7 @@
 import React from "react";
 import "./LanguageSwitcher.scss";
 import I18n from "../locale/I18n";
-import Cookies from "js-cookie";
-import {replaceQueryParameter} from "../utils/QueryParameters";
+import {switchLocale} from "../utils/Language";
 import {
     Button,
     DropdownMenu,
@@ -17,12 +16,6 @@ export const LanguageSwitcher = () => {
 
     const languages = useUsedLanguages();
 
-    const handleChooseLocale = locale => {
-        Cookies.set("lang", locale, {expires: 356, secure: document.location.protocol.endsWith("https")});
-        I18n.locale = locale;
-        window.location.search = replaceQueryParameter(window.location.search, "lang", locale);
-    };
-
     if (languages.length < 2) {
         return null;
     }
@@ -36,7 +29,7 @@ export const LanguageSwitcher = () => {
             }/>
             <DropdownMenuContent align="end">
                 {languages.map(locale =>
-                    <DropdownMenuItem key={locale} onClick={() => handleChooseLocale(locale)}>
+                    <DropdownMenuItem key={locale} onClick={() => switchLocale(locale)}>
                         <span className="language-option-name">{I18n.translations[locale].code}</span>
                         {I18n.locale === locale && <CheckIcon/>}
                     </DropdownMenuItem>

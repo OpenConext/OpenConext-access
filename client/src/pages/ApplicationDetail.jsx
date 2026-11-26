@@ -50,7 +50,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 import ErrorIndicator from "../components/ErrorIndicator.jsx";
 import {authorities, deriveAccess, isAdmin} from "../utils/Permissions.js";
 import InputField from "../components/InputField.jsx";
-import {mainMenuItems, stripInvitePath} from "../utils/MenuItems.js";
+import {mainMenuItems, stripInvitePath, withCrossAppParams} from "../utils/MenuItems.js";
 import {TabHeader} from "../components/TabHeader.jsx";
 import DOMPurify from "dompurify";
 import SelectField from "../components/SelectField.jsx";
@@ -487,11 +487,11 @@ const ApplicationDetail = ({anonymous, refreshUser}) => {
     }
 
     const navigateToNewRole = () => {
-        window.location.href = `${stripInvitePath(config.invite)}/roles/role/new`;
+        window.location.href = withCrossAppParams(`${stripInvitePath(config.invite)}/roles/role/new`, currentOrganization?.id);
     }
 
     const navigateToRole = role => {
-        window.location.href = `${stripInvitePath(config.invite)}/roles/roles/${role.id}/guests`;
+        window.location.href = withCrossAppParams(`${stripInvitePath(config.invite)}/roles/roles/${role.id}/guests`, currentOrganization?.id);
     }
 
     // Carries enough context back through /policies for PolicyForm to show a

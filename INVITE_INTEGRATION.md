@@ -19,10 +19,20 @@ localStorage are shared.
 - Invite → Access: org switcher links to `ACCESS/home?organizationId=<id>`; Access `App.jsx` `loadUserOrganization` stores it in localStorage `organization` and strips the param.
 - Org switching only happens in Access-resolved ids; Invite's internal `<Link>`s rely on its localStorage.
 
+## Language (same pattern as the organization)
+- Each app keeps its own host-only `lang` cookie; `surfaccess.nl` and `surfconext.nl` can't share one.
+- Every cross-app link adds `?lang=<I18n.locale>` (and `organizationId` when known) via `withCrossAppParams` in each app's
+  `client/src/utils/MenuItems.js`. Access: `inviteRolesHref` / `inviteRoleHref`, `ApplicationDetail` role redirects.
+  Invite: `SharedMenu.jsx` (menu items, logo, org switcher), `AuthorizedHeader.jsx` (support), `UserMenu.jsx` (profile).
+- `client/src/locale/I18n.js` in both apps prefers `?lang=` over the cookie and writes a valid one to the cookie at load,
+  before a login redirect can drop it. Switching uses `switchLocale` (`utils/Language.js`) in both apps.
+- Limitation: opening the other app via a bookmark or email link uses that app's own cookie.
+
 ## Config
 - Access: `invite` (Invite url), `invite_same_tab` (true = open Invite in same tab, false = `/external/invite` page).
 - Invite: `access.menu-uri/username/password`, `config.access-url` (base url for menu links back to Access).
 
 ## Verify
 Run both apps; pick an org in Access → Roles → Invite shows it (and after reload); switch in Invite → Access follows.
+Switch language in one app and follow a menu link: the other app opens (and stays after reload) in that language.
 Try Invite on `127.0.0.1:3000` to simulate separate origins.

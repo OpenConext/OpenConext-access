@@ -13,6 +13,7 @@ import {
     ChatCenteredTextIcon as FeedbackIcon,
     ClipboardTextIcon as AuditIcon
 } from "@phosphor-icons/react";
+import I18n from "../locale/I18n";
 
 export const mainMenuItems = {
     home: "home",
@@ -144,19 +145,29 @@ const inviteBaseUrl = config => {
         stripInvitePath(config[invite.externalConfigKey]) : null;
 }
 
-//Invite runs on another domain and can't read our storage, so the current organization travels in the url
-const withOrganization = (href, organizationId) =>
-    organizationId ? `${href}?organizationId=${encodeURIComponent(organizationId)}` : href;
+//Invite runs on another domain and can't read our storage or cookies, so the current organization
+//and the language travel in the url
+export const withCrossAppParams = (href, organizationId) => {
+    const params = new URLSearchParams();
+    if (organizationId) {
+        params.set("organizationId", organizationId);
+    }
+    if (I18n.locale) {
+        params.set("lang", I18n.locale);
+    }
+    const query = params.toString();
+    return query ? `${href}${href.includes("?") ? "&" : "?"}${query}` : href;
+}
 
 export const inviteRolesHref = (config, organizationId) => {
     const baseUrl = inviteBaseUrl(config);
-    return baseUrl ? withOrganization(`${baseUrl}${inviteMenuItem().externalPath}`, organizationId) : inviteMenuItem().path;
+    return baseUrl ? withCrossAppParams(`${baseUrl}${inviteMenuItem().externalPath}`, organizationId) : inviteMenuItem().path;
 }
 
 //A single role is available on the Invite domain as /roles (the application) + /roles/{id} (the route)
 export const inviteRoleHref = (config, roleId, organizationId) => {
     const baseUrl = inviteBaseUrl(config);
-    return baseUrl ? withOrganization(`${baseUrl}/roles/roles/${roleId}`, organizationId) : inviteMenuItem().path;
+    return baseUrl ? withCrossAppParams(`${baseUrl}/roles/roles/${roleId}`, organizationId) : inviteMenuItem().path;
 }
 
 export const activeMenuItem = currentLocation => {
