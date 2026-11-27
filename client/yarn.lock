@@ -509,10 +509,10 @@
   resolved "https://registry.yarnpkg.com/@keyv/serialize/-/serialize-1.1.1.tgz#0c01dd3a3483882af7cf3878d4e71d505c81fc4a"
   integrity sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==
 
-"@kurkle/color@^0.3.0":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@kurkle/color/-/color-0.3.4.tgz#4d4ff677e1609214fc71c580125ddddd86abcabf"
-  integrity sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==
+"@kurkle/color@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@kurkle/color/-/color-0.6.6.tgz#34e3a0871371987dc00196e8fe883b0e37681faa"
+  integrity sha512-Bd1NjGyoe27ExXRIBu13YymFP6k/wFxpUkX97Z3RlofLFV43nECB2G8vETZzcZzz2Ct2oRzwYElX65lxyi5UNg==
 
 "@napi-rs/wasm-runtime@1.2.6":
   version "1.2.6"
@@ -1593,12 +1593,12 @@ character-reference-invalid@^2.0.0:
   resolved "https://registry.yarnpkg.com/character-reference-invalid/-/character-reference-invalid-2.0.1.tgz#85c66b041e43b47210faf401278abf808ac45cb9"
   integrity sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw==
 
-chart.js@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-4.6.1.tgz#40a924bc0b92544ed66fa3f4873981152fc62c52"
-  integrity sha512-hJyniucsFmq//EvXYvJ6c6mahPoI3kaxdjVH8awTaJ/fDNWeSqqqArixMJWkWNN6fcYvPU3HneSANFNYtRi61g==
+chart.js@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-4.6.2.tgz#f18912826f0b49ca558a5999eedcf0a49640aefe"
+  integrity sha512-xachB+pPHjp0syJi7llUBA1w3kMYl6NF3o7eVrvjnWCT+IB2zMaF2pX5UYDiwbbfsioFEIRnAjreNOMsGj5TIA==
   dependencies:
-    "@kurkle/color" "^0.3.0"
+    "@kurkle/color" "^0.6.6"
 
 chokidar@^5.0.0:
   version "5.0.0"
@@ -1801,14 +1801,7 @@ dom-helpers@^5.0.1:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
-dompurify@3.4.18:
-  version "3.4.18"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.4.18.tgz#82161003672c8780ad1db0335787e6aa6587e5d2"
-  integrity sha512-ofe3wI/uNm68HInABYFJYqQxRw1EaKAjNdrFVKqjUY+UZurvNd2L/HuQe097s/4RivWiZyP6tT7aoT8atjfhwg==
-  optionalDependencies:
-    "@types/trusted-types" "^2.0.7"
-
-dompurify@^3.4.18:
+dompurify@3.5.0, dompurify@^3.4.18:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.5.0.tgz#4df6b4440b60c8ce3de64d743a11aef9fd4a2891"
   integrity sha512-LYC0ZkE8P1V42JsRYTwMdme/2ET8SpOc5AA2eOFjP/IadvRd2fwiT4TVz5vkfy0XUx12aS2UaRkTnfVPNOv9vw==
@@ -4354,10 +4347,10 @@ unbox-primitive@^1.1.0:
     has-symbols "^1.1.0"
     which-boxed-primitive "^1.1.1"
 
-undici@^8.12.3, undici@^8.13.0:
-  version "8.13.0"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-8.13.0.tgz#85e27fdf76a2d38aeab49fb1993523cf3d60e460"
-  integrity sha512-mxbeyRlRhHUTWE1zf/FwDOXTKMhE1vMQRz/o2oOir/5fIWsB79TeZrByMkj019EdDuxPg03jprCjFLxLkmxTCQ==
+undici@^8.12.3, undici@^8.13.1:
+  version "8.13.1"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-8.13.1.tgz#2bcd614161e93a4e33b25e792514a70c67d927cc"
+  integrity sha512-Kt7EaPjh0s93lJH/PmW3d5rhkcpUa6fS3jqZ7+YGxNd9L7Xy/i827xe4C2uhhq+pJebM4tQOl5AgHmW11G5Skg==
 
 unified@^11.0.0:
   version "11.0.5"
